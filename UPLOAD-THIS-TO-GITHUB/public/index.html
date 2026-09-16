@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#FFF8EA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Closed Caption</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='14' width='56' height='40' rx='8' fill='%23FFD23F' stroke='%231F1A17' stroke-width='5'/%3E%3Cpath d='M6 18 L32 38 L58 18' fill='none' stroke='%231F1A17' stroke-width='5' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<script src="/music.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   CLOSED CAPTION — design tokens
+   Cream paper, ink outlines, poker chips, one loud yellow.
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --display: 'Fredoka', 'Nunito', system-ui, sans-serif;
+  --sans: 'Nunito', -apple-system, system-ui, sans-serif;
+
+  --paper: #FFF8EA;
+  --paper-2: #FFF1D6;
+  --card: #FFFFFF;
+  --ink: #1F1A17;
+  --ink-2: #57504A;
+  --muted: #8F857B;
+  --line: #E6DCC8;
+
+  --yellow: #FFD23F;
+  --yellow-d: #E9B81C;
+  --yellow-bg: #FFF4C7;
+  --red: #FF5A4E;
+  --red-bg: #FFE3E0;
+  --teal: #17B597;
+  --teal-bg: #DDF5EE;
+  --blue: #3B82F6;
+  --blue-bg: #E3EDFF;
+  --violet: #7C5CFF;
+  --violet-bg: #ECE7FF;
+  --pink: #FF6FB1;
+  --orange: #FF9F1C;
+
+  --bw: 2.5px;                          /* border width */
+  --shadow: 4px 4px 0 var(--ink);
+  --shadow-sm: 3px 3px 0 var(--ink);
+  --shadow-lg: 7px 7px 0 var(--ink);
+
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--sans);
+  font-weight: 600;
+  background: var(--paper);
+  background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px);
+  background-size: 18px 18px;
+  color: var(--ink);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+button { font-family: inherit; color: inherit; }
+input, textarea { font-family: inherit; color: var(--ink); font-size: 16px; }
+::selection { background: var(--yellow); }
+
+.screen { display: none; max-width: 480px; margin: 0 auto; padding: calc(16px + var(--sat)) 18px calc(48px + var(--sab)); min-height: 100dvh; }
+.screen.active { display: block; animation: screenIn .45s var(--ease-out); }
+@keyframes screenIn { from { opacity: 0; transform: translateY(10px) scale(.99);} to { opacity: 1; transform: none; } }
+
+/* ── Type ── */
+.h-display { font-family: var(--display); font-weight: 700; letter-spacing: -0.5px; line-height: 1.02; }
+.h1 { font-family: var(--display); font-weight: 700; font-size: 30px; letter-spacing: -0.6px; line-height: 1.05; }
+.h2 { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: -0.3px; line-height: 1.1; }
+.eyebrow { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.6px; color: var(--muted); }
+.sub { font-size: 14px; color: var(--ink-2); font-weight: 600; line-height: 1.45; }
+.small { font-size: 12px; color: var(--muted); font-weight: 700; }
+.caption-text { font-family: var(--sans); font-size: 17px; line-height: 1.4; color: var(--ink); font-weight: 800; }
+.center { text-align: center; }
+
+/* ── Panels & cards ── */
+.panel { background: var(--card); border: var(--bw) solid var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 16px; }
+.panel.flat { box-shadow: none; }
+.panel.soft { background: var(--paper-2); }
+.panel.yellow { background: var(--yellow-bg); }
+.panel.teal { background: var(--teal-bg); }
+.panel.violet { background: var(--violet-bg); }
+.panel.blue { background: var(--blue-bg); }
+.panel.red { background: var(--red-bg); }
+.stack > * + * { margin-top: 10px; }
+
+/* Sticker badge */
+.sticker { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; padding: 6px 12px; border: var(--bw) solid var(--ink); border-radius: 999px; background: var(--yellow); font-weight: 900; font-size: 12px; letter-spacing: .8px; text-transform: uppercase; box-shadow: var(--shadow-sm); }
+.sticker.white { background: #fff; }
+.sticker.teal { background: var(--teal); color: #fff; }
+.sticker.violet { background: var(--violet); color: #fff; }
+.sticker.red { background: var(--red); color: #fff; }
+.sticker.tilt { transform: rotate(-3deg); }
+
+/* ── Buttons ── */
+.btn {
+  width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 15px 18px; border: var(--bw) solid var(--ink); border-radius: var(--r-md);
+  background: #fff; color: var(--ink); font-weight: 900; font-size: 16px; letter-spacing: .1px;
+  box-shadow: var(--shadow); cursor: pointer; user-select: none;
+  transition: transform .08s ease, box-shadow .08s ease, background .15s, opacity .2s;
+  -webkit-appearance: none; appearance: none;
+}
+.btn:active:not(:disabled) { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+.btn:disabled { opacity: .45; cursor: default; box-shadow: var(--shadow-sm); }
+.btn-yellow { background: var(--yellow); }
+.btn-ink { background: var(--ink); color: var(--paper); }
+.btn-teal { background: var(--teal); color: #fff; }
+.btn-violet { background: var(--violet); color: #fff; }
+.btn-red { background: var(--red); color: #fff; }
+.btn-blue { background: var(--blue); color: #fff; }
+.btn-sm { padding: 10px 14px; font-size: 14px; border-radius: 12px; box-shadow: var(--shadow-sm); }
+.btn-link { width: auto; display: inline-block; background: none; border: none; box-shadow: none; padding: 8px 6px; color: var(--ink-2); font-weight: 800; font-size: 14px; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; cursor: pointer; }
+.btn-link:active { opacity: .6; }
+.btn-row { display: flex; gap: 10px; }
+.btn-row .btn { flex: 1; }
+
+/* Segmented choice buttons */
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { flex: 1 0 auto; min-width: 54px; padding: 9px 10px; border: 2px solid var(--ink); border-radius: 10px; background: #fff; font-weight: 800; font-size: 13px; cursor: pointer; transition: transform .08s, background .12s; }
+.seg button:active { transform: scale(.96); }
+.seg button.on { background: var(--yellow); box-shadow: 2px 2px 0 var(--ink); }
+
+/* ── Inputs ── */
+.input { width: 100%; padding: 14px 16px; border: var(--bw) solid var(--ink); border-radius: var(--r-md); background: #fff; outline: none; font-weight: 700; font-size: 17px; box-shadow: inset 3px 3px 0 rgba(31,26,23,.06); transition: box-shadow .15s; }
+.input:focus { box-shadow: 0 0 0 4px var(--yellow); }
+.input.code { text-align: center; text-transform: uppercase; font-family: var(--display); font-size: 34px; letter-spacing: 10px; padding: 12px 8px 12px 18px; }
+.field { margin-bottom: 16px; }
+.field label { display: block; margin-bottom: 7px; }
+textarea.caption-input { width: 100%; min-height: 96px; padding: 14px 16px; resize: none; border: var(--bw) solid var(--ink); border-radius: var(--r-md); background: #fff; outline: none; font-family: var(--sans); font-weight: 800; font-size: 17px; line-height: 1.4; }
+textarea.caption-input:focus { box-shadow: 0 0 0 4px var(--yellow); }
+textarea.caption-input::placeholder { color: #B9AFA3; }
+
+/* ── Poker chips (player avatars) ── */
+.chip {
+  --c: var(--blue); --s: 34px;
+  width: var(--s); height: var(--s); border-radius: 50%; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-weight: 700; font-size: calc(var(--s) * 0.36); color: #fff;
+  text-shadow: 0 1px 0 rgba(0,0,0,.25);
+  border: 2px solid var(--ink);
+  background:
+    radial-gradient(circle, var(--c) 0 58%, transparent 59%),
+    repeating-conic-gradient(from 8deg, var(--c) 0deg 28deg, #fff 28deg 60deg);
+  box-shadow: 0 2px 0 rgba(31,26,23,.9), inset 0 0 0 1.5px rgba(255,255,255,.35);
+  position: relative;
+}
+.chip.lg { --s: 48px; }
+.chip.xl { --s: 60px; }
+.chip.sm { --s: 26px; }
+.chip.xs { --s: 20px; border-width: 1.5px; box-shadow: 0 1px 0 rgba(31,26,23,.9); }
+.chip.dim { filter: grayscale(.9); opacity: .5; }
+.chip .check { position: absolute; right: -5px; bottom: -5px; width: 16px; height: 16px; border-radius: 50%; background: var(--teal); border: 2px solid var(--ink); color: #fff; font-size: 9px; display: flex; align-items: center; justify-content: center; font-weight: 900; }
+.chip.pop { animation: chipPop .5s var(--spring) both; }
+@keyframes chipPop { from { transform: scale(0) rotate(-40deg); } to { transform: none; } }
+.chip.turn { animation: chipTurn 1.1s ease-in-out infinite; box-shadow: 0 0 0 4px var(--yellow), 0 2px 0 rgba(31,26,23,.9); }
+@keyframes chipTurn { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-5px);} }
+
+/* Bet chips stacked on a caption */
+.chip-tray { position: absolute; top: -12px; right: 10px; display: flex; flex-direction: row-reverse; }
+.chip-tray .chip { margin-left: -9px; }
+.chip.drop { animation: chipDrop .55s var(--spring) both; }
+@keyframes chipDrop { 0% { transform: translateY(-70px) scale(1.6) rotate(20deg); opacity: 0; } 60% { opacity: 1; } 100% { transform: none; opacity: 1; } }
+
+/* ── Caption cards ── */
+.cap { position: relative; background: #fff; border: var(--bw) solid var(--ink); border-radius: var(--r-lg); padding: 14px 16px 14px 18px; box-shadow: var(--shadow-sm); text-align: left; width: 100%; cursor: pointer; transition: transform .1s, background .15s, box-shadow .1s; }
+.cap .num { position: absolute; top: -12px; left: 12px; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--paper); font-family: var(--display); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+.cap .caption-text { margin-top: 4px; }
+.cap.picked { background: var(--blue-bg); box-shadow: var(--shadow); transform: translate(-1px,-1px); }
+.cap.picked.two { background: var(--violet-bg); }
+.cap.closed { background: var(--yellow-bg); }
+.cap.closed.picked { background: var(--yellow); }
+.cap.locked { cursor: default; }
+.cap.locked:not(.mine) { opacity: .85; }
+.cap.disabled { opacity: .45; cursor: default; }
+.cap.correct { background: var(--teal-bg); border-color: var(--teal); box-shadow: 0 0 0 4px var(--teal), var(--shadow); }
+.cap.wrong { opacity: .35; transform: scale(.98); }
+.cap.mine-note { font-size: 11px; color: var(--muted); font-weight: 800; margin-top: 6px; }
+.deal-in { animation: dealIn .55s var(--ease-out) both; }
+@keyframes dealIn { from { opacity: 0; transform: translateY(24px) rotate(-2deg) scale(.96);} to { opacity: 1; transform: none; } }
+
+/* ── Comic panel for the cartoon ── */
+.toon { display: inline-block; background: #fff; border: 3px solid var(--ink); border-radius: 8px; padding: 6px; box-shadow: var(--shadow-lg); transform: rotate(-1.2deg); transition: transform .3s var(--spring); }
+.toon img { display: block; width: 100%; border-radius: 3px; }
+.toon.small { box-shadow: var(--shadow-sm); transform: rotate(0); border-width: 2.5px; padding: 4px; }
+.toon-wrap { text-align: center; }
+
+/* ── Timer ring ── */
+.ring { position: relative; width: 62px; height: 62px; flex-shrink: 0; }
+.ring svg { transform: rotate(-90deg); width: 62px; height: 62px; }
+.ring circle { fill: none; stroke-width: 6; }
+.ring .track { stroke: #EADFCB; }
+.ring .fill { stroke: var(--teal); stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke .3s; }
+.ring .t { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 700; font-size: 17px; font-variant-numeric: tabular-nums; }
+.ring.urgent .fill { stroke: var(--red); }
+.ring.urgent .t { color: var(--red); animation: pulse .6s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { transform: scale(1);} 50% { transform: scale(1.12);} }
+
+/* ── Top bar in-game ── */
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; padding-right: 100px; min-height: 40px; }
+.topbar .code-pill { font-family: var(--display); font-weight: 700; letter-spacing: 2px; padding: 5px 10px; border: 2px solid var(--ink); border-radius: 999px; background: #fff; font-size: 13px; }
+
+/* Sticky top bar that keeps the cartoon on screen while captions are read, bet on and revealed */
+.topbar.sticky { position: sticky; top: 0; z-index: 50; margin: calc(-16px - var(--sat)) -18px 14px; padding: calc(8px + var(--sat)) 104px 8px 18px; background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 18px 18px; border-bottom: var(--bw) solid var(--ink); box-shadow: 0 4px 0 rgba(31,26,23,.08); }
+.topbar.sticky .thumb { width: 84px; height: 84px; flex-shrink: 0; background: #fff; border: 2.5px solid var(--ink); border-radius: 8px; padding: 3px; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform .1s; display: block; }
+.topbar.sticky .thumb:active { transform: scale(.96); }
+.topbar.sticky .thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; display: block; }
+.topbar.sticky .tleft { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.topbar.sticky .tleft .stk { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; min-width: 0; }
+.topbar.sticky .tleft .small { white-space: nowrap; }
+#lightbox { position: fixed; inset: 0; z-index: 400; background: rgba(31,26,23,.86); display: none; align-items: center; justify-content: center; padding: 20px; }
+#lightbox.on { display: flex; animation: fadeIn .2s var(--ease-out); }
+#lightbox .toon { width: min(92vw, 520px); transform: rotate(0); }
+#lightbox p { position: absolute; bottom: calc(24px + var(--sab)); left: 0; right: 0; text-align: center; color: #fff; font-weight: 800; }
+
+/* ── Floating controls ── */
+.fab { position: fixed; top: calc(12px + var(--sat)); z-index: 100; width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--ink); background: #fff; box-shadow: var(--shadow-sm); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0; transition: transform .08s; font-weight: 900; }
+.fab:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+#sound-toggle { right: 14px; }
+#help-toggle { right: 60px; font-family: var(--display); font-size: 19px; }
+
+/* ── Stamp ── */
+.stamp { display: inline-block; padding: 8px 16px; border: 4px solid var(--teal); color: var(--teal); border-radius: 10px; font-family: var(--display); font-weight: 700; font-size: 26px; letter-spacing: 2px; text-transform: uppercase; transform: rotate(-8deg); animation: stampIn .5s var(--spring) both; mix-blend-mode: multiply; }
+@keyframes stampIn { 0% { transform: rotate(-8deg) scale(3); opacity: 0; } 60% { opacity: 1; } 100% { transform: rotate(-8deg) scale(1); opacity: 1; } }
+
+/* ── Envelope ── */
+.env { position: relative; width: 210px; height: 140px; margin: 0 auto; perspective: 700px; }
+.env .back { position: absolute; inset: 0; background: var(--yellow); border: 3px solid var(--ink); border-radius: 12px; z-index: 1; }
+.env .letter { position: absolute; left: 14px; right: 14px; top: 12px; bottom: 12px; background: #fff; border: 2.5px solid var(--ink); border-radius: 8px; z-index: 2; display: flex; align-items: center; justify-content: center; padding: 10px; font-weight: 800; font-size: 13px; overflow: hidden; }
+.env .front { position: absolute; inset: 0; z-index: 3; background: var(--yellow-d); border: 3px solid var(--ink); border-radius: 12px; clip-path: polygon(0 40%, 50% 78%, 100% 40%, 100% 100%, 0 100%); }
+.env .flap { position: absolute; left: 0; right: 0; top: 0; height: 62%; z-index: 4; background: var(--yellow); border: 3px solid var(--ink); border-radius: 12px 12px 4px 4px; clip-path: polygon(0 0, 100% 0, 50% 100%); transform-origin: top center; transition: transform .7s var(--ease-out); }
+.env .seal { position: absolute; left: 50%; top: 52%; transform: translate(-50%,-50%); z-index: 5; width: 40px; height: 40px; border-radius: 50%; background: var(--red); border: 3px solid var(--ink); display: flex; align-items: center; justify-content: center; font-size: 16px; transition: transform .4s var(--spring), opacity .3s; }
+.env.wobble { animation: wobble 1.6s ease-in-out infinite; }
+@keyframes wobble { 0%,100% { transform: rotate(-2deg);} 50% { transform: rotate(2deg);} }
+.env.open .flap { transform: rotateX(180deg); z-index: 0; }
+.env.open .seal { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+.env.open .letter { animation: letterOut 1s var(--ease-out) .5s forwards; }
+@keyframes letterOut { to { transform: translateY(-120px); z-index: 6; } }
+.env.tremble { animation: tremble .12s linear infinite; }
+@keyframes tremble { 0% { transform: translate(1px, 0) rotate(.5deg);} 50% { transform: translate(-1px, 1px) rotate(-.5deg);} 100% { transform: translate(0,-1px) rotate(0);} }
+
+/* ── Turn banner ── */
+.turn-banner { border: var(--bw) solid var(--ink); border-radius: var(--r-lg); padding: 14px 16px; text-align: center; box-shadow: var(--shadow); margin-bottom: 14px; }
+.turn-banner.you { background: var(--yellow); animation: bannerPulse 1.4s ease-in-out infinite; }
+@keyframes bannerPulse { 0%,100% { box-shadow: var(--shadow);} 50% { box-shadow: 6px 6px 0 var(--ink);} }
+.turn-banner.wait { background: #fff; }
+.turn-banner .h2 { margin-bottom: 2px; }
+.order { display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; margin: 12px 0 16px; }
+
+/* ── Bottom action bar ── */
+.action-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; padding: 12px 16px calc(14px + var(--sab)); background: linear-gradient(to top, var(--paper) 70%, transparent); }
+.action-bar .inner { max-width: 480px; margin: 0 auto; }
+.action-bar.up { animation: barUp .4s var(--ease-out); }
+@keyframes barUp { from { transform: translateY(100%);} to { transform: none;} }
+body.has-bar .screen { padding-bottom: calc(150px + var(--sab)); }
+
+/* ── Score rows ── */
+.score-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: var(--bw) solid var(--ink); border-radius: var(--r-lg); background: #fff; box-shadow: var(--shadow-sm); margin-bottom: 10px; animation: dealIn .5s var(--ease-out) both; }
+.score-row.leader { background: var(--yellow-bg); box-shadow: var(--shadow); }
+.score-row .bar { height: 8px; border-radius: 6px; border: 2px solid var(--ink); background: var(--c); margin-top: 6px; transition: width .9s var(--ease-out); min-width: 10px; }
+.score-row .pts { font-family: var(--display); font-weight: 700; font-size: 26px; font-variant-numeric: tabular-nums; min-width: 40px; text-align: right; }
+.delta { font-size: 11px; font-weight: 900; padding: 2px 7px; border-radius: 999px; border: 2px solid var(--ink); }
+.delta.up { background: var(--teal); color: #fff; }
+.delta.down { background: var(--red); color: #fff; }
+.plus { font-family: var(--display); color: var(--teal); font-weight: 700; }
+
+/* ── Points breakdown ── */
+.pt-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; margin-bottom: 6px; opacity: 0; transform: translateX(-12px); }
+.pt-row.in { animation: ptIn .4s var(--ease-out) forwards; }
+@keyframes ptIn { to { opacity: 1; transform: none; } }
+.pt-row .reason { font-size: 12px; color: var(--ink-2); font-weight: 700; }
+
+/* ── Misc animations ── */
+.fade-in { animation: fadeIn .4s var(--ease-out) both; }
+@keyframes fadeIn { from { opacity: 0; transform: scale(.96);} to { opacity: 1; transform: none;} }
+.rise { animation: rise .5s var(--ease-out) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(16px);} to { opacity: 1; transform: none;} }
+.spin { display: inline-block; width: 30px; height: 30px; border: 3px solid var(--line); border-top-color: var(--ink); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg);} }
+.wiggle { animation: wiggle 2.2s ease-in-out infinite; display: inline-block; }
+@keyframes wiggle { 0%,100% { transform: rotate(-4deg);} 50% { transform: rotate(4deg);} }
+.bob { animation: bob 2.4s ease-in-out infinite; display: inline-block; }
+@keyframes bob { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-6px);} }
+.shake { animation: shake .4s ease-in-out; }
+@keyframes shake { 0%,100% { transform: translateX(0);} 25% { transform: translateX(-6px);} 75% { transform: translateX(6px);} }
+.dots::after { content: ''; animation: dots 1.4s steps(4, end) infinite; }
+@keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
+
+details.box > summary { list-style: none; cursor: pointer; padding: 11px 14px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; user-select: none; }
+details.box > summary::-webkit-details-marker { display: none; }
+details.box > summary .arrow { margin-left: auto; transition: transform .2s; }
+details.box[open] > summary .arrow { transform: rotate(180deg); }
+details.box .body { padding: 14px 4px 4px; }
+
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 500; }
+
+#app-toast { position: fixed; bottom: calc(24px + var(--sab)); left: 50%; transform: translateX(-50%) translateY(120px); z-index: 1001; max-width: 90%; padding: 12px 18px; border: var(--bw) solid var(--ink); border-radius: 14px; background: var(--ink); color: var(--paper); font-weight: 800; font-size: 14px; box-shadow: var(--shadow-sm); transition: transform .35s var(--spring); pointer-events: none; text-align: center; }
+#conn-banner { position: fixed; top: 0; left: 0; right: 0; padding: calc(8px + var(--sat)) 10px 8px; text-align: center; font-size: 13px; font-weight: 800; z-index: 1000; transform: translateY(-100%); transition: transform .3s var(--ease-out); border-bottom: var(--bw) solid var(--ink); }
+
+/* Home hero */
+.hero-title { font-family: var(--display); font-weight: 700; font-size: 58px; line-height: .9; letter-spacing: -2px; }
+.hero-title .w1 { display: inline-block; transform: rotate(-3deg); background: var(--yellow); padding: 4px 12px; border: 3px solid var(--ink); border-radius: 12px; box-shadow: var(--shadow); }
+.hero-title .w2 { display: block; margin-top: 10px; }
+.hero-toon { position: relative; margin: 26px auto 0; width: 230px; }
+.hero-caption { margin: 14px auto 0; max-width: 300px; min-height: 48px; font-weight: 800; font-size: 17px; line-height: 1.4; color: var(--ink); }
+.cursor { display: inline-block; width: 2px; height: 1em; background: var(--ink); vertical-align: -2px; margin-left: 1px; animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.rule-step { display: flex; gap: 12px; align-items: flex-start; }
+.rule-step .n { width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: var(--paper); font-family: var(--display); font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.score-line { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 2px dashed var(--line); }
+.score-line:last-child { border-bottom: none; }
+.score-line .v { font-family: var(--display); font-weight: 700; font-size: 20px; white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="confetti"></canvas>
+<div id="lightbox" onclick="closeLightbox()"><div class="toon"><img id="lightbox-img" src="" alt="cartoon"></div><p>Tap anywhere to close</p></div>
+<button id="sound-toggle" class="fab" onclick="toggleSound()" title="Sound">🔊</button>
+<button id="help-toggle" class="fab" onclick="showScreen('screen-rules')" title="How to play">?</button>
+
+<!-- ═══════ HOME ═══════ -->
+<div id="screen-home" class="screen active">
+  <div class="center" style="padding-top: 8vh;">
+    <div class="sticker tilt" style="margin-bottom: 22px;">✉ The caption-writing party game</div>
+    <h1 class="hero-title"><span class="w1">CLOSED</span><span class="w2">CAPTION</span></h1>
+
+    <div class="hero-toon">
+      <div class="toon"><img id="hero-img" src="/images/card_31.jpg" alt=""></div>
+    </div>
+    <p class="hero-caption">“<span id="hero-typed"></span><span class="cursor"></span>”</p>
+
+    <div id="rejoin-box" style="margin-top: 22px;"></div>
+    <div style="margin-top: 26px;" class="stack">
+      <button class="btn btn-yellow" onclick="showScreen('screen-create')">🎲 Host a game</button>
+      <button class="btn" onclick="showScreen('screen-join')">Join with a code</button>
+    </div>
+    <button class="btn-link" style="margin-top: 14px;" onclick="showScreen('screen-rules')">How do you play?</button>
+    <p class="small" style="margin-top: 28px;">3–8 players · one phone each · 30–60 min</p>
+  </div>
+</div>
+
+<!-- ═══════ RULES ═══════ -->
+<div id="screen-rules" class="screen">
+  <button class="btn-link" style="padding-left:0; margin-bottom: 10px;" onclick="goBackToHome()">← Back</button>
+  <h2 class="h1" style="margin-bottom: 6px;">How to play</h2>
+  <p class="sub" style="margin-bottom: 20px;">A cartoon shows up on every phone with no caption. One caption is the real one — the game's own answer. Everyone else is bluffing. Write a caption that could pass for the real thing, then bet on which one it is.</p>
+
+  <p class="eyebrow" style="margin-bottom: 10px;">Each round</p>
+  <div class="stack" style="margin-bottom: 22px;">
+    <div class="panel flat rule-step"><div class="n">1</div><div><b>Write.</b> <span class="sub">Everyone except the dealer writes a caption before the timer runs out.</span></div></div>
+    <div class="panel flat yellow rule-step"><div class="n">2</div><div><b>Seal the envelope.</b> <span class="sub">The dealer secretly hides one player's caption in the Closed Caption. About 15% of the time, the app hides the <i>real</i> answer in there instead — and only the dealer knows which.</span></div></div>
+    <div class="panel flat blue rule-step"><div class="n">3</div><div><b>Blind bets.</b> <span class="sub">The dealer reads the open captions aloud. Starting on the dealer's left, each player in turn puts 1 or 2 chips on a caption — including the sealed one. Everyone sees every bet.</span></div></div>
+    <div class="panel flat violet rule-step"><div class="n">4</div><div><b>Open it.</b> <span class="sub">The Closed Caption is revealed. Anyone still holding a chip places it now — but not on the caption they already backed.</span></div></div>
+    <div class="panel flat teal rule-step"><div class="n">5</div><div><b>The answer.</b> <span class="sub">The real caption lights up, points are paid, and the deal moves left.</span></div></div>
+  </div>
+
+  <p class="eyebrow" style="margin-bottom: 10px;">Scoring (per chip)</p>
+  <div class="panel flat" style="margin-bottom: 14px; padding: 6px 16px;">
+    <div class="score-line"><span>Blind bet on the right open caption</span><span class="v">+2</span></div>
+    <div class="score-line"><span>Blind bet on the Closed Caption, and it's real</span><span class="v">+3</span></div>
+    <div class="score-line"><span>Late bet (after the reveal) on the right open caption</span><span class="v">+1</span></div>
+    <div class="score-line"><span>Late bet on the Closed Caption, and it's real</span><span class="v">+2</span></div>
+    <div class="score-line"><span>Another player bets on <i>your</i> caption</span><span class="v">+1</span></div>
+  </div>
+  <div class="stack" style="margin-bottom: 22px;">
+    <div class="panel flat violet"><b>🌗 Half-Moon</b> — both chips, blind, on one open caption. Right = <b>+4</b>.</div>
+    <div class="panel flat yellow"><b>🌕 Shoot the Moon</b> — both chips, blind, on the sealed Closed Caption. Right = <b>+6</b>. The best feeling in the game.</div>
+    <div class="panel flat red"><b>🃏 Dealer's revenge</b> — if not one chip lands on the real caption, the dealer takes <b>+3</b>.</div>
+  </div>
+
+  <p class="eyebrow" style="margin-bottom: 10px;">Good to know</p>
+  <div class="panel flat" style="margin-bottom: 22px;">
+    <ul style="padding-left: 18px; line-height: 1.55; font-size: 14px; color: var(--ink-2);">
+      <li>You may bet on your own caption. It scores nothing — but it might fool the table.</li>
+      <li>Blind bets pay more than late bets. Courage is rewarded.</li>
+      <li>The real caption isn't always the funniest. Sometimes it's just… fine. Be suspicious of perfection.</li>
+      <li>Dealers: hide the strongest bluff to weaken the field, or hide a dud to make the envelope look boring.</li>
+    </ul>
+  </div>
+  <button class="btn btn-yellow" onclick="goBackToHome()">Got it →</button>
+</div>
+
+<!-- ═══════ CREATE ═══════ -->
+<div id="screen-create" class="screen">
+  <button class="btn-link" style="padding-left:0; margin-bottom: 8px;" onclick="showScreen('screen-home')">← Back</button>
+  <h2 class="h1" style="margin-bottom: 4px;">Host a game</h2>
+  <p class="sub" style="margin-bottom: 22px;">You'll get a 4-letter code for everyone to join with.</p>
+  <div class="field"><label class="eyebrow">Your name</label><input type="text" id="create-name" class="input" placeholder="What do they call you?" maxlength="20" autocomplete="off"></div>
+  <div class="field"><label class="eyebrow">Writing timer</label>
+    <div class="seg" id="timer-buttons">
+      <button data-val="60" onclick="selectTimer(60)">60s</button>
+      <button data-val="90" class="on" onclick="selectTimer(90)">90s</button>
+      <button data-val="120" onclick="selectTimer(120)">2 min</button>
+      <button data-val="180" onclick="selectTimer(180)">3 min</button>
+    </div>
+  </div>
+  <div id="create-error" class="small" style="color:var(--red); text-align:center; margin-bottom:12px; display:none;"></div>
+  <button class="btn btn-yellow" onclick="createGame()">Create the room →</button>
+</div>
+
+<!-- ═══════ JOIN ═══════ -->
+<div id="screen-join" class="screen">
+  <button class="btn-link" style="padding-left:0; margin-bottom: 8px;" onclick="showScreen('screen-home')">← Back</button>
+  <h2 class="h1" style="margin-bottom: 4px;">Join a game</h2>
+  <p class="sub" style="margin-bottom: 22px;">Ask the host for the room code.</p>
+  <div class="field"><label class="eyebrow">Room code</label><input type="text" id="join-code" class="input code" placeholder="ABCD" maxlength="4" autocapitalize="characters" autocomplete="off"></div>
+  <div class="field"><label class="eyebrow">Your name</label><input type="text" id="join-name" class="input" placeholder="Your name" maxlength="20" autocomplete="off"></div>
+  <div id="join-error" class="small" style="color:var(--red); text-align:center; margin-bottom:12px; display:none;"></div>
+  <button class="btn btn-yellow" onclick="joinGame()">Join →</button>
+</div>
+
+<!-- ═══════ GAME (dynamic) ═══════ -->
+<div id="screen-game" class="screen"><div id="game-content"></div></div>
+<div id="action-bar-root"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   Utilities
+   ═══════════════════════════════════════════════════════════ */
+const COLORS = ['#FF5A4E','#3B82F6','#17B597','#FF9F1C','#7C5CFF','#FF6FB1','#0EA5E9','#84CC16'];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const initials = (name) => {
+  const parts = String(name || '?').trim().split(/\s+/);
+  if (parts.length > 1) return (parts[0][0] + parts[1][0]).toUpperCase();
+  // one-word name: a single letter, unless another player shares it
+  const first = parts[0][0].toUpperCase();
+  const clash = state && state.players.filter(p => p.name.trim()[0].toUpperCase() === first).length > 1;
+  return clash ? parts[0].slice(0, 2).toUpperCase() : first;
+};
+function playerColor(idx) { return COLORS[((idx % COLORS.length) + COLORS.length) % COLORS.length]; }
+function getPlayerIndex(id) { return state ? state.players.findIndex(p => p.id === id) : -1; }
+function playerById(id) { return state ? state.players.find(p => p.id === id) : null; }
+function chipHtml(pid, cls = '', extra = '') {
+  const idx = getPlayerIndex(pid); const p = playerById(pid);
+  return `<span class="chip ${cls}" style="--c:${playerColor(idx)}" title="${esc(p ? p.name : '')}">${esc(initials(p ? p.name : '?'))}${extra}</span>`;
+}
+function openLightbox() { if (!state || !state.cartoon) return; document.getElementById('lightbox-img').src = '/images/' + state.cartoon.image; document.getElementById('lightbox').classList.add('on'); sfx.tap(); }
+function closeLightbox() { document.getElementById('lightbox').classList.remove('on'); }
+function buzz(pattern) { try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {} }
+
+let ws = null, state = null, myPlayerId = null, gameCode = null, selectedTimer = 90, timerInterval = null, wasKicked = false;
+
+/* ═══════════════════════════════════════════════════════════
+   Navigation
+   ═══════════════════════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  if (id !== 'screen-game') setActionBar('');
+  if (id === 'screen-home') { startHeroLoop(); offerRejoin(); } else stopHeroLoop();
+}
+function goBackToHome() { if (myPlayerId && gameCode && state) { showScreen('screen-game'); render(true); } else showScreen('screen-home'); }
+
+/* ── Home screen: typewriter demo ── */
+const HERO = [
+  ['card_31.jpg', 'The salad was her idea.'],
+  ['card_3.jpg', 'Any questions? No? Good boy.'],
+  ['card_27.jpg', 'The suit was easy. The tie is the problem.'],
+  ['card_42.jpg', 'Happy birthday. Evacuate.'],
+  ['card_29.jpg', 'You should see the litter box.'],
+];
+let heroTimer = null, heroIdx = 0;
+function startHeroLoop() {
+  stopHeroLoop();
+  const img = document.getElementById('hero-img'), out = document.getElementById('hero-typed');
+  if (!img || !out) return;
+  function run() {
+    const [src, text] = HERO[heroIdx % HERO.length]; heroIdx++;
+    img.src = '/images/' + src; out.textContent = '';
+    let i = 0;
+    heroTimer = setInterval(() => {
+      out.textContent = text.slice(0, ++i);
+      if (i >= text.length) { clearInterval(heroTimer); heroTimer = setTimeout(run, 3200); }
+    }, 42);
+  }
+  run();
+}
+function stopHeroLoop() { clearInterval(heroTimer); clearTimeout(heroTimer); heroTimer = null; }
+
+/* ═══════════════════════════════════════════════════════════
+   Sound engine (all synthesized — no audio files)
+   ═══════════════════════════════════════════════════════════ */
+function actx() {
+  if (!window._gameAudio) window._gameAudio = new (window.AudioContext || window.webkitAudioContext)();
+  const c = window._gameAudio; if (c.state === 'suspended') c.resume(); return c;
+}
+function tone(freq, dur, delay = 0, type = 'sine', vol = 0.1, glideTo = null) {
+  try {
+    const ctx = actx(), t0 = ctx.currentTime + delay / 1000;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t0);
+    if (glideTo) o.frequency.exponentialRampToValueAtTime(glideTo, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(ctx.destination); o.start(t0); o.stop(t0 + dur + 0.05);
+  } catch (e) {}
+}
+function noise(dur, delay = 0, vol = 0.15, filterFreq = 2500, type = 'bandpass') {
+  try {
+    const ctx = actx(), t0 = ctx.currentTime + delay / 1000;
+    const len = Math.max(1, Math.floor(ctx.sampleRate * dur)), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = filterFreq; f.Q.value = 0.8;
+    const g = ctx.createGain(); g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(f); f.connect(g); g.connect(ctx.destination); src.start(t0); src.stop(t0 + dur + 0.02);
+  } catch (e) {}
+}
+const playTone = (f, d, delay, type, vol) => tone(f, d, delay, type, vol);   // legacy alias
+
+const SFX = {
+  tap()        { tone(1400, 0.03, 0, 'sine', 0.04); },
+  submitSelf() { tone(659, 0.08, 0, 'sine', 0.1); tone(880, 0.12, 80, 'sine', 0.1); noise(0.12, 180, 0.25, 300, 'lowpass'); tone(90, 0.18, 180, 'sine', 0.3); buzz(30); },
+  submitOther(){ tone(880, 0.06, 0, 'triangle', 0.05); },
+  allIn()      { [523, 659, 784].forEach((f, i) => tone(f, 0.25, i * 40, 'sine', 0.08)); },
+  chip(count = 1) { for (let i = 0; i < count; i++) { noise(0.03, i * 110, 0.35, 3000); tone(1800, 0.05, i * 110, 'sine', 0.05, 500); tone(180, 0.08, i * 110 + 10, 'sine', 0.12); } buzz(count === 2 ? [25, 60, 25] : 25); },
+  yourTurn()   { tone(1047, 0.12, 0, 'sine', 0.09); tone(1319, 0.12, 110, 'sine', 0.09); tone(1568, 0.25, 220, 'sine', 0.09); buzz([50, 70, 50]); },
+  advance()    { noise(0.18, 0, 0.12, 1200); tone(440, 0.15, 0, 'sine', 0.05); tone(587, 0.2, 60, 'sine', 0.05); },
+  deal(i = 0)  { noise(0.08, 0, 0.18, 2200); tone([440, 494, 523, 587, 659, 698, 784][i % 7], 0.12, 20, 'triangle', 0.045); },
+  tick()       { tone(880, 0.05, 0, 'square', 0.06); },
+  critical()   { tone(220, 0.12, 0, 'sawtooth', 0.08); tone(220, 0.12, 150, 'sawtooth', 0.08); buzz([60, 40, 60]); },
+  error()      { tone(330, 0.12, 0, 'triangle', 0.06); tone(220, 0.18, 120, 'triangle', 0.06); buzz(40); },
+  notify()     { tone(784, 0.1, 0, 'sine', 0.06); tone(1047, 0.12, 80, 'sine', 0.05); },
+  drumroll(ms = 1500) { let t = 0, gap = 110; while (t < ms) { noise(0.03, t, 0.28, 900, 'lowpass'); tone(120, 0.05, t, 'sine', 0.2); t += gap; gap = Math.max(38, gap * 0.9); } },
+  tada()       { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.18, i * 90, 'triangle', 0.09)); [523, 659, 784, 1047].forEach(f => tone(f, 0.9, 380, 'sine', 0.07)); noise(0.3, 380, 0.15, 4000, 'highpass'); buzz([30, 30, 30, 30, 80]); },
+  moon()       { [659, 784, 988, 1319, 1568, 1976].forEach((f, i) => tone(f, 0.35, i * 70, 'sine', 0.07)); noise(0.5, 400, 0.12, 5000, 'highpass'); },
+  womp()       { tone(300, 0.35, 0, 'sawtooth', 0.07, 240); tone(240, 0.35, 350, 'sawtooth', 0.07, 190); tone(190, 0.7, 700, 'sawtooth', 0.07, 110); buzz(120); },
+  pop()        { noise(0.05, 0, 0.25, 1500); tone(600, 0.06, 0, 'sine', 0.06, 200); },
+  coin(i = 0)  { tone(1200 + i * 120, 0.09, 0, 'square', 0.035); tone(1800 + i * 120, 0.12, 60, 'sine', 0.05); },
+  seal()       { noise(0.15, 0, 0.2, 800, 'lowpass'); tone(140, 0.2, 40, 'sine', 0.2); buzz(40); },
+  fanfare()    { const seq = [[523,0],[523,120],[523,240],[659,360],[784,600],[659,760],[784,900]]; seq.forEach(([f, t]) => tone(f, 0.22, t, 'square', 0.04)); seq.forEach(([f, t]) => tone(f, 0.22, t, 'triangle', 0.06)); [1047,1319,1568].forEach(f => tone(f, 1.4, 1100, 'sine', 0.06)); buzz([40,40,40,40,40,40,200]); },
+};
+function soundEnabled() { try { const v = localStorage.getItem('cc_sound'); return v === null ? true : v === 'true'; } catch { return true; } }
+function setSoundEnabled(on) { try { localStorage.setItem('cc_sound', on ? 'true' : 'false'); } catch {} }
+const sfx = new Proxy({}, { get: (_, k) => (...a) => { if (!soundEnabled()) return; if (typeof SFX[k] === 'function') SFX[k](...a); } });
+function toggleSound() { const on = !soundEnabled(); setSoundEnabled(on); updateSoundToggleIcon(); if (on) sfx.notify(); else if (window.GameMusic) window.GameMusic.stop(); }
+function updateSoundToggleIcon() { const b = document.getElementById('sound-toggle'); if (b) { b.textContent = soundEnabled() ? '🔊' : '🔇'; b.style.opacity = soundEnabled() ? '1' : '.6'; } }
+function unlockAudio() { try { actx(); } catch (e) {} }
+document.addEventListener('touchstart', unlockAudio, { once: true });
+document.addEventListener('click', unlockAudio, { once: true });
+document.addEventListener('click', (e) => { if (e.target.closest('.btn, .seg button, .cap')) sfx.tap(); });
+
+/* ═══════════════════════════════════════════════════════════
+   Confetti
+   ═══════════════════════════════════════════════════════════ */
+const confetti = (() => {
+  const cv = document.getElementById('confetti'); const cx = cv.getContext('2d');
+  let parts = [], raf = null;
+  function size() { cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio; cx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0); }
+  addEventListener('resize', size); size();
+  function loop() {
+    cx.clearRect(0, 0, innerWidth, innerHeight);
+    parts = parts.filter(p => p.y < innerHeight + 30 && p.life > 0);
+    for (const p of parts) {
+      p.vy += 0.22; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life--;
+      cx.save(); cx.translate(p.x, p.y); cx.rotate(p.rot); cx.fillStyle = p.color; cx.globalAlpha = Math.min(1, p.life / 30);
+      if (p.shape === 'circle') { cx.beginPath(); cx.arc(0, 0, p.w / 2, 0, Math.PI * 2); cx.fill(); } else cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      cx.restore();
+    }
+    if (parts.length) raf = requestAnimationFrame(loop); else { raf = null; cx.clearRect(0, 0, innerWidth, innerHeight); }
+  }
+  function spawn(n, x, y, spread, power, colors) {
+    for (let i = 0; i < n; i++) {
+      const a = -Math.PI / 2 + (Math.random() - 0.5) * spread, v = power * (0.5 + Math.random());
+      parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, w: 6 + Math.random() * 6, h: 4 + Math.random() * 5, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.3, color: colors[i % colors.length], life: 140 + Math.random() * 80, shape: Math.random() < 0.3 ? 'circle' : 'rect' });
+    }
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+  const PALETTE = ['#FFD23F', '#FF5A4E', '#17B597', '#3B82F6', '#7C5CFF', '#FF6FB1', '#FF9F1C'];
+  return {
+    burst(x = innerWidth / 2, y = innerHeight * 0.4, n = 90) { spawn(n, x, y, 1.6, 11, PALETTE); },
+    cannons() { spawn(70, 0, innerHeight * 0.7, 1.2, 14, PALETTE); spawn(70, innerWidth, innerHeight * 0.7, 1.2, 14, PALETTE); },
+    rain(ms = 3000) { const end = Date.now() + ms; (function tick() { spawn(6, Math.random() * innerWidth, -10, 0.6, 2, PALETTE); if (Date.now() < end) setTimeout(tick, 60); })(); },
+  };
+})();
+
+/* ═══════════════════════════════════════════════════════════
+   Networking (auto-reconnect, session restore)
+   ═══════════════════════════════════════════════════════════ */
+let reconnectAttempts = 0, connectionStatus = 'connecting';
+// This tab's own seat lives in sessionStorage (so several tabs on one computer can be several players);
+// localStorage keeps a copy so a phone that closed the browser can offer to rejoin.
+function saveSession() { if (myPlayerId && gameCode) { const v = JSON.stringify({ playerId: myPlayerId, code: gameCode, name: (state && playerById(myPlayerId) || {}).name || '', ts: Date.now() }); try { sessionStorage.setItem('cc_session', v); } catch (e) {} try { localStorage.setItem('cc_session', v); } catch (e) {} } }
+function readStore(store) { try { const s = JSON.parse(store.getItem('cc_session') || 'null'); if (!s || Date.now() - s.ts > 24 * 3600 * 1000) return null; return s; } catch { return null; } }
+function loadSession() { return readStore(sessionStorage); }
+function clearSession() { try { sessionStorage.removeItem('cc_session'); } catch (e) {} try { localStorage.removeItem('cc_session'); } catch (e) {} }
+function offerRejoin() {
+  const s = readStore(localStorage); const box = document.getElementById('rejoin-box');
+  if (!box) return;
+  if (!s || myPlayerId) { box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="panel yellow flat" style="margin-bottom:18px; text-align:left; display:flex; align-items:center; gap:12px;"><div style="flex:1;"><b>Back for more?</b><br><span class="small">Game ${esc(s.code)}${s.name ? ' as ' + esc(s.name) : ''}</span></div><button class="btn btn-sm btn-ink" style="width:auto;" onclick="rejoinSaved()">Rejoin</button><button class="btn-link" style="padding:4px;" onclick="clearSession(); offerRejoin();">✕</button></div>`;
+}
+function rejoinSaved() { const s = readStore(localStorage); if (s) { try { sessionStorage.setItem('cc_session', JSON.stringify(s)); } catch (e) {} send({ action: 'reconnect', playerId: s.playerId, code: s.code }); } }
+
+function connect() {
+  ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}`);
+  ws.onopen = () => {
+    connectionStatus = 'connected'; updateConnectionBanner();
+    if (wasKicked) return;
+    const s = loadSession();
+    if (s && !myPlayerId) send({ action: 'reconnect', playerId: s.playerId, code: s.code });
+    else if (myPlayerId && gameCode) send({ action: 'reconnect', playerId: myPlayerId, code: gameCode });
+    else offerRejoin();
+    reconnectAttempts = 0;
+  };
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; saveSession(); showScreen('screen-game'); }
+    else if (msg.type === 'state') { state = msg.data; render(); }
+    else if (msg.type === 'error') {
+      if (msg.message === 'Player not in game' || msg.message === 'Game not found') {
+        const wasRestoring = !document.getElementById('screen-join').classList.contains('active');
+        clearSession(); myPlayerId = null; gameCode = null; state = null; showScreen('screen-home');
+        if (!wasRestoring || msg.message === 'Game not found') showToast(msg.message === 'Game not found' ? 'That room doesn’t exist (or it ended)' : msg.message);
+        return;
+      }
+      const ce = document.getElementById('create-error'), je = document.getElementById('join-error');
+      if (document.getElementById('screen-create').classList.contains('active')) { ce.textContent = msg.message; ce.style.display = 'block'; }
+      else if (document.getElementById('screen-join').classList.contains('active')) { je.textContent = msg.message; je.style.display = 'block'; }
+      else showToast(msg.message);
+      sfx.error();
+    }
+    else if (msg.type === 'kicked') { clearSession(); wasKicked = true; myPlayerId = null; gameCode = null; state = null; showScreen('screen-home'); showToast(msg.message || 'You were removed from the game'); }
+  };
+  ws.onclose = () => { connectionStatus = 'disconnected'; updateConnectionBanner(); const delay = Math.min(8000, 1000 * Math.pow(2, reconnectAttempts++)); setTimeout(connect, delay); };
+  ws.onerror = () => { connectionStatus = 'disconnected'; updateConnectionBanner(); };
+}
+function updateConnectionBanner() {
+  let b = document.getElementById('conn-banner');
+  if (!b) { b = document.createElement('div'); b.id = 'conn-banner'; document.body.appendChild(b); }
+  if (connectionStatus === 'disconnected') { b.style.background = 'var(--red)'; b.style.color = '#fff'; b.innerHTML = '<span class="dots">Reconnecting</span>'; b.style.transform = 'translateY(0)'; }
+  else if (connectionStatus === 'connected' && reconnectAttempts > 0) { b.style.background = 'var(--teal)'; b.style.color = '#fff'; b.textContent = '✓ Back online'; b.style.transform = 'translateY(0)'; setTimeout(() => { b.style.transform = 'translateY(-100%)'; }, 1500); }
+  else b.style.transform = 'translateY(-100%)';
+}
+function send(obj) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj)); }
+function showToast(message, type = 'error') {
+  let t = document.getElementById('app-toast');
+  if (!t) { t = document.createElement('div'); t.id = 'app-toast'; document.body.appendChild(t); }
+  t.style.background = type === 'error' ? 'var(--ink)' : 'var(--teal)'; t.textContent = message; t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(window._toastTimer); window._toastTimer = setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(120px)'; }, 2800);
+}
+function leaveGame() {
+  if (!confirm('Leave this game? Your seat is saved if you come back with the same name.')) return;
+  clearSession(); myPlayerId = null; gameCode = null; state = null; lastPhase = null; if (ws) ws.close(); showScreen('screen-home');
+}
+function selectTimer(val) { selectedTimer = val; document.querySelectorAll('#timer-buttons button').forEach(b => b.classList.toggle('on', parseInt(b.dataset.val) === val)); }
+function createGame() {
+  const name = document.getElementById('create-name').value.trim();
+  if (!name) { const e = document.getElementById('create-error'); e.textContent = 'Enter your name first'; e.style.display = 'block'; sfx.error(); return; }
+  wasKicked = false; send({ action: 'create', name, timer: selectedTimer });
+}
+function joinGame() {
+  const code = document.getElementById('join-code').value.trim().toUpperCase(), name = document.getElementById('join-name').value.trim();
+  const e = document.getElementById('join-error');
+  if (code.length !== 4) { e.textContent = 'The room code is 4 letters'; e.style.display = 'block'; sfx.error(); return; }
+  if (!name) { e.textContent = 'Enter your name'; e.style.display = 'block'; sfx.error(); return; }
+  wasKicked = false; send({ action: 'join', code, name });
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  if (e.target.id === 'create-name') createGame();
+  if (e.target.id === 'join-name' || e.target.id === 'join-code') joinGame();
+});
+
+/* ═══════════════════════════════════════════════════════════
+   Render — one function per phase, re-run on every state update
+   ═══════════════════════════════════════════════════════════ */
+let lastPhase = null, lastRound = 0, lastSubmittedCount = 0, seenBets = 0, wasMyTurn = false, selectedBetTarget = null, selectedDealerPid = null, phaseSeqPlayed = false;
+
+function render(force = false) {
+  if (!state) return;
+  const el = document.getElementById('game-content');
+  const phaseChanged = lastPhase !== state.phase || lastRound !== state.round;
+
+  if (phaseChanged) {
+    selectedBetTarget = null; selectedDealerPid = null; phaseSeqPlayed = false; seenBets = 0; wasMyTurn = false;
+    if (lastPhase && !['reveal', 'answer', 'scores'].includes(state.phase)) sfx.advance();
+    if (lastPhase === 'writing' && state.phase !== 'writing' && window.GameMusic) window.GameMusic.stop();
+    if (state.phase !== 'writing' && timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    setActionBar('');
+  } else if (['reveal', 'answer'].includes(state.phase) && !force) {
+    return; // these screens run a choreographed sequence — don't interrupt it with re-renders
+  }
+
+  // Dealer hears every submission land during writing
+  if (state.phase === 'writing' && state.isDealer) {
+    const n = (state.submittedPlayerIds || []).length;
+    if (n > lastSubmittedCount && !phaseChanged) { n === state.players.length - 1 ? sfx.allIn() : sfx.submitOther(); }
+    lastSubmittedCount = n;
+  } else lastSubmittedCount = 0;
+
+  // Keep open <details> open across re-renders
+  const openDetails = new Set(); document.querySelectorAll('details[open]').forEach(d => { if (d.id) openDetails.add(d.id); });
+  const scrollY = window.scrollY;
+
+  let html = '';
+  switch (state.phase) {
+    case 'lobby': html = renderLobby(); break;
+    case 'writing': html = renderWriting(); break;
+    case 'dealer_review': html = renderDealerReview(); break;
+    case 'reading': html = renderReading(phaseChanged); break;
+    case 'first_bets': html = renderBetting(1, phaseChanged); break;
+    case 'reveal': html = renderReveal(); break;
+    case 'second_bets': html = renderBetting(2, phaseChanged); break;
+    case 'answer': html = renderAnswer(); break;
+    case 'scores': html = renderScores(phaseChanged); break;
+  }
+  el.innerHTML = (state.phase !== 'lobby' ? renderDisconnectBanner() : '') + html;
+  document.querySelectorAll('details').forEach(d => { if (d.id && openDetails.has(d.id)) d.open = true; });
+  if (!phaseChanged) window.scrollTo(0, scrollY); else window.scrollTo(0, 0);
+
+  if (state.phase === 'writing') startTimer();
+  afterRender(phaseChanged);
+  lastPhase = state.phase; lastRound = state.round;
+}
+
+// Things that need the DOM in place
+function afterRender(phaseChanged) {
+  if (state.phase === 'first_bets' || state.phase === 'second_bets') {
+    const bets = state.bets || [];
+    if (!phaseChanged && bets.length > seenBets) {
+      // New chips landed — animate them and clack
+      const fresh = bets.slice(seenBets);
+      fresh.forEach((b, i) => { if (b.target !== 'pass') { const el = document.querySelector(`.chip-tray .chip[data-bet="${seenBets + i}"]`); if (el) el.classList.add('drop'); } });
+      const total = fresh.reduce((s, b) => s + (b.count || 0), 0);
+      if (total > 0) sfx.chip(Math.min(2, total));
+    }
+    seenBets = bets.length;
+    if (state.isMyTurn && !wasMyTurn) { sfx.yourTurn(); }
+    wasMyTurn = !!state.isMyTurn;
+    renderActionBar();
+  }
+  if (state.phase === 'reveal' && !phaseSeqPlayed) { phaseSeqPlayed = true; playRevealSequence(); }
+  if (state.phase === 'answer' && !phaseSeqPlayed) { phaseSeqPlayed = true; playAnswerSequence(); }
+  if (state.phase === 'scores' && phaseChanged) playScoresSequence();
+  if (state.phase === 'reading' && phaseChanged) { (state.openCaptions || []).forEach((_, i) => setTimeout(() => sfx.deal(i), 120 + i * 140)); }
+  if (state.phase === 'dealer_review' && phaseChanged && state.isDealer) { sfx.notify(); buzz([40, 60, 40]); }
+  if (state.phase === 'writing' && phaseChanged && !state.isDealer) { buzz(30); }
+}
+
+function setActionBar(html) {
+  const root = document.getElementById('action-bar-root');
+  const had = root.innerHTML !== '';
+  root.innerHTML = html ? `<div class="action-bar ${had ? '' : 'up'}"><div class="inner">${html}</div></div>` : '';
+  document.body.classList.toggle('has-bar', !!html);
+}
+
+function topbar(left, right = '') {
+  return `<div class="topbar"><div>${left}</div><div style="display:flex; align-items:center; gap:8px;">${right}<span class="code-pill">${esc(state.code)}</span></div></div>`;
+}
+// Sticky header with the cartoon thumbnail — used on every screen where captions are read, bet on or revealed
+function stickyTop(sticker, sub = '') {
+  const img = state.cartoon ? `<div class="thumb" onclick="openLightbox()" title="Tap to enlarge"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"></div>` : '';
+  return `<div class="topbar sticky"><div class="tleft">${img}<div class="stk">${sticker}${sub ? `<span class="small">${sub}</span>` : ''}</div></div><span class="code-pill">${esc(state.code)}</span></div>`;
+}
+function roundSticker(cls = 'white') { return `<span class="sticker ${cls}">Round ${state.round}${state.totalRounds ? ' / ' + state.totalRounds : ''}</span>`; }
+function toon(width = 230, small = false) { return state.cartoon ? `<div class="toon-wrap"><div class="toon ${small ? 'small' : ''}" style="width:${width}px;"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"></div></div>` : ''; }
+function ringHtml() { return `<div class="ring" id="timer-ring"><svg viewBox="0 0 62 62"><circle class="track" cx="31" cy="31" r="26"/><circle class="fill" id="timer-fill" cx="31" cy="31" r="26" stroke-dasharray="163.4" stroke-dashoffset="0"/></svg><div class="t" id="timer-display">--</div></div>`; }
+
+function renderDisconnectBanner() {
+  const offline = state.players.filter(p => !p.connected);
+  if (!offline.length) return '';
+  if (state.dealerId && !state.dealerConnected) {
+    if (state.canTakeover) return `<div class="panel red flat" style="margin-bottom:12px; text-align:center;"><p class="small" style="color:var(--red); margin-bottom:8px;">The dealer has been gone ${state.dealerDisconnectedSecs}s</p><button class="btn btn-sm btn-ink" onclick="send({action:'advance'})">Take over and move on →</button></div>`;
+    return `<div class="panel yellow flat" style="margin-bottom:12px; text-align:center;"><p class="small">${esc(state.dealerName)} dropped off — waiting ${Math.max(0, 60 - (state.dealerDisconnectedSecs || 0))}s before anyone can take over</p></div>`;
+  }
+  return `<div class="center small" style="margin-bottom:10px;">Offline: ${esc(offline.map(p => p.name).join(', '))}</div>`;
+}
+
+/* ── LOBBY ── */
+function renderLobby() {
+  const s = state.settings || {};
+  const connected = state.players.filter(p => p.connected).length;
+  const players = state.players.map((p, i) => `
+    <div class="pop" style="display:flex; align-items:center; gap:12px; padding:8px 0; ${!p.connected ? 'opacity:.5;' : ''}">
+      ${chipHtml(p.id, 'lg pop' + (!p.connected ? ' dim' : ''))}
+      <div style="flex:1; min-width:0;"><div style="font-weight:800; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(p.name)}${p.id === myPlayerId ? ' <span class="small">(you)</span>' : ''}</div>
+        ${p.id === state.hostId ? '<span class="small" style="color:var(--yellow-d);">★ Host</span>' : ''}${!p.connected ? '<span class="small" style="color:var(--red);"> offline</span>' : ''}</div>
+      ${state.isHost && p.id !== myPlayerId ? `<button class="btn btn-sm" style="width:auto; padding:6px 10px; font-size:12px;" onclick="confirmKick('${p.id}', '${esc(p.name).replace(/'/g, "\\'")}')">Remove</button>` : ''}
+    </div>`).join('');
+
+  const endCondition = s.targetScore ? `first to ${s.targetScore}` : `${s.rounds || state.players.length} rounds`;
+  const summary = `${state.timerDuration}s timer · ${endCondition} · ${Math.round((s.autoCloseProbability ?? 0.15) * 100)}% auto-seal`;
+  const segBtn = (on, onclick, label) => `<button class="${on ? 'on' : ''}" onclick="${onclick}">${label}</button>`;
+
+  const settings = state.isHost ? `
+    <details class="box" id="settings-details" style="margin-bottom:14px;">
+      <summary>⚙️ Game settings <span class="arrow">▾</span></summary>
+      <div class="body">
+        <div class="field"><label class="eyebrow">Writing timer</label><div class="seg">${[60, 90, 120, 180].map(t => segBtn(state.timerDuration === t, `setHostTimer(${t})`, t < 120 ? t + 's' : (t / 60) + ' min')).join('')}</div></div>
+        <div class="field"><label class="eyebrow">Game length</label><div class="seg">
+          ${segBtn(!s.rounds && !s.targetScore, 'setHostSettings({rounds:null,targetScore:null})', 'Everyone deals once')}
+          ${segBtn(s.rounds === 5, 'setHostSettings({rounds:5,targetScore:null})', '5 rounds')}
+          ${segBtn(s.rounds === 10, 'setHostSettings({rounds:10,targetScore:null})', '10 rounds')}
+          ${segBtn(s.targetScore === 20, 'setHostSettings({rounds:null,targetScore:20})', 'First to 20')}
+          ${segBtn(s.targetScore === 30, 'setHostSettings({rounds:null,targetScore:30})', 'First to 30')}
+        </div></div>
+        <div class="field"><label class="eyebrow">How often the app seals the real caption</label><div class="seg">${[0.1, 0.15, 0.2, 0.3].map(v => segBtn(Math.abs((s.autoCloseProbability ?? 0.15) - v) < 0.001, `setHostSettings({autoCloseProbability:${v}})`, Math.round(v * 100) + '%')).join('')}</div></div>
+        <details class="box" id="adv-details"><summary>🎯 Scoring <span class="arrow">▾</span></summary><div class="body">
+          ${[['pointsOpenBet', 'Blind bet · open caption', [1, 2, 3, 4]], ['pointsClosedBet', 'Blind bet · closed caption', [2, 3, 4, 5, 6]], ['pointsOpenLate', 'Late bet · open caption', [0, 1, 2, 3]], ['pointsClosedLate', 'Late bet · closed caption', [0, 1, 2, 3, 4]], ['pointsPerFool', 'Per chip that lands on your caption', [0, 1, 2, 3]], ['dealerBonus', 'Dealer bonus when nobody finds it', [0, 1, 2, 3, 4, 5]]]
+            .map(([k, label, opts]) => `<div class="field"><label class="small">${label}</label><div class="seg">${opts.map(n => segBtn(s[k] === n, `setHostSettings({${k}:${n}})`, n)).join('')}</div></div>`).join('')}
+          <button class="btn-link" onclick="setHostSettings({pointsOpenBet:2,pointsClosedBet:3,pointsOpenLate:1,pointsClosedLate:2,pointsPerFool:1,dealerBonus:3,autoCloseProbability:0.15,rounds:null,targetScore:null})">Reset to defaults</button>
+        </div></details>
+      </div>
+    </details>` : '';
+  const summaryLine = `<p class="center small" style="margin-bottom:14px;">${summary}</p>`;
+
+  return `
+    ${topbar('<span class="sticker">Lobby</span>')}
+    <div class="panel yellow center" style="margin-bottom:16px; transform: rotate(-1deg);">
+      <p class="eyebrow" style="color:var(--ink-2);">Room code</p>
+      <div class="h-display" style="font-size:56px; letter-spacing:8px; padding-left:8px; margin:2px 0 6px;">${esc(state.code)}</div>
+      <p class="small" style="color:var(--ink-2); margin-bottom:12px;">Friends open <b>${esc(joinAddress())}</b> and tap “Join with a code”</p>
+      <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">📣 Share the code</button>
+    </div>
+    <p class="eyebrow" style="margin-bottom:6px;">At the table · ${connected} of ${state.players.length}</p>
+    <div style="margin-bottom:16px;">${players}</div>
+    ${settings}${summaryLine}
+    ${state.isHost
+      ? `<button class="btn btn-yellow" onclick="send({action:'start'})" ${connected < 3 ? 'disabled' : ''}>${connected < 3 ? `Need ${3 - connected} more player${3 - connected === 1 ? '' : 's'}` : 'Start the game →'}</button>`
+      : `<div class="panel flat center"><span class="spin" style="margin-bottom:8px;"></span><p class="sub">Waiting for ${esc((playerById(state.hostId) || {}).name || 'the host')} to start<span class="dots"></span></p></div>`}
+    <button class="btn-link" style="display:block; margin:12px auto 0;" onclick="leaveGame()">Leave game</button>`;
+}
+function joinAddress() {
+  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+  return local && state && state.lanUrl ? state.lanUrl.replace(/^https?:\/\//, '') : location.host;
+}
+function shareRoom() {
+  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+  const url = local && state && state.lanUrl ? state.lanUrl : location.origin, text = `Join my Closed Caption game! Room code: ${state.code} — open ${url} and tap "Join with a code".`;
+  if (navigator.share) navigator.share({ title: 'Closed Caption', text, url }).catch(() => {});
+  else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => showToast('Copied — paste it to your friends', 'ok')).catch(() => showToast(`Code: ${state.code}`, 'ok'));
+  else showToast(`Code: ${state.code}`, 'ok');
+}
+function setHostTimer(timer) { send({ action: 'update_timer', timer }); }
+function setHostSettings(partial) { send({ action: 'update_settings', settings: partial }); }
+function confirmKick(id, name) { if (confirm(`Remove ${name} from the game?`)) send({ action: 'kick_player', targetPlayerId: id }); }
+
+/* ── WRITING ── */
+function renderWriting() {
+  const nonDealers = state.players.filter(p => p.id !== state.dealerId);
+  const submitted = new Set(state.submittedPlayerIds || []);
+  const doneRow = `<div class="order" style="margin:10px 0 0;">${nonDealers.map(p => chipHtml(p.id, submitted.has(p.id) ? '' : 'dim', submitted.has(p.id) ? '<span class="check">✓</span>' : '')).join('')}</div>`;
+
+  if (state.isDealer) {
+    const tracks = window.GameMusic ? window.GameMusic.tracks() : [], current = window.GameMusic ? window.GameMusic.currentTrack() : null;
+    const n = submitted.size, total = nonDealers.length;
+    return `
+      ${topbar('<span class="sticker">🎲 Dealing</span>', ringHtml())}
+      ${toon(190)}
+      <div class="panel center" style="margin:22px 0 12px;">
+        <p class="eyebrow">Captions in</p>
+        <div class="h-display" style="font-size:40px;">${n} <span style="color:var(--muted); font-size:22px;">/ ${total}</span></div>
+        ${doneRow}
+        ${n === total ? '<p class="sub" style="color:var(--teal); margin-top:10px; font-weight:900;">✓ Everyone\u2019s in — sealing next</p>' : '<p class="small" style="margin-top:10px;">You sit this one out. Pour a drink.</p>'}
+      </div>
+      ${n > 0 && n < total ? `<button class="btn btn-ink" style="margin-bottom:10px;" onclick="confirmEndWriting()">End writing now (${n}/${total} in) →</button>` : ''}
+      <details class="box" id="dealer-controls" style="margin-bottom:10px;"><summary>🛠 Dealer controls <span class="arrow">▾</span></summary><div class="body stack">
+        ${n === 0 ? `<button class="btn btn-sm" onclick="confirmReroll()">🔀 Swap this cartoon</button>` : ''}
+        <button class="btn btn-sm" style="color:var(--red);" onclick="confirmSkipRound()">⏭ Skip this round</button>
+      </div></details>
+      <details class="box" id="music-details"><summary>🎵 Music for the table ${current ? '<span class="small">playing</span>' : ''}<span class="arrow">▾</span></summary><div class="body stack">
+        ${tracks.map(t => `<button class="btn btn-sm ${current === t.key ? 'btn-yellow' : ''}" style="justify-content:flex-start;" onclick="toggleTrack('${t.key}')"><span style="font-size:18px;">${t.icon}</span><span style="flex:1; text-align:left;">${esc(t.name)}<br><span class="small">${esc(t.description)}</span></span><span>${current === t.key ? '◼' : '▶'}</span></button>`).join('')}
+        <p class="small center">Plays from your phone only</p>
+      </div></details>`;
+  }
+
+  if (state.hasSubmitted) {
+    return `
+      ${topbar(roundSticker(), ringHtml())}
+      ${toon(210, true)}
+      <div class="center" style="margin-top:26px;">
+        <div class="stamp">Locked in</div>
+        <p class="sub" style="margin-top:18px;">Waiting for the others<span class="dots"></span></p>
+        ${doneRow}
+        <p class="small" style="margin-top:14px;">Dealer: ${esc(state.dealerName)}</p>
+      </div>`;
+  }
+  return `
+    ${topbar(roundSticker(), ringHtml())}
+    ${toon(240)}
+    <div style="margin-top:22px;">
+      <p class="eyebrow center" style="margin-bottom:8px;">Write the caption</p>
+      <textarea id="caption-input" class="caption-input" placeholder="Something that could pass for the real one…" maxlength="200" oninput="captionCount()"></textarea>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin:6px 2px 12px;"><span class="small">Dealer: ${esc(state.dealerName)}</span><span class="small" id="cap-count">0 / 200</span></div>
+      <button class="btn btn-yellow" onclick="submitCaption()">Lock it in ✓</button>
+    </div>`;
+}
+function captionCount() { const i = document.getElementById('caption-input'), c = document.getElementById('cap-count'); if (i && c) c.textContent = `${i.value.length} / 200`; }
+function toggleTrack(key) { if (!window.GameMusic) return; if (window.GameMusic.currentTrack() === key) window.GameMusic.stop(); else window.GameMusic.play(key); render(true); }
+function confirmEndWriting() { const n = (state.submittedPlayerIds || []).length, r = state.players.length - 1 - n; if (r > 0 && !confirm(`End writing now? ${r} player${r === 1 ? ' hasn\u2019t' : 's haven\u2019t'} submitted.`)) return; send({ action: 'end_writing' }); }
+function confirmReroll() { if (confirm('Swap this cartoon for a new one? The timer restarts.')) send({ action: 'reroll_cartoon' }); }
+function confirmSkipRound() { if (confirm('Skip this round? No points, and the deal moves on.')) send({ action: 'skip_round' }); }
+function submitCaption() {
+  const i = document.getElementById('caption-input'); if (!i) return;
+  const caption = i.value.trim();
+  if (!caption) { i.classList.remove('shake'); void i.offsetWidth; i.classList.add('shake'); sfx.error(); return; }
+  sfx.submitSelf(); send({ action: 'submit_caption', caption });
+}
+
+let lastTimerSecond = null;
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  lastTimerSecond = null;
+  const tick = () => {
+    if (!state || !state.timerEnd) return;
+    const remaining = Math.max(0, Math.ceil((state.timerEnd - Date.now()) / 1000));
+    const d = document.getElementById('timer-display'), f = document.getElementById('timer-fill'), ring = document.getElementById('timer-ring');
+    if (d) d.textContent = remaining >= 60 ? `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}` : remaining;
+    if (f) f.style.strokeDashoffset = (163.4 * (1 - remaining / state.timerDuration)).toFixed(1);
+    if (ring) ring.classList.toggle('urgent', remaining <= 10);
+    if (remaining !== lastTimerSecond) {
+      lastTimerSecond = remaining;
+      if (remaining === 10) sfx.notify(); else if (remaining > 0 && remaining <= 5) sfx.tick(); else if (remaining === 0) sfx.critical();
+    }
+    if (remaining <= 0) { clearInterval(timerInterval); timerInterval = null; }
+  };
+  tick(); timerInterval = setInterval(tick, 250);
+}
+
+/* ── DEALER REVIEW ── */
+function renderDealerReview() {
+  if (!state.isDealer) {
+    return `${stickyTop(roundSticker(), 'Tap the cartoon to enlarge')}
+      <div class="center" style="padding-top:6vh;">
+        <div class="env wobble"><div class="back"></div><div class="letter">?</div><div class="front"></div><div class="flap"></div><div class="seal">🔒</div></div>
+        <h2 class="h2" style="margin-top:34px;">${esc(state.dealerName)} is sealing the envelope<span class="dots"></span></h2>
+        <p class="sub" style="margin-top:8px;">One caption is about to disappear into the Closed Caption.</p>
+      </div>`;
+  }
+  const warn = `<div class="panel red flat center" style="margin-bottom:14px; padding:10px;"><b>🙈 Dealer eyes only</b> — keep your screen to yourself</div>`;
+  if (state.autoClose) {
+    return `${stickyTop('<span class="sticker red">Auto-seal</span>')}${warn}
+      <div class="center">
+        <div style="font-size:54px;" class="wiggle">🤖</div>
+        <h2 class="h2" style="margin:10px 0 6px;">The app is taking this one.</h2>
+        <p class="sub">The <b>real caption</b> goes in the envelope this round. Every player's caption stays in the open. Say nothing. Look innocent.</p>
+        <div class="panel yellow" style="margin:18px 0; text-align:left;"><p class="eyebrow" style="color:var(--ink-2);">✉ Going into the envelope</p><p class="caption-text">“${esc(state.correctCaption)}”</p></div>
+        <button class="btn btn-ink" onclick="sfx.seal(); send({action:'dealer_decision', chosenPlayerId:null})">Seal it 🔒</button>
+      </div>`;
+  }
+  const subs = (state.submissions || []).map(s => `
+    <button class="cap dealer-choice ${selectedDealerPid === s.playerId ? 'picked' : ''}" data-pid="${s.playerId}" onclick="selectDealerChoice('${s.playerId}')">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">${chipHtml(s.playerId, 'xs')}<span class="small">${esc(s.playerName)}</span></div>
+      <p class="caption-text">“${esc(s.caption)}”</p>
+    </button>`).join('');
+  return `${stickyTop('<span class="sticker">🎲 Your call</span>', 'Tap the cartoon to enlarge')}${warn}
+    <h2 class="h2" style="margin-bottom:4px;">Pick one caption to hide.</h2>
+    <p class="sub" style="margin-bottom:16px;">The real caption stays out in the open. Hide the best bluff to thin the field — or a dud to make the envelope look boring.</p>
+    <div class="panel teal flat" style="margin-bottom:14px; padding:10px 14px;"><p class="small" style="color:var(--teal);">The real one, for your eyes</p><p class="caption-text" style="font-size:15px;">“${esc(state.correctCaption)}”</p></div>
+    <div class="stack" style="margin-bottom:16px;">${subs}</div>
+    <button class="btn btn-ink" id="dealer-confirm-btn" ${selectedDealerPid ? '' : 'disabled'} onclick="confirmDealerChoice()">${selectedDealerPid ? 'Seal this one 🔒' : 'Tap a caption above'}</button>`;
+}
+function selectDealerChoice(pid) { selectedDealerPid = pid; document.querySelectorAll('.dealer-choice').forEach(b => b.classList.toggle('picked', b.dataset.pid === pid)); const b = document.getElementById('dealer-confirm-btn'); b.disabled = false; b.textContent = 'Seal this one 🔒'; }
+function confirmDealerChoice() { if (selectedDealerPid) { sfx.seal(); send({ action: 'dealer_decision', chosenPlayerId: selectedDealerPid }); } }
+
+/* ── READING ── */
+function renderReading(animate) {
+  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked ${animate ? 'deal-in' : ''}" style="animation-delay:${i * 0.14}s;"><span class="num">${i + 1}</span><p class="caption-text">“${esc(c)}”</p></div>`).join('');
+  return `${stickyTop(roundSticker(), 'Tap the cartoon to enlarge')}
+    <div class="center" style="margin-bottom:14px;">
+      <h2 class="h2">The open captions</h2>
+      <p class="sub">${state.isDealer ? 'Read each one aloud, with feeling.' : `${esc(state.dealerName)} reads them aloud. One might be real.`}</p>
+    </div>
+    ${toon(200, true)}
+    <div class="stack" style="margin:18px 0 14px;">${cards}</div>
+    <div class="cap closed locked ${animate ? 'deal-in' : ''}" style="animation-delay:${(state.openCaptions || []).length * 0.14}s; text-align:center; padding:18px;">
+      <div style="font-size:30px;">✉️</div><p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed caption</p><p class="small" style="color:var(--ink-2);">Sealed until the blind bets are in</p>
+    </div>
+    ${state.isDealer ? `<button class="btn btn-yellow" style="margin-top:18px;" onclick="send({action:'advance'})">Open the betting 🎰</button>` : `<p class="center small" style="margin-top:16px;">Betting starts on the dealer's left</p>`}`;
+}
+
+/* ── BETTING ── */
+function betLabel(target, count) {
+  if (count === 2) return target === 'closed' ? '🌕 Shoot the Moon' : '🌗 Half-Moon';
+  return target === 'closed' ? 'Chip on the envelope' : 'Chip on Caption ' + (target + 1);
+}
+function renderBetting(stage, phaseChanged) {
+  const bets = state.bets || [], order = state.betOrder || [];
+  const myBet = stage === 1 ? state.myFirstBet : state.mySecondBet;
+  const stage1Mine = state.myFirstBet;
+  const eligible2 = new Set(state.eligibleSecondBetters || []);
+  const passed = new Set(bets.filter(b => b.target === 'pass').map(b => b.playerId));
+  const betsOn = (t) => bets.map((b, i) => ({ ...b, i })).filter(b => String(b.target) === String(t));
+  const tray = (t) => `<div class="chip-tray">${betsOn(t).flatMap(b => Array.from({ length: b.count }, (_, k) => chipHtml(b.playerId, 'sm', '').replace('class="chip sm"', `class="chip sm" data-bet="${b.i}"`))).join('')}</div>`;
+
+  const canPick = state.isMyTurn && !myBet;
+  const cardCls = (t) => {
+    let c = 'cap';
+    if (t === 'closed') c += ' closed';
+    if (!canPick) c += ' locked';
+    if (canPick && stage === 2 && stage1Mine && String(stage1Mine.target) === String(t)) c += ' disabled';
+    if (selectedBetTarget !== null && String(selectedBetTarget) === String(t)) c += ' picked';
+    return c;
+  };
+  const cards = (state.openCaptions || []).map((c, i) => `
+    <button class="${cardCls(i)}" data-target="${i}" onclick="selectBet(${i})">
+      <span class="num">${i + 1}</span>${tray(i)}
+      <p class="caption-text">“${esc(c)}”</p>
+      ${stage === 2 && stage1Mine && stage1Mine.target === i ? '<p class="mine-note">Your chip is already here — pick somewhere else</p>' : ''}
+    </button>`).join('');
+  const closedCard = stage === 1
+    ? `<button class="${cardCls('closed')}" data-target="closed" onclick="selectBet('closed')" style="text-align:center; padding:18px 16px;">
+        ${tray('closed')}<div style="font-size:30px;">✉️</div><p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed caption · sealed</p>
+        <p class="small" style="color:var(--ink-2);">Bet blind that the real one is in here. Pays extra.</p></button>`
+    : `<button class="${cardCls('closed')}" data-target="closed" onclick="selectBet('closed')">
+        ${tray('closed')}<p class="eyebrow" style="color:var(--ink-2);">✉ Closed caption · revealed</p><p class="caption-text">“${esc(state.closedCaption)}”</p>
+        ${stage1Mine && stage1Mine.target === 'closed' ? '<p class="mine-note">Your chip is already here — pick somewhere else</p>' : ''}</button>`;
+
+  // Turn order strip
+  const orderRow = order.map(pid => {
+    const b1 = bets.find(b => b.playerId === pid && b.stage === 1), b2 = bets.find(b => b.playerId === pid && b.stage === 2);
+    const done = stage === 1 ? !!b1 : (!!b2 || !eligible2.has(pid));
+    const isCur = state.currentBetterId === pid;
+    const cls = isCur ? 'turn' : (done ? '' : 'dim');
+    const badge = done && !passed.has(pid) && (stage === 1 ? b1 : (b2 || null)) ? '<span class="check">✓</span>' : (passed.has(pid) ? '<span class="check" style="background:var(--muted);">–</span>' : (stage === 2 && !eligible2.has(pid) ? '<span class="check" style="background:var(--violet);">2</span>' : ''));
+    return chipHtml(pid, cls, badge);
+  }).join('');
+
+  let banner;
+  if (state.isDealer) banner = state.allBetsIn
+    ? `<div class="turn-banner wait"><div class="h2">All bets are in</div><p class="sub">${stage === 1 ? 'Time to open the envelope.' : 'Time for the answer.'}</p></div>`
+    : `<div class="turn-banner wait"><div class="h2">${esc(state.currentBetterName)} is betting<span class="dots"></span></div><p class="sub">Read the room. Say nothing.</p></div>`;
+  else if (state.isMyTurn && !myBet) banner = `<div class="turn-banner you"><div class="h2">Your bet!</div><p class="sub" style="color:var(--ink);">${stage === 1 ? 'Tap a caption, then put down 1 chip or both.' : 'Tap where your last chip goes.'}</p></div>`;
+  else if (myBet) banner = `<div class="turn-banner wait"><div class="h2">${betLabel(myBet.target, myBet.count)} ✓</div><p class="sub">${stage === 1 && myBet.count === 1 ? 'Your second chip waits for the reveal.' : (state.allBetsIn ? 'Waiting on the dealer.' : `${esc(state.currentBetterName)} is up.`)}</p></div>`;
+  else if (stage === 2 && !eligible2.has(myPlayerId)) banner = `<div class="turn-banner wait"><div class="h2">${passed.has(myPlayerId) ? 'You sat this one out' : 'You\u2019re all in'}</div><p class="sub">${state.allBetsIn ? 'All bets are in.' : `${esc(state.currentBetterName)} is betting…`}</p></div>`;
+  else if (state.allBetsIn) banner = `<div class="turn-banner wait"><div class="h2">All bets are in</div><p class="sub">Waiting on ${esc(state.dealerName)}.</p></div>`;
+  else banner = `<div class="turn-banner wait"><div class="h2">${esc(state.currentBetterName)} is betting<span class="dots"></span></div><p class="sub">You're ${order.indexOf(myPlayerId) - order.indexOf(state.currentBetterId)} away.</p></div>`;
+
+  const dealerBtn = state.isDealer ? `<div style="margin-top:18px;" class="stack">
+      <button class="btn ${state.allBetsIn ? 'btn-yellow' : ''}" onclick="dealerAdvanceBets()">${stage === 1 ? 'Open the envelope ✉️' : 'Show the answer 🎯'}${state.allBetsIn ? '' : ' (skip the rest)'}</button>
+      ${!state.allBetsIn ? `<button class="btn-link" style="display:block; margin:0 auto;" onclick="send({action:'skip_better'})">Skip ${esc(state.currentBetterName)}'s turn</button>` : ''}
+    </div>` : '';
+
+  return `${stickyTop(stage === 1 ? '<span class="sticker violet">Blind bets</span>' : '<span class="sticker" style="background:var(--blue); color:#fff;">Second bets</span>', 'Tap the cartoon to enlarge')}
+    ${banner}
+    <div class="order">${orderRow}</div>
+    <div class="stack" style="margin-top:16px;">${cards}${closedCard}</div>
+    ${dealerBtn}`;
+}
+function dealerAdvanceBets() { if (!state.allBetsIn && !confirm(`Move on without ${state.pendingBetters.length} bet${state.pendingBetters.length === 1 ? '' : 's'}? Those players sit out.`)) return; send({ action: 'advance' }); }
+function selectBet(target) {
+  if (!state.isMyTurn) return;
+  const stage = state.phase === 'first_bets' ? 1 : 2;
+  if (stage === 2 && state.myFirstBet && String(state.myFirstBet.target) === String(target)) { sfx.error(); showToast('Not the same caption twice — that\u2019s the price of hedging'); return; }
+  selectedBetTarget = target;
+  document.querySelectorAll('.cap[data-target]').forEach(b => b.classList.toggle('picked', String(b.dataset.target) === String(target)));
+  renderActionBar();
+}
+function renderActionBar() {
+  if (!state || !state.isMyTurn || selectedBetTarget === null) { setActionBar(''); return; }
+  const stage = state.phase === 'first_bets' ? 1 : 2, t = selectedBetTarget;
+  const where = t === 'closed' ? 'the envelope' : `Caption ${t + 1}`;
+  if (stage === 1) setActionBar(`<p class="center small" style="margin-bottom:8px;">${where} — how many chips?</p><div class="btn-row">
+      <button class="btn btn-blue" onclick="placeBet(1)">1 chip</button>
+      <button class="btn ${t === 'closed' ? 'btn-yellow' : 'btn-violet'}" onclick="placeBet(2)">${t === 'closed' ? '🌕 Shoot the Moon' : '🌗 Half-Moon'}</button></div>`);
+  else setActionBar(`<button class="btn btn-blue" onclick="placeBet(1)">Last chip on ${where} →</button>`);
+}
+function placeBet(count) { if (selectedBetTarget === null) return; send({ action: 'place_bet', target: selectedBetTarget, count }); selectedBetTarget = null; setActionBar(''); }
+
+/* ── REVEAL ── */
+function renderReveal() {
+  return `${stickyTop('<span class="sticker">✉ The envelope</span>')}
+    <div class="center" style="padding-top:3vh;" id="reveal-container">
+      <div class="env" id="reveal-env"><div class="back"></div><div class="letter">${esc(state.closedCaption)}</div><div class="front"></div><div class="flap"></div><div class="seal">🔒</div></div>
+      <div id="reveal-count" class="h-display" style="font-size:64px; margin-top:20px; min-height:70px;"></div>
+      <div id="reveal-card" style="opacity:0; transform:scale(.6); transition:opacity .5s, transform .6s var(--spring);">
+        <div class="panel yellow" style="transform:rotate(-1deg);"><p class="eyebrow" style="color:var(--ink-2);">The closed caption was</p><p class="caption-text" style="font-size:22px; margin-top:6px;">“${esc(state.closedCaption)}”</p></div>
+        <p class="sub" style="margin-top:14px;" id="reveal-hint"></p>
+      </div>
+      ${state.isDealer ? `<button id="reveal-continue" class="btn btn-yellow" style="margin-top:22px; opacity:0; transition:opacity .4s;" onclick="send({action:'advance'})">${(state.eligibleSecondBetters || []).length ? 'Open second bets →' : 'Everyone\u2019s all in — show the answer →'}</button>` : ''}
+    </div>`;
+}
+function playRevealSequence() {
+  if (window.GameMusic) window.GameMusic.stop();
+  const env = document.getElementById('reveal-env'), count = document.getElementById('reveal-count'), card = document.getElementById('reveal-card'), btn = document.getElementById('reveal-continue'), hint = document.getElementById('reveal-hint');
+  if (!env) return;
+  sfx.drumroll(1600); env.classList.add('tremble');
+  [['3', 200], ['2', 700], ['1', 1200]].forEach(([n, t]) => setTimeout(() => { count.textContent = n; count.animate([{ transform: 'scale(1.6)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 300, easing: 'ease-out' }); }, t));
+  setTimeout(() => { env.classList.remove('tremble'); env.classList.add('open'); count.textContent = ''; noise(0.25, 0, 0.3, 1800, 'highpass'); tone(500, 0.3, 0, 'sine', 0.08, 900); buzz([40, 30, 80]); }, 1700);
+  setTimeout(() => { env.style.transition = 'opacity .4s, transform .5s'; env.style.opacity = '0'; env.style.transform = 'translateY(-40px) scale(.6)'; setTimeout(() => { env.style.display = 'none'; count.style.display = 'none'; }, 450); }, 2700);
+  setTimeout(() => {
+    card.style.opacity = '1'; card.style.transform = 'none'; sfx.tada();
+    const n = (state.eligibleSecondBetters || []).length;
+    if (hint) hint.textContent = n ? `${n} player${n === 1 ? ' still has' : 's still have'} a chip to place.` : 'Nobody held a chip back. Straight to the answer.';
+    if (btn) setTimeout(() => { btn.style.opacity = '1'; }, 600);
+  }, 3000);
+}
+
+/* ── ANSWER ── */
+function renderAnswer() {
+  const all = (state.openCaptionDetails || []).map((c, i) => ({ ...c, idx: i, isClosed: false }));
+  all.push({ caption: state.closedCaption, isCorrect: state.closedIsCorrect, playerName: state.closedPlayerName, idx: 'closed', isClosed: true });
+  const bets = state.bets || [];
+  const tray = (t) => `<div class="chip-tray">${bets.filter(b => String(b.target) === String(t)).flatMap(b => Array.from({ length: b.count }, () => chipHtml(b.playerId, 'sm'))).join('')}</div>`;
+  const cards = all.map(c => `
+    <div class="cap locked answer-card ${c.isClosed ? 'closed' : ''}" data-correct="${c.isCorrect}">
+      ${c.isClosed ? '' : `<span class="num">${c.idx + 1}</span>`}${tray(c.idx)}
+      ${c.isClosed ? '<p class="eyebrow" style="color:var(--ink-2);">✉ Closed caption</p>' : ''}
+      <p class="caption-text">“${esc(c.caption)}”</p>
+      <p class="writer small" style="opacity:0; transition:opacity .4s; margin-top:6px;">${c.playerName ? `— written by <b>${esc(c.playerName)}</b>` : '— the real caption'}</p>
+    </div>`).join('');
+  return `${stickyTop(roundSticker(), 'Tap the cartoon to enlarge')}
+    <div class="center" style="margin-bottom:14px;"><h2 class="h2" id="answer-prompt">And the real caption is<span class="dots"></span></h2></div>
+    <div class="stack" id="answer-cards">${cards}</div>
+    <div id="answer-verdict" class="center" style="margin:18px 0; opacity:0; transition:opacity .5s;"><span class="sticker" id="verdict-sticker"></span></div>
+    <div id="answer-scores" style="opacity:0; transition:opacity .5s;"></div>
+    ${state.isDealer ? `<button id="answer-continue" class="btn btn-yellow" style="margin-top:20px; opacity:0; transition:opacity .4s;" onclick="send({action:'advance'})">Scoreboard →</button>` : ''}`;
+}
+function playAnswerSequence() {
+  const cards = document.querySelectorAll('.answer-card'), prompt = document.getElementById('answer-prompt'), verdict = document.getElementById('answer-verdict'), vs = document.getElementById('verdict-sticker'), scoresEl = document.getElementById('answer-scores'), btn = document.getElementById('answer-continue');
+  if (!cards.length) return;
+  sfx.drumroll(1400);
+  const correct = document.querySelector('.answer-card[data-correct="true"]');
+  const myPts = (state.roundScores || {})[myPlayerId] || 0;
+  const iShotTheMoon = state.closedIsCorrect && state.myFirstBet && state.myFirstBet.target === 'closed' && state.myFirstBet.count === 2;
+
+  setTimeout(() => {
+    cards.forEach(c => { if (c.dataset.correct !== 'true') c.classList.add('wrong'); });
+    if (correct) { correct.classList.add('correct'); const r = correct.getBoundingClientRect(); confetti.burst(r.left + r.width / 2, r.top + r.height / 2, 60); }
+    if (prompt) prompt.textContent = 'The real caption';
+    if (iShotTheMoon) { sfx.moon(); confetti.cannons(); } else if (state.dealerBonusAwarded) sfx.womp(); else sfx.tada();
+    if (correct) setTimeout(() => correct.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+  }, 1500);
+
+  setTimeout(() => {
+    if (vs) { vs.textContent = state.closedIsCorrect ? '🌕 It was in the envelope!' : '👀 It was out in the open'; vs.className = 'sticker ' + (state.closedIsCorrect ? '' : 'white'); }
+    if (verdict) verdict.style.opacity = '1';
+  }, 2500);
+
+  setTimeout(() => { document.querySelectorAll('.answer-card .writer').forEach(w => { w.style.opacity = '1'; }); noise(0.1, 0, 0.15, 2500); }, 3200);
+
+  setTimeout(() => {
+    const details = state.roundScoreDetails || {};
+    const rows = Object.entries(state.roundScores || {}).filter(([, p]) => p > 0).sort((a, b) => b[1] - a[1]).map(([pid, pts]) => {
+      const p = playerById(pid); if (!p) return '';
+      const reasons = (details[pid] || []).map(d => `<div class="reason">+${d.pts} ${esc(d.reason)}</div>`).join('');
+      return `<div class="pt-row">${chipHtml(pid, 'sm')}<div style="flex:1;"><div style="font-weight:900;">${esc(p.name)}${pid === myPlayerId ? ' <span class="small">(you)</span>' : ''}</div>${reasons}</div><div class="plus" style="font-size:24px;">+${pts}</div></div>`;
+    }).join('');
+    const bonus = state.dealerBonusAwarded ? `<div class="panel red flat center" style="margin-bottom:10px;"><b>🃏 Not one chip on the real caption.</b><br><span class="sub">${esc(state.dealerName)} takes the dealer bonus.</span></div>` : '';
+    scoresEl.innerHTML = `<p class="eyebrow center" style="margin:6px 0 10px;">Points this round</p>${bonus}${rows || '<p class="center sub">Nobody scored. Brutal.</p>'}`;
+    scoresEl.style.opacity = '1';
+    scoresEl.querySelectorAll('.pt-row').forEach((r, i) => setTimeout(() => { r.classList.add('in'); sfx.coin(i); }, i * 220));
+    if (myPts > 0) buzz([30, 40, 30]);
+    if (btn) setTimeout(() => { btn.style.opacity = '1'; }, 400 + rows.length / 100);
+  }, 4200);
+}
+
+/* ── SCORES ── */
+function renderScores(phaseChanged) {
+  const sorted = [...state.players].sort((a, b) => b.score - a.score);
+  const max = Math.max(...sorted.map(p => p.score), 1), prev = state.previousRank || {};
+  const rows = sorted.map((p, i) => {
+    const idx = getPlayerIndex(p.id), earned = (state.roundScores || {})[p.id] || 0;
+    const change = (prev[p.id] !== undefined ? prev[p.id] : i) - i;
+    const delta = change > 0 ? `<span class="delta up">▲ ${change}</span>` : change < 0 ? `<span class="delta down">▼ ${-change}</span>` : '';
+    return `<div class="score-row ${i === 0 && p.score > 0 ? 'leader' : ''}" data-pid="${p.id}" style="animation-delay:${i * 0.08}s; --c:${playerColor(idx)};">
+      <div style="font-family:var(--display); font-weight:700; width:22px; color:var(--muted);">${i + 1}</div>${chipHtml(p.id, 'lg')}
+      <div style="flex:1; min-width:0;"><div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span style="font-weight:900; font-size:16px;">${esc(p.name)}</span>${delta}${earned > 0 ? `<span class="plus">+${earned}</span>` : ''}</div><div class="bar" style="width:${Math.max(6, (p.score / max) * 100)}%;"></div></div>
+      <div class="pts score-number" data-target="${p.score}" data-from="${p.score - earned}">${p.score - earned}</div>
+    </div>`;
+  }).join('');
+  const winner = sorted[0];
+  const tie = sorted.length > 1 && sorted[1].score === winner.score;
+  return `${topbar(roundSticker())}
+    <div class="center" style="margin-bottom:16px;"><h2 class="h1">${state.gameOver ? 'Final scores' : 'Scoreboard'}</h2></div>
+    ${rows}
+    ${state.gameOver ? `
+      <div class="panel yellow center fade-in" style="margin-top:18px; transform:rotate(-1deg);">
+        <div style="font-size:44px;" class="bob">🏆</div>
+        <p class="eyebrow" style="color:var(--ink-2);">${tie ? 'It\u2019s a tie' : 'Winner'}</p>
+        <div class="h-display" style="font-size:36px; margin:2px 0 4px;">${esc(tie ? sorted.filter(p => p.score === winner.score).map(p => p.name).join(' & ') : winner.name)}</div>
+        <p class="sub">${winner.score} point${winner.score === 1 ? '' : 's'}</p>
+      </div>
+      <div class="stack" style="margin-top:16px;">
+        ${state.isHost ? `<button class="btn btn-yellow" onclick="send({action:'play_again'})">Play again 🔁</button>` : `<p class="center small">The host can start another game with the same crowd</p>`}
+        ${state.history && state.history.length ? `<button class="btn" onclick="openHistory()">📖 Relive the rounds</button>` : ''}
+        <button class="btn-link" style="display:block; margin:0 auto;" onclick="leaveGame()">Leave</button>
+      </div>`
+    : `
+      <div class="panel flat center" style="margin-top:8px;"><p class="sub">Next dealer: <b>${esc(state.nextDealerName)}</b></p></div>
+      <div class="stack" style="margin-top:12px;">
+        ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">🎲 Deal round ${state.round + 1} →</button>` : state.isDealer ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(state.nextDealerName)} →</button>` : `<p class="center small">Waiting for ${esc(state.nextDealerName)} to deal<span class="dots"></span></p>`}
+        ${state.history && state.history.length ? `<button class="btn btn-sm" onclick="openHistory()">📖 Review past rounds</button>` : ''}
+      </div>`}`;
+}
+function playScoresSequence() {
+  setTimeout(() => {
+    document.querySelectorAll('.score-number').forEach(el => animateCount(el, parseInt(el.dataset.from), parseInt(el.dataset.target), 900));
+    document.querySelectorAll('.delta').forEach((el, i) => { el.style.opacity = '0'; setTimeout(() => { el.style.transition = 'opacity .3s'; el.style.opacity = '1'; sfx.coin(i); }, 900 + i * 120); });
+  }, 250);
+  if (state.gameOver) { setTimeout(() => { sfx.fanfare(); confetti.cannons(); confetti.rain(3500); buzz([60, 40, 60, 40, 200]); }, 600); }
+}
+function animateCount(el, from, to, duration) {
+  if (from === to) { el.textContent = to; return; }
+  const start = performance.now();
+  (function step(now) { const t = Math.min(1, (now - start) / duration), e = 1 - Math.pow(1 - t, 3); el.textContent = Math.round(from + (to - from) * e); if (t < 1) requestAnimationFrame(step); })(start);
+}
+
+/* ── HISTORY ── */
+function openHistory(i) { if (!state || !state.history || !state.history.length) return; renderHistory(typeof i === 'number' ? i : state.history.length - 1); }
+function renderHistory(idx) {
+  const h = state.history || []; if (idx < 0 || idx >= h.length) return;
+  const r = h[idx];
+  const all = r.openCaptions.map((c, i) => ({ ...c, label: `Caption ${i + 1}`, t: i, isClosed: false }));
+  all.push({ caption: r.closedCaption, isCorrect: r.closedIsCorrect, playerName: r.closedPlayerName, playerId: r.closedPlayerId, label: '✉ Closed caption', t: 'closed', isClosed: true });
+  const bets = r.bets || [];
+  const cards = all.map(c => {
+    const on = bets.filter(b => String(b.target) === String(c.t));
+    return `<div class="cap locked ${c.isCorrect ? 'correct' : ''} ${c.isClosed ? 'closed' : ''}" style="cursor:default;">
+      <div class="chip-tray">${on.flatMap(b => Array.from({ length: b.count }, () => chipHtml(b.playerId, 'sm'))).join('')}</div>
+      <p class="eyebrow" style="color:var(--ink-2);">${c.label}${c.isCorrect ? ' · ✓ real' : ''}</p>
+      <p class="caption-text" style="font-size:15px;">“${esc(c.caption)}”</p>
+      <p class="small" style="margin-top:4px;">${c.playerName ? '— ' + esc(c.playerName) : '— the real caption'}</p></div>`;
+  }).join('');
+  const pts = Object.entries(r.roundScores || {}).filter(([, p]) => p > 0).sort((a, b) => b[1] - a[1]).map(([pid, p]) => { const pl = playerById(pid); return pl ? `<div class="pt-row in">${chipHtml(pid, 'sm')}<span style="flex:1; font-weight:800;">${esc(pl.name)}</span><span class="plus" style="font-size:20px;">+${p}</span></div>` : ''; }).join('');
+  document.getElementById('game-content').innerHTML = `
+    <div class="topbar sticky"><div class="tleft">${r.cartoon ? `<div class="thumb" onclick="document.getElementById('lightbox-img').src='/images/${esc(r.cartoon.image)}'; document.getElementById('lightbox').classList.add('on');"><img src="/images/${esc(r.cartoon.image)}"></div>` : ''}<div class="stk"><span class="sticker white">Round ${r.round} of ${h.length}</span></div></div><span class="code-pill">${esc(state.code)}</span></div>
+    <div class="center" style="margin-bottom:14px;"><p class="small" style="margin-top:2px;">Dealer: ${esc(r.dealerName)}${r.autoClose ? ' · the app sealed the real one' : ''}</p></div>
+    <div class="stack" style="margin-bottom:16px;">${cards}</div>
+    ${pts ? `<p class="eyebrow" style="margin-bottom:8px;">Points</p>${pts}` : '<p class="center sub">No points that round.</p>'}
+    ${r.dealerBonusAwarded ? '<p class="center small" style="color:var(--red); margin-top:6px;">🃏 Dealer bonus — nobody found it</p>' : ''}
+    <div class="btn-row" style="margin-top:16px;"><button class="btn btn-sm" ${idx === 0 ? 'disabled' : ''} onclick="renderHistory(${idx - 1})">← Earlier</button><button class="btn btn-sm" ${idx === h.length - 1 ? 'disabled' : ''} onclick="renderHistory(${idx + 1})">Later →</button></div>
+    <button class="btn btn-ink" style="margin-top:10px;" onclick="render(true)">Back to scores</button>`;
+  window.scrollTo(0, 0);
+}
+
+/* ── Init ── */
+updateSoundToggleIcon();
+startHeroLoop();
+connect();
+</script>
+</body>
+</html>
