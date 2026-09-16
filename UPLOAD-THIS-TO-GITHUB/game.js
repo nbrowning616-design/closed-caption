@@ -78,10 +78,10 @@ const DEFAULT_SETTINGS = {
   targetScore: null,             // null = play full rounds; else first to X points wins
   pointsOpenBet: 2,              // BLIND (first-round) bet, per marker, on the correct open caption
   pointsClosedBet: 3,            // BLIND (first-round) bet, per marker, on the closed caption when it's correct
-  pointsOpenLate: 1,             // second-round (post-reveal) bet, per marker, on the correct open caption
-  pointsClosedLate: 2,           // second-round (post-reveal) bet, per marker, on the closed caption when it's correct
+  pointsOpenLate: 1,             // second-round (post-reveal) bet, per marker, on the correct caption (open or closed — no premium once revealed)
+  pointsClosedLate: 1,           // kept equal to pointsOpenLate; the closed caption only pays extra when bet blind
   pointsPerFool: 1,              // points to the writer for every marker another player puts on their caption
-  dealerBonus: 3,                // dealer scores this if nobody puts a marker on the correct caption
+  dealerBonus: 4,                // dealer scores this if nobody puts a marker on the correct caption
   autoCloseProbability: 0.15,    // chance the app auto-places the correct caption in the closed box (0..1)
 };
 
@@ -439,13 +439,12 @@ function revealAnswer(game) {
     // Betting points
     if (isBetOnCorrect(game, bet)) {
       anyoneRight = true;
-      const per = onClosed
-        ? (blind ? s.pointsClosedBet : s.pointsClosedLate)
-        : (blind ? s.pointsOpenBet : s.pointsOpenLate);
+      // Blind bets pay more; once the Closed Caption is revealed, a late bet pays the same anywhere
+      const per = blind ? (onClosed ? s.pointsClosedBet : s.pointsOpenBet) : s.pointsOpenLate;
       let reason;
       if (onClosed && both) reason = 'Shot the moon';
       else if (!onClosed && both) reason = 'Half-moon on the right caption';
-      else if (onClosed) reason = blind ? 'Blind bet on the closed caption' : 'Bet on the closed caption';
+      else if (onClosed && blind) reason = 'Blind bet on the Closed Caption';
       else reason = blind ? 'Blind bet on the right caption' : 'Late bet on the right caption';
       add(bet.playerId, per * bet.count, reason);
     }

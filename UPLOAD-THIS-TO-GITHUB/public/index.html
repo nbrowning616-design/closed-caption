@@ -221,7 +221,8 @@ textarea.caption-input::placeholder { color: #B9AFA3; }
 .topbar.sticky .thumb { width: 84px; height: 84px; flex-shrink: 0; background: #fff; border: 2.5px solid var(--ink); border-radius: 8px; padding: 3px; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform .1s; display: block; }
 .topbar.sticky .thumb:active { transform: scale(.96); }
 .topbar.sticky .thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; display: block; }
-.topbar.sticky .tleft { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.topbar.sticky .tleft { display: flex; align-items: center; gap: 12px; min-width: 0; overflow: hidden; }
+.topbar .code-pill { flex-shrink: 0; }
 .topbar.sticky .tleft .stk { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; min-width: 0; }
 .topbar.sticky .tleft .small { white-space: nowrap; }
 #lightbox { position: fixed; inset: 0; z-index: 400; background: rgba(31,26,23,.86); display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -254,6 +255,22 @@ textarea.caption-input::placeholder { color: #B9AFA3; }
 @keyframes letterOut { to { transform: translateY(-120px); z-index: 6; } }
 .env.tremble { animation: tremble .12s linear infinite; }
 @keyframes tremble { 0% { transform: translate(1px, 0) rotate(.5deg);} 50% { transform: translate(-1px, 1px) rotate(-.5deg);} 100% { transform: translate(0,-1px) rotate(0);} }
+
+/* ── The Closed Caption: a face-down card ── */
+.ccard { width: 210px; height: 140px; margin: 0 auto; border-radius: 14px; background: var(--ink); background-image: radial-gradient(rgba(255,255,255,.09) 1.5px, transparent 1.5px); background-size: 12px 12px; border: 3px solid var(--ink); box-shadow: var(--shadow); color: var(--yellow); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.ccard .cc { font-family: var(--display); font-weight: 700; font-size: 40px; letter-spacing: 2px; border: 3px solid var(--yellow); border-radius: 10px; padding: 0 12px; line-height: 1.2; }
+.ccard .lbl { font-size: 11px; font-weight: 900; letter-spacing: 1.6px; text-transform: uppercase; }
+.ccard.mini { width: 66px; height: 46px; border-width: 2px; box-shadow: var(--shadow-sm); gap: 0; border-radius: 9px; display: inline-flex; }
+.ccard.mini .cc { font-size: 18px; border-width: 2px; padding: 0 6px; letter-spacing: 1px; }
+.ccard.wobble { animation: wobble 1.6s ease-in-out infinite; }
+.ccard.tremble { animation: tremble .12s linear infinite; }
+.flip { perspective: 1000px; width: 100%; max-width: 340px; margin: 0 auto; }
+.flip .inner { position: relative; transition: transform .9s var(--ease-out); transform-style: preserve-3d; }
+.flip.open .inner { transform: rotateY(180deg); }
+.flip .face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.flip .front { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.flip .front .ccard { width: 100%; height: 100%; }
+.flip .back { transform: rotateY(180deg); }
 
 /* ── Turn banner ── */
 .turn-banner { border: var(--bw) solid var(--ink); border-radius: var(--r-lg); padding: 14px 16px; text-align: center; box-shadow: var(--shadow); margin-bottom: 14px; }
@@ -370,33 +387,33 @@ details.box .body { padding: 14px 4px 4px; }
   <p class="eyebrow" style="margin-bottom: 10px;">Each round</p>
   <div class="stack" style="margin-bottom: 22px;">
     <div class="panel flat rule-step"><div class="n">1</div><div><b>Write.</b> <span class="sub">Everyone except the dealer writes a caption before the timer runs out.</span></div></div>
-    <div class="panel flat yellow rule-step"><div class="n">2</div><div><b>Seal the envelope.</b> <span class="sub">The dealer secretly hides one player's caption in the Closed Caption. About 15% of the time, the app hides the <i>real</i> answer in there instead — and only the dealer knows which.</span></div></div>
-    <div class="panel flat blue rule-step"><div class="n">3</div><div><b>Blind bets.</b> <span class="sub">The dealer reads the open captions aloud. Starting on the dealer's left, each player in turn puts 1 or 2 chips on a caption — including the sealed one. Everyone sees every bet.</span></div></div>
-    <div class="panel flat violet rule-step"><div class="n">4</div><div><b>Open it.</b> <span class="sub">The Closed Caption is revealed. Anyone still holding a chip places it now — but not on the caption they already backed.</span></div></div>
+    <div class="panel flat yellow rule-step"><div class="n">2</div><div><b>Hide one.</b> <span class="sub">The dealer secretly picks one player's caption to be the Closed Caption — nobody else sees it yet. About 15% of the time, the app makes the <i>real</i> caption the Closed Caption instead, and only the dealer knows.</span></div></div>
+    <div class="panel flat blue rule-step"><div class="n">3</div><div><b>Blind bets, in order.</b> <span class="sub">The dealer reads the open captions aloud. Then betting goes clockwise around the table, starting with the player on the dealer's left, one player at a time — your phone lights up when it's your turn. Put 1 or 2 chips on any caption, including the hidden Closed Caption. Everyone sees every bet as it lands.</span></div></div>
+    <div class="panel flat violet rule-step"><div class="n">4</div><div><b>The reveal.</b> <span class="sub">The Closed Caption is shown. Anyone still holding a chip places it now, same order — but not on the caption they already backed.</span></div></div>
     <div class="panel flat teal rule-step"><div class="n">5</div><div><b>The answer.</b> <span class="sub">The real caption lights up, points are paid, and the deal moves left.</span></div></div>
   </div>
 
   <p class="eyebrow" style="margin-bottom: 10px;">Scoring (per chip)</p>
   <div class="panel flat" style="margin-bottom: 14px; padding: 6px 16px;">
     <div class="score-line"><span>Blind bet on the right open caption</span><span class="v">+2</span></div>
-    <div class="score-line"><span>Blind bet on the Closed Caption, and it's real</span><span class="v">+3</span></div>
-    <div class="score-line"><span>Late bet (after the reveal) on the right open caption</span><span class="v">+1</span></div>
-    <div class="score-line"><span>Late bet on the Closed Caption, and it's real</span><span class="v">+2</span></div>
+    <div class="score-line"><span>Blind bet on the hidden Closed Caption, and it's real</span><span class="v">+3</span></div>
+    <div class="score-line"><span>Late bet (after the reveal) on the real caption — open or Closed, same price</span><span class="v">+1</span></div>
     <div class="score-line"><span>Another player bets on <i>your</i> caption</span><span class="v">+1</span></div>
   </div>
   <div class="stack" style="margin-bottom: 22px;">
     <div class="panel flat violet"><b>🌗 Half-Moon</b> — both chips, blind, on one open caption. Right = <b>+4</b>.</div>
-    <div class="panel flat yellow"><b>🌕 Shoot the Moon</b> — both chips, blind, on the sealed Closed Caption. Right = <b>+6</b>. The best feeling in the game.</div>
-    <div class="panel flat red"><b>🃏 Dealer's revenge</b> — if not one chip lands on the real caption, the dealer takes <b>+3</b>.</div>
+    <div class="panel flat yellow"><b>🌕 Shoot the Moon</b> — both chips, blind, on the hidden Closed Caption. Right = <b>+6</b>. The best feeling in the game.</div>
+    <div class="panel flat red"><b>🃏 Dealer's revenge</b> — if not one chip lands on the real caption, the dealer takes <b>+4</b>.</div>
   </div>
 
   <p class="eyebrow" style="margin-bottom: 10px;">Good to know</p>
   <div class="panel flat" style="margin-bottom: 22px;">
     <ul style="padding-left: 18px; line-height: 1.55; font-size: 14px; color: var(--ink-2);">
       <li>You may bet on your own caption. It scores nothing — but it might fool the table.</li>
-      <li>Blind bets pay more than late bets. Courage is rewarded.</li>
+      <li>Blind bets pay more than late bets. Once the Closed Caption is revealed, it's just another caption.</li>
+      <li>Dealer's mulligan: before anyone has written, the dealer can swap a dud cartoon for a new one.</li>
       <li>The real caption isn't always the funniest. Sometimes it's just… fine. Be suspicious of perfection.</li>
-      <li>Dealers: hide the strongest bluff to weaken the field, or hide a dud to make the envelope look boring.</li>
+      <li>Dealers: hide the strongest bluff to weaken the field, or hide a dud to make the Closed Caption look boring.</li>
     </ul>
   </div>
   <button class="btn btn-yellow" onclick="goBackToHome()">Got it →</button>
@@ -475,12 +492,12 @@ function showScreen(id) {
 function goBackToHome() { if (myPlayerId && gameCode && state) { showScreen('screen-game'); render(true); } else showScreen('screen-home'); }
 
 /* ── Home screen: typewriter demo ── */
+// Taglines only — never real captions, so the home screen gives nothing away
 const HERO = [
-  ['card_31.jpg', 'The salad was her idea.'],
-  ['card_3.jpg', 'Any questions? No? Good boy.'],
-  ['card_27.jpg', 'The suit was easy. The tie is the problem.'],
-  ['card_42.jpg', 'Happy birthday. Evacuate.'],
-  ['card_29.jpg', 'You should see the litter box.'],
+  ['card_31.jpg', 'Write a caption that could pass for the real one.'],
+  ['card_3.jpg', 'One caption is real. The rest are your friends lying.'],
+  ['card_27.jpg', 'Bet on the one you believe. Bet blind for more.'],
+  ['card_42.jpg', 'Fool the table and the chips come to you.'],
 ];
 let heroTimer = null, heroIdx = 0;
 function startHeroLoop() {
@@ -802,7 +819,7 @@ function renderLobby() {
     </div>`).join('');
 
   const endCondition = s.targetScore ? `first to ${s.targetScore}` : `${s.rounds || state.players.length} rounds`;
-  const summary = `${state.timerDuration}s timer · ${endCondition} · ${Math.round((s.autoCloseProbability ?? 0.15) * 100)}% auto-seal`;
+  const summary = `${state.timerDuration}s timer · ${endCondition} · ${Math.round((s.autoCloseProbability ?? 0.15) * 100)}% auto-hide`;
   const segBtn = (on, onclick, label) => `<button class="${on ? 'on' : ''}" onclick="${onclick}">${label}</button>`;
 
   const settings = state.isHost ? `
@@ -817,11 +834,11 @@ function renderLobby() {
           ${segBtn(s.targetScore === 20, 'setHostSettings({rounds:null,targetScore:20})', 'First to 20')}
           ${segBtn(s.targetScore === 30, 'setHostSettings({rounds:null,targetScore:30})', 'First to 30')}
         </div></div>
-        <div class="field"><label class="eyebrow">How often the app seals the real caption</label><div class="seg">${[0.1, 0.15, 0.2, 0.3].map(v => segBtn(Math.abs((s.autoCloseProbability ?? 0.15) - v) < 0.001, `setHostSettings({autoCloseProbability:${v}})`, Math.round(v * 100) + '%')).join('')}</div></div>
+        <div class="field"><label class="eyebrow">How often the app makes the real caption the Closed Caption</label><div class="seg">${[0.1, 0.15, 0.2, 0.3].map(v => segBtn(Math.abs((s.autoCloseProbability ?? 0.15) - v) < 0.001, `setHostSettings({autoCloseProbability:${v}})`, Math.round(v * 100) + '%')).join('')}</div></div>
         <details class="box" id="adv-details"><summary>🎯 Scoring <span class="arrow">▾</span></summary><div class="body">
-          ${[['pointsOpenBet', 'Blind bet · open caption', [1, 2, 3, 4]], ['pointsClosedBet', 'Blind bet · closed caption', [2, 3, 4, 5, 6]], ['pointsOpenLate', 'Late bet · open caption', [0, 1, 2, 3]], ['pointsClosedLate', 'Late bet · closed caption', [0, 1, 2, 3, 4]], ['pointsPerFool', 'Per chip that lands on your caption', [0, 1, 2, 3]], ['dealerBonus', 'Dealer bonus when nobody finds it', [0, 1, 2, 3, 4, 5]]]
-            .map(([k, label, opts]) => `<div class="field"><label class="small">${label}</label><div class="seg">${opts.map(n => segBtn(s[k] === n, `setHostSettings({${k}:${n}})`, n)).join('')}</div></div>`).join('')}
-          <button class="btn-link" onclick="setHostSettings({pointsOpenBet:2,pointsClosedBet:3,pointsOpenLate:1,pointsClosedLate:2,pointsPerFool:1,dealerBonus:3,autoCloseProbability:0.15,rounds:null,targetScore:null})">Reset to defaults</button>
+          ${[['pointsOpenBet', 'Blind bet · open caption', [1, 2, 3, 4]], ['pointsClosedBet', 'Blind bet · Closed Caption', [2, 3, 4, 5, 6]], ['pointsOpenLate', 'Late bet (after the reveal), any caption', [0, 1, 2, 3]], ['pointsPerFool', 'Per chip that lands on your caption', [0, 1, 2, 3]], ['dealerBonus', 'Dealer bonus when nobody finds it', [0, 2, 3, 4, 5, 6]]]
+            .map(([k, label, opts]) => `<div class="field"><label class="small">${label}</label><div class="seg">${opts.map(n => segBtn(s[k] === n, `setHostSettings({${k}:${n}${k === 'pointsOpenLate' ? ',pointsClosedLate:' + n : ''}})`, n)).join('')}</div></div>`).join('')}
+          <button class="btn-link" onclick="setHostSettings({pointsOpenBet:2,pointsClosedBet:3,pointsOpenLate:1,pointsClosedLate:1,pointsPerFool:1,dealerBonus:4,autoCloseProbability:0.15,rounds:null,targetScore:null})">Reset to defaults</button>
         </div></details>
       </div>
     </details>` : '';
@@ -874,11 +891,11 @@ function renderWriting() {
         <p class="eyebrow">Captions in</p>
         <div class="h-display" style="font-size:40px;">${n} <span style="color:var(--muted); font-size:22px;">/ ${total}</span></div>
         ${doneRow}
-        ${n === total ? '<p class="sub" style="color:var(--teal); margin-top:10px; font-weight:900;">✓ Everyone\u2019s in — sealing next</p>' : '<p class="small" style="margin-top:10px;">You sit this one out. Pour a drink.</p>'}
+        ${n === total ? '<p class="sub" style="color:var(--teal); margin-top:10px; font-weight:900;">✓ Everyone\u2019s in — pick the Closed Caption next</p>' : '<p class="small" style="margin-top:10px;">You sit this one out. Pour a drink.</p>'}
       </div>
       ${n > 0 && n < total ? `<button class="btn btn-ink" style="margin-bottom:10px;" onclick="confirmEndWriting()">End writing now (${n}/${total} in) →</button>` : ''}
+      ${n === 0 ? `<button class="btn" style="margin-bottom:10px;" onclick="confirmReroll()">🔀 Mulligan — new cartoon</button><p class="small center" style="margin:-4px 0 10px;">Dud cartoon? Swap it before anyone writes.</p>` : ''}
       <details class="box" id="dealer-controls" style="margin-bottom:10px;"><summary>🛠 Dealer controls <span class="arrow">▾</span></summary><div class="body stack">
-        ${n === 0 ? `<button class="btn btn-sm" onclick="confirmReroll()">🔀 Swap this cartoon</button>` : ''}
         <button class="btn btn-sm" style="color:var(--red);" onclick="confirmSkipRound()">⏭ Skip this round</button>
       </div></details>
       <details class="box" id="music-details"><summary>🎵 Music for the table ${current ? '<span class="small">playing</span>' : ''}<span class="arrow">▾</span></summary><div class="body stack">
@@ -911,7 +928,7 @@ function renderWriting() {
 function captionCount() { const i = document.getElementById('caption-input'), c = document.getElementById('cap-count'); if (i && c) c.textContent = `${i.value.length} / 200`; }
 function toggleTrack(key) { if (!window.GameMusic) return; if (window.GameMusic.currentTrack() === key) window.GameMusic.stop(); else window.GameMusic.play(key); render(true); }
 function confirmEndWriting() { const n = (state.submittedPlayerIds || []).length, r = state.players.length - 1 - n; if (r > 0 && !confirm(`End writing now? ${r} player${r === 1 ? ' hasn\u2019t' : 's haven\u2019t'} submitted.`)) return; send({ action: 'end_writing' }); }
-function confirmReroll() { if (confirm('Swap this cartoon for a new one? The timer restarts.')) send({ action: 'reroll_cartoon' }); }
+function confirmReroll() { if (confirm('Mulligan: swap this cartoon for a new one? The timer restarts.')) send({ action: 'reroll_cartoon' }); }
 function confirmSkipRound() { if (confirm('Skip this round? No points, and the deal moves on.')) send({ action: 'skip_round' }); }
 function submitCaption() {
   const i = document.getElementById('caption-input'); if (!i) return;
@@ -945,20 +962,20 @@ function renderDealerReview() {
   if (!state.isDealer) {
     return `${stickyTop(roundSticker(), 'Tap the cartoon to enlarge')}
       <div class="center" style="padding-top:6vh;">
-        <div class="env wobble"><div class="back"></div><div class="letter">?</div><div class="front"></div><div class="flap"></div><div class="seal">🔒</div></div>
-        <h2 class="h2" style="margin-top:34px;">${esc(state.dealerName)} is sealing the envelope<span class="dots"></span></h2>
-        <p class="sub" style="margin-top:8px;">One caption is about to disappear into the Closed Caption.</p>
+        <div class="ccard wobble"><div class="cc">CC</div><div class="lbl">Closed Caption</div></div>
+        <h2 class="h2" style="margin-top:34px;">${esc(state.dealerName)} is choosing the Closed Caption<span class="dots"></span></h2>
+        <p class="sub" style="margin-top:8px;">One caption is about to go face-down. Nobody sees it until after the blind bets.</p>
       </div>`;
   }
   const warn = `<div class="panel red flat center" style="margin-bottom:14px; padding:10px;"><b>🙈 Dealer eyes only</b> — keep your screen to yourself</div>`;
   if (state.autoClose) {
-    return `${stickyTop('<span class="sticker red">Auto-seal</span>')}${warn}
+    return `${stickyTop('<span class="sticker red">App\u2019s pick</span>')}${warn}
       <div class="center">
         <div style="font-size:54px;" class="wiggle">🤖</div>
         <h2 class="h2" style="margin:10px 0 6px;">The app is taking this one.</h2>
-        <p class="sub">The <b>real caption</b> goes in the envelope this round. Every player's caption stays in the open. Say nothing. Look innocent.</p>
-        <div class="panel yellow" style="margin:18px 0; text-align:left;"><p class="eyebrow" style="color:var(--ink-2);">✉ Going into the envelope</p><p class="caption-text">“${esc(state.correctCaption)}”</p></div>
-        <button class="btn btn-ink" onclick="sfx.seal(); send({action:'dealer_decision', chosenPlayerId:null})">Seal it 🔒</button>
+        <p class="sub">The <b>real caption</b> is the Closed Caption this round. Every player's caption stays in the open. Say nothing. Look innocent.</p>
+        <div class="panel yellow" style="margin:18px 0; text-align:left;"><p class="eyebrow" style="color:var(--ink-2);">This round's Closed Caption</p><p class="caption-text">“${esc(state.correctCaption)}”</p></div>
+        <button class="btn btn-ink" onclick="sfx.seal(); send({action:'dealer_decision', chosenPlayerId:null})">Got it — hide it ✓</button>
       </div>`;
   }
   const subs = (state.submissions || []).map(s => `
@@ -967,13 +984,13 @@ function renderDealerReview() {
       <p class="caption-text">“${esc(s.caption)}”</p>
     </button>`).join('');
   return `${stickyTop('<span class="sticker">🎲 Your call</span>', 'Tap the cartoon to enlarge')}${warn}
-    <h2 class="h2" style="margin-bottom:4px;">Pick one caption to hide.</h2>
-    <p class="sub" style="margin-bottom:16px;">The real caption stays out in the open. Hide the best bluff to thin the field — or a dud to make the envelope look boring.</p>
+    <h2 class="h2" style="margin-bottom:4px;">Pick the Closed Caption.</h2>
+    <p class="sub" style="margin-bottom:16px;">One player's caption goes face-down; the real caption stays out in the open. Hide the best bluff to thin the field — or a dud to make the Closed Caption look boring.</p>
     <div class="panel teal flat" style="margin-bottom:14px; padding:10px 14px;"><p class="small" style="color:var(--teal);">The real one, for your eyes</p><p class="caption-text" style="font-size:15px;">“${esc(state.correctCaption)}”</p></div>
     <div class="stack" style="margin-bottom:16px;">${subs}</div>
-    <button class="btn btn-ink" id="dealer-confirm-btn" ${selectedDealerPid ? '' : 'disabled'} onclick="confirmDealerChoice()">${selectedDealerPid ? 'Seal this one 🔒' : 'Tap a caption above'}</button>`;
+    <button class="btn btn-ink" id="dealer-confirm-btn" ${selectedDealerPid ? '' : 'disabled'} onclick="confirmDealerChoice()">${selectedDealerPid ? 'Hide this one ✓' : 'Tap a caption above'}</button>`;
 }
-function selectDealerChoice(pid) { selectedDealerPid = pid; document.querySelectorAll('.dealer-choice').forEach(b => b.classList.toggle('picked', b.dataset.pid === pid)); const b = document.getElementById('dealer-confirm-btn'); b.disabled = false; b.textContent = 'Seal this one 🔒'; }
+function selectDealerChoice(pid) { selectedDealerPid = pid; document.querySelectorAll('.dealer-choice').forEach(b => b.classList.toggle('picked', b.dataset.pid === pid)); const b = document.getElementById('dealer-confirm-btn'); b.disabled = false; b.textContent = 'Hide this one ✓'; }
 function confirmDealerChoice() { if (selectedDealerPid) { sfx.seal(); send({ action: 'dealer_decision', chosenPlayerId: selectedDealerPid }); } }
 
 /* ── READING ── */
@@ -987,15 +1004,16 @@ function renderReading(animate) {
     ${toon(200, true)}
     <div class="stack" style="margin:18px 0 14px;">${cards}</div>
     <div class="cap closed locked ${animate ? 'deal-in' : ''}" style="animation-delay:${(state.openCaptions || []).length * 0.14}s; text-align:center; padding:18px;">
-      <div style="font-size:30px;">✉️</div><p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed caption</p><p class="small" style="color:var(--ink-2);">Sealed until the blind bets are in</p>
+      <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed caption</p><p class="small" style="color:var(--ink-2);">Face-down until the blind bets are in</p>
     </div>
-    ${state.isDealer ? `<button class="btn btn-yellow" style="margin-top:18px;" onclick="send({action:'advance'})">Open the betting 🎰</button>` : `<p class="center small" style="margin-top:16px;">Betting starts on the dealer's left</p>`}`;
+    <p class="center small" style="margin-top:14px;">Next: blind bets go clockwise from the dealer's left, one player at a time. Everyone sees every bet.</p>
+    ${state.isDealer ? `<button class="btn btn-yellow" style="margin-top:14px;" onclick="send({action:'advance'})">Open the betting 🎰</button>` : ''}`;
 }
 
 /* ── BETTING ── */
 function betLabel(target, count) {
   if (count === 2) return target === 'closed' ? '🌕 Shoot the Moon' : '🌗 Half-Moon';
-  return target === 'closed' ? 'Chip on the envelope' : 'Chip on Caption ' + (target + 1);
+  return target === 'closed' ? 'Chip on the Closed Caption' : 'Chip on Caption ' + (target + 1);
 }
 function renderBetting(stage, phaseChanged) {
   const bets = state.bets || [], order = state.betOrder || [];
@@ -1023,8 +1041,8 @@ function renderBetting(stage, phaseChanged) {
     </button>`).join('');
   const closedCard = stage === 1
     ? `<button class="${cardCls('closed')}" data-target="closed" onclick="selectBet('closed')" style="text-align:center; padding:18px 16px;">
-        ${tray('closed')}<div style="font-size:30px;">✉️</div><p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed caption · sealed</p>
-        <p class="small" style="color:var(--ink-2);">Bet blind that the real one is in here. Pays extra.</p></button>`
+        ${tray('closed')}<div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed caption · face-down</p>
+        <p class="small" style="color:var(--ink-2);">Bet blind that the real one is hiding here. Pays extra.</p></button>`
     : `<button class="${cardCls('closed')}" data-target="closed" onclick="selectBet('closed')">
         ${tray('closed')}<p class="eyebrow" style="color:var(--ink-2);">✉ Closed caption · revealed</p><p class="caption-text">“${esc(state.closedCaption)}”</p>
         ${stage1Mine && stage1Mine.target === 'closed' ? '<p class="mine-note">Your chip is already here — pick somewhere else</p>' : ''}</button>`;
@@ -1041,22 +1059,23 @@ function renderBetting(stage, phaseChanged) {
 
   let banner;
   if (state.isDealer) banner = state.allBetsIn
-    ? `<div class="turn-banner wait"><div class="h2">All bets are in</div><p class="sub">${stage === 1 ? 'Time to open the envelope.' : 'Time for the answer.'}</p></div>`
-    : `<div class="turn-banner wait"><div class="h2">${esc(state.currentBetterName)} is betting<span class="dots"></span></div><p class="sub">Read the room. Say nothing.</p></div>`;
+    ? `<div class="turn-banner wait"><div class="h2">All bets are in</div><p class="sub">${stage === 1 ? 'Time to reveal the Closed Caption.' : 'Time for the answer.'}</p></div>`
+    : `<div class="turn-banner wait"><div class="h2">${esc(state.currentBetterName)} is betting<span class="dots"></span></div><p class="sub">Bets go clockwise from your left. Read the room. Say nothing.</p></div>`;
   else if (state.isMyTurn && !myBet) banner = `<div class="turn-banner you"><div class="h2">Your bet!</div><p class="sub" style="color:var(--ink);">${stage === 1 ? 'Tap a caption, then put down 1 chip or both.' : 'Tap where your last chip goes.'}</p></div>`;
   else if (myBet) banner = `<div class="turn-banner wait"><div class="h2">${betLabel(myBet.target, myBet.count)} ✓</div><p class="sub">${stage === 1 && myBet.count === 1 ? 'Your second chip waits for the reveal.' : (state.allBetsIn ? 'Waiting on the dealer.' : `${esc(state.currentBetterName)} is up.`)}</p></div>`;
   else if (stage === 2 && !eligible2.has(myPlayerId)) banner = `<div class="turn-banner wait"><div class="h2">${passed.has(myPlayerId) ? 'You sat this one out' : 'You\u2019re all in'}</div><p class="sub">${state.allBetsIn ? 'All bets are in.' : `${esc(state.currentBetterName)} is betting…`}</p></div>`;
   else if (state.allBetsIn) banner = `<div class="turn-banner wait"><div class="h2">All bets are in</div><p class="sub">Waiting on ${esc(state.dealerName)}.</p></div>`;
-  else banner = `<div class="turn-banner wait"><div class="h2">${esc(state.currentBetterName)} is betting<span class="dots"></span></div><p class="sub">You're ${order.indexOf(myPlayerId) - order.indexOf(state.currentBetterId)} away.</p></div>`;
+  else banner = `<div class="turn-banner wait"><div class="h2">${esc(state.currentBetterName)} is betting<span class="dots"></span></div><p class="sub">Bets go clockwise from the dealer's left — you're ${order.indexOf(myPlayerId) - order.indexOf(state.currentBetterId)} away.</p></div>`;
 
   const dealerBtn = state.isDealer ? `<div style="margin-top:18px;" class="stack">
-      <button class="btn ${state.allBetsIn ? 'btn-yellow' : ''}" onclick="dealerAdvanceBets()">${stage === 1 ? 'Open the envelope ✉️' : 'Show the answer 🎯'}${state.allBetsIn ? '' : ' (skip the rest)'}</button>
+      <button class="btn ${state.allBetsIn ? 'btn-yellow' : ''}" onclick="dealerAdvanceBets()">${stage === 1 ? 'Reveal the Closed Caption' : 'Show the answer 🎯'}${state.allBetsIn ? '' : ' (skip the rest)'}</button>
       ${!state.allBetsIn ? `<button class="btn-link" style="display:block; margin:0 auto;" onclick="send({action:'skip_better'})">Skip ${esc(state.currentBetterName)}'s turn</button>` : ''}
     </div>` : '';
 
   return `${stickyTop(stage === 1 ? '<span class="sticker violet">Blind bets</span>' : '<span class="sticker" style="background:var(--blue); color:#fff;">Second bets</span>', 'Tap the cartoon to enlarge')}
     ${banner}
-    <div class="order">${orderRow}</div>
+    <p class="center small" style="margin-bottom:6px;">Betting order →</p>
+    <div class="order" style="margin-top:0;">${orderRow}</div>
     <div class="stack" style="margin-top:16px;">${cards}${closedCard}</div>
     ${dealerBtn}`;
 }
@@ -1072,7 +1091,7 @@ function selectBet(target) {
 function renderActionBar() {
   if (!state || !state.isMyTurn || selectedBetTarget === null) { setActionBar(''); return; }
   const stage = state.phase === 'first_bets' ? 1 : 2, t = selectedBetTarget;
-  const where = t === 'closed' ? 'the envelope' : `Caption ${t + 1}`;
+  const where = t === 'closed' ? 'the Closed Caption' : `Caption ${t + 1}`;
   if (stage === 1) setActionBar(`<p class="center small" style="margin-bottom:8px;">${where} — how many chips?</p><div class="btn-row">
       <button class="btn btn-blue" onclick="placeBet(1)">1 chip</button>
       <button class="btn ${t === 'closed' ? 'btn-yellow' : 'btn-violet'}" onclick="placeBet(2)">${t === 'closed' ? '🌕 Shoot the Moon' : '🌗 Half-Moon'}</button></div>`);
@@ -1082,31 +1101,31 @@ function placeBet(count) { if (selectedBetTarget === null) return; send({ action
 
 /* ── REVEAL ── */
 function renderReveal() {
-  return `${stickyTop('<span class="sticker">✉ The envelope</span>')}
+  return `${stickyTop('<span class="sticker">Reveal</span>')}
     <div class="center" style="padding-top:3vh;" id="reveal-container">
-      <div class="env" id="reveal-env"><div class="back"></div><div class="letter">${esc(state.closedCaption)}</div><div class="front"></div><div class="flap"></div><div class="seal">🔒</div></div>
-      <div id="reveal-count" class="h-display" style="font-size:64px; margin-top:20px; min-height:70px;"></div>
-      <div id="reveal-card" style="opacity:0; transform:scale(.6); transition:opacity .5s, transform .6s var(--spring);">
-        <div class="panel yellow" style="transform:rotate(-1deg);"><p class="eyebrow" style="color:var(--ink-2);">The closed caption was</p><p class="caption-text" style="font-size:22px; margin-top:6px;">“${esc(state.closedCaption)}”</p></div>
-        <p class="sub" style="margin-top:14px;" id="reveal-hint"></p>
-      </div>
-      ${state.isDealer ? `<button id="reveal-continue" class="btn btn-yellow" style="margin-top:22px; opacity:0; transition:opacity .4s;" onclick="send({action:'advance'})">${(state.eligibleSecondBetters || []).length ? 'Open second bets →' : 'Everyone\u2019s all in — show the answer →'}</button>` : ''}
+      <p class="sub" style="margin-bottom:16px;" id="reveal-lead">Turning the Closed Caption face-up<span class="dots"></span></p>
+      <div class="flip" id="reveal-flip"><div class="inner">
+        <div class="face front"><div class="ccard" id="reveal-ccard"><div class="cc">CC</div><div class="lbl">Closed Caption</div></div></div>
+        <div class="face back"><div class="panel yellow" style="transform:rotate(-1deg);"><p class="eyebrow" style="color:var(--ink-2);">The Closed Caption was</p><p class="caption-text" style="font-size:22px; margin-top:6px;">“${esc(state.closedCaption)}”</p></div></div>
+      </div></div>
+      <div id="reveal-count" class="h-display" style="font-size:64px; margin-top:16px; min-height:70px;"></div>
+      <p class="sub" id="reveal-hint" style="opacity:0; transition:opacity .4s; margin-top:22px;"></p>
+      ${state.isDealer ? `<button id="reveal-continue" class="btn btn-yellow" style="margin-top:18px; opacity:0; transition:opacity .4s;" onclick="send({action:'advance'})">${(state.eligibleSecondBetters || []).length ? 'Open second bets →' : 'Everyone’s all in — show the answer →'}</button>` : ''}
     </div>`;
 }
 function playRevealSequence() {
   if (window.GameMusic) window.GameMusic.stop();
-  const env = document.getElementById('reveal-env'), count = document.getElementById('reveal-count'), card = document.getElementById('reveal-card'), btn = document.getElementById('reveal-continue'), hint = document.getElementById('reveal-hint');
-  if (!env) return;
-  sfx.drumroll(1600); env.classList.add('tremble');
+  const flip = document.getElementById('reveal-flip'), card = document.getElementById('reveal-ccard'), count = document.getElementById('reveal-count'), btn = document.getElementById('reveal-continue'), hint = document.getElementById('reveal-hint');
+  if (!flip) return;
+  sfx.drumroll(1600); card.classList.add('tremble');
   [['3', 200], ['2', 700], ['1', 1200]].forEach(([n, t]) => setTimeout(() => { count.textContent = n; count.animate([{ transform: 'scale(1.6)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 300, easing: 'ease-out' }); }, t));
-  setTimeout(() => { env.classList.remove('tremble'); env.classList.add('open'); count.textContent = ''; noise(0.25, 0, 0.3, 1800, 'highpass'); tone(500, 0.3, 0, 'sine', 0.08, 900); buzz([40, 30, 80]); }, 1700);
-  setTimeout(() => { env.style.transition = 'opacity .4s, transform .5s'; env.style.opacity = '0'; env.style.transform = 'translateY(-40px) scale(.6)'; setTimeout(() => { env.style.display = 'none'; count.style.display = 'none'; }, 450); }, 2700);
+  setTimeout(() => { card.classList.remove('tremble'); count.style.display = 'none'; const lead = document.getElementById('reveal-lead'); if (lead) lead.textContent = 'The Closed Caption was…'; flip.classList.add('open'); noise(0.25, 0, 0.3, 1800, 'highpass'); tone(500, 0.3, 0, 'sine', 0.08, 900); buzz([40, 30, 80]); }, 1700);
   setTimeout(() => {
-    card.style.opacity = '1'; card.style.transform = 'none'; sfx.tada();
+    sfx.tada();
     const n = (state.eligibleSecondBetters || []).length;
-    if (hint) hint.textContent = n ? `${n} player${n === 1 ? ' still has' : 's still have'} a chip to place.` : 'Nobody held a chip back. Straight to the answer.';
-    if (btn) setTimeout(() => { btn.style.opacity = '1'; }, 600);
-  }, 3000);
+    if (hint) { hint.textContent = n ? `${n} player${n === 1 ? ' still has' : 's still have'} a chip to place — same order as before.` : 'Nobody held a chip back. Straight to the answer.'; hint.style.opacity = '1'; }
+    if (btn) setTimeout(() => { btn.style.opacity = '1'; }, 500);
+  }, 2600);
 }
 
 /* ── ANSWER ── */
@@ -1146,7 +1165,7 @@ function playAnswerSequence() {
   }, 1500);
 
   setTimeout(() => {
-    if (vs) { vs.textContent = state.closedIsCorrect ? '🌕 It was in the envelope!' : '👀 It was out in the open'; vs.className = 'sticker ' + (state.closedIsCorrect ? '' : 'white'); }
+    if (vs) { vs.textContent = state.closedIsCorrect ? '🌕 It was the Closed Caption!' : '👀 It was out in the open'; vs.className = 'sticker ' + (state.closedIsCorrect ? '' : 'white'); }
     if (verdict) verdict.style.opacity = '1';
   }, 2500);
 
@@ -1238,7 +1257,7 @@ function renderHistory(idx) {
   const pts = Object.entries(r.roundScores || {}).filter(([, p]) => p > 0).sort((a, b) => b[1] - a[1]).map(([pid, p]) => { const pl = playerById(pid); return pl ? `<div class="pt-row in">${chipHtml(pid, 'sm')}<span style="flex:1; font-weight:800;">${esc(pl.name)}</span><span class="plus" style="font-size:20px;">+${p}</span></div>` : ''; }).join('');
   document.getElementById('game-content').innerHTML = `
     <div class="topbar sticky"><div class="tleft">${r.cartoon ? `<div class="thumb" onclick="document.getElementById('lightbox-img').src='/images/${esc(r.cartoon.image)}'; document.getElementById('lightbox').classList.add('on');"><img src="/images/${esc(r.cartoon.image)}"></div>` : ''}<div class="stk"><span class="sticker white">Round ${r.round} of ${h.length}</span></div></div><span class="code-pill">${esc(state.code)}</span></div>
-    <div class="center" style="margin-bottom:14px;"><p class="small" style="margin-top:2px;">Dealer: ${esc(r.dealerName)}${r.autoClose ? ' · the app sealed the real one' : ''}</p></div>
+    <div class="center" style="margin-bottom:14px;"><p class="small" style="margin-top:2px;">Dealer: ${esc(r.dealerName)}${r.autoClose ? ' · the app hid the real one' : ''}</p></div>
     <div class="stack" style="margin-bottom:16px;">${cards}</div>
     ${pts ? `<p class="eyebrow" style="margin-bottom:8px;">Points</p>${pts}` : '<p class="center sub">No points that round.</p>'}
     ${r.dealerBonusAwarded ? '<p class="center small" style="color:var(--red); margin-top:6px;">🃏 Dealer bonus — nobody found it</p>' : ''}
