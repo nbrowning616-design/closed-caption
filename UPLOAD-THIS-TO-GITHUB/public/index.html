@@ -478,6 +478,7 @@ function closeLightbox() { document.getElementById('lightbox').classList.remove(
 function buzz(pattern) { try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {} }
 
 let ws = null, state = null, myPlayerId = null, gameCode = null, selectedTimer = 90, timerInterval = null, wasKicked = false;
+const BUILD = '__BUILD__';   // filled in by the server; if the server's build differs, this page is stale
 
 /* ═══════════════════════════════════════════════════════════
    Navigation
@@ -645,7 +646,12 @@ function connect() {
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
     if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; saveSession(); showScreen('screen-game'); }
-    else if (msg.type === 'state') { state = msg.data; render(); }
+    else if (msg.type === 'state') {
+      state = msg.data;
+      // A newer version of the game is on the server: refresh once, quietly. The seat is kept.
+      if (state.build && BUILD !== '__BUILD__' && state.build !== BUILD && !window._reloading) { window._reloading = true; saveSession(); setTimeout(() => location.reload(), 300); return; }
+      render();
+    }
     else if (msg.type === 'error') {
       if (msg.message === 'Player not in game' || msg.message === 'Game not found') {
         const wasRestoring = !document.getElementById('screen-join').classList.contains('active');

@@ -27,6 +27,16 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
+// Build id = when the phone screen was last changed. Phones compare it and refresh themselves after an update.
+const fs = require('fs');
+const INDEX_PATH = path.join(__dirname, 'public', 'index.html');
+const BUILD = String(Math.floor(fs.statSync(INDEX_PATH).mtimeMs));
+app.get('/', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.send(fs.readFileSync(INDEX_PATH, 'utf8').replace('__BUILD__', BUILD));
+});
+app.get('/index.html', (req, res) => res.redirect('/'));
+
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -42,6 +52,7 @@ function broadcast(gameCode) {
     if (client && client.ws.readyState === 1) {
       const view = getPlayerView(game, player.id);
       view.lanUrl = LAN_URL;
+      view.build = BUILD;
       client.ws.send(JSON.stringify({ type: 'state', data: view }));
     }
   }
