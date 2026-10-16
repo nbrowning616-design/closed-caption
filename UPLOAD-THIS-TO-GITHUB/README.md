@@ -13,12 +13,12 @@ A web-based multiplayer party game. One person creates a game, shares a 4-letter
 
 ## How to Play
 
-- One person taps "Create Game" and shares the room code
-- Everyone else taps "Join Game" and enters the code + their name
-- The host starts the game when everyone's in
-- Each round: a cartoon appears, everyone writes a caption, the dealer seals one caption in the Closed Caption, bets are placed in turn (starting on the dealer's left, everyone sees every bet), the envelope is opened, second bets go down, the answer is revealed
-- The app handles everything: cartoons, timer, submissions, the betting table (chips), and scoring
-- Full rules, including Half-Moon, Shoot the Moon and the dealer bonus, are in `Closed_Caption_Rules_v3.docx` and on the app's "How to play" screen
+- One person taps "Host a game" and shares the 4-letter room code; everyone else taps "Join with a code" (late arrivals can join mid-game)
+- Each round everyone — the dealer too — writes a caption for the same cartoon. Half the table can vote to mulligan a bad cartoon
+- The game secretly turns one caption face-down (the Closed Caption). Usually it's a player's; sometimes it's the real one
+- Blind bets go one at a time from the dealer's left (the dealer doesn't bet), the Closed Caption is revealed, last chips go down (anywhere, even on the same caption), then the dealer may steal one chip
+- The real caption is revealed and points are paid. Full rules are on the app's "How to play" screen
+- Every caption, including the real ones, is tidied the same way (capitals, punctuation, apostrophes, quotes) so style never gives anything away. Likely typos get a "Did you mean…?" before locking in
 
 ## Deploying Online
 
@@ -41,5 +41,7 @@ Both have free tiers that work fine for game nights.
 
 - `server.js` — Express + WebSocket server
 - `game.js` — All game rules, phases, scoring logic
+- `polish.js` — Caption tidying and spelling suggestions
+- `words.txt` — English word list used for spelling suggestions (from the wordfreq project)
 - `public/index.html` — The entire frontend (mobile-first)
 - `public/images/` — Cartoon card images

@@ -1,18 +1,30 @@
 // game.js — Core game logic for Closed Caption
+//
+// How a round works (v2, "everyone plays"):
+//   1. WRITING      Everyone — the dealer too — writes a caption for the same cartoon.
+//                   Anyone can vote to mulligan the cartoon; half the table swaps it.
+//   2. READING      The app secretly picks the Closed Caption (usually a random player's
+//                   caption; sometimes the real one). The rest are shown. The dealer reads aloud.
+//   3. FIRST_BETS   Blind bets, one player at a time, clockwise from the dealer's left.
+//                   The dealer does not bet. 1 chip, or both (Half-Moon / Shoot the Moon).
+//   4. REVEAL       The Closed Caption is turned face-up.
+//   5. SECOND_BETS  Anyone holding a chip places it — anywhere, even on the same caption.
+//   6. STEAL        The dealer may knock one chip off the table.
+//   7. ANSWER       The real caption is shown and points are paid.
+//   8. SCORES       Scoreboard; the deal moves left.
 
 const PHASES = {
   LOBBY: 'lobby',
   WRITING: 'writing',
-  DEALER_REVIEW: 'dealer_review',
   READING: 'reading',
   FIRST_BETS: 'first_bets',
   REVEAL: 'reveal',
   SECOND_BETS: 'second_bets',
+  STEAL: 'steal',
   ANSWER: 'answer',
   SCORES: 'scores',
 };
 
-// Sample cartoons for demo — in production this would be a database
 const CARTOONS = [
   { id: 1, title: "The Fish Therapist", image: "card_1.jpg", correct: "So you feel like nobody notices you." },
   { id: 2, title: "The Alien Restaurant", image: "card_2.jpg", correct: "What's good here? We've come a long way." },
@@ -32,7 +44,7 @@ const CARTOONS = [
   { id: 22, title: "Giant Mouth Dentist", image: "card_22.jpg", correct: "We may need to reschedule. I can't find my assistant." },
   { id: 23, title: "The Speedo Strut", image: "card_23.jpg", correct: "Nobody said anything. Nobody could." },
   { id: 24, title: "Horse Witness", image: "card_24.jpg", correct: "I'll ask again. Were you at the barn that night?" },
-  { id: 25, title: "Stick Figure Art", image: "card_25.jpg", correct: "Under magnification its clearly a boy." },
+  { id: 25, title: "Stick Figure Art", image: "card_25.jpg", correct: "Under magnification it's clearly a boy." },
   { id: 26, title: "Yoga Pretzel", image: "card_26.jpg", correct: "Namaste." },
   { id: 27, title: "Giraffe Tailor", image: "card_27.jpg", correct: "The suit was easy. The tie is the problem." },
   { id: 29, title: "Enormous Cat", image: "card_29.jpg", correct: "You should see the litter box." },
@@ -53,8 +65,23 @@ const CARTOONS = [
   { id: 46, title: "The Plumber", image: "card_46.jpg", correct: "Someone in your family needs more fiber." },
 ];
 
-// Probability that the correct caption goes in the closed box automatically
-const AUTO_CLOSE_PROBABILITY = 0.15;
+// The real captions get the same polish as players' captions, so they look identical
+const { polish } = require('./polish');
+for (const c of CARTOONS) c.correct = polish(c.correct).text;
+
+const MAX_PLAYERS = 8;
+
+// Shown on everyone's screen when the table votes a cartoon off
+const MULLIGAN_QUIPS = [
+  'This cartoon has been voted off the island.',
+  'The table has spoken. Next!',
+  'Nope. Nope. Nope.',
+  'That cartoon is going to need therapy.',
+  'Rejected harder than a timeshare pitch.',
+  'Into the shredder it goes.',
+  'Not even the artist liked that one.',
+  'Cartoon fired. Security will walk it out.',
+];
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -64,25 +91,26 @@ function shuffleArray(arr) {
   }
   return a;
 }
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 function generateRoomCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // no I or O to avoid confusion
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // no I or O
   let code = '';
   for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
   return code;
 }
 
-// Default game settings — can be overridden by the host in lobby
 const DEFAULT_SETTINGS = {
-  rounds: null,                  // null = one full dealer rotation; else fixed number
-  targetScore: null,             // null = play full rounds; else first to X points wins
-  pointsOpenBet: 2,              // BLIND (first-round) bet, per marker, on the correct open caption
-  pointsClosedBet: 3,            // BLIND (first-round) bet, per marker, on the closed caption when it's correct
-  pointsOpenLate: 1,             // second-round (post-reveal) bet, per marker, on the correct caption (open or closed — no premium once revealed)
-  pointsClosedLate: 1,           // kept equal to pointsOpenLate; the closed caption only pays extra when bet blind
-  pointsPerFool: 1,              // points to the writer for every marker another player puts on their caption
-  dealerBonus: 4,                // dealer scores this if nobody puts a marker on the correct caption
-  autoCloseProbability: 0.15,    // chance the app auto-places the correct caption in the closed box (0..1)
+  rounds: null,                  // null = everyone deals once; else fixed number
+  targetScore: null,             // null = play the rounds; else first to X points
+  pointsOpenBet: 2,              // blind chip on the real caption, out in the open
+  pointsClosedBet: 3,            // blind chip on the Closed Caption when it's the real one
+  pointsOpenLate: 1,             // late chip (after the reveal) on the real caption, anywhere
+  pointsClosedLate: 1,           // kept equal to pointsOpenLate
+  pointsPerFool: 1,              // to the writer, for each chip someone else puts on their caption
+  dealerBonus: 4,                // dealer scores this if no chip ends up on the real caption
+  autoCloseProbability: 0.15,    // chance the real caption is the Closed Caption
+  stealEnabled: true,            // dealer may knock one chip off the table before the answer
 };
 
 function createGame(hostId, hostName, timerDuration = 90) {
@@ -94,9 +122,8 @@ function createGame(hostId, hostName, timerDuration = 90) {
     timerDuration,
     settings: { ...DEFAULT_SETTINGS },
     round: 0,
-    dealerIndex: -1, // will be set to 0 on first round
+    dealerIndex: -1,
     usedCartoonIds: [],
-    // Round state
     cartoon: null,
     correctCaption: '',
     autoClose: false,
@@ -104,99 +131,105 @@ function createGame(hostId, hostName, timerDuration = 90) {
     closedCaption: '',
     closedIsCorrect: false,
     closedPlayerId: null,
-    openCaptions: [],      // { caption, isCorrect, playerId }
-    firstBets: {},         // playerId -> { target, count }   (kept for history view)
+    openCaptions: [],     // { caption, isCorrect, playerId }
+    firstBets: {},
     secondBets: {},
-    bets: [],              // public bet log, in the order placed: { playerId, target, count, stage }
-    betOrder: [],          // playerIds clockwise from the dealer's left
-    roundScores: {},       // playerId -> points earned this round
-    roundScoreDetails: {}, // playerId -> [{ pts, reason }]
+    bets: [],             // public log, in order: { playerId, target, count, stage, stolen? }
+    betOrder: [],
+    steal: null,          // { victimId, target, stage, betIndex } | { skipped: true }
+    mulliganVotes: [],
+    mulliganCount: 0,
+    mulliganEvent: null,  // { n, quip, image }
+    roundScores: {},
+    roundScoreDetails: {},
     dealerBonusAwarded: false,
+    previousRank: {},
     timerEnd: null,
-    timerToken: 0,         // increments on each new writing phase to invalidate stale timers
-    // Past rounds
-    history: [],           // [{ round, cartoon, correctCaption, openCaptions, closedCaption, ... }]
+    timerToken: 0,
+    history: [],
   };
 }
 
 function updateSettings(game, partial) {
   if (game.phase !== PHASES.LOBBY) return { error: 'Settings can only be changed in the lobby' };
   const s = game.settings;
-  const allowed = ['rounds', 'targetScore', 'pointsOpenBet', 'pointsClosedBet', 'pointsOpenLate', 'pointsClosedLate', 'pointsPerFool', 'dealerBonus', 'autoCloseProbability'];
-  for (const key of allowed) {
-    if (key in partial) {
-      const val = partial[key];
-      // Validation
-      if (val === null) {
-        s[key] = null;
-      } else if (key === 'autoCloseProbability') {
-        const n = Number(val);
-        if (isNaN(n) || n < 0 || n > 1) return { error: 'Invalid auto-close probability' };
-        s[key] = n;
-      } else {
-        const n = Number(val);
-        if (!Number.isInteger(n) || n < 0 || n > 100) return { error: `Invalid ${key}` };
-        s[key] = n;
-      }
+  const ints = ['rounds', 'targetScore', 'pointsOpenBet', 'pointsClosedBet', 'pointsOpenLate', 'pointsClosedLate', 'pointsPerFool', 'dealerBonus'];
+  for (const key of Object.keys(partial || {})) {
+    const val = partial[key];
+    if (key === 'stealEnabled') { s.stealEnabled = !!val; continue; }
+    if (key === 'autoCloseProbability') {
+      const n = Number(val);
+      if (isNaN(n) || n < 0 || n > 1) return { error: 'Invalid auto-close probability' };
+      s.autoCloseProbability = n; continue;
     }
+    if (!ints.includes(key)) continue;
+    if (val === null && (key === 'rounds' || key === 'targetScore')) { s[key] = null; continue; }
+    const n = Number(val);
+    if (!Number.isInteger(n) || n < 0 || n > 100) return { error: `Invalid ${key}` };
+    s[key] = n;
   }
   return { ok: true };
 }
 
 function addPlayer(game, playerId, playerName) {
-  if (game.phase !== PHASES.LOBBY) return { error: 'Game already in progress' };
-  if (game.players.length >= 8) return { error: 'Game is full (max 8)' };
-  if (game.players.some(p => p.name.toLowerCase() === playerName.toLowerCase())) {
-    return { error: 'Name already taken' };
-  }
-  game.players.push({ id: playerId, name: playerName, score: 0, connected: true });
-  return { ok: true };
+  if (game.players.length >= MAX_PLAYERS) return { error: `Game is full (max ${MAX_PLAYERS})` };
+  if (game.players.some(p => p.name.toLowerCase() === playerName.toLowerCase())) return { error: 'Name already taken' };
+  // Late joiners are added at the end of the table, so the deal order of everyone else is unchanged.
+  // They score from zero and join in from the current writing phase or the next round.
+  game.players.push({ id: playerId, name: playerName, score: 0, connected: true, joinedRound: game.round });
+  return { ok: true, midGame: game.phase !== PHASES.LOBBY };
 }
 
-function removePlayer(game, playerId) {
-  game.players = game.players.filter(p => p.id !== playerId);
-}
-
-// Host kicks a player out of the lobby. Lobby-only — can't kick mid-game.
 function kickPlayer(game, hostId, targetPlayerId) {
-  if (game.phase !== PHASES.LOBBY) return { error: 'Can only kick players in the lobby' };
-  if (game.hostId !== hostId) return { error: 'Only the host can kick' };
-  if (hostId === targetPlayerId) return { error: 'You can\'t kick yourself' };
+  if (game.phase !== PHASES.LOBBY) return { error: 'Can only remove players in the lobby' };
+  if (game.hostId !== hostId) return { error: 'Only the host can remove players' };
+  if (hostId === targetPlayerId) return { error: 'You can\'t remove yourself' };
   const target = game.players.find(p => p.id === targetPlayerId);
   if (!target) return { error: 'Player not in game' };
-
   game.players = game.players.filter(p => p.id !== targetPlayerId);
   return { ok: true, kickedName: target.name };
 }
 
-function startRound(game, options = {}) {
-  if (!options.skipRoundIncrement) {
-    game.round++;
-  }
-  if (options.advanceDealer || !options.skipRoundIncrement) {
-    game.dealerIndex = game.round === 1 && !options.skipRoundIncrement ? 0 : (game.dealerIndex + 1) % game.players.length;
-  }
+const connectedPlayers = (game) => game.players.filter(p => p.connected);
+const dealerOf = (game) => game.players[game.dealerIndex] || null;
+const nameOfPlayer = (game, pid) => (game.players.find(p => p.id === pid) || {}).name || '?';
 
-  // Pick a cartoon not yet used
-  if (CARTOONS.length === 0) {
-    // Catastrophic safety check — shouldn't happen
-    game.phase = PHASES.LOBBY;
-    return;
+// The next seat after `from` held by someone who is here. Falls back to the next seat.
+function nextDealerIndex(game, from) {
+  const n = game.players.length;
+  if (!n) return -1;
+  for (let k = 1; k <= n; k++) {
+    const i = (from + k + n) % n;
+    if (game.players[i].connected) return i;
   }
-  const available = CARTOONS.filter(c => !game.usedCartoonIds.includes(c.id));
-  let cartoon;
+  return (from + 1 + n) % n;
+}
+
+// Put a fresh cartoon on the table, never the one being replaced
+function dealCartoon(game) {
+  const currentId = game.cartoon ? game.cartoon.id : null;
+  let available = CARTOONS.filter(c => !game.usedCartoonIds.includes(c.id) && c.id !== currentId);
   if (available.length === 0) {
-    game.usedCartoonIds = [];
-    cartoon = CARTOONS[Math.floor(Math.random() * CARTOONS.length)];
-  } else {
-    cartoon = available[Math.floor(Math.random() * available.length)];
+    game.usedCartoonIds = currentId ? [currentId] : [];
+    available = CARTOONS.filter(c => c.id !== currentId);
   }
+  const cartoon = pick(available.length ? available : CARTOONS);
   game.usedCartoonIds.push(cartoon.id);
-
   game.cartoon = { id: cartoon.id, title: cartoon.title, image: cartoon.image };
   game.correctCaption = cartoon.correct;
-  game.autoClose = Math.random() < (game.settings ? game.settings.autoCloseProbability : AUTO_CLOSE_PROBABILITY);
+  game.autoClose = Math.random() < game.settings.autoCloseProbability;
   game.submissions = [];
+  game.mulliganVotes = [];
+  game.timerEnd = Date.now() + game.timerDuration * 1000;
+  game.timerToken = (game.timerToken || 0) + 1;
+}
+
+function startRound(game, options = {}) {
+  if (!options.sameRound) {
+    game.round++;
+    game.dealerIndex = nextDealerIndex(game, game.dealerIndex);
+  }
+  dealCartoon(game);
   game.closedCaption = '';
   game.closedIsCorrect = false;
   game.closedPlayerId = null;
@@ -205,205 +238,198 @@ function startRound(game, options = {}) {
   game.secondBets = {};
   game.bets = [];
   game.betOrder = [];
+  game.steal = null;
+  game.mulliganEvent = null;
   game.roundScores = {};
   game.roundScoreDetails = {};
   game.dealerBonusAwarded = false;
   game.phase = PHASES.WRITING;
-  game.timerEnd = Date.now() + (game.timerDuration * 1000);
-  game.timerToken = (game.timerToken || 0) + 1; // invalidate any old timers
 }
 
-function submitCaption(game, playerId, caption) {
-  if (game.phase !== PHASES.WRITING) return { error: 'Not in writing phase' };
-  const dealer = game.players[game.dealerIndex];
-  if (!dealer) return { error: 'No dealer set' };
-  if (playerId === dealer.id) return { error: 'Dealer cannot submit' };
-  if (game.submissions.some(s => s.playerId === playerId)) return { error: 'Already submitted' };
+// Someone whose phone just locked or blinked off for a few seconds still counts as here
+const AWAY_GRACE_MS = 15000;
+const isPresent = (p) => p.connected || (p.disconnectedAt && Date.now() - p.disconnectedAt < AWAY_GRACE_MS);
 
+// Everyone who is here has written something
+function allCaptionsIn(game) {
+  const here = game.players.filter(isPresent);
+  return here.length > 0 && here.every(p => game.submissions.some(s => s.playerId === p.id));
+}
+
+// mode: 'check' = if there are likely typos, send them back to the writer instead of submitting;
+//       'fix'   = submit with the spelling fixes; 'keep' = submit with the writer's own spelling.
+// Punctuation, capitals and apostrophes are always tidied.
+function submitCaption(game, playerId, caption, mode = 'check') {
+  if (game.phase !== PHASES.WRITING) return { error: 'Writing time is over' };
   const player = game.players.find(p => p.id === playerId);
   if (!player) return { error: 'Player not in game' };
-
-  const trimmed = (caption || '').toString().trim();
-  if (!trimmed) return { error: 'Caption cannot be empty' };
-  if (trimmed.length > 200) return { error: 'Caption too long (max 200)' };
-
-  game.submissions.push({ playerId, playerName: player.name, caption: trimmed });
-
-  // Check if all non-dealer players have submitted
-  const nonDealerCount = game.players.length - 1;
-  if (game.submissions.length >= nonDealerCount) {
-    game.phase = PHASES.DEALER_REVIEW;
-  }
-  return { ok: true, allIn: game.submissions.length >= nonDealerCount };
+  if (game.submissions.some(s => s.playerId === playerId)) return { error: 'Already submitted' };
+  const raw = (caption || '').toString();
+  if (raw.length > 400) return { error: 'Caption too long (max 200)' };
+  const p = polish(raw);
+  if (!p.text || !/[A-Za-z0-9]/.test(p.text)) return { error: 'Caption cannot be empty' };
+  if (p.text.length > 220) return { error: 'Caption too long (max 200)' };
+  if (mode === 'check' && p.typos.length) return { ok: true, check: { polished: p.text, fixed: p.fixed, typos: p.typos } };
+  const finalText = mode === 'keep' ? p.text : p.fixed;
+  game.submissions.push({ playerId, playerName: player.name, caption: finalText });
+  return { ok: true, allIn: allCaptionsIn(game) };
 }
 
-function endWritingPhase(game) {
-  // Called when timer expires — move to dealer review even if not all submitted
-  if (game.phase !== PHASES.WRITING) return { ok: true };
-  // If nobody submitted anything, just skip this round entirely
-  if (game.submissions.length === 0) {
-    startRound(game, { skipRoundIncrement: true, advanceDealer: true });
-    return { ok: true, autoSkipped: true };
-  }
-  game.phase = PHASES.DEALER_REVIEW;
-  return { ok: true };
+// Toggle this player's mulligan vote. Half the table (at least 2 people) swaps the cartoon.
+function mulliganThreshold(game) {
+  const c = connectedPlayers(game).length;
+  return c < 2 ? 1 : Math.max(2, Math.ceil(c / 2));
+}
+function voteMulligan(game, playerId) {
+  if (game.phase !== PHASES.WRITING) return { error: 'You can only mulligan while writing' };
+  if (!game.players.some(p => p.id === playerId)) return { error: 'Player not in game' };
+  const i = game.mulliganVotes.indexOf(playerId);
+  if (i >= 0) { game.mulliganVotes.splice(i, 1); return { ok: true, triggered: false }; }
+  game.mulliganVotes.push(playerId);
+  const here = new Set(connectedPlayers(game).map(p => p.id));
+  const votes = game.mulliganVotes.filter(id => here.has(id)).length;
+  if (votes < mulliganThreshold(game)) return { ok: true, triggered: false };
+
+  const oldImage = game.cartoon ? game.cartoon.image : null;
+  dealCartoon(game);
+  game.mulliganCount = (game.mulliganCount || 0) + 1;
+  game.mulliganEvent = { n: game.mulliganCount, quip: pick(MULLIGAN_QUIPS), image: oldImage, at: Date.now() };
+  return { ok: true, triggered: true };
 }
 
-function dealerDecision(game, chosenPlayerId) {
-  if (game.phase !== PHASES.DEALER_REVIEW) return { error: 'Not in dealer review phase' };
+// Writing is over: the app picks the Closed Caption and lays out the rest.
+function finishWriting(game) {
+  if (game.phase !== PHASES.WRITING) return { ok: true, noop: true };
+  if (game.submissions.length === 0) return { ok: true, empty: true };
 
-  // If nobody submitted, skip this round entirely
-  if (game.submissions.length === 0) {
-    return { error: 'Nobody submitted a caption this round — use Skip Round' };
-  }
-
+  const subs = shuffleArray(game.submissions);
   if (game.autoClose) {
-    // Correct caption goes in the box automatically
     game.closedCaption = game.correctCaption;
     game.closedIsCorrect = true;
     game.closedPlayerId = null;
-
-    // All submissions become open captions
-    const opens = game.submissions.map(s => ({
-      caption: s.caption,
-      isCorrect: false,
-      playerId: s.playerId,
-    }));
-    game.openCaptions = shuffleArray(opens);
+    game.openCaptions = subs.map(s => ({ caption: s.caption, isCorrect: false, playerId: s.playerId }));
   } else {
-    // Dealer chose a player submission to hide
-    const chosen = game.submissions.find(s => s.playerId === chosenPlayerId);
-    if (!chosen) return { error: 'Invalid player selection' };
-
+    const chosen = subs[0];
     game.closedCaption = chosen.caption;
     game.closedIsCorrect = false;
     game.closedPlayerId = chosen.playerId;
-
-    // Remaining submissions + correct caption become open
-    const opens = game.submissions
-      .filter(s => s.playerId !== chosenPlayerId)
-      .map(s => ({ caption: s.caption, isCorrect: false, playerId: s.playerId }));
+    const opens = subs.slice(1).map(s => ({ caption: s.caption, isCorrect: false, playerId: s.playerId }));
     opens.push({ caption: game.correctCaption, isCorrect: true, playerId: null });
     game.openCaptions = shuffleArray(opens);
   }
-
+  game.mulliganVotes = [];
   game.phase = PHASES.READING;
   return { ok: true };
 }
 
-// Betting order: clockwise from the dealer's left, dealer excluded
+// Clockwise from the dealer's left; the dealer doesn't bet
 function computeBetOrder(game) {
-  const n = game.players.length;
-  const order = [];
-  for (let k = 1; k < n; k++) {
-    order.push(game.players[(game.dealerIndex + k) % n].id);
-  }
+  const n = game.players.length, order = [];
+  for (let k = 1; k < n; k++) order.push(game.players[(game.dealerIndex + k) % n].id);
   return order;
 }
 
 function moveToFirstBets(game) {
+  if (game.phase !== PHASES.READING) return { error: 'Not reading' };
   game.betOrder = computeBetOrder(game);
   game.bets = [];
   game.phase = PHASES.FIRST_BETS;
+  return { ok: true };
 }
 
-function stage1Bet(game, playerId) {
-  return game.bets.find(b => b.playerId === playerId && b.stage === 1) || null;
-}
-function stage2Bet(game, playerId) {
-  return game.bets.find(b => b.playerId === playerId && b.stage === 2) || null;
+const stageBet = (game, pid, stage) => game.bets.find(b => b.playerId === pid && b.stage === stage) || null;
+
+function eligibleSecondBetters(game) {
+  return game.betOrder.filter(pid => { const b1 = stageBet(game, pid, 1); return b1 && b1.target !== 'pass' && b1.count === 1; });
 }
 
-// Who still owes a bet in the current stage (in table order)
 function pendingBetters(game) {
-  if (game.phase === PHASES.FIRST_BETS) {
-    return game.betOrder.filter(pid => !stage1Bet(game, pid));
-  }
-  if (game.phase === PHASES.SECOND_BETS) {
-    return game.betOrder.filter(pid => {
-      const b1 = stage1Bet(game, pid);
-      return b1 && b1.target !== 'pass' && b1.count === 1 && !stage2Bet(game, pid);
-    });
-  }
+  if (game.phase === PHASES.FIRST_BETS) return game.betOrder.filter(pid => !stageBet(game, pid, 1));
+  if (game.phase === PHASES.SECOND_BETS) return eligibleSecondBetters(game).filter(pid => !stageBet(game, pid, 2));
   return [];
 }
-
-function currentBetterId(game) {
-  const pending = pendingBetters(game);
-  return pending.length ? pending[0] : null;
-}
+function currentBetterId(game) { const p = pendingBetters(game); return p.length ? p[0] : null; }
 
 function validateTarget(game, target) {
   if (target === 'closed') return { ok: true, target: 'closed' };
   const idx = Number(target);
-  if (!Number.isInteger(idx) || idx < 0 || idx >= game.openCaptions.length) {
-    return { error: 'Invalid caption target' };
-  }
+  if (!Number.isInteger(idx) || idx < 0 || idx >= game.openCaptions.length) return { error: 'Invalid caption' };
   return { ok: true, target: idx };
 }
 
-function placeFirstBet(game, playerId, betTarget) {
-  // betTarget: { target: number | 'closed', count: 1 or 2 }
-  if (game.phase !== PHASES.FIRST_BETS) return { error: 'Not in first bets phase' };
-
-  const dealer = game.players[game.dealerIndex];
-  if (dealer && dealer.id === playerId) return { error: 'Dealer cannot bet' };
-  if (stage1Bet(game, playerId)) return { error: 'You already bet' };
+function placeBet(game, playerId, betTarget) {
+  const stage = game.phase === PHASES.FIRST_BETS ? 1 : game.phase === PHASES.SECOND_BETS ? 2 : 0;
+  if (!stage) return { error: 'Not a betting phase' };
+  const dealer = dealerOf(game);
+  if (dealer && dealer.id === playerId) return { error: 'The dealer doesn\'t bet' };
+  if (stageBet(game, playerId, stage)) return { error: 'You already bet' };
   if (currentBetterId(game) !== playerId) return { error: 'Not your turn yet' };
-
   if (!betTarget || typeof betTarget !== 'object') return { error: 'Invalid bet' };
   const count = Number(betTarget.count);
-  if (count !== 1 && count !== 2) return { error: 'Invalid marker count' };
+  if (stage === 1 && count !== 1 && count !== 2) return { error: 'Invalid chip count' };
+  if (stage === 2 && count !== 1) return { error: 'You have one chip left' };
   const v = validateTarget(game, betTarget.target);
   if (v.error) return v;
-
-  const bet = { playerId, target: v.target, count, stage: 1 };
-  game.bets.push(bet);
-  game.firstBets[playerId] = { target: v.target, count };
+  // Second chip can go anywhere — including on top of your first one.
+  game.bets.push({ playerId, target: v.target, count, stage });
+  (stage === 1 ? game.firstBets : game.secondBets)[playerId] = { target: v.target, count };
   return { ok: true, allIn: pendingBetters(game).length === 0 };
 }
 
-function moveToReveal(game) {
-  game.phase = PHASES.REVEAL;
-}
-
-function moveToSecondBets(game) {
-  game.phase = PHASES.SECOND_BETS;
-}
-
-function placeSecondBet(game, playerId, betTarget) {
-  if (game.phase !== PHASES.SECOND_BETS) return { error: 'Not in second bets phase' };
-
-  const dealer = game.players[game.dealerIndex];
-  if (dealer && dealer.id === playerId) return { error: 'Dealer cannot bet' };
-
-  const first = stage1Bet(game, playerId);
-  if (!first || first.target === 'pass') return { error: 'You have no marker left' };
-  if (first.count === 2) return { error: 'You already used both markers' };
-  if (stage2Bet(game, playerId)) return { error: 'You already bet' };
-  if (currentBetterId(game) !== playerId) return { error: 'Not your turn yet' };
-
-  if (!betTarget || typeof betTarget !== 'object') return { error: 'Invalid bet' };
-  const count = Number(betTarget.count);
-  if (count !== 1) return { error: 'Second bet must be 1 marker' };
-  const v = validateTarget(game, betTarget.target);
-  if (v.error) return v;
-  if (v.target === first.target) return { error: 'You can\'t double down on the caption you already picked' };
-
-  const bet = { playerId, target: v.target, count, stage: 2 };
-  game.bets.push(bet);
-  game.secondBets[playerId] = { target: v.target, count };
-  return { ok: true, allIn: pendingBetters(game).length === 0 };
-}
-
-// Dealer skips whoever is up (e.g. they walked away or lost connection)
 function skipCurrentBetter(game) {
   if (game.phase !== PHASES.FIRST_BETS && game.phase !== PHASES.SECOND_BETS) return { error: 'Not a betting phase' };
   const pid = currentBetterId(game);
   if (!pid) return { error: 'Nobody is waiting to bet' };
-  const stage = game.phase === PHASES.FIRST_BETS ? 1 : 2;
-  game.bets.push({ playerId: pid, target: 'pass', count: 0, stage });
-  return { ok: true, skipped: pid };
+  game.bets.push({ playerId: pid, target: 'pass', count: 0, stage: game.phase === PHASES.FIRST_BETS ? 1 : 2 });
+  return { ok: true, skipped: pid, allIn: pendingBetters(game).length === 0 };
+}
+
+function moveToReveal(game) {
+  if (game.phase !== PHASES.FIRST_BETS) return { error: 'Not in blind bets' };
+  game.phase = PHASES.REVEAL;
+  return { ok: true };
+}
+
+const chipsOnTable = (game) => game.bets.reduce((n, b) => n + (b.target === 'pass' ? 0 : b.count), 0);
+
+// After the reveal: second bets if anyone has a chip left, else straight on
+function moveFromReveal(game) {
+  if (game.phase !== PHASES.REVEAL) return { error: 'Not revealing' };
+  if (eligibleSecondBetters(game).length) { game.phase = PHASES.SECOND_BETS; return { ok: true }; }
+  return afterAllBets(game);
+}
+
+// All chips are down: the dealer's steal, or straight to the answer
+function afterAllBets(game) {
+  const dealer = dealerOf(game);
+  if (game.settings.stealEnabled && dealer && chipsOnTable(game) > 0) {
+    game.phase = PHASES.STEAL;
+    game.steal = null;
+    return { ok: true };
+  }
+  revealAnswer(game);
+  return { ok: true };
+}
+
+function moveFromSecondBets(game) {
+  if (game.phase !== PHASES.SECOND_BETS) return { error: 'Not in second bets' };
+  return afterAllBets(game);
+}
+
+// The dealer knocks one chip off the table (betIndex = index in game.bets), or passes (null)
+function stealChip(game, betIndex) {
+  if (game.phase !== PHASES.STEAL) return { error: 'Not the steal' };
+  if (betIndex === null || betIndex === undefined) {
+    game.steal = { skipped: true };
+  } else {
+    const bet = game.bets[Number(betIndex)];
+    if (!bet || bet.target === 'pass' || bet.count < 1) return { error: 'No chip there' };
+    bet.count -= 1;
+    bet.stolen = (bet.stolen || 0) + 1;
+    game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex) };
+  }
+  revealAnswer(game);
+  return { ok: true };
 }
 
 function isBetOnCorrect(game, bet) {
@@ -415,12 +441,8 @@ function isBetOnCorrect(game, bet) {
 
 function revealAnswer(game) {
   game.phase = PHASES.ANSWER;
-
-  const s = game.settings || DEFAULT_SETTINGS;
-  const nameOf = (pid) => (game.players.find(p => p.id === pid) || {}).name || '?';
-
-  const scores = {};
-  const details = {};
+  const s = game.settings;
+  const scores = {}, details = {};
   game.players.forEach(p => { scores[p.id] = 0; details[p.id] = []; });
   const add = (pid, pts, reason) => {
     if (!pts || !(pid in scores)) return;
@@ -429,76 +451,55 @@ function revealAnswer(game) {
   };
 
   let anyoneRight = false;
-
   for (const bet of game.bets) {
-    if (!bet || bet.target === 'pass') continue;
-    const blind = bet.stage === 1;
-    const onClosed = bet.target === 'closed';
-    const both = bet.count === 2;
-
-    // Betting points
+    if (!bet || bet.target === 'pass' || bet.count < 1) continue;
+    const blind = bet.stage === 1, onClosed = bet.target === 'closed', both = bet.count === 2;
     if (isBetOnCorrect(game, bet)) {
       anyoneRight = true;
-      // Blind bets pay more; once the Closed Caption is revealed, a late bet pays the same anywhere
       const per = blind ? (onClosed ? s.pointsClosedBet : s.pointsOpenBet) : s.pointsOpenLate;
       let reason;
-      if (onClosed && both) reason = 'Shot the moon';
-      else if (!onClosed && both) reason = 'Half-moon on the right caption';
-      else if (onClosed && blind) reason = 'Blind bet on the Closed Caption';
-      else reason = blind ? 'Blind bet on the right caption' : 'Late bet on the right caption';
+      if (blind && onClosed && both) reason = 'Shot the Moon';
+      else if (blind && both) reason = 'Half-Moon on the real caption';
+      else if (blind && onClosed) reason = 'Blind chip on the Closed Caption';
+      else if (blind) reason = 'Blind chip on the real caption';
+      else reason = 'Late chip on the real caption';
       add(bet.playerId, per * bet.count, reason);
     }
-
-    // Writing points: the author of the caption you bet on gets paid (unless it's your own)
     const author = onClosed ? game.closedPlayerId : (game.openCaptions[bet.target] || {}).playerId;
-    if (author && author !== bet.playerId) {
-      add(author, s.pointsPerFool * bet.count, `Fooled ${nameOf(bet.playerId)}`);
-    }
+    if (author && author !== bet.playerId) add(author, s.pointsPerFool * bet.count, `Fooled ${nameOfPlayer(game, bet.playerId)}`);
   }
 
-  // Dealer bonus: nobody found the correct caption
-  const dealer = game.players[game.dealerIndex];
+  const dealer = dealerOf(game);
   game.dealerBonusAwarded = false;
   if (!anyoneRight && dealer && s.dealerBonus > 0) {
-    add(dealer.id, s.dealerBonus, 'Nobody found it — dealer wins the round');
+    add(dealer.id, s.dealerBonus, 'Dealer’s revenge — no chip on the real caption');
     game.dealerBonusAwarded = true;
   }
 
   game.roundScores = scores;
   game.roundScoreDetails = details;
 
-  // Snapshot the rankings BEFORE applying the new points
-  const sortedBefore = [...game.players].sort((a, b) => b.score - a.score);
-  const previousRank = {};
-  sortedBefore.forEach((p, i) => { previousRank[p.id] = i; });
-  game.previousRank = previousRank;
-
-  // Apply to cumulative scores
-  for (const [playerId, pts] of Object.entries(scores)) {
-    const player = game.players.find(p => p.id === playerId);
-    if (player) player.score += pts;
+  // Rank before this round's points (tied players share a rank)
+  game.previousRank = {};
+  game.players.forEach(p => { game.previousRank[p.id] = game.players.filter(q => q.score > p.score).length; });
+  for (const [pid, pts] of Object.entries(scores)) {
+    const p = game.players.find(x => x.id === pid);
+    if (p) p.score += pts;
   }
 
-  // Capture this round in history
   game.history.push({
     round: game.round,
     cartoon: { ...game.cartoon },
     correctCaption: game.correctCaption,
     dealerName: dealer ? dealer.name : '',
     autoClose: game.autoClose,
-    openCaptions: game.openCaptions.map(c => ({
-      caption: c.caption,
-      isCorrect: c.isCorrect,
-      playerName: c.playerId ? game.players.find(p => p.id === c.playerId)?.name : null,
-      playerId: c.playerId,
-    })),
+    openCaptions: game.openCaptions.map(c => ({ caption: c.caption, isCorrect: c.isCorrect, playerId: c.playerId, playerName: c.playerId ? nameOfPlayer(game, c.playerId) : null })),
     closedCaption: game.closedCaption,
     closedIsCorrect: game.closedIsCorrect,
-    closedPlayerName: game.closedPlayerId ? game.players.find(p => p.id === game.closedPlayerId)?.name : null,
     closedPlayerId: game.closedPlayerId,
-    firstBets: { ...game.firstBets },
-    secondBets: { ...game.secondBets },
+    closedPlayerName: game.closedPlayerId ? nameOfPlayer(game, game.closedPlayerId) : null,
     bets: game.bets.map(b => ({ ...b })),
+    steal: game.steal ? { ...game.steal } : null,
     roundScores: { ...scores },
     roundScoreDetails: JSON.parse(JSON.stringify(details)),
     dealerBonusAwarded: game.dealerBonusAwarded,
@@ -506,28 +507,20 @@ function revealAnswer(game) {
 }
 
 function moveToScoreboard(game) {
+  if (game.phase !== PHASES.ANSWER) return { error: 'Not on the answer' };
   game.phase = PHASES.SCORES;
+  return { ok: true };
 }
+
+function totalRounds(game) { return game.settings.rounds || game.players.length; }
 
 function isGameOver(game) {
-  const s = game.settings || DEFAULT_SETTINGS;
-
-  // Check target score first if set
-  if (s.targetScore && s.targetScore > 0) {
-    if (game.players.some(p => p.score >= s.targetScore)) return true;
-  }
-
-  // Use configured rounds, or default to one dealer rotation
-  const targetRounds = s.rounds || game.players.length;
-  return game.round >= targetRounds;
+  const s = game.settings;
+  if (s.targetScore && s.targetScore > 0 && game.players.some(p => p.score >= s.targetScore)) return true;
+  if (s.targetScore && s.targetScore > 0) return false;
+  return game.round >= totalRounds(game);
 }
 
-function nameOfPlayer(game, pid) {
-  const p = game.players.find(x => x.id === pid);
-  return p ? p.name : '?';
-}
-
-// Play again with the same table: scores wiped, cartoons already seen stay out of the deck
 function resetForNewGame(game) {
   game.phase = PHASES.LOBBY;
   game.round = 0;
@@ -539,172 +532,119 @@ function resetForNewGame(game) {
   game.submissions = [];
   game.bets = [];
   game.betOrder = [];
+  game.steal = null;
+  game.mulliganVotes = [];
+  game.mulliganEvent = null;
   game.roundScores = {};
   game.roundScoreDetails = {};
   game.timerEnd = null;
   game.timerToken = (game.timerToken || 0) + 1;
 }
 
-// Build the state each player should see (hide dealer-only info)
+const AFTER_WRITING = [PHASES.READING, PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.SCORES];
+const BETTING_ON = [PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.SCORES];
+const REVEALED = [PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.SCORES];
+const ANSWERED = [PHASES.ANSWER, PHASES.SCORES];
+
+const TAKEOVER_SECS = 30;
+
+// What each phone is allowed to see
 function getPlayerView(game, playerId) {
-  const dealer = game.players[game.dealerIndex] || null;
-  const isDealer = dealer && dealer.id === playerId;
-
-  const dealerDisconnectedSecs = dealer && !dealer.connected && dealer.disconnectedAt
-    ? Math.floor((Date.now() - dealer.disconnectedAt) / 1000)
-    : 0;
-
-  const s = game.settings || DEFAULT_SETTINGS;
-  const totalRounds = s.rounds || game.players.length;
+  const dealer = dealerOf(game);
+  const isDealer = !!dealer && dealer.id === playerId;
+  const dealerAwaySecs = dealer && !dealer.connected && dealer.disconnectedAt ? Math.floor((Date.now() - dealer.disconnectedAt) / 1000) : 0;
+  const s = game.settings;
 
   const base = {
     code: game.code,
     phase: game.phase,
-    players: game.players.map(p => ({
-      id: p.id,
-      name: p.name,
-      score: p.score,
-      connected: p.connected,
-      disconnectedSecs: !p.connected && p.disconnectedAt ? Math.floor((Date.now() - p.disconnectedAt) / 1000) : 0,
-    })),
+    players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: p.connected })),
     round: game.round,
-    totalRounds,
+    totalRounds: s.targetScore ? null : totalRounds(game),
     settings: { ...s },
+    hostId: game.hostId,
+    isHost: game.hostId === playerId,
     dealerId: dealer ? dealer.id : null,
     dealerName: dealer ? dealer.name : null,
     dealerConnected: dealer ? dealer.connected : false,
-    dealerDisconnectedSecs,
-    canTakeover: !isDealer && dealerDisconnectedSecs >= 60,
+    dealerAwaySecs,
+    canTakeover: !isDealer && dealerAwaySecs >= TAKEOVER_SECS,
+    takeoverSecs: TAKEOVER_SECS,
     isDealer,
     playerId,
     timerDuration: game.timerDuration,
     timerEnd: game.timerEnd,
+    serverNow: Date.now(),
   };
+  if (game.phase === PHASES.LOBBY) return base;
 
-  if (game.phase === PHASES.LOBBY) {
-    base.isHost = game.hostId === playerId;
-    base.hostId = game.hostId;
-    return base;
-  }
+  if (game.cartoon) base.cartoon = game.cartoon;
+  const mine = game.submissions.find(x => x.playerId === playerId);
 
-  // Cartoon visible to all during and after writing
-  if (game.cartoon) {
-    base.cartoon = game.cartoon;
-  }
-
-  // Writing phase: show who has submitted (not what)
   if (game.phase === PHASES.WRITING) {
-    base.submittedPlayerIds = game.submissions.map(s => s.playerId);
-    base.hasSubmitted = game.submissions.some(s => s.playerId === playerId);
-    // Dealer sees the names of who hasn't submitted
-    if (isDealer) {
-      base.pendingPlayers = game.players
-        .filter((p, i) => i !== game.dealerIndex && !game.submissions.some(s => s.playerId === p.id))
-        .map(p => ({ id: p.id, name: p.name, connected: p.connected }));
-    }
+    base.submittedPlayerIds = game.submissions.map(x => x.playerId);
+    base.hasSubmitted = !!mine;
+    base.myCaption = mine ? mine.caption : null;
+    base.mulliganVotes = [...game.mulliganVotes];
+    base.mulliganNeeded = mulliganThreshold(game);
+    base.myMulligan = game.mulliganVotes.includes(playerId);
   }
+  base.mulliganEvent = game.mulliganEvent;
 
-  // Dealer review: only dealer sees submissions and autoClose
-  if (game.phase === PHASES.DEALER_REVIEW) {
-    if (isDealer) {
-      base.autoClose = game.autoClose;
-      base.submissions = game.submissions.map(s => ({
-        playerId: s.playerId,
-        playerName: s.playerName,
-        caption: s.caption,
-      }));
-      base.correctCaption = game.correctCaption;
-    }
-  }
-
-  // Reading and beyond: show open captions (without revealing who wrote what)
-  if ([PHASES.READING, PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.ANSWER, PHASES.SCORES].includes(game.phase)) {
+  if (AFTER_WRITING.includes(game.phase)) {
     base.openCaptions = game.openCaptions.map(c => c.caption);
+    base.myOpenIndex = game.openCaptions.findIndex(c => c.playerId === playerId);
+    base.iWrote = !!mine;
   }
 
-  // Betting is public: everyone sees every bet as it lands, and whose turn it is
-  if ([PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.ANSWER, PHASES.SCORES].includes(game.phase)) {
+  if (BETTING_ON.includes(game.phase)) {
     base.bets = game.bets.map(b => ({ ...b }));
     base.betOrder = [...game.betOrder];
     base.myFirstBet = game.firstBets[playerId] || null;
+    base.mySecondBet = game.secondBets[playerId] || null;
     base.currentBetterId = currentBetterId(game);
     base.currentBetterName = base.currentBetterId ? nameOfPlayer(game, base.currentBetterId) : null;
     base.isMyTurn = base.currentBetterId === playerId;
     base.pendingBetters = pendingBetters(game);
     base.allBetsIn = base.pendingBetters.length === 0;
-    base.eligibleSecondBetters = game.betOrder.filter(pid => {
-      const b1 = stage1Bet(game, pid);
-      return b1 && b1.target !== 'pass' && b1.count === 1;
-    });
+    base.eligibleSecondBetters = eligibleSecondBetters(game);
+    base.steal = game.steal ? { ...game.steal } : null;
   }
 
-  // Reveal and beyond: show closed caption
-  if ([PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.ANSWER, PHASES.SCORES].includes(game.phase)) {
+  if (REVEALED.includes(game.phase)) {
     base.closedCaption = game.closedCaption;
+    base.iWroteClosed = game.closedPlayerId === playerId;
   }
 
-  // Second bets
-  if (game.phase === PHASES.SECOND_BETS || game.phase === PHASES.ANSWER || game.phase === PHASES.SCORES) {
-    base.mySecondBet = game.secondBets[playerId] || null;
-  }
-
-  // Answer: show everything
-  if (game.phase === PHASES.ANSWER || game.phase === PHASES.SCORES) {
+  if (ANSWERED.includes(game.phase)) {
     base.correctCaption = game.correctCaption;
     base.closedIsCorrect = game.closedIsCorrect;
+    base.closedPlayerName = game.closedPlayerId ? nameOfPlayer(game, game.closedPlayerId) : null;
     base.roundScores = game.roundScores;
     base.roundScoreDetails = game.roundScoreDetails || {};
     base.dealerBonusAwarded = !!game.dealerBonusAwarded;
-    base.closedPlayerName = game.closedPlayerId ? nameOfPlayer(game, game.closedPlayerId) : null;
-    base.openCaptionDetails = game.openCaptions.map(c => ({
-      caption: c.caption,
-      isCorrect: c.isCorrect,
-      playerName: c.playerId ? game.players.find(p => p.id === c.playerId)?.name : null,
-    }));
+    base.openCaptionDetails = game.openCaptions.map(c => ({ caption: c.caption, isCorrect: c.isCorrect, playerName: c.playerId ? nameOfPlayer(game, c.playerId) : null }));
   }
 
-  // Scores
   if (game.phase === PHASES.SCORES) {
     base.gameOver = isGameOver(game);
     base.previousRank = game.previousRank || {};
     base.history = game.history || [];
     if (!base.gameOver) {
-      const nextDealerIdx = (game.dealerIndex + 1) % game.players.length;
-      base.nextDealerName = game.players[nextDealerIdx].name;
-      base.nextDealerId = game.players[nextDealerIdx].id;
-      base.isNextDealer = base.nextDealerId === playerId;
+      const nd = game.players[nextDealerIndex(game, game.dealerIndex)];
+      base.nextDealerName = nd ? nd.name : '';
+      base.nextDealerId = nd ? nd.id : null;
+      base.isNextDealer = !!nd && nd.id === playerId;
     }
-    base.isHost = game.hostId === playerId;
   }
-
   return base;
 }
 
 module.exports = {
-  PHASES,
-  CARTOONS,
-  DEFAULT_SETTINGS,
-  createGame,
-  updateSettings,
-  addPlayer,
-  removePlayer,
-  kickPlayer,
-  startRound,
-  submitCaption,
-  endWritingPhase,
-  dealerDecision,
-  moveToFirstBets,
-  placeFirstBet,
-  moveToReveal,
-  moveToSecondBets,
-  placeSecondBet,
-  skipCurrentBetter,
-  currentBetterId,
-  pendingBetters,
-  resetForNewGame,
-  revealAnswer,
-  moveToScoreboard,
-  isGameOver,
-  getPlayerView,
-  generateRoomCode,
+  PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS,
+  createGame, updateSettings, addPlayer, kickPlayer,
+  startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
+  moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,
+  stealChip, revealAnswer, moveToScoreboard, isGameOver, resetForNewGame,
+  currentBetterId, pendingBetters, nextDealerIndex, getPlayerView, generateRoomCode,
 };
