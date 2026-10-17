@@ -66,6 +66,7 @@ const CARTOONS = [
   { id: 47, title: "The DMV Bear", image: "card_47.jpg", correct: "Your license expired in November. Again." },
   { id: 48, title: "The Conference", image: "card_48.jpg", correct: "The good news is he's very observant." },
   { id: 49, title: "The Groom's Side", image: "card_49.jpg", correct: "They insisted on black tie." },
+  { id: 50, title: "The Lumber Aisle", image: "card_50.jpg", correct: "Sir, there's no sampling in lumber." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
