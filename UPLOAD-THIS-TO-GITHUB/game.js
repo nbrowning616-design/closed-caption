@@ -75,6 +75,11 @@ const CARTOONS = [
   { id: 53, title: "The Security Line", image: "card_53.jpg", correct: "Next time, sign up for the expedited program." },
   { id: 54, title: "Shoe Rental", image: "card_54.jpg", correct: "You'll need to hold the spray yourself." },
   { id: 55, title: "The Cubicle Knight", image: "card_55.jpg", correct: "He heard reviews were today." },
+  { id: 56, spicy: true, title: "The Slideshow", image: "card_56.jpg", correct: "Prints are available at the front desk." },
+  { id: 57, spicy: true, title: "Name Tag", image: "card_57.jpg", correct: "Most guests go with the forehead." },
+  { id: 58, spicy: true, title: "The Suite", image: "card_58.jpg", correct: "Your mother called ahead." },
+  { id: 59, spicy: true, title: "Senior Ed", image: "card_59.jpg", correct: "We've covered this material before." },
+  { id: 60, spicy: true, title: "The Refill", image: "card_60.jpg", correct: "And something for me to sleep through it." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
