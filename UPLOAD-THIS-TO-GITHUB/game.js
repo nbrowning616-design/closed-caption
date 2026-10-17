@@ -69,6 +69,9 @@ const CARTOONS = [
 const { polish } = require('./polish');
 for (const c of CARTOONS) c.correct = polish(c.correct).text;
 
+// The permanent Hall of Fame deck (lives across games and game nights)
+const store = require('./store');
+
 const MAX_PLAYERS = 8;
 
 // Shown on everyone's screen when the table votes a cartoon off
@@ -127,6 +130,7 @@ const DEFAULT_SETTINGS = {
   autoCloseProbability: 0.15,    // share of rounds where the real caption is the Closed Caption
   stealEnabled: true,            // dealer may knock one chip off the table before the answer
   direction: 'left',             // which way the deal and the betting go around the table
+  expert: false,                 // Expert Mode: the real answer comes from the Hall of Fame deck
 };
 
 function createGame(hostId, hostName, timerDuration = 90, seenIds = []) {
@@ -134,6 +138,9 @@ function createGame(hostId, hostName, timerDuration = 90, seenIds = []) {
     seenIds: cleanSeen(seenIds),   // cartoons the host's phone has seen in earlier games
     closePlan: [],                  // closePlan[round - 1] = true when the real caption is face-down that round
     flags: [],                      // Hall of Fame flags: { fromId, round, target }
+    inducted: [],                   // 'round|target' keys already inducted this game
+    lastInduction: null,            // the latest induction, for the celebration: { n, round, target, caption, ... }
+    realCredit: null,               // Expert Mode: who wrote this round's real answer { author, month, flags, entryId }
     code: generateRoomCode(),
     phase: PHASES.LOBBY,
     players: [{ id: hostId, name: hostName, score: 0, connected: true }],
@@ -188,6 +195,11 @@ function updateSettings(game, partial) {
   for (const key of Object.keys(partial || {})) {
     const val = partial[key];
     if (key === 'stealEnabled') { s.stealEnabled = !!val; continue; }
+    if (key === 'expert') {
+      if (typeof val !== 'boolean') return { error: 'Invalid expert mode' };
+      if (val && deckCartoons(game) < 3) return { error: 'The Gallery opens once 3 cartoons have a framed caption' };
+      s.expert = val; continue;
+    }
     if (key === 'direction') { if (val !== 'left' && val !== 'right') return { error: 'Invalid direction' }; s.direction = val; continue; }
     if (key === 'autoCloseProbability') {
       const n = Number(val);
@@ -280,9 +292,45 @@ function ensurePlan(game, round) {
   return !!game.closePlan[round - 1];
 }
 
+/* ── Expert Mode: the real answer is a Hall of Fame caption ──
+   Never one written by someone at this table (nobody gets dealt their own caption as the answer). */
+const tableNames = (game) => new Set(game.players.map(p => p.name.toLowerCase()));
+function expertCartoonIds(game) {
+  const names = tableNames(game), out = new Set();
+  for (const [id, authors] of store.cartoonAuthors()) for (const a of authors.keys()) if (!names.has(a)) { out.add(id); break; }
+  return CARTOONS.filter(c => out.has(c.id)).map(c => c.id);
+}
+const deckCartoons = (game) => expertCartoonIds(game).length;
+
+// Expert deal: a cartoon with a Hall of Fame caption this table can play, or null (then deal normally)
+function dealExpert(game, currentId) {
+  const ok = new Set(expertCartoonIds(game)), seen = new Set(game.seenIds || []);
+  let pool = CARTOONS.filter(c => ok.has(c.id) && !game.usedCartoonIds.includes(c.id) && c.id !== currentId && !seen.has(c.id));
+  // The host's phone has seen every deck cartoon: start over on those (the seen list stays for normal dealing)
+  if (!pool.length) pool = CARTOONS.filter(c => ok.has(c.id) && !game.usedCartoonIds.includes(c.id) && c.id !== currentId);
+  if (!pool.length) return null;   // every deck cartoon has been played this game
+  const cartoon = pick(pool), names = tableNames(game);
+  const entry = pick(store.byCartoon(cartoon.id).filter(e => !names.has(e.author.toLowerCase())));
+  return entry ? { cartoon, entry } : null;
+}
+
 // Put a fresh cartoon on the table, never the one being replaced
 function dealCartoon(game) {
   const currentId = game.cartoon ? game.cartoon.id : null;
+  const x = game.settings.expert ? dealExpert(game, currentId) : null;
+  if (x) {
+    game.usedCartoonIds.push(x.cartoon.id);
+    game.cartoon = { id: x.cartoon.id, title: x.cartoon.title, image: x.cartoon.image };
+    game.correctCaption = polish(x.entry.caption).text;
+    game.realCredit = { author: x.entry.author, month: x.entry.month, flags: x.entry.flags, entryId: x.entry.id };
+  } else dealNormal(game, currentId);
+  game.autoClose = ensurePlan(game, Math.max(1, game.round));   // a mulligan keeps the round's plan
+  game.submissions = [];
+  game.mulliganVotes = [];
+  game.timerEnd = Date.now() + game.timerDuration * 1000;
+  game.timerToken = (game.timerToken || 0) + 1;
+}
+function dealNormal(game, currentId) {
   const seen = new Set(game.seenIds || []);
   let available = CARTOONS.filter(c => !game.usedCartoonIds.includes(c.id) && c.id !== currentId && !seen.has(c.id));
   if (available.length === 0) {
@@ -298,11 +346,7 @@ function dealCartoon(game) {
   game.usedCartoonIds.push(cartoon.id);
   game.cartoon = { id: cartoon.id, title: cartoon.title, image: cartoon.image };
   game.correctCaption = cartoon.correct;
-  game.autoClose = ensurePlan(game, Math.max(1, game.round));   // a mulligan keeps the round's plan
-  game.submissions = [];
-  game.mulliganVotes = [];
-  game.timerEnd = Date.now() + game.timerDuration * 1000;
-  game.timerToken = (game.timerToken || 0) + 1;
+  game.realCredit = null;
 }
 
 function startRound(game, options = {}) {
@@ -582,6 +626,7 @@ function revealAnswer(game) {
     round: game.round,
     cartoon: { ...game.cartoon },
     correctCaption: game.correctCaption,
+    realCredit: game.realCredit ? { ...game.realCredit } : null,
     dealerName: dealer ? dealer.name : '',
     autoClose: game.autoClose,
     openCaptions: game.openCaptions.map(c => ({ caption: c.caption, isCorrect: c.isCorrect, playerId: c.playerId, playerName: c.playerId ? nameOfPlayer(game, c.playerId) : null })),
@@ -630,17 +675,42 @@ function plantFlag(game, playerId, target) {
   if (mine && String(mine.target) === String(v.target)) { game.flags = game.flags.filter(f => f !== mine); return { ok: true, removed: true }; }
   if (mine) game.flags = game.flags.filter(f => f !== mine);
   game.flags.push({ fromId: playerId, round: game.round, target: v.target, at: Date.now() });
-  const count = game.flags.filter(f => f.round === game.round && String(f.target) === String(v.target)).length;
-  return { ok: true, count };
+  const fl = game.flags.filter(f => f.round === game.round && String(f.target) === String(v.target)), count = fl.length;
+  const key = game.round + '|' + v.target;
+  game.inducted = game.inducted || [];
+  if (count < inductNeed(game) || game.inducted.includes(key)) return { ok: true, count };
+  // The moment happens once: taking a flag back later never un-inducts it
+  game.inducted.push(key);
+  try { induct(game, v.target, fl, count); } catch (e) { console.error('induction', e); }
+  return { ok: true, count, inducted: true };
+}
+// Big tables need three flags; five or fewer, two
+const inductNeed = (game) => (game.players.length <= 5 ? 2 : 3);
+// A caption just made the Hall of Fame: player-written fakes join the permanent deck
+function induct(game, target, fl, count) {
+  const h = game.history.find(x => x.round === game.round);
+  if (!h) return;
+  const c = target === 'closed' ? { caption: h.closedCaption, playerId: h.closedPlayerId, isCorrect: h.closedIsCorrect } : (h.openCaptions[target] || {});
+  const isReal = !!c.isCorrect, author = c.playerId ? nameOfPlayer(game, c.playerId) : null;
+  const image = h.cartoon && h.cartoon.image, flaggers = fl.map(f => nameOfPlayer(game, f.fromId)), month = MONTH();
+  let entry = null;
+  // The real caption is celebrated but not added (it's already the real one)
+  if (!isReal && author && c.caption) entry = store.add({ cartoonId: h.cartoon.id, image, caption: c.caption, author, flaggers, flags: count, month });
+  game.lastInduction = {
+    n: ((game.lastInduction && game.lastInduction.n) || game.inductionCount || 0) + 1,
+    round: game.round, target, at: Date.now(), caption: c.caption || '', author: isReal ? null : author, isReal,
+    image, flaggers, flags: count, month, entryId: entry ? entry.id : null,
+  };
 }
 const MONTH = () => new Date().toLocaleString('en-US', { month: 'long', year: 'numeric', timeZone: 'America/New_York' });
-// Captions with two or more flags, with everything a Hall of Fame card needs
+// Captions with enough flags (see inductNeed), with everything a Hall of Fame card needs
 function hallOfFame(game) {
   const groups = new Map();
   for (const f of game.flags) { const k = f.round + '|' + f.target; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(f); }
   const out = [];
-  for (const fl of groups.values()) {
-    if (fl.length < 2) continue;
+  for (const [k, fl] of groups) {
+    // Once inducted, always listed (even if a late joiner raises the bar or a flag is taken back)
+    if (fl.length < inductNeed(game) && !(game.inducted || []).includes(k)) continue;
     const { round, target } = fl[0];
     let caption, writerName, writerId, image, isReal;
     const live = round === game.round && (game.phase === PHASES.ANSWER || game.phase === PHASES.SCORES);
@@ -723,9 +793,9 @@ function reelStep(game, how) {
   return { ok: true, step: game.reel.step };
 }
 
-/* ── Badges: worked out once the answer is in, never shown before ── */
+/* ── Badges: worked out once the answer is in, never shown before.
+   Only the five that tell a story: moon, three_bagger, clean_sweep, great_minds, pickpocket ── */
 const normCaption = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
-const wordsOf = (t) => String(t || '').split(/\s+/).filter(Boolean);
 function nearlySame(a, b) {
   const x = normCaption(a), y = normCaption(b);
   if (!x || !y) return false;
@@ -759,10 +829,6 @@ function awardBadges(game) {
     const backers = othersOn(key);
     const field = game.betOrder.filter(id => id !== w);
     if (field.length >= 2 && field.every(id => backers.includes(id))) give('clean_sweep', [w], key, { votes });
-    const onReal = betsOn(real).reduce((n, b) => n + chipsOf(b), 0);
-    if (votes >= 2 && votes > onReal) give('better_than_real', [w], key, { votes, real: onReal });
-    if (key === 'closed' && bagged.length) give('ice_cold', [w], key, { by: bagged });
-    if (wordsOf(captionOfKey(game, key)).length <= 5 && backers.length >= 2) give('less_is_more', [w], key, { votes });
   }
 
   // Great minds: two players wrote nearly the same caption; it pops on whichever is revealed second
@@ -777,24 +843,7 @@ function awardBadges(game) {
   const dealer = dealerOf(game);
   if (dealer && game.steal && game.steal.victimId && game.steal.onCorrect) give('pickpocket', [dealer.id], game.steal.target, {});
 
-  // Crowd favorite: most laughs on a player's caption (at least 2; ties share)
-  const laughs = fakes.map(k => ({ k, n: Object.values(game.reactions[k] || {}).filter(x => x === 'laugh').length }));
-  const topLaughs = Math.max(0, ...laughs.map(x => x.n));
-  if (topLaughs >= 2) for (const x of laughs) if (x.n === topLaughs) give('crowd_favorite', [writerOfKey(game, x.k)], x.k, { laughs: x.n });
-
-  // Grand Poobah: most votes on their caption(s) this round (at least 1; ties share one badge)
-  const byWriter = {};
-  for (const k of fakes) { const w = writerOfKey(game, k); if (w) byWriter[w] = (byWriter[w] || 0) + votesOn(game, k); }
-  const topVotes = Math.max(0, ...Object.values(byWriter));
-  if (topVotes >= 1) {
-    const kings = Object.keys(byWriter).filter(w => byWriter[w] === topVotes && here.has(w));
-    give('poobah', kings, null, { votes: topVotes });
-    game.crowns = game.crowns || {};
-    for (const w of kings) {
-      game.crowns[w] = (game.crowns[w] || 0) + 1;
-      if (game.crowns[w] === 3) give('hat_trick', [w], null, { crowns: 3 });
-    }
-  }
+  // (The Grand Poobah is crowned by the phones from the bets; it is not a badge.)
 
   game.roundBadges = out;
   game.gameBadges = (game.gameBadges || []).concat(out.map(b => ({ ...b, round: game.round })));
@@ -822,6 +871,11 @@ function setCareer(game, playerId, rank, rockets, total) {
 function resetForNewGame(game) {
   game.phase = PHASES.LOBBY;
   game.flags = [];
+  game.inducted = [];
+  game.realCredit = null;
+  // The celebration belongs to the old game (n keeps counting, so phones still spot the next one)
+  game.inductionCount = game.lastInduction ? game.lastInduction.n : (game.inductionCount || 0);
+  game.lastInduction = null;
   game.closePlan = [];
   game.round = 0;
   game.dealerIndex = -1;
@@ -852,6 +906,7 @@ const REVEALED = [PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER
 const ANSWERED = [PHASES.ANSWER, PHASES.SCORES];
 
 const TAKEOVER_SECS = 30;
+const GAZETTE_SIZE = 40;
 
 // What each phone is allowed to see
 function getPlayerView(game, playerId) {
@@ -859,11 +914,12 @@ function getPlayerView(game, playerId) {
   const isDealer = !!dealer && dealer.id === playerId;
   const dealerAwaySecs = dealer && !dealer.connected && dealer.disconnectedAt ? Math.floor((Date.now() - dealer.disconnectedAt) / 1000) : 0;
   const s = game.settings;
+  const published = store.authorCounts();   // lowercase name -> captions in the Hall of Fame deck
 
   const base = {
     code: game.code,
     phase: game.phase,
-    players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: p.connected, rank: p.rank === undefined ? null : p.rank, rockets: p.rockets || 0 })),
+    players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: p.connected, rank: p.rank === undefined ? null : p.rank, rockets: p.rockets || 0, published: published.get(p.name.toLowerCase()) || 0 })),
     round: game.round,
     totalRounds: s.targetScore ? null : totalRounds(game),
     settings: { ...s },
@@ -882,7 +938,13 @@ function getPlayerView(game, playerId) {
     timerEnd: game.timerEnd,
     serverNow: Date.now(),
     promotion: game.promotion || null,
+    inductNeed: inductNeed(game),
+    lastInduction: game.lastInduction ? { ...game.lastInduction, flaggers: [...game.lastInduction.flaggers] } : null,   // only made after an answer
+    hofDeck: deckCartoons(game),
+    hofTotal: store.count(),
   };
+  // The Gazette: the newest Hall of Fame captions, between rounds only
+  if (game.phase === PHASES.LOBBY || game.phase === PHASES.SCORES) base.gazette = store.recent(GAZETTE_SIZE);
   if (game.phase === PHASES.LOBBY) return base;
 
   if (game.cartoon) base.cartoon = game.cartoon;
@@ -936,6 +998,7 @@ function getPlayerView(game, playerId) {
 
   if (ANSWERED.includes(game.phase)) {
     base.correctCaption = game.correctCaption;
+    base.realCredit = game.realCredit ? { ...game.realCredit } : null;
     base.closedIsCorrect = game.closedIsCorrect;
     base.closedPlayerName = game.closedPlayerId ? nameOfPlayer(game, game.closedPlayerId) : null;
     base.roundScores = game.roundScores;
@@ -969,6 +1032,7 @@ function getPlayerView(game, playerId) {
 module.exports = {
   PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS,
   createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, plantFlag, hallOfFame, planBlock, ensurePlan,
+  inductNeed, deckCartoons, dealCartoon, store,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,
   stealChip, revealAnswer, moveToScoreboard, isGameOver, resetForNewGame,

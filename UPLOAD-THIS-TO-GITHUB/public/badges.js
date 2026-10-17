@@ -24,21 +24,16 @@
   var DISPLAY = "'Fredoka','Nunito',system-ui,sans-serif";
 
   /* ── Kinds ── rim = patch colour, bg = inner disc */
+  // Only the five badges that tell a story. Old careers on a phone may still count removed kinds
+  // (ice_cold, better_than_real, less_is_more, crowd_favorite, poobah, hat_trick): the trophy case ignores them.
   var KINDS = {
     moon:             { name: 'Moon Landing',               desc: 'Bet both chips blind on the real caption — and hit.' },
     three_bagger:     { name: 'Three Bagger',               desc: 'Three players bet both chips on your caption.' },
     clean_sweep:      { name: 'Clean Sweep',                desc: 'Every other player bet on your caption.' },
-    better_than_real: { name: 'Better Than the Real Thing', desc: 'Your fake drew more chips than the real caption.' },
-    ice_cold:         { name: 'Ice Cold',                   desc: 'Face-down caption, and someone went all in on it.' },
-    less_is_more:     { name: 'Less Is More',               desc: 'Five words or fewer, and it fooled two people.' },
     great_minds:      { name: 'Great Minds',                desc: 'Two of you wrote nearly the same caption.' },
-    pickpocket:       { name: 'Pickpocket',                 desc: 'As dealer, you stole a chip off the real caption.' },
-    crowd_favorite:   { name: 'Crowd Favorite',             desc: 'Most laughs this round.' },
-    poobah:           { name: 'Grand Poobah',               desc: 'Most chips on your fake caption this round.' },
-    hat_trick:        { name: 'Hat Trick',                  desc: 'Grand Poobah three times in one game.' }
+    pickpocket:       { name: 'Pickpocket',                 desc: 'As dealer, you stole a chip off the real caption.' }
   };
-  var ORDER = ['moon', 'three_bagger', 'clean_sweep', 'better_than_real', 'ice_cold', 'less_is_more',
-               'great_minds', 'pickpocket', 'crowd_favorite', 'poobah', 'hat_trick'];
+  var ORDER = ['moon', 'three_bagger', 'clean_sweep', 'great_minds', 'pickpocket'];
   var PAL = {
     moon:             { rim: NAVY,      bg: '#2C3F8C', stitch: YELLOW },
     three_bagger:     { rim: TEAL,      bg: '#DDF5EE' },

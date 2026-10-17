@@ -28,7 +28,9 @@ const wss = new WebSocketServer({ server, maxPayload: 16 * 1024 });
 // Build id: phones compare it and refresh themselves after an update
 const INDEX_PATH = path.join(__dirname, 'public', 'index.html');
 const INDEX_HTML = fs.readFileSync(INDEX_PATH, 'utf8');
-const BUILD = crypto.createHash('sha1').update(INDEX_HTML + ['game.js', 'public/fx.js', 'public/hof.js', 'public/music.js', 'public/badges.js', 'public/qrcode.js'].map(f => fs.readFileSync(path.join(__dirname, f), 'utf8')).join('')).digest('hex').slice(0, 10);
+// (a helper that isn't there yet just counts as empty, so a missing file never stops the server)
+const readOr = (f) => { try { return fs.readFileSync(path.join(__dirname, f), 'utf8'); } catch (e) { return ''; } };
+const BUILD = crypto.createHash('sha1').update(INDEX_HTML + ['game.js', 'store.js', 'public/fx.js', 'public/hof.js', 'public/gallery.js', 'public/music.js', 'public/badges.js', 'public/qrcode.js'].map(readOr).join('')).digest('hex').slice(0, 10);
 // __V__ busts the phone's cache for the helper scripts after an update
 const PAGE = INDEX_HTML.replace('__BUILD__', BUILD).split('__V__').join(BUILD);
 app.get('/', (req, res) => { res.set('Cache-Control', 'no-store'); res.type('html').send(PAGE); });
@@ -196,6 +198,7 @@ wss.on('connection', (ws) => {
         return;
       }
       case 'plant_flag': {
+        // Enough flags inducts the caption (into the permanent deck if a player wrote it); see game.js
         if (fail(G.plantFlag(game, playerId, msg.target))) return;
         broadcast(code);
         return;
@@ -389,6 +392,7 @@ server.listen(PORT, () => {
   console.log('  CLOSED CAPTION is running.');
   console.log(`  On this computer:            http://localhost:${PORT}`);
   if (LAN_URL) console.log(`  On phones (same Wi-Fi):      ${LAN_URL}`);
+  console.log(`  Hall of Fame deck:           ${G.store.count()} captions${G.store.file ? ' (' + G.store.file + ')' : ' (memory only)'}`);
   console.log('  Keep this window open while you play. Close it to stop.');
   console.log('');
 });
