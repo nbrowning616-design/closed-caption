@@ -795,6 +795,7 @@ function pickFrame(game, playerId, target) {
     const v = validateTarget(game, target);
     if (v.error) return v;
     if (authorOf(game, v.target) === playerId) return { error: 'You can’t frame your own caption' };
+    if (isBetOnCorrect(game, { target: v.target })) return { error: 'The real caption can’t be framed' };
     t = v.target;
   }
   (game.framePicks = game.framePicks || {})[playerId] = t;

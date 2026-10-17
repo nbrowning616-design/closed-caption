@@ -1774,7 +1774,7 @@ function fmCaptions() {
   const byKey = (k) => all.find(c => String(c.idx) === String(k));
   const out = order.map(byKey).filter(Boolean);
   for (const c of all) if (!out.includes(c)) out.push(c);   // anything the reel skipped
-  return out.filter(c => c.caption);
+  return out.filter(c => c.caption && !c.isCorrect);   // the real caption is never up for framing
 }
 function pickFrame(t) {
   const f = state.framing || {};
@@ -1811,7 +1811,8 @@ function fmFootHtml() {
 function fmHeadHtml() {
   const r = (state.framing || {}).result;
   const toon = state.cartoon ? `<div class="fm-toon" onclick="openViewer()" role="button" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"></div>` : '';
-  let title = 'Anything frame-worthy?', sub = 'Pick one, or pass. Picks stay secret.';
+  const real = (answerCaptions().find(c => c.isCorrect) || {}).caption;
+  let title = 'Better than the real one?', sub = real ? `The real one: “${esc(real)}” Frame one that beats it, or pass.` : 'Frame one that beats the real caption, or pass.';
   if (r && r.framed.length) { title = r.framed.length > 1 ? `Framed! ×${r.framed.length}` : 'Framed!'; sub = 'Going up in The Gallery.'; }
   else if (r) { title = 'Nothing framed this round.'; sub = 'Tough room.'; }
   return `${toon}<div style="min-width:0;"><div class="h-display fm-title ${r ? 'fm-stamp' : ''}" style="${r && !r.framed.length ? 'font-size:23px;' : ''}">${title}</div><p class="fm-sub">${sub}</p></div>`;
