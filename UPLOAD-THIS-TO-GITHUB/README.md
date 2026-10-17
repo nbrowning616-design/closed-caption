@@ -58,6 +58,7 @@ Both have free tiers that work fine for game nights.
 - `public/badges.js` — Badge artwork, badge pops, rank-ups, trophy case
 - `public/home.js` — The opening screen
 - `public/moments.js` — Keeps big moments in sync across phones; one phone plays the big sounds
+- `public/steal.js` — The Claw: the dealer's steal animation
 - `public/recap.js` — The night recap picture
 - `public/guide.js` — First-game tips and the "Waiting on…" banner
 - `public/qrcode.js` — QR code maker (MIT, Kazuhiko Arase)

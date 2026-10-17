@@ -135,7 +135,7 @@
         var r = st.reel || {}, n = (r.order || []).length, step = r.step || 1;
         return st.reel && step <= n ? 'answer' : 'frame';
       }
-      case 'scores': return st.gameOver ? null : 'frame';
+      case 'scores': return null;   // Frame It lives on the recap only
     }
     return null;
   }

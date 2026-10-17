@@ -114,8 +114,7 @@
     '.spot.correct.cc-punch{animation:ccPunchSm .36s cubic-bezier(.2,.9,.3,1.35);}',
     '@keyframes ccPunchSm{0%{transform:scale(1.05);}100%{transform:scale(1);}}',
     /* The quick steal */
-    '#stealshow.quick.on{animation:fadeIn .12s ease-out;}',
-    '#stealshow.quick .ss-top{margin-bottom:120px;}',
+    '#stealshow.quick.on{animation:stFade .12s ease-out;}',
     '@media (prefers-reduced-motion: reduce){.cc-shake{animation:none;}#cc-flash.go{animation-duration:.2s;}}'
   ].join('\n');
   try { var st = document.createElement('style'); st.id = 'cc-moments-css'; st.textContent = CSS; (document.head || document.documentElement).appendChild(st); } catch (e) {}
