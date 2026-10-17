@@ -11,7 +11,9 @@
 //   5. SECOND_BETS  Anyone holding a chip places it — anywhere, even on the same caption.
 //   6. STEAL        The dealer may knock one chip off the table.
 //   7. ANSWER       The real caption is shown and points are paid.
-//   8. SCORES       Scoreboard; the deal moves left.
+//   8. FRAMING      "Anything frame-worthy?" Everyone secretly picks one caption (not their own) or passes.
+//                   Enough picks on one caption and it's framed: it hangs in The Gallery.
+//   9. SCORES       Scoreboard; the deal moves left.
 
 const PHASES = {
   LOBBY: 'lobby',
@@ -22,6 +24,7 @@ const PHASES = {
   SECOND_BETS: 'second_bets',
   STEAL: 'steal',
   ANSWER: 'answer',
+  FRAMING: 'framing',
   SCORES: 'scores',
 };
 
@@ -159,7 +162,10 @@ function createGame(hostId, hostName, timerDuration = 90, seenIds = []) {
     seenBy: { [hostId]: cleanSeen(seenIds) },   // every phone's 'already seen' list, by player
     deck: newRoomDeck(),            // this room's Gallery: the server's saved copy + whatever the phones bring
     closePlan: [],                  // closePlan[round - 1] = true when the real caption is face-down that round
-    flags: [],                      // Hall of Fame flags: { fromId, round, target }
+    flags: [],                      // Frame It picks, recorded when each round's framing resolves: { fromId, round, target, at }
+    framePicks: {},                 // this round's secret picks while framing: { playerId: target | 'pass' }
+    frameVoters: [],                // who was here when framing began (late joiners may pick, never block)
+    frameResult: null,              // once framing resolves: { at, framed: [target], counts: { key: n }, endsAt }
     inducted: [],                   // 'round|target' keys already inducted this game
     lastInduction: null,            // the latest induction, for the celebration: { n, round, target, caption, ... }
     realCredit: null,               // Expert Mode: who wrote this round's real answer { author, month, flags, entryId }
@@ -433,6 +439,9 @@ function startRound(game, options = {}) {
   game.reactions = {};
   game.reel = null;
   game.roundBadges = [];
+  game.framePicks = {};
+  game.frameVoters = [];
+  game.frameResult = null;
   setPhase(game, PHASES.WRITING);
 }
 
@@ -708,9 +717,21 @@ function revealAnswer(game) {
   });
 }
 
-function moveToScoreboard(game) {
+// The recap is done: "Anything frame-worthy?"
+function moveToFraming(game) {
   if (game.phase !== PHASES.ANSWER) return { error: 'Not on the answer' };
   if (game.reel && game.reel.step < game.reel.order.length + 1) return { error: 'Finish the reveal first' };
+  game.framePicks = {};
+  game.frameVoters = game.players.filter(isPresent).map(p => p.id);
+  game.frameResult = null;
+  setPhase(game, PHASES.FRAMING);
+  return { ok: true };
+}
+// Framing over (resolving it first if the dealer moves on early): the scoreboard
+function moveToScoreboard(game) {
+  if (game.phase === PHASES.ANSWER) return { error: 'Frame It comes first' };
+  if (game.phase !== PHASES.FRAMING) return { error: 'Not framing' };
+  if (!game.frameResult) resolveFraming(game);
   setPhase(game, PHASES.SCORES);
   game.scoresAt = Date.now();   // phones time the Grand Poobah ceremony from this, so it plays together
   return { ok: true };
@@ -725,34 +746,71 @@ function isGameOver(game) {
   return game.round >= totalRounds(game);
 }
 
-/* ── Hall of Fame flags: one per player per game, honour only ── */
+/* ── Frame It: after every answer, one secret pick per player per cartoon (honour only, no game limit) ──
+   Enough picks on one caption (inductNeed) and it's FRAMED: player-written ones join The Gallery deck. */
 function authorOf(game, target) { return target === 'closed' ? game.closedPlayerId : (game.openCaptions[target] || {}).playerId; }
-function plantFlag(game, playerId, target) {
-  if (game.phase !== PHASES.ANSWER && game.phase !== PHASES.SCORES) return { error: 'Flags go down after the answer' };
+// Pick a caption (not your own) or 'pass'. Changeable until the framing resolves.
+function pickFrame(game, playerId, target) {
+  if (game.phase !== PHASES.FRAMING) return { error: 'Framing happens after the answer' };
+  if (game.frameResult) return { error: 'The frames are in' };
   if (!game.players.some(p => p.id === playerId)) return { error: 'Player not in game' };
-  const v = validateTarget(game, target);
-  if (v.error) return v;
-  if (authorOf(game, v.target) === playerId) return { error: 'You can’t flag your own caption' };
-  const mine = game.flags.find(f => f.fromId === playerId);
-  if (mine && mine.round !== game.round) return { error: 'You already used your flag this game' };
-  if (mine && String(mine.target) === String(v.target)) { game.flags = game.flags.filter(f => f !== mine); return { ok: true, removed: true }; }
-  if (mine) game.flags = game.flags.filter(f => f !== mine);
-  game.flags.push({ fromId: playerId, round: game.round, target: v.target, at: Date.now() });
-  const fl = game.flags.filter(f => f.round === game.round && String(f.target) === String(v.target)), count = fl.length;
-  const key = game.round + '|' + v.target;
-  game.inducted = game.inducted || [];
-  if (count < inductNeed(game) || game.inducted.includes(key)) return { ok: true, count };
-  // The moment happens once: taking a flag back later never un-inducts it
-  game.inducted.push(key);
-  try { induct(game, v.target, fl, count); } catch (e) { console.error('induction', e); }
-  return { ok: true, count, inducted: true };
+  let t = 'pass';
+  if (target !== 'pass') {
+    const v = validateTarget(game, target);
+    if (v.error) return v;
+    if (authorOf(game, v.target) === playerId) return { error: 'You can’t frame your own caption' };
+    t = v.target;
+  }
+  (game.framePicks = game.framePicks || {})[playerId] = t;
+  return { ok: true, allIn: allFramesIn(game) };
 }
-// Big tables need three flags; five or fewer, two
+// Everyone who was here when framing began, and is still here, has decided (a dropped phone stops counting after the grace)
+function allFramesIn(game) {
+  const picks = game.framePicks || {};
+  const voters = new Set(game.frameVoters || []);
+  return game.players.filter(p => voters.has(p.id) && isPresent(p)).every(p => p.id in picks);
+}
+// The ceremony's beats (server clock): each framed caption gets a slot, then the scoreboard
+const FRAME_LEAD_MS = 900, FRAME_SLOT_MS = 6000, FRAME_NONE_MS = 3200;
+// Count the picks; every caption with enough is framed (most picks first). Happens once per round.
+function resolveFraming(game) {
+  if (game.phase !== PHASES.FRAMING) return { error: 'Not framing' };
+  if (game.frameResult) return { ok: true, noop: true };
+  const at = Date.now(), counts = {}, by = {};
+  const order = game.openCaptions.map((_, i) => String(i)).concat('closed');
+  for (const [pid, t] of Object.entries(game.framePicks || {})) {
+    if (t === 'pass' || !game.players.some(p => p.id === pid)) continue;
+    const k = String(t);
+    counts[k] = (counts[k] || 0) + 1;
+    (by[k] = by[k] || []).push(pid);
+  }
+  // Every pick is kept (the night's 'Most Framed' award and the Gallery's 'framed by' read them)
+  game.flags = (game.flags || []).filter(f => f.round !== game.round);
+  for (const k of order) for (const pid of by[k] || []) game.flags.push({ fromId: pid, round: game.round, target: k === 'closed' ? 'closed' : Number(k), at });
+  const need = inductNeed(game);
+  const framed = Object.keys(counts).filter(k => counts[k] >= need).sort((x, y) => counts[y] - counts[x] || order.indexOf(x) - order.indexOf(y));
+  game.inducted = game.inducted || [];
+  const items = [];
+  framed.forEach((k, i) => {
+    const target = k === 'closed' ? 'closed' : Number(k), key = game.round + '|' + target;
+    if (!game.inducted.includes(key)) game.inducted.push(key);
+    const fl = game.flags.filter(f => f.round === game.round && String(f.target) === k);
+    try { const it = induct(game, target, fl, counts[k], at + FRAME_LEAD_MS + i * FRAME_SLOT_MS); if (it) items.push(it); } catch (e) { console.error('induction', e); }
+  });
+  if (items.length) {
+    const n = ((game.lastInduction && game.lastInduction.n) || game.inductionCount || 0) + 1;
+    game.lastInduction = { ...items[0], n, list: items };
+  }
+  const endsAt = framed.length ? at + FRAME_LEAD_MS + framed.length * FRAME_SLOT_MS : at + FRAME_NONE_MS;
+  game.frameResult = { at, framed: framed.map(k => (k === 'closed' ? 'closed' : Number(k))), counts, endsAt };
+  return { ok: true, framed: game.frameResult.framed, endsAt };
+}
+// Big tables need three frames; five or fewer, two
 const inductNeed = (game) => (game.players.length <= 5 ? 2 : 3);
-// A caption just made the Hall of Fame: player-written fakes join the permanent deck
-function induct(game, target, fl, count) {
+// A caption was just framed: player-written fakes join the permanent deck. Returns the celebration (at = when it plays)
+function induct(game, target, fl, count, at = Date.now()) {
   const h = game.history.find(x => x.round === game.round);
-  if (!h) return;
+  if (!h) return null;
   const c = target === 'closed' ? { caption: h.closedCaption, playerId: h.closedPlayerId, isCorrect: h.closedIsCorrect } : (h.openCaptions[target] || {});
   const isReal = !!c.isCorrect, author = c.playerId ? nameOfPlayer(game, c.playerId) : null;
   const image = h.cartoon && h.cartoon.image, flaggers = fl.map(f => nameOfPlayer(game, f.fromId)), month = MONTH();
@@ -762,9 +820,8 @@ function induct(game, target, fl, count) {
     entry = deckOf(game).add({ cartoonId: h.cartoon.id, image, caption: c.caption, author, flaggers, flags: count, month });
     if (entry && store.file) store.add(entry, true);   // the server's saved copy (kept for good when DATA_DIR is set)
   }
-  game.lastInduction = {
-    n: ((game.lastInduction && game.lastInduction.n) || game.inductionCount || 0) + 1,
-    round: game.round, target, at: Date.now(), caption: c.caption || '', author: isReal ? null : author, isReal,
+  return {
+    round: game.round, target, at, caption: c.caption || '', author: isReal ? null : author, isReal,
     image, flaggers, flags: count, month, entryId: entry ? entry.id : null,
     entry: entry || null,   // phones save this to carry The Gallery to the next game night
   };
@@ -780,7 +837,7 @@ function hallOfFame(game) {
     if (fl.length < inductNeed(game) && !(game.inducted || []).includes(k)) continue;
     const { round, target } = fl[0];
     let caption, writerName, writerId, image, isReal;
-    const live = round === game.round && (game.phase === PHASES.ANSWER || game.phase === PHASES.SCORES);
+    const live = round === game.round && ANSWERED.includes(game.phase);
     const h = game.history.find(x => x.round === round);
     if (!h) continue;
     image = h.cartoon && h.cartoon.image;
@@ -938,6 +995,9 @@ function setCareer(game, playerId, rank, rockets, total) {
 function resetForNewGame(game) {
   setPhase(game, PHASES.LOBBY);
   game.flags = [];
+  game.framePicks = {};
+  game.frameVoters = [];
+  game.frameResult = null;
   game.inducted = [];
   game.realCredit = null;
   // The celebration belongs to the old game (n keeps counting, so phones still spot the next one)
@@ -969,10 +1029,10 @@ function resetForNewGame(game) {
   game.stepAt = null;
 }
 
-const AFTER_WRITING = [PHASES.READING, PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.SCORES];
-const BETTING_ON = [PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.SCORES];
-const REVEALED = [PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.SCORES];
-const ANSWERED = [PHASES.ANSWER, PHASES.SCORES];
+const AFTER_WRITING = [PHASES.READING, PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
+const BETTING_ON = [PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
+const REVEALED = [PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
+const ANSWERED = [PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
 
 const TAKEOVER_SECS = 30;
 const GAZETTE_SIZE = 40;
@@ -1011,7 +1071,7 @@ function getPlayerView(game, playerId) {
     stealShows: game.stealShows || 0,
     promotion: game.promotion || null,
     inductNeed: inductNeed(game),
-    lastInduction: game.lastInduction ? { ...game.lastInduction, flaggers: [...game.lastInduction.flaggers] } : null,   // only made after an answer
+    lastInduction: game.lastInduction ? { ...game.lastInduction, flaggers: [...game.lastInduction.flaggers], list: (game.lastInduction.list || []).map(x => ({ ...x, flaggers: [...x.flaggers] })) } : null,   // only made when framing resolves
     hofDeck: deckCartoons(game),
     hofTotal: deckOf(game).count(),
   };
@@ -1081,9 +1141,19 @@ function getPlayerView(game, playerId) {
     base.closedPlayerId = game.closedPlayerId;
     base.flags = game.flags.filter(f => f.round === game.round).map(f => ({ ...f }));
     base.allFlags = game.flags.map(f => ({ ...f }));
-    const mf = game.flags.find(f => f.fromId === playerId);
-    base.myFlag = mf ? { ...mf } : null;
     base.hallOfFame = hallOfFame(game);
+  }
+
+  // Frame It: who has decided (never who picked what, or how many) until it resolves
+  if (game.phase === PHASES.FRAMING) {
+    const picks = game.framePicks || {}, r = game.frameResult;
+    base.framing = {
+      voters: [...(game.frameVoters || [])],
+      decided: Object.keys(picks),
+      myPick: playerId in picks ? picks[playerId] : null,
+      resolved: !!r,
+      result: r ? { at: r.at, framed: [...r.framed], counts: { ...r.counts }, endsAt: r.endsAt } : null,
+    };
   }
 
   if (game.phase === PHASES.SCORES) {
@@ -1114,11 +1184,11 @@ function addTime(game) {
 
 module.exports = {
   PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS,
-  addTime, freshest, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, plantFlag, hallOfFame, planBlock, ensurePlan,
+  addTime, freshest, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, pickFrame, allFramesIn, resolveFraming, hallOfFame, planBlock, ensurePlan,
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,
-  stealChip, revealAnswer, moveToScoreboard, isGameOver, resetForNewGame,
+  stealChip, revealAnswer, moveToFraming, moveToScoreboard, isGameOver, resetForNewGame, isPresent,
   REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer,
   currentBetterId, pendingBetters, nextDealerIndex, getPlayerView, generateRoomCode,
 };

@@ -91,6 +91,16 @@ function autoAdvanceBets(code) {
   if (g.phase === PHASES.SECOND_BETS && G.pendingBetters(g).length === 0) later(code, 1600, PHASES.SECOND_BETS, G.moveFromSecondBets);
 }
 
+// Frame It: count the picks once, then the scoreboard comes by itself after the ceremony
+function resolveFrames(code) {
+  const g = games[code];
+  if (!g || g.phase !== PHASES.FRAMING || g.frameResult) return false;
+  const r = G.resolveFraming(g);
+  if (r.error) return false;
+  later(code, Math.max(0, r.endsAt - Date.now()), PHASES.FRAMING, G.moveToScoreboard);
+  return true;
+}
+
 const send = (ws, obj) => { if (ws.readyState === 1) ws.send(JSON.stringify(obj)); };
 const sendError = (ws, message) => send(ws, { type: 'error', message });
 const cleanName = (s) => String(s || '').replace(/\s+/g, ' ').trim().slice(0, 20);
@@ -207,9 +217,11 @@ wss.on('connection', (ws) => {
         broadcast(code);
         return;
       }
-      case 'plant_flag': {
-        // Enough flags inducts the caption (into the permanent deck if a player wrote it); see game.js
-        if (fail(G.plantFlag(game, playerId, msg.target))) return;
+      case 'frame_pick': {
+        // One secret pick per cartoon (or 'pass'); when everyone here has decided, the frames are counted
+        const r = G.pickFrame(game, playerId, msg.target);
+        if (fail(r)) return;
+        if (r.allIn) resolveFrames(code);
         broadcast(code);
         return;
       }
@@ -313,9 +325,15 @@ wss.on('connection', (ws) => {
             if (!canRun) return sendError(ws, 'Only the dealer or host can do that');
             G.moveFromSecondBets(game); break;
           case PHASES.ANSWER:
-            // The table lingers on the answer: only the dealer (or host, or a stand-in) moves on
-            if (!canRun) return sendError(ws, 'The dealer moves to the scoreboard');
-            if (fail(G.moveToScoreboard(game))) return;   // not until the reel reaches the recap
+            // The table lingers on the answer: only the dealer (or host, or a stand-in) moves on, to Frame It
+            if (!canRun) return sendError(ws, 'The dealer moves things along');
+            if (fail(G.moveToFraming(game))) return;   // not until the reel reaches the recap
+            break;
+          case PHASES.FRAMING:
+            // 'Move on' counts the picks now; once they're counted, straight to the scoreboard
+            if (!canRun) return sendError(ws, 'The dealer moves things along');
+            if (!game.frameResult) resolveFrames(code);
+            else if (fail(G.moveToScoreboard(game))) return;
             break;
           case PHASES.SCORES: {
             const nd = game.players[G.nextDealerIndex(game, game.dealerIndex)];
@@ -389,6 +407,8 @@ setInterval(() => {
         G.skipCurrentBetter(g); changed = true; autoAdvanceBets(code);
       }
     }
+    // Frame It: a phone that went away no longer holds it up
+    if (g.phase === PHASES.FRAMING && !g.frameResult && G.allFramesIn(g)) { resolveFrames(code); changed = true; }
     // Keep "dealer is away" countdowns fresh
     if (changed || g.players.some(p => !p.connected && p.disconnectedAt && now - p.disconnectedAt < 120000)) broadcast(code);
   } catch (e) { console.error('housekeeping failed', code, e); }   // one bad room never stops the rest

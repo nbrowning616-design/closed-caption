@@ -363,23 +363,43 @@ details.box .body { padding: 14px 4px 4px; }
 .rc-line b { font-weight: 900; }
 .rc-dealer { font-size: 15px; color: var(--red); }
 .rc-wait { text-align: center; font-size: 16px; font-weight: 800; color: var(--ink-2); padding: 12px 0; }
-#frame-row { margin: 12px 0 14px; }
-.fr-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
-.fr-head > span:first-child { font-family: var(--display); font-weight: 700; font-size: 20px; }
-.fr-hint { font-size: 12px; font-weight: 800; color: var(--muted); white-space: nowrap; }
-.fr-grid { display: grid; gap: 6px; }
-.fr-grid.scroll { grid-template-rows: repeat(var(--rows), auto); grid-auto-flow: column; grid-auto-columns: 88%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 4px; overscroll-behavior-x: contain; }
-.fr-grid.scroll .fr-card { scroll-snap-align: start; }
-.fr-card { display: flex; align-items: center; gap: 8px; min-width: 0; width: 100%; height: 44px; padding: 0 10px 0 12px; font-family: inherit; color: var(--ink); text-align: left; border: 2px dashed var(--ink); border-radius: 12px; background: #fff; cursor: pointer; }
-.fr-card:active:not([disabled]) { transform: translate(1px,1px); }
-.fr-card[disabled] { opacity: .5; cursor: default; border-style: solid; border-color: var(--line); }
-.fr-card.on { border-style: solid; background: var(--yellow-bg); box-shadow: var(--shadow-sm); }
-.fr-card.framed { border: 2.5px solid var(--ink); background: #FFF9E3; box-shadow: 0 0 0 3px #E9B92A; }
-.fr-cap { flex: 1; min-width: 0; font-size: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fr-who { flex-shrink: 0; font-size: 12px; font-weight: 800; color: var(--muted); max-width: 62px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fr-tag { flex-shrink: 0; font-size: 13px; font-weight: 900; padding: 2px 8px; border-radius: 999px; background: var(--yellow); border: 2px solid var(--ink); }
-.fr-tag.done { background: var(--ink); color: var(--yellow); }
-.frame-used { text-align: center; font-size: 15px; font-weight: 800; color: var(--muted); }
+/* Frame It: one quick screen between the answer and the scoreboard (never scrolls the page) */
+body.fm-on #screen-game { padding-bottom: calc(10px + var(--sab)); }
+.fm-root { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.fm-head { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.fm-toon { width: 58px; height: 58px; flex-shrink: 0; border: 2px solid var(--ink); border-radius: 8px; background: #fff; padding: 2px; box-shadow: var(--shadow-sm); cursor: zoom-in; }
+.fm-toon img { width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 5px; display: block; }
+.fm-title { font-size: 28px; }
+.fm-title.fm-stamp { animation: fmStamp .45s var(--spring) both; transform-origin: left center; }
+@keyframes fmStamp { from { opacity: 0; transform: scale(1.6) rotate(-3deg); } to { opacity: 1; transform: none; } }
+.fm-chips.many { gap: 4px; } .fm-chips.many .chip { --s: 24px; font-size: 9px; }
+.fm-sub { font-size: 12px; font-weight: 800; color: var(--muted); margin-top: 4px; }
+.fm-list { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 10px; padding: 10px 9px 9px; margin: -6px -9px 0; }
+.fm-card { position: relative; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; width: 100%; text-align: left; font-family: inherit; color: var(--ink); background: #fff; border: 2.5px solid var(--ink); border-radius: 14px; padding: 11px 14px 9px; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform .1s, box-shadow .15s, background .15s, opacity .3s; }
+.fm-card:active:not([disabled]) { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+.fm-cap { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.18; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.fm-meta { display: flex; align-items: center; gap: 8px; min-height: 18px; }
+.fm-who { font-size: 12px; font-weight: 800; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fm-card.own { opacity: .45; border-style: dashed; box-shadow: none; background: transparent; cursor: default; }
+.fm-card[disabled] { cursor: default; }
+.fm-card.on { background: #FFF9E3; border-color: #7A5A12; box-shadow: 0 0 0 3px #E9B92A, 0 0 0 5.5px var(--ink), var(--shadow-sm); }
+.fm-card.on::after { content: '🖼 Your pick'; position: absolute; top: -11px; right: 12px; font-size: 11px; font-weight: 900; padding: 2px 9px; border-radius: 999px; background: var(--ink); color: var(--yellow); }
+.fm-card.framed { background: #FFF9E3; border-color: #7A5A12; animation: goldGlow 1.6s ease-in-out infinite; }
+.fm-card.dim { opacity: .5; }
+.fm-n { margin-left: auto; flex-shrink: 0; font-size: 13px; font-weight: 900; padding: 1px 8px; border-radius: 999px; border: 2px solid var(--ink); background: #fff; }
+.fm-n.done { background: var(--ink); color: var(--yellow); }
+.fm-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
+.fm-pass { padding: 13px 14px; }
+.fm-pass.on { background: var(--ink); color: var(--paper); }
+.fm-row { display: flex; align-items: center; gap: 10px; min-height: 34px; }
+.fm-chips { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; min-width: 0; }
+.fm-chip { position: relative; display: inline-flex; }
+.fm-chip .chip { --s: 28px; transition: opacity .25s, filter .25s; }
+.fm-chip:not(.done) .chip { opacity: .35; filter: grayscale(.7); }
+.fm-chip.done::after { content: '✓'; position: absolute; right: -4px; bottom: -3px; width: 15px; height: 15px; border-radius: 50%; background: var(--teal); color: #fff; font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--ink); animation: chipPop .3s var(--spring) both; }
+.fm-count { font-size: 13px; font-weight: 900; color: var(--ink-2); white-space: nowrap; }
+.fm-move { font-size: 14px; padding: 4px 2px; }
+.fm-wait { text-align: center; font-size: 15px; font-weight: 800; color: var(--ink-2); padding: 8px 0 4px; }
 /* Scoreboard: one row per player */
 .sb-row { gap: 10px; padding: 8px 14px; margin-bottom: 8px; }
 .sb-rank { font-family: var(--display); font-weight: 700; font-size: 18px; width: 18px; color: var(--muted); }
@@ -595,7 +615,7 @@ body.quake { animation: quake .12s linear 10; }
   <div class="panel flat violet" style="margin-bottom:22px;"><p class="sub">Points tell you who <i>bet</i> best. The Grand Poobah is who <i>wrote</i> best: each round, the player whose fake caption drew the most chips from the table gets the hat. At the end of the game, whoever drew the most chips all night is crowned <b>The Grand Poobah</b> — with all the ceremony that deserves. The winner keeps the points. The Poobah keeps the hat.</p></div>
 
   <p class="eyebrow" style="margin-bottom:10px;">Frame It and The Gallery</p>
-  <div class="panel flat yellow" style="margin-bottom:22px;"><p class="sub">After each answer, tap your favorite caption to frame it — <b>one frame per game</b>, never your own, no points. When <span class="frame-need">two people</span> frame the same caption, it hangs in <b>The Gallery</b> (menu ☰) for good.</p></div>
+  <div class="panel flat yellow" style="margin-bottom:22px;"><p class="sub">After every answer comes a quick Frame It: each player secretly picks one caption from that cartoon (never their own, no points), or passes. When <span class="frame-need">two people</span> pick the same caption, it’s framed and hangs in <b>The Gallery</b> (menu ☰) for good.</p></div>
 
   <p class="eyebrow" style="margin-bottom: 10px;">Scoring (per chip)</p>
   <div class="panel flat" style="margin-bottom: 14px; padding: 6px 16px;" id="rules-scoring"></div>
@@ -1070,6 +1090,7 @@ function screenKey() {
   const s = state;
   if (s.phase === 'writing') return ['writing', s.round, s.cartoon && s.cartoon.id, s.hasSubmitted ? 1 : 0].join('|');
   if (s.phase === 'answer') return ['answer', s.round, s.reel ? s.reel.step : 0, canRun() ? 1 : 0].join('|');
+  if (s.phase === 'framing') return ['framing', s.round, s.framing && s.framing.resolved ? 1 : 0].join('|');
   return s.phase + '|' + s.round;
 }
 
@@ -1093,18 +1114,21 @@ function render(force = false) {
     if (state.phase !== 'reading') closeReadAloud();
     if (lastPhase === 'scores' || state.phase === 'lobby') closeInduction();
     if (state.phase === 'lobby' && lastPhase) sendSeen();   // back in the lobby: refresh before the next game
-    if (state.phase === 'lobby') { answerSeqRound = null; scoresAnimated = null; seenFlags = null; }
+    if (state.phase === 'lobby') { answerSeqRound = null; scoresAnimated = null; }
+    if (lastPhase === 'framing') { clearFrameGos(); closeInduction(); }   // the scoreboard (and its hat) takes over
     if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); }
-    if (lastPhase && !['reveal', 'answer', 'scores'].includes(state.phase)) bsfx.advance();
+    if (lastPhase && !['reveal', 'answer', 'framing', 'scores'].includes(state.phase)) bsfx.advance();
+    document.body.classList.toggle('fm-on', state.phase === 'framing');
     if (state.phase !== 'writing') { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
     setActionBar('');
   } else if (state.phase === 'answer' && !force && key === lastKey) {
-    recordSeen(); checkFlagEvents(); recordCareer(); checkPromotion(); answerLive(); return;   // same step: only frames and buttons update
+    recordSeen(); recordCareer(); checkPromotion(); answerLive(); return;   // same step: only buttons update
+  } else if (state.phase === 'framing' && !force && key === lastKey && $('fm-root')) {
+    recordSeen(); recordCareer(); checkPromotion(); framingLive(); window.Guide && Guide.onRender(state); return;   // picks tick in without redrawing the list
   } else if (state.phase === 'reveal' && !force) {
     return; // choreographed screen — don't interrupt
   }
   recordSeen();
-  checkFlagEvents();
   recordCareer();
   checkPromotion();
 
@@ -1125,6 +1149,7 @@ function render(force = false) {
     case 'second_bets': html = renderBetting(2); break;
     case 'steal': html = renderSteal(); break;
     case 'answer': html = renderAnswer(); break;
+    case 'framing': if (!force) fmLocal = null; html = renderFraming(); break;
     case 'scores': html = renderScores(); break;
   }
   html = (state.phase !== 'lobby' ? renderAwayBanner() : '') + html;
@@ -1174,6 +1199,7 @@ function afterRender(phaseChanged) {
     if (step <= n) playReelStep(phaseChanged);
     else if (!phaseChanged) onReelRecap();
   }
+  if (state.phase === 'framing') { fitFraming(); framingSounds(phaseChanged); fmShowFramed(); }
   if (state.phase === 'scores' && phaseChanged) playScoresSequence();
   if (state.phase === 'reading' && phaseChanged) { (state.openCaptions || []).forEach((_, i) => setTimeout(() => bsfx.deal(i), 120 + i * 140)); buzz(30); }
   if (state.phase === 'writing' && phaseChanged) buzz(30);
@@ -1497,7 +1523,7 @@ function trayHtml(t, opts = {}) {
       const attrs = `data-bet="${b.i}"${opts.grab ? ` onclick="event.stopPropagation(); grabChip(${b.i})" role="button" aria-label="Steal ${esc(nameOf(b.playerId))}'s chip"` : ''}`;
       return chipHtml(b.playerId, 'sm' + grab, '', attrs);
     });
-    const gone = opts.showStolen ? Array.from({ length: b.stolen || 0 }, () => chipHtml(b.playerId, 'sm stolen')) : [];
+    const gone = opts.showStolen ? Array.from({ length: b.stolen || 0 }, () => window.ccPaintedChip ? window.ccPaintedChip(state.dealerId, 'sm', b.playerId) : chipHtml(b.playerId, 'sm stolen')) : [];   // repainted in the dealer's colour (steal.js)
     return [...live, ...gone];
   });
   return `<div class="chip-tray${opts.grab ? ' steal' : ''}">${chips.join('')}</div>`;
@@ -1695,59 +1721,113 @@ function bluffShort(f) {
   return same ? `<b>${esc(listNames(writers))}</b> each fooled ${plural(n, 'person', 'people')}` : `<b>${esc(listNames(writers))}</b> tie for biggest bluff`;
 }
 
-/* Frame It — one per player per game, honour only (internally still 'flags').
-   Enough frames on one caption (state.inductNeed) and it's FRAMED: it hangs in The Gallery. */
+/* Frame It — after every answer, one secret pick per player per cartoon, honour only (internally still 'flags').
+   Enough picks on one caption (state.inductNeed) and it's FRAMED: it hangs in The Gallery. */
 const frameNeed = () => (state && state.inductNeed) || 2;
 const frameNeedWords = () => ({ 2: 'two people', 3: 'three people', 4: 'four people' })[frameNeed()] || frameNeed() + ' people';
 const pubMark = (p) => p && p.published > 0 ? `<span class="pub-mark" title="${plural(p.published, 'caption')} in The Gallery">🖼×${p.published}</span>` : '';
-function isFramed(c) {
-  const n = (state.flags || []).filter(f => String(f.target) === String(c.idx)).length;
-  return n >= frameNeed() || (state.hallOfFame || []).some(h => h.round === state.round && String(h.target) === String(c.idx));
+/* ── FRAME IT: "Anything frame-worthy?" One screen between the answer and the scoreboard.
+   Pick one caption (never your own) or pass; picks stay secret until everyone has decided
+   (or the dealer moves on). Enough picks and it's framed: the ceremony plays on every phone. ── */
+let fmLocal = null, fmSeen = null;   // fmLocal: a tap the server hasn't echoed yet; fmSeen: who had decided at the last draw
+const fmTag = () => state.code + '|' + state.round;
+function fmMyPick() {
+  const f = state.framing || {};
+  return fmLocal && fmLocal.tag === fmTag() && !f.resolved ? fmLocal.pick : f.myPick;
 }
-// Frame It on the recap: one tap on a caption frames it (tap again to take it back)
-function frameRowHtml() {
-  const mine = state.myFlag;
-  if (mine && mine.round !== state.round) return `<p class="frame-used">🖼 You've used your frame this game.</p>`;
-  const caps = answerCaptions(), need = frameNeed();
-  const cards = caps.map(c => {
-    const n = (state.flags || []).filter(f => String(f.target) === String(c.idx)).length;
-    const own = c.playerId && c.playerId === myPlayerId, isMine = mine && String(mine.target) === String(c.idx), framed = isFramed(c);
+function fmCaptions() {
+  const all = answerCaptions(), order = (state.reel && state.reel.order) || [];
+  const byKey = (k) => all.find(c => String(c.idx) === String(k));
+  const out = order.map(byKey).filter(Boolean);
+  for (const c of all) if (!out.includes(c)) out.push(c);   // anything the reel skipped
+  return out.filter(c => c.caption);
+}
+function pickFrame(t) {
+  const f = state.framing || {};
+  if (state.phase !== 'framing' || f.resolved) return;
+  if (send({ action: 'frame_pick', target: t })) { fmLocal = { tag: fmTag(), pick: t }; buzz(20); sfx.tap(); framingLive(true); }
+}
+function fmListHtml() {
+  const f = state.framing || {}, r = f.result, mine = fmMyPick(), need = frameNeed();
+  return fmCaptions().map(c => {
+    const k = String(c.idx), own = !!c.playerId && c.playerId === myPlayerId, on = mine !== null && mine !== undefined && String(mine) === k;
+    const framed = r && r.framed.map(String).includes(k), n = r ? (r.counts[k] || 0) : 0;
+    const who = own ? 'Yours' : c.isCorrect ? 'The real one' : esc(c.playerName || '');
     const t = c.idx === 'closed' ? "'closed'" : c.idx;
-    const tag = framed ? '<span class="fr-tag done">Framed!</span>' : n ? `<span class="fr-tag">🖼 ${n} of ${need}</span>` : '';
-    const who = own ? 'Yours' : c.isCorrect ? 'Real' : esc(c.playerName || '');
-    return `<button class="fr-card ${isMine ? 'on' : ''} ${framed ? 'framed' : ''}" ${own ? 'disabled' : `onclick="plantFlag(${t})"`} aria-pressed="${isMine ? 'true' : 'false'}"><span class="fr-cap">“${esc(c.caption)}”</span><span class="fr-who">${who}</span>${tag}</button>`;
+    const tag = framed ? `<span class="fm-n done">Framed! · ${n}</span>` : r && n ? `<span class="fm-n">🖼 ${n} of ${need}</span>` : '';
+    const cls = ['fm-card', own ? 'own' : '', on ? 'on' : '', framed ? 'framed' : '', r && !framed ? 'dim' : ''].filter(Boolean).join(' ');
+    return `<button class="${cls}" data-k="${k}" ${own || r ? 'disabled' : `onclick="pickFrame(${t})"`} aria-pressed="${on ? 'true' : 'false'}"><span class="fm-cap">“${esc(c.caption)}”</span><span class="fm-meta"><span class="fm-who">${who}</span>${tag}</span></button>`;
   }).join('');
-  return `<div class="fr-head"><span>Frame your favorite?</span><span class="fr-hint">One per game</span></div><div class="fr-grid ${caps.length > 5 ? 'scroll' : ''}" style="--rows:${Math.min(5, caps.length)};">${cards}</div>`;
 }
-function plantFlag(target) { if (send({ action: 'plant_flag', target })) { buzz(20); sfx.tap(); } }
-function updateFlagsUI() {
-  const row = $('frame-row'); if (!row) return;
-  const sl = (row.querySelector('.fr-grid') || {}).scrollLeft || 0;
-  const h = frameRowHtml(); if (row.dataset.h !== h) { row.innerHTML = h; row.dataset.h = h; const g = row.querySelector('.fr-grid'); if (g) g.scrollLeft = sl; }
-}
-
-// A small toast on every phone when someone frames a caption (the framing moment itself comes from lastInduction)
-let seenFlags = null, seenFlagsRound = null, framedJust = null;
-function checkFlagEvents() {
-  const just = framedJust; framedJust = null;
-  if (!['answer', 'scores'].includes(state.phase)) return;
-  const cur = (state.flags || []).map(f => f.fromId + '|' + f.target);
-  if (seenFlagsRound !== state.round || !seenFlags) { seenFlags = new Set(cur); seenFlagsRound = state.round; return; }
-  const fresh = (state.flags || []).filter(f => !seenFlags.has(f.fromId + '|' + f.target));
-  seenFlags = new Set(cur);
-  for (const f of fresh) {
-    if (just && String(just.target) === String(f.target)) continue;   // that frame just hung it in The Gallery
-    const c = answerCaptions().find(x => String(x.idx) === String(f.target)) || {};
-    const whose = c.playerId ? (c.playerId === myPlayerId ? 'your' : `${nameOf(c.playerId)}’s`) : 'the real';
-    hatTip(`${f.fromId === myPlayerId ? 'You' : nameOf(f.fromId)} would frame ${whose} caption`);
+function fmFootHtml() {
+  const f = state.framing || {}, r = f.result, mine = fmMyPick();
+  if (r) {
+    const next = isLastRound() ? 'Final scores' : 'Scoreboard';
+    return canRun() ? `<button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'advance'})">${next} →</button>` : `<p class="fm-wait">${next} in a moment<span class="dots"></span></p>`;
   }
+  const voters = f.voters || [], decided = new Set(f.decided || []);
+  const ids = voters.concat((f.decided || []).filter(id => !voters.includes(id))).filter(id => playerById(id));
+  const here = ids.filter(id => (playerById(id) || {}).connected || decided.has(id));
+  const chips = ids.map(id => `<span class="fm-chip ${decided.has(id) ? 'done' : ''}">${chipHtml(id)}</span>`).join('');
+  const passed = mine === 'pass';
+  return `<button class="btn fm-pass ${passed ? 'on' : ''}" onclick="pickFrame('pass')" aria-pressed="${passed ? 'true' : 'false'}">${passed ? '✓ Passed · tap a caption to change' : 'Nah, not this round'}</button>
+    <div class="fm-row"><div class="fm-chips ${ids.length > 6 ? 'many' : ''}">${chips}</div><span class="fm-count">${here.filter(id => decided.has(id)).length} of ${here.length} decided</span></div>
+    ${canRun() ? `<div class="center" style="margin-top:-6px;"><button class="btn-link fm-move" onclick="send({action:'advance'})">Move on</button></div>` : ''}`;
 }
-function hatTip(text) {
-  let el = $('hat-tip'); if (!el) { el = document.createElement('div'); el.id = 'hat-tip'; document.body.appendChild(el); }
-  el.innerHTML = `<span style="font-size:22px;">🖼</span><span>${esc(text)}</span>`;
-  el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
-  big(() => { tone(988, 0.12, 0, 'sine', 0.06); tone(1319, 0.2, 90, 'sine', 0.05); }); buzz(25);
-  clearTimeout(window._hatT); window._hatT = setTimeout(() => el.classList.remove('on'), 3200);
+function fmHeadHtml() {
+  const r = (state.framing || {}).result;
+  const toon = state.cartoon ? `<div class="fm-toon" onclick="openViewer()" role="button" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"></div>` : '';
+  let title = 'Anything frame-worthy?', sub = 'Pick one, or pass. Picks stay secret.';
+  if (r && r.framed.length) { title = r.framed.length > 1 ? `Framed! ×${r.framed.length}` : 'Framed!'; sub = 'Going up in The Gallery.'; }
+  else if (r) { title = 'Nothing framed this round.'; sub = 'Tough room.'; }
+  return `${toon}<div style="min-width:0;"><div class="h-display fm-title ${r ? 'fm-stamp' : ''}" style="${r && !r.framed.length ? 'font-size:23px;' : ''}">${title}</div><p class="fm-sub">${sub}</p></div>`;
+}
+function renderFraming() {
+  return `${header({ sticker: '<span class="sticker">🖼 Frame It</span>', thumb: false })}
+    <div class="fm-root" id="fm-root">
+      <div class="fm-head" id="fm-head">${fmHeadHtml()}</div>
+      <div class="fm-list" id="fm-list">${fmListHtml()}</div>
+      <div class="fm-foot" id="fm-foot">${fmFootHtml()}</div>
+    </div>`;
+}
+// A new state while the screen is up: only what changed, and the list keeps its scroll
+function framingLive(local) {
+  if (!local) fmLocal = null;   // the server has spoken
+  const el = $('game-content'), tpl = document.createElement('template'); tpl.innerHTML = renderAwayBanner();
+  const oldAway = el.querySelector('#away'), newAway = tpl.content.querySelector('#away');
+  if (oldAway && newAway) oldAway.replaceWith(newAway); else if (oldAway) oldAway.remove(); else if (newAway) el.prepend(newAway);
+  const list = $('fm-list'), foot = $('fm-foot');
+  if (list) { const h = fmListHtml(); if (list.dataset.h !== h) { const st = list.scrollTop; list.innerHTML = h; list.dataset.h = h; list.scrollTop = st; } }
+  if (foot) { const h = fmFootHtml(); if (foot.dataset.h !== h) { foot.innerHTML = h; foot.dataset.h = h; } }
+  fitFraming();
+  if (!local) framingSounds(false);
+}
+// Resolved: the framed caption scrolls into view inside the list
+function fmShowFramed() {
+  const l = $('fm-list'), c = l && l.querySelector('.fm-card.framed'); if (!c) return;
+  l.scrollTop = Math.max(0, c.offsetTop - l.offsetTop - 12);
+}
+// The screen fills the phone exactly: the caption list scrolls inside its box, never the page
+function fitFraming() {
+  const root = $('fm-root'); if (!root) return;
+  const scr = $('screen-game'), pad = scr ? parseFloat(getComputedStyle(scr).paddingBottom) || 0 : 0;
+  const top = root.getBoundingClientRect().top + window.scrollY;
+  root.style.height = Math.max(260, Math.floor(window.innerHeight - top - pad)) + 'px';
+}
+window.addEventListener('resize', () => { if (state && state.phase === 'framing') fitFraming(); });
+// Someone decides: a soft tick; everyone in: a chord; nothing framed: a shrug
+function framingSounds(fresh) {
+  const f = state.framing || {}, tag = fmTag(), n = (f.decided || []).length;
+  if (fresh || !fmSeen || fmSeen.tag !== tag) { fmSeen = { tag, n, resolved: !!f.resolved }; if (f.resolved && fresh) fmOutcomeFx(f.result); return; }
+  if (!fmSeen.resolved && f.resolved) fmOutcomeFx(f.result);
+  else if (n > fmSeen.n && !f.resolved) bsfx.submitOther();
+  fmSeen = { tag, n, resolved: !!f.resolved };
+}
+function fmOutcomeFx(r) {
+  if (!r) return;
+  if (window.ccBeat) window.ccBeat(r.framed.length ? 'framing:framed' : 'framing:none');
+  if (!r.framed.length) { big(() => { tone(392, 0.18, 0, 'triangle', 0.06); tone(330, 0.32, 170, 'triangle', 0.06); }); buzz(30); }
+  else { bsfx.allIn(); buzz(40); }
 }
 
 /* The framing moment: the server's lastInduction, played once on every phone while it's fresh.
@@ -1765,18 +1845,27 @@ function syncGallery() { const list = galleryGet(); if (list.length && ws && ws.
 function collectGallery() {
   if (!state) return;
   if (Array.isArray(state.gazette) && state.gazette.length) gallerySave(state.gazette);
-  if (state.lastInduction && state.lastInduction.entry) gallerySave([state.lastInduction.entry]);
+  if (state.lastInduction) gallerySave([state.lastInduction.entry, ...(state.lastInduction.list || []).map(x => x.entry)].filter(Boolean));
 }
+// Several captions can be framed at once: each has its own beat (li.list[i].at), one after another
+function clearFrameGos() { (window._frameGos || []).forEach(clearTimeout); window._frameGos = []; }
 function checkInduction() {
   collectGallery();
   const li = state.lastInduction, n = li ? li.n : 0;
-  if (lastIndN === null) { lastIndN = n; return; }
-  if (!li || n <= lastIndN) { if (n > lastIndN) lastIndN = n; return; }
+  // Framing is on screen right now: even a phone that just (re)loaded gets the moment
+  const live = !!li && state.phase === 'framing' && li.round === state.round;
+  if (lastIndN === null && !live) { lastIndN = n; return; }
+  if (!li || n <= (lastIndN || 0)) { if (n > lastIndN) lastIndN = n; return; }
   lastIndN = n;
-  const sy = window.ccSync ? window.ccSync(li.at) : { wait: 0, stale: Date.now() + clockOffset - li.at > 2500 };
-  if (sy.stale) return;   // stale: never replay (the card shows it's framed)
-  if (li.round === state.round) framedJust = { target: li.target };
-  clearTimeout(window._frameGo); window._frameGo = setTimeout(() => { if (window.ccBeat) window.ccBeat('frame:start'); playFraming(li); }, sy.wait);   // every phone on the same beat
+  const items = Array.isArray(li.list) && li.list.length ? li.list : [li];
+  clearFrameGos();
+  items.forEach((it, i) => {
+    const sy = window.ccSync ? window.ccSync(it.at) : { wait: 0, late: Math.max(0, Date.now() + clockOffset - it.at), stale: Date.now() + clockOffset - it.at > 2500 };
+    const next = items[i + 1], nextDue = next && window.ccSync && window.ccSync(next.at).wait === 0;
+    if (nextDue) return;                                  // its slot is over; the next one is already up
+    if (sy.stale && !(live && sy.late < 4500)) return;   // a late phone still gets the whole moment while framing is up
+    window._frameGos.push(setTimeout(() => { if (window.ccBeat) window.ccBeat('frame:start'); playFraming(it); }, sy.wait));   // every phone on the same beat
+  });
 }
 function hofEntryFor(li) { return (state.hallOfFame || []).find(h => h.round === li.round && String(h.target) === String(li.target)) || null; }
 function playFraming(li) {
@@ -1863,11 +1952,12 @@ function stealNewsHtml() {
   const me = st.victimId === myPlayerId;
   return `<div class="steal-news"><div class="h2">😈 ${state.isDealer ? 'You' : esc(state.dealerName)} stole ${me ? 'YOUR' : esc(nameOf(st.victimId)) + '’s'} chip</div><p class="sub">Knocked off ${where}.${st.gloat ? ` “${esc(st.gloat)}”` : ''}</p></div>`;
 }
-/* The steal show — THE CLAW (steal.js). The first steal of a game gets the full show (~6.4s: the claw
-   hunts, fakes out, drops, CLUNK, hauls the chip away); every later one is the sharp version (~2.1s:
-   straight down, CLUNK, gone). The server counts the steals (steal.show), so every phone agrees.
+/* The steal show — THE CLAW (steal.js). The first steal of a game gets the full show (~7.6s: the claw
+   hunts, fakes out, CLUNK, lifts the chip, a spray can repaints it in the dealer's colour, the claw sets it
+   back down); every later one is the sharp version (~2.6s: down, CLUNK, pssst, set down). The server
+   counts the steals (steal.show), so every phone agrees.
    Starts on the shared beat. Returns ms until the show is over. */
-const STEAL_SHOW_MS = 6400, STEAL_QUICK_MS = 2100;
+const STEAL_SHOW_MS = 7600, STEAL_QUICK_MS = 2600;
 function playStealShow(wait = 0) {
   if (!window.ccClaw) return 0;
   return window.ccClaw.play(wait, { fullMs: STEAL_SHOW_MS, quickMs: STEAL_QUICK_MS });
@@ -1880,7 +1970,7 @@ function renderAnswer() {
   if (state.reel && step <= n) return spotlightHtml();
   return renderRecap();
 }
-// The round recap: one glanceable screen. The real caption, who scored, the biggest bluff, the dealer's mischief, Frame It.
+// The round recap: one glanceable screen. The real caption, who scored, the biggest bluff, the dealer's mischief. (Frame It is next.)
 function renderRecap() {
   const f = roundFacts();
   answerSeqRound = state.round + '|' + state.code;
@@ -1899,7 +1989,6 @@ function renderRecap() {
     <div class="rc-pts ${scorers.length > 4 ? 'many' : ''}" id="answer-scores">${pts || '<p class="rc-none">Nobody scored. Brutal.</p>'}</div>
     ${bluff ? `<p class="rc-line" id="bluff-shout">${f.bluffs.length ? '🏆' : '🎯'} ${bluff}</p>` : ''}
     ${mischief ? `<p class="rc-line rc-dealer" id="rc-dealer">${mischief}</p>` : ''}
-    <div id="frame-row">${frameRowHtml()}</div>
     <div id="answer-continue">${answerContinueHtml(isLastRound())}</div>
     </div>`;
 }
@@ -1908,13 +1997,12 @@ function isLastRound() {
   return t ? state.players.some(p => p.score >= t) : (state.totalRounds ? state.round >= state.totalRounds : false);
 }
 function answerContinueHtml(lastRound) {
-  const label = lastRound ? 'Final scores →' : 'Scoreboard →';
+  const label = '🖼 Frame It →';   // then the scoreboard (or the final scores)
   if (canRun()) return `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" onclick="send({action:'reel_prev'})" aria-label="Back to the reveal">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'advance'})">${state.isDealer ? label : `${label.replace(' →', '')} for ${esc(state.dealerName)} →`}</button></div>`;
   return `<p class="rc-wait">Waiting for ${esc(state.dealerName)}<span class="dots"></span></p>`;
 }
-// Live updates while the answer is up (flags, who can move on) without replaying the show
+// Live updates while the answer is up (who can move on) without replaying the show
 function answerLive() {
-  updateFlagsUI();
   const el = $('game-content'), tpl = document.createElement('template'); tpl.innerHTML = renderAwayBanner();
   const oldAway = el.querySelector('#away'), newAway = tpl.content.querySelector('#away');
   if (oldAway && newAway) oldAway.replaceWith(newAway); else if (oldAway) oldAway.remove(); else if (newAway) el.prepend(newAway);
@@ -2070,7 +2158,7 @@ function sendCareer(force) {
   if (ws && ws.readyState === 1 && myPlayerId) { ws.send(JSON.stringify({ action: 'career', ...s })); careerSent = k; }
 }
 function recordCareer() {
-  if (!state || !['answer', 'scores'].includes(state.phase) || !state.cartoon) return;
+  if (!state || !['answer', 'framing', 'scores'].includes(state.phase) || !state.cartoon) return;
   if (state.phase === 'answer') { const { step, n } = reelInfo(); if (step < n) return; }   // a rank-up must not spoil the real caption
   const c = careerGet(); let added = false;
   for (const b of state.roundBadges || []) {
@@ -2479,7 +2567,7 @@ function renderHistory(idx) {
   const bets = r.bets || [];
   const cards = all.map(c => {
     const on = bets.filter(b => String(b.target) === String(c.t));
-    const chips = on.flatMap(b => [...Array.from({ length: b.count }, () => chipHtml(b.playerId, 'sm')), ...Array.from({ length: b.stolen || 0 }, () => chipHtml(b.playerId, 'sm stolen'))]).join('');
+    const chips = on.flatMap(b => [...Array.from({ length: b.count }, () => chipHtml(b.playerId, 'sm')), ...Array.from({ length: b.stolen || 0 }, () => window.ccPaintedChip ? window.ccPaintedChip((state.players.find(p => p.name === r.dealerName) || {}).id, 'sm', b.playerId) : chipHtml(b.playerId, 'sm stolen'))]).join('');
     return `<div class="cap locked ${c.isCorrect ? 'correct' : ''} ${c.isClosed ? 'closed' : ''}"><div class="chip-tray">${chips}</div>
       <p class="eyebrow" style="color:var(--ink-2);">${c.label}${c.isCorrect ? ' · ✓ real' : ''}</p>
       <p class="caption-text" style="font-size:15px;">“${esc(c.caption)}”</p>
