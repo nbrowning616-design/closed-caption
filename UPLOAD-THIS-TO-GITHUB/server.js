@@ -233,6 +233,13 @@ wss.on('connection', (ws) => {
         broadcast(code);
         return;
       }
+      case 'add_time': {
+        if (!canRun) return sendError(ws, 'Only the dealer or host can add time');
+        if (fail(G.addTime(game))) return;
+        broadcast(code);
+        scheduleWritingEnd(code);   // the old end time no longer applies
+        return;
+      }
       case 'update_timer': {
         if (!isHost) return sendError(ws, 'Only the host can change the timer');
         if (game.phase !== PHASES.LOBBY) return sendError(ws, 'Timer can only be changed in the lobby');

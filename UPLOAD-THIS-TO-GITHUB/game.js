@@ -44,18 +44,18 @@ const CARTOONS = [
   { id: 22, title: "Giant Mouth Dentist", image: "card_22.jpg", correct: "We may need to reschedule. I can't find my assistant." },
   { id: 23, title: "The Speedo Strut", image: "card_23.jpg", correct: "Nobody said anything. Nobody could." },
   { id: 24, title: "Horse Witness", image: "card_24.jpg", correct: "I'll ask again. Were you at the barn that night?" },
-  { id: 25, title: "Stick Figure Art", image: "card_25.jpg", correct: "Under magnification it's clearly a boy." },
+  { id: 25, adult: true, title: "Stick Figure Art", image: "card_25.jpg", correct: "Under magnification it's clearly a boy." },
   { id: 26, title: "Yoga Pretzel", image: "card_26.jpg", correct: "Namaste." },
   { id: 27, title: "Giraffe Tailor", image: "card_27.jpg", correct: "The suit was easy. The tie is the problem." },
   { id: 29, title: "Enormous Cat", image: "card_29.jpg", correct: "You should see the litter box." },
   { id: 30, title: "The Elevator", image: "card_30.jpg", correct: "One fart, five casualties." },
   { id: 31, title: "The Burger", image: "card_31.jpg", correct: "The salad was her idea." },
-  { id: 32, title: "The Consultation", image: "card_32.jpg", correct: "Cowabunga." },
+  { id: 32, adult: true, title: "The Consultation", image: "card_32.jpg", correct: "Cowabunga." },
   { id: 33, title: "The Tee Shot", image: "card_33.jpg", correct: "He sliced it so hard the Middle Ages showed up." },
   { id: 34, title: "The Worm", image: "card_34.jpg", correct: "Nobody's that friendly for free." },
   { id: 35, title: "The Landing Zone", image: "card_35.jpg", correct: "Thankfully he was filled with helium." },
   { id: 36, title: "The First Date", image: "card_36.jpg", correct: "He's forty-three. The steak is cut into squares." },
-  { id: 37, title: "The Interview", image: "card_37.jpg", correct: "What are your thoughts on spanking?" },
+  { id: 37, adult: true, title: "The Interview", image: "card_37.jpg", correct: "What are your thoughts on spanking?" },
   { id: 38, title: "The Dress", image: "card_38.jpg", correct: "It's her third marriage. Budget reflects that." },
   { id: 39, title: "The Arm Wrestle", image: "card_39.jpg", correct: "Cardio pays off eventually." },
   { id: 40, title: "The Drive-Through", image: "card_40.jpg", correct: "He tipped in licks." },
@@ -139,6 +139,7 @@ const DEFAULT_SETTINGS = {
   pointsStealCorrect: 1,         // dealer scores this for stealing a chip that was on the real caption
   autoCloseProbability: 0.15,    // share of rounds where the real caption is the Closed Caption
   stealEnabled: true,            // dealer may knock one chip off the table before the answer
+  family: false,                 // family cartoons only (skips the few grown-up ones)
   direction: 'left',             // which way the deal and the betting go around the table
   expert: false,                 // Expert Mode: the real answer comes from the Hall of Fame deck
 };
@@ -233,6 +234,7 @@ function updateSettings(game, partial) {
   for (const key of Object.keys(partial || {})) {
     const val = partial[key];
     if (key === 'stealEnabled') { s.stealEnabled = !!val; continue; }
+    if (key === 'family') { s.family = !!val; continue; }
     if (key === 'expert') {
       if (typeof val !== 'boolean') return { error: 'Invalid expert mode' };
       if (val && deckCartoons(game) < 3) return { error: 'The Gallery opens once 3 cartoons have a framed caption' };
@@ -344,7 +346,7 @@ const deckCartoons = (game) => expertCartoonIds(game).length;
 function dealExpert(game, currentId) {
   const ok = new Set(expertCartoonIds(game));
   // Never twice in one game; otherwise the ones the fewest people here have seen
-  const pool = freshest(game, CARTOONS.filter(c => ok.has(c.id) && !game.usedCartoonIds.includes(c.id) && c.id !== currentId));
+  const pool = freshest(game, allowed(game).filter(c => ok.has(c.id) && !game.usedCartoonIds.includes(c.id) && c.id !== currentId));
   if (!pool.length) return null;   // every deck cartoon has been played this game
   const cartoon = pick(pool), names = tableNames(game);
   const entry = pick(deckOf(game).byCartoon(cartoon.id).filter(e => !names.has(e.author.toLowerCase())));
@@ -365,15 +367,18 @@ function dealCartoon(game) {
   game.submissions = [];
   game.mulliganVotes = [];
   game.timerEnd = Date.now() + game.timerDuration * 1000;
+  game.timeAdds = 0;
   game.timerToken = (game.timerToken || 0) + 1;
 }
+// Family games never deal the grown-up cartoons
+const allowed = (game) => CARTOONS.filter(c => !(game.settings.family && c.adult));
 function dealNormal(game, currentId) {
   // Never twice in one game; of the rest, the ones the fewest people at the table have seen.
   // Nobody sees a repeat until they've seen the whole deck.
-  let available = freshest(game, CARTOONS.filter(c => !game.usedCartoonIds.includes(c.id) && c.id !== currentId));
+  let available = freshest(game, allowed(game).filter(c => !game.usedCartoonIds.includes(c.id) && c.id !== currentId));
   if (available.length === 0) {
     game.usedCartoonIds = currentId ? [currentId] : [];
-    available = CARTOONS.filter(c => c.id !== currentId);
+    available = allowed(game).filter(c => c.id !== currentId);
   }
   const cartoon = pick(available.length ? available : CARTOONS);
   game.usedCartoonIds.push(cartoon.id);
@@ -999,6 +1004,7 @@ function getPlayerView(game, playerId) {
     base.myCaption = mine ? mine.caption : null;
     base.mulliganVotes = [...game.mulliganVotes];
     base.mulliganNeeded = mulliganThreshold(game);
+    base.timeAdds = game.timeAdds || 0;
     base.myMulligan = game.mulliganVotes.includes(playerId);
   }
   base.mulliganEvent = game.mulliganEvent;
@@ -1072,9 +1078,19 @@ function getPlayerView(game, playerId) {
   return base;
 }
 
+// The dealer (or host) gives the table 30 more seconds — up to three times a cartoon
+function addTime(game) {
+  if (game.phase !== PHASES.WRITING) return { error: 'Only while writing' };
+  if ((game.timeAdds || 0) >= 3) return { error: 'That’s all the extra time this round' };
+  game.timeAdds = (game.timeAdds || 0) + 1;
+  game.timerEnd = Math.max(game.timerEnd, Date.now()) + 30000;
+  game.timerToken = (game.timerToken || 0) + 1;
+  return { ok: true };
+}
+
 module.exports = {
   PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS,
-  createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, plantFlag, hallOfFame, planBlock, ensurePlan,
+  addTime, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, plantFlag, hallOfFame, planBlock, ensurePlan,
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,

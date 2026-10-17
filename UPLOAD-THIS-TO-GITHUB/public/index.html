@@ -526,6 +526,17 @@ body.quake { animation: quake .12s linear 10; }
 .gal-toggle.on .sw { background: #E9B92A; } .gal-toggle.on .sw::after { left: 20px; }
 .aw-img { width: 120px; height: 120px; object-fit: cover; border: 3px solid var(--ink); border-radius: 12px; margin: 6px auto 0; display: block; background: #fff; }
 
+/* ── Read-aloud ── */
+#readaloud { position: fixed; inset: 0; z-index: 650; display: none; flex-direction: column; background: var(--paper); padding: calc(16px + var(--sat)) max(20px, env(safe-area-inset-right, 0px)) calc(20px + var(--sab)) max(20px, env(safe-area-inset-left, 0px)); }
+#readaloud.on { display: flex; animation: fadeIn .25s var(--ease-out); }
+.ra-top { display: flex; align-items: center; justify-content: space-between; }
+.ra-n { font-family: var(--display); font-weight: 700; font-size: 18px; color: var(--muted); }
+.ra-x { width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--ink); background: #fff; font-size: 18px; font-weight: 900; cursor: pointer; color: var(--ink); }
+.ra-cap { flex: 1; display: flex; align-items: center; font-family: var(--display); font-weight: 600; font-size: clamp(30px, 9vw, 46px); line-height: 1.15; text-wrap: balance; overflow-wrap: anywhere; }
+.ra-nav { display: flex; gap: 10px; } .ra-nav .btn:first-child { flex: 0 0 70px; }
+.ra-hint { text-align: center; font-size: 13px; font-weight: 800; color: var(--muted); margin-top: 10px; }
+.time-btn { margin-top: 8px; font-family: inherit; font-weight: 900; font-size: 14px; padding: 7px 14px; border-radius: 999px; border: 2px solid var(--ink); background: #fff; color: var(--ink); box-shadow: 2px 2px 0 var(--ink); cursor: pointer; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
@@ -1080,6 +1091,7 @@ function render(force = false) {
 
   if (phaseChanged) {
     selectedBetTarget = null; grabbedBet = null; phaseSeqPlayed = false; seenBets = 0; wasMyTurn = false;
+    if (state.phase !== 'reading') closeReadAloud();
     if (lastPhase === 'scores' || state.phase === 'lobby') closeInduction();
     if (state.phase === 'lobby' && lastPhase) sendSeen();   // back in the lobby: refresh before the next game
     if (state.phase === 'lobby') { answerSeqRound = null; scoresAnimated = null; seenFlags = null; }
@@ -1222,7 +1234,7 @@ function renderLobby() {
        <div class="field" style="margin-bottom:14px;"><label class="eyebrow">The deal and the betting pass to the…</label><div class="seg">${segBtn(!right, "setHostSettings({direction:'left'})", '↓ Left (down the list)')}${segBtn(right, "setHostSettings({direction:'right'})", '↑ Right (up the list)')}</div></div>`
     : `<p class="small" style="margin:-4px 0 14px;">Seating is in order around the table. The deal passes ${right ? 'right ↑' : 'left ↓'}.</p>`;
   const endCondition = s.targetScore ? `first to ${s.targetScore}` : s.rounds ? `${s.rounds} rounds` : 'everyone deals once';
-  const summary = `${state.timerDuration < 120 ? state.timerDuration + 's' : state.timerDuration / 60 + ' min'} to write · ${endCondition} · steal ${s.stealEnabled ? 'on' : 'off'} · deal passes ${right ? 'right' : 'left'}`;
+  const summary = `${state.timerDuration < 120 ? state.timerDuration + 's' : state.timerDuration / 60 + ' min'} to write · ${endCondition} · steal ${s.stealEnabled ? 'on' : 'off'} · deal passes ${right ? 'right' : 'left'}${s.family ? ' · family cartoons' : ''}`;
   const deck = state.hofDeck || 0, galleryOpen = deck >= 3 || s.expert;
   const galleryToggle = state.isHost
     ? `<button class="gal-toggle ${s.expert ? 'on' : ''}" ${galleryOpen ? '' : 'disabled'} onclick="setHostSettings({expert:${!s.expert}})" aria-pressed="${!!s.expert}">
@@ -1240,6 +1252,7 @@ function renderLobby() {
           ${segBtn(s.targetScore === 20, 'setHostSettings({rounds:null,targetScore:20})', 'First to 20')}
           ${segBtn(s.targetScore === 30, 'setHostSettings({rounds:null,targetScore:30})', 'First to 30')}
         </div></div>
+        <div class="field"><label class="eyebrow">Cartoons</label><div class="seg">${segBtn(!s.family, 'setHostSettings({family:false})', 'All')}${segBtn(!!s.family, 'setHostSettings({family:true})', '👪 Family only')}</div></div>
         <div class="field"><label class="eyebrow">Dealer's steal</label><div class="seg">${segBtn(s.stealEnabled, 'setHostSettings({stealEnabled:true})', 'On')}${segBtn(!s.stealEnabled, 'setHostSettings({stealEnabled:false})', 'Off')}</div></div>
         <div class="field"><label class="eyebrow">How often the real caption is the face-down one</label><div class="seg">${[0.1, 0.15, 0.2, 0.3].map(v => segBtn(Math.abs((s.autoCloseProbability ?? 0.15) - v) < 0.001, `setHostSettings({autoCloseProbability:${v}})`, Math.round(v * 100) + '%')).join('')}</div></div>
         <details class="box" id="adv-details"><summary>🎯 Points <span class="arrow">▾</span></summary><div class="body">
@@ -1305,6 +1318,7 @@ function writingStatusHtml() {
       ${last && last.id !== myPlayerId ? Guide.waitHtml(last) : ''}<p class="small">${n} of ${here.length} captions in</p>
       <div class="order" style="margin:8px 0 0;">${here.map(p => chipHtml(p.id, submitted.has(p.id) ? '' : last && p.id === last.id ? 'dim gd-spot' : 'dim', submitted.has(p.id) ? '<span class="check">✓</span>' : '')).join('')}</div>
       ${canRun() && n > 0 && n < here.length ? `<button class="btn-link" style="margin-top:4px;" onclick="confirmEndWriting()">Stop waiting and play these ${n} →</button>` : ''}
+      ${canRun() && n < here.length && (state.timeAdds || 0) < 3 ? `<button class="time-btn" onclick="send({action:'add_time'})">⏱ +30 seconds</button>` : ''}
     </div>`;
 }
 function mulliganHtml() {
@@ -1390,7 +1404,7 @@ function startTimer() {
     const remaining = Math.max(0, Math.ceil((state.timerEnd - (Date.now() + clockOffset)) / 1000));
     const d = $('timer-display'), f = $('timer-fill'), ring = $('timer-ring');
     if (d) d.textContent = remaining >= 60 ? `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}` : remaining;
-    if (f) f.style.strokeDashoffset = (150.8 * (1 - remaining / state.timerDuration)).toFixed(1);
+    if (f) f.style.strokeDashoffset = (150.8 * Math.max(0, 1 - remaining / state.timerDuration)).toFixed(1);
     if (ring) { ring.classList.toggle('warn', remaining <= 20 && remaining > 10); ring.classList.toggle('urgent', remaining <= 10); }
     if (remaining !== lastTimerSecond) {
       const first = lastTimerSecond === null; lastTimerSecond = remaining;
@@ -1439,6 +1453,20 @@ function playMulligan(ev, wait = 0) {
 }
 
 /* ── READING ── */
+// Read-aloud: one caption at a time, huge, so the dealer can read to the table
+let raIdx = 0;
+function openReadAloud(i = 0) {
+  const list = (state && state.openCaptions) || []; if (!list.length) return;
+  raIdx = Math.max(0, Math.min(i, list.length - 1));
+  let o = $('readaloud'); if (!o) { o = document.createElement('div'); o.id = 'readaloud'; document.body.appendChild(o); }
+  o.innerHTML = `<div class="ra-top"><span class="ra-n">${raIdx + 1} of ${list.length}</span><button class="ra-x" onclick="closeReadAloud()" aria-label="Close">✕</button></div>
+    <p class="ra-cap">“${esc(list[raIdx])}”</p>
+    <div class="ra-nav"><button class="btn" ${raIdx === 0 ? 'disabled' : ''} onclick="openReadAloud(${raIdx - 1})">◀</button>${raIdx < list.length - 1 ? `<button class="btn btn-yellow" onclick="openReadAloud(${raIdx + 1})">Next caption →</button>` : `<button class="btn btn-yellow" onclick="closeReadAloud()">Done ✓</button>`}</div>
+    <p class="ra-hint">The face-down one stays a mystery.</p>`;
+  o.classList.add('on'); sfx.tap();
+}
+function closeReadAloud() { const o = $('readaloud'); if (o) o.classList.remove('on'); }
+
 function capNote(i) { return state.myOpenIndex === i ? ' <span class="tag mine">Yours</span>' : ''; }
 function renderReading(animate) {
   const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked ${animate ? 'deal-in' : ''}" style="animation-delay:${i * 0.14}s;"><span class="num">${i + 1}</span><p class="caption-text">“${esc(c)}”${capNote(i)}</p></div>`).join('');
@@ -1452,7 +1480,7 @@ function renderReading(animate) {
     <div class="cap closed locked ${animate ? 'deal-in' : ''}" style="animation-delay:${nOpen * 0.14}s; text-align:center; padding:18px; margin-top:16px;">
       <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p><p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'It’s yours. Keep a straight face.' : 'Turned over after the blind bets'}</p>
     </div>
-    ${state.isDealer ? `<button class="btn btn-yellow" style="margin-top:18px;" onclick="send({action:'advance'})">Done reading — start the betting 🎰</button>`
+    ${state.isDealer ? `<button class="btn" style="margin-top:18px;" onclick="openReadAloud()">📢 Read them big</button><button class="btn btn-yellow" style="margin-top:12px;" onclick="send({action:'advance'})">Done reading — start the betting 🎰</button>`
       : canRun() ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'advance'})">Start the betting →</button>`
       : `<p class="center small" style="margin-top:16px;">Betting starts when ${esc(state.dealerName)} is done reading</p>`}`;
 }
