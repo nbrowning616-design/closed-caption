@@ -19,10 +19,10 @@
 
   /* Four edits: flat draft → better → dry. Never the real answers. */
   var SEQ = [
-    { img: 'card_7.jpg',  lines: ['Looks like you’re melting.', 'Have you been under a lot of heat lately?', 'Any family history of spring?'], notes: ['Obvious.', 'Closer.'] },
-    { img: 'card_14.jpg', lines: ['You have a lot of arms.', 'It says here you’re a great multitasker.', 'I see you’ve held eight positions. Simultaneously.'], notes: ['Obvious.', 'Warmer.'] },
-    { img: 'card_5.jpg',  lines: ['Death is drinking a smoothie.', 'Relax. He’s on his lunch break.', 'Table for one. For now.'], notes: ['Too literal.', 'Closer.'] },
-    { img: 'card_27.jpg', lines: ['That’s a very tall giraffe.', 'Neck size: yes.', 'Off the rack was never an option.'], notes: ['Obvious.', 'Almost.'] }
+    { img: 'card_47.jpg', lines: ['A bear at the DMV.', 'Please don’t eat the camera.', 'Height: yes. Weight: let’s not.'], notes: ['Obvious.', 'Closer.'] },
+    { img: 'card_50.jpg', lines: ['The beaver ate the wood.', 'Did you find everything okay?', 'We’ll have to charge you for the snack.'], notes: ['Obvious.', 'Warmer.'] },
+    { img: 'card_51.jpg', lines: ['He swallowed the remote.', 'Have you tried turning him off?', 'Good news: the batteries are in there too.'], notes: ['Too literal.', 'Closer.'] },
+    { img: 'card_54.jpg', lines: ['That’s a lot of shoes.', 'What size? All of them.', 'Socks are extra. Very extra.'], notes: ['Obvious.', 'Almost.'] }
   ];
 
   var CASLON = 'https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap';

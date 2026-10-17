@@ -221,6 +221,17 @@ textarea.caption-input::placeholder { color: #A99F93; }
 @keyframes bannerPulse { 0%,100% { box-shadow: var(--shadow);} 50% { box-shadow: 6px 6px 0 var(--ink);} }
 .turn-banner .h2 { margin-bottom: 2px; }
 .order { display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; margin: 12px 0 16px; }
+.order.bettors { gap: 10px 12px; align-items: flex-start; }
+.bettor { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 52px; padding: 6px 6px 4px; border-radius: 14px; border: 2px solid transparent; }
+.bettor.turn { border-color: var(--ink); background: var(--yellow); box-shadow: 2px 2px 0 var(--ink); animation: chipTurn 1.1s ease-in-out infinite; }
+.bettor.spent { opacity: .55; }
+.bchips { display: flex; height: 30px; align-items: center; } .bchips .chip + .chip { margin-left: -10px; }
+.bname { font-weight: 900; font-size: 13px; max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bnone { font-size: 11px; font-weight: 800; color: var(--muted); }
+.my-rack { display: flex; align-items: center; justify-content: center; gap: 12px; margin: -4px 0 14px; }
+.my-rack .lbl { font-weight: 900; font-size: 14px; }
+.rack-chips { display: flex; gap: 8px; min-height: 46px; align-items: center; }
+.chip.fly { pointer-events: none; box-shadow: 0 10px 18px rgba(0,0,0,.3); }
 
 /* ── Bottom action bar ── */
 .action-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; padding: 14px 16px calc(14px + var(--sab)); background: linear-gradient(to top, var(--paper) 72%, rgba(255,248,234,0)); }
@@ -1181,7 +1192,7 @@ function afterRender(phaseChanged) {
     const bets = state.bets || [];
     if (!phaseChanged && bets.length > seenBets) {
       const fresh = bets.slice(seenBets);
-      fresh.forEach((b, i) => { document.querySelectorAll(`.chip-tray .chip[data-bet="${seenBets + i}"]`).forEach(c => c.classList.add('drop')); });
+      fresh.forEach((b, i) => { if (b.playerId === myPlayerId && flyFrom) flyMyChips(seenBets + i); else document.querySelectorAll(`.chip-tray .chip[data-bet="${seenBets + i}"]`).forEach(c => c.classList.add('drop')); });
       const total = fresh.reduce((s, b) => s + (b.count || 0), 0);
       if (total > 0) { (fresh.some(b => b.playerId === myPlayerId) ? sfx : bsfx).chip(Math.min(2, total)); buzz(20); }   // your chip on your phone; the rest on the speaker
     }
@@ -1546,13 +1557,16 @@ function renderBetting(stage) {
     : `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')"><span class="num"><span class="cc-badge" style="margin:0;">CC</span></span>${trayHtml('closed')}
         <p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption · turned over</p><p class="caption-text">“${esc(state.closedCaption)}”${state.iWroteClosed ? ' <span class="tag mine">Yours</span>' : ''}</p>${already('closed')}</div>`;
 
+  // Every bettor shows the chips they still hold: 2, 1 or none. A chip leaves here and lands on a caption.
+  const left = (pid) => Math.max(0, 2 - bets.filter(b => b.playerId === pid && b.target !== 'pass').reduce((n, b) => n + b.count, 0));
   const orderRow = order.map(pid => {
-    const b1 = bets.find(b => b.playerId === pid && b.stage === 1), b2 = bets.find(b => b.playerId === pid && b.stage === 2);
-    const done = stage === 1 ? !!b1 : (!!b2 || !eligible2.has(pid));
-    const c = state.currentBetterId === pid ? 'turn' : (done ? '' : 'dim');
-    const badge = passed.has(pid) ? '<span class="check" style="background:var(--muted);">–</span>' : (stage === 2 && !eligible2.has(pid) && b1 ? '<span class="check" style="background:var(--violet);">2</span>' : (done ? '<span class="check">✓</span>' : ''));
-    return chipHtml(pid, c, badge);
+    const n = left(pid), sat = passed.has(pid), turn = state.currentBetterId === pid;
+    const p = playerById(pid), nm = p ? p.name.split(' ')[0] : '?';
+    const stack = n ? Array.from({ length: n }, () => chipHtml(pid, 'sm')).join('') : `<span class="bnone">${sat ? 'sat out' : 'all in'}</span>`;
+    return `<div class="bettor${turn ? ' turn' : ''}${!n || sat ? ' spent' : ''}"><div class="bchips">${stack}</div><div class="bname">${esc(pid === myPlayerId ? 'You' : nm)}</div></div>`;
   }).join('');
+  const myLeft = order.includes(myPlayerId) ? left(myPlayerId) : 0;
+  const rack = order.includes(myPlayerId) && !state.isDealer ? `<div class="my-rack" id="my-rack"><span class="lbl">Your chips</span><div class="rack-chips">${myLeft ? Array.from({ length: myLeft }, (_, i) => chipHtml(myPlayerId, 'lg', '', `data-rack="${i}"`)).join('') : '<span class="bnone">all down</span>'}</div></div>` : '';
 
   const next = stage === 1 ? 'Turning the Closed Caption over…' : (state.settings.stealEnabled ? 'Over to the dealer for the steal…' : 'Here comes the answer…');
   const cur = state.currentBetterName ? esc(state.currentBetterName) : '';
@@ -1569,9 +1583,9 @@ function renderBetting(stage) {
       <button class="btn-link" onclick="skipBetter()">Skip ${cur}’s turn</button>${canRun() ? ` · <button class="btn-link" onclick="forceAdvance()">${stage === 1 ? 'Turn it over now' : 'End betting now'}</button>` : ''}</div>` : '';
 
   return `${header({ sticker: stage === 1 ? '<span class="sticker violet">Blind bets</span>' : '<span class="sticker blue">Last chips</span>' })}
-    ${banner}
+    ${banner}${rack}
     <p class="center small" style="margin-bottom:4px;">Betting order →</p>
-    <div class="order" style="margin-top:0;">${orderRow}</div>
+    <div class="order bettors" style="margin-top:0;">${orderRow}</div>
     <div class="stack" style="margin-top:18px;">${cards}${closedCard}</div>${tools}`;
 }
 function skipBetter() { if (confirm(`Skip ${state.currentBetterName}’s turn? They sit this bet out.`)) send({ action: 'skip_better' }); }
@@ -1595,7 +1609,27 @@ function renderBetBar() {
       <button class="btn ${t === 'closed' ? 'btn-yellow' : 'btn-violet'}" onclick="placeBet(2)">${t === 'closed' ? '🌕 Shoot the Moon' : '🌗 Half-Moon'}</button></div>`);
   else setActionBar(`${warnMine}<button class="btn btn-blue" onclick="placeBet(1)">${state.myFirstBet && String(state.myFirstBet.target) === String(t) ? 'Stack my last chip on ' : 'Last chip on '}${where} →</button>`);
 }
-function placeBet(count) { if (selectedBetTarget === null) return; if (send({ action: 'place_bet', target: selectedBetTarget, count })) { selectedBetTarget = null; setActionBar(''); } }
+function placeBet(count) {
+  if (selectedBetTarget === null) return;
+  const from = [...document.querySelectorAll('#my-rack .chip')].slice(-count).map(c => c.getBoundingClientRect());
+  if (send({ action: 'place_bet', target: selectedBetTarget, count })) { flyFrom = { rects: from, at: Date.now() }; selectedBetTarget = null; setActionBar(''); }
+}
+// Your chips leave your rack and land on the caption you picked
+let flyFrom = null;
+function flyMyChips(betIdx) {
+  const f = flyFrom; flyFrom = null;
+  if (!f || Date.now() - f.at > 4000 || !f.rects.length) return;
+  const to = [...document.querySelectorAll(`.chip-tray .chip[data-bet="${betIdx}"]`)];
+  to.forEach((dest, i) => {
+    const a = f.rects[Math.min(i, f.rects.length - 1)], b = dest.getBoundingClientRect(); if (!a || !b.width) return;
+    const g = dest.cloneNode(true); g.classList.remove('drop'); g.classList.add('fly');
+    Object.assign(g.style, { position: 'fixed', left: a.left + 'px', top: a.top + 'px', width: a.width + 'px', height: a.height + 'px', margin: 0, zIndex: 900, '--s': a.width + 'px' });
+    document.body.appendChild(g); dest.style.visibility = 'hidden';
+    const dx = b.left - a.left + (b.width - a.width) / 2, dy = b.top - a.top + (b.height - a.height) / 2, k = b.width / a.width;
+    const anim = g.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 60}px) scale(${(1 + k) / 2 * 1.15}) rotate(180deg)`, offset: 0.55 }, { transform: `translate(${dx}px, ${dy}px) scale(${k}) rotate(360deg)` }], { duration: 560 + i * 90, easing: 'cubic-bezier(.3,.7,.3,1)' });
+    anim.onfinish = () => { g.remove(); dest.style.visibility = ''; dest.classList.add('drop'); };
+  });
+}
 
 /* ── REVEAL ── */
 function renderReveal() {
