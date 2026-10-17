@@ -106,6 +106,9 @@ const CARTOONS = [
 // The real captions get the same polish as players' captions, so they look identical
 const { polish } = require('./polish');
 for (const c of CARTOONS) c.correct = polish(c.correct).text;
+// The original deck is retired: never dealt again (kept only so old Gallery frames still show their picture)
+const RETIRED_BELOW = 47;
+for (const c of CARTOONS) if (c.id < RETIRED_BELOW) c.retired = true;
 
 // The permanent Hall of Fame deck (lives across games and game nights)
 const store = require('./store');
@@ -396,7 +399,7 @@ const tableNames = (game) => new Set(game.players.map(p => p.name.toLowerCase())
 function expertCartoonIds(game) {
   const names = tableNames(game), out = new Set();
   for (const [id, authors] of deckOf(game).cartoonAuthors()) for (const a of authors.keys()) if (!names.has(a)) { out.add(id); break; }
-  return CARTOONS.filter(c => out.has(c.id)).map(c => c.id);
+  return CARTOONS.filter(c => !c.retired && out.has(c.id)).map(c => c.id);
 }
 const deckCartoons = (game) => expertCartoonIds(game).length;
 
@@ -430,7 +433,7 @@ function dealCartoon(game) {
 }
 // Family games never deal the grown-up cartoons
 // PG-13 cartoons only come up in 'After dark' games
-const allowed = (game) => CARTOONS.filter(c => !(game.settings.family && (c.adult || c.spicy)) && !(c.spicy && !game.settings.spicy));
+const allowed = (game) => CARTOONS.filter(c => !c.retired && !(game.settings.family && (c.adult || c.spicy)) && !(c.spicy && !game.settings.spicy));
 function dealNormal(game, currentId) {
   // Never twice in one game; of the rest, the ones the fewest people at the table have seen.
   // Nobody sees a repeat until they've seen the whole deck.
@@ -439,7 +442,7 @@ function dealNormal(game, currentId) {
     game.usedCartoonIds = currentId ? [currentId] : [];
     available = allowed(game).filter(c => c.id !== currentId);
   }
-  const cartoon = pick(available.length ? available : CARTOONS);
+  const cartoon = pick(available.length ? available : allowed(game).length ? allowed(game) : CARTOONS.filter(c => !c.retired));
   game.usedCartoonIds.push(cartoon.id);
   game.cartoon = { id: cartoon.id, title: cartoon.title, image: cartoon.image };
   game.correctCaption = cartoon.correct;
@@ -1081,7 +1084,7 @@ function getPlayerView(game, playerId) {
     round: game.round,
     totalRounds: s.targetScore ? null : totalRounds(game),
     settings: { ...s },
-    deckSize: CARTOONS.length,
+    deckSize: CARTOONS.filter(c => !c.retired).length,
     hostId: game.hostId,
     isHost: game.hostId === playerId,
     dealerId: dealer ? dealer.id : null,
