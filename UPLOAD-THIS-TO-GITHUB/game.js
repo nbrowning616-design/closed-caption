@@ -258,16 +258,18 @@ function planBlock(len, k, forbidFirst) {
   picks.forEach((c, i) => { block[start + c + i] = true; });
   return block;
 }
+// "A little luck": 15% of 4 rounds = 0.6 → 1 face-down round 60% of the time, 0 the rest.
+// Averages the lobby's share, but nobody can count on exactly how many (Nick's call, Oct 17).
+const luckyCount = (want) => Math.floor(want + 1e-9) + (Math.random() < want - Math.floor(want + 1e-9) ? 1 : 0);
 function ensurePlan(game, round) {
   const p = game.settings.autoCloseProbability;
   if (!game.closePlan.length && !game.settings.targetScore) {
     const n = totalRounds(game);
-    game.closePlan = planBlock(n, Math.round(n * p + 1e-9), false);
+    game.closePlan = planBlock(n, luckyCount(n * p), false);
   }
   while (game.closePlan.length < round) {
     // First-to-X games (and extra rounds): blocks of 7, averaging the lobby's share
-    const want = 7 * p, k = Math.floor(want + 1e-9) + (Math.random() < want - Math.floor(want + 1e-9) ? 1 : 0);
-    game.closePlan.push(...planBlock(7, k, !!game.closePlan[game.closePlan.length - 1]));
+    game.closePlan.push(...planBlock(7, luckyCount(7 * p), !!game.closePlan[game.closePlan.length - 1]));
   }
   return !!game.closePlan[round - 1];
 }
