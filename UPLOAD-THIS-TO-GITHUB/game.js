@@ -63,6 +63,9 @@ const CARTOONS = [
   { id: 42, title: "The Birthday Inferno", image: "card_42.jpg", correct: "Happy birthday. Evacuate." },
   { id: 44, title: "The Spa", image: "card_44.jpg", correct: "And now for the salmon oil." },
   { id: 46, title: "The Plumber", image: "card_46.jpg", correct: "Someone in your family needs more fiber." },
+  { id: 47, title: "The DMV Bear", image: "card_47.jpg", correct: "Your license expired in November. Again." },
+  { id: 48, title: "The Conference", image: "card_48.jpg", correct: "The good news is he's very observant." },
+  { id: 49, title: "The Groom's Side", image: "card_49.jpg", correct: "They insisted on black tie." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
