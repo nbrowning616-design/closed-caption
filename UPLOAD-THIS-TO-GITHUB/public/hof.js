@@ -1,6 +1,6 @@
-/* Closed Caption — Hall of Fame card generator.
+/* Closed Caption — Gallery share card generator (a framed caption, magazine style).
  * Self-contained. Exposes window.HallCard = { make, share, filenameFor }.
- * make({ imageSrc, caption, credit, inducted, flaggers }) -> Promise<Blob> (image/png, 1080x1350)
+ * make({ imageSrc, caption, credit, inducted (e.g. 'Framed October 2026'), flaggers }) -> Promise<Blob> (image/png, 1080x1350)
  * share(blob, { title, text, filename }) -> Promise<'shared'|'downloaded'|'cancelled'>
  */
 (function () {
@@ -335,7 +335,7 @@
     hrule(ctx, L, R, 64, 2.2);
     hrule(ctx, L, R, 70, 0.8);
     ctx.fillStyle = C.ink;
-    var mast = 'The Closed Caption Hall of Fame';
+    var mast = 'The Closed Caption Gallery';
     var mf = fitSmallCaps(ctx, mast, 34, 26, 5.5, R - L - 40);
     drawSmallCaps(ctx, mast, CX, 122, mf.big, mf.small, mf.track);
     hrule(ctx, L, R, 146, 0.8);
@@ -450,7 +450,7 @@
     if (flagText) {
       ctx.fillStyle = C.faint;
       var fs = 22;
-      var ft = 'Flagged by ' + flagText;
+      var ft = 'Framed by ' + flagText;
       ctx.font = font('italic', 400, fs);
       while (ctx.measureText(ft).width > R - L && fs > 14) { fs -= 1; ctx.font = font('italic', 400, fs); }
       ctx.fillText(ft, CX, y + 28);
@@ -498,7 +498,7 @@
     var who = String(credit || '').replace(/^caption by\s+/i, '').toLowerCase();
     try { who = who.normalize('NFKD').replace(/[̀-ͯ]/g, ''); } catch (e) {}
     who = who.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
-    return 'closed-caption-hall-of-fame' + (who ? '-' + who : '') + '.png';
+    return 'closed-caption-gallery' + (who ? '-' + who : '') + '.png';
   }
 
   function download(blob, filename) {
@@ -515,7 +515,7 @@
 
   function share(blob, o) {
     o = o || {};
-    var filename = o.filename || 'closed-caption-hall-of-fame.png';
+    var filename = o.filename || 'closed-caption-gallery.png';
     if (!/\.png$/i.test(filename)) filename += '.png';
     return new Promise(function (resolve) {
       var file = null;
