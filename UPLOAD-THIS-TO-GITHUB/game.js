@@ -88,6 +88,7 @@ const CARTOONS = [
   { id: 66, spicy: true, title: "Donor of the Month", image: "card_66.jpg", correct: "He's the reason the whole town has that chin." },
   { id: 67, adult: true, title: "Let It Go", image: "card_67.jpg", correct: "Well, that's one way to open the hips." },
   { id: 68, adult: true, title: "Open House", image: "card_68.jpg", correct: "The sellers are very motivated, as you can imagine." },
+  { id: 69, spicy: true, title: "The Chart", image: "card_69.jpg", correct: "That was the week the cable went out." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
