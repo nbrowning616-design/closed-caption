@@ -69,6 +69,7 @@ const CARTOONS = [
   { id: 50, title: "The Lumber Aisle", image: "card_50.jpg", correct: "Sir, there's no sampling in lumber." },
   { id: 51, title: "The X-Ray", image: "card_51.jpg", correct: "He still says it's in the couch." },
   { id: 52, title: "Farm to Table", image: "card_52.jpg", correct: "She'd like to know who ordered the omelet." },
+  { id: 53, title: "The Security Line", image: "card_53.jpg", correct: "Next time, sign up for the expedited program." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
