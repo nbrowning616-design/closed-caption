@@ -102,6 +102,7 @@ const CARTOONS = [
   { id: 80, spicy: true, title: "The Hotline", image: "card_80.jpg", correct: "Hold on, I dropped a stitch." },
   { id: 81, adult: true, title: "Going Down", image: "card_81.jpg", correct: "Don't look at me. I'm a professional." },
   { id: 82, spicy: true, title: "The Commissioner", image: "card_82.jpg", correct: "We’re so sorry. Did he ever mention the password?" },
+  { id: 83, spicy: true, title: "Actual Scorecards", image: "card_83.jpg", correct: "We have your actual scorecards." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
