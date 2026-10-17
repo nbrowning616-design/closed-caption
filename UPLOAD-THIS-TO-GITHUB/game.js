@@ -99,6 +99,7 @@ const CARTOONS = [
   { id: 77, spicy: true, title: "Par Three", image: "card_77.jpg", correct: "Bring the putter. It's a par three." },
   { id: 78, spicy: true, title: "Boudoir Session", image: "card_78.jpg", correct: "Is this an anniversary gift or a threat?" },
   { id: 79, spicy: true, title: "From Mom", image: "card_79.jpg", correct: "I'm not getting any younger, kids." },
+  { id: 80, spicy: true, title: "The Hotline", image: "card_80.jpg", correct: "Hold on, I dropped a stitch." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
