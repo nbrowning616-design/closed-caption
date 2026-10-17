@@ -90,6 +90,7 @@ const CARTOONS = [
   { id: 68, adult: true, title: "Open House", image: "card_68.jpg", correct: "The sellers are very motivated, as you can imagine." },
   { id: 69, spicy: true, title: "The Chart", image: "card_69.jpg", correct: "That was the week the cable went out." },
   { id: 70, adult: true, title: "Mood Lighting", image: "card_70.jpg", correct: "You can breathe on your own for ten minutes." },
+  { id: 71, spicy: true, title: "The Scanner", image: "card_71.jpg", correct: "Wave him through. And get his number." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
