@@ -873,7 +873,7 @@ function connect() {
   };
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
-    if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => sendCareer(true), 300); }
+    if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); }, 300); }
     else if (msg.type === 'state') {
       state = msg.data;
       if (state.serverNow) clockOffset = state.serverNow - Date.now();
@@ -1643,7 +1643,23 @@ function hatTip(text) {
 
 /* The framing moment: the server's lastInduction, played once on every phone while it's fresh.
    The first state only sets the baseline, so a reconnect never replays an old one. */
+/* The Gallery lives on the phones: every phone saves each caption it sees framed,
+   and brings its collection to every game it joins. Free, and it survives server restarts. */
+function galleryGet() { try { const v = JSON.parse(localStorage.getItem('cc_gallery') || '[]'); return Array.isArray(v) ? v.filter(e => e && e.caption && Number.isInteger(Number(e.cartoonId))) : []; } catch (e) { return []; } }
+function galleryKey(e) { return e.cartoonId + '|' + String(e.caption).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
+function gallerySave(rows) {
+  const list = galleryGet(), keys = new Set(list.map(galleryKey)); let added = false;
+  for (const e of rows || []) { if (!e || !e.caption || !Number.isInteger(Number(e.cartoonId)) || keys.has(galleryKey(e))) continue; list.push({ id: e.id, cartoonId: Number(e.cartoonId), image: e.image, caption: e.caption, author: e.author, flaggers: e.flaggers || [], flags: e.flags || 0, month: e.month, at: e.at || Date.now() }); keys.add(galleryKey(e)); added = true; }
+  if (added) { list.sort((a, b) => a.at - b.at); try { localStorage.setItem('cc_gallery', JSON.stringify(list.slice(-300))); } catch (e) {} }
+}
+function syncGallery() { const list = galleryGet(); if (list.length && ws && ws.readyState === 1 && myPlayerId) ws.send(JSON.stringify({ action: 'gallery_sync', entries: list.slice(-300) })); }
+function collectGallery() {
+  if (!state) return;
+  if (Array.isArray(state.gazette) && state.gazette.length) gallerySave(state.gazette);
+  if (state.lastInduction && state.lastInduction.entry) gallerySave([state.lastInduction.entry]);
+}
 function checkInduction() {
+  collectGallery();
   const li = state.lastInduction, n = li ? li.n : 0;
   if (lastIndN === null) { lastIndN = n; return; }
   if (!li || n <= lastIndN) { if (n > lastIndN) lastIndN = n; return; }
@@ -1713,7 +1729,9 @@ function hofListHtml() {
 }
 // The Gallery: every framed caption, newest first (the server sends it between rounds)
 function openGallery() {
-  const list = (state && Array.isArray(state.gazette) ? state.gazette : lastGazette) || [];
+  // This phone's whole collection, plus anything new the room has (newest first)
+  gallerySave((state && state.gazette) || lastGazette || []);
+  const list = galleryGet().slice().reverse();
   let body = '';
   if (window.Gallery && typeof window.Gallery.archiveHtml === 'function') { try { body = window.Gallery.archiveHtml(list); } catch (e) { body = ''; } }
   if (!body) body = list.length

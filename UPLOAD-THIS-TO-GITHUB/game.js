@@ -71,6 +71,16 @@ for (const c of CARTOONS) c.correct = polish(c.correct).text;
 
 // The permanent Hall of Fame deck (lives across games and game nights)
 const store = require('./store');
+// A room's Gallery starts from the server's saved copy (when there is one); phones add theirs on join
+function newRoomDeck() { const d = store.createDeck(); if (store.file) for (const e of store.all().reverse()) d.add(e, true); return d; }   // without a saved copy, rooms never see each other's captions
+const deckOf = (game) => game.deck || (game.deck = newRoomDeck());
+// Phones carry the Gallery between nights: merge what one brings (max 300, cartoons we know)
+function syncGallery(game, entries) {
+  if (!Array.isArray(entries)) return { error: 'Invalid gallery' };
+  const known = new Set(CARTOONS.map(c => c.id)); let added = 0;
+  for (const e of entries.slice(0, 300)) if (e && known.has(Number(e.cartoonId)) && deckOf(game).add(e, true)) added++;
+  return { ok: true, added };
+}
 
 const MAX_PLAYERS = 8;
 
@@ -136,6 +146,7 @@ const DEFAULT_SETTINGS = {
 function createGame(hostId, hostName, timerDuration = 90, seenIds = []) {
   return {
     seenIds: cleanSeen(seenIds),   // cartoons the host's phone has seen in earlier games
+    deck: newRoomDeck(),            // this room's Gallery: the server's saved copy + whatever the phones bring
     closePlan: [],                  // closePlan[round - 1] = true when the real caption is face-down that round
     flags: [],                      // Hall of Fame flags: { fromId, round, target }
     inducted: [],                   // 'round|target' keys already inducted this game
@@ -297,7 +308,7 @@ function ensurePlan(game, round) {
 const tableNames = (game) => new Set(game.players.map(p => p.name.toLowerCase()));
 function expertCartoonIds(game) {
   const names = tableNames(game), out = new Set();
-  for (const [id, authors] of store.cartoonAuthors()) for (const a of authors.keys()) if (!names.has(a)) { out.add(id); break; }
+  for (const [id, authors] of deckOf(game).cartoonAuthors()) for (const a of authors.keys()) if (!names.has(a)) { out.add(id); break; }
   return CARTOONS.filter(c => out.has(c.id)).map(c => c.id);
 }
 const deckCartoons = (game) => expertCartoonIds(game).length;
@@ -310,7 +321,7 @@ function dealExpert(game, currentId) {
   if (!pool.length) pool = CARTOONS.filter(c => ok.has(c.id) && !game.usedCartoonIds.includes(c.id) && c.id !== currentId);
   if (!pool.length) return null;   // every deck cartoon has been played this game
   const cartoon = pick(pool), names = tableNames(game);
-  const entry = pick(store.byCartoon(cartoon.id).filter(e => !names.has(e.author.toLowerCase())));
+  const entry = pick(deckOf(game).byCartoon(cartoon.id).filter(e => !names.has(e.author.toLowerCase())));
   return entry ? { cartoon, entry } : null;
 }
 
@@ -695,11 +706,15 @@ function induct(game, target, fl, count) {
   const image = h.cartoon && h.cartoon.image, flaggers = fl.map(f => nameOfPlayer(game, f.fromId)), month = MONTH();
   let entry = null;
   // The real caption is celebrated but not added (it's already the real one)
-  if (!isReal && author && c.caption) entry = store.add({ cartoonId: h.cartoon.id, image, caption: c.caption, author, flaggers, flags: count, month });
+  if (!isReal && author && c.caption) {
+    entry = deckOf(game).add({ cartoonId: h.cartoon.id, image, caption: c.caption, author, flaggers, flags: count, month });
+    if (entry && store.file) store.add(entry, true);   // the server's saved copy (kept for good when DATA_DIR is set)
+  }
   game.lastInduction = {
     n: ((game.lastInduction && game.lastInduction.n) || game.inductionCount || 0) + 1,
     round: game.round, target, at: Date.now(), caption: c.caption || '', author: isReal ? null : author, isReal,
     image, flaggers, flags: count, month, entryId: entry ? entry.id : null,
+    entry: entry || null,   // phones save this to carry The Gallery to the next game night
   };
 }
 const MONTH = () => new Date().toLocaleString('en-US', { month: 'long', year: 'numeric', timeZone: 'America/New_York' });
@@ -914,7 +929,7 @@ function getPlayerView(game, playerId) {
   const isDealer = !!dealer && dealer.id === playerId;
   const dealerAwaySecs = dealer && !dealer.connected && dealer.disconnectedAt ? Math.floor((Date.now() - dealer.disconnectedAt) / 1000) : 0;
   const s = game.settings;
-  const published = store.authorCounts();   // lowercase name -> captions in the Hall of Fame deck
+  const published = deckOf(game).authorCounts();   // lowercase name -> captions in the Hall of Fame deck
 
   const base = {
     code: game.code,
@@ -941,10 +956,10 @@ function getPlayerView(game, playerId) {
     inductNeed: inductNeed(game),
     lastInduction: game.lastInduction ? { ...game.lastInduction, flaggers: [...game.lastInduction.flaggers] } : null,   // only made after an answer
     hofDeck: deckCartoons(game),
-    hofTotal: store.count(),
+    hofTotal: deckOf(game).count(),
   };
   // The Gazette: the newest Hall of Fame captions, between rounds only
-  if (game.phase === PHASES.LOBBY || game.phase === PHASES.SCORES) base.gazette = store.recent(GAZETTE_SIZE);
+  if (game.phase === PHASES.LOBBY || game.phase === PHASES.SCORES) base.gazette = deckOf(game).recent(GAZETTE_SIZE);
   if (game.phase === PHASES.LOBBY) return base;
 
   if (game.cartoon) base.cartoon = game.cartoon;
@@ -1032,7 +1047,7 @@ function getPlayerView(game, playerId) {
 module.exports = {
   PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS,
   createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, plantFlag, hallOfFame, planBlock, ensurePlan,
-  inductNeed, deckCartoons, dealCartoon, store,
+  inductNeed, deckCartoons, dealCartoon, store, syncGallery,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,
   stealChip, revealAnswer, moveToScoreboard, isGameOver, resetForNewGame,

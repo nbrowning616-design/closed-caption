@@ -192,6 +192,12 @@ wss.on('connection', (ws) => {
         broadcast(code);
         return;
       }
+      case 'gallery_sync': {
+        const r = G.syncGallery(game, msg.entries);
+        if (fail(r)) return;
+        if (r.added) broadcast(code);
+        return;
+      }
       case 'move_seat': {
         if (fail(G.moveSeat(game, playerId, msg.targetPlayerId, Number(msg.dir)))) return;
         broadcast(code);
