@@ -377,6 +377,47 @@ body.quake { animation: quake .12s linear 10; }
 .aw-dots i.f { background: var(--ink); }
 .aw-skip { position: absolute; bottom: calc(18px + var(--sab)); left: 50%; transform: translateX(-50%); }
 
+/* ── The Grand Poobah ── */
+.hat-count { display: inline-flex; align-items: flex-end; gap: 1px; font-size: 12px; font-weight: 900; color: var(--violet); }
+.poobah-panel { background: #2A1D5C; color: #fff; border-color: var(--ink); background-image: radial-gradient(rgba(255,255,255,.08) 1.4px, transparent 1.4px); background-size: 16px 16px; }
+.poobah-slogan { font-family: Georgia, serif; font-style: italic; font-size: 17px; line-height: 1.35; margin-top: 10px; color: #FFF4C7; }
+#poobah { position: fixed; inset: 0; z-index: 780; display: none; }
+#poobah.on { display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 24px; }
+#poobah.round { background: rgba(31,26,23,.55); animation: fadeIn .25s; }
+.pb-card { width: 100%; max-width: 360px; text-align: center; background: #fff; border: 3px solid var(--ink); border-radius: 20px; padding: 18px 18px 20px; box-shadow: var(--shadow-lg); animation: stampIn .5s var(--spring) both; }
+.pb-chips { display: flex; justify-content: center; gap: 22px; margin: 6px 0 10px; }
+.pb-seat { position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 86px; }
+.pb-hat { position: absolute; top: 0; left: 50%; transform: translateX(-50%); animation: hatDrop .9s cubic-bezier(.3,1.6,.5,1) .35s both; z-index: 2; }
+@keyframes hatDrop { 0% { transform: translate(-50%, -260px) rotate(-30deg); } 70% { transform: translate(-50%, 6px) rotate(6deg); } 85% { transform: translate(-50%, -4px) rotate(-3deg); } 100% { transform: translate(-50%, 0) rotate(-4deg); } }
+.chip.pb-chip { --s: 70px; font-size: 26px; }
+.pb-title { font-size: 34px; margin: 2px 0; }
+.pb-name { font-family: var(--display); font-weight: 700; font-size: 28px; color: var(--violet); margin-bottom: 4px; }
+#poobah.grand { background: #07050A; color: #fff; overflow: hidden; text-align: center; }
+#poobah.grand.flash::after { content: ''; position: absolute; inset: 0; background: #fff; animation: gpFlash .5s ease-out forwards; pointer-events: none; }
+@keyframes gpFlash { from { opacity: 1; } to { opacity: 0; } }
+.gp-spot { position: absolute; width: 70vw; height: 70vw; max-width: 380px; max-height: 380px; border-radius: 50%; background: radial-gradient(circle, rgba(255,238,170,.5), rgba(255,210,63,.12) 45%, transparent 70%); top: 20%; opacity: 0; transition: opacity .6s; pointer-events: none; }
+#poobah.roll .gp-spot, #poobah.revealed .gp-spot { opacity: 1; }
+.gp-spot.a { left: -20%; animation: spotA 1.6s ease-in-out infinite alternate; }
+.gp-spot.b { right: -20%; animation: spotB 1.3s ease-in-out infinite alternate; }
+@keyframes spotA { from { transform: translate(0, 0); } to { transform: translate(60vw, 30vh); } }
+@keyframes spotB { from { transform: translate(0, 20vh); } to { transform: translate(-60vw, -5vh); } }
+#poobah.roll { animation: gpShake .1s linear infinite; }
+@keyframes gpShake { 0% { transform: translate(1px, 0); } 50% { transform: translate(-1px, 1px); } 100% { transform: translate(0, -1px); } }
+.gp-rays { position: absolute; left: 50%; top: 38%; width: 240vmax; height: 240vmax; margin: -120vmax 0 0 -120vmax; background: repeating-conic-gradient(from 0deg, rgba(255,210,63,.32) 0deg 8deg, transparent 8deg 22deg); opacity: 0; transition: opacity .8s; animation: spin 14s linear infinite; pointer-events: none; }
+#poobah.revealed .gp-rays { opacity: 1; }
+.gp-line { position: absolute; left: 24px; right: 24px; top: 42%; font-family: Georgia, serif; font-style: italic; font-size: 28px; opacity: 0; transform: translateY(10px); transition: opacity .6s, transform .6s; }
+.gp-line.on { opacity: 1; transform: none; } .gp-line.off { opacity: 0; transform: translateY(-10px); }
+.gp-tease { position: absolute; left: 16px; right: 16px; top: 40%; font-family: var(--display); font-weight: 700; font-size: 40px; line-height: 1.05; color: var(--yellow); opacity: 0; transform: scale(.6); transition: opacity .3s, transform 4.5s cubic-bezier(.2,.8,.2,1); text-shadow: 0 0 24px rgba(255,210,63,.6); }
+.gp-tease.on { opacity: 1; transform: scale(1.12); }
+.gp-reveal { position: relative; z-index: 2; display: none; flex-direction: column; align-items: center; }
+.gp-reveal.on { display: flex; }
+.gp-hat { animation: gpHat 1.4s cubic-bezier(.25,1.4,.5,1) both; filter: drop-shadow(0 0 22px rgba(255,210,63,.9)); margin-bottom: -26px; z-index: 3; }
+@keyframes gpHat { 0% { transform: translateY(-80vh) rotate(-40deg) scale(.6); } 75% { transform: translateY(8px) rotate(6deg) scale(1.05); } 100% { transform: rotate(-5deg); } }
+.chip.gp-chip { --s: 96px; font-size: 34px; animation: chipPop .7s var(--spring) .5s both; }
+.gp-name { font-family: var(--display); font-weight: 700; font-size: 54px; line-height: 1; margin-top: 14px; color: var(--yellow); -webkit-text-stroke: 2px #7A5A00; text-shadow: 0 4px 0 #7A5A00, 0 0 30px rgba(255,210,63,.8); animation: stampIn .7s var(--spring) .8s both; }
+.gp-stats { font-size: 14px; font-weight: 900; color: #E9E2FF; margin-top: 10px; animation: fadeIn .5s ease-out 1.6s both; }
+.gp-slogan { font-family: Georgia, serif; font-style: italic; font-size: 21px; line-height: 1.35; max-width: 340px; margin-top: 14px; color: #FFF4C7; animation: fadeIn .8s ease-out 2.2s both; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
@@ -392,6 +433,7 @@ body.quake { animation: quake .12s linear 10; }
 <div id="stealshow"></div>
 <div id="induct" onclick="if (event.target === this) closeInduction()"></div>
 <div id="awards"></div>
+<div id="poobah"></div>
 <label class="ios-haptic" id="haptic-label"><input type="checkbox" switch id="haptic-input"></label>
 
 <!-- ═══════ HOME ═══════ -->
@@ -426,6 +468,9 @@ body.quake { animation: quake .12s linear 10; }
     <div class="panel flat red rule-step"><div class="n">5</div><div><b>The steal.</b> <span class="sub">The dealer may knock any one chip off the table. Choose wisely. Expect yelling. <span id="rules-steal-pts"></span></span></div></div>
     <div class="panel flat teal rule-step"><div class="n">6</div><div><b>The answer.</b> <span class="sub">The real caption lights up, points are paid, and the deal moves <span class="dir-word">left</span>.</span></div></div>
   </div>
+
+  <p class="eyebrow" style="margin-bottom:10px;">The Grand Poobah</p>
+  <div class="panel flat violet" style="margin-bottom:22px;"><p class="sub">Points tell you who <i>bet</i> best. The Grand Poobah is who <i>wrote</i> best: each round, the player whose fake caption drew the most chips from the table gets the hat. At the end of the game, whoever drew the most chips all night is crowned <b>The Grand Poobah</b> — with all the ceremony that deserves. The winner keeps the points. The Poobah keeps the hat.</p></div>
 
   <p class="eyebrow" style="margin-bottom:10px;">The Hall of Fame</p>
   <div class="panel flat yellow" style="margin-bottom:22px;"><p class="sub">Everyone gets <b>one flag per game</b>. After the answer, plant it on a caption you loved — anyone's but your own, the real one included. <b>One flag</b> is a tip of the hat. <b>Two or more</b> and the caption is inducted into the Hall of Fame: confetti, glory, and a magazine-style card you can share. Flags are worth no points. That's what keeps them honest.</p></div>
@@ -649,6 +694,7 @@ function clampViewer() {
    ═══════════════════════════════════════════════════════════ */
 function actx() { if (!window._gameAudio) window._gameAudio = new (window.AudioContext || window.webkitAudioContext)(); const c = window._gameAudio; if (c.state === 'suspended') c.resume(); return c; }
 function tone(freq, dur, delay = 0, type = 'sine', vol = 0.1, glideTo = null) {
+  if (!soundEnabled()) return;
   try {
     const ctx = actx(), t0 = ctx.currentTime + delay / 1000, o = ctx.createOscillator(), g = ctx.createGain();
     o.type = type; o.frequency.setValueAtTime(freq, t0); if (glideTo) o.frequency.exponentialRampToValueAtTime(glideTo, t0 + dur);
@@ -657,6 +703,7 @@ function tone(freq, dur, delay = 0, type = 'sine', vol = 0.1, glideTo = null) {
   } catch (e) {}
 }
 function noise(dur, delay = 0, vol = 0.15, filterFreq = 2500, type = 'bandpass') {
+  if (!soundEnabled()) return;
   try {
     const ctx = actx(), t0 = ctx.currentTime + delay / 1000, len = Math.max(1, Math.floor(ctx.sampleRate * dur)), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
@@ -913,6 +960,7 @@ function render(force = false) {
     selectedBetTarget = null; grabbedBet = null; phaseSeqPlayed = false; seenBets = 0; wasMyTurn = false;
     if (lastPhase === 'scores' || state.phase === 'lobby') closeInduction();
     if (state.phase === 'lobby') { answerSeqRound = null; scoresAnimated = null; seenFlags = null; }
+    if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); }
     if (lastPhase && !['reveal', 'answer', 'scores'].includes(state.phase)) sfx.advance();
     if (state.phase !== 'writing') { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
     setActionBar('');
@@ -1735,7 +1783,7 @@ function renderScores() {
     const delta = change > 0 ? `<span class="delta up">▲ ${change}</span>` : change < 0 ? `<span class="delta down">▼ ${-change}</span>` : '';
     return `<div class="score-row ${i === 0 && p.score > 0 ? 'leader' : ''}" style="${animated ? 'animation:none;' : `animation-delay:${i * 0.08}s;`} --c:${playerColor(getPlayerIndex(p.id))};">
       <div style="font-family:var(--display); font-weight:700; width:22px; color:var(--muted);">${rankOf(p) + 1}</div>${chipHtml(p.id, 'lg')}
-      <div style="flex:1; min-width:0;"><div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span style="font-weight:900; font-size:16px;">${esc(p.name)}</span>${delta}${earned > 0 ? `<span class="plus">+${earned}</span>` : ''}</div><div class="bar" style="width:${Math.max(6, (p.score / max) * 100)}%;"></div></div>
+      <div style="flex:1; min-width:0;"><div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span style="font-weight:900; font-size:16px;">${esc(p.name)}</span>${hatsHtml(p.id)}${delta}${earned > 0 ? `<span class="plus">+${earned}</span>` : ''}</div><div class="bar" style="width:${Math.max(6, (p.score / max) * 100)}%;"></div></div>
       <div class="pts score-number" data-target="${p.score}" data-from="${p.score - earned}">${animated ? p.score : p.score - earned}</div>
     </div>`;
   }).join('');
@@ -1753,8 +1801,9 @@ function renderScores() {
         <div style="font-size:44px;" class="bob">🏆</div>
         <p class="eyebrow" style="color:var(--ink-2);">${tie ? 'It’s a tie' : 'Winner'}</p>
         <div class="h-display" style="font-size:36px; margin:2px 0 4px;">${esc(tie ? sorted.filter(p => p.score === winner.score).map(p => p.name).join(' & ') : winner.name)}</div>
-        <p class="sub">${plural(winner.score, 'point')}</p>
+        <p class="sub">${plural(winner.score, 'point')} — the best bettor at the table</p>
       </div>
+      ${poobahPanelHtml()}
       ${awardsRecapHtml()}
       ${hofListHtml()}
       ${flagBox}
@@ -1770,6 +1819,171 @@ function renderScores() {
         ${state.history && state.history.length ? `<button class="btn btn-sm" onclick="openHistory()">📖 Past rounds</button>` : ''}
       </div>`}`;
 }
+
+
+/* ═══════════════════════════════════════════════════════════
+   The Grand Poobah — the best captionist.
+   Points say who bet well. The hat says who wrote the caption
+   the table believed: most chips (votes) on your fake caption.
+   ═══════════════════════════════════════════════════════════ */
+function poobahHat(w = 120, cls = '') {
+  const h = Math.round(w * 1.15);
+  return `<svg class="${cls}" viewBox="0 0 120 138" width="${w}" height="${h}" aria-hidden="true">
+    <g stroke="#1F1A17" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M86 26 C104 6 118 18 108 34 C100 46 92 36 98 30" fill="#fff"/>
+      <path d="M92 30 C100 22 108 24 104 32" fill="none" stroke-width="2.5"/>
+      <path d="M26 118 L34 34 Q36 22 48 20 H72 Q84 22 86 34 L94 118 Z" fill="#6E4CF5"/>
+      <path d="M42 30 Q40 70 44 112" fill="none" stroke="#9C84FF" stroke-width="5" stroke-opacity=".7"/>
+      <rect x="20" y="96" width="80" height="24" rx="6" fill="#FFD23F"/>
+      <path d="M30 108 H90" stroke="#C99A08" stroke-width="2.5"/>
+      <path d="M60 99 L68 108 L60 117 L52 108 Z" fill="#E8453A"/>
+      <circle cx="60" cy="20" r="7" fill="#FFD23F"/>
+      <path d="M60 22 Q46 40 36 46" fill="none" stroke-width="3"/>
+      <path d="M30 42 L36 46 L40 58 L32 60 L28 50 Z" fill="#FFD23F"/>
+      <path d="M38 76 l3 7 7 1 -5 5 1 7 -6 -3 -6 3 1 -7 -5 -5 7 -1 Z" fill="#FFD23F" stroke-width="2.5"/>
+      <path d="M74 56 l2.5 5 5 .7 -3.6 3.5 .9 5 -4.8 -2.4 -4.8 2.4 .9 -5 -3.6 -3.5 5 -.7 Z" fill="#FFD23F" stroke-width="2.5"/>
+    </g></svg>`;
+}
+const POOBAH_SLOGANS = [
+  'The winner counted chips. The Grand Poobah made the chips move.',
+  'Points prove you can bet. The hat proves you can write.',
+  'Anyone can win at betting. Only one can wear the hat.',
+  'The scoreboard has its winner. The table has its Poobah.',
+  'Let the winner keep the points. The Poobah keeps the hat.',
+];
+const ROUND_TAGS = ['The hat has chosen.', 'Bow accordingly.', 'Wear it well — it’s yours until someone writes better.', 'The table believed every word.', 'All hail. Briefly.'];
+const pickBy = (arr, key) => { let h = 0; for (const ch of String(key)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return arr[h % arr.length]; };
+
+// Chips other players put on each writer's fake caption in one round (stolen chips still count — they were believed)
+function roundVotes(r) {
+  const votes = {};
+  const author = (t) => t === 'closed' ? r.closedPlayerId : (r.openCaptions[t] || {}).playerId;
+  const real = (t) => t === 'closed' ? !!r.closedIsCorrect : !!(r.openCaptions[t] || {}).isCorrect;
+  for (const b of r.bets || []) {
+    if (b.target === 'pass' || real(b.target)) continue;
+    const a = author(b.target), n = b.count + (b.stolen || 0);
+    if (a && a !== b.playerId && n > 0) votes[a] = (votes[a] || 0) + n;
+  }
+  return votes;
+}
+function roundPoobah(r) {
+  const v = roundVotes(r), m = Math.max(0, ...Object.values(v));
+  return m > 0 ? { ids: Object.keys(v).filter(k => v[k] === m), n: m } : null;
+}
+function crownCounts() {
+  const c = {};
+  for (const r of state.history || []) { const p = roundPoobah(r); if (p) p.ids.forEach(id => { c[id] = (c[id] || 0) + 1; }); }
+  return c;
+}
+// The game's Grand Poobah: most votes all game; ties go to more crowns, then share the hat
+function gamePoobah() {
+  const total = {};
+  for (const r of state.history || []) for (const [k, n] of Object.entries(roundVotes(r))) total[k] = (total[k] || 0) + n;
+  const m = Math.max(0, ...Object.values(total)); if (!m) return null;
+  const crowns = crownCounts();
+  let ids = Object.keys(total).filter(k => total[k] === m && playerById(k));
+  const mc = Math.max(...ids.map(k => crowns[k] || 0));
+  ids = ids.filter(k => (crowns[k] || 0) === mc);
+  return { ids, n: m, crowns: mc };
+}
+function hatsHtml(pid) {
+  const n = crownCounts()[pid] || 0;
+  return n ? `<span class="hat-count" title="Grand Poobah ${n}×">${poobahHat(18)}${n > 1 ? '×' + n : ''}</span>` : '';
+}
+function poobahPanelHtml() {
+  const g = gamePoobah(); if (!g) return '';
+  const at = ceremonyAt();
+  if (!grandShown && at && Date.now() + clockOffset < at + 12000) return '';   // no spoilers before the ceremony
+  return `<div class="panel poobah-panel center fade-in" style="margin-top:16px;">
+    <div class="bob">${poobahHat(64)}</div>
+    <p class="eyebrow" style="color:#D7CBFF;">The Grand Poobah</p>
+    <div class="h-display" style="font-size:34px; margin:2px 0 4px; color:var(--yellow);">${esc(listNames(g.ids.map(nameOf)))}</div>
+    <p class="small" style="color:#E9E2FF;">${plural(g.n, 'vote')} on fake captions · crowned ${plural(g.crowns, 'round')}</p>
+    <p class="poobah-slogan">“${esc(pickBy(POOBAH_SLOGANS, state.code + state.history.length))}”</p>
+  </div>`;
+}
+
+/* Every round's scoreboard: the hat drops on whoever the table believed most */
+function playRoundPoobah() {
+  const r = (state.history || []).find(x => x.round === state.round); if (!r) return;
+  const p = roundPoobah(r); if (!p) return;
+  const o = $('poobah'), names = listNames(p.ids.map(nameOf)), me = p.ids.includes(myPlayerId);
+  o.className = 'round on';
+  o.innerHTML = `<div class="pb-card"><div class="pb-chips">${p.ids.map(id => `<div class="pb-seat"><div class="pb-hat">${poobahHat(92)}</div>${chipHtml(id, 'pb-chip')}</div>`).join('')}</div>
+    <p class="eyebrow" style="color:var(--violet);">All hail</p>
+    <div class="h-display pb-title">The Grand Poobah</div>
+    <div class="pb-name">${esc(names)}${me ? ' <span class="small">(you!)</span>' : ''}</div>
+    <p class="sub">${p.ids.length > 1 ? 'Each got' : 'Got'} ${plural(p.n, 'vote')} on a fake caption this round.</p>
+    <p class="small" style="margin-top:6px;">${esc(pickBy(ROUND_TAGS, state.code + state.round))}</p></div>`;
+  sfx.swish();
+  setTimeout(() => { tone(130, 0.18, 0, 'sine', 0.35, 60); noise(0.08, 0, 0.3, 900, 'lowpass'); buzz(me ? [80, 40, 160] : 40); confetti.burst(innerWidth / 2, innerHeight * 0.3, 70); }, 700);
+  setTimeout(() => { [392, 523, 659, 784].forEach((f, i) => { tone(f, 0.2, i * 110, 'square', 0.04); tone(f, 0.2, i * 110, 'triangle', 0.06); }); tone(1047, 0.7, 460, 'triangle', 0.07); }, 900);
+  clearTimeout(window._pbT); window._pbT = setTimeout(closePoobah, 4600);
+  o.onclick = closePoobah;
+}
+function closePoobah() { const o = $('poobah'); o.className = ''; o.innerHTML = ''; }
+
+/* End of game: wildly overproduced. Every phone, timed from the server, so they play together. */
+function organ(dur, vol = 0.05) { [65.41, 130.81, 196, 261.63, 392].forEach((f, i) => tone(f, dur, 0, i < 2 ? 'sine' : 'triangle', vol / (i + 1) * 1.6)); }
+function gong() { tone(98, 4.5, 0, 'sine', 0.32, 92); tone(147, 3.5, 0, 'sine', 0.14, 140); tone(233, 2.8, 0, 'sine', 0.08); tone(311, 2.2, 0, 'sine', 0.05); noise(1.4, 0, 0.18, 500, 'lowpass'); }
+function crash() { noise(2.4, 0, 0.32, 6500, 'highpass'); noise(0.5, 0, 0.3, 2000, 'bandpass'); }
+function timpaniRoll(ms) { let t = 0, gap = 120; while (t < ms) { const v = 0.06 + 0.3 * (t / ms); tone(73, 0.09, t, 'sine', v); noise(0.04, t, v * 0.8, 700, 'lowpass'); t += gap; gap = Math.max(34, gap * 0.93); } }
+function bigFanfare() {
+  const seq = [[392, 0, .18], [392, 200, .18], [392, 400, .18], [523, 600, .5], [659, 1150, .18], [587, 1350, .18], [659, 1550, .3], [784, 1900, 1.2]];
+  seq.forEach(([f, t, d]) => { tone(f, d, t, 'square', 0.045); tone(f, d, t, 'sawtooth', 0.025); tone(f / 2, d, t, 'triangle', 0.06); });
+  [523, 659, 784, 1047].forEach(f => tone(f, 2.2, 1900, 'triangle', 0.05));
+}
+const CEREMONY_LEAD_MS = 4500;   // after the awards slides end
+function ceremonyAt() {
+  if (!state.scoresAt) return null;
+  return state.scoresAt + 300 + computeAwards().length * 2900 + CEREMONY_LEAD_MS;
+}
+let ceremonyFor = null, ceremonyTimer = null, grandShown = false;
+function scheduleGrandPoobah() {
+  const key = state.code + '|' + state.round + '|' + state.scoresAt;
+  if (ceremonyFor === key) return;
+  ceremonyFor = key;
+  clearTimeout(ceremonyTimer);
+  const at = ceremonyAt(), g = gamePoobah(); if (!at || !g) return;
+  const wait = at - (Date.now() + clockOffset);
+  if (wait < -15000) return;   // arrived long after: the panel on the final screen does the honours
+  ceremonyTimer = setTimeout(() => { if (state && state.phase === 'scores' && state.gameOver) playGrandPoobah(g); }, Math.max(0, wait));
+}
+function playGrandPoobah(g) {
+  const o = $('poobah'), names = listNames(g.ids.map(nameOf)), me = g.ids.includes(myPlayerId);
+  if ($('awards').classList.contains('on') && window._awFinish) window._awFinish();
+  closeInduction();
+  o.className = 'grand on';
+  o.innerHTML = `<div class="gp-spot a"></div><div class="gp-spot b"></div><div class="gp-rays"></div>
+    <p class="gp-line" id="gp-l1">And now…</p>
+    <p class="gp-line" id="gp-l2">the award that actually matters.</p>
+    <div class="gp-tease" id="gp-tease">The Grand Poobah is…</div>
+    <div class="gp-reveal" id="gp-reveal">
+      <div class="gp-hat">${poobahHat(150)}</div>
+      <div style="display:flex; gap:14px; justify-content:center;">${g.ids.map(id => chipHtml(id, 'gp-chip')).join('')}</div>
+      <div class="gp-name">${esc(names)}</div>
+      <p class="gp-stats">${plural(g.n, 'vote')} on fake captions · crowned ${plural(g.crowns, 'round')}${me ? ' · that’s YOU' : ''}</p>
+      <p class="gp-slogan">“${esc(pickBy(POOBAH_SLOGANS, state.code + state.history.length))}”</p>
+      <button class="btn btn-yellow" style="margin-top:18px; width:auto; padding:13px 26px;" onclick="closeGrand()">Long live the Poobah 🎩</button>
+    </div>`;
+  const step = (id, cls, t) => setTimeout(() => { const e = $(id); if (e) e.classList.add(cls); }, t);
+  organ(3.4, 0.07); buzz(60);
+  step('gp-l1', 'on', 200); step('gp-l1', 'off', 1700);
+  step('gp-l2', 'on', 1900); step('gp-l2', 'off', 3500);
+  setTimeout(() => { o.classList.add('roll'); step('gp-tease', 'on', 0); sfx.drumroll(4600); timpaniRoll(4600); }, 3600);
+  [0, 900, 1700, 2400, 3000, 3500, 3900, 4200, 4400].forEach(t => setTimeout(() => buzz(40 + t / 40), 3600 + t));
+  setTimeout(() => {
+    o.classList.remove('roll'); o.classList.add('flash', 'revealed');
+    const t = $('gp-tease'); if (t) t.classList.remove('on');
+    step('gp-reveal', 'on', 0);
+    crash(); gong(); sfx.boom(); bigFanfare(); buzz([400, 100, 400, 100, 800]);
+    confetti.cannons(); setTimeout(() => confetti.cannons(), 700); setTimeout(() => confetti.cannons(), 1500); confetti.rain(6000);
+    setTimeout(() => o.classList.remove('flash'), 500);
+  }, 8300);
+  setTimeout(() => { [1047, 1319, 1568, 2093].forEach((f, i) => tone(f, 0.3, i * 90, 'sine', 0.05)); }, 10600);
+  o.onclick = (e) => { if (o.classList.contains('revealed') && e.target === o) closeGrand(); };
+}
+function closeGrand() { const o = $('poobah'); o.className = ''; o.innerHTML = ''; grandShown = true; if (state && state.phase === 'scores') render(true); }
 
 /* ── End-of-game awards ── */
 function computeAwards() {
@@ -1792,7 +2006,6 @@ function computeAwards() {
   const names = (t) => listNames(t.ids.map(nameOf));
   const out = [];
   let t;
-  if ((t = top(fooled))) out.push({ icon: '🤥', title: 'Best Liar', who: names(t), line: `Fooled the table ${t.n === 1 ? 'once' : t.n + ' times'}` });
   if ((t = top(sharp))) out.push({ icon: '🦅', title: 'Sharpest Eye', who: names(t), line: `${plural(t.n, 'chip')} on the real caption` });
   if ((t = top(moonHit))) out.push({ icon: '🌕', title: 'Moon Shooter', who: names(t), line: `Bet both chips blind and nailed it${t.n > 1 ? ' — ' + t.n + ' times' : ''}` });
   else if ((t = top(moonTry))) out.push({ icon: '🌑', title: 'Moon Shooter', who: names(t), line: `Went for the moon ${t.n === 1 ? 'once' : t.n + ' times'}. Missed. Respect.` });
@@ -1835,8 +2048,9 @@ function playScoresSequence() {
     document.querySelectorAll('.score-number').forEach(el => animateCount(el, parseInt(el.dataset.from), parseInt(el.dataset.target), 900));
     document.querySelectorAll('.delta').forEach((el, i) => { el.style.opacity = '0'; setTimeout(() => { el.style.transition = 'opacity .3s'; el.style.opacity = '1'; sfx.coin(i); }, 900 + i * 120); });
   };
-  if (state.gameOver) playAwards(() => { setTimeout(count, 150); setTimeout(() => { sfx.fanfare(); confetti.cannons(); confetti.rain(3500); buzz([60, 40, 60, 40, 200]); }, 500); });
-  else setTimeout(count, 250);
+  const fresh = state.scoresAt && Date.now() + clockOffset - state.scoresAt < 10000;
+  if (state.gameOver) { grandShown = false; scheduleGrandPoobah(); playAwards(() => { setTimeout(count, 150); setTimeout(() => { sfx.fanfare(); confetti.cannons(); confetti.rain(3500); buzz([60, 40, 60, 40, 200]); }, 500); }); }
+  else { setTimeout(count, 250); if (fresh) setTimeout(() => { if (state && state.phase === 'scores' && state.round + '|' + state.code === key) playRoundPoobah(); }, 1700); }
 }
 
 function animateCount(el, from, to, duration) {

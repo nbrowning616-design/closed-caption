@@ -586,6 +586,7 @@ function revealAnswer(game) {
 function moveToScoreboard(game) {
   if (game.phase !== PHASES.ANSWER) return { error: 'Not on the answer' };
   game.phase = PHASES.SCORES;
+  game.scoresAt = Date.now();   // phones time the Grand Poobah ceremony from this, so it plays together
   return { ok: true };
 }
 
@@ -754,6 +755,7 @@ function getPlayerView(game, playerId) {
     base.gameOver = isGameOver(game);
     base.previousRank = game.previousRank || {};
     base.history = game.history || [];
+    base.scoresAt = game.scoresAt || null;
     if (!base.gameOver) {
       const nd = game.players[nextDealerIndex(game, game.dealerIndex)];
       base.nextDealerName = nd ? nd.name : '';
