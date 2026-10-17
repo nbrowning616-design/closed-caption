@@ -607,9 +607,22 @@ function placeBet(game, playerId, betTarget) {
   const v = validateTarget(game, betTarget.target);
   if (v.error) return v;
   // Second chip can go anywhere — including on top of your first one.
-  game.bets.push({ playerId, target: v.target, count, stage });
+  game.bets.push({ playerId, target: v.target, count, stage, at: Date.now() });
   (stage === 1 ? game.firstBets : game.secondBets)[playerId] = { target: v.target, count };
   return { ok: true, allIn: pendingBetters(game).length === 0 };
+}
+
+// Mis-tap? Take your chip back within a few seconds, as long as nobody has bet after you
+const UNDO_MS = 4000;
+function undoBet(game, playerId) {
+  const stage = game.phase === PHASES.FIRST_BETS ? 1 : game.phase === PHASES.SECOND_BETS ? 2 : 0;
+  const last = game.bets[game.bets.length - 1];
+  if (!stage || !last || last.playerId !== playerId || last.stage !== stage || last.target === 'pass') return { error: 'Too late to take it back' };
+  if (Date.now() - (last.at || 0) > UNDO_MS) return { error: 'Too late to take it back' };
+  game.bets.pop();
+  delete (stage === 1 ? game.firstBets : game.secondBets)[playerId];
+  game.timerToken = (game.timerToken || 0) + 1;   // cancels the 'all chips are down' move
+  return { ok: true };
 }
 
 function skipCurrentBetter(game) {
@@ -1114,7 +1127,11 @@ function getPlayerView(game, playerId) {
   };
   // The Gazette: the newest Hall of Fame captions, between rounds only
   if (game.phase === PHASES.LOBBY || game.phase === PHASES.SCORES) base.gazette = deckOf(game).recent(GAZETTE_SIZE);
-  if (game.phase === PHASES.LOBBY) return base;
+  if (game.phase === PHASES.LOBBY) {
+    const pool = allowed(game), seen = seenCounts(game);
+    base.freshCount = pool.filter(c => !(seen.get(c.id) > 0)).length; base.poolCount = pool.length;
+    return base;
+  }
 
   if (game.cartoon) base.cartoon = game.cartoon;
   const mine = game.submissions.find(x => x.playerId === playerId);
@@ -1221,7 +1238,7 @@ function addTime(game) {
 
 module.exports = {
   PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS,
-  addTime, freshest, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, pickFrame, allFramesIn, resolveFraming, hallOfFame, planBlock, ensurePlan,
+  addTime, undoBet, freshest, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, pickFrame, allFramesIn, resolveFraming, hallOfFame, planBlock, ensurePlan,
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,

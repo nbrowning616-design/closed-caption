@@ -231,6 +231,7 @@ textarea.caption-input::placeholder { color: #A99F93; }
 .my-rack { display: flex; align-items: center; justify-content: center; gap: 12px; margin: -4px 0 14px; }
 .my-rack .lbl { font-weight: 900; font-size: 14px; }
 .rack-chips { display: flex; gap: 8px; min-height: 46px; align-items: center; }
+.fresh-line { text-align: center; font-weight: 900; font-size: 14px; margin: 4px 0 6px; } .fresh-line.low { color: var(--red); }
 .chip.fly { pointer-events: none; box-shadow: 0 10px 18px rgba(0,0,0,.3); }
 
 /* ── Bottom action bar ── */
@@ -1192,10 +1193,12 @@ function afterRender(phaseChanged) {
     const bets = state.bets || [];
     if (!phaseChanged && bets.length > seenBets) {
       const fresh = bets.slice(seenBets);
+      if (fresh.some(b => b.playerId === myPlayerId && b.target !== 'pass')) undoUntil = Date.now() + 3500;
       fresh.forEach((b, i) => { if (b.playerId === myPlayerId && flyFrom) flyMyChips(seenBets + i); else document.querySelectorAll(`.chip-tray .chip[data-bet="${seenBets + i}"]`).forEach(c => c.classList.add('drop')); });
       const total = fresh.reduce((s, b) => s + (b.count || 0), 0);
       if (total > 0) { (fresh.some(b => b.playerId === myPlayerId) ? sfx : bsfx).chip(Math.min(2, total)); buzz(20); }   // your chip on your phone; the rest on the speaker
     }
+    if (bets.length < seenBets) undoUntil = 0;   // a chip was taken back
     seenBets = bets.length;
     if (state.isMyTurn && !wasMyTurn) { sfx.yourTurn(); buzz([60, 80, 60]); }
     wasMyTurn = !!state.isMyTurn;
@@ -1271,6 +1274,8 @@ function renderLobby() {
     : `<p class="small" style="margin:-4px 0 14px;">Seating is in order around the table. The deal passes ${right ? 'right ↑' : 'left ↓'}.</p>`;
   const endCondition = s.targetScore ? `first to ${s.targetScore}` : s.rounds ? `${s.rounds} rounds` : 'everyone deals once';
   const summary = `${state.timerDuration < 120 ? state.timerDuration + 's' : state.timerDuration / 60 + ' min'} to write · ${endCondition} · steal ${s.stealEnabled ? 'on' : 'off'} · deal passes ${right ? 'right' : 'left'}${s.family ? ' · family cartoons' : s.spicy ? ' · 🌶 after dark' : ''}`;
+  const fresh = state.freshCount, pool = state.poolCount;
+  const freshLine = typeof fresh === 'number' ? `<p class="fresh-line${fresh < Math.max(3, state.players.length) ? ' low' : ''}">🆕 ${fresh} of ${pool} cartoons nobody here has seen${fresh < Math.max(3, state.players.length) ? (s.family ? ' — try Standard for more' : ' — some repeats ahead') : ''}</p>` : '';
   const deck = state.hofDeck || 0, galleryOpen = deck >= 3 || s.expert;
   const galleryToggle = state.isHost
     ? `<button class="gal-toggle ${s.expert ? 'on' : ''}" ${galleryOpen ? '' : 'disabled'} onclick="setHostSettings({expert:${!s.expert}})" aria-pressed="${!!s.expert}">
@@ -1309,7 +1314,7 @@ function renderLobby() {
     </div>
     <p class="eyebrow" style="margin-bottom:6px;">At the table · ${connected} of ${state.players.length}</p>
     <div style="margin-bottom:10px;">${players}</div>${seatHelp}
-    ${galleryToggle}${settings}<p class="center small" style="margin-bottom:14px;">${summary}</p>
+    ${galleryToggle}${settings}${freshLine}<p class="center small" style="margin-bottom:14px;">${summary}</p>
     ${state.isHost
       ? `<button class="btn btn-yellow" onclick="send({action:'start'})" ${connected < 3 ? 'disabled' : ''}>${connected < 3 ? `Need ${plural(3 - connected, 'more player')}` : 'Start the game →'}</button>`
       : `<div class="panel flat center"><span class="spin" style="margin-bottom:8px;"></span><p class="sub">Waiting for ${esc(nameOf(state.hostId))} to start<span class="dots"></span></p></div>`}
@@ -1446,6 +1451,7 @@ function startTimer() {
       const first = lastTimerSecond === null; lastTimerSecond = remaining;
       if (!state.hasSubmitted && !first) {
         if (remaining === 20 && state.timerDuration > 25) warn20();
+        else if (remaining === 10) warnAt(10);
         else if (remaining > 0 && remaining <= 5) { sfx.tick(); if (remaining <= 3) buzz(40); }
         else if (remaining === 0) { sfx.critical(); submitCaption(true); }
       }
@@ -1454,8 +1460,14 @@ function startTimer() {
   };
   tick(); timerInterval = setInterval(tick, 250);
 }
+function warnAt(n) {
+  const w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `${n} seconds!<span>${n <= 10 ? 'Send it now' : 'Lock in your caption'}</span>`;
+  w.classList.remove('on'); void w.offsetWidth; w.classList.add('on');
+  if (n <= 10) { sfx.critical ? sfx.critical() : sfx.warn(); buzz([300, 120, 300]); }
+}
 function warn20() {
-  const w = $('warn'); w.classList.remove('on'); void w.offsetWidth; w.classList.add('on');
+  const w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = '20 seconds!<span>Lock in your caption</span>';
+  w.classList.remove('on'); void w.offsetWidth; w.classList.add('on');
   sfx.warn(); buzz([200, 100, 200, 100, 400]);
 }
 
@@ -1588,6 +1600,7 @@ function renderBetting(stage) {
     <div class="order bettors" style="margin-top:0;">${orderRow}</div>
     <div class="stack" style="margin-top:18px;">${cards}${closedCard}</div>${tools}`;
 }
+function undoBet() { undoUntil = 0; setActionBar(''); send({ action: 'undo_bet' }); }
 function skipBetter() { if (confirm(`Skip ${state.currentBetterName}’s turn? They sit this bet out.`)) send({ action: 'skip_better' }); }
 function forceAdvance() { if (confirm(`Move on without ${plural((state.pendingBetters || []).length, 'more bet')}?`)) send({ action: 'advance' }); }
 function selectBet(target) {
@@ -1598,7 +1611,13 @@ function selectBet(target) {
   document.querySelectorAll('.cap[data-target]').forEach(b => b.classList.toggle('picked', String(b.dataset.target) === String(target)));
   renderBetBar();
 }
+let undoUntil = 0, undoT = null;
 function renderBetBar() {
+  const bets = (state && state.bets) || [], last = bets[bets.length - 1];
+  if (state && Date.now() < undoUntil && last && last.playerId === myPlayerId && last.target !== 'pass') {
+    clearTimeout(undoT); undoT = setTimeout(() => { if (state) renderBetBar(); }, undoUntil - Date.now() + 50);
+    setActionBar(`<button class="btn" onclick="undoBet()">↩ Undo — take ${last.count > 1 ? 'my chips' : 'my chip'} back</button>`); return;
+  }
   if (!state || !state.isMyTurn || selectedBetTarget === null) { setActionBar(''); return; }
   const stage = state.phase === 'first_bets' ? 1 : 2, t = selectedBetTarget;
   const where = t === 'closed' ? 'the Closed Caption' : `Caption ${t + 1}`;

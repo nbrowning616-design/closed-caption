@@ -292,6 +292,11 @@ wss.on('connection', (ws) => {
         autoAdvanceBets(code);
         return;
       }
+      case 'undo_bet': {
+        if (fail(G.undoBet(game, playerId))) return;
+        broadcast(code);
+        return;
+      }
       case 'skip_better': {
         // Anyone can skip a player whose phone has dropped; otherwise dealer/host only
         const cur = game.players.find(p => p.id === G.currentBetterId(game));
