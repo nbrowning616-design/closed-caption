@@ -480,6 +480,7 @@ body.quake { animation: quake .12s linear 10; }
 #poobah { position: fixed; inset: 0; z-index: 780; display: none; }
 #poobah.on { display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 24px; }
 #poobah.round { background: rgba(31,26,23,.55); animation: fadeIn .25s; }
+.pb-close { position: absolute; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; text-align: center; color: rgba(255,255,255,.75); font-weight: 800; font-size: 13px; }
 .pb-card { width: 100%; max-width: 360px; text-align: center; background: #fff; border: 3px solid var(--ink); border-radius: 20px; padding: 18px 18px 20px; box-shadow: var(--shadow-lg); animation: stampIn .5s var(--spring) both; }
 .pb-chips { display: flex; justify-content: center; gap: 22px; margin: 6px 0 10px; }
 .pb-seat { position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 86px; }
@@ -1137,8 +1138,8 @@ function render(force = false) {
     recordSeen(); recordCareer(); checkPromotion(); answerLive(); return;   // same step: only buttons update
   } else if (state.phase === 'framing' && !force && key === lastKey && $('fm-root')) {
     recordSeen(); recordCareer(); checkPromotion(); framingLive(); window.Guide && Guide.onRender(state); return;   // picks tick in without redrawing the list
-  } else if (state.phase === 'reveal' && !force) {
-    return; // choreographed screen — don't interrupt
+  } else if (state.phase === 'reveal' && !force && revealRunner === canRun()) {
+    return; // choreographed screen — don't interrupt (unless the button changes hands: the dealer dropped)
   }
   recordSeen();
   recordCareer();
@@ -1580,13 +1581,13 @@ function renderBetting(stage) {
   const myLeft = order.includes(myPlayerId) ? left(myPlayerId) : 0;
   const rack = order.includes(myPlayerId) && !state.isDealer ? `<div class="my-rack" id="my-rack"><span class="lbl">Your chips</span><div class="rack-chips">${myLeft ? Array.from({ length: myLeft }, (_, i) => chipHtml(myPlayerId, 'lg', '', `data-rack="${i}"`)).join('') : '<span class="bnone">all down</span>'}</div></div>` : '';
 
-  const next = stage === 1 ? 'Turning the Closed Caption over…' : (state.settings.stealEnabled ? 'Over to the dealer for the steal…' : 'Here comes the answer…');
+  const next = stage === 1 ? 'Turning the Closed Caption over…' : (state.settings.stealEnabled && (state.bets || []).some(b => b.target !== 'pass' && b.count > 0) ? `Over to ${esc(state.dealerName)} for the steal…` : 'Here comes the answer…');
   const cur = state.currentBetterName ? esc(state.currentBetterName) : '';
   let banner;
   if (state.allBetsIn) banner = `<div class="turn-banner"><div class="h2">All chips are down</div><p class="sub">${next}</p></div>`;
   else if (state.isDealer) banner = `<div class="turn-banner dealer"><div class="h2">You’re dealing — no bets for you</div><p class="sub">${state.settings.stealEnabled ? 'Watch closely. When the chips are down, you get to steal one.' : 'Watch the table. If nobody finds the real one, you score.'}</p></div>`;
   else if (state.isMyTurn && !myBet) banner = `<div class="turn-banner you"><div class="h2">Your turn to bet!</div><p class="sub" style="color:var(--ink);">${stage === 1 ? 'Tap a caption, then put down 1 chip or both.' : 'Tap where your last chip goes — anywhere.'}</p></div>`;
-  else if (myBet) banner = `<div class="turn-banner"><div class="h2">${betLabel(myBet.target, myBet.count)} ✓</div><p class="sub">${stage === 1 && myBet.count === 1 ? 'Your second chip waits for the reveal.' : `${cur} is up.`}</p></div>`;
+  else if (myBet) banner = `<div class="turn-banner"><div class="h2">${betLabel(myBet.target, myBet.count)} ✓</div><p class="sub">${stage === 1 && myBet.count === 1 ? `Your second chip waits for the reveal.${cur ? ` ${cur} is up.` : ''}` : `${cur} is up.`}</p></div>`;
   else if (stage === 2 && !eligible2.has(myPlayerId)) banner = `<div class="turn-banner"><div class="h2">${passed.has(myPlayerId) ? 'You sat this one out' : 'Both your chips are down'}</div><p class="sub">${cur} is betting…</p></div>`;
   else { const away = order.indexOf(myPlayerId) - order.indexOf(state.currentBetterId); banner = `<div class="turn-banner"><div class="h2">${cur} is betting<span class="dots"></span></div><p class="sub">${away > 0 ? `You’re ${away === 1 ? 'next' : away + ' away'}.` : 'Watch the chips land.'}</p></div>`; }
 
@@ -1651,7 +1652,9 @@ function flyMyChips(betIdx) {
 }
 
 /* ── REVEAL ── */
+let revealRunner = null;
 function renderReveal() {
+  revealRunner = canRun();
   const n = (state.eligibleSecondBetters || []).length;
   return `${header({ sticker: '<span class="sticker">The reveal</span>' })}
     <div class="center" style="padding-top:2vh;">
@@ -1661,7 +1664,7 @@ function renderReveal() {
         <div class="face back"><div class="panel yellow" style="transform:rotate(-1deg);"><p class="eyebrow" style="color:var(--ink-2);">The Closed Caption</p><p class="caption-text" style="font-size:22px; margin-top:6px;">“${esc(state.closedCaption)}”</p>${state.iWroteClosed ? '<p class="small" style="margin-top:6px;">(Yours. Poker face.)</p>' : ''}</div></div>
       </div></div>
       <p class="sub" id="reveal-hint" style="opacity:0; transition:opacity .4s; margin-top:30px;"></p>
-      ${canRun() ? `<button id="reveal-continue" class="btn ${state.isDealer ? 'btn-yellow' : ''}" style="margin-top:18px; opacity:0; transition:opacity .4s; pointer-events:none;" onclick="send({action:'advance'})">${n ? 'Read it aloud, then — last chips →' : 'Next →'}</button>` : ''}
+      ${canRun() ? `<button id="reveal-continue" class="btn ${state.isDealer ? 'btn-yellow' : ''}" style="margin-top:18px; opacity:0; transition:opacity .4s; pointer-events:none;" onclick="send({action:'advance'})">${n ? 'Read it aloud, then — last chips →' : 'Next →'}</button>` : `<p class="sub" id="reveal-continue" style="margin-top:18px; opacity:0; transition:opacity .4s;">⏳ Waiting for ${esc(state.dealerName)} to read it out — then ${n ? 'the last chips' : 'the answer'}.</p>`}
     </div>`;
 }
 /* The Closed Caption turns over like a real card: it lifts (the shadow grows), trembles, then slaps
@@ -1816,7 +1819,9 @@ function fmFootHtml() {
   const f = state.framing || {}, r = f.result, mine = fmMyPick();
   if (r) {
     const next = isLastRound() ? 'Final scores' : 'Scoreboard';
-    return canRun() ? `<button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'advance'})">${next} →</button>` : `<p class="fm-wait">${next} in a moment<span class="dots"></span></p>`;
+    const late = (Date.now() + clockOffset) > (r.endsAt || 0) + 2500;
+    if (!late && canRun()) { clearTimeout(window._fmLateT); window._fmLateT = setTimeout(() => { if (state && state.phase === 'framing') framingLive(true); }, Math.max(0, (r.endsAt || 0) + 2600 - (Date.now() + clockOffset))); }
+    return canRun() && late ? `<button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'advance'})">${next} →</button>` : `<p class="fm-wait">${next} in a moment — it comes up by itself<span class="dots"></span></p>`;
   }
   const voters = f.voters || [], decided = new Set(f.decided || []);
   const ids = voters.concat((f.decided || []).filter(id => !voters.includes(id))).filter(id => playerById(id));
@@ -1824,7 +1829,7 @@ function fmFootHtml() {
   const chips = ids.map(id => `<span class="fm-chip ${decided.has(id) ? 'done' : ''}">${chipHtml(id)}</span>`).join('');
   const passed = mine === 'pass';
   return `<button class="btn fm-pass ${passed ? 'on' : ''}" onclick="pickFrame('pass')" aria-pressed="${passed ? 'true' : 'false'}">${passed ? '✓ Passed · tap a caption to change' : 'Nah, not this round'}</button>
-    <div class="fm-row"><div class="fm-chips ${ids.length > 6 ? 'many' : ''}">${chips}</div><span class="fm-count">${here.filter(id => decided.has(id)).length} of ${here.length} decided</span></div>
+    <div class="fm-row"><div class="fm-chips ${ids.length > 6 ? 'many' : ''}">${chips}</div><span class="fm-count">${(() => { const wait = here.filter(id => !decided.has(id)); return wait.length && wait.length <= 2 && here.length > 2 ? 'Waiting on ' + wait.map(id => id === myPlayerId ? 'you' : esc(nameOf(id))).join(' & ') + '…' : `${here.length - wait.length} of ${here.length} decided`; })()}</span></div>
     ${canRun() ? `<div class="center" style="margin-top:-6px;"><button class="btn-link fm-move" onclick="send({action:'advance'})">Move on</button></div>` : ''}`;
 }
 function fmHeadHtml() {
@@ -2011,7 +2016,7 @@ function stealNewsHtml() {
    back down); every later one is the sharp version (~2.6s: down, CLUNK, pssst, set down). The server
    counts the steals (steal.show), so every phone agrees.
    Starts on the shared beat. Returns ms until the show is over. */
-const STEAL_SHOW_MS = 7600, STEAL_QUICK_MS = 2600;
+const STEAL_SHOW_MS = 7600, STEAL_QUICK_MS = 3400;
 function playStealShow(wait = 0) {
   if (!window.ccClaw) return 0;
   return window.ccClaw.play(wait, { fullMs: STEAL_SHOW_MS, quickMs: STEAL_QUICK_MS });
@@ -2455,8 +2460,9 @@ function playRoundPoobah() {
   bsfx.swish();
   setTimeout(() => { big(() => { tone(130, 0.18, 0, 'sine', 0.35, 60); noise(0.08, 0, 0.3, 900, 'lowpass'); }); if (window.ccFlash) window.ccFlash(0.55); buzz(me ? [80, 40, 160] : 40); confetti.burst(innerWidth / 2, innerHeight * 0.3, 70); }, 700);
   setTimeout(() => big(() => { [392, 523, 659, 784].forEach((f, i) => { tone(f, 0.2, i * 110, 'square', 0.04); tone(f, 0.2, i * 110, 'triangle', 0.06); }); tone(1047, 0.7, 460, 'triangle', 0.07); }), 900);
-  clearTimeout(window._pbT); window._pbT = setTimeout(closePoobah, 4600);
+  clearTimeout(window._pbT); window._pbT = setTimeout(closePoobah, 5200);
   o.onclick = closePoobah;
+  o.insertAdjacentHTML('beforeend', '<p class="pb-close">tap anywhere to close</p>');
 }
 function closePoobah() { const o = $('poobah'); o.className = ''; o.innerHTML = ''; }
 
@@ -2471,10 +2477,11 @@ function bigFanfare() {
   seq.forEach(([f, t, d]) => { tone(f, d, t, 'square', 0.045); tone(f, d, t, 'sawtooth', 0.025); tone(f / 2, d, t, 'triangle', 0.06); });
   [523, 659, 784, 1047].forEach(f => tone(f, 2.2, 1900, 'triangle', 0.05));
 }
-const CEREMONY_LEAD_MS = 4500;   // after the awards slides end
+const CEREMONY_LEAD_MS = 2600;   // after the awards slides end
+const AWARD_SLIDE_MS = 4400;     // long enough to read a slide out loud
 function ceremonyAt() {
   if (!state.scoresAt) return null;
-  return state.scoresAt + 300 + computeAwards().length * 2900 + CEREMONY_LEAD_MS;
+  return state.scoresAt + 300 + computeAwards().length * AWARD_SLIDE_MS + CEREMONY_LEAD_MS;
 }
 let ceremonyFor = null, ceremonyTimer = null, grandShown = false;
 function scheduleGrandPoobah() {
@@ -2586,7 +2593,7 @@ function playAwards(done) {
     o.innerHTML = `<div class="aw-card" key="${i}"><p class="eyebrow">Award ${i + 1} of ${list.length}</p>${a.image ? `<img class="aw-img" src="/images/${esc(a.image)}" alt="">` : ''}<div class="aw-ic">${a.icon}</div><div class="h-display aw-title">${esc(a.title)}</div><div class="aw-who">${esc(a.who)}</div>${a.quote ? `<p class="aw-quote">“${esc(a.quote)}”</p>` : ''}<p class="sub">${esc(a.line)}</p>
       <div class="aw-dots">${list.map((_, k) => `<i class="${k === i ? 'f' : ''}"></i>`).join('')}</div></div><button class="btn-link aw-skip" onclick="event.stopPropagation(); window._awFinish()">Skip to the final scores</button>`;
     bsfx.tada(); buzz(30); confetti.burst(innerWidth / 2, innerHeight * 0.35, 50);
-    timer = setTimeout(next, 2900);
+    timer = setTimeout(next, AWARD_SLIDE_MS);
   };
   window._awFinish = finish;
   o.classList.add('on'); o.onclick = next;
@@ -2601,7 +2608,7 @@ function playScoresSequence() {
   };
   const fresh = state.scoresAt && Date.now() + clockOffset - state.scoresAt < 10000;
   if (state.gameOver) { grandShown = false; scheduleGrandPoobah(); playAwards(() => { setTimeout(count, 150); setTimeout(() => { bsfx.fanfare(); confetti.cannons(); confetti.rain(3500); buzz([60, 40, 60, 40, 200]); }, 500); }); }
-  else { setTimeout(count, 250); if (fresh) setTimeout(() => { if (state && state.phase === 'scores' && state.round + '|' + state.code === key) playRoundPoobah(); }, Math.max(0, state.scoresAt + 1700 - (Date.now() + clockOffset))); }   // the hat drops together
+  else { setTimeout(count, 250); if (fresh) setTimeout(() => { if (state && state.phase === 'scores' && state.round + '|' + state.code === key) playRoundPoobah(); }, Math.max(0, state.scoresAt + 1100 - (Date.now() + clockOffset))); }   // the hat drops together
 }
 
 function animateCount(el, from, to, duration) {

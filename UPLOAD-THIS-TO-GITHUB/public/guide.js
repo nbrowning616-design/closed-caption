@@ -19,7 +19,7 @@
     frame: { icon: '🖼', text: 'Beat the real caption? Frame it. Enough frames and it hangs in The Gallery.' }
   };
   // How long after the moment arrives before the tip slides in (let the screen's own show land first)
-  var DELAY = { writing: 1400, facedown: 1600, first_bets: 900, steal: 1500, answer: 2600, frame: 900 };
+  var DELAY = { writing: 2600, facedown: 2400, first_bets: 1200, steal: 1800, answer: 5200, frame: 2200 };   // after the moment lands, never on top of it
 
   var CSS = [
     /* ── Last-writer spotlight ── */
@@ -141,7 +141,7 @@
     return null;
   }
   function blocked() {
-    return !!document.querySelector('#stealshow.on, #awards.on, #poobah.on, #induct.on, #sheet.on, #viewer.on, .gal-ov, #warn.on');
+    return !!document.querySelector('#stealshow.on, #awards.on, #poobah.on, #induct.on, #sheet.on, #viewer.on, .gal-ov, #warn.on, #readaloud.on, .fx-root');
   }
 
   var tipEl = null, tipId = null, tipShownAt = 0, hideT = null, pending = null, ticker = null;

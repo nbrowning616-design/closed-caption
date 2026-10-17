@@ -87,8 +87,9 @@ function endWriting(g) {
 function autoAdvanceBets(code) {
   const g = games[code];
   if (!g) return;
-  if (g.phase === PHASES.FIRST_BETS && G.pendingBetters(g).length === 0) later(code, 1600, PHASES.FIRST_BETS, G.moveToReveal);
-  if (g.phase === PHASES.SECOND_BETS && G.pendingBetters(g).length === 0) later(code, 1600, PHASES.SECOND_BETS, G.moveFromSecondBets);
+  // 'All chips are down' gets a beat to land (and the last bettor a moment to undo) before the table moves on
+  if (g.phase === PHASES.FIRST_BETS && G.pendingBetters(g).length === 0) later(code, 3200, PHASES.FIRST_BETS, (x) => G.pendingBetters(x).length ? null : G.moveToReveal(x));
+  if (g.phase === PHASES.SECOND_BETS && G.pendingBetters(g).length === 0) later(code, 3200, PHASES.SECOND_BETS, (x) => G.pendingBetters(x).length ? null : G.moveFromSecondBets(x));
 }
 
 // Frame It: count the picks once, then the scoreboard comes by itself after the ceremony
@@ -234,6 +235,9 @@ wss.on('connection', (ws) => {
       case 'reel_next': case 'reel_prev': case 'reel_skip': {
         // The dealer paces the answer, one caption at a time
         if (!canRun) return sendError(ws, 'The dealer runs the reveal');
+        // Nobody skips ahead while the whole table is still watching the Claw
+        const st = game.steal, showMs = st && st.at && st.victimId ? ((st.show || 1) > 1 ? 3400 : 7600) + 1200 : 0;
+        if (msg.action === 'reel_next' && game.reel && game.reel.step === 1 && showMs && Date.now() < st.at + showMs) return sendError(ws, 'Let the Claw finish');
         if (fail(G.reelStep(game, msg.action.slice(5)))) return;
         broadcast(code);
         return;

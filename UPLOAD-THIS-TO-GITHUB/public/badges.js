@@ -612,7 +612,7 @@
 
   function pop(opts) {
     opts = opts || {};
-    return enqueue('pop', opts, opts.mine ? 3000 : 2200);
+    return enqueue('pop', opts, opts.mine ? 3800 : 3200);   // long enough to read before the dealer moves on
   }
   function promotion(opts) {
     opts = opts || {};
