@@ -74,7 +74,8 @@
 
   /* ── sound / haptics (host globals, all guarded) ── */
   function canSound() {
-    try { return typeof window.soundEnabled === 'function' ? !!window.soundEnabled() : false; } catch (e) { return false; }
+    // The execution is a big moment: only the table's speaker phone plays it (see moments.js)
+    try { return (typeof window.soundEnabled === 'function' ? !!window.soundEnabled() : false) && (!window.ccBigSound || window.ccBigSound()); } catch (e) { return false; }
   }
   function T(f, d, delay, type, vol, glide) { try { if (typeof window.tone === 'function') window.tone(f, d, delay, type, vol, glide); } catch (e) {} }
   function N(d, delay, vol, ff, ft) { try { if (typeof window.noise === 'function') window.noise(d, delay, vol, ff, ft); } catch (e) {} }

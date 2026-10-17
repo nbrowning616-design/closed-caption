@@ -56,5 +56,9 @@ Both have free tiers that work fine for game nights.
 - `public/gallery.js` — The framing moment and the Gallery wall
 - `store.js` — Saves The Gallery
 - `public/badges.js` — Badge artwork, badge pops, rank-ups, trophy case
+- `public/home.js` — The opening screen
+- `public/moments.js` — Keeps big moments in sync across phones; one phone plays the big sounds
+- `public/recap.js` — The night recap picture
+- `public/guide.js` — First-game tips and the "Waiting on…" banner
 - `public/qrcode.js` — QR code maker (MIT, Kazuhiko Arase)
 - `public/images/` — Cartoon card images

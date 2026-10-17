@@ -155,6 +155,9 @@ function createGame(hostId, hostName, timerDuration = 90, seenIds = []) {
     realCredit: null,               // Expert Mode: who wrote this round's real answer { author, month, flags, entryId }
     code: generateRoomCode(),
     phase: PHASES.LOBBY,
+    phaseAt: Date.now(),  // server time of the latest phase change
+    stepAt: null,         // server time of the latest reveal-reel step
+    stealShows: 0,        // steals this game: only the first gets the full show
     players: [{ id: hostId, name: hostName, score: 0, connected: true }],
     hostId,
     timerDuration,
@@ -193,6 +196,10 @@ function createGame(hostId, hostName, timerDuration = 90, seenIds = []) {
     promotion: null,      // the latest rank-up: { playerId, name, rank, n, at }
   };
 }
+
+// Every phase change is stamped with the server clock: phones start the big moments from it, together
+function setPhase(game, phase) { game.phase = phase; game.phaseAt = Date.now(); }
+function setReelStep(game, step) { game.reel.step = step; game.stepAt = Date.now(); }
 
 function cleanSeen(ids) {
   const valid = new Set(CARTOONS.map(c => c.id));
@@ -397,7 +404,7 @@ function startRound(game, options = {}) {
   game.reactions = {};
   game.reel = null;
   game.roundBadges = [];
-  game.phase = PHASES.WRITING;
+  setPhase(game, PHASES.WRITING);
 }
 
 // Someone whose phone just locked or blinked off for a few seconds still counts as here
@@ -472,7 +479,7 @@ function finishWriting(game) {
     game.openCaptions = shuffleArray(opens);
   }
   game.mulliganVotes = [];
-  game.phase = PHASES.READING;
+  setPhase(game, PHASES.READING);
   return { ok: true };
 }
 
@@ -487,7 +494,7 @@ function moveToFirstBets(game) {
   if (game.phase !== PHASES.READING) return { error: 'Not reading' };
   game.betOrder = computeBetOrder(game);
   game.bets = [];
-  game.phase = PHASES.FIRST_BETS;
+  setPhase(game, PHASES.FIRST_BETS);
   return { ok: true };
 }
 
@@ -541,7 +548,7 @@ function skipCurrentBetter(game) {
 
 function moveToReveal(game) {
   if (game.phase !== PHASES.FIRST_BETS) return { error: 'Not in blind bets' };
-  game.phase = PHASES.REVEAL;
+  setPhase(game, PHASES.REVEAL);
   return { ok: true };
 }
 
@@ -550,7 +557,7 @@ const chipsOnTable = (game) => game.bets.reduce((n, b) => n + (b.target === 'pas
 // After the reveal: second bets if anyone has a chip left, else straight on
 function moveFromReveal(game) {
   if (game.phase !== PHASES.REVEAL) return { error: 'Not revealing' };
-  if (eligibleSecondBetters(game).length) { game.phase = PHASES.SECOND_BETS; return { ok: true }; }
+  if (eligibleSecondBetters(game).length) { setPhase(game, PHASES.SECOND_BETS); return { ok: true }; }
   return afterAllBets(game);
 }
 
@@ -558,7 +565,7 @@ function moveFromReveal(game) {
 function afterAllBets(game) {
   const dealer = dealerOf(game);
   if (game.settings.stealEnabled && dealer && chipsOnTable(game) > 0) {
-    game.phase = PHASES.STEAL;
+    setPhase(game, PHASES.STEAL);
     game.steal = null;
     return { ok: true };
   }
@@ -581,7 +588,7 @@ function stealChip(game, betIndex) {
     if (!bet || bet.target === 'pass' || bet.count < 1) return { error: 'No chip there' };
     bet.count -= 1;
     bet.stolen = (bet.stolen || 0) + 1;
-    game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect: isBetOnCorrect(game, bet), gloat: pick(GLOATS), seed: Math.floor(Math.random() * 1e9), at: Date.now() };
+    game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect: isBetOnCorrect(game, bet), gloat: pick(GLOATS), seed: Math.floor(Math.random() * 1e9), at: Date.now(), show: (game.stealShows = (game.stealShows || 0) + 1) };
   }
   revealAnswer(game);
   return { ok: true };
@@ -595,7 +602,7 @@ function isBetOnCorrect(game, bet) {
 }
 
 function revealAnswer(game) {
-  game.phase = PHASES.ANSWER;
+  setPhase(game, PHASES.ANSWER);
   const s = game.settings;
   const scores = {}, details = {};
   game.players.forEach(p => { scores[p.id] = 0; details[p.id] = []; });
@@ -645,6 +652,7 @@ function revealAnswer(game) {
   }
 
   game.reel = { order: reelOrder(game), step: 1 };
+  game.stepAt = game.phaseAt;
   // Badges never break the answer: if anything goes wrong, the round just has none
   try { awardBadges(game); } catch (e) { console.error('badges', e); game.roundBadges = []; }
 
@@ -674,7 +682,7 @@ function revealAnswer(game) {
 function moveToScoreboard(game) {
   if (game.phase !== PHASES.ANSWER) return { error: 'Not on the answer' };
   if (game.reel && game.reel.step < game.reel.order.length + 1) return { error: 'Finish the reveal first' };
-  game.phase = PHASES.SCORES;
+  setPhase(game, PHASES.SCORES);
   game.scoresAt = Date.now();   // phones time the Grand Poobah ceremony from this, so it plays together
   return { ok: true };
 }
@@ -816,9 +824,9 @@ function reelOrder(game) {
 function reelStep(game, how) {
   if (game.phase !== PHASES.ANSWER || !game.reel) return { error: 'Not on the answer' };
   const last = game.reel.order.length + 1;
-  if (how === 'next') { if (game.reel.step >= last) return { error: 'Already at the recap' }; game.reel.step++; }
-  else if (how === 'prev') { if (game.reel.step <= 1) return { error: 'Already at the first caption' }; game.reel.step--; }
-  else if (how === 'skip') game.reel.step = last;
+  if (how === 'next') { if (game.reel.step >= last) return { error: 'Already at the recap' }; setReelStep(game, game.reel.step + 1); }
+  else if (how === 'prev') { if (game.reel.step <= 1) return { error: 'Already at the first caption' }; setReelStep(game, game.reel.step - 1); }
+  else if (how === 'skip') setReelStep(game, last);
   else return { error: 'Invalid step' };
   return { ok: true, step: game.reel.step };
 }
@@ -899,7 +907,7 @@ function setCareer(game, playerId, rank, rockets, total) {
 }
 
 function resetForNewGame(game) {
-  game.phase = PHASES.LOBBY;
+  setPhase(game, PHASES.LOBBY);
   game.flags = [];
   game.inducted = [];
   game.realCredit = null;
@@ -928,6 +936,8 @@ function resetForNewGame(game) {
   game.roundBadges = [];
   game.gameBadges = [];
   game.crowns = {};
+  game.stealShows = 0;
+  game.stepAt = null;
 }
 
 const AFTER_WRITING = [PHASES.READING, PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.SCORES];
@@ -967,6 +977,9 @@ function getPlayerView(game, playerId) {
     timerDuration: game.timerDuration,
     timerEnd: game.timerEnd,
     serverNow: Date.now(),
+    phaseAt: game.phaseAt || null,   // server time this phase began (phones sync the big moments to it)
+    stepAt: game.stepAt || null,     // server time of the latest reveal-reel step
+    stealShows: game.stealShows || 0,
     promotion: game.promotion || null,
     inductNeed: inductNeed(game),
     lastInduction: game.lastInduction ? { ...game.lastInduction, flaggers: [...game.lastInduction.flaggers] } : null,   // only made after an answer

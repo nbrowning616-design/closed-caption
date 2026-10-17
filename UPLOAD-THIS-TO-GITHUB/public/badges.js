@@ -443,8 +443,10 @@
     T(heavy ? 120 : 150, 0.16, at, 'sine', heavy ? 0.34 : 0.24, 55);
     N(0.025, at, 0.12, 4200, 'bandpass');
   }
+  // Your own badge always sings on your phone; everyone else's plays only on the speaker phone (moments.js)
+  function bigOk(mine) { try { return !!mine || (!window.ccBigSound || window.ccBigSound()); } catch (e) { return true; } }
   function sndPop(kind, mine) {
-    if (!soundOn()) return;
+    if (!soundOn() || !bigOk(mine)) return;
     try {
       var t = 0;
       if (kind === 'moon') {               // whoosh up before the stamp
@@ -459,7 +461,7 @@
     } catch (e) {}
   }
   function sndPromo(mine) {
-    if (!soundOn()) return;
+    if (!soundOn() || !bigOk(mine)) return;
     try {
       var v = mine ? 1 : 0.75;
       // brass: stacked saw + square + triangle, slightly detuned

@@ -217,7 +217,8 @@
     try { if (typeof window.buzz === 'function') { window.buzz(p); return; } } catch (e) {}
     try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {}
   }
-  function snd(fn) { if (!soundOn()) return; try { fn(); } catch (e) {} }
+  // The framing moment is a big moment: only the table's speaker phone plays it (see moments.js)
+  function snd(fn) { if (!soundOn() || !(!window.ccBigSound || window.ccBigSound())) return; try { fn(); } catch (e) {} }
 
   var S = {
     hush: function () {                       // the room goes quiet: a shush, then room tone
@@ -524,6 +525,7 @@
 
         later(IMPACT, function () {
           snd(function () { S.impact(mine); });
+          try { if (window.ccFlash) window.ccFlash(0.6); if (window.ccBeat) window.ccBeat('frame:impact'); } catch (e) {}   // lands on a silent phone too
           vib(mine ? [150, 50, 90, 50, 220] : [90, 40, 70]);
           anim(stage, [
             { transform: 'translate(0,0)' }, { transform: 'translate(-7px,6px)' }, { transform: 'translate(6px,-4px)' },
