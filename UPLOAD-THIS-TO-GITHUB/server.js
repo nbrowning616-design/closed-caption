@@ -28,7 +28,7 @@ const wss = new WebSocketServer({ server, maxPayload: 16 * 1024 });
 // Build id: phones compare it and refresh themselves after an update
 const INDEX_PATH = path.join(__dirname, 'public', 'index.html');
 const INDEX_HTML = fs.readFileSync(INDEX_PATH, 'utf8');
-const BUILD = crypto.createHash('sha1').update(INDEX_HTML + ['game.js', 'public/fx.js', 'public/hof.js', 'public/music.js'].map(f => fs.readFileSync(path.join(__dirname, f), 'utf8')).join('')).digest('hex').slice(0, 10);
+const BUILD = crypto.createHash('sha1').update(INDEX_HTML + ['game.js', 'public/fx.js', 'public/hof.js', 'public/music.js', 'public/badges.js', 'public/qrcode.js'].map(f => fs.readFileSync(path.join(__dirname, f), 'utf8')).join('')).digest('hex').slice(0, 10);
 // __V__ busts the phone's cache for the helper scripts after an update
 const PAGE = INDEX_HTML.replace('__BUILD__', BUILD).split('__V__').join(BUILD);
 app.get('/', (req, res) => { res.set('Cache-Control', 'no-store'); res.type('html').send(PAGE); });
@@ -110,7 +110,9 @@ wss.on('connection', (ws) => {
     broadcast(code);
   };
 
-  ws.on('message', (raw) => {
+  // One bad message must never take the whole server down
+  ws.on('message', (raw) => { try { onMessage(raw); } catch (e) { console.error('message failed', e); try { sendError(ws, 'Something went wrong'); } catch (e2) {} } });
+  const onMessage = (raw) => {
     let msg;
     try { msg = JSON.parse(raw); } catch { return; }
     if (!msg || typeof msg.action !== 'string') return;
@@ -198,6 +200,26 @@ wss.on('connection', (ws) => {
         broadcast(code);
         return;
       }
+      case 'react': {
+        // Anyone, on any caption (their own too); counts only until the answer
+        if (fail(G.react(game, playerId, msg.target, msg.kind))) return;
+        broadcast(code);
+        return;
+      }
+      case 'reel_next': case 'reel_prev': case 'reel_skip': {
+        // The dealer paces the answer, one caption at a time
+        if (!canRun) return sendError(ws, 'The dealer runs the reveal');
+        if (fail(G.reelStep(game, msg.action.slice(5)))) return;
+        broadcast(code);
+        return;
+      }
+      case 'career': {
+        // Each phone keeps its own career; we just pass the rank around the table
+        const rank = msg.rank === undefined ? null : msg.rank;
+        if (fail(G.setCareer(game, playerId, rank, msg.rockets, msg.total))) return;
+        broadcast(code);
+        return;
+      }
       case 'update_timer': {
         if (!isHost) return sendError(ws, 'Only the host can change the timer');
         if (game.phase !== PHASES.LOBBY) return sendError(ws, 'Timer can only be changed in the lobby');
@@ -273,7 +295,8 @@ wss.on('connection', (ws) => {
           case PHASES.ANSWER:
             // The table lingers on the answer: only the dealer (or host, or a stand-in) moves on
             if (!canRun) return sendError(ws, 'The dealer moves to the scoreboard');
-            G.moveToScoreboard(game); break;
+            if (fail(G.moveToScoreboard(game))) return;   // not until the reel reaches the recap
+            break;
           case PHASES.SCORES: {
             const nd = game.players[G.nextDealerIndex(game, game.dealerIndex)];
             if (!canRun && !(nd && nd.id === playerId)) return sendError(ws, 'Waiting for the next dealer');
@@ -306,7 +329,7 @@ wss.on('connection', (ws) => {
         return;
       }
     }
-  });
+  };
 
   ws.on('close', () => {
     if (!playerId || !clients[playerId] || clients[playerId].ws !== ws) return;
@@ -323,7 +346,7 @@ wss.on('connection', (ws) => {
 // Housekeeping every 3 seconds
 setInterval(() => {
   const now = Date.now();
-  for (const code of Object.keys(games)) {
+  for (const code of Object.keys(games)) try {
     const g = games[code];
     // Empty for 30 minutes: close the room
     if (g.players.every(p => !p.connected)) {
@@ -348,7 +371,7 @@ setInterval(() => {
     }
     // Keep "dealer is away" countdowns fresh
     if (changed || g.players.some(p => !p.connected && p.disconnectedAt && now - p.disconnectedAt < 120000)) broadcast(code);
-  }
+  } catch (e) { console.error('housekeeping failed', code, e); }   // one bad room never stops the rest
 }, 3000);
 
 // Drop dead connections so "offline" shows up quickly

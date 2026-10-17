@@ -20,6 +20,9 @@ A web-based multiplayer party game. One person creates a game, shares a 4-letter
 - The real caption is revealed and points are paid. Full rules are on the app's "How to play" screen
 - The host lines up the seats in the lobby and picks which way the deal passes (left or right)
 - Stealing a chip that was on the real caption scores the dealer +1; the real caption is face-down in about 15% of rounds, never two in a row
+- Reactions (😂 👍 🔥 🤨 💀 🙄) while captions are read and bet on; the answer is a dealer-paced reveal, one caption at a time, with badges for great moments
+- Each phone keeps a trophy case across game nights; 10 Moon Landings = Captain
+- Invite friends with the lobby QR code or the invite link (it fills in the room code)
 - Everyone gets one Hall of Fame flag per game. Two flags on a caption inducts it, with a shareable magazine-style card. End-of-game awards play before the final scores
 - Every caption, including the real ones, is tidied the same way (capitals, punctuation, apostrophes, quotes) so style never gives anything away. Likely typos get a "Did you mean…?" before locking in
 
@@ -49,4 +52,6 @@ Both have free tiers that work fine for game nights.
 - `public/index.html` — The entire frontend (mobile-first)
 - `public/fx.js` — The mulligan "executions"
 - `public/hof.js` — Draws the Hall of Fame share card
+- `public/badges.js` — Badge artwork, badge pops, rank-ups, trophy case
+- `public/qrcode.js` — QR code maker (MIT, Kazuhiko Arase)
 - `public/images/` — Cartoon card images

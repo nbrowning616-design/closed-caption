@@ -166,6 +166,12 @@ function createGame(hostId, hostName, timerDuration = 90, seenIds = []) {
     timerEnd: null,
     timerToken: 0,
     history: [],
+    reactions: {},        // { [targetKey]: { [playerId]: kind } } — this round only
+    reel: null,           // the answer screen's reveal reel: { order: [targetKey...], step }
+    roundBadges: [],      // { kind, playerIds, target, detail } — this round
+    gameBadges: [],       // every round's badges this game, each with its round
+    crowns: {},           // Grand Poobah crowns this game: { playerId: n }
+    promotion: null,      // the latest rank-up: { playerId, name, rank, n, at }
   };
 }
 
@@ -318,6 +324,9 @@ function startRound(game, options = {}) {
   game.roundScores = {};
   game.roundScoreDetails = {};
   game.dealerBonusAwarded = false;
+  game.reactions = {};
+  game.reel = null;
+  game.roundBadges = [];
   game.phase = PHASES.WRITING;
 }
 
@@ -427,6 +436,7 @@ function currentBetterId(game) { const p = pendingBetters(game); return p.length
 
 function validateTarget(game, target) {
   if (target === 'closed') return { ok: true, target: 'closed' };
+  if ((typeof target !== 'number' && typeof target !== 'string') || target === '') return { error: 'Invalid caption' };   // Number({}) can throw; Number(null) is 0
   const idx = Number(target);
   if (!Number.isInteger(idx) || idx < 0 || idx >= game.openCaptions.length) return { error: 'Invalid caption' };
   return { ok: true, target: idx };
@@ -564,6 +574,10 @@ function revealAnswer(game) {
     if (p) p.score += pts;
   }
 
+  game.reel = { order: reelOrder(game), step: 1 };
+  // Badges never break the answer: if anything goes wrong, the round just has none
+  try { awardBadges(game); } catch (e) { console.error('badges', e); game.roundBadges = []; }
+
   game.history.push({
     round: game.round,
     cartoon: { ...game.cartoon },
@@ -580,11 +594,15 @@ function revealAnswer(game) {
     roundScores: { ...scores },
     roundScoreDetails: JSON.parse(JSON.stringify(details)),
     dealerBonusAwarded: game.dealerBonusAwarded,
+    reactions: JSON.parse(JSON.stringify(game.reactions || {})),
+    reelOrder: [...game.reel.order],
+    badges: JSON.parse(JSON.stringify(game.roundBadges)),
   });
 }
 
 function moveToScoreboard(game) {
   if (game.phase !== PHASES.ANSWER) return { error: 'Not on the answer' };
+  if (game.reel && game.reel.step < game.reel.order.length + 1) return { error: 'Finish the reveal first' };
   game.phase = PHASES.SCORES;
   game.scoresAt = Date.now();   // phones time the Grand Poobah ceremony from this, so it plays together
   return { ok: true };
@@ -637,6 +655,170 @@ function hallOfFame(game) {
   return out.sort((a, b) => a.round - b.round);
 }
 
+/* ── Emoji reactions: one per person per caption, counts only until the answer ── */
+const REACTION_KINDS = ['laugh', 'up', 'fire', 'huh', 'dead', 'roll'];
+const REACT_FACE_UP = [PHASES.READING, PHASES.FIRST_BETS];            // the Closed Caption is still face-down
+const REACT_ALL = [PHASES.REVEAL, PHASES.SECOND_BETS];                 // open captions and the Closed Caption
+function react(game, playerId, target, kind) {
+  const early = REACT_FACE_UP.includes(game.phase);
+  if (!early && !REACT_ALL.includes(game.phase)) return { error: 'Reactions close once the bets are in' };
+  if (!game.players.some(p => p.id === playerId)) return { error: 'Player not in game' };
+  if (!REACTION_KINDS.includes(kind)) return { error: 'Invalid reaction' };
+  const v = validateTarget(game, target);
+  if (v.error) return v;
+  if (early && v.target === 'closed') return { error: 'The Closed Caption is still face-down' };
+  const key = String(v.target);
+  const map = game.reactions[key] || (game.reactions[key] = {});
+  if (map[playerId] === kind) delete map[playerId];   // same one again takes it back
+  else map[playerId] = kind;                          // a different one replaces it
+  return { ok: true };
+}
+// { [targetKey]: { [kind]: n } } — never who, or it would give away who wrote what
+function reactionCounts(game) {
+  const out = {};
+  for (const [key, map] of Object.entries(game.reactions || {})) {
+    const c = {};
+    for (const kind of Object.values(map)) c[kind] = (c[kind] || 0) + 1;
+    if (Object.keys(c).length) out[key] = c;
+  }
+  return out;
+}
+function myReactions(game, playerId) {
+  const out = {};
+  for (const [key, map] of Object.entries(game.reactions || {})) if (map[playerId]) out[key] = map[playerId];
+  return out;
+}
+
+/* ── Who wrote what, and who believed it (shared by the reel and the badges) ── */
+const keyOf = (t) => String(t);
+const chipsOf = (b) => (b && b.target !== 'pass' ? (b.count || 0) + (b.stolen || 0) : 0);   // stolen chips still count as belief
+const writerOfKey = (game, key) => (key === 'closed' ? game.closedPlayerId : (game.openCaptions[Number(key)] || {}).playerId) || null;
+const realKey = (game) => (game.closedIsCorrect ? 'closed' : keyOf(game.openCaptions.findIndex(c => c.isCorrect)));
+const captionOfKey = (game, key) => (key === 'closed' ? game.closedCaption : (game.openCaptions[Number(key)] || {}).caption) || '';
+// Every caption a player wrote this round (the Closed Caption included when it's theirs)
+function playerKeys(game) {
+  const keys = game.openCaptions.map((c, i) => (c.playerId ? keyOf(i) : null)).filter(k => k !== null);
+  if (game.closedPlayerId) keys.push('closed');
+  return keys;
+}
+// Chips other players put on a caption (the writer's own don't count)
+function votesOn(game, key) {
+  const w = writerOfKey(game, key);
+  return game.bets.reduce((n, b) => n + (keyOf(b.target) === key && b.playerId !== w ? chipsOf(b) : 0), 0);
+}
+// Fakes from fewest votes to most (ties in random order), the real caption last
+function reelOrder(game) {
+  const fakes = shuffleArray(playerKeys(game)).map(k => ({ k, v: votesOn(game, k) })).sort((a, b) => a.v - b.v).map(x => x.k);
+  const real = realKey(game);
+  return real === '-1' ? fakes : [...fakes, real];
+}
+// The dealer steps through the reel one caption at a time; the last step is the round recap
+function reelStep(game, how) {
+  if (game.phase !== PHASES.ANSWER || !game.reel) return { error: 'Not on the answer' };
+  const last = game.reel.order.length + 1;
+  if (how === 'next') { if (game.reel.step >= last) return { error: 'Already at the recap' }; game.reel.step++; }
+  else if (how === 'prev') { if (game.reel.step <= 1) return { error: 'Already at the first caption' }; game.reel.step--; }
+  else if (how === 'skip') game.reel.step = last;
+  else return { error: 'Invalid step' };
+  return { ok: true, step: game.reel.step };
+}
+
+/* ── Badges: worked out once the answer is in, never shown before ── */
+const normCaption = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+const wordsOf = (t) => String(t || '').split(/\s+/).filter(Boolean);
+function nearlySame(a, b) {
+  const x = normCaption(a), y = normCaption(b);
+  if (!x || !y) return false;
+  if (x === y) return true;
+  const wx = new Set(x.split(' ')), wy = new Set(y.split(' '));
+  if (x.split(' ').length < 3 || y.split(' ').length < 3) return false;
+  const both = [...wx].filter(w => wy.has(w)).length;
+  return both / new Set([...wx, ...wy]).size >= 0.6;
+}
+function awardBadges(game) {
+  const here = new Set(game.players.map(p => p.id));
+  const out = [];
+  const give = (kind, ids, target, detail = {}) => {
+    const playerIds = [...new Set(ids)].filter(id => here.has(id));
+    if (playerIds.length) out.push({ kind, playerIds, target: target === null ? null : keyOf(target), detail });
+  };
+  const real = realKey(game);
+  const fakes = playerKeys(game);
+  const order = (game.reel && game.reel.order) || [];
+  const bothBlind = (b) => b.stage === 1 && chipsOf(b) === 2;
+  const betsOn = (key) => game.bets.filter(b => keyOf(b.target) === key && chipsOf(b) > 0);
+  const othersOn = (key, test = () => true) => [...new Set(betsOn(key).filter(b => b.playerId !== writerOfKey(game, key) && test(b)).map(b => b.playerId))];
+
+  // Moon: both chips blind on the real caption (Shoot the Moon if it was face-down)
+  for (const b of game.bets) if (bothBlind(b) && keyOf(b.target) === real) give('moon', [b.playerId], real, { shot: real === 'closed' ? 'moon' : 'half' });
+
+  for (const key of fakes) {
+    const w = writerOfKey(game, key), votes = votesOn(game, key);
+    const bagged = othersOn(key, bothBlind);
+    if (bagged.length >= 3) give('three_bagger', [w], key, { by: bagged });
+    const backers = othersOn(key);
+    const field = game.betOrder.filter(id => id !== w);
+    if (field.length >= 2 && field.every(id => backers.includes(id))) give('clean_sweep', [w], key, { votes });
+    const onReal = betsOn(real).reduce((n, b) => n + chipsOf(b), 0);
+    if (votes >= 2 && votes > onReal) give('better_than_real', [w], key, { votes, real: onReal });
+    if (key === 'closed' && bagged.length) give('ice_cold', [w], key, { by: bagged });
+    if (wordsOf(captionOfKey(game, key)).length <= 5 && backers.length >= 2) give('less_is_more', [w], key, { votes });
+  }
+
+  // Great minds: two players wrote nearly the same caption; it pops on whichever is revealed second
+  for (let i = 0; i < fakes.length; i++) for (let j = i + 1; j < fakes.length; j++) {
+    const a = fakes[i], b = fakes[j];
+    if (!nearlySame(captionOfKey(game, a), captionOfKey(game, b))) continue;
+    const later = order.indexOf(a) > order.indexOf(b) ? a : b;
+    give('great_minds', [writerOfKey(game, a), writerOfKey(game, b)], later, { targets: [a, b] });
+  }
+
+  // Pickpocket: the dealer stole a chip off the real caption
+  const dealer = dealerOf(game);
+  if (dealer && game.steal && game.steal.victimId && game.steal.onCorrect) give('pickpocket', [dealer.id], game.steal.target, {});
+
+  // Crowd favorite: most laughs on a player's caption (at least 2; ties share)
+  const laughs = fakes.map(k => ({ k, n: Object.values(game.reactions[k] || {}).filter(x => x === 'laugh').length }));
+  const topLaughs = Math.max(0, ...laughs.map(x => x.n));
+  if (topLaughs >= 2) for (const x of laughs) if (x.n === topLaughs) give('crowd_favorite', [writerOfKey(game, x.k)], x.k, { laughs: x.n });
+
+  // Grand Poobah: most votes on their caption(s) this round (at least 1; ties share one badge)
+  const byWriter = {};
+  for (const k of fakes) { const w = writerOfKey(game, k); if (w) byWriter[w] = (byWriter[w] || 0) + votesOn(game, k); }
+  const topVotes = Math.max(0, ...Object.values(byWriter));
+  if (topVotes >= 1) {
+    const kings = Object.keys(byWriter).filter(w => byWriter[w] === topVotes && here.has(w));
+    give('poobah', kings, null, { votes: topVotes });
+    game.crowns = game.crowns || {};
+    for (const w of kings) {
+      game.crowns[w] = (game.crowns[w] || 0) + 1;
+      if (game.crowns[w] === 3) give('hat_trick', [w], null, { crowns: 3 });
+    }
+  }
+
+  game.roundBadges = out;
+  game.gameBadges = (game.gameBadges || []).concat(out.map(b => ({ ...b, round: game.round })));
+}
+
+/* ── Ranks: each phone keeps its own career; the server only passes it around ── */
+const careerInt = (n) => Number.isInteger(n) && n >= 0 && n <= 100000;
+function setCareer(game, playerId, rank, rockets, total) {
+  const p = game.players.find(x => x.id === playerId);
+  if (!p) return { error: 'Player not in game' };
+  if (rank !== null && (typeof rank !== 'string' || rank.length > 20)) return { error: 'Invalid rank' };
+  if (!careerInt(rockets) || !careerInt(total)) return { error: 'Invalid career' };
+  const before = p.rank === undefined ? null : p.rank;
+  p.rank = rank; p.rockets = rockets; p.badgeTotal = total;
+  // A new rank (not the first one we hear about) is a promotion the whole table sees
+  const RANKS = ['Cadet', 'Captain', 'Commodore', 'Admiral'];
+  // Only a real step UP is announced (a borrowed phone or a reset never shows as a 'promotion')
+  if (before !== null && rank !== null && RANKS.indexOf(rank) > RANKS.indexOf(before) && RANKS.indexOf(before) >= 0) {
+    game.promotion = { playerId, name: p.name, rank, n: (game.promotion ? game.promotion.n : 0) + 1, at: Date.now() };
+    return { ok: true, promoted: true };
+  }
+  return { ok: true };
+}
+
 function resetForNewGame(game) {
   game.phase = PHASES.LOBBY;
   game.flags = [];
@@ -657,6 +839,11 @@ function resetForNewGame(game) {
   game.roundScoreDetails = {};
   game.timerEnd = null;
   game.timerToken = (game.timerToken || 0) + 1;
+  game.reactions = {};
+  game.reel = null;
+  game.roundBadges = [];
+  game.gameBadges = [];
+  game.crowns = {};
 }
 
 const AFTER_WRITING = [PHASES.READING, PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.SCORES];
@@ -676,7 +863,7 @@ function getPlayerView(game, playerId) {
   const base = {
     code: game.code,
     phase: game.phase,
-    players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: p.connected })),
+    players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: p.connected, rank: p.rank === undefined ? null : p.rank, rockets: p.rockets || 0 })),
     round: game.round,
     totalRounds: s.targetScore ? null : totalRounds(game),
     settings: { ...s },
@@ -694,6 +881,7 @@ function getPlayerView(game, playerId) {
     timerDuration: game.timerDuration,
     timerEnd: game.timerEnd,
     serverNow: Date.now(),
+    promotion: game.promotion || null,
   };
   if (game.phase === PHASES.LOBBY) return base;
 
@@ -730,6 +918,17 @@ function getPlayerView(game, playerId) {
     base.steal = game.steal ? { ...game.steal } : null;
   }
 
+  // Before the answer: how many of each reaction, never who; after: the full picture
+  if (REACT_FACE_UP.includes(game.phase) || REACT_ALL.includes(game.phase) || game.phase === PHASES.STEAL) {
+    base.reactionCounts = reactionCounts(game);
+    base.myReactions = myReactions(game, playerId);
+  }
+  if (ANSWERED.includes(game.phase)) {
+    base.reactions = JSON.parse(JSON.stringify(game.reactions || {}));
+    base.reel = game.reel ? { order: [...game.reel.order], step: game.reel.step } : null;
+    base.roundBadges = (game.roundBadges || []).map(b => ({ ...b }));
+  }
+
   if (REVEALED.includes(game.phase)) {
     base.closedCaption = game.closedCaption;
     base.iWroteClosed = game.closedPlayerId === playerId;
@@ -756,6 +955,7 @@ function getPlayerView(game, playerId) {
     base.previousRank = game.previousRank || {};
     base.history = game.history || [];
     base.scoresAt = game.scoresAt || null;
+    base.gameBadges = (game.gameBadges || []).map(b => ({ ...b }));
     if (!base.gameOver) {
       const nd = game.players[nextDealerIndex(game, game.dealerIndex)];
       base.nextDealerName = nd ? nd.name : '';
@@ -772,5 +972,6 @@ module.exports = {
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,
   stealChip, revealAnswer, moveToScoreboard, isGameOver, resetForNewGame,
+  REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer,
   currentBetterId, pendingBetters, nextDealerIndex, getPlayerView, generateRoomCode,
 };

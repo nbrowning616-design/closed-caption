@@ -17,6 +17,8 @@
 <script src="/music.js?v=__V__"></script>
 <script src="/fx.js?v=__V__"></script>
 <script src="/hof.js?v=__V__"></script>
+<script src="/badges.js?v=__V__"></script>
+<script src="/qrcode.js?v=__V__"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════
    CLOSED CAPTION — design tokens
@@ -418,6 +420,57 @@ body.quake { animation: quake .12s linear 10; }
 .gp-stats { font-size: 14px; font-weight: 900; color: #E9E2FF; margin-top: 10px; animation: fadeIn .5s ease-out 1.6s both; }
 .gp-slogan { font-family: Georgia, serif; font-style: italic; font-size: 21px; line-height: 1.35; max-width: 340px; margin-top: 14px; color: #FFF4C7; animation: fadeIn .8s ease-out 2.2s both; }
 
+/* ── Reactions ── */
+.rx-row { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
+.rx { display: inline-flex; align-items: center; gap: 3px; min-width: 40px; height: 32px; padding: 0 7px; border-radius: 999px; border: 2px solid #D9CDB6; background: #fff; font-size: 16px; cursor: pointer; font-family: inherit; color: var(--ink); justify-content: center; transition: transform .1s, border-color .15s, background .15s; }
+.rx b { font-size: 12px; font-weight: 900; }
+.rx.has { border-color: var(--ink); }
+.rx.on { background: var(--yellow); border-color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+.rx:active:not(:disabled) { transform: scale(.9); }
+.rx:disabled { cursor: default; opacity: .9; }
+.rx-float { position: fixed; z-index: 640; font-size: 28px; pointer-events: none; animation: rxUp 1.5s cubic-bezier(.2,.8,.2,1) forwards; }
+@keyframes rxUp { 0% { transform: translateY(0) scale(.6); opacity: 0; } 15% { opacity: 1; transform: translateY(-14px) scale(1.15); } 100% { transform: translateY(-110px) scale(1); opacity: 0; } }
+.rx-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.rx-who { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 800; padding: 3px 10px 3px 4px; border-radius: 999px; background: var(--paper-2); border: 2px solid var(--line); }
+.rx-who .e { font-size: 17px; }
+.own-rx { font-size: 13px; font-weight: 900; color: var(--violet); margin-top: 6px; }
+
+/* ── The reveal reel ── */
+.reel-dots { display: flex; gap: 6px; justify-content: center; margin: 2px 0 16px; }
+.reel-dots i { width: 22px; height: 7px; border-radius: 4px; border: 2px solid var(--ink); background: #fff; }
+.reel-dots i.done { background: var(--ink); } .reel-dots i.on { background: var(--yellow); width: 34px; }
+.reel-dots i.last { border-color: var(--teal); }
+.spot { position: relative; background: #fff; border: 3px solid var(--ink); border-radius: 20px; padding: 22px 18px 18px; box-shadow: var(--shadow-lg); animation: dealIn .5s var(--ease-out) both; }
+.spot .num { position: absolute; top: -13px; left: 14px; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 14px; background: var(--ink); color: var(--paper); font-family: var(--display); font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.spot-text { font-family: var(--display); font-weight: 600; font-size: 25px; line-height: 1.2; margin-top: 6px; }
+.spot-reveal { transition: opacity .4s, transform .5s var(--spring); }
+.spot.pending .spot-reveal { opacity: 0; transform: translateY(10px); }
+.spot.is-real.pending { background: var(--yellow-bg); }
+.spot.correct { background: var(--teal-bg); border-color: var(--teal); box-shadow: 0 0 0 5px var(--teal), var(--shadow-lg); }
+.writer-stamp { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 10px 12px; border: 2px dashed var(--ink); border-radius: 14px; background: var(--paper); }
+.spot:not(.pending) .writer-stamp { animation: stampIn .5s var(--spring) both; }
+.writer-stamp .wname { font-family: var(--display); font-weight: 700; font-size: 26px; line-height: 1; }
+.real-stamp { margin-top: 16px; font-size: 22px; }
+.fell { margin-top: 14px; }
+.fell-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.fell-p { display: inline-flex; align-items: center; gap: 6px; font-weight: 900; font-size: 15px; padding: 4px 12px 4px 4px; border-radius: 999px; border: 2px solid var(--ink); background: #fff; box-shadow: 2px 2px 0 var(--ink); }
+.fell-p i { font-style: normal; color: var(--violet); }
+.nobody { margin-top: 14px; font-weight: 800; color: var(--muted); font-size: 15px; }
+.badge-strip { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.badge-chip { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; padding: 4px 10px 4px 4px; border-radius: 999px; background: var(--yellow-bg); border: 2px solid var(--ink); }
+.bdg-mini { display: inline-flex; flex-wrap: wrap; gap: 3px; }
+.rank-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .6px; color: #1E2A5A; }
+
+/* ── Nudges, invite, code pill ── */
+.nudge { display: none; align-items: center; gap: 8px; margin: -2px 0 12px; padding: 10px 12px; border: 2px solid var(--ink); border-radius: 12px; background: var(--yellow-bg); font-size: 14px; font-weight: 800; line-height: 1.35; }
+.nudge.on { display: flex; animation: fadeIn .3s var(--ease-out); }
+.nudge-ic { font-size: 20px; }
+.hdr-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.code-pill { font-family: var(--display); font-weight: 700; font-size: 14px; letter-spacing: 2px; padding: 3px 9px; border-radius: 8px; border: 2px solid var(--ink); background: #fff; cursor: pointer; color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+.qr-wrap { display: inline-block; background: #fff; padding: 8px; border: 3px solid var(--ink); border-radius: 14px; box-shadow: var(--shadow-sm); line-height: 0; }
+.qr-wrap svg { display: block; }
+.aw-img { width: 120px; height: 120px; object-fit: cover; border: 3px solid var(--ink); border-radius: 12px; margin: 6px auto 0; display: block; background: #fff; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
@@ -468,6 +521,14 @@ body.quake { animation: quake .12s linear 10; }
     <div class="panel flat red rule-step"><div class="n">5</div><div><b>The steal.</b> <span class="sub">The dealer may knock any one chip off the table. Choose wisely. Expect yelling. <span id="rules-steal-pts"></span></span></div></div>
     <div class="panel flat teal rule-step"><div class="n">6</div><div><b>The answer.</b> <span class="sub">The real caption lights up, points are paid, and the deal moves <span class="dir-word">left</span>.</span></div></div>
   </div>
+
+  <p class="eyebrow" style="margin-bottom:10px;">Reactions, the reveal and badges</p>
+  <div class="panel flat" style="margin-bottom:22px;"><ul style="padding-left:18px; line-height:1.6; font-size:14px; color:var(--ink-2);">
+    <li><b>React</b> to captions while they're read and bet on: 😂 👍 🔥 🤨 💀 🙄 — one per caption, even your own. Everyone sees the counts; who reacted stays secret until the reveal.</li>
+    <li><b>The reveal</b> goes one caption at a time, at the dealer's pace: who wrote it, who fell for it, who laughed. Take your time. That's the good part.</li>
+    <li><b>Badges</b> pop for great moments: Moon Landing 🚀, Three Bagger, Clean Sweep, Ice Cold, Less Is More, Great Minds and more. Your phone keeps them in your trophy case (menu ☰).</li>
+    <li><b>Ranks:</b> land 10 rockets (Moon Landings) to make <b>Captain</b>, 25 for Commodore, 50 for Admiral. Your rank shows at every table you join.</li>
+  </ul></div>
 
   <p class="eyebrow" style="margin-bottom:10px;">The Grand Poobah</p>
   <div class="panel flat violet" style="margin-bottom:22px;"><p class="sub">Points tell you who <i>bet</i> best. The Grand Poobah is who <i>wrote</i> best: each round, the player whose fake caption drew the most chips from the table gets the hat. At the end of the game, whoever drew the most chips all night is crowned <b>The Grand Poobah</b> — with all the ceremony that deserves. The winner keeps the points. The Poobah keeps the hat.</p></div>
@@ -808,14 +869,14 @@ function connect() {
     if (!wasKicked) {
       const s = readStore(sessionStorage);
       if (myPlayerId && gameCode) send({ action: 'reconnect', playerId: myPlayerId, code: gameCode });
-      else if (s) send({ action: 'reconnect', playerId: s.playerId, code: s.code });
+      else if (s && !window._linkCode) send({ action: 'reconnect', playerId: s.playerId, code: s.code });
       else offerRejoin();
     }
     reconnectAttempts = 0;
   };
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
-    if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; saveSession(); showScreen('screen-game'); keepAwake(); }
+    if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; setTimeout(() => sendCareer(true), 300); }
     else if (msg.type === 'state') {
       state = msg.data;
       if (state.serverNow) clockOffset = state.serverNow - Date.now();
@@ -832,7 +893,7 @@ function connect() {
       }
       const ce = $('create-error'), je = $('join-error');
       if ($('screen-create').classList.contains('active')) { ce.textContent = msg.message; ce.style.display = 'block'; }
-      else if ($('screen-join').classList.contains('active')) { je.textContent = msg.message; je.style.display = 'block'; }
+      else if ($('screen-join').classList.contains('active')) { je.textContent = msg.message; je.style.display = 'block'; je.style.color = 'var(--red)'; }
       else if (msg.message !== 'Already submitted') showToast(msg.message);
       submitting = false;
       sfx.error();
@@ -880,12 +941,14 @@ function selectTimer(val) { selectedTimer = val; document.querySelectorAll('#tim
 function createGame() {
   const name = $('create-name').value.trim();
   if (!name) { const e = $('create-error'); e.textContent = 'Enter your name first'; e.style.display = 'block'; sfx.error(); return; }
+  try { localStorage.setItem('cc_name', name); } catch (e) {}
   wasKicked = false; send({ action: 'create', name, timer: selectedTimer, seen: getSeen() });
 }
 function joinGame() {
   const code = $('join-code').value.trim().toUpperCase(), name = $('join-name').value.trim(), e = $('join-error');
   if (code.length !== 4) { e.textContent = 'The room code is 4 letters'; e.style.display = 'block'; sfx.error(); return; }
   if (!name) { e.textContent = 'Enter your name'; e.style.display = 'block'; sfx.error(); return; }
+  try { localStorage.setItem('cc_name', name); } catch (e) {}
   wasKicked = false; send({ action: 'join', code, name });
 }
 document.addEventListener('keydown', (e) => {
@@ -907,7 +970,8 @@ function openMenu() {
       <div class="h-display" style="font-size:40px; letter-spacing:6px; padding-left:6px;">${esc(state.code)}</div>
       <p class="small" style="color:var(--ink-2);">Latecomers can join with this any time</p>
     </div>
-    <button class="menu-row" onclick="shareRoom()"><span class="ic">📣</span>Invite someone<span class="r">${esc(joinAddress())}</span></button>
+    <button class="menu-row" onclick="openInvite()"><span class="ic">📣</span>Invite someone<span class="r">QR + link</span></button>
+    <button class="menu-row" onclick="openTrophyCase()"><span class="ic">🏆</span>My trophy case<span class="r">${esc(careerSummary().rank || '')}</span></button>
     <button class="menu-row" onclick="toggleSound()"><span class="ic">${soundEnabled() ? '🔊' : '🔇'}</span>Sound<span class="r">${soundEnabled() ? 'On' : 'Off'}</span></button>
     <details class="box" style="margin-bottom:8px;" ${cur ? 'open' : ''}><summary><span style="font-size:18px; width:26px; text-align:center;">🎵</span>Table music${cur ? ' · playing' : ''}<span class="arrow">▾</span></summary><div class="body stack">
       ${tracks.map(t => `<button class="btn btn-sm ${cur === t.key ? 'btn-yellow' : ''}" style="justify-content:flex-start;" onclick="toggleTrack('${t.key}')"><span style="font-size:18px;">${t.icon}</span><span style="flex:1; text-align:left;">${esc(t.name)}<br><span class="small">${esc(t.description)}</span></span><span>${cur === t.key ? '◼' : '▶'}</span></button>`).join('')}
@@ -923,7 +987,7 @@ function toggleTrack(key) { if (!window.GameMusic) return; if (window.GameMusic.
 function joinAddress() { const local = ['localhost', '127.0.0.1'].includes(location.hostname); return local && state && state.lanUrl ? state.lanUrl.replace(/^https?:\/\//, '') : location.host; }
 function shareRoom() {
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
-  const url = local && state && state.lanUrl ? state.lanUrl : location.origin, text = `Join my Closed Caption game! Room code: ${state.code}`;
+  const url = joinUrl(), text = `Join my Closed Caption game! Room code: ${state.code}`;
   if (navigator.share) navigator.share({ title: 'Closed Caption', text, url }).catch(() => {});
   else if (navigator.clipboard) navigator.clipboard.writeText(`${text} — ${url}`).then(() => showToast('Copied — paste it to your friends', 'ok')).catch(() => showToast(`Code: ${state.code}`, 'ok'));
   else showToast(`Code: ${state.code}`, 'ok');
@@ -940,6 +1004,7 @@ const canRun = () => !!state && (state.isDealer || state.isHost || state.canTake
 function screenKey() {
   const s = state;
   if (s.phase === 'writing') return ['writing', s.round, s.cartoon && s.cartoon.id, s.hasSubmitted ? 1 : 0].join('|');
+  if (s.phase === 'answer') return ['answer', s.round, s.reel ? s.reel.step : 0, canRun() ? 1 : 0].join('|');
   return s.phase + '|' + s.round;
 }
 
@@ -950,6 +1015,7 @@ function render(force = false) {
   const el = $('game-content');
   const phaseChanged = lastPhase !== state.phase || lastRound !== state.round;
   const key = screenKey();
+  if ((phaseChanged || (state.phase === 'answer' && key !== lastKey)) && window.Badges && window.Badges.clearQueue) window.Badges.clearQueue();   // leftover badge pops never spill onto the next screen
 
   // The table voted a cartoon off: blow everyone's screen up
   const me = state.mulliganEvent;
@@ -964,13 +1030,15 @@ function render(force = false) {
     if (lastPhase && !['reveal', 'answer', 'scores'].includes(state.phase)) sfx.advance();
     if (state.phase !== 'writing') { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
     setActionBar('');
-  } else if (state.phase === 'answer' && !force) {
-    recordSeen(); checkFlagEvents(); answerLive(); return;   // the show keeps playing; only flags and buttons update
+  } else if (state.phase === 'answer' && !force && key === lastKey) {
+    recordSeen(); checkFlagEvents(); recordCareer(); checkPromotion(); answerLive(); return;   // same step: only flags and buttons update
   } else if (state.phase === 'reveal' && !force) {
     return; // choreographed screen — don't interrupt
   }
   recordSeen();
   checkFlagEvents();
+  recordCareer();
+  checkPromotion();
 
   // Everyone hears captions land while writing
   if (state.phase === 'writing') {
@@ -1031,7 +1099,13 @@ function afterRender(phaseChanged) {
   if (state.phase === 'steal' && phaseChanged) { if (state.isDealer) { sfx.evil(); buzz([50, 50, 50]); } else sfx.drumroll(800); }
   if (state.phase === 'steal' && state.isDealer) renderStealBar();
   if (state.phase === 'reveal' && !phaseSeqPlayed) { phaseSeqPlayed = true; playRevealSequence(); }
-  if (state.phase === 'answer' && !phaseSeqPlayed) { phaseSeqPlayed = true; playAnswerSequence(); }
+  if (state.phase === 'answer') {
+    const { step, n } = reelInfo();
+    phaseSeqPlayed = true;
+    if (step <= n) playReelStep(phaseChanged);
+    else if (!phaseChanged) onReelRecap();
+  }
+  if (RX_OPEN.includes(state.phase)) rxBursts();
   if (state.phase === 'scores' && phaseChanged) playScoresSequence();
   if (state.phase === 'reading' && phaseChanged) { (state.openCaptions || []).forEach((_, i) => setTimeout(() => sfx.deal(i), 120 + i * 140)); buzz(30); }
   if (state.phase === 'writing' && phaseChanged) buzz(30);
@@ -1047,7 +1121,7 @@ function setActionBar(html) {
 function roundLabel() { return `Round ${state.round}${state.totalRounds ? ' of ' + state.totalRounds : ''}`; }
 function header({ sticker, sub = '', ring = false, thumb = true }) {
   const t = thumb && state.cartoon ? `<div class="thumb" onclick="openViewer()" role="button" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"></div>` : '';
-  return `<div class="hdr">${ring ? ringHtml() : t}<div class="mid">${sticker}<span class="small">${sub || roundLabel()}</span></div><button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>`;
+  return `<div class="hdr">${ring ? ringHtml() : t}<div class="mid"><div class="hdr-top">${sticker}<button class="code-pill" onclick="openInvite()" aria-label="Room code ${esc(state.code)} — show the invite">${esc(state.code)}</button></div><span class="small">${sub || roundLabel()}</span></div><button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>`;
 }
 function bigToon(compact = false) {
   return state.cartoon ? `<div class="toon-big ${compact ? 'compact' : ''}" onclick="openViewer()" role="button" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"><span class="zoom">🔍 Tap to zoom</span></div>` : '';
@@ -1075,7 +1149,7 @@ function renderLobby() {
     <div style="display:flex; align-items:center; gap:10px; padding:8px 0; ${!p.connected ? 'opacity:.5;' : ''}">
       <span class="seat-n" title="Seat ${i + 1}">${i + 1}</span>
       ${chipHtml(p.id, 'lg pop' + (!p.connected ? ' dim' : ''))}
-      <div style="flex:1; min-width:0;"><div style="font-weight:900; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(p.name)}${p.id === myPlayerId ? ' <span class="small">(you)</span>' : ''}</div>
+      <div style="flex:1; min-width:0;"><div style="font-weight:900; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(p.name)}${p.id === myPlayerId ? ' <span class="small">(you)</span>' : ''}</div>${rankTag(p)}
         ${p.id === state.hostId ? '<span class="small" style="color:var(--yellow-d);">★ Host </span>' : ''}${i === 0 ? '<span class="small">🎲 deals first</span>' : ''}${!p.connected ? '<span class="small" style="color:var(--red);"> offline</span>' : ''}</div>
       ${state.isHost && n > 1 ? `<button class="seat-mv" aria-label="Move ${esc(p.name)} up" ${i === 0 ? 'disabled' : ''} onclick="moveSeat('${p.id}',-1)">↑</button><button class="seat-mv" aria-label="Move ${esc(p.name)} down" ${i === n - 1 ? 'disabled' : ''} onclick="moveSeat('${p.id}',1)">↓</button>` : ''}
       ${state.isHost && p.id !== myPlayerId ? `<button class="btn btn-sm" style="width:auto; padding:7px 9px; font-size:12px;" onclick="confirmKick('${p.id}')" aria-label="Remove ${esc(p.name)}">✕</button>` : ''}
@@ -1112,8 +1186,9 @@ function renderLobby() {
     <div class="panel yellow center" style="margin-bottom:16px; transform: rotate(-1deg);">
       <p class="eyebrow" style="color:var(--ink-2);">Room code</p>
       <div class="h-display" style="font-size:56px; letter-spacing:8px; padding-left:8px; margin:2px 0 6px;">${esc(state.code)}</div>
-      <p class="small" style="color:var(--ink-2); margin-bottom:12px;">Everyone opens <b>${esc(joinAddress())}</b> and taps “Join with a code”</p>
-      <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">📣 Send the invite</button>
+      <div class="qr-wrap" style="margin:4px auto 8px;">${qrSvg(joinUrl(), 148)}</div>
+      <p class="small" style="color:var(--ink-2); margin-bottom:12px;">Friends point their camera here — or send them the link. It fills in the code for them.</p>
+      <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">📣 Send the invite link</button>
     </div>
     <p class="eyebrow" style="margin-bottom:6px;">At the table · ${connected} of ${state.players.length}</p>
     <div style="margin-bottom:10px;">${players}</div>${seatHelp}
@@ -1190,7 +1265,9 @@ function renderWriting() {
       <div class="lenmeter" id="len-meter" style="margin-top:8px;"><i id="len-fill"></i></div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin:2px 2px 12px; gap:8px;"><span class="small" id="len-note">The real ones are short and dry.</span><span class="small" id="cap-count" style="white-space:nowrap;">0 / 200</span></div>
       ${state.isDealer ? '<p class="small" style="margin:-6px 2px 12px;">You write too — but you don’t bet</p>' : ''}
+      <div id="nudge-box" class="nudge"></div>
       <button class="btn btn-yellow" id="submit-btn" onclick="submitCaption()">Lock it in ✓</button>
+      <button class="btn-link" style="display:block; margin:6px auto 0;" onclick="nextNudge()">💡 Need a nudge?</button>
     </div>
     <div style="margin-top:16px;">${mulliganHtml()}</div>
     <div style="margin-top:12px;">${writingStatusHtml()}</div>`;
@@ -1287,12 +1364,13 @@ function playMulligan(ev) {
 /* ── READING ── */
 function capNote(i) { return state.myOpenIndex === i ? ' <span class="tag mine">Yours</span>' : ''; }
 function renderReading(animate) {
-  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked ${animate ? 'deal-in' : ''}" style="animation-delay:${i * 0.14}s;"><span class="num">${i + 1}</span><p class="caption-text">“${esc(c)}”${capNote(i)}</p></div>`).join('');
+  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked ${animate ? 'deal-in' : ''}" style="animation-delay:${i * 0.14}s;"><span class="num">${i + 1}</span><p class="caption-text">“${esc(c)}”${capNote(i)}</p>${rxRowHtml(i)}</div>`).join('');
   const nOpen = (state.openCaptions || []).length;
   return `${header({ sticker: '<span class="sticker white">The captions</span>' })}
     <div class="center" style="margin-bottom:16px;">
       <h2 class="h2">${state.isDealer ? 'Read them aloud' : `${esc(state.dealerName)} reads them aloud`}</h2>
       <p class="sub">${plural(nOpen, 'caption')} out in the open, one face-down. One of them is real.</p>
+      <p class="small" style="margin-top:6px;">React as they're read — even to your own. Names stay secret until the reveal.</p>
     </div>
     <div class="stack" style="margin-bottom:14px;">${cards}</div>
     <div class="cap closed locked ${animate ? 'deal-in' : ''}" style="animation-delay:${nOpen * 0.14}s; text-align:center; padding:18px; margin-top:16px;">
@@ -1330,14 +1408,14 @@ function renderBetting(stage) {
   const cls = (t) => 'cap' + (t === 'closed' ? ' closed' : '') + (canPick ? '' : ' locked') + (selectedBetTarget !== null && String(selectedBetTarget) === String(t) ? ' picked' : '');
   const already = (t) => stage === 2 && first && String(first.target) === String(t) ? `<p class="note">Your blind chip is here${first.count === 1 ? ' — you can stack on it' : ''}</p>` : '';
   const cards = (state.openCaptions || []).map((c, i) => `
-    <button class="${cls(i)}" data-target="${i}" onclick="selectBet(${i})"><span class="num">${i + 1}</span>${trayHtml(i)}
-      <p class="caption-text">“${esc(c)}”${capNote(i)}</p>${already(i)}</button>`).join('');
+    <div role="button" tabindex="0" class="${cls(i)}" data-target="${i}" onclick="selectBet(${i})"><span class="num">${i + 1}</span>${trayHtml(i)}
+      <p class="caption-text">“${esc(c)}”${capNote(i)}</p>${already(i)}${rxRowHtml(i)}</div>`).join('');
   const closedCard = stage === 1
-    ? `<button class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')" style="text-align:center; padding:18px 16px;">${trayHtml('closed')}
+    ? `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')" style="text-align:center; padding:18px 16px;">${trayHtml('closed')}
         <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p>
-        <p class="small" style="color:var(--ink-2);">Bet blind that the real one is hiding here. Pays the most.</p></button>`
-    : `<button class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')"><span class="num"><span class="cc-badge" style="margin:0;">CC</span></span>${trayHtml('closed')}
-        <p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption · turned over</p><p class="caption-text">“${esc(state.closedCaption)}”${state.iWroteClosed ? ' <span class="tag mine">Yours</span>' : ''}</p>${already('closed')}</button>`;
+        <p class="small" style="color:var(--ink-2);">Bet blind that the real one is hiding here. Pays the most.</p></div>`
+    : `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')"><span class="num"><span class="cc-badge" style="margin:0;">CC</span></span>${trayHtml('closed')}
+        <p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption · turned over</p><p class="caption-text">“${esc(state.closedCaption)}”${state.iWroteClosed ? ' <span class="tag mine">Yours</span>' : ''}</p>${already('closed')}${rxRowHtml('closed')}</div>`;
 
   const orderRow = order.map(pid => {
     const b1 = bets.find(b => b.playerId === pid && b.stage === 1), b2 = bets.find(b => b.playerId === pid && b.stage === 2);
@@ -1673,7 +1751,14 @@ function playStealShow() {
 let answerSeqRound = null;
 const answerSeqDone = () => answerSeqRound === state.round + '|' + state.code;
 function renderAnswer() {
-  const done = answerSeqDone() || phaseSeqPlayed, f = roundFacts();   // a re-draw after the show shows everything
+  const { step, n } = reelInfo();
+  if (state.reel && step <= n) return spotlightHtml();
+  return renderRecap();
+}
+// The round recap: every caption with its writer, who fell for what, points, flags
+function renderRecap() {
+  const done = true, f = roundFacts();
+  answerSeqRound = state.round + '|' + state.code;
   const bluffIdx = new Set(f.bluffs.map(c => String(c.idx)));
   const cards = f.caps.map(c => `
     <div class="cap locked answer-card ${c.isClosed ? 'closed' : ''} ${done ? (c.isCorrect ? 'correct' : 'wrong') : ''} ${done && bluffIdx.has(String(c.idx)) ? 'bluff' : ''} ${(state.flags || []).filter(x => String(x.target) === String(c.idx)).length >= 2 ? 'hof' : ''}" data-correct="${c.isCorrect}" data-idx="${c.idx}">
@@ -1682,6 +1767,7 @@ function renderAnswer() {
       <p class="caption-text">“${esc(c.caption)}”</p>
       <p class="writer small seq">${c.playerName ? `— written by <b>${esc(c.playerName)}</b>` : '— <b>the real caption</b>'}</p>
       ${bluffIdx.has(String(c.idx)) ? '<p class="bluff-tag">✨ Biggest bluff</p>' : ''}
+      ${reactorsHtml(c.idx, c.playerId)}${badgeChipsHtml((state.roundBadges || []).filter(b => String(b.target) === String(c.idx) && !['poobah', 'hat_trick'].includes(b.kind)))}
       <div class="flag-slot seq" data-flagslot="${c.idx}">${flagSlotHtml(c)}</div>
     </div>`).join('');
   const details = state.roundScoreDetails || {};
@@ -1695,7 +1781,7 @@ function renderAnswer() {
   return `${header({ sticker: '<span class="sticker teal">The answer</span>' })}
     <div id="answer-root" class="${done ? 'done' : ''}">
     <div id="steal-slot">${stealNewsHtml()}</div>
-    <div class="center" style="margin-bottom:16px;"><h2 class="h2" id="answer-prompt">${done ? 'The real caption' : 'And the real caption is<span class="dots"></span>'}</h2></div>
+    <div class="center" style="margin-bottom:16px;"><h2 class="h2" id="answer-prompt">Round recap</h2>${canRun() ? `<button class="btn-link" style="font-size:13px;" onclick="send({action:'reel_prev'})">◀ Back to the reveal</button>` : ''}</div>
     <div class="stack" id="answer-cards">${cards}</div>
     <div id="answer-verdict" class="center seq" style="margin:20px 0 12px;"><span class="sticker ${state.closedIsCorrect ? '' : 'white'}">${state.closedIsCorrect ? '🌕 It was the face-down card!' : '👀 It was out in the open'}</span></div>
     ${f.bluffs.length ? `<div id="bluff-shout" class="bluff-shout seq"><span class="em">🏆</span><div><p class="eyebrow" style="color:var(--yellow-d);">Biggest bluff</p><p class="sub" style="color:var(--ink);">${bluffLine(f)}</p></div></div>` : ''}
@@ -1717,59 +1803,303 @@ function answerContinueHtml(lastRound) {
 // Live updates while the answer is up (flags, who can move on) without replaying the show
 function answerLive() {
   updateFlagsUI();
+  const el = $('game-content'), tpl = document.createElement('template'); tpl.innerHTML = renderAwayBanner();
+  const oldAway = el.querySelector('#away'), newAway = tpl.content.querySelector('#away');
+  if (oldAway && newAway) oldAway.replaceWith(newAway); else if (oldAway) oldAway.remove(); else if (newAway) el.prepend(newAway);
   const c = $('answer-continue');
   if (c) { const h = answerContinueHtml(isLastRound()); if (c.innerHTML !== h) c.innerHTML = h; }
 }
-function playAnswerSequence() {
-  const cards = document.querySelectorAll('.answer-card'), prompt = $('answer-prompt');
-  if (!cards.length) return;
-  const roundKey = state.round + '|' + state.code;
-  const st = state.steal;
-  const showSteal = st && st.victimId && st.at && (Date.now() + clockOffset - st.at) < 9000;
-  const delay = showSteal ? playStealShow() : 0;
-  const show = (id) => { const e = typeof id === 'string' ? $(id) : id; if (e) e.classList.add('show'); };
-  const correct = document.querySelector('.answer-card[data-correct="true"]');
-  const myPts = (state.roundScores || {})[myPlayerId] || 0;
-  const iShotTheMoon = state.closedIsCorrect && state.myFirstBet && state.myFirstBet.target === 'closed' && state.myFirstBet.count === 2 && !(st && st.victimId === myPlayerId && st.stage === 1);
-  const still = () => state && state.phase === 'answer' && state.round + '|' + state.code === roundKey;
-  let timers = [];
-  const T = (fn, ms) => { timers.push(setTimeout(fn, ms)); };
-  const schedule = (delay) => {
-  T(() => { if (still()) sfx.drumroll(1400); }, delay);
-  T(() => {
-    if (!still()) return;
-    cards.forEach(c => { if (c.dataset.correct !== 'true') c.classList.add('wrong'); });
-    if (correct) { correct.classList.add('correct'); const r = correct.getBoundingClientRect(); confetti.burst(r.left + r.width / 2, r.top + r.height / 2, 60); T(() => correct.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100); }
-    if (prompt) prompt.textContent = 'The real caption';
-    if (iShotTheMoon) { sfx.moon(); confetti.cannons(); } else if (state.dealerBonusAwarded) sfx.womp(); else sfx.tada();
-    if (myPts > 0) buzz([30, 40, 30]);
-  }, delay + 1500);
-  T(() => { if (still()) show('answer-verdict'); }, delay + 2500);
-  T(() => { if (!still()) return; document.querySelectorAll('.answer-card .writer').forEach(show); noise(0.1, 0, 0.15, 2500); }, delay + 3200);
-  T(() => {
-    if (!still()) return;
-    const b = document.querySelectorAll('.answer-card'); let any = false;
-    b.forEach(c => { if (c.querySelector('.bluff-tag')) { c.classList.add('bluff'); any = true; } });
-    if (any) { show('bluff-shout'); [1319, 1568, 2093].forEach((f, i) => tone(f, 0.25, i * 70, 'sine', 0.05)); const g = document.querySelector('.answer-card.bluff'); if (g) { const r = g.getBoundingClientRect(); confetti.burst(r.left + r.width / 2, r.top + 20, 40); } }
-  }, delay + 3900);
-  T(() => {
-    if (!still()) return;
-    show('answer-scores');
-    document.querySelectorAll('#answer-scores .pt-row').forEach((r, i) => T(() => { r.classList.add('in'); sfx.coin(i); }, i * 220));
-  }, delay + 4700);
-  T(() => {
-    if (!still()) return;
-    answerSeqRound = roundKey; $('answer-root') && $('answer-root').classList.add('done');
-    ['fool-summary', 'flag-help-slot', 'answer-continue'].forEach(show); document.querySelectorAll('.flag-slot').forEach(show);
-    if (!state.flags || !state.flags.length) {} else updateFlagsUI();
-    const truth = document.querySelector('.fool-row.truth'); if (truth) tone(196, 0.5, 0, 'triangle', 0.05, 180);
-  }, delay + 5600);
-  };
-  schedule(delay);
-  // Tapping away the steal show starts the answer right away
-  window._answerGo = delay ? () => { window._answerGo = null; timers.forEach(clearTimeout); timers = []; schedule(0); } : null;
-  if (delay) T(() => { window._answerGo = null; }, delay);
+function playAnswerSequence() { playReelStep(true); }
+
+
+/* ═══════════════════════════════════════════════════════════
+   Reactions — one per person per caption, until the bets are in.
+   Counts only while betting (you can react to your own, so it gives nothing away);
+   who reacted is revealed in the reel.
+   ═══════════════════════════════════════════════════════════ */
+const RX = [['laugh', '😂'], ['up', '👍'], ['fire', '🔥'], ['huh', '🤨'], ['dead', '💀'], ['roll', '🙄']];
+const RX_EMOJI = Object.fromEntries(RX);
+const RX_OPEN = ['reading', 'first_bets', 'reveal', 'second_bets'];
+function rxRowHtml(t) {
+  const key = String(t), counts = (state.reactionCounts || {})[key] || {}, mine = (state.myReactions || {})[key];
+  const open = RX_OPEN.includes(state.phase) && !(t === 'closed' && ['reading', 'first_bets'].includes(state.phase));
+  if (!open && !Object.keys(counts).length) return '';
+  return `<div class="rx-row" data-rx="${key}" onclick="event.stopPropagation()">${RX.map(([k, e]) => {
+    const n = counts[k] || 0;
+    return `<button class="rx ${mine === k ? 'on' : ''} ${n ? 'has' : ''}" ${open ? `onclick="event.stopPropagation(); react('${key}','${k}')"` : 'disabled'} aria-label="React ${e}" data-k="${k}"><span>${e}</span>${n ? `<b>${n}</b>` : ''}</button>`;
+  }).join('')}</div>`;
 }
+function react(target, kind) {
+  if (send({ action: 'react', target: target === 'closed' ? 'closed' : Number(target), kind })) { buzz(12); tone(1200 + Math.random() * 300, 0.05, 0, 'sine', 0.05); }
+}
+// Emoji float up from a caption when someone at the table reacts
+let rxSeen = null;
+function rxBursts() {
+  const counts = state.reactionCounts || {}, flat = {};
+  for (const [t, ks] of Object.entries(counts)) for (const [k, n] of Object.entries(ks)) flat[t + '|' + k] = n;
+  const key = state.code + '|' + state.round;
+  if (!rxSeen || rxSeen.key !== key) { rxSeen = { key, flat }; return; }
+  for (const [tk, n] of Object.entries(flat)) {
+    const was = rxSeen.flat[tk] || 0; if (n <= was) continue;
+    const [t, k] = tk.split('|');
+    const btn = document.querySelector(`.rx-row[data-rx="${t}"] .rx[data-k="${k}"]`); if (!btn) continue;
+    const r = btn.getBoundingClientRect();
+    for (let i = 0; i < Math.min(3, n - was); i++) {
+      const f = document.createElement('div'); f.className = 'rx-float'; f.textContent = RX_EMOJI[k];
+      f.style.left = (r.left + r.width / 2 - 14 + (Math.random() * 24 - 12)) + 'px'; f.style.top = (r.top - 6) + 'px';
+      f.style.animationDelay = (i * 0.12) + 's';
+      document.body.appendChild(f); setTimeout(() => f.remove(), 1700);
+    }
+  }
+  rxSeen.flat = flat;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   The reveal reel — the dealer spotlights one caption at a time.
+   Whose was whose, who fell for it, who laughed. This is where the
+   banter happens, so nothing moves until the dealer taps.
+   ═══════════════════════════════════════════════════════════ */
+const reelInfo = () => { const r = state.reel || { order: [], step: 1 }; return { order: r.order || [], step: r.step || 1, n: (r.order || []).length }; };
+function capByKey(key) { return answerCaptions().find(c => String(c.idx) === String(key)) || null; }
+function reactorsHtml(key, writerId) {
+  const map = (state.reactions || {})[String(key)] || {}, by = {};
+  for (const [pid, k] of Object.entries(map)) (by[k] = by[k] || []).push(pid);
+  const parts = RX.filter(([k]) => by[k]).map(([k, e]) => `<span class="rx-who"><span class="e">${e}</span>${esc(listNames(by[k].map(id => id === myPlayerId ? 'you' : nameOf(id))))}</span>`);
+  const own = writerId && map[writerId] ? `<p class="own-rx">${writerId === myPlayerId ? 'You' : esc(nameOf(writerId))} ${RX_EMOJI[map[writerId]]}’d ${writerId === myPlayerId ? 'your' : 'their'} own caption.</p>` : '';
+  return parts.length ? `<div class="rx-list">${parts.join('')}</div>${own}` : '';
+}
+function badgeLine(b) {
+  const d = b.detail || {};
+  switch (b.kind) {
+    case 'moon': return d.shot === 'moon' ? 'Shot the moon — both chips, face-down, dead on.' : 'Half-Moon — both chips blind on the real one.';
+    case 'three_bagger': return `${listNames((d.by || []).map(nameOf))} all went both chips.`;
+    case 'clean_sweep': return 'Every single player bet on it.';
+    case 'better_than_real': return 'More chips than the real caption.';
+    case 'ice_cold': return `Face-down, and ${listNames((d.by || []).map(nameOf))} went all in.`;
+    case 'less_is_more': return 'Five words or fewer. Fooled the table.';
+    case 'great_minds': return 'Two of you wrote nearly the same thing.';
+    case 'pickpocket': return 'Stole a chip right off the real caption.';
+    case 'crowd_favorite': return `${plural(d.laughs || 0, 'laugh')} this round.`;
+    case 'poobah': return `${plural(d.votes || 0, 'vote')} on a fake caption.`;
+    case 'hat_trick': return 'Grand Poobah three times tonight.';
+  }
+  return '';
+}
+function badgeChipsHtml(list) {
+  if (!list.length || !window.Badges) return '';
+  return `<div class="badge-strip">${list.map(b => `<span class="badge-chip">${window.Badges.icon(b.kind, 26)}<span><b>${esc(window.Badges.KINDS[b.kind] ? window.Badges.KINDS[b.kind].name : b.kind)}</b> · ${esc(listNames(b.playerIds.map(nameOf)))}</span></span>`).join('')}</div>`;
+}
+function spotlightHtml() {
+  const { order, step, n } = reelInfo(), key = order[step - 1], c = capByKey(key);
+  if (!c) return '';
+  const f = roundFacts(), fc = f.caps.find(x => String(x.idx) === String(key)) || c, real = !!c.isCorrect;
+  const bets = (state.bets || []).filter(b => b.target !== 'pass' && String(b.target) === String(key));
+  const backers = real ? bets : bets.filter(b => b.playerId !== c.playerId);
+  const people = [...new Set(backers.map(b => b.playerId))];
+  const chipsOf = (pid) => backers.filter(b => b.playerId === pid).reduce((s, b) => s + b.count + (b.stolen || 0), 0);
+  const fell = people.length ? `<div class="fell"><p class="eyebrow" style="margin-bottom:8px;">${real ? 'Found the real one' : 'Fell for it'}</p><div class="fell-row">${people.map(pid => `<span class="fell-p">${chipHtml(pid, 'sm')}${esc(pid === myPlayerId ? 'You' : nameOf(pid))}${chipsOf(pid) > 1 ? ` <i>×${chipsOf(pid)}</i>` : ''}</span>`).join('')}</div></div>`
+    : `<p class="nobody">${real ? (fc.allChips ? 'Found, then stolen. Ouch.' : '<i>The truth had no friends.</i>') : 'Nobody bit.'}</p>`;
+  const pts = !real && c.playerId ? backers.reduce((s, b) => s + b.count, 0) * (state.settings.pointsPerFool || 0) : 0;
+  const who = real ? `<div class="stamp real-stamp" id="spot-stamp">The real caption</div>`
+    : `<div class="writer-stamp" id="spot-stamp">${chipHtml(c.playerId, 'lg')}<div><p class="eyebrow">Written by</p><div class="wname">${esc(c.playerId === myPlayerId ? 'You' : c.playerName || '?')}</div></div>${pts ? `<span class="plus" style="margin-left:auto; font-size:26px;">+${pts}</span>` : ''}</div>`;
+  const realBadges = real ? (state.roundBadges || []).filter(b => ['moon', 'pickpocket'].includes(b.kind)) : [];
+  const badges = [...(state.roundBadges || []).filter(b => String(b.target) === String(key) && !['moon', 'pickpocket', 'poobah', 'hat_trick'].includes(b.kind)), ...realBadges];
+  const nextLabel = step < n - 1 ? 'Next caption →' : step === n - 1 ? 'And the real caption is… 🥁' : 'Round recap →';
+  const ctl = canRun()
+    ? `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" ${step <= 1 ? 'disabled' : ''} onclick="send({action:'reel_prev'})" aria-label="Previous caption">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'reel_next'})">${nextLabel}</button></div>
+       ${step < n ? `<button class="btn-link" style="display:block; margin:6px auto 0; font-size:13px;" onclick="send({action:'reel_skip'})">Skip to the recap</button>` : ''}`
+    : `<p class="center small">Take your time — ${esc(state.dealerName)} moves to the next one.</p>`;
+  return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `${roundLabel()} · caption ${step} of ${n}` })}
+    ${step === 1 ? `<div id="steal-slot">${stealNewsHtml()}</div>` : ''}
+    <div class="reel-dots">${order.map((_, i) => `<i class="${i + 1 < step ? 'done' : i + 1 === step ? 'on' : ''} ${i === n - 1 ? 'last' : ''}"></i>`).join('')}</div>
+    <div class="spot ${real ? 'is-real pending' : 'pending'}" id="spot">
+      <span class="num">${c.isClosed ? '<span class="cc-badge" style="margin:0;">CC</span>' : (Number(c.idx) + 1)}</span>${trayHtml(c.idx, { showStolen: true })}
+      ${c.isClosed ? '<p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption</p>' : ''}
+      <p class="spot-text">“${esc(c.caption)}”</p>
+      <div class="spot-reveal">${who}${fell}${reactorsHtml(key, c.playerId)}${badgeChipsHtml(badges)}</div>
+    </div>
+    <div style="margin-top:18px;">${ctl}</div>`;
+}
+const reelPlayed = new Set();
+function playReelStep(fromEntry) {
+  const { order, step, n } = reelInfo(), key = order[step - 1];
+  const tag = state.code + '|' + state.round + '|' + step;
+  if (reelPlayed.has(tag)) { const s = $('spot'); if (s) { s.classList.remove('pending'); if (s.classList.contains('is-real')) s.classList.add('correct'); } return; }
+  reelPlayed.add(tag);
+  const st = state.steal;
+  const showSteal = fromEntry && st && st.victimId && st.at && (Date.now() + clockOffset - st.at) < 9000;
+  const lead = showSteal ? playStealShow() : 0;
+  const c = capByKey(key), real = c && c.isCorrect;
+  let timers = [];
+  const run = (delay) => {
+    const T = (fn, ms) => timers.push(setTimeout(fn, ms));
+    const still = () => state && state.phase === 'answer' && state.code + '|' + state.round + '|' + (state.reel && state.reel.step) === tag;
+    if (real) {
+      T(() => { if (still()) { sfx.drumroll(1500); const s = $('spot'); if (s) s.classList.add('tremble'); } }, delay + 200);
+      T(() => {
+        if (!still()) return; const s = $('spot'); if (!s) return;
+        s.classList.remove('tremble', 'pending'); s.classList.add('correct');
+        const r = s.getBoundingClientRect(); confetti.burst(r.left + r.width / 2, r.top + 60, 90);
+        const iMoon = (state.roundBadges || []).some(b => b.kind === 'moon' && b.playerIds.includes(myPlayerId));
+        if (iMoon) { sfx.moon(); confetti.cannons(); } else if (state.dealerBonusAwarded) sfx.womp(); else sfx.tada();
+        buzz([40, 30, 80]); popBadgesFor(key, true, 900);
+      }, delay + 1800);
+    } else {
+      T(() => { if (!still()) return; const s = $('spot'); if (s) s.classList.remove('pending'); sfx.seal(); tone(660, 0.1, 60, 'triangle', 0.06); tone(990, 0.16, 140, 'triangle', 0.06); buzz(25);
+        const f = (state.bets || []).some(b => b.target !== 'pass' && String(b.target) === String(key) && b.playerId !== (c && c.playerId));
+        if (!f) setTimeout(() => tone(220, 0.35, 0, 'triangle', 0.05, 180), 300);
+        popBadgesFor(key, false, 700);
+      }, delay + 450);
+    }
+  };
+  run(lead);
+  window._answerGo = lead ? () => { window._answerGo = null; timers.forEach(clearTimeout); timers = []; run(0); } : null;
+}
+function popBadgesFor(key, real, wait) {
+  if (!window.Badges) return;
+  const RANK = ['moon', 'three_bagger', 'clean_sweep', 'ice_cold', 'better_than_real', 'great_minds', 'crowd_favorite', 'less_is_more', 'pickpocket'];
+  const tag = state.code + '|' + state.round + '|' + (state.reel && state.reel.step);
+  // At most two pops per caption — yours first, then the rarest. The rest sit on the card as chips.
+  const list = (state.roundBadges || []).filter(b => (String(b.target) === String(key) && !['moon', 'pickpocket', 'poobah', 'hat_trick'].includes(b.kind)) || (real && ['moon', 'pickpocket'].includes(b.kind)))
+    .sort((a, b) => (b.playerIds.includes(myPlayerId) - a.playerIds.includes(myPlayerId)) || RANK.indexOf(a.kind) - RANK.indexOf(b.kind)).slice(0, 2);
+  setTimeout(() => (state && state.phase === 'answer' && state.code + '|' + state.round + '|' + (state.reel && state.reel.step) === tag) && list.forEach(b => window.Badges.pop({ kind: b.kind, who: b.playerIds.map(nameOf), line: badgeLine(b), mine: b.playerIds.includes(myPlayerId) })), wait);
+}
+let recapPlayed = null;
+function onReelRecap() {
+  const tag = state.code + '|' + state.round + '|' + (state.cartoon && state.cartoon.id);
+  if (recapPlayed === tag) return;
+  recapPlayed = tag;
+  const hat = (state.roundBadges || []).filter(b => b.kind === 'hat_trick');
+  if (window.Badges) hat.forEach(b => window.Badges.pop({ kind: b.kind, who: b.playerIds.map(nameOf), line: badgeLine(b), mine: b.playerIds.includes(myPlayerId) }));
+  [523, 659, 784].forEach((f, i) => tone(f, 0.2, i * 70, 'triangle', 0.05));
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Career: badges collected on this phone across game nights.
+   10 rockets (Moon Landings) = Captain.
+   ═══════════════════════════════════════════════════════════ */
+function careerGet() {
+  try {
+    const c = JSON.parse(localStorage.getItem('cc_career') || 'null');
+    if (c && c.counts && typeof c.counts === 'object') {
+      const counts = {}; for (const [k, v] of Object.entries(c.counts)) if (Number.isInteger(v) && v > 0 && v < 100000) counts[k] = v;
+      return { counts, seen: Array.isArray(c.seen) ? c.seen.filter(x => typeof x === 'string') : [] };
+    }
+  } catch (e) {}
+  return { counts: {}, seen: [] };
+}
+function careerSave(c) { try { c.seen = c.seen.slice(-500); localStorage.setItem('cc_career', JSON.stringify(c)); } catch (e) {} }
+function careerSummary() { const c = careerGet(), rockets = c.counts.moon || 0, total = Object.values(c.counts).reduce((a, b) => a + b, 0); return { rank: window.Badges ? window.Badges.rankOf(rockets).title : null, rockets, total }; }
+let careerSent = null;
+function sendCareer(force) {
+  const s = careerSummary(), k = JSON.stringify(s) + '|' + gameCode + '|' + myPlayerId;
+  if (!force && k === careerSent) return;
+  if (ws && ws.readyState === 1 && myPlayerId) { ws.send(JSON.stringify({ action: 'career', ...s })); careerSent = k; }
+}
+function recordCareer() {
+  if (!state || !['answer', 'scores'].includes(state.phase) || !state.cartoon) return;
+  if (state.phase === 'answer') { const { step, n } = reelInfo(); if (step < n) return; }   // a rank-up must not spoil the real caption
+  const c = careerGet(); let added = false;
+  for (const b of state.roundBadges || []) {
+    if (!b.playerIds.includes(myPlayerId)) continue;
+    const k = [state.code, state.round, state.cartoon.id, b.kind, b.target].join('|');
+    if (c.seen.includes(k)) continue;
+    c.seen.push(k); c.counts[b.kind] = (c.counts[b.kind] || 0) + 1; added = true;
+  }
+  if (added) { careerSave(c); sendCareer(); }
+}
+let lastPromoN = null;
+function checkPromotion() {
+  const p = state.promotion;
+  if (lastPromoN === null) { lastPromoN = p ? p.n : 0; return; }
+  if (p && p.n > lastPromoN) {
+    lastPromoN = p.n;
+    if (Date.now() + clockOffset - p.at < 20000 && window.Badges) window.Badges.promotion({ rank: p.rank, name: p.name, mine: p.playerId === myPlayerId });
+  }
+}
+function rankTag(p, size = 18) {
+  if (!p || !p.rank || p.rank === 'Cadet' || !window.Badges) return '';
+  return `<span class="rank-tag">${window.Badges.insignia(p.rank, size)}${esc(p.rank)}</span>`;
+}
+function openTrophyCase() {
+  if (!window.Badges) return;
+  const c = careerGet();
+  $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin-bottom:10px;">My trophy case · this phone</p>${window.Badges.caseHtml(c.counts, c.counts.moon || 0)}<button class="btn btn-ink" style="margin-top:14px;" onclick="closeMenu()">Close</button>`;
+  $('sheet').classList.add('on');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Writing nudges — a way in when the blank box is daunting
+   ═══════════════════════════════════════════════════════════ */
+const NUDGES = [
+  'Say the most boring thing someone in this picture could say.',
+  'Who isn’t reacting? What are they thinking?',
+  'Treat the absurd thing as completely normal.',
+  'Make it a small, practical complaint.',
+  'What was said five seconds before this?',
+  'What’s the very next line?',
+  'Understatement wins. Keep it calm.',
+  'Bring up money: a bill, a price, a refund.',
+  'Make it about a marriage, a date, or an ex.',
+  'Four words or fewer.',
+  'What is the speaker quietly embarrassed about?',
+  'Point out a tiny detail nobody else will notice.',
+  'Office-speak it: meetings, HR, quarterly numbers.',
+  'Someone here is lying. What’s the lie?',
+  'Who’s in charge here, and what’s their policy?',
+  'Give it a perfectly reasonable explanation.',
+  'What would the animal or object say, if it could?',
+  'Phrase it as advice nobody asked for.',
+  'Phrase it as a question nobody wants to answer.',
+  'Work in something a friend at this table always says.',
+  'Real captions are dry. No exclamation marks.',
+  'Use a cliché in exactly the wrong place.',
+  'The overheard-at-the-next-table version.',
+  'A doctor, a lawyer, or a waiter says it.',
+  'What would a very tired parent say?',
+  'Apologize for the wrong thing.',
+];
+let nudgeIdx = -1;
+function nextNudge() {
+  nudgeIdx = (nudgeIdx + 1 + Math.floor(Math.random() * (NUDGES.length - 1))) % NUDGES.length;
+  const b = $('nudge-box'); if (!b) return;
+  b.innerHTML = `<span class="nudge-ic">💡</span><span>${esc(NUDGES[nudgeIdx])}</span><button class="btn-link" style="padding:2px 4px; font-size:13px; margin-left:auto;" onclick="nextNudge()">Another</button>`;
+  b.classList.add('on'); sfx.tap();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Invites: a link that opens the game with the code filled in,
+   a QR code to scan, and the code always one tap away
+   ═══════════════════════════════════════════════════════════ */
+function joinUrl() {
+  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+  const base = local && state && state.lanUrl ? state.lanUrl : location.origin;
+  return `${base}/?join=${state ? state.code : ''}`;
+}
+function qrSvg(text, px = 168) {
+  try { const q = qrcode(0, 'M'); q.addData(text); q.make(); return q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }).replace('<svg ', `<svg width="${px}" height="${px}" `); } catch (e) { return ''; }
+}
+function openInvite() {
+  if (!state) return;
+  $('sheet-body').innerHTML = `<div class="grip"></div>
+    <div class="center"><p class="eyebrow">Room code</p>
+      <div class="h-display" style="font-size:56px; letter-spacing:8px; padding-left:8px; margin:2px 0 10px;">${esc(state.code)}</div>
+      <div class="qr-wrap">${qrSvg(joinUrl(), 196)}</div>
+      <p class="small" style="margin:10px 0 14px;">Point a phone camera here to join — or send the link</p></div>
+    <div class="stack"><button class="btn btn-yellow" onclick="shareRoom()">📣 Send the invite link</button><button class="btn btn-ink" onclick="closeMenu()">Close</button></div>`;
+  $('sheet').classList.add('on');
+}
+// Opened from an invite link: straight to "join" with the code filled in
+(function joinFromLink() {
+  try {
+    const code = (new URLSearchParams(location.search).get('join') || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
+    if (code.length !== 4) return;
+    history.replaceState(null, '', location.pathname);
+    const saved = readStore(localStorage);
+    if (saved && saved.code === code) return;   // their own game: the rejoin banner handles it
+    window._linkCode = code;
+  } catch (e) {}
+})();
 
 /* ── SCORES ── */
 let scoresAnimated = null;
@@ -1783,7 +2113,7 @@ function renderScores() {
     const delta = change > 0 ? `<span class="delta up">▲ ${change}</span>` : change < 0 ? `<span class="delta down">▼ ${-change}</span>` : '';
     return `<div class="score-row ${i === 0 && p.score > 0 ? 'leader' : ''}" style="${animated ? 'animation:none;' : `animation-delay:${i * 0.08}s;`} --c:${playerColor(getPlayerIndex(p.id))};">
       <div style="font-family:var(--display); font-weight:700; width:22px; color:var(--muted);">${rankOf(p) + 1}</div>${chipHtml(p.id, 'lg')}
-      <div style="flex:1; min-width:0;"><div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span style="font-weight:900; font-size:16px;">${esc(p.name)}</span>${hatsHtml(p.id)}${delta}${earned > 0 ? `<span class="plus">+${earned}</span>` : ''}</div><div class="bar" style="width:${Math.max(6, (p.score / max) * 100)}%;"></div></div>
+      <div style="flex:1; min-width:0;"><div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span style="font-weight:900; font-size:16px;">${esc(p.name)}</span>${rankTag(p, 16)}${hatsHtml(p.id)}${delta}${earned > 0 ? `<span class="plus">+${earned}</span>` : ''}</div><div class="bar" style="width:${Math.max(6, (p.score / max) * 100)}%;"></div></div>
       <div class="pts score-number" data-target="${p.score}" data-from="${p.score - earned}">${animated ? p.score : p.score - earned}</div>
     </div>`;
   }).join('');
@@ -2004,7 +2334,7 @@ function computeAwards() {
   }
   const top = (o) => { const m = Math.max(0, ...Object.values(o)); return m > 0 ? { ids: Object.keys(o).filter(k => o[k] === m && playerById(k)), n: m } : null; };
   const names = (t) => listNames(t.ids.map(nameOf));
-  const out = [];
+  const out = highlights();
   let t;
   if ((t = top(sharp))) out.push({ icon: '🦅', title: 'Sharpest Eye', who: names(t), line: `${plural(t.n, 'chip')} on the real caption` });
   if ((t = top(moonHit))) out.push({ icon: '🌕', title: 'Moon Shooter', who: names(t), line: `Bet both chips blind and nailed it${t.n > 1 ? ' — ' + t.n + ' times' : ''}` });
@@ -2019,9 +2349,37 @@ function computeAwards() {
   }
   return out;
 }
+/* The night's best moments, replayed before the awards */
+function capOf(r, t) { return t === 'closed' ? { caption: r.closedCaption, playerId: r.closedPlayerId, isCorrect: r.closedIsCorrect } : (r.openCaptions[Number(t)] || {}); }
+function highlights() {
+  const h = state.history || [], out = [];
+  let laugh = null;
+  for (const r of h) for (const [t, m] of Object.entries(r.reactions || {})) {
+    const n = Object.values(m).filter(k => k === 'laugh').length;
+    if (n >= 2 && (!laugh || n > laugh.n)) laugh = { r, t, n };
+  }
+  if (laugh) { const c = capOf(laugh.r, laugh.t); out.push({ icon: '😂', title: 'Laugh of the Night', who: c.playerId ? nameOf(c.playerId) : 'The real caption', quote: c.caption, image: laugh.r.cartoon && laugh.r.cartoon.image, line: `${laugh.n} 😂 in round ${laugh.r.round}` }); }
+  let bluff = null;
+  for (const r of h) {
+    const v = {};
+    for (const b of r.bets || []) { if (b.target === 'pass') continue; const c = capOf(r, b.target); if (!c.playerId || c.isCorrect || c.playerId === b.playerId) continue; v[b.target] = (v[b.target] || 0) + b.count + (b.stolen || 0); }
+    for (const [t, n] of Object.entries(v)) if (n >= 2 && (!bluff || n > bluff.n)) bluff = { r, t, n };
+  }
+  if (bluff && !(laugh && laugh.r === bluff.r && String(laugh.t) === String(bluff.t))) { const c = capOf(bluff.r, bluff.t); out.push({ icon: '🎭', title: 'Bluff of the Night', who: nameOf(c.playerId), quote: c.caption, image: bluff.r.cartoon && bluff.r.cartoon.image, line: `${bluff.n} chips believed it` }); }
+  const RARE = ['three_bagger', 'clean_sweep', 'ice_cold', 'better_than_real', 'great_minds', 'hat_trick', 'less_is_more', 'moon', 'pickpocket', 'crowd_favorite'];
+  const gb = (state.gameBadges || []).slice().sort((a, b) => RARE.indexOf(a.kind) - RARE.indexOf(b.kind)).find(b => RARE.includes(b.kind));
+  if (gb) out.push({ icon: window.Badges ? window.Badges.icon(gb.kind, 72) : '🏅', svg: true, title: 'Badge of the Night', who: listNames(gb.playerIds.map(nameOf)), line: `${window.Badges && window.Badges.KINDS[gb.kind] ? window.Badges.KINDS[gb.kind].name : 'Badge'} — ${badgeLine(gb)}` });
+  return out;
+}
+function badgesRecapHtml() {
+  const by = {};
+  for (const b of state.gameBadges || []) for (const id of b.playerIds) (by[id] = by[id] || []).push(b.kind);
+  const ids = Object.keys(by).filter(playerById); if (!ids.length || !window.Badges) return '';
+  return `<div class="panel flat" style="margin-top:16px;"><p class="eyebrow" style="margin-bottom:8px;">Tonight’s badges</p>${ids.map(id => `<div class="award-line" style="align-items:center;">${chipHtml(id, 'sm')}<b style="min-width:64px;">${esc(nameOf(id))}</b><span class="bdg-mini">${by[id].map(k => window.Badges.icon(k, 26)).join('')}</span></div>`).join('')}</div>`;
+}
 function awardsRecapHtml() {
-  const a = computeAwards(); if (!a.length) return '';
-  return `<div class="panel flat" style="margin-top:16px;"><p class="eyebrow" style="margin-bottom:8px;">Tonight’s awards</p>${a.map(x => `<div class="award-line"><span class="ic">${x.icon}</span><div><b>${esc(x.title)}</b> · ${esc(x.who)}<br><span class="small">${x.quote ? '“' + esc(x.quote) + '” · ' : ''}${esc(x.line)}</span></div></div>`).join('')}</div>`;
+  const a = computeAwards().filter(x => !x.svg && !['Laugh of the Night', 'Bluff of the Night'].includes(x.title)); if (!a.length) return badgesRecapHtml();
+  return `<div class="panel flat" style="margin-top:16px;"><p class="eyebrow" style="margin-bottom:8px;">Tonight’s awards</p>${a.map(x => `<div class="award-line"><span class="ic">${x.icon}</span><div><b>${esc(x.title)}</b> · ${esc(x.who)}<br><span class="small">${x.quote ? '“' + esc(x.quote) + '” · ' : ''}${esc(x.line)}</span></div></div>`).join('')}</div>${badgesRecapHtml()}`;
 }
 function playAwards(done) {
   const list = computeAwards(), o = $('awards');
@@ -2032,7 +2390,7 @@ function playAwards(done) {
     clearTimeout(timer); i++;
     if (i >= list.length) return finish();
     const a = list[i];
-    o.innerHTML = `<div class="aw-card" key="${i}"><p class="eyebrow">Award ${i + 1} of ${list.length}</p><div class="aw-ic">${a.icon}</div><div class="h-display aw-title">${esc(a.title)}</div><div class="aw-who">${esc(a.who)}</div>${a.quote ? `<p class="aw-quote">“${esc(a.quote)}”</p>` : ''}<p class="sub">${esc(a.line)}</p>
+    o.innerHTML = `<div class="aw-card" key="${i}"><p class="eyebrow">${a.image || a.svg ? 'Highlight' : 'Award'} ${i + 1} of ${list.length}</p>${a.image ? `<img class="aw-img" src="/images/${esc(a.image)}" alt="">` : ''}<div class="aw-ic">${a.icon}</div><div class="h-display aw-title">${esc(a.title)}</div><div class="aw-who">${esc(a.who)}</div>${a.quote ? `<p class="aw-quote">“${esc(a.quote)}”</p>` : ''}<p class="sub">${esc(a.line)}</p>
       <div class="aw-dots">${list.map((_, k) => `<i class="${k === i ? 'f' : ''}"></i>`).join('')}</div></div><button class="btn-link aw-skip" onclick="event.stopPropagation(); window._awFinish()">Skip to the final scores</button>`;
     sfx.tada(); buzz(30); confetti.burst(innerWidth / 2, innerHeight * 0.35, 50);
     timer = setTimeout(next, 2900);
@@ -2092,6 +2450,11 @@ function renderHistory(idx) {
 /* ── Init ── */
 startHeroLoop();
 connect();
+if (window._linkCode) {
+  showScreen('screen-join'); $('join-code').value = window._linkCode;
+  try { const n = localStorage.getItem('cc_name'); if (n) $('join-name').value = n; } catch (e) {}
+  const e = $('join-error'); e.style.display = 'block'; e.style.color = 'var(--teal)'; e.textContent = `Room ${window._linkCode} is filled in — just add your name.`;
+}
 </script>
 </body>
 </html>
