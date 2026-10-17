@@ -1259,7 +1259,7 @@ function renderLobby() {
        <div class="field" style="margin-bottom:14px;"><label class="eyebrow">The deal and the betting pass to the…</label><div class="seg">${segBtn(!right, "setHostSettings({direction:'left'})", '↓ Left (down the list)')}${segBtn(right, "setHostSettings({direction:'right'})", '↑ Right (up the list)')}</div></div>`
     : `<p class="small" style="margin:-4px 0 14px;">Seating is in order around the table. The deal passes ${right ? 'right ↑' : 'left ↓'}.</p>`;
   const endCondition = s.targetScore ? `first to ${s.targetScore}` : s.rounds ? `${s.rounds} rounds` : 'everyone deals once';
-  const summary = `${state.timerDuration < 120 ? state.timerDuration + 's' : state.timerDuration / 60 + ' min'} to write · ${endCondition} · steal ${s.stealEnabled ? 'on' : 'off'} · deal passes ${right ? 'right' : 'left'}${s.family ? ' · family cartoons' : ''}`;
+  const summary = `${state.timerDuration < 120 ? state.timerDuration + 's' : state.timerDuration / 60 + ' min'} to write · ${endCondition} · steal ${s.stealEnabled ? 'on' : 'off'} · deal passes ${right ? 'right' : 'left'}${s.family ? ' · family cartoons' : s.spicy ? ' · 🌶 after dark' : ''}`;
   const deck = state.hofDeck || 0, galleryOpen = deck >= 3 || s.expert;
   const galleryToggle = state.isHost
     ? `<button class="gal-toggle ${s.expert ? 'on' : ''}" ${galleryOpen ? '' : 'disabled'} onclick="setHostSettings({expert:${!s.expert}})" aria-pressed="${!!s.expert}">
@@ -1277,7 +1277,7 @@ function renderLobby() {
           ${segBtn(s.targetScore === 20, 'setHostSettings({rounds:null,targetScore:20})', 'First to 20')}
           ${segBtn(s.targetScore === 30, 'setHostSettings({rounds:null,targetScore:30})', 'First to 30')}
         </div></div>
-        <div class="field"><label class="eyebrow">Cartoons</label><div class="seg">${segBtn(!s.family, 'setHostSettings({family:false})', 'All')}${segBtn(!!s.family, 'setHostSettings({family:true})', '👪 Family only')}</div></div>
+        <div class="field"><label class="eyebrow">Cartoons</label><div class="seg">${segBtn(!!s.family, 'setHostSettings({family:true})', '👪 Family')}${segBtn(!s.family && !s.spicy, 'setHostSettings({family:false,spicy:false})', 'Standard')}${segBtn(!!s.spicy, 'setHostSettings({spicy:true})', '🌶 After dark')}</div></div>
         <div class="field"><label class="eyebrow">Dealer's steal</label><div class="seg">${segBtn(s.stealEnabled, 'setHostSettings({stealEnabled:true})', 'On')}${segBtn(!s.stealEnabled, 'setHostSettings({stealEnabled:false})', 'Off')}</div></div>
         <div class="field"><label class="eyebrow">How often the real caption is the face-down one</label><div class="seg">${[0.1, 0.15, 0.2, 0.3].map(v => segBtn(Math.abs((s.autoCloseProbability ?? 0.15) - v) < 0.001, `setHostSettings({autoCloseProbability:${v}})`, Math.round(v * 100) + '%')).join('')}</div></div>
         <details class="box" id="adv-details"><summary>🎯 Points <span class="arrow">▾</span></summary><div class="body">

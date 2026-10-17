@@ -152,6 +152,7 @@ const DEFAULT_SETTINGS = {
   autoCloseProbability: 0.15,    // share of rounds where the real caption is the Closed Caption
   stealEnabled: true,            // dealer may knock one chip off the table before the answer
   family: false,                 // family cartoons only (skips the few grown-up ones)
+  spicy: false,                  // 'After dark': mixes in the PG-13 cartoons
   direction: 'left',             // which way the deal and the betting go around the table
   expert: false,                 // Expert Mode: the real answer comes from the Hall of Fame deck
 };
@@ -264,7 +265,8 @@ function updateSettings(game, partial) {
   for (const key of Object.keys(partial || {})) {
     const val = partial[key];
     if (key === 'stealEnabled') { s.stealEnabled = !!val; continue; }
-    if (key === 'family') { s.family = !!val; continue; }
+    if (key === 'family') { s.family = !!val; if (s.family) s.spicy = false; continue; }
+    if (key === 'spicy') { s.spicy = !!val; if (s.spicy) s.family = false; continue; }
     if (key === 'expert') {
       if (typeof val !== 'boolean') return { error: 'Invalid expert mode' };
       if (val && deckCartoons(game) < 3) return { error: 'The Gallery opens once 3 cartoons have a framed caption' };
@@ -401,7 +403,8 @@ function dealCartoon(game) {
   game.timerToken = (game.timerToken || 0) + 1;
 }
 // Family games never deal the grown-up cartoons
-const allowed = (game) => CARTOONS.filter(c => !(game.settings.family && c.adult));
+// PG-13 cartoons only come up in 'After dark' games
+const allowed = (game) => CARTOONS.filter(c => !(game.settings.family && (c.adult || c.spicy)) && !(c.spicy && !game.settings.spicy));
 function dealNormal(game, currentId) {
   // Never twice in one game; of the rest, the ones the fewest people at the table have seen.
   // Nobody sees a repeat until they've seen the whole deck.
