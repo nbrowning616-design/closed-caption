@@ -873,7 +873,7 @@ function connect() {
   };
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
-    if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); }, 300); }
+    if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); }, 300); }
     else if (msg.type === 'state') {
       state = msg.data;
       if (state.serverNow) clockOffset = state.serverNow - Date.now();
@@ -927,6 +927,8 @@ function leaveGame() {
 }
 // Cartoons this phone has seen, so the next game it hosts deals fresh ones
 function getSeen() { try { const v = JSON.parse(localStorage.getItem('cc_seen') || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+// Tell the table which cartoons this phone has seen, so it deals fresh ones for everyone
+function sendSeen() { if (ws && ws.readyState === 1 && myPlayerId) ws.send(JSON.stringify({ action: 'seen_sync', seen: getSeen().slice(-200) })); }
 function recordSeen() {
   if (!state || !state.cartoon || state.phase === 'lobby') return;
   let list = getSeen(); const id = state.cartoon.id;
@@ -1025,6 +1027,7 @@ function render(force = false) {
   if (phaseChanged) {
     selectedBetTarget = null; grabbedBet = null; phaseSeqPlayed = false; seenBets = 0; wasMyTurn = false;
     if (lastPhase === 'scores' || state.phase === 'lobby') closeInduction();
+    if (state.phase === 'lobby' && lastPhase) sendSeen();   // back in the lobby: refresh before the next game
     if (state.phase === 'lobby') { answerSeqRound = null; scoresAnimated = null; seenFlags = null; }
     if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); }
     if (lastPhase && !['reveal', 'answer', 'scores'].includes(state.phase)) sfx.advance();

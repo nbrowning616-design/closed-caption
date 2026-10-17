@@ -146,6 +146,7 @@ const DEFAULT_SETTINGS = {
 function createGame(hostId, hostName, timerDuration = 90, seenIds = []) {
   return {
     seenIds: cleanSeen(seenIds),   // cartoons the host's phone has seen in earlier games
+    seenBy: { [hostId]: cleanSeen(seenIds) },   // every phone's 'already seen' list, by player
     deck: newRoomDeck(),            // this room's Gallery: the server's saved copy + whatever the phones bring
     closePlan: [],                  // closePlan[round - 1] = true when the real caption is face-down that round
     flags: [],                      // Hall of Fame flags: { fromId, round, target }
@@ -197,7 +198,26 @@ function cleanSeen(ids) {
   const valid = new Set(CARTOONS.map(c => c.id));
   return Array.isArray(ids) ? [...new Set(ids.map(Number).filter(n => valid.has(n)))] : [];
 }
-function setSeen(game, ids) { game.seenIds = cleanSeen(ids); }
+function setSeen(game, ids) { game.seenIds = cleanSeen(ids); (game.seenBy = game.seenBy || {})[game.hostId] = game.seenIds; }
+// A phone tells us which cartoons it has already seen (on joining, and back in the lobby)
+function setPlayerSeen(game, playerId, ids) {
+  if (!game.players.some(p => p.id === playerId)) return { error: 'Player not in game' };
+  if (!Array.isArray(ids)) return { error: 'Invalid list' };
+  (game.seenBy = game.seenBy || {})[playerId] = cleanSeen(ids.slice(0, 200));
+  return { ok: true };
+}
+// How many people at the table have already seen each cartoon
+function seenCounts(game) {
+  const here = new Set(game.players.map(p => p.id)), n = new Map();
+  for (const [pid, ids] of Object.entries(game.seenBy || {})) if (here.has(pid)) for (const id of ids) n.set(id, (n.get(id) || 0) + 1);
+  return n;
+}
+// Of these cartoons, the ones the fewest people here have seen (ideally nobody)
+function freshest(game, list) {
+  if (!list.length) return list;
+  const n = seenCounts(game), min = Math.min(...list.map(c => n.get(c.id) || 0));
+  return list.filter(c => (n.get(c.id) || 0) === min);
+}
 
 function updateSettings(game, partial) {
   if (game.phase !== PHASES.LOBBY) return { error: 'Settings can only be changed in the lobby' };
@@ -315,10 +335,9 @@ const deckCartoons = (game) => expertCartoonIds(game).length;
 
 // Expert deal: a cartoon with a Hall of Fame caption this table can play, or null (then deal normally)
 function dealExpert(game, currentId) {
-  const ok = new Set(expertCartoonIds(game)), seen = new Set(game.seenIds || []);
-  let pool = CARTOONS.filter(c => ok.has(c.id) && !game.usedCartoonIds.includes(c.id) && c.id !== currentId && !seen.has(c.id));
-  // The host's phone has seen every deck cartoon: start over on those (the seen list stays for normal dealing)
-  if (!pool.length) pool = CARTOONS.filter(c => ok.has(c.id) && !game.usedCartoonIds.includes(c.id) && c.id !== currentId);
+  const ok = new Set(expertCartoonIds(game));
+  // Never twice in one game; otherwise the ones the fewest people here have seen
+  const pool = freshest(game, CARTOONS.filter(c => ok.has(c.id) && !game.usedCartoonIds.includes(c.id) && c.id !== currentId));
   if (!pool.length) return null;   // every deck cartoon has been played this game
   const cartoon = pick(pool), names = tableNames(game);
   const entry = pick(deckOf(game).byCartoon(cartoon.id).filter(e => !names.has(e.author.toLowerCase())));
@@ -342,13 +361,9 @@ function dealCartoon(game) {
   game.timerToken = (game.timerToken || 0) + 1;
 }
 function dealNormal(game, currentId) {
-  const seen = new Set(game.seenIds || []);
-  let available = CARTOONS.filter(c => !game.usedCartoonIds.includes(c.id) && c.id !== currentId && !seen.has(c.id));
-  if (available.length === 0) {
-    // The host's phone has seen the whole deck: start over
-    game.seenIds = [];
-    available = CARTOONS.filter(c => !game.usedCartoonIds.includes(c.id) && c.id !== currentId);
-  }
+  // Never twice in one game; of the rest, the ones the fewest people at the table have seen.
+  // Nobody sees a repeat until they've seen the whole deck.
+  let available = freshest(game, CARTOONS.filter(c => !game.usedCartoonIds.includes(c.id) && c.id !== currentId));
   if (available.length === 0) {
     game.usedCartoonIds = currentId ? [currentId] : [];
     available = CARTOONS.filter(c => c.id !== currentId);
@@ -1047,7 +1062,7 @@ function getPlayerView(game, playerId) {
 module.exports = {
   PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS,
   createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, plantFlag, hallOfFame, planBlock, ensurePlan,
-  inductNeed, deckCartoons, dealCartoon, store, syncGallery,
+  inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,
   stealChip, revealAnswer, moveToScoreboard, isGameOver, resetForNewGame,

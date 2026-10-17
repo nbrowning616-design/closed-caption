@@ -192,6 +192,10 @@ wss.on('connection', (ws) => {
         broadcast(code);
         return;
       }
+      case 'seen_sync': {
+        fail(G.setPlayerSeen(game, playerId, msg.seen));
+        return;
+      }
       case 'gallery_sync': {
         const r = G.syncGallery(game, msg.entries);
         if (fail(r)) return;
