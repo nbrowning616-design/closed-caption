@@ -663,8 +663,13 @@ const plural = (n, one, many) => `${n} ${n === 1 ? one : (many || one + 's')}`;
 
 /* Haptics. Android phones vibrate; iPhones don't let web pages vibrate, so they get a tap
    of the iOS switch haptic where Safari allows it, plus sound and a screen flash. */
+let lastBuzzAt = 0;
 function buzz(pattern) {
   try { if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return; } catch (e) {}   // no tap yet: the browser would refuse (and log) it
+  // Never let vibrations pile up: one at a time, and nothing longer than about half a second
+  const now = Date.now(); if (now - lastBuzzAt < 450) return; lastBuzzAt = now;
+  if (Array.isArray(pattern)) { let t = 0; pattern = pattern.filter(v => (t += v) <= 500); if (!pattern.length) pattern = [80]; }
+  else pattern = Math.min(Number(pattern) || 0, 400);
   try { if (navigator.vibrate) { navigator.vibrate(pattern); return; } } catch (e) {}
   try { const l = $('haptic-label'); if (l) { l.click(); if (Array.isArray(pattern) && pattern.length > 2) setTimeout(() => l.click(), 160); } } catch (e) {}
 }
@@ -793,6 +798,7 @@ function clampViewer() {
 function actx() { if (!window._gameAudio) window._gameAudio = new (window.AudioContext || window.webkitAudioContext)(); const c = window._gameAudio; if (c.state === 'suspended') c.resume(); return c; }
 function tone(freq, dur, delay = 0, type = 'sine', vol = 0.1, glideTo = null) {
   if (!soundEnabled()) return;
+  dur = Math.min(Math.max(Number(dur) || 0, 0.01), 6);   // seconds; no sound in this game is ever longer
   try {
     const ctx = actx(), t0 = ctx.currentTime + delay / 1000, o = ctx.createOscillator(), g = ctx.createGain();
     o.type = type; o.frequency.setValueAtTime(freq, t0); if (glideTo) o.frequency.exponentialRampToValueAtTime(glideTo, t0 + dur);
@@ -802,6 +808,7 @@ function tone(freq, dur, delay = 0, type = 'sine', vol = 0.1, glideTo = null) {
 }
 function noise(dur, delay = 0, vol = 0.15, filterFreq = 2500, type = 'bandpass') {
   if (!soundEnabled()) return;
+  dur = Math.min(Math.max(Number(dur) || 0, 0.01), 6);
   try {
     const ctx = actx(), t0 = ctx.currentTime + delay / 1000, len = Math.max(1, Math.floor(ctx.sampleRate * dur)), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
@@ -1322,7 +1329,7 @@ function renderWriting() {
   return `${header({ sticker: `<span class="sticker">${state.isDealer ? '🎲 Your deal' : 'Write'}</span>`, sub: `${roundLabel()} · ${dealerLine()}`, ring: true })}
     ${bigToon(false, true)}
     <div style="margin-top:18px;">
-      <textarea id="caption-input" class="caption-input" placeholder="Write a caption that could pass for the real one…" maxlength="200" oninput="onCaptionInput()" enterkeyhint="done" autocapitalize="sentences" autocorrect="on" spellcheck="true"></textarea>
+      <textarea id="caption-input" class="caption-input" placeholder="Write a caption that could pass for the real one…" maxlength="200" oninput="onCaptionInput()" enterkeyhint="done" autocapitalize="sentences" autocorrect="off" autocomplete="off" spellcheck="false" data-gramm="false"></textarea>
       <div class="lenmeter" id="len-meter" style="margin-top:8px;"><i id="len-fill"></i></div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin:2px 2px 12px; gap:8px;"><span class="small" id="len-note">The real ones are short and dry.</span><span class="small" id="cap-count" style="white-space:nowrap;">0 / 200</span></div>
       ${state.isDealer ? '<p class="small" style="margin:-6px 2px 12px;">You write too — but you don’t bet</p>' : ''}
@@ -1409,7 +1416,7 @@ function playMulligan(ev, wait = 0) {
   b.innerHTML = '';
   b.classList.add('on');   // cover the new cartoon right away; the execution starts on the shared beat
   clearTimeout(window._boomT); clearTimeout(window._boomGo);
-  const close = () => { clearTimeout(window._boomGo); b.classList.remove('on'); b.innerHTML = ''; };
+  const close = () => { clearTimeout(window._boomGo); b.classList.remove('on'); b.innerHTML = ''; try { navigator.vibrate && navigator.vibrate(0); } catch (e) {} };
   b.onclick = close;
   window._boomGo = setTimeout(() => {
     if (!b.classList.contains('on')) return;
@@ -1423,7 +1430,7 @@ function playMulligan(ev, wait = 0) {
     b.querySelectorAll('.bits span').forEach(e => { e.style.animationDelay = (s - 0.05) + 's'; });
     window._boomGo = setTimeout(() => {
       if (window.ccBeat) window.ccBeat('mulligan:hit');
-      bsfx.boom(); buzz([120, 60, 120, 60, 300]); confetti.burst(innerWidth / 2, innerHeight * 0.45, 120);
+      bsfx.boom(); buzz(90); confetti.burst(innerWidth / 2, innerHeight * 0.45, 120);
       if (window.ccImpact) window.ccImpact({ flash: 0.85, shake: b });
       window._boomGo = setTimeout(() => bsfx.womp(), 550);
     }, hit);

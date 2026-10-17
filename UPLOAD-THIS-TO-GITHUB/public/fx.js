@@ -108,6 +108,7 @@
   }
   // Wobbling sawtooth motor. Falls back to tone().
   function motor(dur, delay, vol) {
+    dur = Math.min(Math.max(Number(dur) || 0, 0.05), 4);   // seconds; never a runaway hum
     var c = ctx();
     if (!c) { T(90, dur, delay, 'sawtooth', vol, 70); return; }
     try {
@@ -216,7 +217,7 @@
       N(0.05, IMPACT + 20, 0.3, 1800, 'bandpass');
       T(900, 0.4, IMPACT + 80, 'sine', 0.05, 300);
     }
-    vib(IMPACT, [110]);
+    vib(IMPACT, [70]);
     return 1550;
   }
 
@@ -275,7 +276,7 @@
       sweepNoise(0.34, RIP - 20, 0.42, 1400, 5200, 'bandpass');
       N(0.16, RIP, 0.3, 3500, 'highpass');
     }
-    vib(300, [30, 40, 30, 40, 40, 30, 50, 30, 60, 30, 70, 20, 180]);
+    vib(300, [70]);
     return 1550;
   }
 
@@ -359,7 +360,7 @@
       }
       N(0.45, CRUMBLE, 0.22, 900, 'lowpass');
     }
-    vib(IGN, [40, 50, 20, 80, 50, 40, 25, 70, 40, 50, 30, 60, 60]);
+    vib(IGN, [70]);
     return 1650;
   }
 
@@ -426,7 +427,7 @@
       sweepNoise(0.9, START + 150, 0.15, 1800, 500, 'bandpass');
       [0, 90, 170, 260, 330].forEach(function (t, k) { T(320 + k * 60, 0.09, START + DUR - 120 + t, 'sine', 0.13, 900 + k * 120); });
     }
-    vib(START, [1100]);
+    vib(START, [70]);
     return 1650;
   }
 
@@ -495,7 +496,7 @@
       sweepNoise(0.2, HIT2 - 210, 0.1, 500, 1600, 'bandpass');
       T(62, 0.6, HIT2, 'sine', 0.5, 28); N(0.4, HIT2, 0.5, 220, 'lowpass'); N(0.1, HIT2, 0.25, 2200, 'bandpass');
     }
-    vib(HIT1, [160, HIT2 - HIT1 - 160, 280]);
+    vib(HIT1, [70]);
     return 1550;
   }
 
@@ -557,14 +558,14 @@
       });
     });
     if (canSound()) {
-      motor(FDUR + 500, FEED - 120, 0.09);
+      motor((FDUR + 500) / 1000, FEED - 120, 0.09);   // seconds, not milliseconds (it once hummed for 26 minutes)
       for (var t = FEED; t < FEED + FDUR; t += 85) N(rnd(0.03, 0.06), t + rnd(-15, 15), rnd(0.15, 0.28), rnd(500, 1100), 'bandpass');
       T(1500, 0.06, FEED - 160, 'square', 0.04);
       N(0.15, FEED + FDUR, 0.25, 700, 'lowpass');
     }
     var pat = [];
     for (var v = 0; v < 14; v++) pat.push(v % 2 ? 25 : 60);
-    vib(FEED, pat);
+    vib(FEED, [70]);
     return FEED + FDUR + 150;
   }
 
@@ -573,7 +574,7 @@
     var card = makeCard(L.root, src, L.W, L.x, L.y);
     anim(card, [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(.94)' }], { duration: 450, delay: 150, easing: 'ease-in' });
     if (canSound()) { N(0.25, 100, 0.15, 1500, 'bandpass'); }
-    vib(150, [60]);
+    vib(150, [70]);
     return 600;
   }
 
