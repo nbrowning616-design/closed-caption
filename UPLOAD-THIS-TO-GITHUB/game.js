@@ -82,6 +82,8 @@ const CARTOONS = [
   { id: 60, spicy: true, title: "The Refill", image: "card_60.jpg", correct: "And something for me to sleep through it." },
   { id: 61, spicy: true, title: "Room 12", image: "card_61.jpg", correct: "Leave the crash cart. Just in case." },
   { id: 62, spicy: true, title: "Overnight Bag", image: "card_62.jpg", correct: "Your profile said 'spontaneous.' This is the opposite." },
+  { id: 63, spicy: true, title: "Noise Complaint", image: "card_63.jpg", correct: "Ma'am, please stop tipping me." },
+  { id: 64, spicy: true, title: "The Specialist", image: "card_64.jpg", correct: "Just the one, please." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
