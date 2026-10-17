@@ -995,10 +995,9 @@ function getSeen() { try { const v = JSON.parse(localStorage.getItem('cc_seen') 
 function sendSeen() { if (ws && ws.readyState === 1 && myPlayerId) ws.send(JSON.stringify({ action: 'seen_sync', seen: getSeen().slice(-200) })); }
 function recordSeen() {
   if (!state || !state.cartoon || state.phase === 'lobby') return;
-  let list = getSeen(); const id = state.cartoon.id;
-  if (list.includes(id)) return;
-  list.push(id);
-  if (state.deckSize && list.length >= state.deckSize) list = [id];   // whole deck played: start over
+  const id = state.cartoon.id; let list = getSeen();
+  if (list[list.length - 1] === id) return;
+  list = list.filter(x => x !== id).concat(id).slice(-200);   // oldest first, newest last — never wiped, so repeats are the ones seen longest ago
   try { localStorage.setItem('cc_seen', JSON.stringify(list)); } catch (e) {}
 }
 function selectTimer(val) { selectedTimer = val; document.querySelectorAll('#timer-buttons button').forEach(b => b.classList.toggle('on', parseInt(b.dataset.val) === val)); }

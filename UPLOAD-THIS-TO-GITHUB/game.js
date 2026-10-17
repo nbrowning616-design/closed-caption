@@ -26,43 +26,43 @@ const PHASES = {
 };
 
 const CARTOONS = [
-  { id: 1, title: "The Fish Therapist", image: "card_1.jpg", correct: "So you feel like nobody notices you." },
-  { id: 2, title: "The Alien Restaurant", image: "card_2.jpg", correct: "What's good here? We've come a long way." },
-  { id: 3, title: "Dog Board Meeting", image: "card_3.jpg", correct: "Any questions? No? Good boy." },
-  { id: 5, title: "Grim Reaper Café", image: "card_5.jpg", correct: "Nobody ever wants to sit with me." },
-  { id: 6, title: "Self-Driving Car", image: "card_6.jpg", correct: "Recalculating route to couples therapy." },
-  { id: 7, title: "Snowman Doctor", image: "card_7.jpg", correct: "No, antibiotics will not help." },
-  { id: 10, title: "Pigeon Consultant", image: "card_10.jpg", correct: "The first thing we need to do is update your LinkedIn." },
-  { id: 11, title: "Airplane Squeeze", image: "card_11.jpg", correct: "They said middle seats have more legroom now." },
-  { id: 12, title: "Scuba Date", image: "card_12.jpg", correct: "My profile said I was adventurous." },
-  { id: 13, title: "Victorian Beach Lady", image: "card_13.jpg", correct: "Have you seen the price of sunscreen lately?" },
-  { id: 14, title: "Octopus Interview", image: "card_14.jpg", correct: "You seem like a hands-on kind of guy." },
-  { id: 16, title: "The Gym", image: "card_16.jpg", correct: "He has been skipping head day." },
-  { id: 17, title: "Pirate Therapy", image: "card_17.jpg", correct: "Everything seems to be an arrrrrrrgument." },
-  { id: 19, title: "Giant Sushi", image: "card_19.jpg", correct: "The bathtub of soy is on its way." },
-  { id: 21, title: "Big Head Barber", image: "card_21.jpg", correct: "You seem like a cerebral guy." },
-  { id: 22, title: "Giant Mouth Dentist", image: "card_22.jpg", correct: "We may need to reschedule. I can't find my assistant." },
-  { id: 23, title: "The Speedo Strut", image: "card_23.jpg", correct: "Nobody said anything. Nobody could." },
-  { id: 24, title: "Horse Witness", image: "card_24.jpg", correct: "I'll ask again. Were you at the barn that night?" },
-  { id: 25, adult: true, title: "Stick Figure Art", image: "card_25.jpg", correct: "Under magnification it's clearly a boy." },
-  { id: 26, title: "Yoga Pretzel", image: "card_26.jpg", correct: "Namaste." },
-  { id: 27, title: "Giraffe Tailor", image: "card_27.jpg", correct: "The suit was easy. The tie is the problem." },
-  { id: 29, title: "Enormous Cat", image: "card_29.jpg", correct: "You should see the litter box." },
-  { id: 30, title: "The Elevator", image: "card_30.jpg", correct: "One fart, five casualties." },
-  { id: 31, title: "The Burger", image: "card_31.jpg", correct: "The salad was her idea." },
-  { id: 32, adult: true, title: "The Consultation", image: "card_32.jpg", correct: "Cowabunga." },
-  { id: 33, title: "The Tee Shot", image: "card_33.jpg", correct: "He sliced it so hard the Middle Ages showed up." },
-  { id: 34, title: "The Worm", image: "card_34.jpg", correct: "Nobody's that friendly for free." },
-  { id: 35, title: "The Landing Zone", image: "card_35.jpg", correct: "Thankfully he was filled with helium." },
-  { id: 36, title: "The First Date", image: "card_36.jpg", correct: "He's forty-three. The steak is cut into squares." },
-  { id: 37, adult: true, title: "The Interview", image: "card_37.jpg", correct: "What are your thoughts on spanking?" },
-  { id: 38, title: "The Dress", image: "card_38.jpg", correct: "It's her third marriage. Budget reflects that." },
-  { id: 39, title: "The Arm Wrestle", image: "card_39.jpg", correct: "Cardio pays off eventually." },
-  { id: 40, title: "The Drive-Through", image: "card_40.jpg", correct: "He tipped in licks." },
-  { id: 41, title: "The Proposal", image: "card_41.jpg", correct: "The hydrant was flattered but not ready for that kind of commitment." },
-  { id: 42, title: "The Birthday Inferno", image: "card_42.jpg", correct: "Happy birthday. Evacuate." },
-  { id: 44, title: "The Spa", image: "card_44.jpg", correct: "And now for the salmon oil." },
-  { id: 46, title: "The Plumber", image: "card_46.jpg", correct: "Someone in your family needs more fiber." },
+  { id: 1, title: "The Fish Therapist", image: "card_1.jpg", correct: "From now on, let’s keep these sessions to fifteen minutes." },
+  { id: 2, title: "The Alien Restaurant", image: "card_2.jpg", correct: "Could you take our picture? Nobody back home will believe this." },
+  { id: 3, title: "Dog Board Meeting", image: "card_3.jpg", correct: "That’s all for today. Henderson, stay." },
+  { id: 5, title: "Grim Reaper Café", image: "card_5.jpg", correct: "Don’t mind me. I’m early." },
+  { id: 6, title: "Self-Driving Car", image: "card_6.jpg", correct: "Can we please not do this in front of the car?" },
+  { id: 7, title: "Snowman Doctor", image: "card_7.jpg", correct: "Any recent travel to Florida?" },
+  { id: 10, title: "Pigeon Consultant", image: "card_10.jpg", correct: "Keep wearing the suit. She’ll never know." },
+  { id: 11, title: "Airplane Squeeze", image: "card_11.jpg", correct: "I haven’t felt my arms since Cleveland." },
+  { id: 12, title: "Scuba Date", image: "card_12.jpg", correct: "I hear the soup is bottomless." },
+  { id: 13, title: "Victorian Beach Lady", image: "card_13.jpg", correct: "Is that ironic? Tell me it’s ironic." },
+  { id: 14, title: "Octopus Interview", image: "card_14.jpg", correct: "Strong résumé. The handshake was a lot." },
+  { id: 16, title: "The Gym", image: "card_16.jpg", correct: "Is this what they meant by ‘results may vary’?" },
+  { id: 17, title: "Pirate Therapy", image: "card_17.jpg", correct: "He tells the parrot things he won’t tell me." },
+  { id: 19, title: "Giant Sushi", image: "card_19.jpg", correct: "Omakase means you don’t get to say when." },
+  { id: 21, title: "Big Head Barber", image: "card_21.jpg", correct: "Just a little off the top." },
+  { id: 22, title: "Giant Mouth Dentist", image: "card_22.jpg", correct: "Doctor, he says he’d like to rinse now." },
+  { id: 23, title: "The Speedo Strut", image: "card_23.jpg", correct: "Everyone stay in the water until he passes." },
+  { id: 24, title: "Horse Witness", image: "card_24.jpg", correct: "Isn’t it true you started wearing glasses for this trial?" },
+  { id: 25, adult: true, title: "Stick Figure Art", image: "card_25.jpg", correct: "Honestly, it’s the twenty-five cents that gets me." },
+  { id: 26, title: "Yoga Pretzel", image: "card_26.jpg", correct: "His free trial ended in April." },
+  { id: 27, title: "Giraffe Tailor", image: "card_27.jpg", correct: "Nothing with spots. I don’t want to look like I’m trying." },
+  { id: 29, title: "Enormous Cat", image: "card_29.jpg", correct: "The vet says it’s mostly fur." },
+  { id: 30, title: "The Elevator", image: "card_30.jpg", correct: "Don’t look up. He’s from corporate." },
+  { id: 31, title: "The Burger", image: "card_31.jpg", correct: "She keeps saying it isn’t a competition." },
+  { id: 32, adult: true, title: "The Consultation", image: "card_32.jpg", correct: "Before we begin, I’ll need your previous surgeon’s name." },
+  { id: 33, title: "The Tee Shot", image: "card_33.jpg", correct: "Last year he came in shorts." },
+  { id: 34, title: "The Worm", image: "card_34.jpg", correct: "Earl took the free lunch. We don't talk about Earl." },
+  { id: 35, title: "The Landing Zone", image: "card_35.jpg", correct: "Her doctor told her to get more fresh air." },
+  { id: 36, title: "The First Date", image: "card_36.jpg", correct: "Watch closely, dear. I won't be around forever." },
+  { id: 37, adult: true, title: "The Interview", image: "card_37.jpg", correct: "We'll have to keep this short. I go down at two." },
+  { id: 38, title: "The Dress", image: "card_38.jpg", correct: "It's a beach wedding, so we're keeping it casual." },
+  { id: 39, title: "The Arm Wrestle", image: "card_39.jpg", correct: "Frank always said he'd die before he lost." },
+  { id: 40, title: "The Drive-Through", image: "card_40.jpg", correct: "He asked us to throw it." },
+  { id: 41, title: "The Proposal", image: "card_41.jpg", correct: "My dog introduced us." },
+  { id: 42, title: "The Birthday Inferno", image: "card_42.jpg", correct: "Sir, the permit only covered eighty." },
+  { id: 44, title: "The Spa", image: "card_44.jpg", correct: "Don’t worry. He only does deep tissue." },
+  { id: 46, title: "The Plumber", image: "card_46.jpg", correct: "You've sprung a leak. Several, actually." },
   { id: 47, title: "The DMV Bear", image: "card_47.jpg", correct: "Your license expired in November. Again." },
   { id: 48, title: "The Conference", image: "card_48.jpg", correct: "The good news is he's very observant." },
   { id: 49, title: "The Groom's Side", image: "card_49.jpg", correct: "They insisted on black tie." },
@@ -227,7 +227,22 @@ function seenCounts(game) {
 function freshest(game, list) {
   if (!list.length) return list;
   const n = seenCounts(game), min = Math.min(...list.map(c => n.get(c.id) || 0));
-  return list.filter(c => (n.get(c.id) || 0) === min);
+  const out = list.filter(c => (n.get(c.id) || 0) === min);
+  if (min === 0) {                       // nobody here has seen these: the newest cartoons go first
+    const newest = out.filter(c => c.id >= NEWEST_FROM);
+    return newest.length ? newest : out;
+  }
+  // Everyone has seen something: deal the ones seen longest ago
+  const ago = seenAgo(game), most = Math.max(...out.map(c => ago.get(c.id) ?? 1e9));
+  return out.filter(c => (ago.get(c.id) ?? 1e9) === most);
+}
+const NEWEST_FROM = 47;                  // the newest batch of cartoons
+// For each cartoon: how many cartoons ago anyone here last saw it (0 = the last one they saw)
+function seenAgo(game) {
+  const here = new Set(game.players.map(p => p.id)), m = new Map();
+  for (const [pid, ids] of Object.entries(game.seenBy || {})) if (here.has(pid))
+    ids.forEach((id, i) => { const a = ids.length - 1 - i; m.set(id, Math.min(m.has(id) ? m.get(id) : a, a)); });
+  return m;
 }
 
 function updateSettings(game, partial) {
@@ -1093,7 +1108,7 @@ function addTime(game) {
 
 module.exports = {
   PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS,
-  addTime, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, plantFlag, hallOfFame, planBlock, ensurePlan,
+  addTime, freshest, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, plantFlag, hallOfFame, planBlock, ensurePlan,
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,
