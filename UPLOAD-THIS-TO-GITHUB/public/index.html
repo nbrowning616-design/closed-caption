@@ -1137,8 +1137,8 @@ function render(force = false) {
     recordSeen(); recordCareer(); checkPromotion(); answerLive(); return;   // same step: only buttons update
   } else if (state.phase === 'framing' && !force && key === lastKey && $('fm-root')) {
     recordSeen(); recordCareer(); checkPromotion(); framingLive(); window.Guide && Guide.onRender(state); return;   // picks tick in without redrawing the list
-  } else if (state.phase === 'reveal' && !force) {
-    return; // choreographed screen — don't interrupt
+  } else if (state.phase === 'reveal' && !force && revealRunner === canRun()) {
+    return; // choreographed screen — don't interrupt (unless the button changes hands: the dealer dropped)
   }
   recordSeen();
   recordCareer();
@@ -1580,7 +1580,7 @@ function renderBetting(stage) {
   const myLeft = order.includes(myPlayerId) ? left(myPlayerId) : 0;
   const rack = order.includes(myPlayerId) && !state.isDealer ? `<div class="my-rack" id="my-rack"><span class="lbl">Your chips</span><div class="rack-chips">${myLeft ? Array.from({ length: myLeft }, (_, i) => chipHtml(myPlayerId, 'lg', '', `data-rack="${i}"`)).join('') : '<span class="bnone">all down</span>'}</div></div>` : '';
 
-  const next = stage === 1 ? 'Turning the Closed Caption over…' : (state.settings.stealEnabled ? 'Over to the dealer for the steal…' : 'Here comes the answer…');
+  const next = stage === 1 ? 'Turning the Closed Caption over…' : (state.settings.stealEnabled && (state.bets || []).some(b => b.target !== 'pass' && b.count > 0) ? `Over to ${esc(state.dealerName)} for the steal…` : 'Here comes the answer…');
   const cur = state.currentBetterName ? esc(state.currentBetterName) : '';
   let banner;
   if (state.allBetsIn) banner = `<div class="turn-banner"><div class="h2">All chips are down</div><p class="sub">${next}</p></div>`;
@@ -1651,7 +1651,9 @@ function flyMyChips(betIdx) {
 }
 
 /* ── REVEAL ── */
+let revealRunner = null;
 function renderReveal() {
+  revealRunner = canRun();
   const n = (state.eligibleSecondBetters || []).length;
   return `${header({ sticker: '<span class="sticker">The reveal</span>' })}
     <div class="center" style="padding-top:2vh;">
@@ -1661,7 +1663,7 @@ function renderReveal() {
         <div class="face back"><div class="panel yellow" style="transform:rotate(-1deg);"><p class="eyebrow" style="color:var(--ink-2);">The Closed Caption</p><p class="caption-text" style="font-size:22px; margin-top:6px;">“${esc(state.closedCaption)}”</p>${state.iWroteClosed ? '<p class="small" style="margin-top:6px;">(Yours. Poker face.)</p>' : ''}</div></div>
       </div></div>
       <p class="sub" id="reveal-hint" style="opacity:0; transition:opacity .4s; margin-top:30px;"></p>
-      ${canRun() ? `<button id="reveal-continue" class="btn ${state.isDealer ? 'btn-yellow' : ''}" style="margin-top:18px; opacity:0; transition:opacity .4s; pointer-events:none;" onclick="send({action:'advance'})">${n ? 'Read it aloud, then — last chips →' : 'Next →'}</button>` : ''}
+      ${canRun() ? `<button id="reveal-continue" class="btn ${state.isDealer ? 'btn-yellow' : ''}" style="margin-top:18px; opacity:0; transition:opacity .4s; pointer-events:none;" onclick="send({action:'advance'})">${n ? 'Read it aloud, then — last chips →' : 'Next →'}</button>` : `<p class="sub" id="reveal-continue" style="margin-top:18px; opacity:0; transition:opacity .4s;">🎤 ${esc(state.dealerName)} reads it out, then ${n ? 'the last chips' : 'on to the answer'}.</p>`}
     </div>`;
 }
 /* The Closed Caption turns over like a real card: it lifts (the shadow grows), trembles, then slaps
@@ -1824,7 +1826,7 @@ function fmFootHtml() {
   const chips = ids.map(id => `<span class="fm-chip ${decided.has(id) ? 'done' : ''}">${chipHtml(id)}</span>`).join('');
   const passed = mine === 'pass';
   return `<button class="btn fm-pass ${passed ? 'on' : ''}" onclick="pickFrame('pass')" aria-pressed="${passed ? 'true' : 'false'}">${passed ? '✓ Passed · tap a caption to change' : 'Nah, not this round'}</button>
-    <div class="fm-row"><div class="fm-chips ${ids.length > 6 ? 'many' : ''}">${chips}</div><span class="fm-count">${here.filter(id => decided.has(id)).length} of ${here.length} decided</span></div>
+    <div class="fm-row"><div class="fm-chips ${ids.length > 6 ? 'many' : ''}">${chips}</div><span class="fm-count">${(() => { const wait = here.filter(id => !decided.has(id)); return wait.length && wait.length <= 2 && here.length > 2 ? 'Waiting on ' + wait.map(id => id === myPlayerId ? 'you' : esc(nameOf(id))).join(' & ') + '…' : `${here.length - wait.length} of ${here.length} decided`; })()}</span></div>
     ${canRun() ? `<div class="center" style="margin-top:-6px;"><button class="btn-link fm-move" onclick="send({action:'advance'})">Move on</button></div>` : ''}`;
 }
 function fmHeadHtml() {
@@ -2011,7 +2013,7 @@ function stealNewsHtml() {
    back down); every later one is the sharp version (~2.6s: down, CLUNK, pssst, set down). The server
    counts the steals (steal.show), so every phone agrees.
    Starts on the shared beat. Returns ms until the show is over. */
-const STEAL_SHOW_MS = 7600, STEAL_QUICK_MS = 2600;
+const STEAL_SHOW_MS = 7600, STEAL_QUICK_MS = 3400;
 function playStealShow(wait = 0) {
   if (!window.ccClaw) return 0;
   return window.ccClaw.play(wait, { fullMs: STEAL_SHOW_MS, quickMs: STEAL_QUICK_MS });

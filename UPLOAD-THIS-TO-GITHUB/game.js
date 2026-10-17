@@ -528,6 +528,7 @@ function voteMulligan(game, playerId) {
   const oldImage = game.cartoon ? game.cartoon.image : null;
   dealCartoon(game);
   game.mulliganCount = (game.mulliganCount || 0) + 1;
+  game.timerEnd += 4500;   // the execution plays over the new cartoon: give that time back
   game.mulliganEvent = { n: game.mulliganCount, quip: pick(MULLIGAN_QUIPS), kind: pick(EXECUTIONS), image: oldImage, at: Date.now() };
   return { ok: true, triggered: true };
 }
@@ -821,7 +822,7 @@ function allFramesIn(game) {
   return game.players.filter(p => voters.has(p.id) && isPresent(p)).every(p => p.id in picks);
 }
 // The ceremony's beats (server clock): each framed caption gets a slot, then the scoreboard
-const FRAME_LEAD_MS = 900, FRAME_SLOT_MS = 6000, FRAME_NONE_MS = 3200;
+const FRAME_LEAD_MS = 900, FRAME_SLOT_MS = 8500, FRAME_NONE_MS = 3600;   // a framing gets time to be admired before the scoreboard
 // Count the picks; every caption with enough is framed (most picks first). Happens once per round.
 function resolveFraming(game) {
   if (game.phase !== PHASES.FRAMING) return { error: 'Not framing' };
