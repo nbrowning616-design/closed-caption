@@ -91,6 +91,7 @@ const CARTOONS = [
   { id: 69, spicy: true, title: "The Chart", image: "card_69.jpg", correct: "That was the week the cable went out." },
   { id: 70, adult: true, title: "Mood Lighting", image: "card_70.jpg", correct: "You can breathe on your own for ten minutes." },
   { id: 71, spicy: true, title: "The Scanner", image: "card_71.jpg", correct: "Wave him through. And get his number." },
+  { id: 72, spicy: true, title: "Bridge Night", image: "card_72.jpg", correct: "Your bet, Herb. We'll take the barrel for five." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
