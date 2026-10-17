@@ -18,6 +18,9 @@ A web-based multiplayer party game. One person creates a game, shares a 4-letter
 - The game secretly turns one caption face-down (the Closed Caption). Usually it's a player's; sometimes it's the real one
 - Blind bets go one at a time from the dealer's left (the dealer doesn't bet), the Closed Caption is revealed, last chips go down (anywhere, even on the same caption), then the dealer may steal one chip
 - The real caption is revealed and points are paid. Full rules are on the app's "How to play" screen
+- The host lines up the seats in the lobby and picks which way the deal passes (left or right)
+- Stealing a chip that was on the real caption scores the dealer +1; the real caption is face-down in about 15% of rounds, never two in a row
+- Everyone gets one Hall of Fame flag per game. Two flags on a caption inducts it, with a shareable magazine-style card. End-of-game awards play before the final scores
 - Every caption, including the real ones, is tidied the same way (capitals, punctuation, apostrophes, quotes) so style never gives anything away. Likely typos get a "Did you mean…?" before locking in
 
 ## Deploying Online
@@ -41,7 +44,9 @@ Both have free tiers that work fine for game nights.
 
 - `server.js` — Express + WebSocket server
 - `game.js` — All game rules, phases, scoring logic
-- `polish.js` — Caption tidying and spelling suggestions
+- `polish.js` — Caption tidying (punctuation, common grammar slips) and spelling suggestions
 - `words.txt` — English word list used for spelling suggestions (from the wordfreq project)
 - `public/index.html` — The entire frontend (mobile-first)
+- `public/fx.js` — The mulligan "executions"
+- `public/hof.js` — Draws the Hall of Fame share card
 - `public/images/` — Cartoon card images

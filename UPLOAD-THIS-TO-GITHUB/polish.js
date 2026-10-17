@@ -52,6 +52,26 @@ function curlQuotes(s) {
   return s;
 }
 
+// Does a sentence opening with these two words read as a question? Deliberately cautious:
+// a missed question just keeps its full stop, but a wrong "?" would stand out.
+const WH_AUX = new Set("is are am was were do does did can could would should will won't have has had isn't aren't wasn't weren't don't doesn't didn't can't couldn't wouldn't shouldn't haven't hasn't".split(' '));
+const PEOPLE = "i you u ya we they he she y'all anyone anybody someone somebody everyone everybody people";
+const SUBJECT = new Set((PEOPLE + ' it this that these those there nobody my your his her our their').split(' '));
+const DOER = new Set(PEOPLE.split(' '));                               // after "Do"/"Have": not "Do it again." / "Do your homework."
+function isQuestion(w1, w2raw) {
+  const w2 = w2raw.toLowerCase();
+  const wh = w1.replace(/'s$/, '');
+  if (/^(who|what|when|where|why|how)$/.test(wh)) {
+    if (w1 !== wh || /^(why|who)$/.test(w1)) return !!w2 || w1 !== wh; // what's, who's, how's… and "Why …" / "Who …"
+    if (WH_AUX.has(w2) || (w1 === 'what' && /^(if|now|happened|else|gives)$/.test(w2)) || (w1 === 'where' && w2 === 'to')) return true;
+    return w1 === 'how' && /^(many|much|about|come|long|far|old|often|so)$/.test(w2); // not "What a day." / "When I was young."
+  }
+  if (w1 === 'any') return /^(questions?|takers|requests|luck|ideas?|news|thoughts|last|volunteers|objections|comments|chance|suggestions|survivors|regrets|more|other|plans|word)$/.test(w2); // not "Any friend of yours…"
+  if (w1 === 'do' || w1 === 'have') return DOER.has(w2);
+  if (/^(is|are|am|was|were|does|did|has|can|could|would|should|will|won't)$/.test(w1)) return SUBJECT.has(w2) || (w1 !== 'will' && /^[A-Z][a-z]/.test(w2raw)); // a name: "Is Gary here." (but "Will Smith…")
+  return false;
+}
+
 // Mechanical clean-up. Never changes the words themselves, only how they're dressed.
 function tidy(input) {
   let s = String(input || '').normalize('NFC');
@@ -83,6 +103,21 @@ function tidy(input) {
   });
   s = s.replace(/\bi\b(?!\.e\.)/g, 'I').replace(/\bI'(m|ve|ll|d)\b/gi, (m, t) => "I'" + t.toLowerCase());
 
+  // Common word mix-ups, fixed only next to a word that settles it ("your welcome", "its a trap",
+  // "better then", "could of"). A hyphen after the next word ("your going-away party") means no match.
+  // A capital "A" after a lowercase word is a grade or a name ("your A game"), so it doesn't count.
+  const shout = (w) => w.length > 1 && w === w.toUpperCase();
+  const mixUp = (re, fix) => { s = s.replace(re, (m, w, sp, nx) => (nx === 'A' && !shout(w) ? m : fix(w, sp, nx))); };
+  mixUp(/\b(?<!')(your)( +)(welcome|going|a|an|the|not|so|never|always|being|kidding|fired|right|wrong)\b(?![-'])(?!(?<=right|wrong) +(?:hand|hands|arm|arms|leg|legs|foot|feet|eye|eyes|ear|ears|side|shoe|wing|turn|answer|number|way|place|choice|size|one|of)\b)/gi,
+    (w, sp, nx) => matchCase(w, "you're") + sp + nx);                // "your right hand" is left alone
+  mixUp(/\b(?<!')(its)( +)(a|an|the|not|been|so|just|all|time|over|fine|ok|okay|like|about|going|getting|clearly|really|always|never)\b(?![-'])/gi,
+    (w, sp, nx) => matchCase(w, "it's") + sp + nx);
+  mixUp(/\b(better|more|less|worse|rather|bigger|smaller|older|younger|faster|longer|other)( +)(then)\b(?![-'])/gi,
+    (w, sp, t) => w + sp + matchCase(t, 'than'));
+  mixUp(/\b(could|would|should|must)( +)(of)\b(?![-'])(?! +course\b)/gi,   // "could of course" is left alone
+    (w, sp) => w + sp + (shout(w) ? 'HAVE' : 'have'));
+  s = s.replace(/\b(?<!')alot\b(?!')/gi, w => matchCase(w, 'a lot'));     // "ALOT" -> "A LOT", "Alot" -> "A lot"
+
   // A caption typed in ALL CAPS gets normal sentence case
   const letters = s.replace(/[^A-Za-z]/g, '');
   if (letters.length > 6 && letters === letters.toUpperCase() && s.split(' ').length > 1) s = s.toLowerCase().replace(/\bi\b/g, 'I').replace(/\bi'/g, "I'");
@@ -95,6 +130,15 @@ function tidy(input) {
   s = s.replace(/[\s,;:\-—–]+$/, '');
   if (/[A-Za-z0-9)%]$/.test(s)) s += '.';
   else if (/[A-Za-z0-9]["']$/.test(s)) s = s.slice(0, -1) + '.' + s.slice(-1);
+
+  // A last sentence that is plainly a question gets "?" instead of "." ("Who did this." -> "Who did this?").
+  // Only the caption's final full stop changes, and only when the opening words leave no doubt:
+  // "What a day." / "When I was young…" / "Do it again." / "Could be worse." all stay statements.
+  if (/[^.]\.$/.test(s)) {
+    const last = s.slice(0, -1).split(/[.!?…]\s+/).pop();
+    const m = last.match(/^["']?([A-Za-z]+(?:'[A-Za-z]+)?)(,?)(?:\s+([A-Za-z]+(?:'[A-Za-z]+)?))?/);
+    if (m && !m[2] && isQuestion(m[1].toLowerCase(), m[3] || '')) s = s.slice(0, -1) + '?'; // a comma ("Why, thank you.") rules it out
+  }
 
   return curlQuotes(s.replace(/\s+/g, ' ').trim());
 }

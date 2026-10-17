@@ -28,8 +28,9 @@ const wss = new WebSocketServer({ server, maxPayload: 16 * 1024 });
 // Build id: phones compare it and refresh themselves after an update
 const INDEX_PATH = path.join(__dirname, 'public', 'index.html');
 const INDEX_HTML = fs.readFileSync(INDEX_PATH, 'utf8');
-const BUILD = crypto.createHash('sha1').update(INDEX_HTML + fs.readFileSync(path.join(__dirname, 'game.js'))).digest('hex').slice(0, 10);
-const PAGE = INDEX_HTML.replace('__BUILD__', BUILD);
+const BUILD = crypto.createHash('sha1').update(INDEX_HTML + ['game.js', 'public/fx.js', 'public/hof.js', 'public/music.js'].map(f => fs.readFileSync(path.join(__dirname, f), 'utf8')).join('')).digest('hex').slice(0, 10);
+// __V__ busts the phone's cache for the helper scripts after an update
+const PAGE = INDEX_HTML.replace('__BUILD__', BUILD).split('__V__').join(BUILD);
 app.get('/', (req, res) => { res.set('Cache-Control', 'no-store'); res.type('html').send(PAGE); });
 app.get('/index.html', (req, res) => res.redirect('/'));
 app.get('/healthz', (req, res) => res.send('ok'));
@@ -120,7 +121,7 @@ wss.on('connection', (ws) => {
       if (!name) return sendError(ws, 'Enter your name');
       const timer = [60, 90, 120, 180].includes(msg.timer) ? msg.timer : 90;
       const id = crypto.randomUUID();
-      let game; do { game = G.createGame(id, name, timer); } while (games[game.code]);
+      let game; do { game = G.createGame(id, name, timer, Array.isArray(msg.seen) ? msg.seen.slice(0, 200) : []); } while (games[game.code]);
       games[game.code] = game;
       return seat(id, game.code);
     }
@@ -184,6 +185,16 @@ wss.on('connection', (ws) => {
       case 'update_settings': {
         if (!isHost) return sendError(ws, 'Only the host can change settings');
         if (fail(G.updateSettings(game, msg.settings || {}))) return;
+        broadcast(code);
+        return;
+      }
+      case 'move_seat': {
+        if (fail(G.moveSeat(game, playerId, msg.targetPlayerId, Number(msg.dir)))) return;
+        broadcast(code);
+        return;
+      }
+      case 'plant_flag': {
+        if (fail(G.plantFlag(game, playerId, msg.target))) return;
         broadcast(code);
         return;
       }
@@ -260,7 +271,9 @@ wss.on('connection', (ws) => {
             if (!canRun) return sendError(ws, 'Only the dealer or host can do that');
             G.moveFromSecondBets(game); break;
           case PHASES.ANSWER:
-            G.moveToScoreboard(game); break;   // anyone
+            // The table lingers on the answer: only the dealer (or host, or a stand-in) moves on
+            if (!canRun) return sendError(ws, 'The dealer moves to the scoreboard');
+            G.moveToScoreboard(game); break;
           case PHASES.SCORES: {
             const nd = game.players[G.nextDealerIndex(game, game.dealerIndex)];
             if (!canRun && !(nd && nd.id === playerId)) return sendError(ws, 'Waiting for the next dealer');
@@ -278,6 +291,7 @@ wss.on('connection', (ws) => {
       case 'play_again': {
         if (!isHost) return sendError(ws, 'Only the host can start a new game');
         if (game.phase !== PHASES.SCORES || !G.isGameOver(game)) return sendError(ws, 'The game is still going');
+        if (Array.isArray(msg.seen)) G.setSeen(game, msg.seen.slice(0, 200));
         G.resetForNewGame(game);
         broadcast(code);
         return;

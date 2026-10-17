@@ -82,6 +82,20 @@ const MULLIGAN_QUIPS = [
   'Not even the artist liked that one.',
   'Cartoon fired. Security will walk it out.',
 ];
+// How the rejected cartoon meets its end (every phone plays the same one)
+const EXECUTIONS = ['punch', 'tear', 'fire', 'flush', 'stomp', 'shred'];
+
+// What the dealer says after the steal (rotates)
+const GLOATS = [
+  'Got you, buddy. It’s mine now.',
+  'Thanks for the chip. I’ll treasure it.',
+  'Nothing personal. Okay, a little personal.',
+  'Finders keepers.',
+  'You weren’t using that, were you?',
+  'That’s going on my mantel.',
+  'Shhh. It’s okay. Let it go.',
+  'Mine now. Say goodbye.',
+];
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -109,12 +123,17 @@ const DEFAULT_SETTINGS = {
   pointsClosedLate: 1,           // kept equal to pointsOpenLate
   pointsPerFool: 1,              // to the writer, for each chip someone else puts on their caption
   dealerBonus: 4,                // dealer scores this if no chip ends up on the real caption
-  autoCloseProbability: 0.15,    // chance the real caption is the Closed Caption
+  pointsStealCorrect: 1,         // dealer scores this for stealing a chip that was on the real caption
+  autoCloseProbability: 0.15,    // share of rounds where the real caption is the Closed Caption
   stealEnabled: true,            // dealer may knock one chip off the table before the answer
+  direction: 'left',             // which way the deal and the betting go around the table
 };
 
-function createGame(hostId, hostName, timerDuration = 90) {
+function createGame(hostId, hostName, timerDuration = 90, seenIds = []) {
   return {
+    seenIds: cleanSeen(seenIds),   // cartoons the host's phone has seen in earlier games
+    closePlan: [],                  // closePlan[round - 1] = true when the real caption is face-down that round
+    flags: [],                      // Hall of Fame flags: { fromId, round, target }
     code: generateRoomCode(),
     phase: PHASES.LOBBY,
     players: [{ id: hostId, name: hostName, score: 0, connected: true }],
@@ -150,13 +169,20 @@ function createGame(hostId, hostName, timerDuration = 90) {
   };
 }
 
+function cleanSeen(ids) {
+  const valid = new Set(CARTOONS.map(c => c.id));
+  return Array.isArray(ids) ? [...new Set(ids.map(Number).filter(n => valid.has(n)))] : [];
+}
+function setSeen(game, ids) { game.seenIds = cleanSeen(ids); }
+
 function updateSettings(game, partial) {
   if (game.phase !== PHASES.LOBBY) return { error: 'Settings can only be changed in the lobby' };
   const s = game.settings;
-  const ints = ['rounds', 'targetScore', 'pointsOpenBet', 'pointsClosedBet', 'pointsOpenLate', 'pointsClosedLate', 'pointsPerFool', 'dealerBonus'];
+  const ints = ['rounds', 'targetScore', 'pointsOpenBet', 'pointsClosedBet', 'pointsOpenLate', 'pointsClosedLate', 'pointsPerFool', 'dealerBonus', 'pointsStealCorrect'];
   for (const key of Object.keys(partial || {})) {
     const val = partial[key];
     if (key === 'stealEnabled') { s.stealEnabled = !!val; continue; }
+    if (key === 'direction') { if (val !== 'left' && val !== 'right') return { error: 'Invalid direction' }; s.direction = val; continue; }
     if (key === 'autoCloseProbability') {
       const n = Number(val);
       if (isNaN(n) || n < 0 || n > 1) return { error: 'Invalid auto-close probability' };
@@ -190,25 +216,72 @@ function kickPlayer(game, hostId, targetPlayerId) {
   return { ok: true, kickedName: target.name };
 }
 
+// Lobby: the host moves a seat up (-1) or down (+1) the table order
+function moveSeat(game, hostId, targetId, dir) {
+  if (game.phase !== PHASES.LOBBY) return { error: 'Seats can only be changed in the lobby' };
+  if (game.hostId !== hostId) return { error: 'Only the host can arrange the seats' };
+  const i = game.players.findIndex(p => p.id === targetId), j = i + (dir < 0 ? -1 : 1);
+  if (i < 0) return { error: 'Player not in game' };
+  if (j < 0 || j >= game.players.length) return { ok: true };
+  [game.players[i], game.players[j]] = [game.players[j], game.players[i]];
+  return { ok: true };
+}
+
 const connectedPlayers = (game) => game.players.filter(p => p.connected);
 const dealerOf = (game) => game.players[game.dealerIndex] || null;
 const nameOfPlayer = (game, pid) => (game.players.find(p => p.id === pid) || {}).name || '?';
 
-// The next seat after `from` held by someone who is here. Falls back to the next seat.
+const stepOf = (game) => (game.settings.direction === 'right' ? -1 : 1);
+const seatAt = (n, i) => ((i % n) + n) % n;
+
+// The next seat after `from`, going the table's direction, held by someone who is here.
+// The first deal of a game goes to seat 1. Falls back to the next seat.
 function nextDealerIndex(game, from) {
-  const n = game.players.length;
+  const n = game.players.length, step = stepOf(game);
   if (!n) return -1;
+  if (from < 0) { for (let k = 0; k < n; k++) if (game.players[k].connected) return k; return 0; }
   for (let k = 1; k <= n; k++) {
-    const i = (from + k + n) % n;
+    const i = seatAt(n, from + k * step);
     if (game.players[i].connected) return i;
   }
-  return (from + 1 + n) % n;
+  return seatAt(n, from + step);
+}
+
+/* ── Which rounds have the real caption face-down ──
+   Planned ahead so it's about the lobby's share of rounds, never two in a row. */
+function planBlock(len, k, forbidFirst) {
+  const start = forbidFirst ? 1 : 0, m = len - start;
+  k = Math.max(0, Math.min(k, Math.ceil(m / 2)));
+  // k non-adjacent spots among m: pick k of (m - k + 1), then spread them apart
+  const picks = shuffleArray([...Array(Math.max(0, m - k + 1)).keys()]).slice(0, k).sort((a, b) => a - b);
+  const block = Array(len).fill(false);
+  picks.forEach((c, i) => { block[start + c + i] = true; });
+  return block;
+}
+function ensurePlan(game, round) {
+  const p = game.settings.autoCloseProbability;
+  if (!game.closePlan.length && !game.settings.targetScore) {
+    const n = totalRounds(game);
+    game.closePlan = planBlock(n, Math.round(n * p + 1e-9), false);
+  }
+  while (game.closePlan.length < round) {
+    // First-to-X games (and extra rounds): blocks of 7, averaging the lobby's share
+    const want = 7 * p, k = Math.floor(want + 1e-9) + (Math.random() < want - Math.floor(want + 1e-9) ? 1 : 0);
+    game.closePlan.push(...planBlock(7, k, !!game.closePlan[game.closePlan.length - 1]));
+  }
+  return !!game.closePlan[round - 1];
 }
 
 // Put a fresh cartoon on the table, never the one being replaced
 function dealCartoon(game) {
   const currentId = game.cartoon ? game.cartoon.id : null;
-  let available = CARTOONS.filter(c => !game.usedCartoonIds.includes(c.id) && c.id !== currentId);
+  const seen = new Set(game.seenIds || []);
+  let available = CARTOONS.filter(c => !game.usedCartoonIds.includes(c.id) && c.id !== currentId && !seen.has(c.id));
+  if (available.length === 0) {
+    // The host's phone has seen the whole deck: start over
+    game.seenIds = [];
+    available = CARTOONS.filter(c => !game.usedCartoonIds.includes(c.id) && c.id !== currentId);
+  }
   if (available.length === 0) {
     game.usedCartoonIds = currentId ? [currentId] : [];
     available = CARTOONS.filter(c => c.id !== currentId);
@@ -217,7 +290,7 @@ function dealCartoon(game) {
   game.usedCartoonIds.push(cartoon.id);
   game.cartoon = { id: cartoon.id, title: cartoon.title, image: cartoon.image };
   game.correctCaption = cartoon.correct;
-  game.autoClose = Math.random() < game.settings.autoCloseProbability;
+  game.autoClose = ensurePlan(game, Math.max(1, game.round));   // a mulligan keeps the round's plan
   game.submissions = [];
   game.mulliganVotes = [];
   game.timerEnd = Date.now() + game.timerDuration * 1000;
@@ -293,7 +366,7 @@ function voteMulligan(game, playerId) {
   const oldImage = game.cartoon ? game.cartoon.image : null;
   dealCartoon(game);
   game.mulliganCount = (game.mulliganCount || 0) + 1;
-  game.mulliganEvent = { n: game.mulliganCount, quip: pick(MULLIGAN_QUIPS), image: oldImage, at: Date.now() };
+  game.mulliganEvent = { n: game.mulliganCount, quip: pick(MULLIGAN_QUIPS), kind: pick(EXECUTIONS), image: oldImage, at: Date.now() };
   return { ok: true, triggered: true };
 }
 
@@ -322,10 +395,10 @@ function finishWriting(game) {
   return { ok: true };
 }
 
-// Clockwise from the dealer's left; the dealer doesn't bet
+// Around the table from the dealer, in the table's direction; the dealer doesn't bet
 function computeBetOrder(game) {
-  const n = game.players.length, order = [];
-  for (let k = 1; k < n; k++) order.push(game.players[(game.dealerIndex + k) % n].id);
+  const n = game.players.length, order = [], step = stepOf(game);
+  for (let k = 1; k < n; k++) order.push(game.players[seatAt(n, game.dealerIndex + k * step)].id);
   return order;
 }
 
@@ -426,7 +499,7 @@ function stealChip(game, betIndex) {
     if (!bet || bet.target === 'pass' || bet.count < 1) return { error: 'No chip there' };
     bet.count -= 1;
     bet.stolen = (bet.stolen || 0) + 1;
-    game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex) };
+    game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect: isBetOnCorrect(game, bet), gloat: pick(GLOATS), seed: Math.floor(Math.random() * 1e9), at: Date.now() };
   }
   revealAnswer(game);
   return { ok: true };
@@ -470,6 +543,8 @@ function revealAnswer(game) {
   }
 
   const dealer = dealerOf(game);
+  // Nick's rule: stealing a chip off the real caption pays the dealer
+  if (dealer && game.steal && game.steal.victimId && game.steal.onCorrect) add(dealer.id, s.pointsStealCorrect, 'Stole a chip off the real caption');
   game.dealerBonusAwarded = false;
   if (!anyoneRight && dealer && s.dealerBonus > 0) {
     add(dealer.id, s.dealerBonus, 'Dealer’s revenge — no chip on the real caption');
@@ -521,8 +596,48 @@ function isGameOver(game) {
   return game.round >= totalRounds(game);
 }
 
+/* ── Hall of Fame flags: one per player per game, honour only ── */
+function authorOf(game, target) { return target === 'closed' ? game.closedPlayerId : (game.openCaptions[target] || {}).playerId; }
+function plantFlag(game, playerId, target) {
+  if (game.phase !== PHASES.ANSWER && game.phase !== PHASES.SCORES) return { error: 'Flags go down after the answer' };
+  if (!game.players.some(p => p.id === playerId)) return { error: 'Player not in game' };
+  const v = validateTarget(game, target);
+  if (v.error) return v;
+  if (authorOf(game, v.target) === playerId) return { error: 'You can’t flag your own caption' };
+  const mine = game.flags.find(f => f.fromId === playerId);
+  if (mine && mine.round !== game.round) return { error: 'You already used your flag this game' };
+  if (mine && String(mine.target) === String(v.target)) { game.flags = game.flags.filter(f => f !== mine); return { ok: true, removed: true }; }
+  if (mine) game.flags = game.flags.filter(f => f !== mine);
+  game.flags.push({ fromId: playerId, round: game.round, target: v.target, at: Date.now() });
+  const count = game.flags.filter(f => f.round === game.round && String(f.target) === String(v.target)).length;
+  return { ok: true, count };
+}
+const MONTH = () => new Date().toLocaleString('en-US', { month: 'long', year: 'numeric', timeZone: 'America/New_York' });
+// Captions with two or more flags, with everything a Hall of Fame card needs
+function hallOfFame(game) {
+  const groups = new Map();
+  for (const f of game.flags) { const k = f.round + '|' + f.target; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(f); }
+  const out = [];
+  for (const fl of groups.values()) {
+    if (fl.length < 2) continue;
+    const { round, target } = fl[0];
+    let caption, writerName, writerId, image, isReal;
+    const live = round === game.round && (game.phase === PHASES.ANSWER || game.phase === PHASES.SCORES);
+    const h = game.history.find(x => x.round === round);
+    if (!h) continue;
+    image = h.cartoon && h.cartoon.image;
+    if (target === 'closed') { caption = h.closedCaption; writerId = h.closedPlayerId; isReal = !!h.closedIsCorrect; }
+    else { const c = h.openCaptions[target] || {}; caption = c.caption; writerId = c.playerId; isReal = !!c.isCorrect; }
+    writerName = writerId ? nameOfPlayer(game, writerId) : null;
+    out.push({ round, target, caption, writerId, writerName, isReal, image, flaggers: fl.map(f => nameOfPlayer(game, f.fromId)), month: MONTH(), live });
+  }
+  return out.sort((a, b) => a.round - b.round);
+}
+
 function resetForNewGame(game) {
   game.phase = PHASES.LOBBY;
+  game.flags = [];
+  game.closePlan = [];
   game.round = 0;
   game.dealerIndex = -1;
   game.history = [];
@@ -562,6 +677,7 @@ function getPlayerView(game, playerId) {
     round: game.round,
     totalRounds: s.targetScore ? null : totalRounds(game),
     settings: { ...s },
+    deckSize: CARTOONS.length,
     hostId: game.hostId,
     isHost: game.hostId === playerId,
     dealerId: dealer ? dealer.id : null,
@@ -623,7 +739,13 @@ function getPlayerView(game, playerId) {
     base.roundScores = game.roundScores;
     base.roundScoreDetails = game.roundScoreDetails || {};
     base.dealerBonusAwarded = !!game.dealerBonusAwarded;
-    base.openCaptionDetails = game.openCaptions.map(c => ({ caption: c.caption, isCorrect: c.isCorrect, playerName: c.playerId ? nameOfPlayer(game, c.playerId) : null }));
+    base.openCaptionDetails = game.openCaptions.map(c => ({ caption: c.caption, isCorrect: c.isCorrect, playerId: c.playerId, playerName: c.playerId ? nameOfPlayer(game, c.playerId) : null }));
+    base.closedPlayerId = game.closedPlayerId;
+    base.flags = game.flags.filter(f => f.round === game.round).map(f => ({ ...f }));
+    base.allFlags = game.flags.map(f => ({ ...f }));
+    const mf = game.flags.find(f => f.fromId === playerId);
+    base.myFlag = mf ? { ...mf } : null;
+    base.hallOfFame = hallOfFame(game);
   }
 
   if (game.phase === PHASES.SCORES) {
@@ -642,7 +764,7 @@ function getPlayerView(game, playerId) {
 
 module.exports = {
   PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS,
-  createGame, updateSettings, addPlayer, kickPlayer,
+  createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, plantFlag, hallOfFame, planBlock, ensurePlan,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,
   stealChip, revealAnswer, moveToScoreboard, isGameOver, resetForNewGame,
