@@ -85,6 +85,7 @@ const CARTOONS = [
   { id: 63, spicy: true, title: "Noise Complaint", image: "card_63.jpg", correct: "Ma'am, please stop tipping me." },
   { id: 64, spicy: true, title: "The Specialist", image: "card_64.jpg", correct: "Just the one, please." },
   { id: 65, spicy: true, title: "Sunday Morning", image: "card_65.jpg", correct: "Brenda. Early service, or late?" },
+  { id: 66, spicy: true, title: "Donor of the Month", image: "card_66.jpg", correct: "He's the reason the whole town has that chin." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
