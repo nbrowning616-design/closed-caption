@@ -52,7 +52,7 @@
   var peers = {};                 // playerId -> peer
   var pool = [], box = null;      // hidden <audio> elements (made during the Join tap, for iOS)
   var meters = {};                // playerId (or 'me') -> { an, buf, src, talkUntil }
-  var sink = null, ticker = null, sheetOpen = false, needTap = false, cfg = {};
+  var joinSeq = 0, sink = null, ticker = null, sheetOpen = false, needTap = false, cfg = {};
 
   /* ── small helpers ── */
   var rid = function () { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); };
@@ -165,9 +165,10 @@
       return;
     }
     if (!last || !last.playerId) { toast('Join a game first, then tap Join voice.'); return; }
-    joining = true; refresh();
+    joining = true; var mine = ++joinSeq; refresh();
     preparePool(); audioCtx();   // inside the tap: unlocks audio on iPhone
     md.getUserMedia({ audio: AUDIO, video: false }).then(function (s) {
+      if (mine !== joinSeq) { s.getTracks().forEach(function (t) { t.stop(); }); return; }   // left while the permission prompt was up
       joining = false;
       if (!last || !last.playerId) { s.getTracks().forEach(function (t) { t.stop(); }); refresh(); return; }
       stream = s; on = true; muted = false; me = last.playerId; room = last.code;
@@ -179,6 +180,7 @@
       sync();
       refresh();
     }).catch(function (e) {
+      if (mine !== joinSeq) return;
       joining = false; refresh();
       var n = e && e.name;
       if (n === 'NotAllowedError' || n === 'SecurityError' || n === 'PermissionDeniedError') toast('🎙 The microphone is blocked for this game.<br><span style="font-weight:600">iPhone: tap <b>aA</b> in the address bar → Website Settings → Microphone → Allow. Android: tap the lock icon → Permissions → Microphone. Then tap Join voice again.</span>', 14000);
@@ -189,8 +191,8 @@
   }
 
   function leave() {
-    var was = on || joining;
-    on = false; joining = false; needTap = false; sheetOpen = false;
+    var was = on || joining, hadTap = needTap;
+    on = false; joining = false; needTap = false; sheetOpen = false; joinSeq++;
     Object.keys(peers).forEach(closePeer);
     Object.keys(meters).forEach(unmeter);
     if (stream) { stream.getTracks().forEach(function (t) { t.onended = null; try { t.stop(); } catch (e) {} }); stream = null; }
@@ -198,7 +200,7 @@
     if (was) sendWs({ action: 'voice', on: false, muted: false });
     confirmed = false; muted = false;
     var sh = document.getElementById('vc-sheet'); if (sh) sh.remove();
-    if (needTap) toast('');
+    if (hadTap) toast('');
     paint(); refresh();
   }
 

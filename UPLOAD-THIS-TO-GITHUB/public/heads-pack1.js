@@ -314,7 +314,7 @@
     place(blocks, 18, gy + 8);
     var bear = emo(c, '🧸', 54, 8); place(bear, c.W - 50, gy - 18);
     var diaper = '<path d="M18 76 Q50 84 82 76 L82 94 Q50 104 18 94 Z" fill="#fff" ' + st(3) + '/><circle cx="26" cy="84" r="4" fill="#9FD3E8" ' + st(2) + '/><circle cx="74" cy="84" r="4" fill="#9FD3E8" ' + st(2) + '/>';
-    var rattle = '<path d="M118 22 L126 -14" stroke="' + INK + '" stroke-width="6" stroke-linecap="round"/><circle cx="128" cy="-26" r="15" fill="#7FD1AE" ' + st(3) + '/><circle cx="123" cy="-30" r="3.5" fill="#FFD23F"/><circle cx="133" cy="-22" r="3.5" fill="#E8453A"/>';
+    var rattle = '<path d="M118 22 L168 -6" stroke="' + INK + '" stroke-width="6" stroke-linecap="round"/><circle cx="178" cy="-14" r="17" fill="#7FD1AE" ' + st(3) + '/><circle cx="172" cy="-18" r="3.5" fill="#FFD23F"/><circle cx="184" cy="-10" r="3.5" fill="#E8453A"/>';
     var baby = c.puppet({ px: 128, w: 90, arms: 'out', legs: 'sit', shirt: '#F2C9A0', pants: '#FFFFFF', extra: diaper + rattle });
     var top = gy - hTop(128, 90);
     var pts = [];
