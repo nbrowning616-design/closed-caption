@@ -791,9 +791,9 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
   <h2 class="h1" style="margin-bottom: 4px;">Join a game</h2>
   <p class="sub" style="margin-bottom: 22px;">Ask the host for the room code. You can join even if the game has started.</p>
   <div class="field"><label class="eyebrow" for="join-code">Room code</label><input type="text" id="join-code" class="input code" placeholder="ABCD" maxlength="4" autocapitalize="characters" autocomplete="off" enterkeyhint="next" oninput="clearJoinError()"></div>
-  <div class="field"><div class="name-lbl"><label class="eyebrow" for="join-name">Your name</label><span class="name-count" id="join-name-count" aria-hidden="true"></span></div><input type="text" id="join-name" class="input" placeholder="Your name" maxlength="12" autocomplete="off" enterkeyhint="go" oninput="nameCount(this)"></div>
+  <div class="field"><div class="name-lbl"><label class="eyebrow" for="join-name">Your name</label><span class="name-count" id="join-name-count" aria-hidden="true"></span></div><input type="text" id="join-name" class="input" placeholder="Your name" maxlength="12" autocomplete="off" enterkeyhint="go" oninput="nameCount(this); joinLabel()"></div>
   <div id="join-error" class="small" role="alert" style="color:var(--red); text-align:center; margin-bottom:12px; display:none;"></div>
-  <button class="btn btn-yellow" onclick="joinGame()">Join →</button>
+  <button class="btn btn-yellow" id="join-btn" onclick="joinGame()">Join →</button>
 </div>
 
 <!-- ═══════ GAME (drawn by script) ═══════ -->
@@ -865,10 +865,23 @@ function nameCount(el) {
   const c = $(el.id + '-count'); if (!c) return;
   const n = el.value.length; c.textContent = n ? `${n} / ${NAME_MAX}` : ''; c.classList.toggle('full', n >= NAME_MAX);
 }
+// The name this phone used last: the phone's own storage, or the year-long cookie if iOS cleared that
+function savedName() {
+  let n = '';
+  try { n = localStorage.getItem('cc_name') || ''; } catch (e) {}
+  if (!n) { const m = document.cookie.match(/(?:^|; )cc_name=([^;]*)/); if (m) { try { n = decodeURIComponent(m[1]); } catch (e) {} } }
+  return n.trim().slice(0, NAME_MAX);
+}
+function rememberName(n) {
+  try { localStorage.setItem('cc_name', n); } catch (e) {}
+  try { fetch('/remember?name=' + encodeURIComponent(n), { cache: 'no-store' }).catch(() => {}); } catch (e) {}
+}
+// Join button says who you'll join as, so a returning player just taps it
+function joinLabel() { const b = $('join-btn'), n = ($('join-name') || {}).value || ''; if (b) b.textContent = n.trim() ? `Join as ${n.trim()} →` : 'Join →'; }
 function prefillName(id) {
   const el = $(id); if (!el) return;
-  if (!el.value) { try { const n = (localStorage.getItem('cc_name') || '').trim().slice(0, NAME_MAX); if (n) el.value = n; } catch (e) {} }
-  nameCount(el);
+  if (!el.value) { const n = savedName(); if (n) el.value = n; }
+  nameCount(el); joinLabel();
 }
 function clearJoinError() { const e = $('join-error'); if (e && e.dataset.kind === 'code') { e.style.display = 'none'; e.dataset.kind = ''; } }
 // The first word of a name for banners — unless someone else at the table shares it
@@ -1123,7 +1136,7 @@ function connect() {
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
     if (msg.type === 'rtc') { if (window.Voice) Voice.onSignal(msg); return; }
-    if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; pendingJoin = null; if (pendingName) { try { localStorage.setItem('cc_name', pendingName); } catch (e) {} pendingName = null; } saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); if (window.Selfie) Selfie.sync(); }, 300); }
+    if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; pendingJoin = null; if (pendingName) { rememberName(pendingName); pendingName = null; } saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); if (window.Selfie) Selfie.sync(); }, 300); }
     else if (msg.type === 'state') {
       state = msg.data;
       if (window.Voice) Voice.onState(state);
@@ -3117,7 +3130,7 @@ startHeroLoop();
 connect();
 if (window._linkCode) {
   $('join-code').value = window._linkCode; showScreen('screen-join');   // showScreen fills in the name this phone used last
-  const e = $('join-error'); e.style.display = 'block'; e.style.color = 'var(--teal)'; e.textContent = `Room ${window._linkCode} is filled in — just add your name.`;
+  const e = $('join-error'); e.style.display = 'block'; e.style.color = 'var(--teal)'; e.textContent = $('join-name').value ? `Room ${window._linkCode} is filled in. Tap Join.` : `Room ${window._linkCode} is filled in — just add your name.`;
 }
 </script>
 </body>

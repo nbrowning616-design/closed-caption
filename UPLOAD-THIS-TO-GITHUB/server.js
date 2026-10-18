@@ -38,6 +38,13 @@ app.get('/index.html', (req, res) => res.redirect('/'));
 app.get('/healthz', (req, res) => res.send('ok'));
 // Is anyone playing right now? Updates are only pushed when this says no phones are connected.
 // Counts only — no names, codes or captions.
+// The phone's name, kept as a year-long cookie set by the server: iPhones wipe a site's own storage after
+// 7 days without a visit, but keep this. Only the name the player typed; nothing else.
+app.get('/remember', (req, res) => {
+  const n = String(req.query.name || '').replace(/\s+/g, ' ').trim().slice(0, 12);
+  if (n) res.cookie('cc_name', n, { maxAge: 365 * 24 * 3600 * 1000, sameSite: 'lax', path: '/' });
+  res.set('Cache-Control', 'no-store').status(204).end();
+});
 app.get('/status', (req, res) => {
   const live = Object.values(clients).filter(c => c && c.ws && c.ws.readyState === 1);
   const codes = new Set(live.map(c => c.gameCode));
