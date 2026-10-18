@@ -21,6 +21,7 @@
 <script src="/badges.js?v=__V__"></script>
 <script src="/moments.js?v=__V__"></script>
 <script src="/steal.js?v=__V__"></script>
+<script src="/heists.js?v=__V__"></script>
 <script src="/qrcode.js?v=__V__"></script>
 <script src="/home.js?v=__V__"></script>
 <script src="/recap.js?v=__V__"></script>
@@ -417,7 +418,14 @@ body.fm-on #screen-game { padding-bottom: calc(10px + var(--sab)); }
 .sb-rank { font-family: var(--display); font-weight: 700; font-size: 18px; width: 18px; color: var(--muted); }
 .sb-name { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; font-size: 19px; font-weight: 900; }
 .sb-name > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sb-plus { font-family: var(--display); font-weight: 700; font-size: 17px; color: var(--teal); }
+.sb-plus { font-family: var(--display); font-weight: 700; font-size: 20px; color: #fff; background: var(--teal); border: 2.5px solid var(--ink); border-radius: 999px; padding: 1px 9px; box-shadow: 0 2px 0 var(--ink); }
+.sb-plus.pend { opacity: 0; transform: scale(.3) rotate(-12deg); }
+.sb-plus.on { opacity: 1; transform: none; transition: transform .42s cubic-bezier(.2,1.7,.4,1), opacity .18s; }
+.sb-row.sb-hit { animation: sbHit .9s ease-out; }
+@keyframes sbHit { 0% { background: #fff; } 18% { background: #D9F5EE; transform: scale(1.035); } 100% { background: #fff; transform: none; } }
+.sb-row.leader.sb-hit { animation: none; }
+.sb-row.sb-move { transition: transform .7s cubic-bezier(.3,0,.2,1); position: relative; z-index: 2; }
+.sb-row .pts.ticking { color: var(--teal); }
 .sb-row .pts { font-size: 30px; }
 .sb-list.tight .sb-row { padding: 5px 12px; margin-bottom: 6px; }
 .sb-list.tight .sb-row .pts { font-size: 26px; }
@@ -1138,6 +1146,8 @@ function render(force = false) {
     recordSeen(); recordCareer(); checkPromotion(); answerLive(); return;   // same step: only buttons update
   } else if (state.phase === 'framing' && !force && key === lastKey && $('fm-root')) {
     recordSeen(); recordCareer(); checkPromotion(); framingLive(); window.Guide && Guide.onRender(state); return;   // picks tick in without redrawing the list
+  } else if (state.phase === 'scores' && !force && key === lastKey && scoreSeq && scoreSeq.key === state.round + '|' + state.code) {
+    return;   // the round's points are still landing: don't jump them to the end
   } else if (state.phase === 'reveal' && !force && revealRunner === canRun()) {
     return; // choreographed screen — don't interrupt (unless the button changes hands: the dealer dropped)
   }
@@ -1893,11 +1903,14 @@ function fmOutcomeFx(r) {
    The first state only sets the baseline, so a reconnect never replays an old one. */
 /* The Gallery lives on the phones: every phone saves each caption it sees framed,
    and brings its collection to every game it joins. Free, and it survives server restarts. */
-function galleryGet() { try { const v = JSON.parse(localStorage.getItem('cc_gallery') || '[]'); return Array.isArray(v) ? v.filter(e => e && e.caption && Number.isInteger(Number(e.cartoonId))) : []; } catch (e) { return []; } }
+// Pulled from The Gallery for good (Nate's "he he" was only a test of Frame It)
+function galleryRetired(e) { return String(e.author || '').trim().toLowerCase() === 'nate' && /^(he ?)+$/.test(String(e.caption || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim()); }
+function galleryGet() { try { const v = JSON.parse(localStorage.getItem('cc_gallery') || '[]'); return Array.isArray(v) ? v.filter(e => e && e.caption && Number.isInteger(Number(e.cartoonId)) && !galleryRetired(e)) : []; } catch (e) { return []; } }
+(function galleryPurge() { try { const raw = JSON.parse(localStorage.getItem('cc_gallery') || '[]'); if (Array.isArray(raw) && raw.some(e => e && galleryRetired(e))) localStorage.setItem('cc_gallery', JSON.stringify(raw.filter(e => !(e && galleryRetired(e))))); } catch (e) {} })();
 function galleryKey(e) { return e.cartoonId + '|' + String(e.caption).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
 function gallerySave(rows) {
   const list = galleryGet(), keys = new Set(list.map(galleryKey)); let added = false;
-  for (const e of rows || []) { if (!e || !e.caption || !Number.isInteger(Number(e.cartoonId)) || keys.has(galleryKey(e))) continue; list.push({ id: e.id, cartoonId: Number(e.cartoonId), image: e.image, caption: e.caption, author: e.author, flaggers: e.flaggers || [], flags: e.flags || 0, month: e.month, at: e.at || Date.now() }); keys.add(galleryKey(e)); added = true; }
+  for (const e of rows || []) { if (!e || !e.caption || !Number.isInteger(Number(e.cartoonId)) || galleryRetired(e) || keys.has(galleryKey(e))) continue; list.push({ id: e.id, cartoonId: Number(e.cartoonId), image: e.image, caption: e.caption, author: e.author, flaggers: e.flaggers || [], flags: e.flags || 0, month: e.month, at: e.at || Date.now() }); keys.add(galleryKey(e)); added = true; }
   if (added) { list.sort((a, b) => a.at - b.at); try { localStorage.setItem('cc_gallery', JSON.stringify(list.slice(-300))); } catch (e) {} }
 }
 function syncGallery() { const list = galleryGet(); if (list.length && ws && ws.readyState === 1 && myPlayerId) ws.send(JSON.stringify({ action: 'gallery_sync', entries: list.slice(-300) })); }
@@ -2009,14 +2022,14 @@ function stealNewsHtml() {
   if (!st || st.skipped || !st.victimId) return st && st.skipped && state.settings.stealEnabled ? `<p class="center small" style="margin-bottom:12px;">${esc(state.dealerName)} kept the peace — no steal</p>` : '';
   const where = st.target === 'closed' ? 'the Closed Caption' : `Caption ${st.target + 1}`;
   const me = st.victimId === myPlayerId;
-  return `<div class="steal-news"><div class="h2">😈 ${state.isDealer ? 'You' : esc(state.dealerName)} stole ${me ? 'YOUR' : esc(nameOf(st.victimId)) + '’s'} chip</div><p class="sub">Knocked off ${where}.${st.gloat ? ` “${esc(st.gloat)}”` : ''}</p></div>`;
+  return `<div class="steal-news"><div class="h2">😈 ${state.isDealer ? 'You' : esc(state.dealerName)} stole ${me ? 'YOUR' : esc(nameOf(st.victimId)) + '’s'} chip</div><p class="sub">${st.actName ? esc(st.actName) + ' took it off ' : 'Knocked off '}${where}.${st.gloat ? ` “${esc(st.gloat)}”` : ''}</p></div>`;
 }
 /* The steal show — THE CLAW (steal.js). The first steal of a game gets the full show (~7.6s: the claw
    hunts, fakes out, CLUNK, lifts the chip, a spray can repaints it in the dealer's colour, the claw sets it
    back down); every later one is the sharp version (~2.6s: down, CLUNK, pssst, set down). The server
    counts the steals (steal.show), so every phone agrees.
    Starts on the shared beat. Returns ms until the show is over. */
-const STEAL_SHOW_MS = 7600, STEAL_QUICK_MS = 3400;
+const STEAL_SHOW_MS = 7600, STEAL_QUICK_MS = 7600;   // every steal is a full heist now (31 of them, dealt like a deck)
 function playStealShow(wait = 0) {
   if (!window.ccClaw) return 0;
   return window.ccClaw.play(wait, { fullMs: STEAL_SHOW_MS, quickMs: STEAL_QUICK_MS });
@@ -2104,7 +2117,7 @@ function spotlightHtml() {
   const chipsOf = (pid) => backers.filter(b => b.playerId === pid).reduce((s, b) => s + b.count + (b.stolen || 0), 0);
   const fell = people.length ? `<div class="fell"><p class="eyebrow" style="margin-bottom:8px;">${real ? 'Found the real one' : 'Fell for it'}</p><div class="fell-row">${people.map(pid => `<span class="fell-p">${chipHtml(pid, 'sm')}${esc(pid === myPlayerId ? 'You' : nameOf(pid))}${chipsOf(pid) > 1 ? ` <i>×${chipsOf(pid)}</i>` : ''}</span>`).join('')}</div></div>`
     : `<p class="nobody">${real ? (fc.allChips ? 'Found, then stolen. Ouch.' : '<i>The truth had no friends.</i>') : 'Nobody bit.'}</p>`;
-  const pts = !real && c.playerId ? backers.reduce((s, b) => s + b.count, 0) * (state.settings.pointsPerFool || 0) : 0;
+  const pts = !real && c.playerId ? backers.reduce((s, b) => s + b.count + (b.stolen || 0), 0) * (state.settings.pointsPerFool || 0) : 0;   // stolen chips still fooled them
   const who = real ? `<div class="stamp real-stamp" id="spot-stamp">The real caption</div>`
     : `<div class="writer-stamp" id="spot-stamp">${chipHtml(c.playerId, 'lg')}<div><p class="eyebrow">Written by</p><div class="wname">${esc(c.playerId === myPlayerId ? 'You' : c.playerName || '?')}</div></div>${pts ? `<span class="plus" style="margin-left:auto; font-size:26px;">+${pts}</span>` : ''}</div>`;
   const realBadges = real ? (state.roundBadges || []).filter(b => ['moon', 'pickpocket'].includes(b.kind)) : [];
@@ -2138,7 +2151,7 @@ function playReelStep(fromEntry) {
   const sync = (at) => window.ccSync ? window.ccSync(at) : { wait: 0, late: 0, stale: false };
   const t0 = sync(state.stepAt || state.phaseAt);
   const stealOn = fromEntry && step === 1 && st && st.victimId && st.at;
-  const showLen = stealOn ? ((st.show || 1) > 1 ? STEAL_QUICK_MS : STEAL_SHOW_MS) : 0;
+  const showLen = stealOn ? STEAL_SHOW_MS : 0;
   const stealSy = stealOn ? sync(st.at) : null;
   const lead = stealOn && !stealSy.stale ? playStealShow(stealSy.wait) : 0;
   // ms from now until this caption's own beat (after the show, on the shared clock)
@@ -2325,16 +2338,23 @@ function openInvite() {
 let scoresAnimated = null;
 function renderScores() {
   const sorted = [...state.players].sort((a, b) => b.score - a.score);
-  const max = Math.max(...sorted.map(p => p.score), 1), prev = state.previousRank || {};
-  const rankOf = (p) => sorted.filter(q => q.score > p.score).length;
-  const animated = scoresAnimated === state.round + '|' + state.code;
-  const rows = sorted.map((p, i) => {
-    const earned = (state.roundScores || {})[p.id] || 0;
-    return `<div class="score-row sb-row ${i === 0 && p.score > 0 ? 'leader' : ''}" style="${animated ? 'animation:none;' : `animation-delay:${i * 0.08}s;`} --c:${playerColor(getPlayerIndex(p.id))};">
+  const key = state.round + '|' + state.code;
+  // A redraw in the middle of the count-up (someone reconnects, say) jumps to the finished board
+  if (scoreSeq && scoreSeq.key === key && !state.gameOver) { scoreSeq.timers.forEach(clearTimeout); scoreSeq = null; scoresAnimated = key; }
+  const animated = scoresAnimated === key;
+  const earnedOf = (p) => (state.roundScores || {})[p.id] || 0, before = (p) => p.score - earnedOf(p);
+  // Before the count: last round's order and totals. After: the new order.
+  const order = animated ? sorted : [...state.players].sort((a, b) => before(b) - before(a));
+  const shown = (p) => animated ? p.score : before(p);
+  const rankOf = (p) => order.filter(q => shown(q) > shown(p)).length;
+  const lead = Math.max(...order.map(shown));
+  const rows = order.map((p, i) => {
+    const earned = earnedOf(p);
+    return `<div class="score-row sb-row ${shown(p) === lead && lead > 0 ? 'leader' : ''}" data-pid="${esc(p.id)}" data-earned="${earned}" data-score="${p.score}" style="${animated ? 'animation:none;' : `animation-delay:${i * 0.08}s;`} --c:${playerColor(getPlayerIndex(p.id))};">
       <div class="sb-rank">${rankOf(p) + 1}</div>${chipHtml(p.id)}
-      <div class="sb-name"><span>${esc(p.name)}</span>${hatsHtml(p.id)}</div>
-      ${earned > 0 ? `<span class="sb-plus">+${earned}</span>` : ''}
-      <div class="pts score-number" data-target="${p.score}" data-from="${p.score - earned}">${animated ? p.score : p.score - earned}</div>
+      <div class="sb-name"><span>${esc(p.name)}</span></div>
+      ${earned > 0 ? `<span class="sb-plus ${animated ? '' : 'pend'}">+${earned}</span>` : ''}
+      <div class="pts score-number" data-target="${p.score}" data-from="${before(p)}">${shown(p)}</div>
     </div>`;
   }).join('');
   const goal = state.settings.targetScore ? `First to ${state.settings.targetScore} wins` : roundLabel();
@@ -2477,7 +2497,7 @@ function bigFanfare() {
   seq.forEach(([f, t, d]) => { tone(f, d, t, 'square', 0.045); tone(f, d, t, 'sawtooth', 0.025); tone(f / 2, d, t, 'triangle', 0.06); });
   [523, 659, 784, 1047].forEach(f => tone(f, 2.2, 1900, 'triangle', 0.05));
 }
-const CEREMONY_LEAD_MS = 2600;   // after the awards slides end
+const CEREMONY_LEAD_MS = 6000;   // after the awards slides end: the winner gets their moment first
 const AWARD_SLIDE_MS = 4400;     // long enough to read a slide out loud
 function ceremonyAt() {
   if (!state.scoresAt) return null;
@@ -2606,9 +2626,56 @@ function playScoresSequence() {
     document.querySelectorAll('.score-number').forEach(el => animateCount(el, parseInt(el.dataset.from), parseInt(el.dataset.target), 900));
     document.querySelectorAll('.delta').forEach((el, i) => { el.style.opacity = '0'; setTimeout(() => { el.style.transition = 'opacity .3s'; el.style.opacity = '1'; bsfx.coin(i); }, 900 + i * 120); });
   };
-  const fresh = state.scoresAt && Date.now() + clockOffset - state.scoresAt < 10000;
   if (state.gameOver) { grandShown = false; scheduleGrandPoobah(); playAwards(() => { setTimeout(count, 150); setTimeout(() => { bsfx.fanfare(); confetti.cannons(); confetti.rain(3500); buzz([60, 40, 60, 40, 200]); }, 500); }); }
-  else { setTimeout(count, 250); if (fresh) setTimeout(() => { if (state && state.phase === 'scores' && state.round + '|' + state.code === key) playRoundPoobah(); }, Math.max(0, state.scoresAt + 1100 - (Date.now() + clockOffset))); }   // the hat drops together
+  else playScoreboardCount(key);
+}
+
+/* The round's points, given a beat each (every phone on the same clock, from the server's scoresAt):
+   the board opens on last round's order; from the bottom up, each scorer's +N pops and their total
+   ticks up; a pause; then the rows slide into the new order. A late phone just shows the finished board. */
+let scoreSeq = null;
+const SB_LEAD = 900, SB_STEP = 900, SB_COUNT = 750, SB_SETTLE = 700, SB_SORT = 700;
+function playScoreboardCount(key) {
+  const rows = [...document.querySelectorAll('.sb-row')];
+  const hits = rows.filter(r => +r.dataset.earned > 0).reverse();   // bottom of the board first, the big finish last
+  const total = SB_LEAD + hits.length * SB_STEP + SB_SETTLE + SB_SORT;
+  const elapsed = state.scoresAt ? Date.now() + clockOffset - state.scoresAt : 0;
+  const finish = () => { scoreSeq = null; scoresAnimated = key; };
+  if (elapsed > total + 1500) { scoresAnimated = key; render(true); return; }   // walked in late: the finished board
+  const seq = scoreSeq = { key, timers: [] };
+  const at = (ms, fn) => seq.timers.push(setTimeout(() => { if (scoreSeq === seq) fn(); }, Math.max(0, ms - elapsed)));
+  hits.forEach((row, i) => at(SB_LEAD + i * SB_STEP, () => {
+    const plus = row.querySelector('.sb-plus'), pts = row.querySelector('.pts');
+    if (plus) { plus.classList.remove('pend'); plus.classList.add('on'); }
+    row.classList.remove('sb-hit'); void row.offsetWidth; row.classList.add('sb-hit');
+    if (pts) { pts.classList.add('ticking'); animateCount(pts, +pts.dataset.from, +pts.dataset.target, SB_COUNT); setTimeout(() => pts.classList.remove('ticking'), SB_COUNT + 150); }
+    bsfx.coin(i); const n = +row.dataset.earned; for (let k = 1; k < Math.min(n, 6); k++) setTimeout(() => bsfx.coin(i + k), k * 110);
+    if (row.dataset.pid === myPlayerId) buzz([40, 30, 80]);
+  }));
+  at(SB_LEAD + hits.length * SB_STEP + SB_SETTLE, () => sortScoreRows());
+  at(total, finish);
+}
+// Slide the rows into the new standings (FLIP), and move the ranks and the leader's highlight with them
+function sortScoreRows() {
+  const list = document.querySelector('.sb-list'); if (!list) return;
+  const rows = [...list.querySelectorAll('.sb-row')];
+  const first = new Map(rows.map(r => [r, r.getBoundingClientRect().top]));
+  const sorted = [...rows].sort((a, b) => +b.dataset.score - +a.dataset.score);
+  const moved = sorted.some((r, i) => r !== rows[i]);
+  sorted.forEach(r => list.appendChild(r));
+  const top = +sorted[0].dataset.score;
+  sorted.forEach(r => {
+    const rank = sorted.filter(q => +q.dataset.score > +r.dataset.score).length + 1;
+    const rk = r.querySelector('.sb-rank'); if (rk) rk.textContent = rank;
+    r.classList.toggle('leader', +r.dataset.score === top && top > 0);
+    const dy = first.get(r) - r.getBoundingClientRect().top;
+    if (!dy) return;
+    r.classList.remove('sb-move'); r.style.animation = 'none'; r.style.transform = `translateY(${dy}px)`;
+    void r.offsetWidth;
+    r.classList.add('sb-move'); r.style.transform = '';
+    setTimeout(() => r.classList.remove('sb-move'), SB_SORT + 100);
+  });
+  if (moved) { bsfx.swish(); buzz(25); }
 }
 
 function animateCount(el, from, to, duration) {

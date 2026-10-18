@@ -30,7 +30,7 @@ const INDEX_PATH = path.join(__dirname, 'public', 'index.html');
 const INDEX_HTML = fs.readFileSync(INDEX_PATH, 'utf8');
 // (a helper that isn't there yet just counts as empty, so a missing file never stops the server)
 const readOr = (f) => { try { return fs.readFileSync(path.join(__dirname, f), 'utf8'); } catch (e) { return ''; } };
-const BUILD = crypto.createHash('sha1').update(INDEX_HTML + ['game.js', 'store.js', 'public/fx.js', 'public/hof.js', 'public/gallery.js', 'public/music.js', 'public/badges.js', 'public/qrcode.js', 'public/home.js', 'public/recap.js', 'public/guide.js', 'public/moments.js', 'public/steal.js'].map(readOr).join('')).digest('hex').slice(0, 10);
+const BUILD = crypto.createHash('sha1').update(INDEX_HTML + ['game.js', 'store.js', 'public/fx.js', 'public/hof.js', 'public/gallery.js', 'public/music.js', 'public/badges.js', 'public/qrcode.js', 'public/home.js', 'public/recap.js', 'public/guide.js', 'public/moments.js', 'public/steal.js', 'public/heists.js'].map(readOr).join('')).digest('hex').slice(0, 10);
 // __V__ busts the phone's cache for the helper scripts after an update
 const PAGE = INDEX_HTML.replace('__BUILD__', BUILD).split('__V__').join(BUILD);
 app.get('/', (req, res) => { res.set('Cache-Control', 'no-store'); res.type('html').send(PAGE); });
@@ -236,7 +236,7 @@ wss.on('connection', (ws) => {
         // The dealer paces the answer, one caption at a time
         if (!canRun) return sendError(ws, 'The dealer runs the reveal');
         // Nobody skips ahead while the whole table is still watching the Claw
-        const st = game.steal, showMs = st && st.at && st.victimId ? ((st.show || 1) > 1 ? 3400 : 7600) + 1200 : 0;
+        const st = game.steal, showMs = st && st.at && st.victimId ? 7600 + 1200 : 0;   // every heist gets the full show
         if (msg.action === 'reel_next' && game.reel && game.reel.step === 1 && showMs && Date.now() < st.at + showMs) return sendError(ws, 'Let the Claw finish');
         if (fail(G.reelStep(game, msg.action.slice(5)))) return;
         broadcast(code);

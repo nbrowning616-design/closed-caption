@@ -13,6 +13,9 @@ const DIR = process.env.DATA_DIR || '';
 const FILE = DIR ? path.join(DIR, 'hall-of-fame.json') : null;
 
 const norm = (t) => String(t || '').toLowerCase().replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, '').replace(/ +/g, ' ').trim();
+// Captions pulled from The Gallery for good (Nate's "he he" was a test of Frame It, not a real frame)
+const RETIRED = [{ author: 'nate', caption: /^(he ?)+$/ }];
+const isRetired = (e) => RETIRED.some(r => String(e.author || '').trim().toLowerCase() === r.author && r.caption.test(norm(e.caption)));
 const keyOf = (e) => e.cartoonId + '|' + norm(e.caption);
 const MONTH = (ms) => new Date(ms).toLocaleString('en-US', { month: 'long', year: 'numeric', timeZone: 'America/New_York' });
 const str = (v, max) => String(v === undefined || v === null ? '' : v).slice(0, max);
@@ -31,6 +34,7 @@ function createDeck(FILE = null, quiet = true) {
     if (!e || typeof e !== 'object') return null;
     const cartoonId = Number(e.cartoonId), caption = str(e.caption, 300).trim();
     if (!Number.isInteger(cartoonId) || !caption) return null;
+    if (isRetired({ caption, author: e.author })) return null;
     const at = Number.isFinite(Number(e.at)) && Number(e.at) > 0 ? Number(e.at) : Date.now();
     return {
       id: typeof e.id === 'string' && e.id ? e.id.slice(0, 24) : newId(),
@@ -124,4 +128,4 @@ function createDeck(FILE = null, quiet = true) {
 }
 
 const server = createDeck(FILE, false);
-module.exports = { ...server, createDeck, norm, MAX_ENTRIES, file: FILE };
+module.exports = { ...server, createDeck, norm, isRetired, MAX_ENTRIES, file: FILE };

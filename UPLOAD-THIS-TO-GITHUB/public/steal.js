@@ -281,7 +281,9 @@
   function play(wait, opt) {
     opt = opt || {};
     var st = state.steal, o = document.getElementById('stealshow');
-    var quick = (st.show || 1) > 1, L = quick ? (opt.quickMs || 3400) : (opt.fullMs || 7600);
+    // Every steal is a full show now; act 0 is The Claw, the other 30 heists live in heists.js
+    if (st.act && window.ccHeist) return window.ccHeist.play(wait, opt);
+    var quick = false, L = opt.fullMs || 7600;
     (window._ssT || []).forEach(clearTimeout); window._ssT = [];
     var startAt = performance.now() + Math.max(0, wait);   // the shared beat, on this phone's clock
     var T = function (fn, ms) { window._ssT.push(setTimeout(fn, Math.max(0, startAt + ms - performance.now()))); };
@@ -637,4 +639,5 @@
   }
 
   window.ccClaw = { play: play };
+  window.ccStealKit = { seeded: seeded, hiss: hiss, SND: SND, dealerId: dealerId, colourOf: colourOf, reduced: reduced, DRIP: DRIP };
 })();

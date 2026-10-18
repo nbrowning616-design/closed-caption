@@ -155,6 +155,53 @@ const GLOATS = [
   'Mine now. Say goodbye.',
 ];
 
+// The steal shows: every steal gets a full show, a different heist each time. Index 0 is The Claw (steal.js);
+// 1..30 are public/heists.js (same order). A room deals them like a deck, so nobody sees a repeat until all 31 have played.
+const HEISTS = [
+  { name: 'The Claw', gloats: GLOATS },
+  { name: 'The Bald Eagle', gloats: ['Freedom isn’t free. Neither was your chip.', 'Talons don’t lie.'] },
+  { name: 'The Raccoon', gloats: ['Rinsed it. Mine now.', 'I live in your walls. And now, your chips.'] },
+  { name: 'The Frog', gloats: ['Ribbit. Finders keepers.', 'It was a fly, I swear.'] },
+  { name: 'The UFO', gloats: ['We come in peace. We leave with your chip.', 'Take me to your chips.'] },
+  { name: 'The Magician', gloats: ['And for my next trick: your dignity.', 'Is this your chip? Not anymore.'] },
+  { name: 'The Octopus', gloats: ['Eight arms. Zero apologies.', 'I had seven free hands. Do the math.'] },
+  { name: 'The Fisherman', gloats: ['Catch and keep.', 'You should’ve seen the one that got away. Oh wait — it didn’t.'] },
+  { name: 'The Magnet', gloats: ['Opposites attract. So does theft.', 'It was drawn to me. Physics.'] },
+  { name: 'Grandma', gloats: ['Grandma says it’s hers, sweetie.', 'You can visit it on holidays.'] },
+  { name: 'The Cat', gloats: ['If I sit on it, it’s mine.', 'I knocked it off the table. That’s what I do.'] },
+  { name: 'The Parrot', gloats: ['Squawk! Mine! Squawk!', 'Pretty bird. Pretty chip. Both mine.'] },
+  { name: 'The Ninja', gloats: ['You saw nothing.', 'It was never here.'] },
+  { name: 'The Tornado', gloats: ['Act of God. Not my fault.', 'Check your homeowner’s policy.'] },
+  { name: 'The Good Boy', gloats: ['Good boy found a chip. Good boy keeps chip.', 'Who’s a thief? I’m a thief!'] },
+  { name: 'The Ghost', gloats: ['Boo. It’s haunted now. By me.', 'Your chip has crossed over.'] },
+  { name: 'The Rocket', gloats: ['Houston, we have your chip.', 'One small step for me. One giant loss for you.'] },
+  { name: 'The Lawyer', gloats: ['Possession is nine-tenths of the law.', 'You’ll be hearing from my associates.'] },
+  { name: 'The Crab', gloats: ['Pinch. Pinch. Mine.', 'Sideways is still forward if it’s toward your chip.'] },
+  { name: 'The T. rex', gloats: ['Tiny arms. Big ambitions.', 'Extinct? Not today.'] },
+  { name: 'The Snail', gloats: ['Slow and steady steals the chip.', 'You had all the time in the world. Literally.'] },
+  { name: 'The Seagull', gloats: ['Marked it. You know how.', 'Like a french fry at the beach.'] },
+  { name: 'The Mosquito', gloats: ['Bzzz. It itches now.', 'I only take a little. Okay, all of it.'] },
+  { name: 'The Wizard', gloats: ['You shall not have this chip.', 'A wizard is never late. He steals precisely when he means to.'] },
+  { name: 'The Robot', gloats: ['CHIP.EXE IS NOW PROPERTY OF DEALER.', 'Beep boop. Get rekt.'] },
+  { name: 'The Bee', gloats: ['Sticky fingers. Literally.', 'It’s my chip, honey.'] },
+  { name: 'The Monkey', gloats: ['Ooh ooh. Ah ah. Mine.', 'Monkey see. Monkey steal.'] },
+  { name: 'The Cowboy', gloats: ['Branded. Yeehaw.', 'This table ain’t big enough for your chip.'] },
+  { name: 'The Vampire', gloats: ['I vant to steal your chip.', 'I don’t drink… chips. But I take them.'] },
+  { name: 'The Unicorn', gloats: ['Magic is just stealing with glitter.', 'Believe in yourself. Not in your chip.'] },
+  { name: 'The Penguin', gloats: ['Cold. Calculated. Mine.', 'Chill out. It’s just a chip.'] },
+];
+// Next heist off the room's deck; a fresh shuffle never opens with the one that just played
+function nextHeist(game) {
+  if (!Array.isArray(game.heistDeck) || !game.heistDeck.length) {
+    let d = shuffleArray(HEISTS.map((_, i) => i));
+    if (d.length > 1 && d[0] === game.lastHeist) d.push(d.shift());
+    game.heistDeck = d;
+  }
+  const act = game.heistDeck.shift();
+  game.lastHeist = act;
+  return act;
+}
+
 function shuffleArray(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -676,7 +723,8 @@ function stealChip(game, betIndex) {
     if (!bet || bet.target === 'pass' || bet.count < 1) return { error: 'No chip there' };
     bet.count -= 1;
     bet.stolen = (bet.stolen || 0) + 1;
-    game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect: isBetOnCorrect(game, bet), gloat: pick(GLOATS), seed: Math.floor(Math.random() * 1e9), at: Date.now(), show: (game.stealShows = (game.stealShows || 0) + 1) };
+    const act = nextHeist(game);
+    game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect: isBetOnCorrect(game, bet), act, actName: HEISTS[act].name, gloat: pick(HEISTS[act].gloats), seed: Math.floor(Math.random() * 1e9), at: Date.now(), show: (game.stealShows = (game.stealShows || 0) + 1) };
   }
   revealAnswer(game);
   return { ok: true };
@@ -702,9 +750,9 @@ function revealAnswer(game) {
 
   let anyoneRight = false;
   for (const bet of game.bets) {
-    if (!bet || bet.target === 'pass' || bet.count < 1) continue;
+    if (!bet || bet.target === 'pass' || bet.count + (bet.stolen || 0) < 1) continue;
     const blind = bet.stage === 1, onClosed = bet.target === 'closed', both = bet.count === 2;
-    if (isBetOnCorrect(game, bet)) {
+    if (bet.count > 0 && isBetOnCorrect(game, bet)) {
       anyoneRight = true;
       const per = blind ? (onClosed ? s.pointsClosedBet : s.pointsOpenBet) : s.pointsOpenLate;
       let reason;
@@ -716,7 +764,8 @@ function revealAnswer(game) {
       add(bet.playerId, per * bet.count, reason);
     }
     const author = onClosed ? game.closedPlayerId : (game.openCaptions[bet.target] || {}).playerId;
-    if (author && author !== bet.playerId) add(author, s.pointsPerFool * bet.count, `Fooled ${nameOfPlayer(game, bet.playerId)}`);
+    const fooled = bet.count + (bet.stolen || 0);   // a stolen chip still fooled them: the writer keeps that point
+    if (author && author !== bet.playerId) add(author, s.pointsPerFool * fooled, `Fooled ${nameOfPlayer(game, bet.playerId)}`);
   }
 
   const dealer = dealerOf(game);
