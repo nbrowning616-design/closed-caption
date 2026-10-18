@@ -130,7 +130,7 @@
         '<button class="btn-link" onclick="Selfie.later()">' + (have || pending ? 'Done' : 'Maybe later') + '</button>' +
         (saved() || mine() ? '<button class="btn-link sf-del" onclick="Selfie.remove()">Delete my photo</button>' : '') +
       '</div>' +
-      '<p class="sf-note">Your photo stays in this game room and is deleted when the room closes. A copy stays on this phone for your next game until you tap Delete. Optional, always. <a href="/privacy" target="_blank" rel="noopener">Privacy</a></p>' +
+      '<p class="sf-note">Your photo stays in this game room and is deleted when the room closes. A copy stays on this phone for your next game until you tap Delete. Optional, always. <a href="/privacy.html" target="_blank" rel="noopener">Privacy</a></p>' +
       '</div>');
     var inp = $('sf-file'); if (inp) inp.onchange = function () { if (inp.files && inp.files[0]) take(inp.files[0]); };
   }

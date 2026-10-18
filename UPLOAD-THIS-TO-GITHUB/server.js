@@ -30,7 +30,7 @@ const INDEX_PATH = path.join(__dirname, 'public', 'index.html');
 const INDEX_HTML = fs.readFileSync(INDEX_PATH, 'utf8');
 // (a helper that isn't there yet just counts as empty, so a missing file never stops the server)
 const readOr = (f) => { try { return fs.readFileSync(path.join(__dirname, f), 'utf8'); } catch (e) { return ''; } };
-const BUILD = crypto.createHash('sha1').update(INDEX_HTML + ['game.js', 'store.js', 'public/fx.js', 'public/hof.js', 'public/gallery.js', 'public/music.js', 'public/badges.js', 'public/qrcode.js', 'public/home.js', 'public/recap.js', 'public/guide.js', 'public/moments.js', 'public/steal.js', 'public/heists.js', 'public/heads.js', 'public/heads-pack1.js', 'public/heads-pack2.js', 'public/selfie.js', 'public/voice.js', 'public/howto.js'].map(readOr).join('')).digest('hex').slice(0, 10);
+const BUILD = crypto.createHash('sha1').update(INDEX_HTML + ['game.js', 'store.js'].concat(fs.readdirSync(path.join(__dirname, 'public')).filter(f => f.endsWith('.js')).sort().map(f => 'public/' + f)).map(readOr).join('')).digest('hex').slice(0, 10);   // every public/*.js counts, so no helper is ever left stale
 // __V__ busts the phone's cache for the helper scripts after an update
 const PAGE = INDEX_HTML.replace('__BUILD__', BUILD).split('__V__').join(BUILD);
 app.get('/', (req, res) => { res.set('Cache-Control', 'no-store'); res.type('html').send(PAGE); });
