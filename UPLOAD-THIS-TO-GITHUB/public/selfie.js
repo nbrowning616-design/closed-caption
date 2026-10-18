@@ -4,7 +4,12 @@
    /vendor and /models, loaded only when the camera opens). The photo is cropped to the face, shrunk to a
    small JPEG, kept on this phone (localStorage cc_face) so it comes along to every game, and sent to the
    room's server (memory only, gone when the room is). Reads the page's globals: state, myPlayerId, ws, $,
-   esc, closeMenu, sfx, buzz. */
+   esc, closeMenu, sfx, buzz.
+   It never pops up by itself. Two ways in: the small "Add your headshot" button by your name in the lobby,
+   and a gentle prompt (a little card, not a sheet) right after your first round win, when the gag just
+   played with a stand-in cartoon head. "Delete my photo" wipes it from this phone and from the room
+   ({type:'deleteHeadshot'}, plus the older set_face:null for servers that don't know that message yet).
+   Without a headshot every gag still works: heads.js draws a coloured cartoon head with your initial. */
 (function () {
   'use strict';
   var KEY = 'cc_face', SIZE = 200, Q = 0.82;
@@ -18,6 +23,16 @@
     '.sf-msg.no{color:var(--red);}',
     '.sf-msg.ok{color:var(--teal);}',
     '.sf-mini{width:30px;height:32px;border-radius:50% 50% 47% 47%;border:2px solid var(--ink);background:center/cover no-repeat;flex-shrink:0;}',
+    '.sf-note{font-size:12.5px;font-weight:700;color:var(--ink-2);line-height:1.35;margin:12px 4px 0;}',
+    '.sf-note a{color:var(--ink);font-weight:900;}',
+    '.sf-del{color:var(--red)!important;}',
+    /* the after-a-win nudge: a small card above the action bar, never over the cartoon or the buttons */
+    '#sf-nudge{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);width:min(360px,calc(100vw - 32px));z-index:450;display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border:3px solid var(--ink);border-radius:16px;box-shadow:4px 4px 0 var(--ink);opacity:0;transition:opacity .3s,transform .35s cubic-bezier(.3,1.4,.5,1);text-align:left;}',
+    '#sf-nudge.on{opacity:1;transform:translate(-50%,0);}',
+    '#sf-nudge .t{flex:1;min-width:0;font-weight:800;font-size:13.5px;line-height:1.3;color:var(--ink);}',
+    '#sf-nudge .t b{display:block;font-weight:900;font-size:14.5px;}',
+    '#sf-nudge .go{flex-shrink:0;padding:7px 11px;border-radius:999px;border:2px solid var(--ink);background:var(--yellow);font:inherit;font-weight:900;font-size:13px;color:var(--ink);box-shadow:0 2px 0 var(--ink);}',
+    '#sf-nudge .x{flex-shrink:0;width:30px;height:30px;border:none;background:none;font-size:18px;font-weight:900;color:var(--muted);}',
     '.sf-add{display:inline-flex;align-items:center;gap:5px;margin-top:3px;padding:3px 9px;border-radius:999px;border:2px solid var(--ink);background:var(--yellow);font-weight:900;font-size:12px;color:var(--ink);box-shadow:0 2px 0 var(--ink);white-space:nowrap;}',
   ].join('\n');
   try { var s = document.createElement('style'); s.textContent = CSS; document.head.appendChild(s); } catch (e) {}
@@ -32,6 +47,15 @@
   function saved() { try { var v = localStorage.getItem(KEY); return v && v.indexOf('data:image/jpeg;base64,') === 0 ? v : null; } catch (e) { return null; } }
   function save(v) { try { if (v) localStorage.setItem(KEY, v); else localStorage.removeItem(KEY); } catch (e) {} }
   function send(v) { try { if (ws && ws.readyState === 1 && myPlayerId) ws.send(JSON.stringify({ action: 'set_face', data: v })); } catch (e) {} }
+  // Delete: the new server message, and the old one (set_face null) so it works before and after the server update
+  function sendDelete() {
+    try {
+      if (ws && ws.readyState === 1 && myPlayerId) {
+        ws.send(JSON.stringify({ type: 'deleteHeadshot', action: 'deleteHeadshot' }));
+        ws.send(JSON.stringify({ action: 'set_face', data: null }));
+      }
+    } catch (e) {}
+  }
   function mine() { return !!(state && state.faces && myPlayerId && state.faces[myPlayerId]); }
   function url(pid) { return window.ccHeads ? window.ccHeads.faceUrl(pid) : null; }
 
@@ -104,7 +128,10 @@
         (pending ? '<button class="btn btn-yellow" onclick="Selfie.use()">✅ Use this one</button><button class="btn" onclick="Selfie.shoot()">🔁 Retake</button>'
                  : '<button class="btn btn-yellow" onclick="Selfie.shoot()">📸 ' + (have ? 'Retake my headshot' : 'Take my headshot') + '</button>') +
         '<button class="btn-link" onclick="Selfie.later()">' + (have || pending ? 'Done' : 'Maybe later') + '</button>' +
-      '</div></div>');
+        (saved() || mine() ? '<button class="btn-link sf-del" onclick="Selfie.remove()">Delete my photo</button>' : '') +
+      '</div>' +
+      '<p class="sf-note">Your photo stays in this game room and is deleted when the room closes. A copy stays on this phone for your next game until you tap Delete. Optional, always. <a href="/privacy" target="_blank" rel="noopener">Privacy</a></p>' +
+      '</div>');
     var inp = $('sf-file'); if (inp) inp.onchange = function () { if (inp.files && inp.files[0]) take(inp.files[0]); };
   }
   function take(file) {
@@ -125,18 +152,46 @@
     }).catch(function () { pending = null; render('That photo didn’t open. Try again?', 'no'); });
   }
 
-  var asked = false;
+  /* The nudge after your first round win (once per visit; never if you have a headshot or said no) */
+  var nudged = false, nudgeT = null, NO_KEY = 'cc_face_no';
+  function declined() { try { return localStorage.getItem(NO_KEY) === '1'; } catch (e) { return false; } }
+  function hideNudge() { clearTimeout(nudgeT); var n = document.getElementById('sf-nudge'); if (n) { n.classList.remove('on'); setTimeout(function () { try { n.remove(); } catch (e) {} }, 350); } }
+  function nudge() {
+    if (nudged || saved() || mine() || declined()) return;
+    nudged = true;
+    var n = document.createElement('div'); n.id = 'sf-nudge'; n.setAttribute('role', 'status');
+    n.innerHTML = '<div class="t"><b>That was a stand-in head.</b>Want your own face in the next victory bit?</div>' +
+      '<button class="go" onclick="Selfie.fromNudge()">📸 Add mine</button><button class="x" aria-label="No thanks" onclick="Selfie.noThanks()">✕</button>';
+    document.body.appendChild(n);
+    requestAnimationFrame(function () { requestAnimationFrame(function () { n.classList.add('on'); }); });
+    nudgeT = setTimeout(hideNudge, 12000);
+  }
+
   window.Selfie = {
-    open: function () { pending = null; render(); detector().catch(function () {}); },
+    open: function () { hideNudge(); pending = null; render(); detector().catch(function () {}); },
     shoot: function () { var i = $('sf-file'); if (i) { i.value = ''; i.click(); } },
     use: function () { if (!pending) return; save(pending); send(pending); pending = null; closeMenu(); },
     later: function () { pending = null; closeMenu(); },
-    // after joining: bring the saved headshot along, or ask for one (once per visit, only in the lobby)
+    // Delete my photo: off this phone, and off the room's server
+    remove: function () {
+      pending = null; save(null); sendDelete();
+      try { if (state && state.faceData && myPlayerId) delete state.faceData[myPlayerId]; } catch (e) {}
+      render('Deleted — from this phone and from the game. The gags will use a cartoon head.', 'ok');
+    },
+    // after joining: bring the saved headshot along. Never opens anything by itself.
     sync: function () {
       var v = saved();
       if (v && !mine()) send(v);
-      else if (!v && !asked && state && state.phase === 'lobby') { asked = true; setTimeout(function () { if (state && state.phase === 'lobby' && !saved() && !$('sheet').classList.contains('on')) Selfie.open(); }, 900); }
     },
+    // index.html calls this on every phase change: the headshot sheet never outlives the screen it opened on
+    onPhase: function () { hideNudge(); },
+    // index.html calls this when a round's winners are known (after the scoreboard and the gag)
+    onRoundWin: function (winnerIds, delayMs) {
+      if (!myPlayerId || !winnerIds || winnerIds.indexOf(myPlayerId) < 0 || nudged || saved() || mine() || declined()) return;
+      setTimeout(function () { if (state && state.phase === 'scores') nudge(); }, Math.max(0, delayMs || 0));
+    },
+    fromNudge: function () { hideNudge(); Selfie.open(); },
+    noThanks: function () { hideNudge(); try { localStorage.setItem(NO_KEY, '1'); } catch (e) {} },
     // the lobby: a little face next to each player who has one, and the button for you
     mini: function (pid) { var u = url(pid); return u ? '<span class="sf-mini" style="background-image:url(' + u + ')"></span>' : ''; },
     button: function () { return '<button class="sf-add" onclick="Selfie.open()">📸 ' + (mine() ? 'Retake' : 'Add your headshot') + '</button>'; },

@@ -613,7 +613,7 @@ body.quake { animation: quake .12s linear 10; }
       <div id="rejoin-box"></div>
       <button class="btn btn-yellow home-host" onclick="showScreen('screen-create')">Host a game</button>
       <button class="btn" onclick="showScreen('screen-join')">Join a game</button>
-      <div class="home-foot"><button class="btn-link" onclick="showScreen('screen-rules')">How to play</button><span class="home-dot">·</span><span class="small">3–8 players · a phone each</span></div>
+      <div class="home-foot"><button class="btn-link" onclick="showScreen('screen-rules')">How to play</button><span class="home-dot">·</span><span class="small">3–8 players · a phone each</span><span class="home-dot">·</span><a class="btn-link small" href="/privacy">Privacy</a><!-- #18: privacy page (public/privacy.html) --></div>
     </div>
   </div>
 </div>
@@ -1157,6 +1157,9 @@ function render(force = false) {
 
   if (phaseChanged) {
     selectedBetTarget = null; grabbedBet = null; phaseSeqPlayed = false; seenBets = 0; wasMyTurn = false;
+    // #9: no sheet (headshot, menu, past rounds…) outlives the screen it opened on — except a picture someone is sharing right now
+    if (!$('sheet-body').querySelector('[onclick^="shareHofCard"]')) closeMenu();
+    if (window.Selfie && Selfie.onPhase) Selfie.onPhase();
     if (state.phase !== 'reading') closeReadAloud();
     if (lastPhase === 'scores' || state.phase === 'lobby') closeInduction();
     if (state.phase === 'lobby' && lastPhase) sendSeen();   // back in the lobby: refresh before the next game
@@ -2734,6 +2737,8 @@ function playScoreboardCount(key) {
       ccHeads.play(state.winAct, winners, Math.max(0, wait), (state.round * 7919) ^ state.code.charCodeAt(0));
     }, Math.max(0, gagAt - elapsed - 150)));
   }
+  // #9: a round winner with no headshot gets a gentle offer once the gag (with its stand-in head) has played
+  if (winners.length && window.Selfie && Selfie.onRoundWin) Selfie.onRoundWin(winners, (window.ccHeads && state.winAct != null ? total + 500 + (ccHeads.DUR || 5200) + 900 : total + 600) - elapsed);
 }
 // Slide the rows into the new standings (FLIP), and move the ranks and the leader's highlight with them
 function sortScoreRows() {

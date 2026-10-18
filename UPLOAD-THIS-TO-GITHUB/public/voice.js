@@ -10,9 +10,63 @@
 (function () {
   'use strict';
 
-  // ICE servers: STUN only for now. To add a TURN relay later, add one more entry here, e.g.
-  //   { urls: ['turn:turn.example.com:3478', 'turns:turn.example.com:5349'], username: '…', credential: '…' }
-  var ICE_SERVERS = [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }];
+  /* ICE servers: how two phones find a path to each other.
+     STUN (free, Google) finds a direct path; that works on most home Wi-Fi and many phone networks.
+     Some networks (hotels, offices, some cellular carriers) block direct paths; then the audio has to go
+     through a relay (TURN). A relay needs an account somewhere, so this file holds none. The list comes from,
+     in order:
+       1. window.CC_ICE — an array of RTCIceServer objects the page may set (e.g. from the server), or
+       2. GET /ice — JSON: an array of RTCIceServer, or { iceServers: [...] } (short-lived TURN credentials,
+          e.g. Cloudflare Calls TURN or a Metered free account, minted by the server so no secret is in here),
+       3. otherwise STUN plus Open Relay, Metered's free public TURN relay, through its published "static auth"
+          shared secret (no account; the secret is printed on metered.ca/tools/openrelay for anyone to use).
+          It's a shared free pool (20 GB a month for everyone using it) with no guarantee — best effort only.
+          The old openrelay.metered.ca host (fixed username/password) is switched off: it now resolves to a
+          dead address, so it isn't used.
+     /ice is optional: a 404 or a network error just falls through. Fetched once, when Join is tapped. */
+  var STUN = [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }];
+  var ICE_SERVERS = STUN, iceSource = 'stun', iceLoad = null;
+  var OPEN_RELAY = { host: 'staticauth.openrelay.metered.ca', secret: 'openrelayprojectsecret' };
+  // TURN REST credentials (the standard coturn "use-auth-secret" scheme): username = expiry time,
+  // password = base64(HMAC-SHA1(secret, username)). Needs crypto.subtle (https pages); otherwise skipped.
+  function openRelay() {
+    try {
+      var sub = window.crypto && window.crypto.subtle; if (!sub || !window.TextEncoder) return Promise.resolve(null);
+      var user = String(Math.floor(Date.now() / 1000) + 12 * 3600) + ':cc', enc = new TextEncoder();
+      return sub.importKey('raw', enc.encode(OPEN_RELAY.secret), { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']).then(function (k) {
+        return sub.sign('HMAC', k, enc.encode(user));
+      }).then(function (sig) {
+        var b = '', u = new Uint8Array(sig); for (var i = 0; i < u.length; i++) b += String.fromCharCode(u[i]);
+        var h = OPEN_RELAY.host;
+        return { urls: ['turn:' + h + ':80', 'turn:' + h + ':80?transport=tcp', 'turn:' + h + ':443', 'turns:' + h + ':443?transport=tcp'], username: user, credential: btoa(b) };
+      }).catch(function () { return null; });
+    } catch (e) { return Promise.resolve(null); }
+  }
+  function validIce(list) {
+    if (list && !Array.isArray(list) && Array.isArray(list.iceServers)) list = list.iceServers;
+    if (!Array.isArray(list)) return null;
+    list = list.filter(function (x) { return x && (typeof x.urls === 'string' || Array.isArray(x.urls)); });
+    return list.length ? list : null;
+  }
+  function hasTurn(list) { return list.some(function (x) { return [].concat(x.urls).some(function (u) { return /^turns?:/i.test(String(u)); }); }); }
+  function loadIce() {
+    if (iceLoad) return iceLoad;
+    var fromPage = validIce(window.CC_ICE);
+    if (fromPage) { ICE_SERVERS = fromPage; iceSource = hasTurn(fromPage) ? 'turn' : 'stun'; return (iceLoad = Promise.resolve(ICE_SERVERS)); }
+    iceLoad = new Promise(function (ok) {
+        var done = false, finish = function () { if (!done) { done = true; clearTimeout(t); ok(ICE_SERVERS); } };
+      var t = setTimeout(finish, 3000);
+      var server = window.fetch ? fetch('/ice', { cache: 'no-store', credentials: 'same-origin' }).then(function (r) {
+        if (!r.ok || !/json/i.test(r.headers.get('content-type') || '')) return null;
+        return r.json();
+      }).then(validIce, function () { return null; }) : Promise.resolve(null);
+      server.then(function (l) {
+        if (l) { ICE_SERVERS = l; iceSource = hasTurn(l) ? 'turn' : 'stun'; return; }
+        return openRelay().then(function (relay) { if (relay) { ICE_SERVERS = STUN.concat([relay]); iceSource = 'openrelay'; } });
+      }).catch(function () {}).then(finish);
+    });
+    return iceLoad;
+  }
   var MAX_PEERS = 7;              // 8 players in the room = 7 other phones
   var CONNECT_TIMEOUT = 15000;    // no audio path after this long: start the link over once, then "couldn't connect"
   var TALK_LEVEL = 0.035, TALK_HOLD = 350, TICK = 120;
@@ -164,15 +218,17 @@
       toast(window.isSecureContext === false ? 'Voice needs the secure (https://) game link. Open the game from that link to talk.' : 'This browser can’t do voice. Try Safari on iPhone or Chrome on Android.');
       return;
     }
-    if (!last || !last.playerId) { toast('Join a game first, then tap Join voice.'); return; }
+    if (!last || !last.playerId) { toast('Join a game first, then tap “Playing apart?”.'); return; }
     joining = true; var mine = ++joinSeq; refresh();
     preparePool(); audioCtx();   // inside the tap: unlocks audio on iPhone
-    md.getUserMedia({ audio: AUDIO, video: false }).then(function (s) {
+    try { if (window.ccAudio) window.ccAudio.session('play-and-record'); } catch (e) {}   // iPhone: mic + speaker together
+    var ice = loadIce();
+    md.getUserMedia({ audio: AUDIO, video: false }).then(function (s) { return ice.then(function () { return s; }); }).then(function (s) {
       if (mine !== joinSeq) { s.getTracks().forEach(function (t) { t.stop(); }); return; }   // left while the permission prompt was up
       joining = false;
       if (!last || !last.playerId) { s.getTracks().forEach(function (t) { t.stop(); }); refresh(); return; }
       stream = s; on = true; muted = false; me = last.playerId; room = last.code;
-      stream.getAudioTracks().forEach(function (t) { t.enabled = true; t.onended = function () { if (on) { toast('Your microphone stopped. Tap Join voice to talk again.'); leave(); } }; });
+      stream.getAudioTracks().forEach(function (t) { t.enabled = true; t.onended = function () { if (on) { toast('Your microphone stopped. Tap “Playing apart?” to talk again.'); leave(); } }; });
       meter('me', stream);
       audioCtx();
       if (!ticker) ticker = setInterval(tick, TICK);
@@ -185,8 +241,9 @@
       var n = e && e.name;
       if (n === 'NotAllowedError' || n === 'SecurityError' || n === 'PermissionDeniedError') toast('🎙 The microphone is blocked for this game.<br><span style="font-weight:600">iPhone: tap <b>aA</b> in the address bar → Website Settings → Microphone → Allow. Android: tap the lock icon → Permissions → Microphone. Then tap Join voice again.</span>', 14000);
       else if (n === 'NotFoundError' || n === 'OverconstrainedError') toast('No microphone found on this device.');
-      else if (n === 'NotReadableError' || n === 'AbortError') toast('The microphone is busy. Hang up any other call (FaceTime, phone), then tap Join voice again.', 9000);
-      else toast('Couldn’t start the microphone. Tap Join voice to try again.');
+      else if (n === 'NotReadableError' || n === 'AbortError') toast('The microphone is busy. Hang up any other call (FaceTime, phone), then tap “Playing apart?” again.', 9000);
+      else toast('Couldn’t start the microphone. Tap “Playing apart?” to try again.');
+      try { if (window.ccAudio) window.ccAudio.session('playback'); } catch (e2) {}
     });
   }
 
@@ -199,6 +256,7 @@
     if (ticker) { clearInterval(ticker); ticker = null; }
     if (was) sendWs({ action: 'voice', on: false, muted: false });
     confirmed = false; muted = false;
+    try { if (window.ccAudio) window.ccAudio.session('playback'); } catch (e) {}   // back to plain game sound (plays on silent)
     var sh = document.getElementById('vc-sheet'); if (sh) sh.remove();
     if (hadTap) toast('');
     paint(); refresh();
@@ -359,12 +417,25 @@
   function inner() {
     var others = last && last.voice ? Object.keys(last.voice).filter(function (k) { return k !== (last && last.playerId); }).length : 0;
     if (joining) return '<button class="vc-b" disabled>🎙 Starting…</button>';
-    if (!on) return '<button class="vc-b vc-join" onclick="Voice.join()" aria-label="Join the voice call">🎙 Join voice' + (others ? '<span class="vc-n">' + others + ' on</span>' : '') + '</button>';
+    if (!on) return '<button class="vc-b vc-join" onclick="Voice.ask()" aria-label="Playing apart? Join the voice call">🎙 Playing apart?' + (others ? '<span class="vc-n">' + others + ' on</span>' : '') + '</button>';
     var o = overall(), n = Object.keys(peers).length + 1;
     return '<button class="vc-b ' + (muted ? 'vc-muted' : 'vc-live') + '" onclick="Voice.toggleMute()" aria-label="' + (muted ? 'Unmute' : 'Mute') + ' your microphone">' + (muted ? '🎙 Unmute' : '🔇 Mute') + '</button>' +
       '<button class="vc-b" onclick="Voice.panel()" aria-label="Who is in the call: ' + esc(o.text) + '"><span class="vc-dot ' + o.cls + '"></span>' + n + '</button>' +
       '<button class="vc-b vc-leave" onclick="Voice.leave()">Leave</button>';
   }
+  /* "Playing apart?": a one-line warning first, because phones in the same room feed back into each other */
+  var SAME_ROOM = 'Same room? Skip this — phones will howl.';
+  function ask() {
+    if (on || joining) return;
+    var sh = document.getElementById('vc-sheet'); if (sh) sh.remove();
+    sh = document.createElement('div'); sh.id = 'vc-sheet'; sh.className = 'vc-sheet'; sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-label', 'Voice call');
+    sh.innerHTML = '<h4>🎙 Playing apart?</h4>' +
+      '<p style="margin:0 0 6px;font-weight:800;line-height:1.35;">A voice call for players in different places. Everyone who joins can hear everyone.</p>' +
+      '<p style="margin:0;font-weight:900;color:var(--red,#E8453A);">' + SAME_ROOM + '</p>' +
+      '<div class="vc-foot"><button class="vc-b vc-leave" onclick="Voice._cancel()">Not now</button><button class="vc-b vc-join" onclick="Voice._cancel(); Voice.join()">🎙 Join the call</button></div>';
+    document.body.appendChild(sh);
+  }
+  function cancelAsk() { if (!on) { var sh = document.getElementById('vc-sheet'); if (sh) sh.remove(); sheetOpen = false; } }
   function button() { return '<span class="vc-ctl" data-vc-ctl>' + inner() + '</span>'; }
   function sheetHtml() {
     var rows = '<div class="vc-row" data-voice-pid="' + esc(me) + '"><span class="vc-dot ok"></span><span class="nm">' + esc(nameOf(me)) + ' (you)</span><span class="st">' + (muted ? '🔇 muted' : 'mic on') + '</span></div>';
@@ -376,8 +447,9 @@
     });
     var bad = Object.keys(peers).some(function (k) { return peers[k].state === 'failed'; });
     return '<h4>🎙 Voice call</h4>' + rows +
-      (Object.keys(peers).length ? '' : '<p class="st" style="margin:6px 8px;">Nobody else has joined yet. Tell them to tap “Join voice”.</p>') +
-      (bad ? '<p class="st" style="margin:6px 8px;">Some Wi-Fi networks block calls. Try switching that phone between Wi-Fi and cellular, then tap Retry.</p>' : '') +
+      (Object.keys(peers).length ? '' : '<p class="st" style="margin:6px 8px;">Nobody else has joined yet. Tell them to tap “Playing apart?”.</p>') +
+      (bad ? '<p class="st" style="margin:6px 8px;">' + (iceSource === 'turn' ? 'That phone’s network is having trouble. Try switching it between Wi-Fi and cellular, then tap Retry.' : 'Some networks (hotels, offices, some carriers) block calls. Try switching that phone between Wi-Fi and cellular, then tap Retry.') + '</p>' : '') +
+      '<p class="st" style="margin:6px 8px;">' + SAME_ROOM + '</p>' +
       '<div class="vc-foot"><button class="vc-b vc-leave" onclick="Voice.leave()">Leave call</button><button class="vc-b" onclick="Voice.panel(false)">Close</button></div>';
   }
   function panel(show) {
@@ -397,14 +469,21 @@
   // Closing the page or leaving it: the microphone goes off
   window.addEventListener('pagehide', function () { if (on || joining) leave(); });
   window.addEventListener('beforeunload', function () { if (on || joining) leave(); });
+  // Back from the lock screen or another app: wake the voices up again (iPhone pauses them)
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden || !on) return;
+    try { if (window.ccAudio) window.ccAudio.session('play-and-record'); } catch (e) {}
+    Object.keys(peers).forEach(function (pid) { var a = peers[pid].audio; if (a && a.srcObject && a.paused) play(a); });
+    audioCtx();
+  });
 
   window.Voice = {
-    button: button, join: join, leave: leave, toggleMute: toggleMute, panel: panel,
+    button: button, join: join, ask: ask, leave: leave, toggleMute: toggleMute, panel: panel, _cancel: cancelAsk,
+    iceSource: function () { return iceSource; }, iceServers: function () { return ICE_SERVERS; },
     onState: onState, onSignal: onSignal, speaking: speaking,
     isOn: function () { return on; }, isMuted: function () { return muted; },
     peerState: function (pid) { return peers[pid] ? peers[pid].state : null; },
     config: function (o) { cfg = o || {}; },
-    ICE_SERVERS: ICE_SERVERS,
     _peers: peers, _stream: function () { return stream; }, _retry: retry, _playAll: playAll,
   };
 })();

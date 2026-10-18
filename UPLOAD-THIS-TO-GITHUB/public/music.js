@@ -1,6 +1,56 @@
 // music.js — Procedural ambient music using Web Audio API
 // All sounds generated in-browser, no external files needed
 
+/* ── The phone's speaker: one shared audio unlock for the whole game ──
+   Loaded first, so everything else (index.html's tone()/noise()/actx(), fx.js, steal.js, voice.js) uses the
+   same AudioContext: window._gameAudio. What it fixes:
+   • iPhone ringer switch on silent: Web Audio is muted unless the page says it's media playback.
+     navigator.audioSession.type = 'playback' (Safari 17+, feature-detected) does that, set on a real tap.
+   • Browsers only start audio inside a tap: every tap (not just the first) makes/resumes the context, and the
+     first one also plays one silent sample (older iPhones need that to fully unlock).
+   • After the phone locks/unlocks or the tab comes back, the context is resumed (visibilitychange/pageshow/
+     focus); if the phone refuses without a tap, the next tap does it.
+   The voice call switches the session to 'play-and-record' while the mic is on (ccAudio.session).
+   window.ccAudio = { ctx(), unlock(), wake(), session(type) } */
+(function () {
+  var AC = window.AudioContext || window.webkitAudioContext;
+  var primed = false, want = 'playback';
+  function session(type) {
+    if (type) want = type;
+    var t = want;
+    // Sound switched off in the game menu: hand the phone back its normal rules (and don't pause the user's own music)
+    try { if (t === 'playback' && typeof window.soundEnabled === 'function' && !window.soundEnabled()) t = 'auto'; } catch (e) {}
+    try { if (navigator.audioSession && navigator.audioSession.type !== t) navigator.audioSession.type = t; } catch (e) {}
+  }
+  function ctx() {
+    if (!AC) return null;
+    var c = window._gameAudio;
+    if (!c || c.state === 'closed') { try { c = window._gameAudio = new AC(); } catch (e) { return null; } }
+    return c;
+  }
+  function wake() {
+    var c = window._gameAudio;
+    if (!c || c.state === 'running' || c.state === 'closed') return;
+    try { var p = c.resume(); if (p && p.catch) p.catch(function () {}); } catch (e) {}
+  }
+  function unlock() {
+    session();
+    var c = ctx(); if (!c) return;
+    wake();
+    if (!primed) {
+      primed = true;
+      try { var b = c.createBuffer(1, 1, 22050), s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start(0); } catch (e) {}
+    }
+  }
+  try {
+    ['touchend', 'pointerup', 'click', 'keydown'].forEach(function (t) { document.addEventListener(t, unlock, { capture: true, passive: true }); });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) { session(); wake(); } });
+    window.addEventListener('pageshow', function () { session(); wake(); });
+    window.addEventListener('focus', wake);
+  } catch (e) {}
+  window.ccAudio = { ctx: ctx, unlock: unlock, wake: wake, session: session };
+})();
+
 (function() {
   let audioCtx = null;
   let currentTrack = null;
@@ -9,13 +59,14 @@
   let isPlaying = false;
 
   function ensureContext() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const shared = window.ccAudio ? window.ccAudio.ctx() : null;
+    if (!audioCtx || (shared && shared !== audioCtx)) {
+      audioCtx = shared || new (window.AudioContext || window.webkitAudioContext)();
       masterGain = audioCtx.createGain();
       masterGain.gain.value = 0.18;
       masterGain.connect(audioCtx.destination);
     }
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (audioCtx.state !== 'running') { try { const p = audioCtx.resume(); if (p && p.catch) p.catch(() => {}); } catch (e) {} }
     return audioCtx;
   }
 
