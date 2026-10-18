@@ -74,7 +74,7 @@
     '.fp-prop{font-size:64px;line-height:1;z-index:20;opacity:0;}',
     '.fp-say{left:0;right:0;text-align:center;z-index:25;font-size:26px;font-weight:700;color:#fff;-webkit-text-stroke:1.5px #000;paint-order:stroke fill;text-shadow:3px 3px 0 #000;opacity:0;padding:0 14px;}',
     '.fp-alarm{position:absolute;inset:0;z-index:2;background:radial-gradient(circle at 50% 40%,rgba(255,40,30,.0),rgba(255,40,30,.45));opacity:0;pointer-events:none;}',
-    '#fpress.siren .fp-alarm{animation:fpSiren .38s steps(2) infinite;}',
+    '#fpress.siren .fp-alarm{animation:fpSiren .5s steps(2) infinite;}',   /* 2 pulses a second: well under 3 */
     '@keyframes fpSiren{0%{opacity:.9}50%{opacity:.1}}',
     '#fpress.shake{animation:fpShake .09s linear infinite;}',
     '@keyframes fpShake{0%{transform:translate(0,0)}25%{transform:translate(-3px,2px)}50%{transform:translate(3px,-2px)}75%{transform:translate(-2px,-3px)}}',
@@ -124,7 +124,7 @@
   function N(d, t, v, f, ty) { try { noise(d, t || 0, v || 0.15, f || 2500, ty || 'bandpass'); } catch (e) {} }
   function now() { try { return Date.now() + (clockOffset || 0); } catch (e) { return Date.now(); } }
   function seeded(seed) { var a = (seed >>> 0) || 1; return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-  function reduced() { try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
+  function reduced() { if (window.ccReducedMotion) return window.ccReducedMotion(); try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
   function spotsFor(image) { var all = window.ccSpots || SPOTS; return (all[image] && all[image].length) ? all[image] : DEFAULT_SPOT; }
   function rosetteSvg() {
     return '<svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true">' +
@@ -481,6 +481,29 @@
     var at = function (ms, fn) { if (ms + t0 - skip >= -60) later(ms + t0 - skip, fn); };
     // a phone that arrives after the misprint just gets the corrected edition
     if (skip > 15500) { finalNow(); return; }
+    // Reduce Motion: no press, no siren, no flying paper. Three cross-fades carry the same news —
+    // Caption of the Night, the misprint (with its stamp and its excuse), the corrected edition — in ~6s.
+    if (reduced()) {
+      if (skip > 5600) { finalNow(); return; }
+      var fade = function (el, ms) { if (el) anim(el, [{ opacity: 0 }, { opacity: 1 }], { duration: ms || 400, fill: 'forwards', easing: 'ease-out' }); };
+      at(0, function () { $('fp-sub').textContent = ''; fade($('fp-piece')); fade($('fp-name')); var r = $('fp-ros'); if (r) r.style.opacity = 1; S.fan(); vib(mine ? [120, 40, 120] : [60]); });
+      at(2400, function () {
+        hide($('fp-piece'), 300); hide($('fp-name'), 300);
+        var pr = $('fp-print'); pr.innerHTML = misprintHtml(entry, act.mode, faceReady, pixReady, seed);
+        if (!faceReady) faceP.then(function () { later(act.mode === 'pixel' ? 80 : 0, function () { pr.innerHTML = misprintHtml(entry, act.mode, faceReady, pixReady, seed); var s2 = pr.querySelector('.fp-stamp'); if (s2) s2.style.opacity = 1; }); });
+        var s = pr.querySelector('.fp-stamp'); if (s) s.style.opacity = 1;
+        $('fp-eye').textContent = 'Hot off the press'; $('fp-h').className = 'fp-h'; $('fp-h').textContent = '50,000 copies of this:';
+        fade(pr, 400); fade($('fp-why'), 400); S.womp();
+      });
+      at(5200, function () {
+        hide($('fp-print'), 300); hide($('fp-why'), 300);
+        $('fp-eye').textContent = 'All 50,000 recalled'; $('fp-h').className = 'fp-h gold'; $('fp-h').textContent = 'The corrected edition';
+        $('fp-sub').textContent = 'Hanging in The Gallery for good.';
+        fade($('fp-final'), 450); S.chime(); vib(mine ? [80, 40, 80] : [60]);
+      });
+      at(5700, function () { fade($('fp-btns'), 300); fade($('fp-savehint'), 300); });
+      return;
+    }
 
     /* 1. Caption of the Night (0 – 4.3s) */
     at(0, function () { $('fp-sub').textContent = ''; show($('fp-piece'), 700, [{ opacity: 0, transform: 'translateY(-50%) scale(.3) rotate(-8deg)' }, { opacity: 1, transform: 'translateY(-50%) scale(1) rotate(0)' }]); S.whoosh(); vib(40); });

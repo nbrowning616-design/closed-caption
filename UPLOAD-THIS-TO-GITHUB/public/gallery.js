@@ -203,7 +203,7 @@
     return e;
   }
   function rnd(a, b) { return a + Math.random() * (b - a); }
-  function reduced() { try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; } }
+  function reduced() { if (window.ccReducedMotion) return window.ccReducedMotion(); try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; } }
 
   /* ── sound & haptics (host globals, guarded) ── */
   function soundOn() { try { return typeof window.soundEnabled === 'function' ? !!window.soundEnabled() : false; } catch (e) { return false; } }
@@ -488,8 +488,9 @@
         if (RM) { [beam, pool, lamp].forEach(function (x) { anim(x, [{ opacity: 0 }, { opacity: 1 }], { duration: 400, delay: at }); }); return; }
         later(at, function () { snd(S.lamp); });
         anim(lamp, [{ opacity: 0 }, { opacity: 1 }], { duration: 80, delay: at });
-        anim(beam, [{ opacity: 0 }, { opacity: 0.8, offset: 0.12 }, { opacity: 0.25, offset: 0.24 }, { opacity: 1, offset: 0.4 }, { opacity: 1 }], { duration: 420, delay: at });
-        anim(pool, [{ opacity: 0 }, { opacity: 0.7, offset: 0.12 }, { opacity: 0.2, offset: 0.24 }, { opacity: 1 }], { duration: 520, delay: at });
+        // the lamp catches with one soft stutter (photosensitivity: a single dip, not a rapid flicker)
+        anim(beam, [{ opacity: 0 }, { opacity: 0.75, offset: 0.25 }, { opacity: 0.5, offset: 0.5 }, { opacity: 1, offset: 0.85 }, { opacity: 1 }], { duration: 520, delay: at });
+        anim(pool, [{ opacity: 0 }, { opacity: 0.65, offset: 0.25 }, { opacity: 0.45, offset: 0.5 }, { opacity: 1 }], { duration: 560, delay: at });
       }
 
       wallIn();

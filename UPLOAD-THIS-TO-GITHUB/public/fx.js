@@ -11,6 +11,14 @@
 (function () {
   'use strict';
 
+  /* Reduce Motion, for every script-driven moment in the app (heists, the steal, face gags, confetti,
+     flashes, the Poobah, the framing, the press show). One check, read live — so flipping the phone's
+     setting mid-game takes effect at the next moment. CSS animations are already calmed by the
+     media query in index.html; Web Animations and canvas confetti are not, so they ask this. */
+  window.ccReducedMotion = function () {
+    try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; }
+  };
+
   var INK = '#1F1A17', YELLOW = '#FFD23F', RED = '#E8453A', BLUE = '#2F6FE0', PAPER = '#FFF8EA';
   var DISPLAY = "'Fredoka','Nunito',system-ui,sans-serif";
   var EMOJI = "'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
@@ -595,8 +603,7 @@
       var H = cardH(W);
       var root = el('div', 'fx-root fx-' + kind, stage);
       var L = { root: root, SW: SW, SH: SH, W: W, H: H, x: Math.round((SW - W) / 2), y: Math.round(Math.max(12, SH * 0.45 - H / 2)) };
-      var reduce = false;
-      try { reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+      var reduce = window.ccReducedMotion();
       var ms = reduce ? gentle(imageSrc, L) : IMPL[kind](imageSrc, L);
       later(4000, function () { try { root.remove(); } catch (e) {} });
       return ms;

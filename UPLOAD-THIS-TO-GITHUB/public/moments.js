@@ -74,10 +74,19 @@
 
   /* Impact frames: a white flash, a scale punch, a small shake. */
   function restart(el, cls) { if (!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); clearTimeout(el['_t' + cls]); el['_t' + cls] = setTimeout(function () { el.classList.remove(cls); }, 600); }
+  // Photosensitivity: never more than one full-screen flash per 400ms (under 3 a second, anywhere in the
+  // app), and none at all under Reduce Motion. Shows budget one flash per moment on top of this.
+  var lastFlash = -1e9, FLASH_GAP = 400;
   window.ccFlash = function (strength) {
+    var a = strength == null ? 0.9 : +strength;
+    if (!(a > 0)) return;   // a zero-strength "flash" is a no-op, and must not use up the budget
+    if (window.ccReducedMotion && window.ccReducedMotion()) return;
+    var t = (window.performance && performance.now) ? performance.now() : Date.now();
+    if (t - lastFlash < FLASH_GAP) return;
+    lastFlash = t;
     var f = document.getElementById('cc-flash');
     if (!f) { f = document.createElement('div'); f.id = 'cc-flash'; document.body.appendChild(f); }
-    f.style.setProperty('--a', String(strength == null ? 0.9 : strength));
+    f.style.setProperty('--a', String(a));
     restart(f, 'go');
   };
   window.ccShake = function (el) { restart(el || document.getElementById('game-content'), 'cc-shake'); };

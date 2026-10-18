@@ -27,7 +27,8 @@
     return c.add(html, o.z || 20);
   }
   // a camera-style white flash on the stage
-  function flashW(c, at, a) { var f = c.add('<div style="width:' + c.W + 'px;height:' + c.H + 'px;background:#fff"></div>', 48); c.anim(f, [{ opacity: 0 }, { opacity: a || 0.9, offset: 0.2 }, { opacity: 0 }], { dur: 240, at: at }); return f; }
+  // (photosensitivity: a stage flash is skipped if the act already flashed in the last 400ms)
+  function flashW(c, at, a) { c._fl = c._fl || []; if (c._fl.some(function (t) { return Math.abs(t - at) < 400; })) return null; c._fl.push(at); var f = c.add('<div style="width:' + c.W + 'px;height:' + c.H + 'px;background:#fff"></div>', 48); c.anim(f, [{ opacity: 0 }, { opacity: a || 0.9, offset: 0.2 }, { opacity: 0 }], { dur: 240, at: at }); return f; }
   // visible only between from and to (at a fixed spot)
   function showAt(c, el, x, y, from, to, r) {
     var p = [{ t: 0, x: x, y: y, r: r, o: 0 }, { t: Math.max(0, from - 1), x: x, y: y, r: r, o: 0 }, { t: from, x: x, y: y, r: r, o: 1 }];
@@ -513,12 +514,14 @@
     var L = 22, T = 66, CW = W - 44, CH = fy - T;
     // the studio, before the cover lands: two cameras
     var cam1 = emo(c, '📸', 46, 30), cam2 = emo(c, '📸', 46, 30);
-    var flashes = [450, 950, 1350, 1700, 1980, 2220, 2420];
+    var flashes = [450, 850, 1250, 1650, 2050, 2450];   // >= 400ms apart: never more than 3 flashes a second
     var c1 = [{ t: 0, x: 34, y: 300 }], c2 = [{ t: 0, x: W - 34, y: 380, sx: -1 }];
     flashes.forEach(function (f) { c1.push({ t: f, x: 34, y: 300, s: 1.25 }, { t: f + 120, x: 34, y: 300 }); c2.push({ t: f, x: W - 34, y: 380, sx: -1.25, sy: 1.25 }, { t: f + 120, x: W - 34, y: 380, sx: -1 }); });
     c1.push({ t: 2599, x: 34, y: 300, o: 1 }, { t: 2600, x: 34, y: 300, o: 0 }); c2.push({ t: 2599, x: W - 34, y: 380, sx: -1, o: 1 }, { t: 2600, x: W - 34, y: 380, o: 0 });
     c.path(cam1, c1, { jerky: 1 }); c.path(cam2, c2, { jerky: 1 });
-    flashes.forEach(function (f) { flashW(c, f, 0.75); c.sfx(f, function () { noise(0.04, 0, 0.3, 4000, 'highpass'); tone(2200, 0.03, 30, 'square', 0.03); }); });
+    // each flash is a burst of light at the camera that fired (alternating), not a full-screen strobe
+    var burst = function (bx, by, at) { var b = c.add('<div style="position:absolute;left:-70px;top:-70px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,#fff 0,rgba(255,255,255,.85) 22%,rgba(255,255,255,0) 70%)"></div>', 31); place(b, bx, by); c.anim(b, [{ opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 0 }], { dur: 260, at: at }); };
+    flashes.forEach(function (f, n) { if (n % 2) burst(W - 34, 380, f); else burst(34, 300, f); c.sfx(f, function () { noise(0.04, 0, 0.3, 4000, 'highpass'); tone(2200, 0.03, 30, 'square', 0.03); }); });
     // the cover
     var bg = c.add('<div style="width:' + CW + 'px;height:' + CH + 'px;box-sizing:border-box;background:linear-gradient(160deg,#FF5E7E,#FFB14A);border:5px solid ' + INK + ';box-shadow:6px 6px 0 ' + INK + '"></div>', 8);
     c.path(bg, [{ t: 0, x: L, y: T, o: 0 }, { t: 2599, x: L, y: T, o: 0 }, { t: 2600, x: L - 20, y: T - 30, s: 1.12, o: 1 }, { t: 2720, x: L, y: T, s: 1 }], { jerky: 2 });

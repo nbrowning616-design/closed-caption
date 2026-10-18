@@ -244,6 +244,24 @@
     o.className = 'on';
     o.style.visibility = 'hidden';
     o.onclick = close;
+    // Reduce Motion: no gag. The winner's face and the banner fade in, hold, and fade out — done in ~2.6s,
+    // well before the next step (the server never waits on this).
+    if (window.ccReducedMotion && window.ccReducedMotion()) {
+      var RD = 2600, face = document.createElement('div');
+      face.style.cssText = 'position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);';
+      face.innerHTML = headHtml(ids, 150);
+      o.querySelector('.bh-stage').appendChild(face);
+      o.style.background = 'linear-gradient(#9BD3F0,#7EC8E3)';
+      timers.push(setTimeout(function () {
+        o.style.visibility = '';
+        try { o.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, easing: 'ease-out', fill: 'both' }); } catch (e) {}
+        buzz(me ? [60, 40, 120] : 30);
+        big(function () { tone(784, 0.18, 0, 'triangle', 0.05); tone(1047, 0.3, 120, 'triangle', 0.05); });
+      }, Math.max(0, startAt - performance.now())));
+      timers.push(setTimeout(function () { o.classList.add('out'); }, Math.max(0, startAt + RD - performance.now())));
+      timers.push(setTimeout(close, Math.max(0, startAt + RD + 380 - performance.now())));
+      return Math.max(0, wait || 0) + RD + 400;
+    }
     var ctx = makeCtx(o, ids, startAt, seed || 7);
     try { act.run(ctx); } catch (e) { console.error('bighead', act.name, e); }
     timers.push(setTimeout(function () { o.style.visibility = ''; buzz(me ? [60, 40, 120] : 30); }, Math.max(0, startAt - performance.now())));
@@ -358,7 +376,13 @@
     carry.innerHTML = mini;
     var who = el.querySelector('#bh-poo-who'), throne = el.querySelector('#bh-poo-throne'), hatEl = el.querySelector('#bh-poo-hat');
     var cx = W / 2, base = H - 20;
+    var RM = !!(window.ccReducedMotion && window.ccReducedMotion());
     var kf = function (el2, pts, dur) {
+      if (RM) {   // Reduce Motion: no parade. Each piece fades in at its resting place.
+        var p = pts[pts.length - 1], tr = 'translate(' + p.x + 'px,' + p.y + 'px) rotate(' + (p.r || 0) + 'deg) scale(' + (p.s || 1) + ')';
+        try { el2.animate([{ transform: tr, opacity: 0 }, { transform: tr, opacity: p.o == null ? 1 : p.o }], { duration: 450, easing: 'ease-out', fill: 'both' }); } catch (e) {}
+        return;
+      }
       try {
         el2.animate(pts.map(function (p) { return { transform: 'translate(' + p.x + 'px,' + p.y + 'px) rotate(' + (p.r || 0) + 'deg) scale(' + (p.s || 1) + ')', offset: p.t, opacity: p.o == null ? 1 : p.o, easing: p.e || 'steps(2,end)' }; }), { duration: dur, fill: 'both' });
       } catch (e) {}
@@ -372,6 +396,7 @@
     kf(who, trip.map(function (p) { return { t: p.t, x: p.x, y: p.y - 40, r: p.r }; }).concat([{ t: 0.74, x: cx, y: base - 80 }, { t: 0.76, x: cx, y: base - 70, s: 0.86 }, { t: 0.8, x: cx, y: base - 80, s: 1.05 }, { t: 1, x: cx, y: base - 80 }]), 6000);
     kf(carry, trip.map(function (p) { return { t: p.t, x: p.x, y: p.y + 22, r: -p.r }; }).concat([{ t: 0.66, x: cx, y: base - 18, o: 1 }, { t: 0.7, x: cx + 400, y: base - 18, o: 1, e: 'linear' }, { t: 1, x: cx + 400, y: base - 18, o: 0 }]), 6000);
     kf(hatEl, [{ t: 0, x: cx, y: -400, o: 0 }, { t: 0.7, x: cx, y: -400, o: 1, e: 'cubic-bezier(.6,0,1,.5)' }, { t: 0.76, x: cx, y: base - 238, s: 1.1 }, { t: 0.8, x: cx, y: base - 262, s: 1 }, { t: 1, x: cx, y: base - 262, r: -6 }], 6000);
+    if (RM) return;   // (the hat's thud, the scream and the march belong to the parade)
     setTimeout(function () { big(function () { noise(0.3, 0, 0.6, 400, 'lowpass'); tone(70, 0.4, 0, 'sine', 0.4, 40); }); buzz([120, 60, 200]); var h = who.querySelectorAll('.bh-head'); h.forEach(function (x) { x.classList.add('scream'); }); setTimeout(function () { h.forEach(function (x) { x.classList.remove('scream'); x.classList.add('talk'); }); setTimeout(function () { h.forEach(function (x) { x.classList.remove('talk'); }); }, 2200); }, 500); }, 4560);
     for (var k = 0; k < 8; k++) setTimeout(function () { big(function () { tone(196, 0.06, 0, 'square', 0.04); }); }, k * 400);
   }

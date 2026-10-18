@@ -954,6 +954,7 @@ const confetti = (() => {
     if (parts.length) raf = requestAnimationFrame(loop); else { raf = null; cx.clearRect(0, 0, innerWidth, innerHeight); }
   }
   function spawn(n, x, y, spread, power, colors) {
+    if (window.ccReducedMotion && window.ccReducedMotion()) return;   // Reduce Motion: no confetti (fx.js)
     for (let i = 0; i < n; i++) {
       const a = -Math.PI / 2 + (Math.random() - 0.5) * spread, v = power * (0.5 + Math.random());
       parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, w: 6 + Math.random() * 6, h: 4 + Math.random() * 5, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.3, color: colors[i % colors.length], life: 140 + Math.random() * 80, shape: Math.random() < 0.3 ? 'circle' : 'rect' });
@@ -2064,12 +2065,14 @@ function stealNewsHtml() {
   const me = st.victimId === myPlayerId;
   return `<div class="steal-news"><div class="h2">😈 ${state.isDealer ? 'You' : esc(state.dealerName)} stole ${me ? 'YOUR' : esc(nameOf(st.victimId)) + '’s'} chip</div><p class="sub">${st.actName ? esc(st.actName) + ' took it off ' : 'Knocked off '}${where}.${st.gloat ? ` “${esc(st.gloat)}”` : ''}</p></div>`;
 }
-/* The steal show — THE CLAW (steal.js). The first steal of a game gets the full show (~7.6s: the claw
-   hunts, fakes out, CLUNK, lifts the chip, a spray can repaints it in the dealer's colour, the claw sets it
-   back down); every later one is the sharp version (~2.6s: down, CLUNK, pssst, set down). The server
-   counts the steals (steal.show), so every phone agrees.
+/* The steal show (steal.js, heists.js). The server picks it (state.steal.stealShow), so every phone agrees:
+   'full' — the first steal of a game, or a steal off the real caption: one of 31 heists (~7.6s);
+   'short' — every other steal: a spray can tags the chip in the dealer's colour, with the line (~2.5s).
+   No stealShow (an older server): the full show, as before.
    Starts on the shared beat. Returns ms until the show is over. */
-const STEAL_SHOW_MS = 7600, STEAL_QUICK_MS = 7600;   // every steal is a full heist now (31 of them, dealt like a deck)
+const STEAL_SHOW_MS = 7600, STEAL_QUICK_MS = 2500;   // full heist 7.6s; the short one ~2.5s (server: state.steal.stealShow)
+// How long this round's steal show runs: 'short' -> 2.5s; 'full' or an older server (no stealShow) -> the full 7.6s
+const stealShowMs = (st) => window.ccClaw && window.ccClaw.lengthFor ? window.ccClaw.lengthFor(st, STEAL_SHOW_MS) : STEAL_SHOW_MS;
 function playStealShow(wait = 0) {
   if (!window.ccClaw) return 0;
   return window.ccClaw.play(wait, { fullMs: STEAL_SHOW_MS, quickMs: STEAL_QUICK_MS });
@@ -2191,7 +2194,7 @@ function playReelStep(fromEntry) {
   const sync = (at) => window.ccSync ? window.ccSync(at) : { wait: 0, late: 0, stale: false };
   const t0 = sync(state.stepAt || state.phaseAt);
   const stealOn = fromEntry && step === 1 && st && st.victimId && st.at;
-  const showLen = stealOn ? STEAL_SHOW_MS : 0;
+  const showLen = stealOn ? stealShowMs(st) : 0;   // #12: the short show hands over sooner
   const stealSy = stealOn ? sync(st.at) : null;
   const lead = stealOn && !stealSy.stale ? playStealShow(stealSy.wait) : 0;
   // ms from now until this caption's own beat (after the show, on the shared clock)
@@ -2201,7 +2204,7 @@ function playReelStep(fromEntry) {
   let timers = [];
   const still = () => state && state.phase === 'answer' && state.code + '|' + state.round + '|' + (state.reel && state.reel.step) === tag;
   if (startIn < -(window.ccSync ? window.ccSync.STALE : 2500)) {   // too late: no replay
-    endState(); beat(real ? 'real:end' : 'fake:end'); popBadgesFor(key, real, 300); window._answerGo = null; return;
+    endState(); beat(real ? 'real:end' : 'fake:end'); popBadgesFor(key, real, BADGE_AFTER_MS); window._answerGo = null; return;
   }
   const run = (delay) => {
     const T = (fn, ms) => timers.push(setTimeout(fn, Math.max(0, ms)));
@@ -2215,7 +2218,7 @@ function playReelStep(fromEntry) {
         const iMoon = (state.roundBadges || []).some(b => b.kind === 'moon' && b.playerIds.includes(myPlayerId));
         if (iMoon) { sfx.moon(); confetti.cannons(); }   // your own moon: your phone sings
         if (state.dealerBonusAwarded) bsfx.womp(); else if (!iMoon) bsfx.tada();
-        buzz([40, 30, 80]); popBadgesFor(key, true, 900);
+        buzz([40, 30, 80]); popBadgesFor(key, true, BADGE_AFTER_MS);
       }, delay + 1650);
     } else {
       T(() => { if (!still()) return; const s = $('spot'); if (s) s.classList.remove('pending'); beat('fake:impact');
@@ -2223,13 +2226,15 @@ function playReelStep(fromEntry) {
         big(() => { sfx.seal(); tone(660, 0.1, 60, 'triangle', 0.06); tone(990, 0.16, 140, 'triangle', 0.06); }); buzz(25);
         const f = (state.bets || []).some(b => b.target !== 'pass' && String(b.target) === String(key) && b.playerId !== (c && c.playerId));
         if (!f) big(() => tone(220, 0.35, 300, 'triangle', 0.05, 180));
-        popBadgesFor(key, false, 700);
+        popBadgesFor(key, false, BADGE_AFTER_MS);
       }, delay + 450);
     }
   };
   run(startIn);
   window._answerGo = lead ? () => { window._answerGo = null; timers.forEach(clearTimeout); timers = []; run(0); } : null;
 }
+// #14: the badge pop covers the top of the card, so it waits until the caption has had its moment (2.7s)
+const BADGE_AFTER_MS = 2700;
 function popBadgesFor(key, real, wait) {
   if (!window.Badges) return;
   const RANK = ['moon', 'three_bagger', 'clean_sweep', 'great_minds', 'pickpocket'];
@@ -2585,6 +2590,14 @@ ${window.ccHeads ? '<div id="gp-face" style="width:260px;height:300px;margin:-20
       <button class="btn btn-yellow" style="margin-top:18px; width:auto; padding:13px 26px;" onclick="closeGrand(true)">Long live the Poobah 🎩${state.framedTonight && canRun() && window.ccFinale ? ' → Gallery' : ''}</button>
     </div>`;
   const step = (id, cls, t) => setTimeout(() => { const e = $(id); if (e) e.classList.add(cls); }, t);
+  if (window.ccReducedMotion && window.ccReducedMotion()) {   // #11 Reduce Motion: the result, faded in, no drumroll show
+    o.classList.add('revealed'); step('gp-reveal', 'on', 0);
+    const r = $('gp-reveal'); if (r) r.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, easing: 'ease-out', fill: 'both' });
+    if (window.ccHeads && $('gp-face')) setTimeout(() => ccHeads.poobah($('gp-face'), g.ids), 30);
+    gong(); buzz([200, 80, 200]); if (window.ccBeat) window.ccBeat('poobah:reveal');
+    o.onclick = (e) => { if (e.target === o) closeGrand(); };
+    return;
+  }
   organ(3.4, 0.07); buzz(60);
   step('gp-l1', 'on', 200); step('gp-l1', 'off', 1700);
   step('gp-l2', 'on', 1900); step('gp-l2', 'off', 3500);
