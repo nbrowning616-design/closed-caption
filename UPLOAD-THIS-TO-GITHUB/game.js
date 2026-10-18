@@ -120,6 +120,7 @@ const CARTOONS = [
   { id: 98, title: "Book Club", image: "card_98.jpg", correct: "I just think she deserved better than the duke.", adult: true },
   { id: 99, title: "Good Fences", image: "card_99.jpg", correct: "It started with one tomato hanging over the line.", adult: true },
   { id: 100, title: "Annual Review", image: "card_100.jpg", correct: "Where do you see yourself in five to ten years?", adult: true },
+  { id: 101, title: "Open Plan", image: "card_101.jpg", correct: "Let's take the dragon offline.", adult: true },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
