@@ -1,0 +1,96 @@
+# Closed Caption — critical review (Oct 18 2026)
+
+Six reviewers, each on one area: rules and server, phone screens, animations and sound, first-time player, cartoons and captions, launch-readiness. Items marked "tested" were reproduced. Test scripts were in the session scratchpad (not kept).
+
+## MUST FIX — broken, unfair, or embarrassing
+
+1. **Double-tapping the dealer's button skips whole stages** (server.js ~336–374). The advance message has no stage, so a late second tap lands on the next screen: skipped betting, a free +4 for the dealer, Frame It counted with 0 picks. Fix: the phone sends the stage and round with every advance and the server ignores mismatches; the button locks after one tap. Tested.
+2. **Anyone can hijack another player's seat** (server.js 123, 150–156; every phone receives every player id at game.js ~1270). The intruder sees that player's caption and bets. Fix: a private seat key known only to that phone, and a separate public id for everyone else. Tested.
+3. **Expert Mode leaks the real answers** (game.js ~490–497, 1301; server.js 224). The lobby Gazette sends Gallery captions, which are the real answers in Expert Mode, and phones can inject captions that then get dealt. Fix: hide dealable cartoons' Gallery captions during Expert games, and never deal phone-supplied captions. Tested.
+4. **A phone that moves to a new room leaves a ghost that freezes the old game, and those rooms are never cleaned up** (server.js 120–148, 453). Betting waited on a ghost forever; 20k creates took memory to 317 MB on a 512 MB plan. Fix: mark the old seat disconnected, one room per phone, rate-limit creates, expire idle rooms. Tested.
+5. **Any server error kills every game on the site** (server.js `later()` has no error guard and there is no catch-all). Fix: guard the delayed steps, keep the server alive on error, and add free error alerts (Sentry).
+6. **A restart or update wipes every game, with a misleading message** ("That room doesn't exist"). Every push to main restarts the server. Fix: never push during game nights, and let the host's phone restore the room. At minimum, show "The server restarted — sorry."
+7. **Free-plan cold start: a 30–60 s blank Render screen for the first person at the party.** Fix: Render Starter ($7/month), or a free uptime pinger hitting /healthz every 10 minutes.
+8. **Silent on iPhones with the ringer switch off** (most people at a party). Fix: set `navigator.audioSession.type = 'playback'` on the first tap, and resume audio after the phone locks.
+9. **The headshot sheet pops up by itself, covers the QR code, and stays open into round 1 over the cartoon** (selfie.js ~138; nothing closes #sheet on a phase change). Fix: never auto-open it; close sheets on every phase change; offer the headshot after the player's first round win.
+10. **The zap heists strobe the whole screen at 4–6 flashes a second** (heists.js 486–491, 606; UFO, Magnet, Mosquito). This is a seizure risk. Fix: one flash only, and flicker the chip instead of the screen.
+11. **Reduce Motion is ignored by the script-driven moments**: face gags, confetti, flashes, Poobah. Fix: one shared check that falls back to a fade plus the banner.
+12. **The steal show is 7.6 s every round; the short version is never used** (index.html 2072, steal.js 286, server.js 253). That is about 75 s of thieves per night. Fix: the full heist for the first steal (or a steal off the real caption), ~2.5 s after that; the server lock matches.
+13. **A first-game tip states the wrong steal rule** (guide.js 17 says "+1"; the real rule is the chip's points). Fix the text.
+14. **Badge pop-up covers the real caption at the punchline** (popBadgesFor ~2218). Fix: show it 2–3 s later, or as a strip under the card.
+15. **The deck is far too small outside After Dark**: family 9 and standard 14 cartoons, so the second game repeats. Several are mis-rated: 82–85, 67, 68 and 81 should be family; 56 → adult; 70 → spicy. Re-rating takes family to 16 and standard to ~18. Growing the deck is the real launch blocker. The home and How to Play demos also show deck cartoons (47, 50, 51, 54) — use cartoons made only for the demo.
+16. **The real captions share one house voice.** All are 4–9 words, ~11 use a two-beat "setup. Punch." shape, and many address someone by name or "Sir/Ma'am". Regulars will learn to spot it. Fix: vary the length (~15% at 11–16 words), shape and speaker; at most 1 in 10 uses a name.
+17. **Weak or confusing real captions — suggested rewrites:**
+    - 73: "The four is from her husband."
+    - 76: "We should have started this club in 1958."
+    - 77: "Relax. He's never needed more than three."
+    - 62: "I did say I was looking for something long-term."
+    - 59: "Skip ahead, dear. We don't have that kind of time."
+    - 83: "It says here you were a seven handicap."
+    - 53: "This is why I drive."
+    - 54: "Shoes are four dollars. Per pair."
+    - 71: "You only had to take off the shoes."
+18. **No privacy notice, but the game takes selfies, including of kids.** No /privacy page, and the sheet says nothing about where photos go. Required before any listing (and US children's privacy law, COPPA). Fix: a one-paragraph privacy page, one reassuring line on the selfie sheet, and a "Delete my photo" button.
+19. **The pitch reads as "Fibbage with cartoons".** The one-line explanation is screen-reader-only. The home loop never shows chips, the face-down card, the steal or Frame It — the things that make this game different. Fix: put the line on screen; add a chips → flip → stamp beat to the home loop; lead with "a bluffing game, not a joke contest."
+20. **Voice call has no TURN relay** (voice.js 15, STUN only). It fails on many mobile and hotel networks — "works at home, fails at Grandma's." Fix: Cloudflare or Metered free-tier TURN before pitching remote play. Also label it "Playing apart?" and warn about feedback when players share a room.
+
+## SHOULD FIX — polish that judges notice
+
+21. **The end of the night runs about a minute of watching.** Fix: Poobah build-up to ~4 s, the gap to ~2 s, misprint landing by ~6 s into the press show. Also block the Gallery button until the Poobah finishes (scheduleGrandPoobah doesn't check state.finale), and show tied Poobahs side by side.
+22. **The Poobah's gong hits an empty stage**; the throne arrives 3.3 s later. Fix: bring the throne in during the drumroll so the hat lands on the gong.
+23. **The round-winner face gag plays every round and the 25 feel alike.** Fix: play it only when the lead changes, on a +4 round, or on the last round; otherwise a 1 s stamp.
+24. **The 8-player answer reel takes 10 dealer taps.** Fix: group the "Nobody bit" captions into one step.
+25. **Losing your turn after 10 s offline (switching to Messages, phone locks) — and the host role silently moves after 60 s.** Fix: 30–45 s, plus "Waiting for Lilah's phone…" and a note to the returning player.
+26. **Typing someone's name takes their offline seat** (prank risk). Fix: ask the table, or require 30 s offline, and announce it.
+27. **Two tabs on one seat kick each other forever** (11 swaps in 6 s). Fix: on close code 4000, stop reconnecting and show "Playing on another device." Tested.
+28. **The steal can get stuck if the dealer is idle.** Fix: let the host pass for the dealer; auto-pass after 45 s. Tested.
+29. **Unfair deal when someone leaves mid-game** (the host can deal twice). Fix: end the game or skip anyone who has already dealt. Tested.
+30. **The dealer can earn +6 from one steal** (the chip's points plus the +4 revenge, because the steal emptied the real caption). This conflicts with Nick's stated "keep it stacking" choice for the revenge, so it needs Nick's decision.
+31. **A player can type the real caption word for word** (regulars will remember). Fix: reject near-matches with "Too close to the real one."
+32. **Finale updates may not reach phones for 7 days** — the cache version list in server.js 33 is typed by hand and leaves out finale.js and heads-spots.js. Fix: build the version from every public/*.js.
+33. **Caption tidy errors**: "Who I am is none of your business." gets a "?"; "How about no." becomes a question; ALL-CAPS captions lose capitals on names (polish.js 65).
+34. **One-caption round gives away the answer.** Fix: require at least 2 captions before writing can end early.
+35. **Wrong room code bounces you home and wipes your typing**; the home screen then greets a stranger by name. Fix: stay on Join with an inline error.
+36. **Guests in the lobby are never pushed to the 1-minute demo.** Fix: a big "Watch the demo while you wait" card for first-timers; show the host "3 of 5 watched."
+37. **Full rules page is ~840 words and introduces 17 named concepts.** Fix: 6 steps plus the scoring card, with "Extras you'll discover" folded away.
+38. **Tips and banners cover what matters**: the betting buttons, the steal line, and the late writer's timer. Fix: never show a tip over the action bar; let tips fade on their own.
+39. **Long names cut mid-word and wrap** (20-character limit). Fix: ~12 characters with a counter; show the first name in banners.
+40. **8 players: the captions start below the fold on the betting screen.** Fix: one scrolling row for the bettor order; drop the separate "Your chips" rack.
+41. **Mixed terms**: "The reveal" is used for two moments; "votes" and "chips" are both used; "flags/Hall of Fame" still shows up in places. Fix: one term each.
+42. **Steal instructions are 5 lines long.** Fix: "Tap a chip to steal it. Off the real one = their points become yours."
+43. **The "biggest bluff" shout-out fires for 1-chip, four-way ties.** Fix: only at 2+ chips and at most 2 names.
+44. **Frame It: the real caption is tiny grey text; the list scrolls with no hint.** Fix: show the real caption as its own bold card, and fade the bottom edge of the list.
+45. **Heists are drawn with emoji, which look cheap and differ by phone brand.** Fix: draw the most-used thieves and the fire flames in the house ink style.
+46. **The fire mulligan reads as a black rectangle.**
+47. **No master volume or limiter; the Poobah reveal clips** (peak 1.1, ~80× a tap). Fix: one shared limiter, Poobah −6 dB.
+48. **Huge invisible effect layers (2200 px spotlights and rays) strain 2–3 GB iPhones.**
+49. **Four heists say the same line twice** (T. rex, Seagull, Bee, Unicorn).
+50. **The first load is heavy**: 1.36 MB, ~27 s on a weak signal; 20 scripts block the page. Fix: defer the scripts and lazy-load the show scripts and fonts.
+51. **Room codes are guessable**: 100k guesses in 3.8 s, so strangers can walk in. Fix: limit wrong codes, add a host "lock room" option, allow kicking mid-game. Tested.
+52. **Texted invite shows a bare link; home-screen icon is a blurry screenshot.** Fix: og: preview tags, manifest.json, apple-touch-icon.
+53. **Same-setup overload**: six clinic cartoons, about seven "schlubby husband" cartoons, four "old people and sex", four weddings. Pause these categories. Also: 82's sign is unreadable on a phone, and the family set is all grey pencil while After Dark is colour, so the style gives away the rating.
+54. **The home screen gives away 4 of the 9 family cartoons.**
+55. **Voice/joke copy**: "Beep boop. Get rekt." is off-voice, "Finders keepers" appears twice, and all five Poobah slogans tell the same joke.
+
+## NICE TO HAVE
+
+56. A 2-player variant (a house-written decoy caption), or make "3–8 players" obvious.
+57. Host screen: just a pre-filled name and "Create the room" (the timer belongs in the lobby).
+58. Toast when a late joiner adds a round.
+59. Accessibility: allow pinch-zoom, keyboard and Enter on caption cards, aria-live on "Your turn", and 44 px tap targets.
+60. Load the Gallery serif font up front; keep the picked music going after reveals; sync the award slides from the server clock.
+61. Cartoon images → WebP (~half the size), with a version in their URLs.
+62. Before building any permanent online Hall of Fame: keep households separate (strangers' names would otherwise show).
+63. A simple usage counter and a landing page; a custom domain (~$15/year). Google Play $25 once via PWA; Apple $99/year and likely to reject a web wrapper.
+64. Remove dead settings and code (pointsStealCorrect, pointsClosedLate, crowns, uuid, and others).
+
+## Costs in one place
+
+| Item | Cost |
+|---|---|
+| Render Starter (no sleep) | $7/month — or a free pinger |
+| TURN relay for voice | free tier |
+| Error alerts (Sentry) | free tier |
+| Domain | ~$15/year |
+| Google Play | $25 once |
+| Apple App Store | $99/year |
