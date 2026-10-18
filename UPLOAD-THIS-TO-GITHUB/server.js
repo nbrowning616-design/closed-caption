@@ -36,6 +36,14 @@ const PAGE = INDEX_HTML.replace('__BUILD__', BUILD).split('__V__').join(BUILD);
 app.get('/', (req, res) => { res.set('Cache-Control', 'no-store'); res.type('html').send(PAGE); });
 app.get('/index.html', (req, res) => res.redirect('/'));
 app.get('/healthz', (req, res) => res.send('ok'));
+// Is anyone playing right now? Updates are only pushed when this says no phones are connected.
+// Counts only — no names, codes or captions.
+app.get('/status', (req, res) => {
+  const live = Object.values(clients).filter(c => c && c.ws && c.ws.readyState === 1);
+  const codes = new Set(live.map(c => c.gameCode));
+  const inGame = [...codes].filter(c => games[c] && games[c].phase !== 'lobby').length;
+  res.set('Cache-Control', 'no-store').json({ phones: live.length, rooms: codes.size, gamesInProgress: inGame });
+});
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
 // A player's headshot for this room (versioned by ?v=, so phones can cache it)
 app.get('/face/:code/:pid', (req, res) => {
