@@ -117,6 +117,7 @@ const CARTOONS = [
   { id: 95, title: "Series A", image: "card_95.jpg", correct: "He also passed on fire.", adult: true },
   { id: 96, title: "Irreconcilable", image: "card_96.jpg", correct: "She's asking for the house. He's asking for the box.", adult: true },
   { id: 97, title: "The Pairing", image: "card_97.jpg", correct: "Pump four has a lovely finish.", adult: true },
+  { id: 98, title: "Book Club", image: "card_98.jpg", correct: "I just think she deserved better than the duke.", adult: true },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
