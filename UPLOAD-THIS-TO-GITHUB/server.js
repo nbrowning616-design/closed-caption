@@ -23,20 +23,26 @@ const LAN_URL = lanUrl();
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocketServer({ server, maxPayload: 16 * 1024 });
+const wss = new WebSocketServer({ server, maxPayload: 64 * 1024 });   // room for one small headshot
 
 // Build id: phones compare it and refresh themselves after an update
 const INDEX_PATH = path.join(__dirname, 'public', 'index.html');
 const INDEX_HTML = fs.readFileSync(INDEX_PATH, 'utf8');
 // (a helper that isn't there yet just counts as empty, so a missing file never stops the server)
 const readOr = (f) => { try { return fs.readFileSync(path.join(__dirname, f), 'utf8'); } catch (e) { return ''; } };
-const BUILD = crypto.createHash('sha1').update(INDEX_HTML + ['game.js', 'store.js', 'public/fx.js', 'public/hof.js', 'public/gallery.js', 'public/music.js', 'public/badges.js', 'public/qrcode.js', 'public/home.js', 'public/recap.js', 'public/guide.js', 'public/moments.js', 'public/steal.js', 'public/heists.js'].map(readOr).join('')).digest('hex').slice(0, 10);
+const BUILD = crypto.createHash('sha1').update(INDEX_HTML + ['game.js', 'store.js', 'public/fx.js', 'public/hof.js', 'public/gallery.js', 'public/music.js', 'public/badges.js', 'public/qrcode.js', 'public/home.js', 'public/recap.js', 'public/guide.js', 'public/moments.js', 'public/steal.js', 'public/heists.js', 'public/heads.js', 'public/heads-pack1.js', 'public/heads-pack2.js', 'public/selfie.js'].map(readOr).join('')).digest('hex').slice(0, 10);
 // __V__ busts the phone's cache for the helper scripts after an update
 const PAGE = INDEX_HTML.replace('__BUILD__', BUILD).split('__V__').join(BUILD);
 app.get('/', (req, res) => { res.set('Cache-Control', 'no-store'); res.type('html').send(PAGE); });
 app.get('/index.html', (req, res) => res.redirect('/'));
 app.get('/healthz', (req, res) => res.send('ok'));
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
+// A player's headshot for this room (versioned by ?v=, so phones can cache it)
+app.get('/face/:code/:pid', (req, res) => {
+  const buf = G.faceOf(games[String(req.params.code || '').toUpperCase()], String(req.params.pid || ''));
+  if (!buf) return res.status(404).end();
+  res.set('Cache-Control', 'private, max-age=86400'); res.type('image/jpeg').send(buf);
+});
 
 const games = {};    // code -> game
 const clients = {};  // playerId -> { ws, gameCode }
@@ -205,6 +211,12 @@ wss.on('connection', (ws) => {
       }
       case 'seen_sync': {
         fail(G.setPlayerSeen(game, playerId, msg.seen));
+        return;
+      }
+      case 'set_face': {
+        // The phone checks it's a headshot before sending; the server only checks it's a small JPEG
+        if (fail(G.setFace(game, playerId, msg.data === null ? null : msg.data))) return;
+        broadcast(code);
         return;
       }
       case 'gallery_sync': {

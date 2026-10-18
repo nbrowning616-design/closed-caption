@@ -22,6 +22,10 @@
 <script src="/moments.js?v=__V__"></script>
 <script src="/steal.js?v=__V__"></script>
 <script src="/heists.js?v=__V__"></script>
+<script src="/heads.js?v=__V__"></script>
+<script src="/heads-pack1.js?v=__V__"></script>
+<script src="/heads-pack2.js?v=__V__"></script>
+<script src="/selfie.js?v=__V__"></script>
 <script src="/qrcode.js?v=__V__"></script>
 <script src="/home.js?v=__V__"></script>
 <script src="/recap.js?v=__V__"></script>
@@ -977,7 +981,7 @@ function connect() {
   };
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
-    if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); }, 300); }
+    if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); if (window.Selfie) Selfie.sync(); }, 300); }
     else if (msg.type === 'state') {
       state = msg.data;
       if (state.serverNow) clockOffset = window.ccClock ? window.ccClock(state.serverNow - Date.now()) : state.serverNow - Date.now();
@@ -1136,7 +1140,7 @@ function render(force = false) {
     if (state.phase === 'lobby' && lastPhase) sendSeen();   // back in the lobby: refresh before the next game
     if (state.phase === 'lobby') { answerSeqRound = null; scoresAnimated = null; }
     if (lastPhase === 'framing') { clearFrameGos(); closeInduction(); }   // the scoreboard (and its hat) takes over
-    if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); }
+    if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); if (window.ccHeads) ccHeads.close(); }
     if (lastPhase && !['reveal', 'answer', 'framing', 'scores'].includes(state.phase)) bsfx.advance();
     document.body.classList.toggle('fm-on', state.phase === 'framing');
     if (state.phase !== 'writing') { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
@@ -1272,8 +1276,8 @@ function renderLobby() {
   const players = state.players.map((p, i) => `
     <div style="display:flex; align-items:center; gap:10px; padding:8px 0; ${!p.connected ? 'opacity:.5;' : ''}">
       <span class="seat-n" title="Seat ${i + 1}">${i + 1}</span>
-      ${chipHtml(p.id, 'lg pop' + (!p.connected ? ' dim' : ''))}
-      <div style="flex:1; min-width:0;"><div style="font-weight:900; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(p.name)}${pubMark(p)}${p.id === myPlayerId ? ' <span class="small">(you)</span>' : ''}</div>${rankTag(p)}
+      ${chipHtml(p.id, 'lg pop' + (!p.connected ? ' dim' : ''))}${window.Selfie ? Selfie.mini(p.id) : ''}
+      <div style="flex:1; min-width:0;"><div style="font-weight:900; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(p.name)}${pubMark(p)}${p.id === myPlayerId ? ' <span class="small">(you)</span>' : ''}</div>${rankTag(p)}${p.id === myPlayerId && window.Selfie ? '<div>' + Selfie.button() + '</div>' : ''}
         ${p.id === state.hostId ? '<span class="small" style="color:var(--yellow-d);">★ Host </span>' : ''}${i === 0 ? '<span class="small">🎲 deals first</span>' : ''}${!p.connected ? '<span class="small" style="color:var(--red);"> offline</span>' : ''}</div>
       ${state.isHost && n > 1 ? `<button class="seat-mv" aria-label="Move ${esc(p.name)} up" ${i === 0 ? 'disabled' : ''} onclick="moveSeat('${p.id}',-1)">↑</button><button class="seat-mv" aria-label="Move ${esc(p.name)} down" ${i === n - 1 ? 'disabled' : ''} onclick="moveSeat('${p.id}',1)">↓</button>` : ''}
       ${state.isHost && p.id !== myPlayerId ? `<button class="btn btn-sm" style="width:auto; padding:7px 9px; font-size:12px;" onclick="confirmKick('${p.id}')" aria-label="Remove ${esc(p.name)}">✕</button>` : ''}
@@ -2523,8 +2527,8 @@ function playGrandPoobah(g) {
     <p class="gp-line" id="gp-l2">the award that actually matters.</p>
     <div class="gp-tease" id="gp-tease">The Grand Poobah is…</div>
     <div class="gp-reveal" id="gp-reveal">
-      <div class="gp-hat">${poobahHat(150)}</div>
-      <div style="display:flex; gap:14px; justify-content:center;">${g.ids.map(id => chipHtml(id, 'gp-chip')).join('')}</div>
+${window.ccHeads ? '<div id="gp-face" style="width:260px;height:300px;margin:-20px auto 0;position:relative;z-index:3;"></div>' : `<div class="gp-hat">${poobahHat(150)}</div>
+      <div style="display:flex; gap:14px; justify-content:center;">${g.ids.map(id => chipHtml(id, 'gp-chip')).join('')}</div>`}
       <div class="gp-name">${esc(names)}</div>
       <p class="gp-stats">${plural(g.n, 'vote')} on fake captions · crowned ${plural(g.crowns, 'round')}${me ? ' · that’s YOU' : ''}</p>
       <p class="gp-slogan">“${esc(pickBy(POOBAH_SLOGANS, state.code + state.history.length))}”</p>
@@ -2540,6 +2544,7 @@ function playGrandPoobah(g) {
     o.classList.remove('roll'); o.classList.add('flash', 'revealed');
     const t = $('gp-tease'); if (t) t.classList.remove('on');
     step('gp-reveal', 'on', 0);
+    if (window.ccHeads && $('gp-face')) setTimeout(() => ccHeads.poobah($('gp-face'), g.ids), 30);
     crash(); gong(); bsfx.boom(); bigFanfare(); buzz([400, 100, 400, 100, 800]); if (window.ccFlash) window.ccFlash(0.95); if (window.ccBeat) window.ccBeat('poobah:reveal');
     confetti.cannons(); setTimeout(() => confetti.cannons(), 700); setTimeout(() => confetti.cannons(), 1500); confetti.rain(6000);
     setTimeout(() => o.classList.remove('flash'), 500);
@@ -2653,6 +2658,17 @@ function playScoreboardCount(key) {
   }));
   at(SB_LEAD + hits.length * SB_STEP + SB_SETTLE, () => sortScoreRows());
   at(total, finish);
+  // then the round's winner (most points this round) gets their Big Head gag — same moment on every phone
+  const pts = state.roundScores || {}, best = Math.max(0, ...Object.values(pts));
+  const winners = best > 0 ? state.players.filter(p => pts[p.id] === best).map(p => p.id) : [];
+  if (winners.length && window.ccHeads && state.winAct !== null && state.winAct !== undefined) {
+    const gagAt = total + 500;
+    if (elapsed < gagAt + 2500) seq.timers.push(setTimeout(() => {
+      if (!state || state.phase !== 'scores' || state.round + '|' + state.code !== key) return;
+      const wait = state.scoresAt + gagAt - (Date.now() + clockOffset);
+      ccHeads.play(state.winAct, winners, Math.max(0, wait), (state.round * 7919) ^ state.code.charCodeAt(0));
+    }, Math.max(0, gagAt - elapsed - 150)));
+  }
 }
 // Slide the rows into the new standings (FLIP), and move the ranks and the leader's highlight with them
 function sortScoreRows() {

@@ -190,6 +190,31 @@ const HEISTS = [
   { name: 'The Unicorn', gloats: ['Magic is just stealing with glitter.', 'Believe in yourself. Not in your chip.'] },
   { name: 'The Penguin', gloats: ['Cold. Calculated. Mine.', 'Chill out. It’s just a chip.'] },
 ];
+// Round-winner gags (public/heads*.js): dealt like a deck, so nobody sees a repeat until all have played
+const WIN_ACT_COUNT = 25;
+function nextWinAct(game) {
+  if (!Array.isArray(game.winDeck) || !game.winDeck.length) {
+    const d = shuffleArray(Array.from({ length: WIN_ACT_COUNT }, (_, i) => i));
+    if (d.length > 1 && d[0] === game.winAct) d.push(d.shift());
+    game.winDeck = d;
+  }
+  return (game.winAct = game.winDeck.shift());
+}
+// Headshots: one small JPEG per player, kept in memory for this room only (never saved to disk)
+const MAX_FACE_BYTES = 40 * 1024;
+function setFace(game, playerId, data) {
+  if (!game.players.some(p => p.id === playerId)) return { error: 'Not in this game' };
+  game.faces = game.faces || {};
+  if (data === null) { delete game.faces[playerId]; return { ok: true }; }
+  const m = /^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/.exec(String(data || ''));
+  if (!m) return { error: 'That photo didn’t come through' };
+  const buf = Buffer.from(m[1], 'base64');
+  if (buf.length < 500 || buf.length > MAX_FACE_BYTES || buf[0] !== 0xFF || buf[1] !== 0xD8) return { error: 'That photo didn’t come through' };
+  const old = game.faces[playerId];
+  game.faces[playerId] = { buf, v: (old ? old.v : 0) + 1 };
+  return { ok: true };
+}
+function faceOf(game, playerId) { const f = game && game.faces && game.faces[playerId]; return f ? f.buf : null; }
 // Next heist off the room's deck; a fresh shuffle never opens with the one that just played
 function nextHeist(game) {
   if (!Array.isArray(game.heistDeck) || !game.heistDeck.length) {
@@ -839,6 +864,7 @@ function moveToScoreboard(game) {
   if (!game.frameResult) resolveFraming(game);
   setPhase(game, PHASES.SCORES);
   game.scoresAt = Date.now();   // phones time the Grand Poobah ceremony from this, so it plays together
+  nextWinAct(game);             // which round-winner gag plays on the scoreboard
   return { ok: true };
 }
 
@@ -1175,6 +1201,8 @@ function getPlayerView(game, playerId) {
     phaseAt: game.phaseAt || null,   // server time this phase began (phones sync the big moments to it)
     stepAt: game.stepAt || null,     // server time of the latest reveal-reel step
     stealShows: game.stealShows || 0,
+    faces: Object.fromEntries(Object.entries(game.faces || {}).filter(([pid]) => game.players.some(p => p.id === pid)).map(([pid, f]) => [pid, f.v])),   // headshot versions; the photos come from /face/CODE/ID
+    winAct: game.winAct === undefined ? null : game.winAct,
     promotion: game.promotion || null,
     inductNeed: inductNeed(game),
     lastInduction: game.lastInduction ? { ...game.lastInduction, flaggers: [...game.lastInduction.flaggers], list: (game.lastInduction.list || []).map(x => ({ ...x, flaggers: [...x.flaggers] })) } : null,   // only made when framing resolves
@@ -1298,6 +1326,7 @@ module.exports = {
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,
+  setFace, faceOf, WIN_ACT_COUNT,
   stealChip, revealAnswer, moveToFraming, moveToScoreboard, isGameOver, resetForNewGame, isPresent,
   REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer,
   currentBetterId, pendingBetters, nextDealerIndex, getPlayerView, generateRoomCode,
