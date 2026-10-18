@@ -81,7 +81,7 @@ function later(code, ms, expectPhase, fn) {
   }, ms);
 }
 // Last line of defence: log and keep serving rather than dropping every room on the site
-process.on('uncaughtException', (e) => console.error('uncaught', e));
+process.on('uncaughtException', (e) => { console.error('uncaught', e); if (e && (e.code === 'EADDRINUSE' || e.code === 'EACCES')) process.exit(1); });   // can't open the port: quit so the host restarts us
 process.on('unhandledRejection', (e) => console.error('unhandled rejection', e));
 
 // Writing ends on its own when the clock runs out (with a short grace for phones auto-sending drafts)
