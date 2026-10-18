@@ -88,6 +88,7 @@ process.on('unhandledRejection', (e) => console.error('unhandled rejection', e))
 function scheduleWritingEnd(code) {
   const game = games[code];
   if (!game || game.phase !== PHASES.WRITING) return;
+  if (!game.timerEnd) return;   // [settings] no timer: writing ends when everyone's in, or the dealer/host ends it
   later(code, Math.max(0, game.timerEnd - Date.now()) + 2000, PHASES.WRITING, endWriting);
 }
 function endWriting(g) {
@@ -151,7 +152,7 @@ wss.on('connection', (ws) => {
     if (msg.action === 'create') {
       const name = cleanName(msg.name);
       if (!name) return sendError(ws, 'Enter your name');
-      const timer = [60, 90, 120, 180].includes(msg.timer) ? msg.timer : 90;
+      const timer = G.cleanTimer(msg.timer) ?? G.DEFAULT_TIMER;   // [settings] 0 = no timer; default 2 min
       const id = crypto.randomUUID();
       let game; do { game = G.createGame(id, name, timer, Array.isArray(msg.seen) ? msg.seen.slice(0, 200) : []); } while (games[game.code]);
       games[game.code] = game;
@@ -284,7 +285,7 @@ wss.on('connection', (ws) => {
         if (!isHost) return sendError(ws, 'Only the host can change the timer');
         if (game.phase !== PHASES.LOBBY) return sendError(ws, 'Timer can only be changed in the lobby');
         const t = Number(msg.timer);
-        if (![60, 90, 120, 180].includes(t)) return sendError(ws, 'Invalid timer');
+        if (G.cleanTimer(msg.timer) === null) return sendError(ws, 'Invalid timer');   // [settings] 0 (no timer) or 30 s – 10 min
         game.timerDuration = t;
         broadcast(code);
         return;

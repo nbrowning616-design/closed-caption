@@ -129,7 +129,7 @@
     switch (st.phase) {
       case 'writing': return st.hasSubmitted ? null : 'writing';
       case 'reading': return 'facedown';
-      case 'first_bets': return st.isDealer ? null : 'first_bets';
+      case 'first_bets': return st.isDealer && !(st.settings && (st.settings.dealerMode === 'bet' || st.settings.dealerMode === 'both')) ? null : 'first_bets';   // [settings] a betting dealer gets the tip too
       case 'steal': return 'steal';
       case 'answer': {
         var r = st.reel || {}, n = (r.order || []).length, step = r.step || 1;

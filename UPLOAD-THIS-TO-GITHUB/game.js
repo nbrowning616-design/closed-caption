@@ -289,13 +289,28 @@ const DEFAULT_SETTINGS = {
   pointsStealCorrect: 1,         // (retired: a stolen chip on the real caption now pays the dealer what it would have paid)
   autoCloseProbability: 0.15,    // share of rounds where the real caption is the Closed Caption
   stealEnabled: true,            // dealer may knock one chip off the table before the answer
+  // [settings] Lobby settings (Nick, Oct 18 2026)
+  dealerMode: 'steal',           // 'steal' = dealer doesn't bet, steals one chip (default); 'bet' = no steal, the dealer bets 2 chips like everyone;
+                                 // 'both' = "kitchen sink": the dealer bets 2 chips AND then steals one (never their own)
+  laps: 1,                       // game length when rounds/targetScore are null: everyone deals once (1), twice (2) or three times (3)
   family: false,                 // family cartoons only (skips the few grown-up ones)
   spicy: false,                  // 'After dark': mixes in the PG-13 cartoons
   direction: 'left',             // which way the deal and the betting go around the table
   expert: false,                 // Expert Mode: the real answer comes from the Hall of Fame deck
 };
 
-function createGame(hostId, hostName, timerDuration = 90, seenIds = []) {
+// [settings] Writing timer: 0 = no timer (nobody is rushed; the dealer or host ends writing), else 30 s to 10 min.
+const DEFAULT_TIMER = 120;   // new rooms: 2 minutes
+function cleanTimer(t) {
+  const n = Number(t);
+  if (t === null || t === undefined || t === '' || !Number.isInteger(n)) return null;
+  return n === 0 || (n >= 30 && n <= 600) ? n : null;
+}
+// [settings] Dealer modes
+const dealerBets = (game) => game.settings.dealerMode === 'bet' || game.settings.dealerMode === 'both';
+const stealOn = (game) => game.settings.dealerMode !== 'bet' && !!game.settings.stealEnabled;
+
+function createGame(hostId, hostName, timerDuration = DEFAULT_TIMER, seenIds = []) {
   return {
     seenIds: cleanSeen(seenIds),   // cartoons the host's phone has seen in earlier games
     seenBy: { [hostId]: cleanSeen(seenIds) },   // every phone's 'already seen' list, by player
@@ -320,6 +335,7 @@ function createGame(hostId, hostName, timerDuration = 90, seenIds = []) {
     settings: { ...DEFAULT_SETTINGS },
     round: 0,
     dealerIndex: -1,
+    dealCount: {},        // [settings] how many times each player has dealt this game (game length = everyone deals N times)
     usedCartoonIds: [],
     cartoon: null,
     correctCaption: '',
@@ -404,6 +420,17 @@ function updateSettings(game, partial) {
   for (const key of Object.keys(partial || {})) {
     const val = partial[key];
     if (key === 'stealEnabled') { s.stealEnabled = !!val; continue; }
+    // [settings] Dealer mode: the steal is on in 'steal' and 'both' ('kitchen sink'), off in 'bet'
+    if (key === 'dealerMode') {
+      if (!['steal', 'bet', 'both'].includes(val)) return { error: 'Invalid dealer mode' };
+      s.dealerMode = val; s.stealEnabled = val !== 'bet'; continue;
+    }
+    // [settings] Game length: everyone deals 1, 2 or 3 times
+    if (key === 'laps') {
+      const n = Number(val);
+      if (![1, 2, 3].includes(n)) return { error: 'Invalid game length' };
+      s.laps = n; continue;
+    }
     if (key === 'family') { s.family = !!val; if (s.family) s.spicy = false; continue; }
     if (key === 'spicy') { s.spicy = !!val; if (s.spicy) s.family = false; continue; }
     if (key === 'expert') {
@@ -537,7 +564,7 @@ function dealCartoon(game) {
   game.autoClose = ensurePlan(game, Math.max(1, game.round));   // a mulligan keeps the round's plan
   game.submissions = [];
   game.mulliganVotes = [];
-  game.timerEnd = Date.now() + game.timerDuration * 1000;
+  game.timerEnd = game.timerDuration > 0 ? Date.now() + game.timerDuration * 1000 : null;   // [settings] no timer: no end time
   game.timeAdds = 0;
   game.timerToken = (game.timerToken || 0) + 1;
 }
@@ -563,6 +590,9 @@ function startRound(game, options = {}) {
   if (!options.sameRound) {
     game.round++;
     game.dealerIndex = nextDealerIndex(game, game.dealerIndex);
+    // [settings] count the deal (game length 'everyone deals N times' reads this)
+    const d = game.players[game.dealerIndex];
+    if (d) { game.dealCount = game.dealCount || {}; game.dealCount[d.id] = (game.dealCount[d.id] || 0) + 1; }
   }
   dealCartoon(game);
   game.closedCaption = '';
@@ -634,7 +664,7 @@ function voteMulligan(game, playerId) {
   const oldImage = game.cartoon ? game.cartoon.image : null;
   dealCartoon(game);
   game.mulliganCount = (game.mulliganCount || 0) + 1;
-  game.timerEnd += 4500;   // the execution plays over the new cartoon: give that time back
+  if (game.timerEnd) game.timerEnd += 4500;   // the execution plays over the new cartoon: give that time back ([settings] no timer: nothing to give)
   game.mulliganEvent = { n: game.mulliganCount, quip: pick(MULLIGAN_QUIPS), kind: pick(EXECUTIONS), image: oldImage, at: Date.now() };
   return { ok: true, triggered: true };
 }
@@ -665,9 +695,12 @@ function finishWriting(game) {
 }
 
 // Around the table from the dealer, in the table's direction; the dealer doesn't bet
+// ([settings] unless the dealer mode is 'bet' or 'both': then the dealer bets last)
 function computeBetOrder(game) {
   const n = game.players.length, order = [], step = stepOf(game);
   for (let k = 1; k < n; k++) order.push(game.players[seatAt(n, game.dealerIndex + k * step)].id);
+  const dealer = dealerOf(game);
+  if (dealer && dealerBets(game)) order.push(dealer.id);
   return order;
 }
 
@@ -704,7 +737,7 @@ function placeBet(game, playerId, betTarget) {
   const stage = game.phase === PHASES.FIRST_BETS ? 1 : game.phase === PHASES.SECOND_BETS ? 2 : 0;
   if (!stage) return { error: 'Not a betting phase' };
   const dealer = dealerOf(game);
-  if (dealer && dealer.id === playerId) return { error: 'The dealer doesn\'t bet' };
+  if (dealer && dealer.id === playerId && !dealerBets(game)) return { error: 'The dealer doesn\'t bet' };   // [settings] 'bet'/'both': the dealer bets too
   if (stageBet(game, playerId, stage)) return { error: 'You already bet' };
   if (currentBetterId(game) !== playerId) return { error: 'Not your turn yet' };
   if (!betTarget || typeof betTarget !== 'object') return { error: 'Invalid bet' };
@@ -756,9 +789,11 @@ function moveFromReveal(game) {
 }
 
 // All chips are down: the dealer's steal, or straight to the answer
+// [settings] only when the dealer mode has a steal, and only other players' chips can be stolen
+const othersChipsOnTable = (game, dealer) => game.bets.reduce((n, b) => n + (b.target === 'pass' || (dealer && b.playerId === dealer.id) ? 0 : b.count), 0);
 function afterAllBets(game) {
   const dealer = dealerOf(game);
-  if (game.settings.stealEnabled && dealer && chipsOnTable(game) > 0) {
+  if (stealOn(game) && dealer && othersChipsOnTable(game, dealer) > 0) {
     setPhase(game, PHASES.STEAL);
     game.steal = null;
     return { ok: true };
@@ -780,6 +815,8 @@ function stealChip(game, betIndex) {
   } else {
     const bet = game.bets[Number(betIndex)];
     if (!bet || bet.target === 'pass' || bet.count < 1) return { error: 'No chip there' };
+    const dl = dealerOf(game);
+    if (dl && bet.playerId === dl.id) return { error: 'You can’t steal your own chip' };   // [settings] kitchen sink: the dealer's own chips stay put
     bet.count -= 1;
     bet.stolen = (bet.stolen || 0) + 1;
     const act = nextHeist(game);
@@ -807,12 +844,15 @@ function revealAnswer(game) {
     details[pid].push({ pts, reason });
   };
 
+  // [settings] 'anyoneRight' = another player (not the dealer) has a chip left on the real caption.
+  // A betting dealer's own chip on the real one scores like anyone's, and never cancels the dealer's revenge.
+  const dealerNow = dealerOf(game);
   let anyoneRight = false;
   for (const bet of game.bets) {
     if (!bet || bet.target === 'pass' || bet.count + (bet.stolen || 0) < 1) continue;
     const blind = bet.stage === 1, onClosed = bet.target === 'closed', both = bet.count === 2;
     if (bet.count > 0 && isBetOnCorrect(game, bet)) {
-      anyoneRight = true;
+      if (!dealerNow || bet.playerId !== dealerNow.id) anyoneRight = true;
       const per = blind ? (onClosed ? s.pointsClosedBet : s.pointsOpenBet) : s.pointsOpenLate;
       let reason;
       if (blind && onClosed && both) reason = 'Shot the Moon';
@@ -902,7 +942,24 @@ function moveToScoreboard(game) {
   return { ok: true };
 }
 
-function totalRounds(game) { return game.settings.rounds || game.players.length; }
+// [settings] 'Everyone deals N times' (laps): the rounds played so far, plus the deals still to come going around
+// the table from the current dealer, stopping at the first seat that has already dealt N times. With N = 1 and
+// nobody joining late this is exactly the old 'one round per player'; a late joiner adds the deals they will get.
+function totalRounds(game) {
+  const s = game.settings;
+  if (s.rounds) return s.rounds;
+  const n = game.players.length, laps = [1, 2, 3].includes(s.laps) ? s.laps : 1;
+  if (!game.round || game.dealerIndex < 0 || !game.dealCount || !n) return n * laps;
+  const c = { ...game.dealCount }, step = stepOf(game);
+  let i = game.dealerIndex, more = 0;
+  for (let g = 0; g <= n * laps; g++) {
+    i = seatAt(n, i + step);
+    const id = game.players[i].id;
+    if ((c[id] || 0) >= laps) break;
+    c[id] = (c[id] || 0) + 1; more++;
+  }
+  return game.round + more;
+}
 
 function isGameOver(game) {
   const s = game.settings;
@@ -1244,6 +1301,7 @@ function resetForNewGame(game) {
   game.closePlan = [];
   game.round = 0;
   game.dealerIndex = -1;
+  game.dealCount = {};   // [settings]
   game.history = [];
   game.previousRank = {};
   game.players.forEach(p => { p.score = 0; });
@@ -1438,6 +1496,7 @@ function getPlayerView(game, playerId) {
 // The dealer (or host) gives the table 30 more seconds — up to three times a cartoon
 function addTime(game) {
   if (game.phase !== PHASES.WRITING) return { error: 'Only while writing' };
+  if (!game.timerEnd) return { error: 'No timer this game' };   // [settings] no timer: nothing to add to
   if ((game.timeAdds || 0) >= 3) return { error: 'That’s all the extra time this round' };
   game.timeAdds = (game.timeAdds || 0) + 1;
   game.timerEnd = Math.max(game.timerEnd, Date.now()) + 30000;
@@ -1447,6 +1506,7 @@ function addTime(game) {
 
 module.exports = {
   PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS,
+  cleanTimer, DEFAULT_TIMER, totalRounds,   // [settings]
   addTime, undoBet, freshest, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, pickFrame, allFramesIn, resolveFraming, hallOfFame, planBlock, ensurePlan,
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
