@@ -99,3 +99,11 @@ Six reviewers, each on one area: rules and server, phone screens, animations and
 | Domain | ~$15/year |
 | Google Play | $25 once |
 | Apple App Store | $99/year |
+
+## STATUS (Oct 18 2026, evening) — read this first in a new chat
+- LIVE on main: Pass 1 #8 #9 #10 #11 #12(phone) #13 #14 #15 #16 #17 #18 #19 #20(best effort) and #1 (double tap), #5 (crash guard), 45 s away grace (#25 part), every public/*.js busts the cache (#32), /status endpoint.
+- 27 new cartoons added (ids 86–112, faces in heads-spots.js). Real captions are hidden from Nick — never show them to him.
+- Lobby deck choice: Family / Standard / Everything.
+- DEPLOY RULE: never push to main while anyone is playing. Use ./safe_push.sh (waits for /status phones = 0 twice, 60 s apart). Nick said: auto-check and update in real time, no need to ask.
+- Still open: Pass 1 #2 #3 #4 #6 #7 (server worker branch, not merged yet); Pass 2 in progress (screens, animations, load/icons); Pass 3 after.
+- Rejected cartoon: the superhero garage sale (real Marvel/DC logos) — redo prompt with invented gear was given to Nick.
