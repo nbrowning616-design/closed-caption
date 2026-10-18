@@ -69,10 +69,12 @@ function later(code, ms, expectPhase, fn) {
   setTimeout(() => {
     const g = games[code];
     if (!g || g.phase !== expectPhase || g.round !== round || g.timerToken !== token) return;
-    fn(g);
-    broadcast(code);
+    try { fn(g); broadcast(code); } catch (e) { console.error('delayed step failed', code, expectPhase, e); }   // one bad step never takes down every game
   }, ms);
 }
+// Last line of defence: log and keep serving rather than dropping every room on the site
+process.on('uncaughtException', (e) => console.error('uncaught', e));
+process.on('unhandledRejection', (e) => console.error('unhandled rejection', e));
 
 // Writing ends on its own when the clock runs out (with a short grace for phones auto-sending drafts)
 function scheduleWritingEnd(code) {
@@ -334,6 +336,12 @@ wss.on('connection', (ws) => {
         return;
       }
       case 'advance': {
+        // One tap per stage: ignore a tap meant for an earlier stage (double taps, slow screens),
+        // and any second advance within 1.2 s of the last one (older phones that don't say which stage)
+        if (msg.phase !== undefined && (msg.phase !== game.phase || (msg.round !== undefined && msg.round !== game.round))) return;
+        if (msg.framed !== undefined && game.phase === PHASES.FRAMING && !!msg.framed !== !!game.frameResult) return;
+        if (game._advAt && Date.now() - game._advAt < 1200) return;
+        game._advAt = Date.now();
         switch (game.phase) {
           case PHASES.READING:
             if (!canRun) return sendError(ws, 'The dealer starts the betting');
@@ -463,10 +471,10 @@ setInterval(() => {
     }
     // Writing: everyone still here has written (a phone that went away no longer holds it up)
     if (g.phase === PHASES.WRITING && g.submissions.length && G.allCaptionsIn(g)) { endWriting(g); changed = true; }
-    // Betting: skip a player whose phone has been gone 10+ seconds
+    // Betting: skip a player whose phone has been gone 45+ seconds
     if (g.phase === PHASES.FIRST_BETS || g.phase === PHASES.SECOND_BETS) {
       const cur = g.players.find(p => p.id === G.currentBetterId(g));
-      if (cur && !cur.connected && cur.disconnectedAt && now - cur.disconnectedAt > 10000) {
+      if (cur && !cur.connected && cur.disconnectedAt && now - cur.disconnectedAt > 45000) {   // 45 s: switching to Messages or a locked phone doesn't cost your turn
         G.skipCurrentBetter(g); changed = true; autoAdvanceBets(code);
       }
     }

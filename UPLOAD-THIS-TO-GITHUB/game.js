@@ -588,7 +588,7 @@ function startRound(game, options = {}) {
 }
 
 // Someone whose phone just locked or blinked off for a few seconds still counts as here
-const AWAY_GRACE_MS = 15000;
+const AWAY_GRACE_MS = 45000;   // a phone that locks or switches apps keeps its place for 45 s
 const isPresent = (p) => p.connected || (p.disconnectedAt && Date.now() - p.disconnectedAt < AWAY_GRACE_MS);
 
 // Everyone who is here has written something

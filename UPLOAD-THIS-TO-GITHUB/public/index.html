@@ -1040,7 +1040,19 @@ function updateConnectionBanner() {
   else if (connectionStatus === 'connected' && reconnectAttempts > 0) { b.style.background = 'var(--teal)'; b.style.color = '#fff'; b.textContent = '✓ Back online'; b.style.transform = 'translateY(0)'; setTimeout(() => { b.style.transform = 'translateY(-100%)'; }, 1500); }
   else b.style.transform = 'translateY(-100%)';
 }
-function send(obj) { if (ws && ws.readyState === 1) { ws.send(JSON.stringify(obj)); return true; } showToast('Reconnecting — try again in a second'); return false; }
+// Dealer buttons: one tap per stage. A second tap (or a late tap from a slow screen) is dropped here,
+// and the server also checks the stage it was meant for, so a double tap can never skip a stage.
+let _advKey = null, _advAt = 0;
+function stageKey() { return state ? [state.phase, state.round, state.framing && state.framing.resolved ? 1 : 0].join(':') : ''; }
+function send(obj) {
+  if (obj && obj.action === 'advance' && state) {
+    const k = stageKey();
+    if (k === _advKey && Date.now() - _advAt < 2500) return false;   // same stage: a retry is allowed after 2.5 s (e.g. if the server said "not yet")
+    _advKey = k; _advAt = Date.now(); obj.phase = state.phase; obj.round = state.round; obj.framed = !!(state.framing && state.framing.resolved);
+  }
+  return _send(obj);
+}
+function _send(obj) { if (ws && ws.readyState === 1) { ws.send(JSON.stringify(obj)); return true; } showToast('Reconnecting — try again in a second'); return false; }
 function showToast(message, type = 'error') {
   let t = $('app-toast');
   if (!t) { t = document.createElement('div'); t.id = 'app-toast'; document.body.appendChild(t); }
