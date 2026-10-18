@@ -31,6 +31,8 @@
 <script src="/qrcode.js?v=__V__"></script>
 <script src="/home.js?v=__V__"></script>
 <script src="/recap.js?v=__V__"></script>
+<script src="/heads-spots.js?v=__V__"></script>
+<script src="/finale.js?v=__V__"></script>
 <script src="/guide.js?v=__V__"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════
@@ -189,6 +191,7 @@ textarea.caption-input::placeholder { color: #A99F93; }
 /* ── Menu sheet ── */
 #sheet { position: fixed; inset: 0; z-index: 500; display: none; }
 #sheet.on { display: block; }
+#sheet.top { z-index: 800; }
 #sheet .back { position: absolute; inset: 0; background: rgba(31,26,23,.5); animation: fadeIn .2s; }
 #sheet .body { position: absolute; left: 0; right: 0; bottom: 0; max-height: 86dvh; overflow-y: auto; background: var(--paper); border-top: var(--bw) solid var(--ink); border-radius: 22px 22px 0 0; padding: 10px 18px calc(20px + var(--sab)); animation: sheetUp .3s var(--ease-out); max-width: 520px; margin: 0 auto; }
 #sheet .grip { width: 44px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto 14px; }
@@ -648,7 +651,7 @@ body.quake { animation: quake .12s linear 10; }
   <div class="panel flat violet" style="margin-bottom:22px;"><p class="sub">Points tell you who <i>bet</i> best. The Grand Poobah is who <i>wrote</i> best: each round, the player whose fake caption drew the most chips from the table gets the hat. At the end of the game, whoever drew the most chips all night is crowned <b>The Grand Poobah</b> — with all the ceremony that deserves. The winner keeps the points. The Poobah keeps the hat.</p></div>
 
   <p class="eyebrow" style="margin-bottom:10px;">Frame It and The Gallery</p>
-  <div class="panel flat yellow" style="margin-bottom:22px;"><p class="sub">After every answer comes a quick Frame It: each player secretly picks one caption that beat the real one (never their own, never the real one, no points), or passes. When <span class="frame-need">two people</span> pick the same caption, it’s framed and hangs in <b>The Gallery</b> (menu ☰) for good.</p></div>
+  <div class="panel flat yellow" style="margin-bottom:22px;"><p class="sub">After every answer comes a quick Frame It: did anyone write a caption <i>better than the real one</i>? Each player secretly picks one (never their own, never the real one, no points) or says the real one wins. When <span class="frame-need">two people</span> pick the same caption, it’s framed and hangs in <b>The Gallery</b> (menu ☰) for good — the highest honour in the game. At the end of the night, the table votes on tonight’s frames for <b>Caption of the Night</b>, which goes to the presses (where something always goes wrong).</p></div>
 
   <p class="eyebrow" style="margin-bottom: 10px;">Scoring (per chip)</p>
   <div class="panel flat" style="margin-bottom: 14px; padding: 6px 16px;" id="rules-scoring"></div>
@@ -1109,7 +1112,7 @@ function openMenu() {
     <button class="btn btn-ink" style="margin-top:6px;" onclick="closeMenu()">Close</button>`;
   $('sheet').classList.add('on');
 }
-function closeMenu() { $('sheet').classList.remove('on'); }
+function closeMenu() { $('sheet').classList.remove('on', 'top'); }
 function toggleTrack(key) { if (!window.GameMusic) return; if (window.GameMusic.currentTrack() === key) window.GameMusic.stop(); else window.GameMusic.play(key); openMenu(); }
 function joinAddress() { const local = ['localhost', '127.0.0.1'].includes(location.hostname); return local && state && state.lanUrl ? state.lanUrl.replace(/^https?:\/\//, '') : location.host; }
 function shareRoom() {
@@ -1133,6 +1136,7 @@ function screenKey() {
   if (s.phase === 'writing') return ['writing', s.round, s.cartoon && s.cartoon.id, s.hasSubmitted ? 1 : 0].join('|');
   if (s.phase === 'answer') return ['answer', s.round, s.reel ? s.reel.step : 0, canRun() ? 1 : 0].join('|');
   if (s.phase === 'framing') return ['framing', s.round, s.framing && s.framing.resolved ? 1 : 0].join('|');
+  if (s.phase === 'scores' && s.finale) return ['scores', s.round, 'fin', s.finale.at, s.finale.winner ? 1 : 0, (s.finale.decided || []).length, s.finale.myVote || '', canRun() ? 1 : 0].join('|');
   return s.phase + '|' + s.round;
 }
 
@@ -1158,7 +1162,7 @@ function render(force = false) {
     if (state.phase === 'lobby' && lastPhase) sendSeen();   // back in the lobby: refresh before the next game
     if (state.phase === 'lobby') { answerSeqRound = null; scoresAnimated = null; }
     if (lastPhase === 'framing') { clearFrameGos(); closeInduction(); }   // the scoreboard (and its hat) takes over
-    if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); if (window.ccHeads) ccHeads.close(); }
+    if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); if (window.ccHeads) ccHeads.close(); if (window.ccFinale) ccFinale.close(); }
     if (lastPhase && !['reveal', 'answer', 'framing', 'scores'].includes(state.phase)) bsfx.advance();
     document.body.classList.toggle('fm-on', state.phase === 'framing');
     if (state.phase !== 'writing') { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
@@ -1247,6 +1251,7 @@ function afterRender(phaseChanged) {
   }
   if (state.phase === 'framing') { fitFraming(); framingSounds(phaseChanged); fmShowFramed(); }
   if (state.phase === 'scores' && phaseChanged) playScoresSequence();
+  if (state.phase === 'scores' && state.gameOver && window.ccFinale) { if (state.finale && $('poobah').className) closeGrand(); ccFinale.sync(); markBestLocally(); }
   if (state.phase === 'reading' && phaseChanged) { (state.openCaptions || []).forEach((_, i) => setTimeout(() => bsfx.deal(i), 120 + i * 140)); buzz(30); }
   if (state.phase === 'writing' && phaseChanged) buzz(30);
 }
@@ -1859,7 +1864,7 @@ function fmFootHtml() {
   const here = ids.filter(id => (playerById(id) || {}).connected || decided.has(id));
   const chips = ids.map(id => `<span class="fm-chip ${decided.has(id) ? 'done' : ''}">${chipHtml(id)}</span>`).join('');
   const passed = mine === 'pass';
-  return `<button class="btn fm-pass ${passed ? 'on' : ''}" onclick="pickFrame('pass')" aria-pressed="${passed ? 'true' : 'false'}">${passed ? '✓ Passed · tap a caption to change' : 'Nah, not this round'}</button>
+  return `<button class="btn fm-pass ${passed ? 'on' : ''}" onclick="pickFrame('pass')" aria-pressed="${passed ? 'true' : 'false'}">${passed ? '✓ The real one wins · tap a caption to change' : 'Nothing beat the real one'}</button>
     <div class="fm-row"><div class="fm-chips ${ids.length > 6 ? 'many' : ''}">${chips}</div><span class="fm-count">${(() => { const wait = here.filter(id => !decided.has(id)); return wait.length && wait.length <= 2 && here.length > 2 ? 'Waiting on ' + wait.map(id => id === myPlayerId ? 'you' : esc(nameOf(id))).join(' & ') + '…' : `${here.length - wait.length} of ${here.length} decided`; })()}</span></div>
     ${canRun() ? `<div class="center" style="margin-top:-6px;"><button class="btn-link fm-move" onclick="send({action:'advance'})">Move on</button></div>` : ''}`;
 }
@@ -1867,7 +1872,7 @@ function fmHeadHtml() {
   const r = (state.framing || {}).result;
   const toon = state.cartoon ? `<div class="fm-toon" onclick="openViewer()" role="button" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"></div>` : '';
   const real = (answerCaptions().find(c => c.isCorrect) || {}).caption;
-  let title = 'Better than the real one?', sub = real ? `The real one: “${esc(real)}” Frame one that beats it, or pass.` : 'Frame one that beats the real caption, or pass.';
+  let title = 'Did anyone beat the real one?', sub = real ? `The real caption: “${esc(real)}” If one below is better, frame it — it hangs in The Gallery for good.` : 'If a caption is better than the real one, frame it — it hangs in The Gallery for good.';
   if (r && r.framed.length) { title = r.framed.length > 1 ? `Framed! ×${r.framed.length}` : 'Framed!'; sub = 'Going up in The Gallery.'; }
   else if (r) { title = 'Nothing framed this round.'; sub = 'Tough room.'; }
   return `${toon}<div style="min-width:0;"><div class="h-display fm-title ${r ? 'fm-stamp' : ''}" style="${r && !r.framed.length ? 'font-size:23px;' : ''}">${title}</div><p class="fm-sub">${sub}</p></div>`;
@@ -1931,7 +1936,7 @@ function galleryGet() { try { const v = JSON.parse(localStorage.getItem('cc_gall
 function galleryKey(e) { return e.cartoonId + '|' + String(e.caption).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
 function gallerySave(rows) {
   const list = galleryGet(), keys = new Set(list.map(galleryKey)); let added = false;
-  for (const e of rows || []) { if (!e || !e.caption || !Number.isInteger(Number(e.cartoonId)) || galleryRetired(e) || keys.has(galleryKey(e))) continue; list.push({ id: e.id, cartoonId: Number(e.cartoonId), image: e.image, caption: e.caption, author: e.author, flaggers: e.flaggers || [], flags: e.flags || 0, month: e.month, at: e.at || Date.now() }); keys.add(galleryKey(e)); added = true; }
+  for (const e of rows || []) { if (!e || !e.caption || !Number.isInteger(Number(e.cartoonId)) || galleryRetired(e) || keys.has(galleryKey(e))) continue; list.push({ id: e.id, cartoonId: Number(e.cartoonId), image: e.image, caption: e.caption, author: e.author, flaggers: e.flaggers || [], flags: e.flags || 0, month: e.month, at: e.at || Date.now(), ...(e.best ? { best: e.best } : {}) }); keys.add(galleryKey(e)); added = true; }
   if (added) { list.sort((a, b) => a.at - b.at); try { localStorage.setItem('cc_gallery', JSON.stringify(list.slice(-300))); } catch (e) {} }
 }
 function syncGallery() { const list = galleryGet(); if (list.length && ws && ws.readyState === 1 && myPlayerId) ws.send(JSON.stringify({ action: 'gallery_sync', entries: list.slice(-300) })); }
@@ -1993,19 +1998,33 @@ function closeInduction() {
 // The share card for a framed caption (hof.js draws it)
 let hofBlob = null;
 function makeHofCard(i) { const e = (state.hallOfFame || [])[i]; if (e) makeCardFrom(e); }
+// The share sheet for a picture: a spinner first (blob null), then the picture with Share/Save. top: above the finale show
+function openCardSheet(blob, label, top, name) {
+  $('sheet').classList.toggle('top', !!top);
+  if (!blob) {
+    $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin:10px 0;">${esc(label)}</p><div class="center" style="padding:30px 0;"><span class="spin"></span><p class="small" style="margin-top:8px;">Running the presses…</p></div>`;
+    $('sheet').classList.add('on'); return;
+  }
+  hofBlob = blob; window._hofName = name || 'closed-caption.png';
+  $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin-bottom:10px;">${esc(label)}</p>
+    <img src="${URL.createObjectURL(blob)}" alt="${esc(label)}" style="width:100%; border:2px solid var(--ink); border-radius:10px; display:block;">
+    <div class="stack" style="margin-top:14px;"><button class="btn btn-yellow" onclick="shareHofCard()">📤 Text it, share it, or save it</button><button class="btn btn-sm" onclick="closeMenu()">Close</button></div>`;
+  $('sheet').classList.add('on');
+}
 async function makeCardFrom(e) {
   if (!e || !window.HallCard) return;
   closeInduction();
+  $('sheet').classList.toggle('top', !!e.top);
   const credit = e.isReal || !e.writerName ? 'The real caption' : `Caption by ${e.writerName}`;
   $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin:10px 0;">Gallery card</p><div class="center" style="padding:30px 0;"><span class="spin"></span><p class="small" style="margin-top:8px;">Setting the type…</p></div>`;
   $('sheet').classList.add('on');
   try {
-    hofBlob = await window.HallCard.make({ imageSrc: '/images/' + e.image, caption: e.caption, credit, inducted: `Framed ${e.month || ''}`.trim(), flaggers: e.flaggers || [] });
+    hofBlob = await window.HallCard.make({ imageSrc: '/images/' + e.image, caption: e.caption, credit, inducted: e.inducted || `Framed ${e.month || ''}`.trim(), flaggers: e.flaggers || [] });
     const url = URL.createObjectURL(hofBlob);
     window._hofName = window.HallCard.filenameFor ? window.HallCard.filenameFor(credit) : 'closed-caption-gallery.png';
     $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin-bottom:10px;">Gallery card</p>
       <img src="${url}" alt="Framed caption card" style="width:100%; border:2px solid var(--ink); border-radius:10px; display:block;">
-      <div class="stack" style="margin-top:14px;"><button class="btn btn-yellow" onclick="shareHofCard()">📤 Share or save</button><button class="btn btn-sm" onclick="closeMenu()">Close</button></div>`;
+      <div class="stack" style="margin-top:14px;"><button class="btn btn-yellow" onclick="shareHofCard()">📤 Text it, share it, or save it</button><button class="btn btn-sm" onclick="closeMenu()">Close</button></div>`;
   } catch (err) { closeMenu(); showToast('Couldn’t make the card — try again'); }
 }
 async function shareHofCard() {
@@ -2394,12 +2413,25 @@ function renderFinal(sorted, animated, goal) {
   const win = `<div class="fn-card fn-win fade-in"><div class="fn-ic bob">🏆</div><p class="fn-eyebrow">${tie ? 'It’s a tie' : 'Winner'}</p><div class="fn-name" style="${fit(listNames(tops.map(p => p.name)))}">${esc(listNames(tops.map(p => p.name)))}</div><p class="fn-sub">${plural(winner.score, 'point')}</p></div>`;
   const hat = showHat ? `<div class="fn-card fn-hat poobah-panel fade-in"><div class="fn-ic bob">${poobahHat(54)}</div><p class="fn-eyebrow">The Grand Poobah</p><div class="fn-name" style="${fit(listNames(g.ids.map(nameOf)))}">${esc(listNames(g.ids.map(nameOf)))}</div><p class="fn-sub">${plural(g.n, 'vote')}</p></div>` : '';
   const standings = sorted.map(p => `<span class="fn-st">${chipHtml(p.id, 'xs')}${esc(p.name)} <b class="score-number" data-target="${p.score}" data-from="${p.score - ((state.roundScores || {})[p.id] || 0)}">${animated ? p.score : p.score - ((state.roundScores || {})[p.id] || 0)}</b></span>`).join('');
+  const nFr = state.framedTonight || 0, fin = state.finale && window.ccFinale;
+  // Tonight's Gallery: after the winner and the Poobah, the host opens it for every phone
+  const galBtn = !fin && nFr && window.ccFinale ? (canRun()
+      ? `<button class="btn btn-yellow fn-gal" onclick="openFinale()">🖼 Tonight’s Gallery (${nFr}) →</button>`
+      : `<p class="rc-wait">Next: tonight’s Gallery — ${plural(nFr, 'frame')}. The host opens it<span class="dots"></span></p>`) : '';
+  if (fin) return `${header({ sticker: '<span class="sticker">🖼 Tonight’s Gallery</span>', sub: goal, thumb: false })}
+    ${ccFinale.screenHtml()}
+    <div class="fn-stand">${standings}</div>
+    <div class="stack fn-btns">
+      ${state.finale.winner ? (state.isHost ? `<button class="btn btn-yellow" onclick="send({action:'play_again', seen:getSeen()})">Play again 🔁</button>` : `<p class="rc-wait">The host can start another game</p>`) : ''}
+      ${window.Recap && state.finale.winner ? `<button class="btn" onclick="Recap.open()">📸 Night recap</button>` : ''}
+    </div>`;
   return `${header({ sticker: '<span class="sticker">Final scores</span>', sub: goal, thumb: false })}
     <div class="fn-duo ${hat ? '' : 'solo'}">${win}${hat}</div>
     <div class="fn-stand">${standings}</div>
     <div class="stack fn-btns">
+      ${galBtn}
       ${window.Recap ? `<button class="btn" onclick="Recap.open()">📸 Night recap</button>` : ''}
-      ${state.isHost ? `<button class="btn btn-yellow" onclick="send({action:'play_again', seen:getSeen()})">Play again 🔁</button>` : `<p class="rc-wait">The host can start another game</p>`}
+      ${state.isHost ? `<button class="btn ${galBtn ? 'btn-sm' : 'btn-yellow'}" onclick="send({action:'play_again', seen:getSeen()})">${galBtn ? 'Skip the Gallery · play again' : 'Play again 🔁'}</button>` : galBtn ? '' : `<p class="rc-wait">The host can start another game</p>`}
       ${state.history && state.history.length ? `<button class="btn-link fn-link" onclick="openHistory()">📖 Relive the rounds</button>` : ''}
     </div>`;
 }
@@ -2550,7 +2582,7 @@ ${window.ccHeads ? '<div id="gp-face" style="width:260px;height:300px;margin:-20
       <div class="gp-name">${esc(names)}</div>
       <p class="gp-stats">${plural(g.n, 'vote')} on fake captions · crowned ${plural(g.crowns, 'round')}${me ? ' · that’s YOU' : ''}</p>
       <p class="gp-slogan">“${esc(pickBy(POOBAH_SLOGANS, state.code + state.history.length))}”</p>
-      <button class="btn btn-yellow" style="margin-top:18px; width:auto; padding:13px 26px;" onclick="closeGrand()">Long live the Poobah 🎩</button>
+      <button class="btn btn-yellow" style="margin-top:18px; width:auto; padding:13px 26px;" onclick="closeGrand(true)">Long live the Poobah 🎩${state.framedTonight && canRun() && window.ccFinale ? ' → Gallery' : ''}</button>
     </div>`;
   const step = (id, cls, t) => setTimeout(() => { const e = $(id); if (e) e.classList.add(cls); }, t);
   organ(3.4, 0.07); buzz(60);
@@ -2570,7 +2602,22 @@ ${window.ccHeads ? '<div id="gp-face" style="width:260px;height:300px;margin:-20
   setTimeout(() => big(() => [1047, 1319, 1568, 2093].forEach((f, i) => tone(f, 0.3, i * 90, 'sine', 0.05))), 10600);
   o.onclick = (e) => { if (o.classList.contains('revealed') && e.target === o) closeGrand(); };
 }
-function closeGrand() { const o = $('poobah'); o.className = ''; o.innerHTML = ''; grandShown = true; if (state && state.phase === 'scores') render(true); }
+function closeGrand(tapped) {
+  const o = $('poobah'); o.className = ''; o.innerHTML = ''; grandShown = true;
+  if (tapped && state && state.phase === 'scores' && state.gameOver && state.framedTonight && !state.finale && canRun() && window.ccFinale) { openFinale(); return; }
+  if (state && state.phase === 'scores') render(true);
+}
+function openFinale() { if (send({ action: 'finale_open' })) { buzz(30); } }
+// Caption of the Night: this phone's copy of The Gallery remembers it too (a ribbon on the wall)
+function markBestLocally() {
+  const f = state.finale; if (!f || !f.winner || !f.best) return;
+  const e = f.entries.find(x => x.key === f.winner); if (!e) return;
+  try {
+    const list = JSON.parse(localStorage.getItem('cc_gallery') || '[]'); if (!Array.isArray(list)) return;
+    const k = galleryKey({ cartoonId: e.cartoonId, caption: e.caption }), x = list.find(y => y && galleryKey(y) === k);
+    if (x && !x.best) { x.best = f.best; localStorage.setItem('cc_gallery', JSON.stringify(list)); }
+  } catch (err) {}
+}
 
 /* ── End-of-game awards: at most three slides, each meaning one thing ──
    Deterministic on every phone (the Grand Poobah's timing depends on how many there are):

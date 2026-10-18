@@ -38,3 +38,22 @@ Nick's feedback after playing: "The game is fantastic… the bones and mechanics
 - Nick knows almost nothing about computers: plain words, no jargon. Tap-to-answer questions with an "Other" option.
 - Test before pushing: the multi-player WebSocket simulation and phone-size Playwright screenshots (390×844) of every screen; check typing is never wiped.
 - Commit as Claude <noreply@anthropic.com>, push to `main`, wait ~3 minutes, confirm the live site shows the change.
+
+
+## Adding a cartoon — every time, no exceptions (Nick, Oct 18 2026)
+The deck is headed for ~400 cartoons. Every new cartoon gets ALL of these in the same update:
+1. The image in `public/images/card_N.jpg` and its line in `CARTOONS` (game.js) with a Claude-written real caption.
+2. **Its heads marked in `public/heads-spots.js`** — `"card_N.jpg": [[x, y, r], ...]`, main character first, up to 4
+   (x and r as a fraction of the width, y of the height). Check by drawing circles on a copy and looking at it.
+   This is what puts the author's face on a body in the Caption of the Night misprint. The server prints a warning at
+   start-up for any dealt cartoon that's missing (it still works, the face just lands mid-picture).
+3. Test that the misprint lands on a head (finale.js `ccFinale.misprintHtml`).
+
+## The finale (built Oct 18 2026)
+Winner → Grand Poobah → **Tonight's Gallery** (host opens it; the Poobah button leads straight in). Every caption framed
+tonight (they all beat the real one). 2+ frames: everyone votes, never for their own; ties → more frames, then a coin flip.
+The winner is **Caption of the Night**: ribbon, then "To the presses!", then one of 20 misprints (dealt like a deck)
+ending with the author's cartoon-cut-out face crudely in the cartoon, "MISPRINT" stamp, then the recalled/corrected
+edition: the untouched cartoon + caption, marked "Caption of the Night · Month Year" in The Gallery for good.
+Two save buttons: the real one (framed card) and the misprint (with the face) — both open the phone's share sheet to text.
+Code: finale.js (show, misprints, picture maker), heads-spots.js (head positions), game.js openFinale/voteFinale/resolveFinale.

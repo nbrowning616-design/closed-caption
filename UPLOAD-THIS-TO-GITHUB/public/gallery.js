@@ -369,13 +369,13 @@
       var title = mine ? 'You’ve been framed.' : isReal ? 'The original, framed.' : 'Framed.';
       var who = isReal ? 'The original caption' : esc(author);
       var plaqueBy = framers ? 'Framed by ' + esc(framers) : 'Framed by the table';
-      var now = isReal ? 'The classics hold up.' : 'Now hanging in The Gallery';
+      var now = isReal ? 'The classics hold up.' : mine ? 'You beat the real one. Hanging in The Gallery for good.' : 'Better than the real one. Now hanging in The Gallery';
 
       root.innerHTML =
         '<div class="gal-wall"></div><div class="gal-plaster"></div><div class="gal-floor"></div>' +
         '<div class="gal-pool"></div><div class="gal-beam"></div><div class="gal-lamp"></div>' +
         '<div class="gal-stage">' +
-          '<div class="gal-head"><p class="gal-eyebrow">The table has spoken.</p><h2 class="gal-title">' + esc(title) + '</h2></div>' +
+          '<div class="gal-head"><p class="gal-eyebrow">' + (mine ? 'You beat the real caption.' : isReal ? 'The table has spoken.' : 'Better than the real caption.') + '</p><h2 class="gal-title">' + esc(title) + '</h2></div>' +
           '<div class="gal-space" style="width:' + W + 'px">' +
             '<div class="gal-nail"></div>' +
             '<div class="gal-hang">' +
@@ -682,6 +682,7 @@
         '<figcaption class="gal-mlabel"><p class="gal-mcap">“' + esc(cap) + '”</p>' +
           '<p class="gal-mwho" title="' + esc(who) + '"><b>' + esc(who) + '</b></p>' + (month ? '<p class="gal-mmo">' + esc(month) + '</p>' : '') +
           (n > 0 ? '<span class="gal-mfr">' + n + (n === 1 ? ' frame' : ' frames') + '</span>' : '') +
+          (entry.best ? '<span class="gal-mfr" style="background:#D7261E;color:#fff;border-color:#8a1410;">🏅 ' + esc(entry.best) + '</span>' : '') +
         '</figcaption></figure>';
     } catch (e) { return ''; }
   }

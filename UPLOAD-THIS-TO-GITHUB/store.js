@@ -46,6 +46,7 @@ function createDeck(FILE = null, quiet = true) {
       flags: Number.isInteger(Number(e.flags)) && Number(e.flags) >= 0 ? Number(e.flags) : 0,
       month: typeof e.month === 'string' && e.month ? e.month.slice(0, 40) : MONTH(at),
       at,
+      ...(typeof e.best === 'string' && e.best ? { best: e.best.slice(0, 60) } : {}),
     };
   }
 
@@ -89,6 +90,7 @@ function createDeck(FILE = null, quiet = true) {
   // Returns the stored entry, or null for a duplicate (or junk). keep = trust the entry's own id/date (synced from a phone)
   function add(entry, keep) {
     const e = clean(keep ? entry : { ...(entry || {}), id: undefined, at: undefined, month: entry && entry.month });
+    if (e && e.best && keys.has(keyOf(e))) { const x = entries.find(y => keyOf(y) === keyOf(e)); if (x && !x.best) { x.best = e.best; changed(); save(); } }
     if (!e || keys.has(keyOf(e))) return null;
     entries.push(e);
     keys.add(keyOf(e));
@@ -124,7 +126,13 @@ function createDeck(FILE = null, quiet = true) {
 
 
   load();
-  return { all, add, byCartoon, count, recent, authorCounts, cartoonAuthors };
+  // Caption of the Night: the entry remembers it (shown with a ribbon in The Gallery)
+  function markBest(cartoonId, caption, label) {
+    const k = Number(cartoonId) + '|' + norm(caption), x = entries.find(y => keyOf(y) === k);
+    if (!x || x.best) return false;
+    x.best = str(label, 60); changed(); save(); return true;
+  }
+  return { all, add, markBest, byCartoon, count, recent, authorCounts, cartoonAuthors };
 }
 
 const server = createDeck(FILE, false);

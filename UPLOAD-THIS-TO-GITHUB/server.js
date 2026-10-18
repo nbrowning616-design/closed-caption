@@ -372,6 +372,26 @@ wss.on('connection', (ws) => {
         broadcast(code);
         return;
       }
+      case 'finale_open': {
+        // After the Grand Poobah: the host (or a stand-in) opens tonight's Gallery for every phone
+        if (!canRun) return sendError(ws, 'The host opens the Gallery');
+        if (fail(G.openFinale(game))) return;
+        broadcast(code);
+        return;
+      }
+      case 'finale_vote': {
+        if (fail(G.voteFinale(game, playerId, msg.key))) return;
+        broadcast(code);
+        return;
+      }
+      case 'finale_close': {
+        // 'Move on': count the votes now
+        if (!canRun) return sendError(ws, 'The host moves things along');
+        if (!game.finale) return;
+        G.resolveFinale(game);
+        broadcast(code);
+        return;
+      }
       case 'play_again': {
         if (!isHost) return sendError(ws, 'Only the host can start a new game');
         if (game.phase !== PHASES.SCORES || !G.isGameOver(game)) return sendError(ws, 'The game is still going');

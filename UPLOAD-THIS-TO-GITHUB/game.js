@@ -114,6 +114,12 @@ for (const c of CARTOONS) c.correct = polish(c.correct).text;
 const RETIRED_BELOW = 47;
 for (const c of CARTOONS) if (c.id < RETIRED_BELOW) c.retired = true;
 
+// Every dealt cartoon needs its heads marked (public/heads-spots.js) for the Caption of the Night misprint
+try {
+  const spots = require('fs').readFileSync(require('path').join(__dirname, 'public', 'heads-spots.js'), 'utf8');
+  const missing = CARTOONS.filter(c => !c.retired && !spots.includes('"' + c.image + '"')).map(c => c.image);
+  if (missing.length) console.warn('  Heads not marked yet (misprint face goes mid-picture):', missing.join(', '));
+} catch (e) {}
 // The permanent Hall of Fame deck (lives across games and game nights)
 const store = require('./store');
 // A room's Gallery starts from the server's saved copy (when there is one); phones add theirs on join
@@ -982,6 +988,77 @@ function hallOfFame(game) {
   return out.sort((a, b) => a.round - b.round);
 }
 
+/* ── The finale: after the winner and the Grand Poobah, tonight's Gallery.
+   Every caption framed tonight is shown; with two or more, the table votes (never for your own).
+   The winner is Caption of the Night and goes to the presses — where something always goes wrong
+   (one of PRESS_ACT_COUNT misprints, dealt like a deck so a room doesn't see a repeat soon).
+   The misprint is the gag; the caption itself is memorialized on the untouched cartoon. ── */
+const PRESS_ACT_COUNT = 20;
+const PRESS_LEAD_MS = 1500;   // a beat after the result, so every phone starts together
+function nextPressAct(game) {
+  if (!Array.isArray(game.pressDeck) || !game.pressDeck.length) {
+    const d = shuffleArray(Array.from({ length: PRESS_ACT_COUNT }, (_, i) => i));
+    if (d.length > 1 && d[0] === game.pressAct) d.push(d.shift());
+    game.pressDeck = d;
+  }
+  return (game.pressAct = game.pressDeck.shift());
+}
+function finaleEntries(game) {
+  return hallOfFame(game).filter(e => !e.isReal && e.caption && e.writerId).map(e => ({
+    key: e.round + '|' + e.target, round: e.round, target: e.target, caption: e.caption,
+    writerId: e.writerId, writerName: e.writerName, image: e.image,
+    cartoonId: ((game.history.find(h => h.round === e.round) || {}).cartoon || {}).id,
+    frames: e.flaggers.length, flaggers: e.flaggers,
+  }));
+}
+const finaleCanVote = (f, pid) => f.entries.some(e => e.writerId !== pid);
+function openFinale(game) {
+  if (game.phase !== PHASES.SCORES || !isGameOver(game)) return { error: 'The Gallery opens when the game is over' };
+  if (game.finale) return { ok: true, noop: true };
+  const entries = finaleEntries(game);
+  if (!entries.length) return { error: 'Nothing was framed tonight' };
+  game.finale = { at: Date.now(), entries, votes: {}, voters: game.players.filter(isPresent).map(p => p.id), winner: null, counts: null, tie: false, act: null, pressAt: null };
+  if (entries.length === 1) resolveFinale(game);
+  return { ok: true };
+}
+function voteFinale(game, playerId, key) {
+  const f = game.finale;
+  if (!f || f.winner) return { error: 'The votes are in' };
+  const e = f.entries.find(x => x.key === String(key));
+  if (!e) return { error: 'Pick one of tonight’s frames' };
+  if (e.writerId === playerId) return { error: 'You can’t vote for your own' };
+  f.votes[playerId] = e.key;
+  if (!f.voters.includes(playerId)) f.voters.push(playerId);
+  if (finaleAllIn(game)) resolveFinale(game);
+  return { ok: true };
+}
+function finaleAllIn(game) {
+  const f = game.finale; if (!f) return false;
+  const need = f.voters.filter(pid => { const p = game.players.find(x => x.id === pid); return p && isPresent(p) && finaleCanVote(f, pid); });
+  return need.length > 0 && need.every(pid => pid in f.votes);
+}
+// Most votes; a tie goes to more frames, then the press flips a coin (and says so)
+function resolveFinale(game) {
+  const f = game.finale;
+  if (!f || f.winner) return { ok: true, noop: true };
+  const counts = {}; for (const e of f.entries) counts[e.key] = 0;
+  for (const k of Object.values(f.votes)) if (k in counts) counts[k]++;
+  const top = Math.max(...Object.values(counts));
+  let best = f.entries.filter(e => counts[e.key] === top);
+  const most = Math.max(...best.map(e => e.frames));
+  best = best.filter(e => e.frames === most);
+  f.tie = best.length > 1;
+  f.winner = best[Math.floor(Math.random() * best.length)].key;
+  f.counts = counts;
+  f.act = nextPressAct(game);
+  f.pressAt = Date.now() + PRESS_LEAD_MS;
+  // Memorialized: the room's Gallery remembers it was Caption of the Night
+  const w = f.entries.find(e => e.key === f.winner);
+  f.best = 'Caption of the Night · ' + MONTH();
+  try { const d = deckOf(game); if (d.markBest) d.markBest(w.cartoonId, w.caption, f.best); } catch (e) {}
+  return { ok: true };
+}
+
 /* ── Emoji reactions: one per person per caption, counts only until the answer ── */
 const REACTION_KINDS = ['laugh', 'up', 'fire', 'huh', 'dead', 'roll'];
 const REACT_FACE_UP = [PHASES.READING, PHASES.FIRST_BETS];            // the Closed Caption is still face-down
@@ -1127,6 +1204,7 @@ function setCareer(game, playerId, rank, rockets, total) {
 
 function resetForNewGame(game) {
   setPhase(game, PHASES.LOBBY);
+  game.finale = null;
   game.flags = [];
   game.framePicks = {};
   game.frameVoters = [];
@@ -1316,6 +1394,16 @@ function getPlayerView(game, playerId) {
       base.nextDealerId = nd ? nd.id : null;
       base.isNextDealer = !!nd && nd.id === playerId;
     }
+    if (base.gameOver) {
+      base.framedTonight = finaleEntries(game).length;
+      const f = game.finale;
+      if (f) base.finale = {
+        at: f.at, entries: f.entries.map(e => ({ ...e, flaggers: [...e.flaggers] })),
+        voters: [...f.voters], decided: Object.keys(f.votes), myVote: f.votes[playerId] || null,
+        canVote: finaleCanVote(f, playerId), winner: f.winner, counts: f.counts ? { ...f.counts } : null,
+        tie: f.tie, act: f.act, pressAt: f.pressAt, best: f.best || null,
+      };
+    }
   }
   return base;
 }
@@ -1336,6 +1424,7 @@ module.exports = {
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,
+  openFinale, voteFinale, resolveFinale, finaleAllIn, PRESS_ACT_COUNT,
   setFace, faceOf, WIN_ACT_COUNT, setVoice, clearVoice,
   stealChip, revealAnswer, moveToFraming, moveToScoreboard, isGameOver, resetForNewGame, isPresent,
   REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer,
