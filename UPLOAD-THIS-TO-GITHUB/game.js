@@ -127,6 +127,7 @@ const CARTOONS = [
   { id: 105, title: "Bake Sale", image: "card_105.jpg", correct: "Her brother did the cupcakes. He's eight." },
   { id: 106, title: "Lost & Found", image: "card_106.jpg", correct: "Funny. The skunk swore it was his." },
   { id: 107, title: "Overcast", image: "card_107.jpg", correct: "These won't help. You need to talk to somebody." },
+  { id: 108, title: "Moving Day", image: "card_108.jpg", correct: "He's been in that bowl since 1987. He has a lot of stuff." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
