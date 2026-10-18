@@ -120,7 +120,7 @@ function resolveFrames(code) {
 
 const send = (ws, obj) => { if (ws.readyState === 1) ws.send(JSON.stringify(obj)); };
 const sendError = (ws, message) => send(ws, { type: 'error', message });
-const cleanName = (s) => String(s || '').replace(/\s+/g, ' ').trim().slice(0, 20);
+const cleanName = (s) => String(s || '').replace(/\s+/g, ' ').trim().slice(0, 12);
 
 wss.on('connection', (ws) => {
   let playerId = null;
