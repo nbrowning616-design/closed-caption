@@ -129,6 +129,7 @@ const CARTOONS = [
   { id: 107, title: "Overcast", image: "card_107.jpg", correct: "These won't help. You need to talk to somebody." },
   { id: 108, title: "Moving Day", image: "card_108.jpg", correct: "He's been in that bowl since 1987. He has a lot of stuff." },
   { id: 109, title: "Off Season", image: "card_109.jpg", correct: "He tried \"boo\" and she said \"no thanks.\"" },
+  { id: 110, title: "Last Stop", image: "card_110.jpg", correct: "They don't want the ice cream. They want to sit in the freezer." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
