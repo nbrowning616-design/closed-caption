@@ -14,7 +14,7 @@
   //   { urls: ['turn:turn.example.com:3478', 'turns:turn.example.com:5349'], username: '…', credential: '…' }
   var ICE_SERVERS = [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }];
   var MAX_PEERS = 7;              // 8 players in the room = 7 other phones
-  var CONNECT_TIMEOUT = 20000;    // no audio path after this long: "couldn't connect"
+  var CONNECT_TIMEOUT = 15000;    // no audio path after this long: start the link over once, then "couldn't connect"
   var TALK_LEVEL = 0.035, TALK_HOLD = 350, TICK = 120;
   var AUDIO = { echoCancellation: true, noiseSuppression: true, autoGainControl: true };
 
@@ -254,6 +254,14 @@
 
     pc.onnegotiationneeded = function () {
       if (p.closed) return;
+      // The first offer comes from the impolite side; the polite side waits a moment for it (its track rides
+      // in the answer). Fewer first-contact collisions: browsers can lose ICE candidates rolling one back.
+      // Perfect negotiation still sorts out any collision that does happen.
+      if (p.polite && !pc.remoteDescription && !p.kicked) {
+        clearTimeout(p.kick);
+        p.kick = setTimeout(function () { if (!p.closed && !pc.remoteDescription) { p.kicked = true; pc.onnegotiationneeded(); } }, 2500);
+        return;
+      }
       p.makingOffer = true;
       pc.createOffer().then(function (offer) {
         if (pc.signalingState !== 'stable' || p.closed) return;
@@ -286,11 +294,15 @@
   }
   function armTimer(p) {
     clearTimeout(p.timer);
-    p.timer = setTimeout(function () { if (!p.closed && p.state !== 'connected') { p.state = 'failed'; refresh(); } }, CONNECT_TIMEOUT);
+    p.timer = setTimeout(function () {
+      if (p.closed || p.state === 'connected') return;
+      if (!p.autoRetried && on) { var np = (closePeer(p.pid), makePeer(p.pid, null)); if (np) np.autoRetried = true; return; }   // one quiet fresh start first
+      p.state = 'failed'; refresh();
+    }, CONNECT_TIMEOUT);
   }
   function closePeer(pid) {
     var p = peers[pid]; if (!p) return;
-    p.closed = true; clearTimeout(p.timer);
+    p.closed = true; clearTimeout(p.timer); clearTimeout(p.kick);
     try { p.pc.onicecandidate = p.pc.ontrack = p.pc.onnegotiationneeded = p.pc.onconnectionstatechange = p.pc.oniceconnectionstatechange = null; p.pc.close(); } catch (e) {}
     unmeter(pid); giveAudio(p.audio);
     delete peers[pid];
@@ -393,6 +405,6 @@
     peerState: function (pid) { return peers[pid] ? peers[pid].state : null; },
     config: function (o) { cfg = o || {}; },
     ICE_SERVERS: ICE_SERVERS,
-    _peers: peers, _retry: retry, _playAll: playAll,
+    _peers: peers, _stream: function () { return stream; }, _retry: retry, _playAll: playAll,
   };
 })();

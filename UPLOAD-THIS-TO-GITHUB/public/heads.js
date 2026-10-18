@@ -21,19 +21,21 @@
     '.bh-ban b{display:block;font-family:var(--display);font-size:22px;line-height:1.05;}',
     '.bh-ban span{display:block;font-size:13px;font-weight:800;color:#5a4f47;margin-top:3px;}',
     '.bh-top{position:absolute;left:0;right:0;top:calc(14px + var(--sat,0px));z-index:50;text-align:center;font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:' + INK + ';}',
+    '.bh-top span{display:inline-block;background:#FFF8EA;border:2px solid ' + INK + ';border-radius:999px;padding:3px 10px;}',
     /* a thing on the stage: absolutely placed at (0,0), moved by transform */
     '.bh-it{position:absolute;left:0;top:0;will-change:transform,opacity;}',
     /* the head: two layers of the same photo, the jaw below the mouth line drops when they talk */
     '.bh-head{position:relative;width:var(--hs,90px);height:calc(var(--hs,90px) * 1.08);}',
+    '.bh-head::before{content:"";position:absolute;left:1%;right:1%;top:50%;height:30%;background:#d9a77e;border-radius:30%;z-index:0;}',
     '.bh-head .bh-skull,.bh-head .bh-jaw{position:absolute;inset:0;border-radius:50% 50% 47% 47%;border:3px solid ' + INK + ';background-size:cover;background-position:50% 42%;background-color:var(--hc,#F2C9A0);}',
-    '.bh-head .bh-skull{clip-path:inset(0 0 33% 0);-webkit-clip-path:inset(0 0 33% 0);z-index:2;}',
-    '.bh-head .bh-jaw{clip-path:inset(66% 0 0 0);-webkit-clip-path:inset(66% 0 0 0);z-index:1;}',
-    '.bh-head .bh-mouth{position:absolute;left:24%;right:24%;top:63%;height:7%;background:#2a0d0d;border-radius:0 0 40% 40%;z-index:0;opacity:0;}',
+    '.bh-head .bh-skull{clip-path:inset(0 0 38% 0);-webkit-clip-path:inset(0 0 38% 0);z-index:2;}',
+    '.bh-head .bh-jaw{clip-path:inset(61% 0 0 0);-webkit-clip-path:inset(61% 0 0 0);z-index:1;}',
+    '.bh-head .bh-mouth{position:absolute;left:27%;right:27%;top:57%;height:24%;background:#3a0f12;border-radius:20% 20% 50% 50%;z-index:0;}',   /* always behind the jaw: when it drops, you see mouth, not sky */
     '.bh-head.talk .bh-jaw{animation:bhJaw .22s steps(1) infinite;}',
-    '.bh-head.talk .bh-mouth{opacity:1;}',
+    
     '@keyframes bhJaw{0%{transform:translateY(0)}50%{transform:translateY(calc(var(--hs,90px) * .09))}}',
     '.bh-head.scream .bh-jaw{transform:translateY(calc(var(--hs,90px) * .16));}',
-    '.bh-head.scream .bh-mouth{opacity:1;height:18%;}',
+    
     /* no selfie: a crude drawn face in their chip colour */
     '.bh-head.nf .bh-skull,.bh-head.nf .bh-jaw{background-image:none!important;background:var(--hc);}',
     '.bh-head.nf .bh-eyes{position:absolute;left:18%;right:18%;top:30%;height:22%;z-index:3;display:flex;justify-content:space-between;}',
@@ -237,7 +239,7 @@
     var startAt = performance.now() + Math.max(0, wait || 0);
     o.style.background = '#7EC8E3';
     var me = ids.indexOf(myPlayerId) >= 0, names = listNamesSafe(ids);
-    o.innerHTML = '<div class="bh-stage"></div><p class="bh-top">Round winner</p>' +
+    o.innerHTML = '<div class="bh-stage"></div><p class="bh-top"><span>Round winner</span></p>' +
       '<div class="bh-ban"><b>' + esc(me ? (ids.length > 1 ? 'You (and friends) win the round' : 'YOU win the round') : names + (ids.length > 1 ? ' win the round' : ' wins the round')) + '</b><span>' + esc(act.tag || act.name || '') + '</span></div>';
     o.className = 'on';
     o.style.visibility = 'hidden';

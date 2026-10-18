@@ -155,12 +155,12 @@
     c.path(cakeB, sample(c, function (t) { var j = t < 1600 ? (Math.floor(t / 120) % 2 ? 1 : -1) : 0; return { x: x, y: gy, sx: 1 + j * 0.015, sy: 1 - j * 0.02 }; }, 120), { jerky: 1 });
     c.path(cakeT, [{ t: 0, x: x, y: gy - 136 }, { t: 300, x: x - 3, y: gy - 140, r: -2 }, { t: 600, x: x + 3, y: gy - 136, r: 2 }, { t: 900, x: x - 4, y: gy - 142, r: -3 }, { t: 1200, x: x + 4, y: gy - 136, r: 3 }, { t: 1450, x: x, y: gy - 144, r: -4 },
       { t: 1600, x: x, y: gy - 136 }, { t: 1720, x: x + 50, y: gy - 360, r: -40 }, { t: 2000, x: x + 170, y: -260, r: -200 }, { t: 3000, x: x, y: -260, r: 0 },
-      { t: 3300, x: x + 4, y: gy - 120 - ph + 14, r: 8, e: 'steps(1,end)' }, { t: 3360, x: x + 4, y: gy - 120 - ph + 30, r: 8, sy: 0.9 }, { t: 3460, x: x + 4, y: gy - 120 - ph + 14, r: 8 }, { t: 5200, x: x + 4, y: gy - 120 - ph + 14, r: 8 }], { jerky: 3 });
-    c.path(p, [{ t: 0, x: x, y: gy + 10 }, { t: 1599, x: x, y: gy + 10 }, { t: 1700, x: x, y: gy - 190 }, { t: 1820, x: x, y: gy - 110, sy: 0.92 }, { t: 1940, x: x, y: gy - 128 }, { t: 2060, x: x, y: gy - 120 },
+      { t: 3300, x: x + 4, y: gy - 120 - ph - 4, r: 8, e: 'steps(1,end)' }, { t: 3360, x: x + 4, y: gy - 120 - ph + 12, r: 8, sy: 0.9 }, { t: 3460, x: x + 4, y: gy - 120 - ph - 4, r: 8 }, { t: 5200, x: x + 4, y: gy - 120 - ph - 4, r: 8 }], { jerky: 3 });
+    c.path(p, [{ t: 0, x: x, y: gy - 8 }, { t: 1599, x: x, y: gy - 8 }, { t: 1700, x: x, y: gy - 190 }, { t: 1820, x: x, y: gy - 110, sy: 0.92 }, { t: 1940, x: x, y: gy - 128 }, { t: 2060, x: x, y: gy - 120 },
       { t: 3300, x: x, y: gy - 120 }, { t: 3360, x: x, y: gy - 104, sy: 0.84, sx: 1.08 }, { t: 3460, x: x, y: gy - 120 }, { t: 3800, x: x, y: gy - 120, r: -3 }, { t: 4300, x: x, y: gy - 120, r: 3 }, { t: 4800, x: x, y: gy - 120, r: -2 }], { jerky: 2 });
     // frosting splats on the "camera"
     for (var s = 0; s < 6; s++) {
-      var sx = 30 + c.rnd() * (W - 60), sy = 110 + c.rnd() * (H * 0.45), sz = 26 + c.rnd() * 26;
+      var sx = (s % 2 ? W * 0.76 : 14) + c.rnd() * W * 0.2, sy = 110 + c.rnd() * (H * 0.5), sz = 20 + c.rnd() * 18;
       var sp = c.add(svgA(sz * 2.4, '-60 -60 120 120', '<path d="' + blob(c.rnd, 50, 11) + '" fill="#FFF8EA" ' + ink(4) + '/><circle cx="-14" cy="-14" r="8" fill="#fff"/>', 'c'), 35);
       c.path(sp, [{ t: 0, x: sx, y: sy, s: 0.1, o: 0 }, { t: 1700 + s * 40, x: sx, y: sy, s: 0.1, o: 0 }, { t: 1800 + s * 40, x: sx, y: sy, s: 1.15, o: 1 }, { t: 1880 + s * 40, x: sx, y: sy, s: 1 }, { t: 5200, x: sx, y: sy + 50, s: 1, sy: 1.15 }], { jerky: 3 });
     }
@@ -212,7 +212,7 @@
     c.path(star, [{ t: 0, x: hx, y: hyT - 10, o: 0 }, { t: 3380, x: hx, y: hyT - 10, o: 0 }, { t: 3400, x: hx, y: hyT - 10, o: 1, r: 0 }, { t: 3700, x: hx + 10, y: hyT - 4, r: 10 }, { t: 4000, x: hx - 10, y: hyT - 12, r: -10 }, { t: 4300, x: hx + 10, y: hyT - 4, r: 10 }, { t: 4600, x: hx - 10, y: hyT - 12, r: -10 }, { t: 4900, x: hx + 10, y: hyT - 4, r: 10 }], { jerky: 2 });
     c.say('Alohaaa!', hx, hyT - 6, 250, 1450, 40); c.talk(p, 250, 1450);
     c.say('Check out these HIPS.', hx, hyT - 6, 1650, 2750, 40); c.talk(p, 1650, 2750);
-    c.text('BONK!', hx + 95, hyT - 50, 50, 3300, 4000, 12);
+    c.text('BONK!', 80, hyT - 150, 50, 3300, 4100, -12);
     c.scream(p, 3300, 3700);
     c.say('Pretty sure aloha means “ow”.', hx, hyT - 30, 3850, 5150, 40); c.talk(p, 3850, 4900);
     for (var st = 0; st < 6; st++) c.sfx(150 + st * 520, function () { [392, 494, 587].forEach(function (f, i) { tone(f, 0.32, i * 18, 'triangle', 0.05); }); });
@@ -236,11 +236,11 @@
     // light beams + mirror ball
     var beams = ''; for (var b = 0; b < 8; b++) { var a = b / 8 * Math.PI * 2; beams += '<path d="M0 0 L' + (Math.cos(a - 0.1) * 700).toFixed(0) + ' ' + (Math.sin(a - 0.1) * 700).toFixed(0) + ' L' + (Math.cos(a + 0.1) * 700).toFixed(0) + ' ' + (Math.sin(a + 0.1) * 700).toFixed(0) + ' Z" fill="' + pal[b % 5] + '" opacity=".22"/>'; }
     var bm = c.add(svgA(10, '-5 -5 10 10', beams, 'c'), 1);
-    c.anim(bm, [{ transform: 'translate(' + x + 'px,118px) rotate(0deg)' }, { transform: 'translate(' + x + 'px,118px) rotate(180deg)' }], { dur: 3300, ease: 'steps(14,end)', fill: 'forwards' });
+    c.anim(bm, [{ transform: 'translate(' + x + 'px,152px) rotate(0deg)' }, { transform: 'translate(' + x + 'px,152px) rotate(180deg)' }], { dur: 3300, ease: 'steps(14,end)', fill: 'forwards' });
     c.anim(bm.firstElementChild, [{ opacity: 1 }, { opacity: 0 }], { dur: 1, at: 3300 });
     var grid = ''; for (var gx = -60; gx < 60; gx += 11) grid += '<path d="M' + gx + ' -50 V50" stroke="#6b7480" stroke-width="2"/>'; for (var gyy = -44; gyy < 50; gyy += 11) grid += '<path d="M-50 ' + gyy + ' H50" stroke="#6b7480" stroke-width="2"/>';
     var ball = c.add(svgA(110, '-55 -70 110 125', '<path d="M0 -70 V-44" ' + ink(3) + '/><clipPath id="p2dball"><circle r="44"/></clipPath><circle r="44" fill="#C9D3DD"/><g clip-path="url(#p2dball)"><g class="p2grid">' + grid + '</g></g><circle r="44" fill="none" ' + ink(4) + '/><path d="M-22 -24 l6 -6 l6 6 l-6 6 Z" fill="#fff"/>', 'tc'), 4);
-    at(ball, x, 0);
+    at(ball, x, 34);
     c.anim(ball.querySelector('.p2grid'), [{ transform: 'translateX(0)' }, { transform: 'translateX(11px)' }], { dur: 300, iterations: 11, ease: 'steps(3,end)' });
     var dim = c.add('<div style="position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;background:radial-gradient(circle at 50% 66%,rgba(0,0,0,0) 110px,rgba(0,0,0,.8) 200px)"></div>', 15);
     vis(c, dim, [[3300]]);
@@ -262,7 +262,7 @@
     c.text('GROOVY!', W / 2, 250, 44, 700, 1900, -8);
     c.say('Feel the FUNK!', x, top, 250, 1700, 50); c.talk(p1, 250, 1700);
     c.say('Point to the sky, baby!', x, top, 2050, 3250, 50); c.talk(p2, 2050, 3250);
-    c.text('RRRRIP!', W / 2, gy - 60, 54, 3300, 4200, 6);
+    c.text('RRRRIP!', W / 2, 300, 56, 3300, 4200, 6);
     c.burst(['🩲', '🧵', '💥'], x, gy - 30, 10, 140, 3300, 900, 30);
     c.scream(p3, 3300, 3800);
     c.say('Disco’s not dead. My pants are.', x, top, 3950, 5150, 50); c.talk(p3, 3950, 4900);
@@ -321,7 +321,7 @@
     c.say('Uuuurrrgh…', x, top, 2100, 2850, 50); c.talk(mum, 2100, 2850);
     c.burst(['🧻', '💨'], x, gy - 130, 12, 190, 2900, 1000, 40);
     c.text('SPIN!', W / 2, 160, 42, 2900, 3700, -8);
-    c.say('Ancient curse: ONE-PLY.', x, gy - ph * 1.16 - 10, 3950, 5150, 50); c.talk(un, 3950, 4900);
+    c.say('Anyone need TP? I’m done.', x, gy - ph * 1.16 - 10, 3950, 5150, 50); c.talk(un, 3950, 4900);
     [400, 900, 1300].forEach(function (t) { c.sfx(t, function () { tone(150, 0.4, 0, 'sawtooth', 0.05, 90); }); });
     c.sfx(2000, c.snd.boom); c.shake(2000, 350); c.buzz(2000, [120]);
     c.sfx(2120, function () { tone(170, 0.8, 0, 'triangle', 0.08, 110); });
@@ -519,7 +519,9 @@
   add({ name: 'Bigfoot Footage', tag: 'Blurry. Hairy. Victorious.', run: function (c) {
     var W = c.W, H = c.H, gy = H - 150;
     c.sky('linear-gradient(#B9C7B0,#8FA383)');
-    try { c.stage.style.filter = 'sepia(.55) contrast(1.15) saturate(.85)'; } catch (e) {}
+    // a cheap noise tile, drawn once (no live SVG filters: phones must stay smooth)
+    var noiseUrl = '';
+    try { var cv = document.createElement('canvas'); cv.width = cv.height = 96; var cx2 = cv.getContext('2d'), im = cx2.createImageData(96, 96); for (var n = 0; n < im.data.length; n += 4) { var v = Math.floor(c.rnd() * 255); im.data[n] = im.data[n + 1] = im.data[n + 2] = v; im.data[n + 3] = 255; } cx2.putImageData(im, 0, 0); noiseUrl = cv.toDataURL(); } catch (e) {}
     var trees = function (n, y0, h0, col, z) {
       var s = ''; for (var i = 0; i < n; i++) { var tx = (i + 0.3 * c.rnd()) * W / (n - 1) - 20, th = h0 * (0.75 + c.rnd() * 0.5); s += '<rect x="' + (tx - 6).toFixed(0) + '" y="' + (y0 - 30) + '" width="12" height="34" fill="#4a3424"/><path d="M' + tx.toFixed(0) + ' ' + (y0 - th).toFixed(0) + ' L' + (tx + th * 0.32).toFixed(0) + ' ' + (y0 - 24) + ' L' + (tx - th * 0.32).toFixed(0) + ' ' + (y0 - 24) + ' Z" fill="' + col + '" ' + ink(3) + '/>'; }
       return c.add(svgA(W, '0 0 ' + W + ' ' + H, s, 'tl'), z);
@@ -529,7 +531,7 @@
     trees(5, H * 0.66, 260, '#3B5A2A', 3);
     var fur = ''; [16, 34, 52, 70].forEach(function (yy) { fur += '<path d="M26 ' + yy + ' l6 6 l6 -6 l6 6 l6 -6 l6 6 l6 -6 l6 6 l6 -6" fill="none" stroke="#3E2A16" stroke-width="3"/>'; });
     fur += '<path d="M30 100 l4 5 l4 -5 l4 5 M56 100 l4 5 l4 -5 l4 5" fill="none" stroke="#3E2A16" stroke-width="3"/>';
-    var mane = svgA(190, '-95 -95 190 190', spikes(0, 0, 62, 92, 22, ['#6B4A2B', '#5A3D22']), 'c', 'position:relative');
+    var mane = svgA(150, '-95 -95 190 190', spikes(0, 0, 66, 92, 22, ['#6B4A2B', '#5A3D22']), 'c', 'position:relative');
     var B = { px: 96, w: 150, shirt: '#6B4A2B', pants: '#5A3D22', skin: '#4A3220', extra: fur, behind: mane, z: 20 };
     var wA = pup(c, Object.assign({}, B, { legs: 'run', arms: 'down' }));
     var wB = pup(c, Object.assign({}, B, { legs: 'stand', arms: 'down' }));
@@ -547,9 +549,10 @@
     c.path(wA, walkPts, { jerky: 1 }); c.path(wB, walkPts, { jerky: 1 });
     c.path(wv, [{ t: 0, x: W * 0.5, y: gy }, { t: 2300, x: W * 0.5, y: gy, s: 1 }, { t: 2420, x: W * 0.5, y: gy + 10, s: 1.22 }, { t: 3600, x: W * 0.5, y: gy + 10, s: 1.22 }], { jerky: 2 });
     var wg = wv.querySelector('.bh-wave'); if (wg) c.anim(wg, [{ transform: 'rotate(-14deg)' }, { transform: 'rotate(14deg)' }], { dur: 200, at: 2400, iterations: 6, direction: 'alternate', ease: 'steps(1,end)' });
-    trees(3, H - 140, 300, '#2E4A20', 25).style.opacity = '.95';
+    c.add(svgA(W, '0 0 ' + W + ' ' + H, [[-30, 330], [W + 30, 360]].map(function (tr) { return '<rect x="' + (tr[0] - 8) + '" y="' + (H - 170) + '" width="16" height="40" fill="#4a3424"/><path d="M' + tr[0] + ' ' + (H - 140 - tr[1]) + ' L' + (tr[0] + 100) + ' ' + (H - 160) + ' L' + (tr[0] - 100) + ' ' + (H - 160) + ' Z" fill="#2E4A20" ' + ink(3) + '/>'; }).join(''), 'tl'), 25);
     // grain, scanlines, vignette, HUD
-    var grain = c.add('<svg width="' + (W + 60) + '" height="' + (H + 60) + '" style="position:absolute;left:-30px;top:-30px;display:block"><filter id="p2grain"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#p2grain)" opacity=".28"/></svg>', 46);
+    var grain = c.add('<div style="position:absolute;left:-40px;top:-40px;width:' + (W + 80) + 'px;height:' + (H + 80) + 'px;opacity:.16;background:url(' + noiseUrl + ') repeat;background-size:96px 96px;image-rendering:pixelated"></div>', 46);
+    c.add('<div style="position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;background:rgba(140,100,40,.28)"></div>', 45);
     c.anim(grain, [{ transform: 'translate(0,0)' }, { transform: 'translate(-17px,11px)' }, { transform: 'translate(9px,-14px)' }, { transform: 'translate(-6px,-5px)' }], { dur: 240, iterations: 22, ease: 'steps(4,end)' });
     c.add('<div style="position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 2px,transparent 2px 5px),radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,.6))"></div>', 47);
     var hud = 'font:700 16px/1 ui-monospace,Menlo,Consolas,monospace;color:#FFE9C0;text-shadow:2px 2px 0 #000;white-space:nowrap';
@@ -559,7 +562,7 @@
     var ts = c.add('<div style="' + hud + '">OCT 18 1987  03:12:00 AM</div>', 48); at(ts, 16, H - 156);
     [1, 2, 3, 4, 5].forEach(function (s) { c.T(function () { ts.firstChild.textContent = 'OCT 18 1987  03:12:0' + s + ' AM'; }, s * 1000); });
     c.anim(c.stage, [{ transform: 'translate(0,0) rotate(0deg)' }, { transform: 'translate(-3px,2px) rotate(.4deg)' }, { transform: 'translate(2px,-2px) rotate(-.3deg)' }, { transform: 'translate(0,0) rotate(0deg)' }], { dur: 700, iterations: 7, ease: 'steps(3,end)', fill: 'none' });
-    var stat = c.add('<div style="position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;background:#777"><svg width="100%" height="100%" style="display:block"><filter id="p2stat"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1"/></filter><rect width="100%" height="100%" filter="url(#p2stat)"/></svg></div>', 44);
+    var stat = c.add('<div style="position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;background:#888 url(' + noiseUrl + ') repeat;background-size:48px 48px;image-rendering:pixelated"></div>', 44);
     vis(c, stat, [[4750]]);
     c.text('IS IT REAL?!', W / 2, 150, 36, 500, 2200, -4);
     var top = gy + 10 - bh * 1.22 - 4;
