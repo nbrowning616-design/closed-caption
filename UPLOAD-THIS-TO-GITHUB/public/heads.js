@@ -114,7 +114,7 @@
     return root;
   }
   var timers = [];
-  function close() { timers.forEach(clearTimeout); timers = []; if (root) { root.className = ''; root.innerHTML = ''; root.onclick = null; } }
+  function close() { timers.forEach(clearTimeout); timers = []; if (root) { root.className = ''; root.innerHTML = ''; root.onclick = null; } var sp = document.getElementById('bh-stamp'); if (sp) sp.remove(); }
 
   // ctx: everything an act needs. Times are ms from the shared start.
   function makeCtx(o, ids, startAt, seed) {
@@ -349,10 +349,13 @@
   } });
 
   /* ════════ The Grand Poobah finale: the face, under the hat, on a throne, carried by tiny bodies ════════ */
-  // poobah(el, ids): fills el (a box in the ceremony) with the crude throne bit. Returns nothing; runs ~6s then rests.
-  function poobah(el, ids) {
+  // poobah(el, ids, landMs): fills el (a box in the ceremony) with the crude throne bit, then rests.
+  // #22: landMs = when the hat must land (the gong). The ceremony starts this during the drumroll, so the
+  // throne is carried in under the roll and the hat lands ON the gong. Without landMs: the old ~4.6s timing.
+  function poobah(el, ids, landMs) {
     ids = [].concat(ids || []);
     if (!el || !ids.length) return;
+    var DURP = Math.max(1200, (landMs || 4560) / 0.76);   // the hat lands at 76% of the bit
     var hat = typeof poobahHat === 'function' ? poobahHat(120) : '🎩';
     el.innerHTML = '<div class="bh-poo" id="bh-poo">' +
       '<div class="bh-it" id="bh-poo-throne" style="z-index:3"><svg viewBox="0 0 200 200" width="200" style="display:block;transform:translate(-50%,-100%);overflow:visible">' +
@@ -391,15 +394,54 @@
     var bob = [];
     for (var i = 0; i <= 10; i++) bob.push({ t: i / 10 * 0.55, x: -200 + (cx + 200) * (i / 10), y: base - 40 - (i % 2 ? 10 : 0), r: i % 2 ? 3 : -3 });
     bob.push({ t: 0.62, x: cx, y: base - 40 }, { t: 1, x: cx, y: base - 40 });
-    kf(throne, bob, 6000);
+    kf(throne, bob, DURP);
     var trip = bob.filter(function (p) { return p.t <= 0.62; });
-    kf(who, trip.map(function (p) { return { t: p.t, x: p.x, y: p.y - 40, r: p.r }; }).concat([{ t: 0.74, x: cx, y: base - 80 }, { t: 0.76, x: cx, y: base - 70, s: 0.86 }, { t: 0.8, x: cx, y: base - 80, s: 1.05 }, { t: 1, x: cx, y: base - 80 }]), 6000);
-    kf(carry, trip.map(function (p) { return { t: p.t, x: p.x, y: p.y + 22, r: -p.r }; }).concat([{ t: 0.66, x: cx, y: base - 18, o: 1 }, { t: 0.7, x: cx + 400, y: base - 18, o: 1, e: 'linear' }, { t: 1, x: cx + 400, y: base - 18, o: 0 }]), 6000);
-    kf(hatEl, [{ t: 0, x: cx, y: -400, o: 0 }, { t: 0.7, x: cx, y: -400, o: 1, e: 'cubic-bezier(.6,0,1,.5)' }, { t: 0.76, x: cx, y: base - 238, s: 1.1 }, { t: 0.8, x: cx, y: base - 262, s: 1 }, { t: 1, x: cx, y: base - 262, r: -6 }], 6000);
+    kf(who, trip.map(function (p) { return { t: p.t, x: p.x, y: p.y - 40, r: p.r }; }).concat([{ t: 0.74, x: cx, y: base - 80 }, { t: 0.76, x: cx, y: base - 70, s: 0.86 }, { t: 0.8, x: cx, y: base - 80, s: 1.05 }, { t: 1, x: cx, y: base - 80 }]), DURP);
+    kf(carry, trip.map(function (p) { return { t: p.t, x: p.x, y: p.y + 22, r: -p.r }; }).concat([{ t: 0.66, x: cx, y: base - 18, o: 1 }, { t: 0.7, x: cx + 400, y: base - 18, o: 1, e: 'linear' }, { t: 1, x: cx + 400, y: base - 18, o: 0 }]), DURP);
+    kf(hatEl, [{ t: 0, x: cx, y: -400, o: 0 }, { t: 0.7, x: cx, y: -400, o: 1, e: 'cubic-bezier(.6,0,1,.5)' }, { t: 0.76, x: cx, y: base - 238, s: 1.1 }, { t: 0.8, x: cx, y: base - 262, s: 1 }, { t: 1, x: cx, y: base - 262, r: -6 }], DURP);
     if (RM) return;   // (the hat's thud, the scream and the march belong to the parade)
-    setTimeout(function () { big(function () { noise(0.3, 0, 0.6, 400, 'lowpass'); tone(70, 0.4, 0, 'sine', 0.4, 40); }); buzz([120, 60, 200]); var h = who.querySelectorAll('.bh-head'); h.forEach(function (x) { x.classList.add('scream'); }); setTimeout(function () { h.forEach(function (x) { x.classList.remove('scream'); x.classList.add('talk'); }); setTimeout(function () { h.forEach(function (x) { x.classList.remove('talk'); }); }, 2200); }, 500); }, 4560);
-    for (var k = 0; k < 8; k++) setTimeout(function () { big(function () { tone(196, 0.06, 0, 'square', 0.04); }); }, k * 400);
+    var land = DURP * 0.76, ts = poobah._t = [];
+    // the hat's thud belongs to the gong when the ceremony times it (landMs); the face still screams on impact
+    ts.push(setTimeout(function () { if (!landMs) big(function () { noise(0.3, 0, 0.6, 400, 'lowpass'); tone(70, 0.4, 0, 'sine', 0.4, 40); }); buzz([120, 60, 200]); var h = who.querySelectorAll('.bh-head'); h.forEach(function (x) { x.classList.add('scream'); }); setTimeout(function () { h.forEach(function (x) { x.classList.remove('scream'); x.classList.add('talk'); }); setTimeout(function () { h.forEach(function (x) { x.classList.remove('talk'); }); }, 2200); }, 500); }, land));
+    var steps = 8, gap = (DURP * 0.55) / steps;
+    for (var k = 0; k < steps; k++) ts.push(setTimeout(function () { big(function () { tone(196, 0.06, 0, 'square', 0.035); }); }, k * gap));
   }
 
-  window.ccHeads = { add: add, play: play, close: close, poobah: poobah, head: headHtml, body: bodySvg, faceUrl: faceUrl, count: function () { return acts.length; }, acts: acts, DUR: DUR };
+  /* ════════ #23 The quick stamp: most rounds, the winner gets ~1s, not a 5s gag ════════
+     A rubber stamp slams onto the scoreboard with the winner's face and name, then lifts away.
+     Not full-screen and not a gag, so it never upstages the table. Reduce Motion: a fade. */
+  var STAMP_MS = 1100;
+  var STAMP_CSS = '#bh-stamp{position:fixed;left:50%;top:30%;z-index:755;pointer-events:none;display:flex;align-items:center;gap:10px;padding:8px 16px 8px 9px;' +
+    'background:#FFF8EA;border:4px solid #D7261E;border-radius:14px;color:#D7261E;box-shadow:0 0 0 2px #FFF8EA,5px 6px 0 rgba(31,26,23,.85);transform:translate(-50%,-50%) rotate(-7deg);opacity:0;}' +
+    '#bh-stamp .bh-head{flex:none;}' +
+    '#bh-stamp .bh-st-t{display:flex;flex-direction:column;line-height:1;font-family:var(--display,system-ui);}' +
+    '#bh-stamp .bh-st-e{font-size:12px;font-weight:800;letter-spacing:.24em;text-transform:uppercase;}' +
+    '#bh-stamp .bh-st-n{font-size:26px;font-weight:700;color:' + INK + ';margin-top:3px;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}';
+  function stamp(ids, wait) {
+    ids = [].concat(ids || []).filter(Boolean);
+    if (!ids.length) return 0;
+    try { if (!document.getElementById('bh-stamp-css')) { var s = document.createElement('style'); s.id = 'bh-stamp-css'; s.textContent = STAMP_CSS; document.head.appendChild(s); } } catch (e) {}
+    var old = document.getElementById('bh-stamp'); if (old) old.remove();
+    var me = ids.indexOf(myPlayerId) >= 0, el = document.createElement('div');
+    el.id = 'bh-stamp';
+    el.innerHTML = headHtml(ids, ids.length > 1 ? 40 : 52) + '<span class="bh-st-t"><span class="bh-st-e">' + (ids.length > 1 ? 'Round winners' : 'Round winner') + '</span><span class="bh-st-n">' + esc(me ? (ids.length > 1 ? 'You & co.' : 'You') : listNamesSafe(ids)) + '</span></span>';
+    document.body.appendChild(el);
+    var RM = !!(window.ccReducedMotion && window.ccReducedMotion());
+    var go = function () {
+      try {
+        el.animate(RM
+          ? [{ opacity: 0 }, { opacity: 1, offset: 0.2 }, { opacity: 1, offset: 0.8 }, { opacity: 0 }]
+          : [{ opacity: 0, transform: 'translate(-50%,-50%) rotate(-16deg) scale(2.2)' }, { opacity: 1, transform: 'translate(-50%,-50%) rotate(-7deg) scale(.96)', offset: 0.13 },
+             { opacity: 1, transform: 'translate(-50%,-50%) rotate(-7deg) scale(1)', offset: 0.2 }, { opacity: 1, transform: 'translate(-50%,-50%) rotate(-7deg) scale(1)', offset: 0.8 },
+             { opacity: 0, transform: 'translate(-50%,-62%) rotate(-5deg) scale(1.04)' }], { duration: STAMP_MS, easing: 'ease-out', fill: 'both' });
+      } catch (e) {}
+      big(function () { noise(0.12, 0, 0.35, 700, 'lowpass'); tone(150, 0.16, 0, 'sine', 0.2, 70); });
+      buzz(me ? [50, 30, 90] : 25);
+    };
+    timers.push(setTimeout(go, Math.max(0, wait || 0)));
+    timers.push(setTimeout(function () { if (el.parentNode) el.remove(); }, Math.max(0, wait || 0) + STAMP_MS + 60));
+    return Math.max(0, wait || 0) + STAMP_MS;
+  }
+
+  window.ccHeads = { add: add, play: play, close: close, poobah: poobah, stamp: stamp, STAMP_MS: STAMP_MS, head: headHtml, body: bodySvg, faceUrl: faceUrl, count: function () { return acts.length; }, acts: acts, DUR: DUR };
 })();

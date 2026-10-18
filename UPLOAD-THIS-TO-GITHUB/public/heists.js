@@ -26,7 +26,7 @@
     { tag: 'Tongue first. Questions later.', thief: '🐸', size: 84, from: 'right', move: 'hop', grab: 'line', line: 'tongue', claim: 'lick', prop: '👅', fx: ['💦', '💧'], snd: 'boing' },
     { tag: 'Not of this table.', thief: '🛸', size: 100, from: 'top', move: 'drift', grab: 'beam', claim: 'zap', prop: '⚡', fx: ['✨', '⚡'], snd: 'ufo', exit: 'top' },
     { tag: 'Nothing up the sleeve. Except your chip.', thief: '🎩', size: 88, from: 'bottom', move: 'rise', grab: 'levitate', claim: 'sparkle', prop: '🪄', fx: ['✨', '🐇', '⭐'], snd: 'magic', exit: 'bottom' },
-    { tag: 'Eight arms. One chip.', thief: '🐙', size: 92, from: 'bottom', move: 'rise', grab: 'line', line: 'tentacle', claim: 'splat', prop: null, fx: ['💧', '🫧'], snd: 'blub', exit: 'bottom' },
+    { tag: 'Has a hand in everything.', thief: '🐙', size: 92, from: 'bottom', move: 'rise', grab: 'line', line: 'tentacle', claim: 'splat', prop: null, fx: ['💧', '🫧'], snd: 'blub', exit: 'bottom' },
     { tag: 'Patience. Bait. Theft.', thief: '🎣', size: 84, from: 'top', move: 'drift', grab: 'line', line: 'fishing', claim: 'sticker', prop: '🏷️', fx: ['🐟', '💧'], snd: 'reel', exit: 'top' },
     { tag: 'It’s just physics.', thief: '🧲', size: 84, from: 'right', move: 'glide', grab: 'line', line: 'magnet', claim: 'zap', prop: '⚡', fx: ['⚡', '✨'], snd: 'hum' },
     { tag: 'Sweetie, that’s mine.', thief: '👵', size: 84, from: 'left', move: 'tiptoe', grab: 'carry', claim: 'smooch', prop: '💋', fx: ['💕', '💋'], snd: 'creep' },
@@ -38,20 +38,106 @@
     { tag: 'Boo. Also: yoink.', thief: '👻', size: 88, from: 'right', move: 'drift', grab: 'levitate', claim: 'swirl', prop: null, fx: ['✨', '💀'], snd: 'spooky', exit: 'fade' },
     { tag: 'T-minus your chip.', thief: '🚀', size: 88, from: 'left', move: 'zoom', grab: 'carry', claim: 'iron', prop: '🔥', fx: ['💨', '🔥'], snd: 'rocket', exit: 'top' },
     { tag: 'Billable hours: one chip.', thief: '💼', size: 80, from: 'right', move: 'tiptoe', grab: 'carry', claim: 'stamp', prop: '⚖️', fx: ['📄', '✨'], snd: 'creep' },
-    { tag: 'Sideways. Always sideways.', thief: '🦀', size: 84, from: 'right', move: 'crawl', grab: 'carry', claim: 'sticker', prop: null, fx: ['💥', '✨'], snd: 'clack', noFlip: true },
-    { tag: 'Tiny arms. Big ambitions.', thief: '🦖', size: 104, from: 'left', move: 'stomp', grab: 'carry', claim: 'stamp', prop: '🦶', fx: ['💥', '🌿'], snd: 'stomp' },
+    { tag: 'Armoured, and petty about it.', thief: '🦀', size: 84, from: 'right', move: 'crawl', grab: 'carry', claim: 'sticker', prop: null, fx: ['💥', '✨'], snd: 'clack', noFlip: true },
+    { tag: 'Sixty-six million years of grudges.', thief: '🦖', size: 104, from: 'left', move: 'stomp', grab: 'carry', claim: 'stamp', prop: '🦶', fx: ['💥', '🌿'], snd: 'stomp' },
     { tag: 'He’s been on his way since round one.', thief: '🐌', size: 80, from: 'right', move: 'crawl', grab: 'carry', claim: 'trail', prop: null, fx: ['💚', '✨'], snd: 'slow' },
-    { tag: 'Like a french fry at the beach.', thief: '🐦', size: 82, from: 'topright', move: 'swoop', grab: 'carry', claim: 'splat', prop: null, splat: '#FFFFFF', fx: ['💦', '🪶'], snd: 'screech', exit: 'top' },
+    { tag: 'Has never once asked permission.', thief: '🐦', size: 82, from: 'topright', move: 'swoop', grab: 'carry', claim: 'splat', prop: null, splat: '#FFFFFF', fx: ['💦', '🪶'], snd: 'screech', exit: 'top' },
     { tag: 'Bzzzzzzz.', thief: '🦟', size: 70, from: 'left', move: 'zigzag', grab: 'carry', claim: 'zap', prop: '⚡', fx: ['⚡', '✨'], snd: 'mosquito' },
-    { tag: 'A wizard steals precisely when he means to.', thief: '🧙', size: 88, from: 'left', move: 'drift', grab: 'beam', beam: 'magic', claim: 'sparkle', prop: '🪄', fx: ['✨', '⭐', '🌟'], snd: 'magic' },
-    { tag: 'BEEP. BOOP. YOINK.', thief: '🤖', size: 86, from: 'right', move: 'march', grab: 'line', line: 'grabber', claim: 'laser', prop: null, fx: ['⚙️', '✨'], snd: 'robot' },
-    { tag: 'Sticky fingers. Literally.', thief: '🐝', size: 74, from: 'right', move: 'zigzag', grab: 'carry', claim: 'dip', prop: '🍯', fx: ['💛', '✨'], snd: 'buzz' },
+    { tag: 'Robes. Beard. No receipt.', thief: '🧙', size: 88, from: 'left', move: 'drift', grab: 'beam', beam: 'magic', claim: 'sparkle', prop: '🪄', fx: ['✨', '⭐', '🌟'], snd: 'magic' },
+    { tag: 'Runs on spite and AA batteries.', thief: '🤖', size: 86, from: 'right', move: 'march', grab: 'line', line: 'grabber', claim: 'laser', prop: null, fx: ['⚙️', '✨'], snd: 'robot' },
+    { tag: 'Busy. Very, very busy.', thief: '🐝', size: 74, from: 'right', move: 'zigzag', grab: 'carry', claim: 'dip', prop: '🍯', fx: ['💛', '✨'], snd: 'buzz' },
     { tag: 'Swings in from nowhere.', thief: '🐒', size: 90, from: 'top', move: 'swing', grab: 'carry', claim: 'sticker', prop: '🍌', fx: ['🍌', '✨'], snd: 'monkey', exit: 'top' },
-    { tag: 'This table ain’t big enough.', thief: '🤠', size: 88, from: 'left', move: 'hop', grab: 'line', line: 'lasso', claim: 'iron', prop: '🔥', fx: ['💨', '⭐'], snd: 'yeehaw' },
+    { tag: 'Rides in. Doesn’t tip.', thief: '🤠', size: 88, from: 'left', move: 'hop', grab: 'line', line: 'lasso', claim: 'iron', prop: '🔥', fx: ['💨', '⭐'], snd: 'yeehaw' },
     { tag: 'Only comes out at game night.', thief: '🧛', size: 88, from: 'right', move: 'drift', grab: 'carry', claim: 'sparkle', prop: '🦇', fx: ['🦇', '🩸'], snd: 'spooky' },
-    { tag: 'Magic is just stealing with glitter.', thief: '🦄', size: 92, from: 'left', move: 'hop', grab: 'carry', claim: 'sparkle', prop: '🌈', fx: ['✨', '🌈', '💖'], snd: 'magic' },
-    { tag: 'Cold. Calculated. Adorable.', thief: '🐧', size: 86, from: 'right', move: 'slide', grab: 'carry', claim: 'dip', prop: '🧊', fx: ['❄️', '✨'], snd: 'slide' },
+    { tag: 'Mythical. The theft is real.', thief: '🦄', size: 92, from: 'left', move: 'hop', grab: 'carry', claim: 'sparkle', prop: '🌈', fx: ['✨', '🌈', '💖'], snd: 'magic' },
+    { tag: 'Dressed for the occasion.', thief: '🐧', size: 86, from: 'right', move: 'slide', grab: 'carry', claim: 'dip', prop: '🧊', fx: ['❄️', '✨'], snd: 'slide' },
   ];
+
+  /* ── #45 The eight most-seen thieves, drawn in the house ink (emoji look cheap and differ by phone brand).
+        viewBox 100×100, facing LEFT like the emoji they replace (flipOf mirrors them when they walk right).
+        Flat fills, a 4px ink line. Any act not listed here keeps its emoji. ── */
+  var G0 = '<g stroke="#1F1A17" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">', G1 = '</g>';
+  var THIEF_SVG = {
+    2: G0 +   // The Raccoon
+      '<path d="M66 60 C84 58 96 46 93 33 C91 25 83 27 83 35 C83 45 75 51 64 53 Z" fill="#8E949C"/>' +
+      '<path d="M86 29 L80 37 M92 41 L83 45 M86 53 L78 53" stroke-width="5"/>' +
+      '<path d="M44 74 L42 88 M54 76 L54 89 M64 75 L67 88 M72 71 L77 85" stroke-width="9"/><path d="M44 74 L42 88 M54 76 L54 89 M64 75 L67 88 M72 71 L77 85" stroke="#8E949C" stroke-width="3.5"/>' +
+      '<ellipse cx="57" cy="62" rx="24" ry="16" fill="#9CA2AA"/>' +
+      '<path d="M24 29 L21 13 L34 24 Z M41 25 L47 11 L51 28 Z" fill="#9CA2AA"/>' +
+      '<path d="M13 44 C13 30 25 22 38 24 C48 26 54 34 52 46 C50 56 40 60 30 60 C20 60 13 54 13 44 Z" fill="#BAC0C7"/>' +
+      '<path d="M12 42 C18 36 26 38 31 40 C36 37 44 35 52 40 C50 47 44 49 38 46 C34 45 30 45 28 47 C22 50 15 48 12 42 Z" fill="#1F1A17" stroke-width="2"/>' +
+      '<circle cx="22" cy="43" r="3.6" fill="#fff" stroke="none"/><circle cx="42" cy="42" r="3.6" fill="#fff" stroke="none"/><circle cx="21" cy="43" r="1.6" fill="#1F1A17" stroke="none"/><circle cx="41" cy="42" r="1.6" fill="#1F1A17" stroke="none"/>' +
+      '<path d="M9 51 C10 46 17 46 23 50 C24 55 18 58 12 56 Z" fill="#F4EFE6" stroke-width="3"/><circle cx="9" cy="50" r="3.4" fill="#1F1A17" stroke="none"/>' + G1,
+    3: G0 +   // The Frog
+      '<ellipse cx="30" cy="88" rx="10" ry="4.5" fill="#4FA83E"/><ellipse cx="70" cy="88" rx="10" ry="4.5" fill="#4FA83E"/>' +
+      '<path d="M13 69 C9 50 24 37 50 37 C76 37 91 50 87 69 C85 82 71 88 50 88 C29 88 15 82 13 69 Z" fill="#5DBB4A"/>' +
+      '<circle cx="32" cy="34" r="13" fill="#5DBB4A"/><circle cx="68" cy="34" r="13" fill="#5DBB4A"/>' +
+      '<circle cx="31" cy="33" r="8" fill="#fff" stroke-width="3"/><circle cx="67" cy="33" r="8" fill="#fff" stroke-width="3"/>' +
+      '<circle cx="28" cy="34" r="4" fill="#1F1A17" stroke="none"/><circle cx="64" cy="34" r="4" fill="#1F1A17" stroke="none"/>' +
+      '<ellipse cx="50" cy="77" rx="20" ry="8" fill="#CDE8A0" stroke-width="3"/>' +
+      '<path d="M24 58 Q50 74 76 58" fill="none"/>' +
+      '<circle cx="23" cy="65" r="4.5" fill="#F49AAE" stroke="none"/><circle cx="77" cy="65" r="4.5" fill="#F49AAE" stroke="none"/>' + G1,
+    4: G0 +   // The UFO
+      '<path d="M29 47 C29 19 71 19 71 47 Z" fill="#BFE8F5"/>' +
+      '<path d="M50 26 L50 18" stroke-width="2.5"/><circle cx="50" cy="16.5" r="2.6" fill="#E8453A" stroke-width="2"/>' +
+      '<ellipse cx="50" cy="35" rx="8" ry="9" fill="#7ED957" stroke-width="3"/><ellipse cx="46.5" cy="34" rx="2" ry="3" fill="#1F1A17" stroke="none"/><ellipse cx="53.5" cy="34" rx="2" ry="3" fill="#1F1A17" stroke="none"/>' +
+      '<path d="M35 33 C36 28 40 25 44 24" fill="none" stroke="#fff" stroke-width="3"/>' +
+      '<ellipse cx="50" cy="65" rx="18" ry="6" fill="#6C7784"/>' +
+      '<ellipse cx="50" cy="56" rx="45" ry="13" fill="#AAB4BE"/>' +
+      '<path d="M8 55 Q50 66 92 55" fill="none" stroke-width="3"/>' +
+      '<circle cx="23" cy="58" r="3.4" fill="#FFD23F" stroke-width="2"/><circle cx="37" cy="61" r="3.4" fill="#FFD23F" stroke-width="2"/><circle cx="50" cy="62" r="3.4" fill="#FFD23F" stroke-width="2"/><circle cx="63" cy="61" r="3.4" fill="#FFD23F" stroke-width="2"/><circle cx="77" cy="58" r="3.4" fill="#FFD23F" stroke-width="2"/>' + G1,
+    10: G0 +   // The Cat
+      '<path d="M68 85 C88 85 95 70 89 58 C86 52 80 55 83 61 C87 70 82 78 68 78" fill="#F2A541"/>' +
+      '<path d="M33 87 C29 70 36 52 54 50 C70 50 77 66 74 87 Z" fill="#F2A541"/>' +
+      '<path d="M60 57 L67 61 M58 65 L69 69 M59 74 L70 77" stroke-width="3"/>' +
+      '<ellipse cx="41" cy="87" rx="7" ry="4" fill="#F7C27A" stroke-width="3"/><ellipse cx="55" cy="87" rx="7" ry="4" fill="#F7C27A" stroke-width="3"/>' +
+      '<path d="M21 31 L19 12 L34 24 Z M40 23 L50 9 L53 29 Z" fill="#F2A541"/><path d="M23 26 L22 18 L29 24 Z" fill="#F49AAE" stroke="none"/>' +
+      '<circle cx="36" cy="40" r="18" fill="#F2A541"/>' +
+      '<path d="M32 23 L33 29 M38 22 L38 28" stroke-width="3"/>' +
+      '<ellipse cx="29" cy="40" rx="2.6" ry="4" fill="#1F1A17" stroke="none"/><ellipse cx="42" cy="40" rx="2.6" ry="4" fill="#1F1A17" stroke="none"/>' +
+      '<path d="M32 46 L36 46 L34 49 Z" fill="#F49AAE" stroke-width="2"/><path d="M30 52 Q32 54 34 51 Q36 54 38 52" fill="none" stroke-width="2.5"/>' +
+      '<path d="M24 47 L9 44 M24 51 L9 53" stroke-width="2"/>' + G1,
+    15: G0 +   // The Ghost
+      '<path d="M24 50 C14 50 7 44 9 37 C13 35 19 41 25 43 Z" fill="#fff"/><path d="M76 50 C86 50 92 45 91 38 C87 36 81 41 75 43 Z" fill="#fff"/>' +
+      '<path d="M22 86 C20 60 20 40 30 26 C40 12 66 12 74 28 C82 42 80 64 82 86 L74 80 L66 88 L58 80 L50 88 L42 80 L34 88 Z" fill="#fff"/>' +
+      '<ellipse cx="40" cy="44" rx="5" ry="7" fill="#1F1A17" stroke="none"/><ellipse cx="58" cy="44" rx="5" ry="7" fill="#1F1A17" stroke="none"/>' +
+      '<circle cx="38.5" cy="41" r="1.7" fill="#fff" stroke="none"/><circle cx="56.5" cy="41" r="1.7" fill="#fff" stroke="none"/>' +
+      '<ellipse cx="48" cy="63" rx="6" ry="8" fill="#1F1A17" stroke="none"/><ellipse cx="48" cy="67" rx="3.5" ry="3" fill="#F49AAE" stroke="none"/>' + G1,
+    19: G0 +   // The T. rex
+      '<path d="M60 56 C76 54 92 58 98 71 C86 68 74 70 62 73 Z" fill="#6BBF59"/>' +
+      '<path d="M40 73 L38 89 L28 91 L30 96 L46 96 L49 75 Z" fill="#5AAE49"/><path d="M56 71 L58 89 L50 91 L52 96 L66 96 L65 71 Z" fill="#6BBF59"/>' +
+      '<path d="M33 46 C43 40 62 44 66 58 C70 72 60 82 46 80 C36 78 29 66 33 46 Z" fill="#6BBF59"/>' +
+      '<path d="M38 58 C44 61 51 61 57 58 M38 66 C44 69 51 69 57 66" fill="none" stroke="#A9DE8F" stroke-width="3"/>' +
+      '<path d="M38 50 L28 54 L26 59" fill="none" stroke-width="7"/><path d="M38 50 L28 54 L26 59" fill="none" stroke="#6BBF59" stroke-width="2.5"/>' +
+      '<path d="M7 30 C7 18 18 11 34 11 C46 11 53 19 51 30 L49 42 C41 46 31 46 25 44 L9 44 C7 40 7 36 7 30 Z" fill="#6BBF59"/>' +
+      '<path d="M10 36 L13 40 L16 36 L19 40 L22 36 L25 40 L28 36 L31 40 L34 36" fill="#fff" stroke-width="2"/><path d="M9 36 L46 36" fill="none" stroke-width="3"/>' +
+      '<circle cx="36" cy="22" r="4.5" fill="#fff" stroke-width="3"/><circle cx="35" cy="22.5" r="2" fill="#1F1A17" stroke="none"/><path d="M29 15 L41 18" stroke-width="3.5"/>' +
+      '<circle cx="12" cy="22" r="1.6" fill="#1F1A17" stroke="none"/><circle cx="58" cy="50" r="3" fill="#4E9A3F" stroke="none"/><circle cx="64" cy="62" r="2.4" fill="#4E9A3F" stroke="none"/>' + G1,
+    21: G0 +   // The Seagull
+      '<path d="M48 75 L46 91 L39 94 M58 75 L60 91 L53 94" fill="none" stroke-width="7"/><path d="M48 75 L46 91 L39 94 M58 75 L60 91 L53 94" fill="none" stroke="#F29A2E" stroke-width="3"/>' +
+      '<path d="M20 50 C22 40 34 36 48 40 C66 44 86 50 96 58 C84 62 74 62 66 66 C58 78 40 80 30 70 C22 64 18 58 20 50 Z" fill="#fff"/>' +
+      '<path d="M44 50 C58 46 76 52 92 58 C80 62 66 64 54 62 C46 60 42 56 44 50 Z" fill="#AAB4BE"/>' +
+      '<path d="M80 56 C86 57 90 58 96 58 C90 62 84 62 78 62 Z" fill="#1F1A17" stroke-width="2"/>' +
+      '<circle cx="28" cy="38" r="13" fill="#fff"/>' +
+      '<path d="M16 37 L2 41 L16 45 Z" fill="#FFC93C" stroke-width="3"/><circle cx="8" cy="42.5" r="1.9" fill="#E8453A" stroke="none"/>' +
+      '<circle cx="24" cy="35" r="2.5" fill="#1F1A17" stroke="none"/><path d="M19 30 L29 33" stroke-width="3.5"/>' + G1,
+    25: G0 +   // The Bee
+      '<path d="M84 57 L98 60 L84 64 Z" fill="#1F1A17" stroke-width="2"/>' +
+      '<path d="M44 78 L40 88 M56 80 L54 90 M68 78 L68 88" fill="none" stroke-width="3"/>' +
+      '<ellipse cx="58" cy="60" rx="28" ry="20" fill="#FFD23F"/>' +
+      '<path d="M52 42 C48 52 48 68 52 78 M66 42 C62 52 62 68 66 78 M78 47 C76 54 76 66 78 73" fill="none" stroke-width="7" stroke-linecap="butt"/>' +
+      '<path d="M24 42 C20 31 14 29 10 31 M32 41 C32 30 28 24 24 24" fill="none" stroke-width="3"/><circle cx="10" cy="31" r="2.6" fill="#1F1A17" stroke="none"/><circle cx="24" cy="24" r="2.6" fill="#1F1A17" stroke="none"/>' +
+      '<circle cx="27" cy="54" r="14" fill="#3A2F28"/>' +
+      '<circle cx="22" cy="50" r="4.2" fill="#fff" stroke="none"/><circle cx="21" cy="50.5" r="2" fill="#1F1A17" stroke="none"/><path d="M16 60 Q21 64 26 60" fill="none" stroke="#fff" stroke-width="2.5"/>' +
+      '<ellipse cx="50" cy="30" rx="12" ry="19" transform="rotate(-22 50 30)" fill="#E2F4FF" fill-opacity=".9" stroke-width="3"/><ellipse cx="66" cy="32" rx="11" ry="17" transform="rotate(20 66 32)" fill="#E2F4FF" fill-opacity=".9" stroke-width="3"/>' + G1,
+  };
+  function thiefHtml(i, act) {
+    var s = THIEF_SVG[i], px = act.size || 84;
+    return s ? '<svg viewBox="0 0 100 100" width="' + px + '" height="' + px + '" aria-hidden="true" style="display:block;overflow:visible">' + s + '</svg>' : act.thief;
+  }
+  // ink flames for the hot-iron claims (Rocket, Cowboy) and their sparks — emoji 🔥 differs by phone
+  var FLAME = function (w) { return window.ccInk && window.ccInk.flame ? window.ccInk.flame(w) : '🔥'; };
+  ACTS.forEach(function (a) { if (!a) return; if (a.prop === '🔥') a.prop = 'flame'; if (a.fx) a.fx = a.fx.map(function (f) { return f === '🔥' ? 'flame' : f; }); });
 
   var CSS = [
     '.hz-layer{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none;will-change:transform,opacity;}',
@@ -81,7 +167,8 @@
     '.hz-ring{position:absolute;left:-40px;top:-40px;width:80px;height:80px;border-radius:50%;border:4px solid #FFF8EA;opacity:0;z-index:7;}',
     '.hz-cloud{position:absolute;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#e8e2ef 70%);opacity:0;z-index:7;}',
     '.hz-splat{position:absolute;left:-40px;top:-40px;width:80px;height:80px;opacity:0;z-index:7;}',
-    '.hz-spot{position:absolute;left:-1100px;top:-1100px;width:2200px;height:2200px;z-index:3;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 50%,rgba(8,5,4,0) 0,rgba(8,5,4,0) 80px,rgba(8,5,4,.55) 190px,rgba(8,5,4,.65) 100%);}',
+    /* #48: the spotlight is the size of the screen (it used to be a 2200px square); its hole is placed with background-position */
+    '.hz-spot{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;}',
     '.hz-shadow{position:absolute;left:-40px;top:-12px;width:80px;height:24px;border-radius:50%;z-index:4;background:radial-gradient(ellipse,rgba(0,0,0,.6),transparent 70%);opacity:0;}',
   ].join('\n');
   try { var s = document.createElement('style'); s.id = 'cc-heist-css'; s.textContent = CSS; (document.head || document.documentElement).appendChild(s); } catch (e) {}
@@ -208,8 +295,8 @@
       '<div class="hz-line ' + (act.line || 'tongue') + '" id="hz-line"></div>' +
       '<div class="hz-line laser" id="hz-laser"></div>' +
       '<div class="hz-layer hz-held" id="hz-held"><div class="hz-chipw" id="hz-chipw"></div></div>' +
-      '<div class="hz-layer hz-thief" id="hz-thief"><div class="hz-face" style="--sz:' + (act.size || 84) + 'px">' + act.thief + '</div></div>' +
-      '<div class="hz-layer hz-prop" id="hz-prop"><span style="--sz:' + (act.claim === 'lick' ? 80 : 60) + 'px">' + (act.prop || '') + '</span></div>' +
+      '<div class="hz-layer hz-thief" id="hz-thief"><div class="hz-face" style="--sz:' + (act.size || 84) + 'px">' + thiefHtml(st.act, act) + '</div></div>' +
+      '<div class="hz-layer hz-prop" id="hz-prop"><span style="--sz:' + (act.claim === 'lick' ? 80 : 60) + 'px">' + (act.prop === 'flame' ? FLAME(46) : (act.prop || '')) + '</span></div>' +
       '<div class="hz-layer" id="hz-fxl" style="z-index:7"><i class="hz-ring" id="hz-ring"></i><i class="hz-loop" id="hz-loop"></i>' +
         '<svg class="hz-splat" id="hz-splat" viewBox="0 0 80 80" aria-hidden="true"><path d="M40 8 C46 20 52 10 56 22 C66 18 64 30 72 34 C64 40 74 48 64 52 C68 62 56 60 52 70 C46 62 40 74 34 66 C26 72 24 60 16 60 C20 50 8 46 16 38 C8 32 18 24 24 26 C24 14 34 18 40 8 Z" fill="' + (act.splat || dc) + '" stroke="#1F1A17" stroke-width="2.5"/></svg>' +
         '<i class="hz-cloud" id="hz-c1"></i><i class="hz-cloud" id="hz-c2"></i><i class="hz-cloud" id="hz-c3"></i><i class="hz-cloud" id="hz-c4"></i></div>' +
@@ -289,7 +376,8 @@
     function puff(x, y, list, n, spread, dur, rise) {
       for (var i = 0; i < n; i++) {
         var el = fxPool[fxI++ % fxPool.length]; if (!el) return;
-        el.textContent = list[i % list.length];
+        var item = list[i % list.length];
+        if (item === 'flame') el.innerHTML = FLAME(22); else el.textContent = item;
         var a = rnd() * Math.PI * 2, d = spread * (0.5 + rnd()), dx = Math.cos(a) * d, dy = Math.sin(a) * d - (rise || 0), s = 0.6 + rnd() * 0.8;
         try { el.getAnimations().forEach(function (q) { q.cancel(); }); } catch (e) {}
         el.animate([{ transform: 'translate3d(' + x + 'px,' + y + 'px,0) scale(.3)', opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 0.9, offset: 0.7 },
@@ -446,10 +534,10 @@
     // a soft shadow under the thief while it's on the felt
     whole(shadowL, TP.map(function (p) { return { t: p.t, x: p.x, y: p.y, o: p.o }; }), function (p) { var near = clamp(1 - Math.abs((V.y + 26) - (p.y + 40)) / 140, 0, 1); return { transform: 'translate3d(' + p.x.toFixed(1) + 'px,' + (V.y + 30).toFixed(1) + 'px,0)', opacity: (near * (p.o == null ? 1 : p.o) * 0.9).toFixed(2) }; });
     // the spotlight on the claim
-    spot.style.transform = 'translate3d(' + C.x + 'px,' + C.y + 'px,0)';
+    spot.style.background = 'radial-gradient(circle at ' + C.x.toFixed(0) + 'px ' + C.y.toFixed(0) + 'px,rgba(8,5,4,0) 0,rgba(8,5,4,0) 80px,rgba(8,5,4,.55) 190px,rgba(8,5,4,.65) 100%)';
     anim(spot, [{ opacity: 0 }, { opacity: 1 }], 350, TM.atC - 250, 'ease-out');
     anim(spot, [{ opacity: 1 }, { opacity: 0 }], 400, TM.claim1 + 50, 'ease-in', { fill: 'forwards' });
-    T(function () { spot.style.opacity = '0'; }, TM.claim1 + 460);
+    T(function () { if (spot.parentNode) spot.parentNode.removeChild(spot); }, TM.claim1 + 460);   // #48: gone from the page once it has faded
 
     function claim(kind) {
       var c0 = TM.claim0, R = 23 * KC, fx = act.fx || ['✨'];

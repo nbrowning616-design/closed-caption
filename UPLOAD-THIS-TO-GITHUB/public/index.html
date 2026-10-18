@@ -517,7 +517,8 @@ body.quake { animation: quake .12s linear 10; }
 @keyframes spotB { from { transform: translate(0, 20vh); } to { transform: translate(-60vw, -5vh); } }
 #poobah.roll { animation: gpShake .1s linear infinite; }
 @keyframes gpShake { 0% { transform: translate(1px, 0); } 50% { transform: translate(-1px, 1px); } 100% { transform: translate(0, -1px); } }
-.gp-rays { position: absolute; left: 50%; top: 38%; width: 240vmax; height: 240vmax; margin: -120vmax 0 0 -120vmax; background: repeating-conic-gradient(from 0deg, rgba(255,210,63,.32) 0deg 8deg, transparent 8deg 22deg); opacity: 0; transition: opacity .8s; animation: spin 14s linear infinite; pointer-events: none; }
+/* #48: just big enough to cover the screen while it spins (was 240vmax ≈ 2000px square) */
+.gp-rays { position: absolute; left: 50%; top: 38%; width: 150vmax; height: 150vmax; margin: -75vmax 0 0 -75vmax; background: repeating-conic-gradient(from 0deg, rgba(255,210,63,.32) 0deg 8deg, transparent 8deg 22deg); opacity: 0; transition: opacity .8s; animation: spin 14s linear infinite; pointer-events: none; }
 #poobah.revealed .gp-rays { opacity: 1; }
 .gp-line { position: absolute; left: 24px; right: 24px; top: 42%; font-family: Georgia, serif; font-style: italic; font-size: 28px; opacity: 0; transform: translateY(10px); transition: opacity .6s, transform .6s; }
 .gp-line.on { opacity: 1; transform: none; } .gp-line.off { opacity: 0; transform: translateY(-10px); }
@@ -525,12 +526,16 @@ body.quake { animation: quake .12s linear 10; }
 .gp-tease.on { opacity: 1; transform: scale(1.12); }
 .gp-reveal { position: relative; z-index: 2; display: none; flex-direction: column; align-items: center; }
 .gp-reveal.on { display: flex; }
+/* #22: during the drumroll the throne is carried in (its box laid out where it will rest; the rest waits, paused) */
+.gp-reveal.pre { display: flex; }
+.gp-reveal.pre:not(.on) > :not(#gp-face) { visibility: hidden; animation-play-state: paused; }
+#poobah.pre .gp-tease { top: 9%; font-size: 29px; }
 .gp-hat { animation: gpHat 1.4s cubic-bezier(.25,1.4,.5,1) both; filter: drop-shadow(0 0 22px rgba(255,210,63,.9)); margin-bottom: -26px; z-index: 3; }
 @keyframes gpHat { 0% { transform: translateY(-80vh) rotate(-40deg) scale(.6); } 75% { transform: translateY(8px) rotate(6deg) scale(1.05); } 100% { transform: rotate(-5deg); } }
 .chip.gp-chip { --s: 96px; font-size: 34px; animation: chipPop .7s var(--spring) .5s both; }
 .gp-name { font-family: var(--display); font-weight: 700; font-size: 54px; line-height: 1; margin-top: 14px; color: var(--yellow); -webkit-text-stroke: 2px #7A5A00; text-shadow: 0 4px 0 #7A5A00, 0 0 30px rgba(255,210,63,.8); animation: stampIn .7s var(--spring) .8s both; }
-.gp-stats { font-size: 14px; font-weight: 900; color: #E9E2FF; margin-top: 10px; animation: fadeIn .5s ease-out 1.6s both; }
-.gp-slogan { font-family: Georgia, serif; font-style: italic; font-size: 21px; line-height: 1.35; max-width: 340px; margin-top: 14px; color: #FFF4C7; animation: fadeIn .8s ease-out 2.2s both; }
+.gp-stats { font-size: 14px; font-weight: 900; color: #E9E2FF; margin-top: 10px; animation: fadeIn .5s ease-out 1s both; }
+.gp-slogan { font-family: Georgia, serif; font-style: italic; font-size: 21px; line-height: 1.35; max-width: 340px; margin-top: 14px; color: #FFF4C7; animation: fadeIn .6s ease-out 1.35s both; }
 
 /* ── The reveal reel ── */
 .reel-dots { display: flex; gap: 6px; justify-content: center; margin: 2px 0 16px; }
@@ -2428,7 +2433,7 @@ function renderScores() {
 function renderFinal(sorted, animated, goal) {
   const winner = sorted[0], tops = sorted.filter(p => p.score === winner.score), tie = tops.length > 1;
   const g = gamePoobah(), at = ceremonyAt();
-  const showHat = g && (grandShown || !at || Date.now() + clockOffset >= at + 12000);   // no spoilers before the ceremony
+  const showHat = g && (grandShown || !at || Date.now() + clockOffset >= at + POOBAH_SHOW_MS);   // no spoilers before the ceremony
   const fit = (t) => t.length > 12 ? 'font-size:21px;' : t.length > 8 ? 'font-size:25px;' : '';   // long names shrink, never split
   const win = `<div class="fn-card fn-win fade-in"><div class="fn-ic bob">🏆</div><p class="fn-eyebrow">${tie ? 'It’s a tie' : 'Winner'}</p><div class="fn-name" style="${fit(listNames(tops.map(p => p.name)))}">${esc(listNames(tops.map(p => p.name)))}</div><p class="fn-sub">${plural(winner.score, 'point')}</p></div>`;
   const hat = showHat ? `<div class="fn-card fn-hat poobah-panel fade-in"><div class="fn-ic bob">${poobahHat(54)}</div><p class="fn-eyebrow">The Grand Poobah</p><div class="fn-name" style="${fit(listNames(g.ids.map(nameOf)))}">${esc(listNames(g.ids.map(nameOf)))}</div><p class="fn-sub">${plural(g.n, 'vote')}</p></div>` : '';
@@ -2479,12 +2484,13 @@ function poobahHat(w = 120, cls = '') {
       <path d="M74 56 l2.5 5 5 .7 -3.6 3.5 .9 5 -4.8 -2.4 -4.8 2.4 .9 -5 -3.6 -3.5 5 -.7 Z" fill="#FFD23F" stroke-width="2.5"/>
     </g></svg>`;
 }
+// #55: five different jokes (they used to be five ways of saying "points vs. the hat")
 const POOBAH_SLOGANS = [
-  'The winner counted chips. The Grand Poobah made the chips move.',
-  'Points prove you can bet. The hat proves you can write.',
-  'Anyone can win at betting. Only one can wear the hat.',
-  'The scoreboard has its winner. The table has its Poobah.',
-  'Let the winner keep the points. The Poobah keeps the hat.',
+  'The truth was on the table all night. The table chose this instead.',
+  'Lied beautifully. Was believed. Is now wearing a hat.',
+  'History is written by the winners. Fiction, by the Poobah.',
+  'The table was fooled, and would like it noted that it enjoyed it.',
+  'Not the most points. Just the most persuasive.',
 ];
 const ROUND_TAGS = ['The hat has chosen.', 'Bow accordingly.', 'Wear it well — it’s yours until someone writes better.', 'The table believed every word.', 'All hail. Briefly.'];
 const pickBy = (arr, key) => { let h = 0; for (const ch of String(key)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return arr[h % arr.length]; };
@@ -2528,7 +2534,7 @@ function hatsHtml(pid) {
 function poobahPanelHtml() {
   const g = gamePoobah(); if (!g) return '';
   const at = ceremonyAt();
-  if (!grandShown && at && Date.now() + clockOffset < at + 12000) return '';   // no spoilers before the ceremony
+  if (!grandShown && at && Date.now() + clockOffset < at + POOBAH_SHOW_MS) return '';   // no spoilers before the ceremony
   return `<div class="panel poobah-panel center fade-in" style="margin-top:16px;">
     <div class="bob">${poobahHat(64)}</div>
     <p class="eyebrow" style="color:#D7CBFF;">The Grand Poobah</p>
@@ -2570,8 +2576,11 @@ function bigFanfare() {
   seq.forEach(([f, t, d]) => { tone(f, d, t, 'square', 0.045); tone(f, d, t, 'sawtooth', 0.025); tone(f / 2, d, t, 'triangle', 0.06); });
   [523, 659, 784, 1047].forEach(f => tone(f, 2.2, 1900, 'triangle', 0.05));
 }
-const CEREMONY_LEAD_MS = 6000;   // after the awards slides end: the winner gets their moment first
-const AWARD_SLIDE_MS = 4400;     // long enough to read a slide out loud
+// #21: the end of the night was ~a minute of watching. Slides 4.4s → 2.5s, the gap 6s → 2s, the Poobah's build-up 8.3s → 4s.
+const CEREMONY_LEAD_MS = 2000;   // after the awards slides end: the winner gets their moment first
+const AWARD_SLIDE_MS = 2500;     // one slide = one name and one line: enough to read it out loud
+const POOBAH_REVEAL_MS = 4000;   // the Grand Poobah: "And now…", the drumroll (the throne comes in under it), the gong
+const POOBAH_SHOW_MS = POOBAH_REVEAL_MS + 2200;   // reveal + the slogan read: after this the hat is no spoiler
 function ceremonyAt() {
   if (!state.scoresAt) return null;
   return state.scoresAt + 300 + computeAwards().length * AWARD_SLIDE_MS + CEREMONY_LEAD_MS;
@@ -2585,7 +2594,12 @@ function scheduleGrandPoobah() {
   const at = ceremonyAt(), g = gamePoobah(); if (!at || !g) return;
   const wait = at - (Date.now() + clockOffset);
   if (wait < -15000) return;   // arrived long after: the panel on the final screen does the honours
-  ceremonyTimer = setTimeout(() => { if (state && state.phase === 'scores' && state.gameOver) playGrandPoobah(g); }, Math.max(0, wait));
+  ceremonyTimer = setTimeout(() => { if (state && state.phase === 'scores' && state.gameOver && !state.finale) playGrandPoobah(g); }, Math.max(0, wait));   // #21: never over an open Gallery
+}
+// #21: the Gallery waits for the Poobah (no ceremony, or it's over, or this phone already saw it)
+function poobahDone() {
+  const at = ceremonyAt();
+  return grandShown || !gamePoobah() || !at || Date.now() + clockOffset >= at + POOBAH_SHOW_MS;
 }
 function playGrandPoobah(g) {
   const o = $('poobah'), names = listNames(g.ids.map(nameOf)), me = g.ids.includes(myPlayerId);
@@ -2593,8 +2607,7 @@ function playGrandPoobah(g) {
   closeInduction();
   o.className = 'grand on';
   o.innerHTML = `<div class="gp-spot a"></div><div class="gp-spot b"></div><div class="gp-rays"></div>
-    <p class="gp-line" id="gp-l1">And now…</p>
-    <p class="gp-line" id="gp-l2">the award that actually matters.</p>
+    <p class="gp-line" id="gp-l1">And now, the award that actually matters.</p>
     <div class="gp-tease" id="gp-tease">The Grand Poobah is…</div>
     <div class="gp-reveal" id="gp-reveal">
 ${window.ccHeads ? '<div id="gp-face" style="width:260px;height:300px;margin:-20px auto 0;position:relative;z-index:3;"></div>' : `<div class="gp-hat">${poobahHat(150)}</div>
@@ -2609,33 +2622,48 @@ ${window.ccHeads ? '<div id="gp-face" style="width:260px;height:300px;margin:-20
     o.classList.add('revealed'); step('gp-reveal', 'on', 0);
     const r = $('gp-reveal'); if (r) r.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, easing: 'ease-out', fill: 'both' });
     if (window.ccHeads && $('gp-face')) setTimeout(() => ccHeads.poobah($('gp-face'), g.ids), 30);
+    if (window.ccAudio && ccAudio.duck) ccAudio.duck(-6, 4800);   // #47
     gong(); buzz([200, 80, 200]); if (window.ccBeat) window.ccBeat('poobah:reveal');
     o.onclick = (e) => { if (e.target === o) closeGrand(); };
     return;
   }
-  organ(3.4, 0.07); buzz(60);
-  step('gp-l1', 'on', 200); step('gp-l1', 'off', 1700);
-  step('gp-l2', 'on', 1900); step('gp-l2', 'off', 3500);
-  setTimeout(() => { o.classList.add('roll'); step('gp-tease', 'on', 0); bsfx.drumroll(4600); timpaniRoll(4600); }, 3600);
-  [0, 900, 1700, 2400, 3000, 3500, 3900, 4200, 4400].forEach(t => setTimeout(() => buzz(40 + t / 40), 3600 + t));
-  setTimeout(() => {
+  // #21 + #22: the reveal at 4s (it was 8.3s). One line, then the drumroll; the throne is carried in UNDER the
+  // roll so the hat lands on the gong (it used to arrive 3.3s after the gong, on an empty stage).
+  (window._gpT || []).forEach(clearTimeout);
+  const R = POOBAH_REVEAL_MS, ROLL = 1500, gpT = window._gpT = [], t0 = performance.now();
+  const at = (fn, ms) => gpT.push(setTimeout(() => { if (o.classList.contains('grand')) fn(); }, ms));
+  organ(1.8, 0.06); buzz(60);
+  step('gp-l1', 'on', 120); step('gp-l1', 'off', ROLL - 200);
+  at(() => {
+    o.classList.add('roll', 'pre'); step('gp-tease', 'on', 0); bsfx.drumroll(R - ROLL); timpaniRoll(R - ROLL);
+    const rv = $('gp-reveal'), face = $('gp-face');
+    if (window.ccHeads && face && rv) { rv.classList.add('pre'); ccHeads.poobah(face, g.ids, Math.max(600, R - (performance.now() - t0))); }   // lands on the gong even if this timer ran late
+  }, ROLL);
+  [0, 700, 1300, 1800, 2150, 2350].forEach(t => at(() => buzz(40 + t / 30), ROLL + t));
+  at(() => {
     o.classList.remove('roll'); o.classList.add('flash', 'revealed');
     const t = $('gp-tease'); if (t) t.classList.remove('on');
     step('gp-reveal', 'on', 0);
-    if (window.ccHeads && $('gp-face')) setTimeout(() => ccHeads.poobah($('gp-face'), g.ids), 30);
+    if (window.ccHeads && $('gp-face') && !$('gp-face').firstChild) setTimeout(() => ccHeads.poobah($('gp-face'), g.ids), 30);   // (only if the roll was skipped)
+    // #47: the reveal stacks a crash, a gong, a boom and a fanfare — the whole mix dips 6 dB under it (the limiter does the rest)
+    if (window.ccAudio && ccAudio.duck) ccAudio.duck(-6, 4800);
     crash(); gong(); bsfx.boom(); bigFanfare(); buzz([400, 100, 400, 100, 800]); if (window.ccFlash) window.ccFlash(0.95); if (window.ccBeat) window.ccBeat('poobah:reveal');
-    confetti.cannons(); setTimeout(() => confetti.cannons(), 700); setTimeout(() => confetti.cannons(), 1500); confetti.rain(6000);
+    confetti.cannons(); setTimeout(() => confetti.cannons(), 700); setTimeout(() => confetti.cannons(), 1500); confetti.rain(5000);
     setTimeout(() => o.classList.remove('flash'), 500);
-  }, 8300);
-  setTimeout(() => big(() => [1047, 1319, 1568, 2093].forEach((f, i) => tone(f, 0.3, i * 90, 'sine', 0.05))), 10600);
+  }, R);
+  at(() => big(() => [1047, 1319, 1568, 2093].forEach((f, i) => tone(f, 0.3, i * 90, 'sine', 0.05))), R + 2300);
   o.onclick = (e) => { if (o.classList.contains('revealed') && e.target === o) closeGrand(); };
 }
 function closeGrand(tapped) {
+  (window._gpT || []).forEach(clearTimeout); window._gpT = [];
   const o = $('poobah'); o.className = ''; o.innerHTML = ''; grandShown = true;
   if (tapped && state && state.phase === 'scores' && state.gameOver && state.framedTonight && !state.finale && canRun() && window.ccFinale) { openFinale(); return; }
   if (state && state.phase === 'scores') render(true);
 }
-function openFinale() { if (send({ action: 'finale_open' })) { buzz(30); } }
+function openFinale() {
+  if (!poobahDone()) { if (typeof showToast === 'function') showToast('The Grand Poobah first…'); return; }   // #21: the Gallery waits for the hat
+  if (send({ action: 'finale_open' })) { buzz(30); }
+}
 // Caption of the Night: this phone's copy of The Gallery remembers it too (a ribbon on the wall)
 function markBestLocally() {
   const f = state.finale; if (!f || !f.winner || !f.best) return;
@@ -2701,7 +2729,12 @@ function awardsRecapHtml() {
 function playAwards(done) {
   const list = computeAwards(), o = $('awards');
   if (!list.length) { done(); return; }
-  let i = -1, timer = null;
+  // #60: slides keep the server's clock (state.scoresAt, the same instant ceremonyAt() counts from), so every
+  // phone shows the same slide and the Poobah never cuts one short. A late phone joins on the current slide.
+  const start = state.scoresAt ? state.scoresAt + 300 : Date.now() + clockOffset, nowS = () => Date.now() + clockOffset;
+  const behind = Math.floor((nowS() - start) / AWARD_SLIDE_MS);
+  if (behind >= list.length) { done(); return; }
+  let i = Math.max(-1, behind - 1), timer = null;
   const finish = () => { clearTimeout(timer); o.classList.remove('on'); o.innerHTML = ''; o.onclick = null; done(); };
   const next = () => {
     clearTimeout(timer); i++;
@@ -2710,7 +2743,7 @@ function playAwards(done) {
     o.innerHTML = `<div class="aw-card" key="${i}"><p class="eyebrow">Award ${i + 1} of ${list.length}</p>${a.image ? `<img class="aw-img" src="/images/${esc(a.image)}" alt="">` : ''}<div class="aw-ic">${a.icon}</div><div class="h-display aw-title">${esc(a.title)}</div><div class="aw-who">${esc(a.who)}</div>${a.quote ? `<p class="aw-quote">“${esc(a.quote)}”</p>` : ''}<p class="sub">${esc(a.line)}</p>
       <div class="aw-dots">${list.map((_, k) => `<i class="${k === i ? 'f' : ''}"></i>`).join('')}</div></div><button class="btn-link aw-skip" onclick="event.stopPropagation(); window._awFinish()">Skip to the final scores</button>`;
     bsfx.tada(); buzz(30); confetti.burst(innerWidth / 2, innerHeight * 0.35, 50);
-    timer = setTimeout(next, AWARD_SLIDE_MS);
+    timer = setTimeout(next, Math.max(0, start + (i + 1) * AWARD_SLIDE_MS - nowS()));
   };
   window._awFinish = finish;
   o.classList.add('on'); o.onclick = next;
@@ -2754,16 +2787,23 @@ function playScoreboardCount(key) {
   // then the round's winner (most points this round) gets their Big Head gag — same moment on every phone
   const pts = state.roundScores || {}, best = Math.max(0, ...Object.values(pts));
   const winners = best > 0 ? state.players.filter(p => pts[p.id] === best).map(p => p.id) : [];
+  // #23: the full face gag only when it means something — the lead changed hands, a +4 round, or the last round.
+  // Every other round: a ~1s stamp with the winner's face and name. (Same answer on every phone: it's all from state.)
+  const leadersOf = (sc) => { const m = Math.max(0, ...state.players.map(p => sc(p))); return m > 0 ? state.players.filter(p => sc(p) === m).map(p => p.id).sort().join(',') : ''; };
+  const leadChanged = leadersOf(p => p.score) !== leadersOf(p => p.score - (pts[p.id] || 0));
+  const bigGag = leadChanged || best >= 4 || isLastRound();
+  const gagMs = !window.ccHeads ? 0 : bigGag ? (ccHeads.DUR || 5200) : (ccHeads.STAMP_MS || 1100);
   if (winners.length && window.ccHeads && state.winAct !== null && state.winAct !== undefined) {
     const gagAt = total + 500;
-    if (elapsed < gagAt + 2500) seq.timers.push(setTimeout(() => {
+    if (elapsed < gagAt + (bigGag ? 2500 : 600)) seq.timers.push(setTimeout(() => {
       if (!state || state.phase !== 'scores' || state.round + '|' + state.code !== key) return;
       const wait = state.scoresAt + gagAt - (Date.now() + clockOffset);
-      ccHeads.play(state.winAct, winners, Math.max(0, wait), (state.round * 7919) ^ state.code.charCodeAt(0));
+      if (bigGag) ccHeads.play(state.winAct, winners, Math.max(0, wait), (state.round * 7919) ^ state.code.charCodeAt(0));
+      else if (ccHeads.stamp) ccHeads.stamp(winners, Math.max(0, wait));
     }, Math.max(0, gagAt - elapsed - 150)));
   }
   // #9: a round winner with no headshot gets a gentle offer once the gag (with its stand-in head) has played
-  if (winners.length && window.Selfie && Selfie.onRoundWin) Selfie.onRoundWin(winners, (window.ccHeads && state.winAct != null ? total + 500 + (ccHeads.DUR || 5200) + 900 : total + 600) - elapsed);
+  if (winners.length && window.Selfie && Selfie.onRoundWin) Selfie.onRoundWin(winners, (window.ccHeads && state.winAct != null ? total + 500 + gagMs + 900 : total + 600) - elapsed);
 }
 // Slide the rows into the new standings (FLIP), and move the ranks and the leader's highlight with them
 function sortScoreRows() {

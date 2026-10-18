@@ -33,8 +33,9 @@
     '.gal-ov .gal-wall{position:absolute;inset:0;background-color:#4A1A1E;background-image:radial-gradient(ellipse 85% 60% at 50% 42%,rgba(132,52,50,.55) 0%,rgba(74,26,30,0) 62%),radial-gradient(ellipse 120% 90% at 50% 45%,rgba(0,0,0,0) 45%,rgba(12,3,4,.78) 100%);}',
     '.gal-ov .gal-plaster{position:absolute;inset:0;opacity:.55;mix-blend-mode:overlay;background-size:260px 260px;}',
     '.gal-ov .gal-floor{position:absolute;left:0;right:0;bottom:0;height:9%;background:linear-gradient(to bottom,rgba(0,0,0,.0),rgba(0,0,0,.35) 30%,rgba(10,3,3,.7));border-top:1px solid rgba(255,220,170,.06);}',
-    '.gal-ov .gal-beam{position:absolute;left:50%;top:-4%;width:560px;height:78%;margin-left:-280px;pointer-events:none;opacity:0;clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);background:linear-gradient(to bottom,rgba(255,236,196,.42),rgba(255,226,170,.14) 55%,rgba(255,220,160,0));filter:blur(7px);mix-blend-mode:screen;}',
-    '.gal-ov .gal-pool{position:absolute;left:50%;top:9%;width:150vmax;max-width:760px;height:66%;transform:translateX(-50%);pointer-events:none;opacity:0;background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(255,214,150,.30),rgba(255,190,120,.10) 50%,rgba(255,190,120,0) 72%);mix-blend-mode:screen;}',
+    /* #48: the light beam was a 560px layer under a 7px blur; now a soft-edged gradient cone, no filter, sized to the screen */
+    '.gal-ov .gal-beam{position:absolute;left:50%;top:-4%;width:min(560px,130vw);height:78%;transform:translateX(-50%);pointer-events:none;opacity:0;background:radial-gradient(ellipse 34% 100% at 50% 0%,rgba(255,236,196,.42),rgba(255,226,170,.16) 55%,rgba(255,220,160,0) 100%);mix-blend-mode:screen;}',
+    '.gal-ov .gal-pool{position:absolute;left:50%;top:9%;width:min(760px,150vw);height:66%;transform:translateX(-50%);pointer-events:none;opacity:0;background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(255,214,150,.30),rgba(255,190,120,.10) 50%,rgba(255,190,120,0) 72%);mix-blend-mode:screen;}',
     '.gal-ov .gal-lamp{position:absolute;left:50%;top:0;width:86px;height:10px;margin-left:-43px;border-radius:0 0 8px 8px;background:linear-gradient(#3a2a12,#c9a14a 40%,#6d5020);box-shadow:0 2px 12px rgba(255,220,150,.5);opacity:0;}',
     '.gal-ov .gal-stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(14px + env(safe-area-inset-bottom,0px));overflow:hidden;}',
     '.gal-ov .gal-head{text-align:center;min-height:68px;flex:none;margin-top:auto;}',
@@ -704,4 +705,23 @@
   }
 
   window.Gallery = { hang: hang, close: close, miniHtml: miniHtml, archiveHtml: archiveHtml };
+
+  /* #60: fetch the Gallery serif (Libre Caslon Text) early — a moment after the page has loaded, so it never
+     competes with the first screen — instead of at the first framing, where it swapped in mid-ceremony.
+     A stylesheet alone only declares the font; document.fonts.load() is what actually downloads the faces. */
+  function preloadFont() {
+    try {
+      var go = function () { try { if (document.fonts && document.fonts.load) ['italic 400', '400', '700'].forEach(function (f) { document.fonts.load(f + ' 32px "Libre Caslon Text"', 'Aa“”').catch(function () {}); }); } catch (e) {} };
+      var links = document.querySelectorAll('link[rel="stylesheet"]'), have = null;
+      for (var i = 0; i < links.length; i++) if (/Libre\+Caslon\+Text/.test(links[i].href || '')) have = links[i];
+      if (have) { if (have.sheet) go(); else have.addEventListener('load', go); return; }
+      var l = document.createElement('link');
+      l.rel = 'stylesheet'; l.href = FONT_HREF; l.setAttribute('data-gal-font', '1'); l.onload = go;
+      (document.head || document.documentElement).appendChild(l);
+    } catch (e) {}
+  }
+  try {
+    var fontSoon = function () { setTimeout(preloadFont, 1200); };
+    if (document.readyState === 'complete') fontSoon(); else window.addEventListener('load', fontSoon);
+  } catch (e) {}
 })();

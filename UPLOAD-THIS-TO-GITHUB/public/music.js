@@ -42,13 +42,49 @@
       try { var b = c.createBuffer(1, 1, 22050), s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start(0); } catch (e) {}
     }
   }
+  /* #47 One master output for ALL game audio: every sound in the app connects to ctx.destination, so the shared
+     context's destination is swapped (on the context itself) for a master chain:
+       master gain (ducking) → DynamicsCompressor (limiter) → trim (undoes the compressor's automatic make-up
+       gain, so quiet sounds keep their level) → soft clipper (a last guard: never past ±0.98) → speaker.
+     window._gameAudio is wired the moment anything creates it (index.html actx(), voice.js, this file). */
+  function wire(c) {
+    if (!c || c.__ccOut) return c;
+    try {
+      var real = c.destination;
+      var master = c.createGain(); master.gain.value = 1;
+      var comp = c.createDynamicsCompressor();
+      comp.threshold.value = -4; comp.knee.value = 4; comp.ratio.value = 12; comp.attack.value = 0.002; comp.release.value = 0.2;
+      var trim = c.createGain(); trim.gain.value = 0.78;
+      var clip = c.createWaveShaper(), n = 2048, curve = new Float32Array(n);
+      for (var i = 0; i < n; i++) { var x = i / (n - 1) * 2 - 1, ax = Math.abs(x); curve[i] = ax < 0.8 ? x : (x < 0 ? -1 : 1) * (0.8 + 0.18 * Math.tanh((ax - 0.8) / 0.18)); }
+      clip.curve = curve;
+      master.connect(comp); comp.connect(trim); trim.connect(clip); clip.connect(real);
+      Object.defineProperty(c, 'destination', { configurable: true, get: function () { return master; } });
+      c.__ccOut = { master: master, comp: comp, trim: trim, clip: clip, real: real };
+    } catch (e) {}
+    return c;
+  }
+  try {
+    var ga = window._gameAudio || null;
+    Object.defineProperty(window, '_gameAudio', { configurable: true, get: function () { return ga; }, set: function (v) { ga = wire(v); } });
+    if (ga) wire(ga);
+  } catch (e) {}
+  // Dip the whole mix by db for ms (then back over half a second). The Grand Poobah's reveal uses -6 dB.
+  function duck(db, ms) {
+    var c = window._gameAudio; if (!c || !c.__ccOut) return;
+    try {
+      var g = c.__ccOut.master.gain, t = c.currentTime, k = Math.pow(10, (db || -6) / 20), e = t + Math.max(0.05, (ms || 3000) / 1000);
+      g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(k, t + 0.03);
+      g.setValueAtTime(k, e); g.linearRampToValueAtTime(1, e + 0.5);
+    } catch (e2) {}
+  }
   try {
     ['touchend', 'pointerup', 'click', 'keydown'].forEach(function (t) { document.addEventListener(t, unlock, { capture: true, passive: true }); });
     document.addEventListener('visibilitychange', function () { if (!document.hidden) { session(); wake(); } });
     window.addEventListener('pageshow', function () { session(); wake(); });
     window.addEventListener('focus', wake);
   } catch (e) {}
-  window.ccAudio = { ctx: ctx, unlock: unlock, wake: wake, session: session };
+  window.ccAudio = { ctx: ctx, unlock: unlock, wake: wake, session: session, duck: duck, wire: wire };
 })();
 
 (function() {
@@ -57,6 +93,7 @@
   let currentInterval = null;
   let masterGain = null;
   let isPlaying = false;
+  let level = 0.18;   // the music's own volume (setVolume)
 
   function ensureContext() {
     const shared = window.ccAudio ? window.ccAudio.ctx() : null;
@@ -448,7 +485,7 @@
 
     play(trackKey) {
       ensureContext();
-      this.stop();
+      this.hardStop();
       const track = TRACKS[trackKey];
       if (!track) return;
       currentTrack = trackKey;
@@ -456,11 +493,28 @@
       // Fade in
       masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
       masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-      masterGain.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 0.5);
+      masterGain.gain.linearRampToValueAtTime(level, audioCtx.currentTime + 0.5);
       track.start();
     },
 
+    // #60: the picked music keeps going after the reveals. The reveal used to call stop() and the track never
+    // came back. Now only a person stops it (a tap in the menu, or sound off): a stop() from the game itself
+    // (not inside a tap) just dips the music under the moment and brings it back.
     stop() {
+      const ev = window.event, byTap = !!(ev && /^(click|pointer|touch|mouse|key)/.test(ev.type || ''));
+      let soundOn = true; try { soundOn = typeof window.soundEnabled !== 'function' || window.soundEnabled(); } catch (e) {}
+      if (isPlaying && !byTap && soundOn) { this.duck(2600); return; }
+      this.hardStop();
+    },
+
+    duck(ms = 2600) {
+      if (!isPlaying || !masterGain || !audioCtx) return;
+      const g = masterGain.gain, t = audioCtx.currentTime, e = t + ms / 1000;
+      g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(level * 0.12, t + 0.25);
+      g.setValueAtTime(level * 0.12, e); g.linearRampToValueAtTime(level, e + 0.9);
+    },
+
+    hardStop() {
       isPlaying = false;
       if (currentInterval) {
         clearInterval(currentInterval);
@@ -479,9 +533,10 @@
     currentTrack() { return currentTrack; },
 
     setVolume(v) {
+      level = Math.max(0, Math.min(0.4, v));
       if (masterGain && audioCtx) {
         masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
-        masterGain.gain.linearRampToValueAtTime(Math.max(0, Math.min(0.4, v)), audioCtx.currentTime + 0.1);
+        masterGain.gain.linearRampToValueAtTime(level, audioCtx.currentTime + 0.1);
       }
     }
   };
