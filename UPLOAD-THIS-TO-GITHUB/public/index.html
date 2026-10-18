@@ -758,8 +758,7 @@ function renderRulesScoring() {
     <div class="panel flat violet"><b>🌗 Half-Moon</b> — both chips, blind, on one open caption. Right = <b>+${s.pointsOpenBet * 2}</b>.</div>
     <div class="panel flat yellow"><b>🌕 Shoot the Moon</b> — both chips, blind, on the face-down Closed Caption. Right = <b>+${s.pointsClosedBet * 2}</b>. The best feeling in the game.</div>
     <div class="panel flat red"><b>🃏 Dealer's revenge</b> — if not one chip ends up on the real caption, the dealer takes <b>+${s.dealerBonus}</b>.${s.stealEnabled ? ' Steal the only chip on the real one and it’s yours.' : ''}</div>`;
-  const sp = s.pointsStealCorrect ?? 1;
-  $('rules-steal-pts').innerHTML = s.stealEnabled === false ? '(Steal is off this game.)' : sp ? `Steal a chip that was on the <b>real</b> caption and the dealer scores <b>+${sp}</b>. A chip off a fake scores nothing — it just hurts.` : '';
+  $('rules-steal-pts').innerHTML = s.stealEnabled === false ? '(Steal is off this game.)' : `The stolen chip becomes <b>the dealer’s</b>. If it was on the <b>real</b> caption, the dealer scores what it would have paid (<b>+${s.pointsOpenBet}</b> blind, <b>+${s.pointsClosedBet}</b> blind on the Closed Caption, <b>+${s.pointsOpenLate}</b> late) — and the player it was stolen from gets nothing for it. A chip off a fake scores the dealer nothing — it just hurts.`;
   document.querySelectorAll('.dir-word').forEach(e => { e.textContent = s.direction === 'right' ? 'right' : 'left'; });
   document.querySelectorAll('.frame-need').forEach(e => { e.textContent = frameNeedWords(); });
 }
@@ -1308,7 +1307,7 @@ function renderLobby() {
         <div class="field"><label class="eyebrow">Dealer's steal</label><div class="seg">${segBtn(s.stealEnabled, 'setHostSettings({stealEnabled:true})', 'On')}${segBtn(!s.stealEnabled, 'setHostSettings({stealEnabled:false})', 'Off')}</div></div>
         <div class="field"><label class="eyebrow">How often the real caption is the face-down one</label><div class="seg">${[0.1, 0.15, 0.2, 0.3].map(v => segBtn(Math.abs((s.autoCloseProbability ?? 0.15) - v) < 0.001, `setHostSettings({autoCloseProbability:${v}})`, Math.round(v * 100) + '%')).join('')}</div></div>
         <details class="box" id="adv-details"><summary>🎯 Points <span class="arrow">▾</span></summary><div class="body">
-          ${[['pointsOpenBet', 'Blind chip · real caption in the open', [1, 2, 3, 4]], ['pointsClosedBet', 'Blind chip · face-down Closed Caption', [2, 3, 4, 5, 6]], ['pointsOpenLate', 'Late chip (after the reveal)', [0, 1, 2, 3]], ['pointsPerFool', 'Each chip that lands on your caption', [0, 1, 2, 3]], ['dealerBonus', 'Dealer’s revenge', [0, 2, 3, 4, 5, 6]], ['pointsStealCorrect', 'Dealer steals a chip off the real caption', [0, 1, 2, 3]]]
+          ${[['pointsOpenBet', 'Blind chip · real caption in the open', [1, 2, 3, 4]], ['pointsClosedBet', 'Blind chip · face-down Closed Caption', [2, 3, 4, 5, 6]], ['pointsOpenLate', 'Late chip (after the reveal)', [0, 1, 2, 3]], ['pointsPerFool', 'Each chip that lands on your caption', [0, 1, 2, 3]], ['dealerBonus', 'Dealer’s revenge', [0, 2, 3, 4, 5, 6]]]
             .map(([k, label, opts]) => `<div class="field"><label class="small">${label}</label><div class="seg">${opts.map(n => segBtn(s[k] === n, `setHostSettings({${k}:${n}${k === 'pointsOpenLate' ? ',pointsClosedLate:' + n : ''}})`, n)).join('')}</div></div>`).join('')}
           <button class="btn-link" onclick="setHostSettings({pointsOpenBet:2,pointsClosedBet:3,pointsOpenLate:1,pointsClosedLate:1,pointsPerFool:1,dealerBonus:4,pointsStealCorrect:1,autoCloseProbability:0.15,stealEnabled:true,rounds:null,targetScore:null})">Reset to defaults</button>
         </div></details>
@@ -1729,7 +1728,7 @@ function renderSteal() {
     + `<div class="cap closed locked"><span class="num"><span class="cc-badge" style="margin:0;">CC</span></span>${trayHtml('closed', { grab: state.isDealer })}<p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption</p><p class="caption-text">“${esc(state.closedCaption)}”</p></div>`;
   if (state.isDealer) {
     return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
-      <div class="steal-hero"><span class="em">😈</span><h2 class="h2" style="margin-top:6px;">Steal one chip</h2><p class="sub">Tap any chip to knock it off. Pick one off the <b>real</b> caption and you score${state.settings.pointsStealCorrect ? ` +${state.settings.pointsStealCorrect}` : ''} — and if none are left on it, you get the dealer’s revenge too. A chip off a fake scores nothing.</p></div>
+      <div class="steal-hero"><span class="em">😈</span><h2 class="h2" style="margin-top:6px;">Steal one chip</h2><p class="sub">Tap any chip to knock it off. It becomes <b>your</b> chip: if it was on the <b>real</b> caption, you score what it would have paid them — and if none are left on it, you get the dealer’s revenge too. A chip off a fake scores nothing.</p></div>
       <div class="stack" style="margin-top:18px;">${cards}</div>`;
   }
   const canPass = state.canTakeover;

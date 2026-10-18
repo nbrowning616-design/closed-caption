@@ -228,7 +228,7 @@ const DEFAULT_SETTINGS = {
   pointsClosedLate: 1,           // kept equal to pointsOpenLate
   pointsPerFool: 1,              // to the writer, for each chip someone else puts on their caption
   dealerBonus: 4,                // dealer scores this if no chip ends up on the real caption
-  pointsStealCorrect: 1,         // dealer scores this for stealing a chip that was on the real caption
+  pointsStealCorrect: 1,         // (retired: a stolen chip on the real caption now pays the dealer what it would have paid)
   autoCloseProbability: 0.15,    // share of rounds where the real caption is the Closed Caption
   stealEnabled: true,            // dealer may knock one chip off the table before the answer
   family: false,                 // family cartoons only (skips the few grown-up ones)
@@ -770,7 +770,13 @@ function revealAnswer(game) {
 
   const dealer = dealerOf(game);
   // Nick's rule: stealing a chip off the real caption pays the dealer
-  if (dealer && game.steal && game.steal.victimId && game.steal.onCorrect) add(dealer.id, s.pointsStealCorrect, 'Stole a chip off the real caption');
+  // Nick's rule: a stolen chip becomes the dealer's chip. If it sits on the real caption, it pays the dealer
+  // exactly what it would have paid its old owner (blind open, blind Closed Caption, or late); the victim gets nothing for it.
+  if (dealer && game.steal && game.steal.victimId && game.steal.onCorrect) {
+    const st = game.steal, blind = st.stage === 1;
+    const per = blind ? (st.target === 'closed' ? s.pointsClosedBet : s.pointsOpenBet) : s.pointsOpenLate;
+    add(dealer.id, per, blind ? 'Stole a blind chip off the real caption — it’s yours now' : 'Stole a chip off the real caption — it’s yours now');
+  }
   game.dealerBonusAwarded = false;
   if (!anyoneRight && dealer && s.dealerBonus > 0) {
     add(dealer.id, s.dealerBonus, 'Dealer’s revenge — no chip on the real caption');
