@@ -111,6 +111,7 @@ const CARTOONS = [
   { id: 89, title: "Jury of Peers", image: "card_89.jpg", correct: "Whatever happens, don't let them see the crusts.", adult: true },
   { id: 90, title: "Open House", image: "card_90.jpg", correct: "The previous owners are still very much in the area.", adult: true },
   { id: 91, title: "Veni, Vidi", image: "card_91.jpg", correct: "Name for the cup?", adult: true },
+  { id: 92, title: "The Standoff", image: "card_92.jpg", correct: "He wants the good tuna and a plane to Belize.", adult: true },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
