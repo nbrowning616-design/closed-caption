@@ -272,12 +272,15 @@
     var reduced = K.reduced ? K.reduced() : false;
 
     if (reduced) {
+      // Reduce Motion: no thief, no flight. The table; the doomed chip glows; it fades into the dealer's;
+      // the gloat card fades in and holds until the show's end (the server paces the next step anyway).
       [thief, held, prop, line, laser, beam, fxl, spot, shadowL].forEach(function (el) { if (el) el.style.display = 'none'; });
-      T(function () { stage.style.visibility = ''; beat('steal:full'); }, 0);
-      T(function () { beat('steal:snatch'); if (victim) victim.classList.add('st-doomed'); big(CLAIM_SND.stamp); buzz(isVictim ? [120, 40, 200] : 40); }, 1400);
-      T(function () { beat('steal:paint'); paintInPlace(); big(CLAIM_SND[act.claim] || CLAIM_SND.stamp); }, 3000);
-      T(function () { beat('steal:set'); if (victim) victim.classList.remove('st-doomed'); }, 4200);
-      T(function () { beat('steal:gloat'); head.style.opacity = '0'; veil.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, fill: 'forwards' }); gl.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, fill: 'forwards' }); big(K.SND ? K.SND.gloat : function () {}); }, 5000);
+      var fade = function (el, ms) { if (el) el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: ms || 400, fill: 'forwards', easing: 'ease-out' }); };
+      T(function () { stage.style.visibility = ''; beat('steal:full'); if (victim) victim.classList.add('st-doomed'); }, 0);
+      T(function () { beat('steal:snatch'); big(CLAIM_SND.stamp); buzz(isVictim ? [120, 40, 200] : 40); }, 700);
+      T(function () { beat('steal:paint'); paintInPlace(); if (victim) fade(victim.lastElementChild, 500); big(CLAIM_SND[act.claim] || CLAIM_SND.stamp); }, 900);
+      T(function () { beat('steal:set'); if (victim) victim.classList.remove('st-doomed'); }, 1500);
+      T(function () { beat('steal:gloat'); head.style.opacity = '0'; fade(veil, 400); fade(gl, 400); big(K.SND ? K.SND.gloat : function () {}); if (isVictim) buzz([300, 100, 300]); }, 1700);
       return;
     }
 
@@ -300,7 +303,9 @@
     var ringAt = function (at, x, y, scale) {
       anim(ring, [{ opacity: 0.95, transform: 'translate3d(' + x + 'px,' + y + 'px,0) scale(.4)' }, { opacity: 0, transform: 'translate3d(' + x + 'px,' + y + 'px,0) scale(' + (scale || 2) + ')' }], 520, at, 'ease-out', { fill: 'none' });
     };
-    var impact = function (at, strong) { T(function () { if (window.ccImpact) window.ccImpact({ flash: strong ? 0.55 : 0.25, shake: strong ? stage : false }); buzz(isVictim ? [80, 30, 120] : 30); }, at); };
+    // Photosensitivity: the screen flashes once per heist (the snatch). Claim impacts light up the chip instead.
+    var glow = function (at, k) { anim(chipw, [{ filter: 'brightness(' + (k || 1.7) + ') saturate(1.3)' }, { filter: 'none' }], 320, at, 'ease-out', { fill: 'none' }); };
+    var impact = function (at, strong) { glow(at, strong ? 1.9 : 1.5); T(function () { if (window.ccImpact) window.ccImpact({ flash: false, shake: strong ? stage : false }); buzz(isVictim ? [80, 30, 120] : 30); }, at); };
     var clipReveal = function (at, ms, dir) {   // the dealer's colour wipes across the chip
       var from = dir === 'down' ? 'inset(0 0 100% 0)' : dir === 'left' ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)';
       coat.style.opacity = '1';
@@ -482,17 +487,21 @@
           T(function () { puff(C.x, C.y, fx, 8, 90, 900, -20); }, c0 + 1200);
           break;
         }
-        case 'zap': {   // lightning: the chip flickers between owners, then stays the dealer's
-          var zs = [c0 + 250, c0 + 480, c0 + 640, c0 + 880, c0 + 1050];
+        case 'zap': {   // lightning: three bolts, and the chip flickers between owners, then stays the dealer's
+          // Photosensitivity: bolts 400ms apart (never more than 3 a second), and only the chip flickers —
+          // no full-screen flash (UFO, Magnet, Mosquito used to strobe the whole screen 4-6 times a second)
+          var zs = [c0 + 250, c0 + 650, c0 + 1050];
           var pk = [{ t: 0, x: C.x, y: C.y - 70, o: 0, s: 1.4 }];
           zs.forEach(function (z, i) {
             var ox = (i % 2 ? 1 : -1) * (30 + rnd() * 30);
-            pk.push({ t: z - 1, x: C.x + ox, y: C.y - 60, o: 0, s: 1.6 }, { t: z, x: C.x + ox, y: C.y - 50, o: 1, s: 1.9, r: ox > 0 ? 12 : -12 }, { t: z + 110, x: C.x + ox, y: C.y - 50, o: 0, s: 1.9 });
-            T(function () { if (window.ccFlash) window.ccFlash(0.35); puff(C.x, C.y, fx, 4, 80, 450, 0); }, z);
+            pk.push({ t: z - 1, x: C.x + ox, y: C.y - 60, o: 0, s: 1.6 }, { t: z, x: C.x + ox, y: C.y - 50, o: 1, s: 1.9, r: ox > 0 ? 12 : -12 }, { t: z + 160, x: C.x + ox, y: C.y - 50, o: 0, s: 1.9 });
+            T(function () { puff(C.x, C.y, fx, 4, 80, 450, 0); }, z);
+            glow(z, 1.8);
           });
           propAt(pk);
-          anim(coat, [{ opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 0, offset: 0.3 }, { opacity: 1, offset: 0.45 }, { opacity: 0.2, offset: 0.62 }, { opacity: 1, offset: 0.8 }, { opacity: 1 }], 900, c0 + 250, 'steps(1,end)');
-          anim(chipw, [{ transform: 'translate(0,0)' }, { transform: 'translate(-3px,2px)' }, { transform: 'translate(3px,-2px)' }, { transform: 'translate(-2px,-1px)' }, { transform: 'translate(0,0)' }], 110, c0 + 250, 'linear', { iterations: 8, fill: 'none' });
+          // the coat: on with each bolt, half back off between them, on for good with the last
+          anim(coat, [{ opacity: 0 }, { opacity: 1, offset: 0.02 }, { opacity: 1, offset: 0.2 }, { opacity: 0.15, offset: 0.3 }, { opacity: 1, offset: 0.5 }, { opacity: 1, offset: 0.7 }, { opacity: 0.25, offset: 0.8 }, { opacity: 1, offset: 1 }], 800, c0 + 250, 'steps(1,end)');
+          anim(chipw, [{ transform: 'translate(0,0)' }, { transform: 'translate(-3px,2px)' }, { transform: 'translate(3px,-2px)' }, { transform: 'translate(-2px,-1px)' }, { transform: 'translate(0,0)' }], 160, c0 + 250, 'linear', { iterations: 6, fill: 'none' });
           impact(c0 + 1050, true);
           break;
         }
@@ -611,8 +620,7 @@
     T(function () { beat('steal:paint'); }, TM.claim0);
     T(function () {   // back in its spot, now the dealer's
       beat('steal:set');
-      if (victim) { paintInPlace(); victim.style.visibility = ''; }
-      if (window.ccImpact) window.ccImpact({ flash: 0.16, shake: false });
+      if (victim) { paintInPlace(); victim.style.visibility = ''; }   // (no flash here: one per heist)
       big(function () { if (K.SND) K.SND.clack(); });
       buzz(isVictim ? [80, 40, 80] : 25);
     }, TM.set);

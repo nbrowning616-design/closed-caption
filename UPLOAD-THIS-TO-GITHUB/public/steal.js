@@ -196,13 +196,22 @@
     '.chip.painted .ps{position:absolute;right:-6px;top:-6px;width:15px;height:15px;border-radius:50%;background:#FFF8EA;border:1.5px solid ' + INK + ';display:flex;align-items:center;justify-content:center;pointer-events:none;}',
     '.chip.lg.painted .pd{width:24px;height:15px;bottom:-10px;margin-left:-12px;}',
     '.chip.xs.painted .ps,.chip.xs.painted .pd{display:none;}',
+    /* The short show (every later steal, ~2.5s): a spray can slashes the chip in the dealer's colour, the line is tagged under the felt */
+    '.st-q .st-head{margin-bottom:26px;}',
+    '.stq-swipe{position:absolute;left:0;top:0;width:150px;height:30px;margin:-15px 0 0 -75px;z-index:6;pointer-events:none;border-radius:16px 8px 18px 6px;background:var(--dc);box-shadow:0 0 12px 2px var(--dc);opacity:.92;clip-path:inset(0 100% 0 0);-webkit-clip-path:inset(0 100% 0 0);}',
+    '.stq-mist{position:absolute;left:0;top:0;width:190px;height:70px;margin:-35px 0 0 -95px;z-index:6;pointer-events:none;opacity:0;}',
+    '.stq-can{position:absolute;left:0;top:0;width:0;height:0;z-index:7;pointer-events:none;opacity:0;}',
+    '.stq-can .st-cansvg{transform:scale(.6);transform-origin:' + NOZ_X + 'px ' + NOZ_Y + 'px;}',
+    '.stq-tag{position:relative;z-index:8;margin-top:22px;text-align:center;max-width:340px;}',
+    '.stq-who{font-size:13px;font-weight:800;letter-spacing:.04em;color:rgba(255,248,234,.75);opacity:0;}',
+    '.stq-line{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.1;margin-top:6px;color:var(--dc);-webkit-text-stroke:1.5px ' + INK + ';paint-order:stroke fill;text-shadow:3px 3px 0 ' + INK + ';transform:rotate(-3deg);clip-path:inset(-20px 100% -20px -20px);-webkit-clip-path:inset(-20px 100% -20px -20px);}',
     '@media (prefers-reduced-motion: reduce){.st-ledA,.st-halo,.st-bulbs{animation:none;}}'
   ].join('\n');
   try { var s = document.createElement('style'); s.id = 'cc-steal-css'; s.textContent = CSS; (document.head || document.documentElement).appendChild(s); } catch (e) {}
 
   function seeded(seed) { var a = (seed >>> 0) || 1; return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
-  var reduced = function () { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
+  var reduced = function () { if (window.ccReducedMotion) return window.ccReducedMotion(); try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
 
   /* The dealer: id, colour, and a chip in their colour */
   function dealerId() {
@@ -281,7 +290,10 @@
   function play(wait, opt) {
     opt = opt || {};
     var st = state.steal, o = document.getElementById('stealshow');
-    // Every steal is a full show now; act 0 is The Claw, the other 30 heists live in heists.js
+    // The server says which show (st.stealShow): 'full' for the first steal of a game or a steal off the real
+    // caption, 'short' (~2.5s) otherwise. An older server doesn't say: every steal is the full show, as before.
+    if (showKind(st) === 'short') return short(wait);
+    // The full show: act 0 is The Claw, the other 30 heists live in heists.js
     if (st.act && window.ccHeist) return window.ccHeist.play(wait, opt);
     var quick = false, L = opt.fullMs || 7600;
     (window._ssT || []).forEach(clearTimeout); window._ssT = [];
@@ -383,24 +395,19 @@
 
     /* The reduced-motion show: the table; the chip glows, then cross-fades into the dealer's; the gloat card */
     if (reduced()) {
+      // Reduce Motion: no claw, no flight. The doomed chip glows, fades into the dealer's, the gloat card
+      // fades in by 1.7s and holds until the show's end (the server paces the next step anyway). No flash.
       [rig, shadow, dim, beam, can, fog, ripple].forEach(function (el) { el.style.display = 'none'; });
-      T(function () { stage.style.visibility = ''; beat(quick ? 'steal:quick' : 'steal:full'); }, 0);
-      var snR = quick ? 400 : 2990, paR = quick ? 700 : 3700, seR = quick ? 1300 : 4700, glR = quick ? 1650 : 6250;
-      if (!quick) T(function () { beat('steal:hover'); }, 620);
-      T(function () {
-        beat('steal:snatch');
-        if (victim) victim.classList.add('st-doomed');
-        if (window.ccFlash) window.ccFlash(0.5);
-        big(SND.clunk); buzz(isVictim ? [120, 40, 200] : 40);
-      }, snR);
-      T(function () { beat('steal:paint'); paintInPlace(quick ? 450 : 900); big(function () { hiss(quick ? 380 : 800); }); }, paR);
-      T(function () { beat('steal:set'); if (victim) victim.classList.remove('st-doomed'); big(SND.clack); }, seR);
+      T(function () { stage.style.visibility = ''; beat(quick ? 'steal:quick' : 'steal:full'); if (victim) victim.classList.add('st-doomed'); }, 0);
+      T(function () { beat('steal:snatch'); big(SND.clunk); buzz(isVictim ? [120, 40, 200] : 40); }, 700);
+      T(function () { beat('steal:paint'); paintInPlace(500); big(function () { hiss(500); }); }, 900);
+      T(function () { beat('steal:set'); if (victim) victim.classList.remove('st-doomed'); big(SND.clack); }, 1500);
       T(function () {
         beat('steal:gloat'); head.style.opacity = '0';
-        veil.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, fill: 'forwards' });
-        gl.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, fill: 'forwards' });
+        veil.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
+        gl.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
         big(SND.gloat); if (isVictim) buzz([300, 100, 300]);
-      }, glR);
+      }, 1700);
       return;
     }
 
@@ -625,8 +632,7 @@
     T(function () {   // clack: the dealer's chip, back in its spot
       beat('steal:set');
       if (victim) { paintInPlace(0); victim.style.visibility = ''; }
-      held.style.opacity = '0';
-      if (window.ccImpact) window.ccImpact({ flash: 0.16, shake: false });
+      held.style.opacity = '0';   // (no flash here: one full-screen flash per show, at the CLUNK)
       big(SND.clack);
       buzz(isVictim ? [80, 40, 80] : 25);
     }, tm.set);
@@ -638,6 +644,102 @@
     }, tm.gloat);
   }
 
-  window.ccClaw = { play: play };
+  /* ── The short show (~2.5s): every steal after the first, unless it's off the real caption ──
+     The table; the doomed chip; a spray can slashes across it in the dealer's colour (pssht); the chip is
+     theirs; the steal line is tagged under the felt. Same clock on every phone. Reduce Motion: fades only. */
+  var SHORT_MS = 2500;
+  function short(wait) {
+    var st = state.steal, o = document.getElementById('stealshow');
+    (window._ssT || []).forEach(clearTimeout); window._ssT = [];
+    var startAt = performance.now() + Math.max(0, wait);
+    var T = function (fn, ms) { window._ssT.push(setTimeout(function () { try { fn(); } catch (e) { console.error('steal', e); } }, Math.max(0, startAt + ms - performance.now()))); };
+    var close = function () { (window._ssT || []).forEach(clearTimeout); window._ssT = []; o.classList.remove('on', 'out', 'quick'); o.innerHTML = ''; };
+    o.innerHTML = ''; o.classList.remove('out'); o.classList.add('quick', 'on');
+    o.onclick = function () { close(); if (window._answerGo) window._answerGo(); };
+
+    var bets = state.bets || [], targets = (state.openCaptions || []).map(function (_, i) { return i; }).concat(['closed']);
+    var rows = targets.map(function (t) {
+      var chips = [];
+      bets.forEach(function (b, bi) {
+        if (b.target === 'pass' || String(b.target) !== String(t)) return;
+        var n = b.count + (b.stolen || 0);
+        for (var k = 0; k < n; k++) chips.push(chipHtml(b.playerId, 'lg', '', 'data-st="' + (bi === st.betIndex && k === n - 1 ? 'victim' : 'other') + '"'));
+      });
+      if (!chips.length) return '';   // the short show only needs the rows with chips on them
+      return '<div class="st-row"><span class="st-lbl">' + (t === 'closed' ? '<span class="cc-badge">CC</span>' : t + 1) + '</span><div class="st-chips">' + chips.join('') + '</div></div>';
+    }).join('');
+    var me = state.isDealer, dealer = me ? 'You' : esc(state.dealerName), isVictim = st.victimId === myPlayerId;
+    var who = isVictim ? 'That was YOUR chip.' : dealer + ' stole ' + esc(nameOf(st.victimId)) + '’s chip';
+    var dId = dealerId(), rnd = seeded((st.seed || 7) + 7), dots = [];
+    for (var j = 0; j < 22; j++) { var r = (0.8 + rnd() * 1.8).toFixed(1); dots.push('radial-gradient(circle at ' + (4 + rnd() * 92).toFixed(0) + '% ' + (10 + rnd() * 80).toFixed(0) + '%,var(--dc) 0 ' + r + 'px,transparent ' + (+r + 0.6) + 'px)'); }
+    o.innerHTML = '<div class="st-stage st-q" id="st-stage" style="visibility:hidden;--dc:' + colourOf(dId) + '">' +
+      '<div class="st-head" id="st-head"><p class="st-eyebrow">Stolen</p><p class="h2 st-title">' + dealer + (me ? ' strike' : ' strikes') + ' again</p></div>' +
+      '<div class="st-rail"><div class="st-felt">' + rows + '</div></div>' +
+      '<div class="stq-tag"><p class="stq-who" id="stq-who">' + who + '</p><p class="stq-line" id="stq-line">“' + esc(st.gloat || 'Mine now.') + '”</p></div>' +
+      '<div class="stq-mist" id="stq-mist" style="background:' + dots.join(',') + '"></div><div class="stq-swipe" id="stq-swipe"></div>' +
+      '<div class="stq-can" id="stq-can">' + CAN_SVG + '</div>' +
+      '</div>';
+    var $q = function (sel) { return o.querySelector(sel); };
+    var stage = $q('#st-stage'), victim = $q('[data-st="victim"]'), swipe = $q('#stq-swipe'), mist = $q('#stq-mist'), can = $q('#stq-can');
+    var whoEl = $q('#stq-who'), line = $q('#stq-line'), RM = reduced();
+    var lag = Math.max(0, performance.now() - startAt);
+    var anim = function (el, kf, ms, at, easing, extra) {
+      if (!el) return null;
+      var op = { duration: ms, delay: at, easing: easing || 'linear', fill: 'both' };
+      for (var k in extra || {}) op[k] = extra[k];
+      try { var a = el.animate(kf, op); try { if (document.timeline && document.timeline.currentTime != null) a.startTime = startAt; } catch (e) { a.currentTime = lag; } return a; } catch (e) { return null; }
+    };
+    var beat = function (n) { if (window.ccBeat) window.ccBeat(n); };
+    var oc = o.getBoundingClientRect(), vr = victim ? victim.getBoundingClientRect() : null;
+    var V = vr ? { x: vr.left - oc.left + vr.width / 2, y: vr.top - oc.top + vr.height / 2 } : { x: oc.width / 2, y: oc.height / 2 };
+    // the dealer's chip, laid over the victim's (hidden until the paint reaches it)
+    var coat = null;
+    if (victim && dId) { victim.insertAdjacentHTML('beforeend', chipHtml(dId, 'lg st-over painted', DRIP)); coat = victim.lastElementChild; coat.removeAttribute('title'); coat.style.opacity = '0'; }
+    var PAINT = 300, PAINT1 = 560, LINE = 880;
+    if (RM) {
+      [swipe, mist, can].forEach(function (el) { el.style.display = 'none'; });
+      anim(coat, [{ opacity: 0 }, { opacity: 1 }], 400, PAINT, 'ease-out');
+      anim(whoEl, [{ opacity: 0 }, { opacity: 1 }], 300, LINE - 200, 'ease-out');
+      line.style.clipPath = 'none'; line.style.webkitClipPath = 'none';
+      anim(line, [{ opacity: 0 }, { opacity: 1 }], 400, LINE, 'ease-out');
+    } else {
+      // the slash: tilted a touch, wiped on left to right behind the nozzle; then it evaporates
+      var ROT = -17, rad = ROT * Math.PI / 180, dx = Math.cos(rad) * 70, dy = Math.sin(rad) * 70;
+      var place = 'translate3d(' + V.x.toFixed(1) + 'px,' + V.y.toFixed(1) + 'px,0) rotate(' + ROT + 'deg)';
+      swipe.style.transform = place; mist.style.transform = place;
+      anim(swipe, [{ clipPath: 'inset(0 100% 0 0)', WebkitClipPath: 'inset(0 100% 0 0)', opacity: 0.92 }, { clipPath: 'inset(0 0 0 0)', WebkitClipPath: 'inset(0 0 0 0)', opacity: 0.92, offset: 0.4 },
+        { clipPath: 'inset(0 0 0 0)', WebkitClipPath: 'inset(0 0 0 0)', opacity: 0.92, offset: 0.62 }, { clipPath: 'inset(0 0 0 0)', WebkitClipPath: 'inset(0 0 0 0)', opacity: 0 }], 660, PAINT, 'cubic-bezier(.4,0,.6,1)');
+      anim(mist, [{ opacity: 0 }, { opacity: 0.9, offset: 0.3 }, { opacity: 0.6, offset: 0.7 }, { opacity: 0 }], 900, PAINT, 'ease-out');
+      // the can rides the leading edge of the slash (it sprays to its left), then is gone up and right
+      var at0 = { x: V.x - dx - 18, y: V.y - dy + 14 }, at1 = { x: V.x + dx + 22, y: V.y + dy + 10 };
+      var cpos = function (p, r) { return 'translate3d(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px,0) rotate(' + r + 'deg)'; };
+      anim(can, [
+        { opacity: 0, transform: cpos({ x: at0.x - 90, y: at0.y + 70 }, -30), offset: 0 },
+        { opacity: 1, transform: cpos(at0, -8), offset: 150 / 760, easing: 'cubic-bezier(.3,0,.5,1)' },
+        { opacity: 1, transform: cpos(at0, -8), offset: PAINT / 760, easing: 'cubic-bezier(.4,0,.6,1)' },
+        { opacity: 1, transform: cpos(at1, 6), offset: PAINT1 / 760, easing: 'cubic-bezier(.5,0,.9,.5)' },
+        { opacity: 0, transform: cpos({ x: at1.x + 90, y: at1.y - 120 }, 40), offset: 1 }
+      ], 760, 0, 'linear');
+      // the coat follows the paint: wiped on in the same direction, then the chip punches
+      if (coat) anim(coat, [{ opacity: 1, clipPath: 'inset(0 100% 0 0)', WebkitClipPath: 'inset(0 100% 0 0)' }, { opacity: 1, clipPath: 'inset(0 0 0 0)', WebkitClipPath: 'inset(0 0 0 0)' }], PAINT1 - PAINT - 40, PAINT + 40, 'cubic-bezier(.4,0,.6,1)');
+      if (victim) anim(victim, [{ transform: 'scale(1.32) rotate(-6deg)', filter: 'brightness(1.5)' }, { transform: 'scale(.94) rotate(2deg)', filter: 'none', offset: 0.55 }, { transform: 'none', filter: 'none' }], 380, PAINT1, 'cubic-bezier(.2,.9,.3,1.3)', { fill: 'none' });
+      anim(whoEl, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], 260, LINE - 160, 'ease-out');
+      anim(line, [{ clipPath: 'inset(-20px 100% -20px -20px)', WebkitClipPath: 'inset(-20px 100% -20px -20px)' }, { clipPath: 'inset(-20px -20px -20px -20px)', WebkitClipPath: 'inset(-20px -20px -20px -20px)' }], 380, LINE, 'cubic-bezier(.4,0,.5,1)');
+    }
+    T(function () { stage.style.visibility = ''; beat('steal:quick'); if (victim) victim.classList.add('st-doomed'); buzz(isVictim ? [60, 30, 60] : 25); }, 0);
+    T(function () { beat('steal:paint'); big(function () { hiss(RM ? 380 : PAINT1 - PAINT + 60); }); }, PAINT);
+    T(function () { beat('steal:set'); if (victim) victim.classList.remove('st-doomed'); big(SND.clack); buzz(isVictim ? [140, 50, 220] : 35); }, PAINT1);
+    T(function () { beat('steal:gloat'); big(SND.gloat); if (isVictim) buzz([200, 80, 300]); }, LINE);
+    T(function () { o.classList.add('out'); }, SHORT_MS - 350);
+    T(close, SHORT_MS);
+    return Math.max(0, wait) + SHORT_MS;
+  }
+  // How long this steal's show runs (index.html paces the reel after it). No stealShow (older server): the full show.
+  function lengthFor(st, fullMs) { return showKind(st) === 'short' ? SHORT_MS : (fullMs || 7600); }
+  // 'full' | 'short' | null (null: an older server; play the full show). On the steal itself, or beside it in the state.
+  function showKind(st) { var k = (st && st.stealShow) || (typeof state !== 'undefined' && state && state.stealShow) || null; return k === 'short' || k === 'full' ? k : null; }
+
+  window.ccClaw = { play: play, lengthFor: lengthFor, SHORT_MS: SHORT_MS };
+
   window.ccStealKit = { seeded: seeded, hiss: hiss, SND: SND, dealerId: dealerId, colourOf: colourOf, reduced: reduced, DRIP: DRIP };
 })();

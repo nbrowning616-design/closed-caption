@@ -231,7 +231,7 @@
       var tile = c.add('<div style="position:absolute;left:0;top:0;width:' + (tw + 1).toFixed(0) + 'px;height:' + th + 'px;background:#333;border:3px solid ' + INK + ';box-sizing:border-box"></div>', 2);
       at(tile, (q * tw).toFixed(0), fy + r * th);
       var kf = []; for (var k = 0; k < 4; k++) kf.push({ backgroundColor: pal[(r + q * 2 + k) % pal.length], offset: k / 4, easing: 'steps(1,end)' }); kf.push({ backgroundColor: pal[(r + q * 2) % pal.length], offset: 1 });
-      c.anim(tile.firstElementChild, kf, { dur: 960, iterations: 3.45 });
+      c.anim(tile.firstElementChild, kf, { dur: 1600, iterations: 3.3 });   // 400ms a colour: under 3 changes a second
     }
     // light beams + mirror ball
     var beams = ''; for (var b = 0; b < 8; b++) { var a = b / 8 * Math.PI * 2; beams += '<path d="M0 0 L' + (Math.cos(a - 0.1) * 700).toFixed(0) + ' ' + (Math.sin(a - 0.1) * 700).toFixed(0) + ' L' + (Math.cos(a + 0.1) * 700).toFixed(0) + ' ' + (Math.sin(a + 0.1) * 700).toFixed(0) + ' Z" fill="' + pal[b % 5] + '" opacity=".22"/>'; }

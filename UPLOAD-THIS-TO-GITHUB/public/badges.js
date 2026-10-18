@@ -436,7 +436,7 @@
     try { if (typeof window.buzz === 'function') { window.buzz(p); return; } } catch (e) {}
     try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {}
   }
-  function reduced() { try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; } }
+  function reduced() { if (window.ccReducedMotion) return window.ccReducedMotion(); try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; } }
 
   function sndStamp(at, heavy) {
     N(0.09, at, heavy ? 0.34 : 0.24, 700, 'lowpass');
