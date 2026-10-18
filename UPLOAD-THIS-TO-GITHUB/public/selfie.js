@@ -18,7 +18,7 @@
     '.sf-msg.no{color:var(--red);}',
     '.sf-msg.ok{color:var(--teal);}',
     '.sf-mini{width:30px;height:32px;border-radius:50% 50% 47% 47%;border:2px solid var(--ink);background:center/cover no-repeat;flex-shrink:0;}',
-    '.sf-add{display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:5px 10px;border-radius:999px;border:2px solid var(--ink);background:var(--yellow);font-weight:900;font-size:13px;color:var(--ink);box-shadow:0 2px 0 var(--ink);}',
+    '.sf-add{display:inline-flex;align-items:center;gap:5px;margin-top:3px;padding:3px 9px;border-radius:999px;border:2px solid var(--ink);background:var(--yellow);font-weight:900;font-size:12px;color:var(--ink);box-shadow:0 2px 0 var(--ink);white-space:nowrap;}',
   ].join('\n');
   try { var s = document.createElement('style'); s.textContent = CSS; document.head.appendChild(s); } catch (e) {}
 
@@ -139,6 +139,6 @@
     },
     // the lobby: a little face next to each player who has one, and the button for you
     mini: function (pid) { var u = url(pid); return u ? '<span class="sf-mini" style="background-image:url(' + u + ')"></span>' : ''; },
-    button: function () { return '<button class="sf-add" onclick="Selfie.open()">📸 ' + (mine() ? 'Retake headshot' : 'Add your headshot') + '</button>'; },
+    button: function () { return '<button class="sf-add" onclick="Selfie.open()">📸 ' + (mine() ? 'Retake' : 'Add your headshot') + '</button>'; },
   };
 })();

@@ -26,6 +26,7 @@
 <script src="/heads-pack1.js?v=__V__"></script>
 <script src="/heads-pack2.js?v=__V__"></script>
 <script src="/selfie.js?v=__V__"></script>
+<script src="/voice.js?v=__V__"></script>
 <script src="/howto.js?v=__V__"></script>
 <script src="/qrcode.js?v=__V__"></script>
 <script src="/home.js?v=__V__"></script>
@@ -721,7 +722,7 @@ function playerById(id) { return state ? state.players.find(p => p.id === id) : 
 function nameOf(id) { const p = playerById(id); return p ? p.name : '?'; }
 function chipHtml(pid, cls = '', extra = '', attrs = '') {
   const p = playerById(pid);
-  return `<span class="chip ${cls}" style="--c:${playerColor(getPlayerIndex(pid))}" title="${esc(p ? p.name : '')}" ${attrs}>${esc(initials(p ? p.name : '?'))}${extra}</span>`;
+  return `<span class="chip ${cls}" style="--c:${playerColor(getPlayerIndex(pid))}" title="${esc(p ? p.name : '')}" data-voice-pid="${esc(pid)}" ${attrs}>${esc(initials(p ? p.name : '?'))}${extra}</span>`;
 }
 const plural = (n, one, many) => `${n} ${n === 1 ? one : (many || one + 's')}`;
 
@@ -995,9 +996,11 @@ function connect() {
   };
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
+    if (msg.type === 'rtc') { if (window.Voice) Voice.onSignal(msg); return; }
     if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); if (window.Selfie) Selfie.sync(); }, 300); }
     else if (msg.type === 'state') {
       state = msg.data;
+      if (window.Voice) Voice.onState(state);
       if (state.serverNow) clockOffset = window.ccClock ? window.ccClock(state.serverNow - Date.now()) : state.serverNow - Date.now();
       if (Array.isArray(state.gazette)) lastGazette = state.gazette;   // only sent between rounds: keep the last one
       if (state.build && BUILD !== '__BUILD__' && state.build !== BUILD && !window._reloading) { window._reloading = true; saveSession(); saveDraftNow(); setTimeout(() => location.reload(), 300); return; }
@@ -1044,6 +1047,7 @@ function leaveGame() {
   closeMenu();
   const mid = state && state.phase !== 'lobby';
   if (!confirm(mid ? 'Leave this game? Your seat and score are kept if you rejoin with the same name.' : 'Leave this game?')) return;
+  if (window.Voice) Voice.leave();
   send({ action: 'leave' });
   clearSession(); myPlayerId = null; gameCode = null; state = null; lastPhase = null; showScreen('screen-home');
 }
@@ -1257,7 +1261,7 @@ function setActionBar(html) {
 function roundLabel() { return `Round ${state.round}${state.totalRounds ? ' of ' + state.totalRounds : ''}`; }
 function header({ sticker, sub = '', ring = false, thumb = true }) {
   const t = thumb && state.cartoon ? `<div class="thumb" onclick="openViewer()" role="button" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"></div>` : '';
-  return `<div class="hdr">${ring ? ringHtml() : t}<div class="mid"><div class="hdr-top">${sticker}<button class="code-pill" onclick="openInvite()" aria-label="Room code ${esc(state.code)} — show the invite">${esc(state.code)}</button></div><span class="small">${sub || roundLabel()}</span></div><button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>`;
+  return `<div class="hdr">${ring ? ringHtml() : t}<div class="mid"><div class="hdr-top">${sticker}<button class="code-pill" onclick="openInvite()" aria-label="Room code ${esc(state.code)} — show the invite">${esc(state.code)}</button></div><span class="small">${sub || roundLabel()}</span></div>${window.Voice ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>`;
 }
 function bigToon(compact = false, mull = false) {
   return state.cartoon ? `<div class="toon-big ${compact ? 'compact' : ''}" onclick="openViewer()" role="button" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"><span class="zoom">🔍 Tap to zoom</span>${mull ? mullPillHtml() : ''}</div>` : '';
@@ -1332,7 +1336,7 @@ function renderLobby() {
       </div>
     </details>` : '';
   return `
-    <div class="hdr"><div class="mid"><span class="sticker">Lobby</span><span class="small">${plural(connected, 'player')} here</span></div><button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
+    <div class="hdr"><div class="mid"><span class="sticker">Lobby</span><span class="small">${plural(connected, 'player')} here</span></div>${window.Voice ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
     <div class="panel yellow center" style="margin-bottom:16px; transform: rotate(-1deg);">
       <p class="eyebrow" style="color:var(--ink-2);">Room code</p>
       <div class="h-display" style="font-size:56px; letter-spacing:8px; padding-left:8px; margin:2px 0 6px;">${esc(state.code)}</div>
@@ -2734,7 +2738,7 @@ function renderHistory(idx) {
   const st = r.steal && r.steal.victimId ? `<p class="center small" style="margin-bottom:12px; color:var(--red);">😈 ${esc(r.dealerName)} stole ${esc(nameOf(r.steal.victimId))}’s chip</p>` : '';
   const img = r.cartoon ? '/images/' + r.cartoon.image : '';
   $('game-content').innerHTML = `
-    <div class="hdr">${img ? `<div class="thumb" onclick="openViewer('${esc(img)}')"><img src="${esc(img)}" alt="cartoon"></div>` : ''}<div class="mid"><span class="sticker white">Round ${r.round} of ${h.length}</span><span class="small">Dealer: ${esc(r.dealerName)}${r.closedIsCorrect ? ' · the real one was face-down' : ''}</span></div><button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
+    <div class="hdr">${img ? `<div class="thumb" onclick="openViewer('${esc(img)}')"><img src="${esc(img)}" alt="cartoon"></div>` : ''}<div class="mid"><span class="sticker white">Round ${r.round} of ${h.length}</span><span class="small">Dealer: ${esc(r.dealerName)}${r.closedIsCorrect ? ' · the real one was face-down' : ''}</span></div>${window.Voice ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
     ${st}<div class="stack" style="margin:16px 0;">${cards}</div>
     ${pts ? `<p class="eyebrow" style="margin-bottom:8px;">Points</p>${pts}` : '<p class="center sub">No points that round.</p>'}
     ${r.dealerBonusAwarded ? '<p class="center small" style="color:var(--red); margin-top:6px;">🃏 Dealer’s revenge — nobody found it</p>' : ''}
