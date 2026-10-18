@@ -107,3 +107,7 @@ Six reviewers, each on one area: rules and server, phone screens, animations and
 - DEPLOY RULE: never push to main while anyone is playing. Use ./safe_push.sh (waits for /status phones = 0 twice, 60 s apart). Nick said: auto-check and update in real time, no need to ask.
 - Still open: Pass 1 #2 #3 #4 #6 #7 (server worker branch, not merged yet); Pass 2 in progress (screens, animations, load/icons); Pass 3 after.
 - Rejected cartoon: the superhero garage sale (real Marvel/DC logos) — redo prompt with invented gear was given to Nick.
+
+## BRAND (Nick, Oct 18 2026) — every word, sound and moment must fit this
+Sneaky clever, never trying too hard. For people who like a little intellectual challenge, a little creativity or humor, and friendly competition; banter and teasing expected. Tongue in cheek but never on the nose, cheap or sloppy; never so eager it gets annoying. Think The Office: the joke is slipped in, never announced. The model for everything is the perfect caption — short, specific, dry, trusts the reader. Not for everyone, and that's good.
+Working rules: no winking (no LOL, exclamation-mark pileups, emoji doing the joke's job); understatement over volume; big moments (steal, Poobah, the presses) earn their size, everything else stays quiet; the phone is the straight man — the people at the table are the comedy.
