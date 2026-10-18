@@ -125,6 +125,7 @@ const CARTOONS = [
   { id: 103, title: "On Duty", image: "card_103.jpg", correct: "He's very good with the whistle." },
   { id: 104, title: "Night School", image: "card_104.jpg", correct: "Who can tell me what a mouse is worth?" },
   { id: 105, title: "Bake Sale", image: "card_105.jpg", correct: "Her brother did the cupcakes. He's eight." },
+  { id: 106, title: "Lost & Found", image: "card_106.jpg", correct: "Funny. The skunk swore it was his." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
