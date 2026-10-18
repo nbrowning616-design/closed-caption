@@ -109,6 +109,7 @@ const CARTOONS = [
   { id: 87, title: "Night Shift", image: "card_87.jpg", correct: "Forty years and not one of them has ever asked how I'm doing." },
   { id: 88, title: "Photo Finish", image: "card_88.jpg", correct: "Same three as last year." },
   { id: 89, title: "Jury of Peers", image: "card_89.jpg", correct: "Whatever happens, don't let them see the crusts.", adult: true },
+  { id: 90, title: "Open House", image: "card_90.jpg", correct: "The previous owners are still very much in the area.", adult: true },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
