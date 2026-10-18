@@ -131,6 +131,7 @@ const CARTOONS = [
   { id: 109, title: "Off Season", image: "card_109.jpg", correct: "He tried \"boo\" and she said \"no thanks.\"" },
   { id: 110, title: "Last Stop", image: "card_110.jpg", correct: "They don't want the ice cream. They want to sit in the freezer." },
   { id: 111, title: "Quiet Please", image: "card_111.jpg", correct: "Six o'clock. Somebody hide his watch." },
+  { id: 112, title: "Deluxe", image: "card_112.jpg", correct: "He comes in every Tuesday. He's never once paid." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
