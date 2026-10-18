@@ -30,7 +30,6 @@
     '.fx-card{position:absolute;left:0;top:0;box-sizing:border-box;border:4px solid ' + INK + ';border-radius:10px;background:#fff;padding:5px;box-shadow:7px 7px 0 ' + INK + ';will-change:transform;}',
     '.fx-card img,.fx-card svg.fx-scribble{display:block;width:100%;aspect-ratio:0.64;object-fit:contain;background:#fff;border-radius:4px;-webkit-user-drag:none;user-select:none;}',
     '.fx-emoji{position:absolute;left:0;top:0;line-height:1;font-family:' + EMOJI + ';white-space:nowrap;will-change:transform;}',
-    '.fx-burn{position:absolute;inset:0;border-radius:6px;background-image:linear-gradient(to top,' + INK + ' 0%,#2b2019 38%,#7a2a10 42%,' + RED + ' 44.5%,' + YELLOW + ' 46.5%,rgba(255,210,63,0) 50%,rgba(255,255,255,0) 100%);background-size:100% 300%;background-position:0 0%;}',
     '.fx-pow{position:absolute;left:0;top:0;will-change:transform;}',
     '.fx-pow text{font-family:' + DISPLAY + ';font-weight:700;}',
     '.fx-dot{position:absolute;left:0;top:0;border-radius:50%;}',
@@ -130,6 +129,16 @@
       o.start(t0); lfo.start(t0); o.stop(t0 + dur + 0.05); lfo.stop(t0 + dur + 0.05);
     } catch (e) {}
   }
+
+  /* ── #45 a flame in the house ink: red-orange tongue, orange, yellow core, 3.5px ink outline.
+     Same on every phone (emoji flames differ by brand). Base at bottom-centre; flip mirrors it. ── */
+  function inkFlame(w, flip) {
+    return '<svg viewBox="0 0 60 80" width="' + Math.round(w) + '" height="' + Math.round(w * 4 / 3) + '" aria-hidden="true" style="display:block;overflow:visible' + (flip ? ';transform:scaleX(-1)' : '') + '">' +
+      '<path d="M30 77 C13 77 5 65 7 51 C9 40 16 34 18 22 C23 29 24 35 27 37 C27 23 33 11 41 3 C41 17 51 27 53 43 C55 59 48 77 30 77 Z" fill="' + RED + '" stroke="' + INK + '" stroke-width="3.5" stroke-linejoin="round"/>' +
+      '<path d="M30 73 C19 73 15 64 17 55 C19 48 24 45 26 38 C29 45 31 47 34 41 C40 49 44 56 42 64 C40 70 36 73 30 73 Z" fill="#FF8A1F"/>' +
+      '<path d="M30 71 C24 71 22 66 23 61 C24 56 28 54 30 48 C33 54 37 57 37 62 C37 67 34 71 30 71 Z" fill="' + YELLOW + '"/></svg>';
+  }
+  window.ccInk = { flame: inkFlame };
 
   /* ── the cartoon card ── */
   var SCRIBBLE = '<svg class="fx-scribble" viewBox="0 0 160 250" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="250" fill="#fff"/>' +
@@ -288,74 +297,78 @@
     return 1550;
   }
 
-  /* ════════════════ 3. FIRE ════════════════ */
+  /* ════════════════ 3. FIRE ════════════════
+     #46: the cartoon used to char into a black rectangle. Now the fire EATS it from the bottom up: a ragged
+     edge climbs the card (clip-path) with a glowing ember strip riding the same keyframes, ink-style flames
+     ride the edge, and what's left of the paper only toasts — it never goes dark. */
   function fire(src, L) {
     var root = L.root, W = L.W, H = L.H, x = L.x, y = L.y;
     var card = makeCard(root, src, W, x, y, 'transform-origin:50% 100%;');
-    var burn = el('div', 'fx-burn', card);
-    var IGN = 250, CHAR_END = 1350, CRUMBLE = 1380;
-    anim(burn, [{ backgroundPosition: '0 0%' }, { backgroundPosition: '0 100%' }], { duration: CHAR_END - IGN, delay: IGN, easing: 'cubic-bezier(.4,0,.7,1)' });
-    anim(card, [
-      { filter: 'none', borderColor: INK },
-      { filter: 'sepia(.7) saturate(1.4) brightness(.95)', offset: 0.35 },
-      { filter: 'sepia(1) brightness(.45) contrast(1.4)', offset: 0.75 },
-      { filter: 'sepia(1) brightness(.15) contrast(1.6)' }
-    ], { duration: CHAR_END - IGN, delay: IGN });
-    // curl + shrink while burning, then crumble to a heap
+    var IGN = 250, CHAR_END = 1350, CRUMBLE = 1380, EASE = 'cubic-bezier(.4,0,.7,1)';
+    // the burn front, as a fraction of the card's height from its top: just below the card -> above it
+    var E = [1.0, 0.78, 0.54, 0.28, 0.03, -0.1], NP = 9, R = W + 9;   // R: keeps the card's hard shadow on the right
+    var jag = function (k, i) { return ((i + k) % 2 ? 7 : -6) + ((i * 7 + k * 3) % 5) - 2; };
+    var clipAt = function (k) {
+      var ey = E[k] * H, pts = ['0px 0px', R + 'px 0px'];
+      for (var i = 0; i < NP; i++) pts.push((R - i * R / (NP - 1)).toFixed(1) + 'px ' + Math.max(0, ey + jag(k, i)).toFixed(1) + 'px');
+      return 'polygon(' + pts.join(',') + ')';
+    };
+    card.style.clipPath = card.style.webkitClipPath = clipAt(0);
+    anim(card, E.map(function (_, k) { var c = clipAt(k); return { clipPath: c, WebkitClipPath: c }; }), { duration: CHAR_END - IGN, delay: IGN, easing: EASE });
+    // the ember strip: a glow on the paper just above the edge, then red, then a thin char line AT the edge
+    var strip = el('div', 'fx-abs', card, 'left:-4px;width:' + W + 'px;height:30px;pointer-events:none;transform:translateY(' + (E[0] * H) + 'px);' +
+      'background:linear-gradient(to bottom,rgba(255,210,63,0) 0%,rgba(255,210,63,.55) 34%,rgba(255,138,31,.9) 58%,' + RED + ' 76%,#5a2410 90%,' + INK + ' 100%);');
+    anim(strip, E.map(function (e) { return { transform: 'translateY(' + (e * H - 30).toFixed(1) + 'px)' }; }), { duration: CHAR_END - IGN, delay: IGN, easing: EASE });
+    // the paper toasts a little as the fire climbs — warm, never dark
+    anim(card, [{ filter: 'none' }, { filter: 'sepia(.25) saturate(1.15)', offset: 0.5 }, { filter: 'sepia(.45) saturate(1.25)' }], { duration: CHAR_END - IGN, delay: IGN });
     anim(card, [
       { transform: 'none' },
-      { transform: 'scale(.97) rotate(-1.5deg) skewX(2deg)', offset: 0.35 },
-      { transform: 'scale(.9,.94) rotate(2deg) skewX(-3deg)', offset: 0.7 },
-      { transform: 'scale(.82,.86) rotate(-2deg) skewX(4deg)' }
-    ], { duration: CRUMBLE - 500, delay: 500, composite: 'replace' });
+      { transform: 'rotate(-1.2deg) skewX(1.5deg)', offset: 0.4 },
+      { transform: 'rotate(1.5deg) skewX(-2deg)', offset: 0.75 },
+      { transform: 'rotate(-1deg) skewX(2deg)' }
+    ], { duration: CRUMBLE - 400, delay: 400 });
+    // ash flakes peel off the edge as it climbs
+    for (var a = 0; a < 16; a++) (function (k) {
+      var t = IGN + 80 + k * ((CHAR_END - IGN) / 16), u = (t - IGN) / (CHAR_END - IGN), ey = y + (1.04 - 1.16 * u) * H;
+      later(t, function () {
+        var sz = rnd(4, 9), d = el('div', 'fx-dot', root, 'width:' + sz + 'px;height:' + sz + 'px;background:' + pick([INK, '#3b322c', '#7a2a10', '#FF8A1F']) + ';' + at(x + rnd(0.05, 0.95) * W, ey) + 'z-index:5;');
+        anim(d, [{ transform: 'translate(0,0)', opacity: 1 }, { transform: 'translate(' + rnd(-40, 40) + 'px,' + -rnd(120, 260) + 'px) rotate(160deg)', opacity: 0 }], { duration: rnd(900, 1400), easing: 'ease-out' });
+      });
+    })(a);
+    later(CHAR_END, function () { card.style.visibility = 'hidden'; });   // all eaten: nothing left to draw
     later(CRUMBLE, function () {
-      anim(card, [
-        { transform: 'scale(.82,.86) rotate(-2deg) skewX(4deg)', opacity: 1 },
-        { transform: 'scale(.7,.35) rotate(0deg) skewX(10deg)', opacity: 1, offset: 0.4 },
-        { transform: 'scale(.5,.04)', opacity: 0 }
-      ], { duration: 420, easing: 'ease-in' });
-      // ash + smoke
-      for (var a = 0; a < 26; a++) {
-        var sz = rnd(5, 13), ax = x + rnd(0.05, 0.95) * W, ay = y + rnd(0.35, 1) * H;
-        var d = el('div', 'fx-dot', root, 'width:' + sz + 'px;height:' + sz + 'px;background:' + pick([INK, '#3b322c', '#5a4f47', '#7a2a10']) + ';' + at(ax, ay));
-        var dy = -rnd(200, 420), dx = rnd(-60, 60);
-        anim(d, [{ transform: 'translate(0,0)', opacity: 1 }, { transform: 'translate(' + (dx * 0.5 + rnd(-20, 20)) + 'px,' + dy * 0.5 + 'px)', opacity: 0.9, offset: 0.5 }, { transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(180deg)', opacity: 0 }], { duration: rnd(1200, 1900), easing: 'ease-out' });
-      }
-      for (var m = 0; m < 9; m++) {
-        var ss = rnd(70, 120), sx = x + W / 2 - ss / 2 + rnd(-W * 0.4, W * 0.4), sy = y + H * rnd(0.55, 0.95) - ss / 2;
-        var sm = el('div', 'fx-dot', root, 'width:' + ss + 'px;height:' + ss + 'px;background:radial-gradient(circle, rgba(70,62,56,.7) 0%, rgba(70,62,56,.45) 50%, rgba(70,62,56,0) 72%);' + at(sx, sy));
-        anim(sm, [{ transform: 'translate(0,0) scale(.3)', opacity: 0.9 }, { transform: 'translate(' + rnd(-50, 50) + 'px,' + -rnd(220, 380) + 'px) scale(1.7)', opacity: 0 }], { duration: rnd(1300, 1900), delay: m * 40, easing: 'ease-out' });
+      // the last scrap goes up in smoke
+      for (var m = 0; m < 7; m++) {
+        var ss = rnd(60, 100), sx = x + W / 2 - ss / 2 + rnd(-W * 0.35, W * 0.35), sy = y + H * rnd(-0.05, 0.25) - ss / 2;
+        var sm = el('div', 'fx-dot', root, 'width:' + ss + 'px;height:' + ss + 'px;background:radial-gradient(circle, rgba(70,62,56,.55) 0%, rgba(70,62,56,.3) 50%, rgba(70,62,56,0) 72%);' + at(sx, sy));
+        anim(sm, [{ transform: 'translate(0,0) scale(.3)', opacity: 0.85 }, { transform: 'translate(' + rnd(-50, 50) + 'px,' + -rnd(160, 300) + 'px) scale(1.6)', opacity: 0 }], { duration: rnd(1100, 1600), delay: m * 40, easing: 'ease-out' });
       }
     });
-    // flames: a base row that stays + a rising row that follows the burn front
-    function flameRow(count, top, rise, sizeA, sizeB, z) {
-      var row = el('div', 'fx-abs', root, at(x - 24, top) + 'width:' + (W + 48) + 'px;height:1px;z-index:' + z + ';');
+    // #45 flames in the house ink (not emoji): one row rides the burn front, one burns at the bottom
+    function flameRow(count, rideEdge, sizeA, sizeB, z) {
+      var row = el('div', 'fx-abs', root, at(x - 18, rideEdge ? y : y + H + 10) + 'width:' + (W + 36) + 'px;height:1px;z-index:' + z + ';' + (rideEdge ? 'transform:translateY(' + (E[0] * H + 6) + 'px);' : ''));
       for (var f = 0; f < count; f++) {
         var fs = Math.round(rnd(sizeA, sizeB));
-        var fx = (f + 0.5) / count * (W + 48) - fs / 2 + rnd(-8, 8);
-        var fl = el('div', 'fx-emoji', row, 'font-size:' + fs + 'px;' + at(fx, -fs * 0.9) + 'transform-origin:50% 100%;opacity:0;');
-        fl.textContent = '🔥';
-        var dl = IGN + rnd(0, 260);
-        anim(fl, [{ opacity: 0, transform: 'scale(.2)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 220, delay: dl, easing: 'ease-out' });
-        var inner = fl.animate ? fl : null;
-        if (inner) {
-          try {
-            fl.animate([
-              { transform: 'scale(1,1) translateX(0)' },
-              { transform: 'scale(.92,1.22) translateX(' + rnd(-3, 3) + 'px)' },
-              { transform: 'scale(1.05,.95) translateX(0)' }
-            ], { duration: rnd(160, 260), iterations: Infinity, direction: 'alternate', delay: dl + 220, composite: 'add' });
-          } catch (e) {}
-        }
+        var fx = (f + 0.5) / count * (W + 36) - fs / 2 + rnd(-6, 6);
+        var fl = el('div', 'fx-abs', row, 'width:' + fs + 'px;' + at(fx, -fs * 1.25) + 'transform-origin:50% 100%;opacity:0;', inkFlame(fs, f % 2));
+        var dl = IGN + rnd(0, 220);
+        anim(fl, [{ opacity: 0, transform: 'scale(.2)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 200, delay: dl, easing: 'ease-out' });
+        try {
+          fl.animate([
+            { transform: 'scale(1,1) translateX(0)' },
+            { transform: 'scale(.9,1.2) translateX(' + rnd(-3, 3) + 'px)' },
+            { transform: 'scale(1.05,.94) translateX(0)' }
+          ], { duration: rnd(170, 260), iterations: 12, direction: 'alternate', delay: dl + 200, composite: 'add' });
+        } catch (e) {}
       }
-      later(CRUMBLE, function () { anim(row, [{ opacity: 1 }, { opacity: 0 }], { duration: 450, delay: z === 3 ? 0 : 200, composite: 'replace' }); });
-      if (rise) anim(row, [{ transform: 'translateY(0)' }, { transform: 'translateY(' + rise + 'px)' }], { duration: CHAR_END - IGN, delay: IGN, easing: 'cubic-bezier(.4,0,.7,1)' });
+      later(rideEdge ? CHAR_END - 60 : CRUMBLE - 250, function () { anim(row, [{ opacity: 1 }, { opacity: 0 }], { duration: 380 }); });
+      if (rideEdge) anim(row, E.map(function (e) { return { transform: 'translateY(' + (e * H + 6).toFixed(1) + 'px)' }; }), { duration: CHAR_END - IGN, delay: IGN, easing: EASE });
       return row;
     }
-    flameRow(6, y + H * 0.95, -H * 0.82, 44, 62, 3);
-    flameRow(7, y + H + 14, 0, 58, 80, 4);
-    // warm glow behind
-    var glow = el('div', 'fx-dot', root, 'width:' + (W * 1.8) + 'px;height:' + (W * 1.8) + 'px;' + at(x + W / 2 - W * 0.9, y + H * 0.6 - W * 0.9) + 'background:radial-gradient(circle, rgba(232,69,58,.45) 0%, rgba(255,140,40,.25) 40%, rgba(255,210,63,0) 70%);z-index:-1;opacity:0;');
+    flameRow(6, true, 40, 56, 3);
+    flameRow(5, false, 46, 62, 4);
+    // warm glow behind (sized to the card, no filter)
+    var glow = el('div', 'fx-dot', root, 'width:' + (W * 1.5) + 'px;height:' + (W * 1.5) + 'px;' + at(x + W / 2 - W * 0.75, y + H * 0.55 - W * 0.75) + 'background:radial-gradient(circle, rgba(232,69,58,.38) 0%, rgba(255,140,40,.2) 40%, rgba(255,210,63,0) 70%);z-index:-1;opacity:0;');
     root.insertBefore(glow, root.firstChild);
     anim(glow, [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'scale(1)', offset: 0.2 }, { opacity: 1, transform: 'scale(1.1)', offset: 0.8 }, { opacity: 0, transform: 'scale(1.2)' }], { duration: CRUMBLE + 300 - IGN, delay: IGN });
     if (canSound()) {

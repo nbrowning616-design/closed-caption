@@ -49,7 +49,8 @@
     '#fpress.on{display:block;}',
     '#fpress.out{opacity:0;transition:opacity .4s;}',
     '#fpress .fp-it{position:absolute;will-change:transform,opacity;}',
-    '.fp-spot{position:absolute;left:50%;top:-10%;width:140vmax;height:140vmax;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(255,236,170,.32),rgba(255,236,170,0) 70%);pointer-events:none;}',
+    /* #48: the spotlight is the screen's size (it was a 140vmax square) */
+    '.fp-spot{position:absolute;inset:0;background:radial-gradient(ellipse 95% 62% at 50% 34%,rgba(255,236,170,.32),rgba(255,236,170,0) 70%);pointer-events:none;}',
     '.fp-top{position:absolute;left:0;right:0;top:calc(18px + var(--sat,0px));text-align:center;z-index:30;}',
     '.fp-eye{font-size:12px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:#E9C86D;margin:0;}',
     '.fp-h{font-size:34px;line-height:1.02;font-weight:700;margin:6px 12px 0;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.5);}',
@@ -417,7 +418,7 @@
     thunk: function () { snd(function () { T(90, 0.25, 0, 'sine', 0.3, 50); N(0.12, 0, 0.25, 600, 'lowpass'); }); },
     kachunk: function () { snd(function () { N(0.08, 0, 0.35, 1800); T(70, 0.3, 30, 'square', 0.12, 40); N(0.2, 60, 0.2, 400, 'lowpass'); T(1200, 0.05, 220, 'square', 0.03); }); },
     whoosh: function () { snd(function () { N(0.35, 0, 0.12, 3000, 'highpass'); }); },
-    siren: function () { snd(function () { for (var i = 0; i < 4; i++) { T(660, 0.19, i * 380, 'sawtooth', 0.05, 880); T(880, 0.19, i * 380 + 190, 'sawtooth', 0.05, 660); } }); },
+    siren: function () { snd(function () { for (var i = 0; i < 3; i++) { T(660, 0.19, i * 380, 'sawtooth', 0.05, 880); T(880, 0.19, i * 380 + 190, 'sawtooth', 0.05, 660); } }); },
     screech: function () { snd(function () { T(1400, 0.6, 0, 'sawtooth', 0.04, 300); N(0.5, 0, 0.15, 3500); }); },
     stamp: function () { snd(function () { T(110, 0.3, 0, 'sine', 0.35, 60); N(0.18, 0, 0.3, 900, 'lowpass'); }); },
     womp: function () { snd(function () { T(392, 0.35, 0, 'triangle', 0.08, 370); T(370, 0.35, 380, 'triangle', 0.08, 349); T(349, 0.35, 760, 'triangle', 0.08, 330); T(330, 0.9, 1140, 'triangle', 0.08, 300); }); },
@@ -480,14 +481,16 @@
     var t0 = wait || 0, skip = Math.max(0, late || 0);
     var at = function (ms, fn) { if (ms + t0 - skip >= -60) later(ms + t0 - skip, fn); };
     // a phone that arrives after the misprint just gets the corrected edition
-    if (skip > 15500) { finalNow(); return; }
+    /* #21: the show runs ~9s (it was ~17s). The misprint lands at 5s and holds ~3.3s before the recall. */
+    var PT = { press: 2200, k: [2700, 3050, 3400], wrong: 3800, stop: 4700, mis: 5150, stamp: 5650, why: 5950, recall: 8400, final: 8750, btns: 9350 };
+    if (skip > PT.recall + 100) { finalNow(); return; }
     // Reduce Motion: no press, no siren, no flying paper. Three cross-fades carry the same news —
     // Caption of the Night, the misprint (with its stamp and its excuse), the corrected edition — in ~6s.
     if (reduced()) {
-      if (skip > 5600) { finalNow(); return; }
+      if (skip > 4900) { finalNow(); return; }
       var fade = function (el, ms) { if (el) anim(el, [{ opacity: 0 }, { opacity: 1 }], { duration: ms || 400, fill: 'forwards', easing: 'ease-out' }); };
       at(0, function () { $('fp-sub').textContent = ''; fade($('fp-piece')); fade($('fp-name')); var r = $('fp-ros'); if (r) r.style.opacity = 1; S.fan(); vib(mine ? [120, 40, 120] : [60]); });
-      at(2400, function () {
+      at(1800, function () {
         hide($('fp-piece'), 300); hide($('fp-name'), 300);
         var pr = $('fp-print'); pr.innerHTML = misprintHtml(entry, act.mode, faceReady, pixReady, seed);
         if (!faceReady) faceP.then(function () { later(act.mode === 'pixel' ? 80 : 0, function () { pr.innerHTML = misprintHtml(entry, act.mode, faceReady, pixReady, seed); var s2 = pr.querySelector('.fp-stamp'); if (s2) s2.style.opacity = 1; }); });
@@ -495,42 +498,42 @@
         $('fp-eye').textContent = 'Hot off the press'; $('fp-h').className = 'fp-h'; $('fp-h').textContent = '50,000 copies of this:';
         fade(pr, 400); fade($('fp-why'), 400); S.womp();
       });
-      at(5200, function () {
+      at(4600, function () {
         hide($('fp-print'), 300); hide($('fp-why'), 300);
         $('fp-eye').textContent = 'All 50,000 recalled'; $('fp-h').className = 'fp-h gold'; $('fp-h').textContent = 'The corrected edition';
         $('fp-sub').textContent = 'Hanging in The Gallery for good.';
         fade($('fp-final'), 450); S.chime(); vib(mine ? [80, 40, 80] : [60]);
       });
-      at(5700, function () { fade($('fp-btns'), 300); fade($('fp-savehint'), 300); });
+      at(5100, function () { fade($('fp-btns'), 300); fade($('fp-savehint'), 300); });
       return;
     }
 
-    /* 1. Caption of the Night (0 – 4.3s) */
-    at(0, function () { $('fp-sub').textContent = ''; show($('fp-piece'), 700, [{ opacity: 0, transform: 'translateY(-50%) scale(.3) rotate(-8deg)' }, { opacity: 1, transform: 'translateY(-50%) scale(1) rotate(0)' }]); S.whoosh(); vib(40); });
-    at(850, function () { var r = $('fp-ros'); anim(r, [{ opacity: 0, transform: 'scale(2.6) rotate(-40deg)' }, { opacity: 1, transform: 'scale(1) rotate(8deg)' }], { duration: 380, fill: 'forwards', easing: 'cubic-bezier(.3,1.6,.5,1)' }); S.thunk(); vib(mine ? [120, 40, 120] : [60]); });
-    at(1150, function () { show($('fp-name'), 400, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }]); S.fan(); try { confetti.cannons(); } catch (e) {} });
-    /* 2. To the presses! (4.3 – 7.0s) */
-    at(4300, function () {
+    /* 1. Caption of the Night (0 – 2.2s) */
+    at(0, function () { $('fp-sub').textContent = ''; show($('fp-piece'), 650, [{ opacity: 0, transform: 'translateY(-50%) scale(.3) rotate(-8deg)' }, { opacity: 1, transform: 'translateY(-50%) scale(1) rotate(0)' }]); S.whoosh(); vib(40); });
+    at(650, function () { var r = $('fp-ros'); anim(r, [{ opacity: 0, transform: 'scale(2.6) rotate(-40deg)' }, { opacity: 1, transform: 'scale(1) rotate(8deg)' }], { duration: 380, fill: 'forwards', easing: 'cubic-bezier(.3,1.6,.5,1)' }); S.thunk(); vib(mine ? [120, 40, 120] : [60]); });
+    at(900, function () { show($('fp-name'), 400, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }]); S.fan(); try { confetti.cannons(); } catch (e) {} });
+    /* 2. To the presses! (2.2 – 3.85s) */
+    at(PT.press, function () {
       $('fp-eye').textContent = 'Off it goes'; $('fp-h').textContent = 'To the presses!'; $('fp-h').className = 'fp-h';
       $('fp-sub').textContent = 'Mass production. Coffee mugs. Tote bags. The works.';
       hide($('fp-name'), 200);
-      anim($('fp-piece'), [{ transform: 'translateY(-50%) scale(1)', opacity: 1 }, { transform: 'translateY(10%) scale(.35)', opacity: 1, offset: .75 }, { transform: 'translateY(30%) scale(.3)', opacity: 0 }], { duration: 900, fill: 'forwards', easing: 'ease-in' });
+      anim($('fp-piece'), [{ transform: 'translateY(-50%) scale(1)', opacity: 1 }, { transform: 'translateY(10%) scale(.35)', opacity: 1, offset: .75 }, { transform: 'translateY(30%) scale(.3)', opacity: 0 }], { duration: 650, fill: 'forwards', easing: 'ease-in' });
       show($('fp-press'), 400, [{ opacity: 0, transform: 'translateY(120px)' }, { opacity: 1, transform: 'none' }]);
       S.whoosh();
     });
-    var wheel = function () { var w = o.querySelector('.fp-wheel'); anim(w, [{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }], { duration: 700, iterations: 4 }); };
-    [5100, 5650, 6200].forEach(function (ms, i) {
+    var wheel = function () { var w = o.querySelector('.fp-wheel'); anim(w, [{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }], { duration: 600, iterations: 3 }); };
+    PT.k.forEach(function (ms, i) {
       at(ms, function () {
         if (i === 0) { wheel(); show($('fp-count'), 200, [{ opacity: 0 }, { opacity: 1 }]); }
-        anim($('fp-plat'), [{ transform: 'translateY(0)' }, { transform: 'translateY(118px)', offset: .4 }, { transform: 'translateY(0)' }], { duration: 420, easing: 'ease-in-out' });
-        later(170, function () { S.kachunk(); vib(35); });
+        anim($('fp-plat'), [{ transform: 'translateY(0)' }, { transform: 'translateY(118px)', offset: .4 }, { transform: 'translateY(0)' }], { duration: 360, easing: 'ease-in-out' });
+        later(150, function () { S.kachunk(); vib(35); });
         var s = $('fp-s' + (i + 1));
-        anim(s, [{ opacity: 1, transform: 'translate(0,0) rotate(0)' }, { opacity: 1, transform: 'translate(' + (i % 2 ? -150 : 150) + 'px,-230px) rotate(' + (i % 2 ? -40 : 40) + 'deg)', offset: .7 }, { opacity: 0, transform: 'translate(' + (i % 2 ? -220 : 220) + 'px,-320px) rotate(' + (i % 2 ? -60 : 60) + 'deg)' }], { duration: 900, delay: 200, fill: 'forwards', easing: 'ease-out' });
+        anim(s, [{ opacity: 1, transform: 'translate(0,0) rotate(0)' }, { opacity: 1, transform: 'translate(' + (i % 2 ? -150 : 150) + 'px,-230px) rotate(' + (i % 2 ? -40 : 40) + 'deg)', offset: .7 }, { opacity: 0, transform: 'translate(' + (i % 2 ? -220 : 220) + 'px,-320px) rotate(' + (i % 2 ? -60 : 60) + 'deg)' }], { duration: 750, delay: 170, fill: 'forwards', easing: 'ease-out' });
         $('fp-n').textContent = ['1', '1,000', '50,000'][i];
       });
     });
-    /* 3. Something goes wrong (7.0 – 10.0s) */
-    at(7000, function () {
+    /* 3. Something goes wrong (3.85 – 5.0s) */
+    at(PT.wrong, function () {
       $('fp-eye').textContent = 'Uh-oh'; $('fp-h').textContent = 'Wait…'; $('fp-sub').textContent = '';
       var say = $('fp-say'); say.textContent = fill(act.say);
       show(say, 300, [{ opacity: 0, transform: 'scale(.5)' }, { opacity: 1, transform: 'scale(1)' }]);
@@ -540,18 +543,18 @@
         e.style.left = '0'; e.style.top = (46 + i * 10) + '%';
         o.appendChild(e);
         var dir = i % 2 ? -1 : 1, W = window.innerWidth || 390;
-        anim(e, [{ opacity: 1, transform: 'translate(' + (dir > 0 ? -90 : W + 20) + 'px,0) rotate(0)' }, { opacity: 1, transform: 'translate(' + (W / 2 - 32) + 'px,-30px) rotate(' + (dir * 20) + 'deg)', offset: .45 }, { opacity: 1, transform: 'translate(' + (W / 2 - 32) + 'px,10px) rotate(' + (dir * -15) + 'deg)', offset: .7 }, { opacity: 0, transform: 'translate(' + (dir > 0 ? W + 20 : -90) + 'px,-60px) rotate(' + (dir * 40) + 'deg)' }], { duration: 2400, delay: i * 250, fill: 'forwards', easing: 'ease-in-out' });
+        anim(e, [{ opacity: 1, transform: 'translate(' + (dir > 0 ? -90 : W + 20) + 'px,0) rotate(0)' }, { opacity: 1, transform: 'translate(' + (W / 2 - 32) + 'px,-30px) rotate(' + (dir * 20) + 'deg)', offset: .45 }, { opacity: 1, transform: 'translate(' + (W / 2 - 32) + 'px,10px) rotate(' + (dir * -15) + 'deg)', offset: .7 }, { opacity: 0, transform: 'translate(' + (dir > 0 ? W + 20 : -90) + 'px,-60px) rotate(' + (dir * 40) + 'deg)' }], { duration: 1500, delay: i * 180, fill: 'forwards', easing: 'ease-in-out' });
       });
-      anim($('fp-plat'), [{ transform: 'translateY(0)' }, { transform: 'translateY(60px) rotate(4deg)' }, { transform: 'translateY(20px) rotate(-6deg)' }, { transform: 'translateY(90px) rotate(2deg)' }], { duration: 2200, fill: 'forwards', easing: 'steps(6)' });
-      later(900, function () { S.screech(); vib([30, 30, 30, 30, 30]); });
+      anim($('fp-plat'), [{ transform: 'translateY(0)' }, { transform: 'translateY(60px) rotate(4deg)' }, { transform: 'translateY(20px) rotate(-6deg)' }, { transform: 'translateY(90px) rotate(2deg)' }], { duration: 1300, fill: 'forwards', easing: 'steps(6)' });
+      later(550, function () { S.screech(); vib([30, 30, 30, 30, 30]); });
     });
-    at(9200, function () {
+    at(PT.stop, function () {
       hide($('fp-say'), 150);
       $('fp-eye').textContent = 'Klaxon'; $('fp-h').className = 'fp-h red'; $('fp-h').textContent = 'STOP THE PRESSES!';
       o.classList.add('siren', 'shake'); S.siren(); vib([200, 80, 200, 80, 200]);
     });
-    /* 4. The misprint (10.3 – 15.4s) */
-    at(10300, function () {
+    /* 4. The misprint (5.0 – 8.3s) */
+    at(PT.mis, function () {
       o.classList.remove('shake');
       var pr = $('fp-print');
       var put = function () { pr.innerHTML = misprintHtml(entry, act.mode, faceReady, pixReady, seed); };
@@ -562,18 +565,18 @@
       anim(pr, [{ opacity: 0, transform: 'translateY(40%) scale(.4) rotate(-20deg)' }, { opacity: 1, transform: 'translateY(-54%) scale(1) rotate(-2deg)' }], { duration: 520, fill: 'forwards', easing: 'cubic-bezier(.2,1.3,.4,1)' });
       S.whoosh(); vib(40);
     });
-    at(11200, function () { o.classList.remove('siren'); var s = o.querySelector('#fp-print .fp-stamp'); anim(s, [{ opacity: 0, transform: 'translate(-50%,-50%) rotate(-14deg) scale(2.4)' }, { opacity: 1, transform: 'translate(-50%,-50%) rotate(-14deg) scale(1)' }], { duration: 260, fill: 'forwards', easing: 'ease-in' }); S.stamp(); vib([90, 40, 160]); });
-    at(11700, function () { show($('fp-why'), 350, [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }]); S.womp(); });
-    /* 5. Recalled. The corrected edition (15.4s on) */
-    at(15400, function () {
+    at(PT.stamp, function () { o.classList.remove('siren'); var s = o.querySelector('#fp-print .fp-stamp'); anim(s, [{ opacity: 0, transform: 'translate(-50%,-50%) rotate(-14deg) scale(2.4)' }, { opacity: 1, transform: 'translate(-50%,-50%) rotate(-14deg) scale(1)' }], { duration: 260, fill: 'forwards', easing: 'ease-in' }); S.stamp(); vib([90, 40, 160]); });
+    at(PT.why, function () { show($('fp-why'), 350, [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }]); S.womp(); });
+    /* 5. Recalled. The corrected edition (8.3s on) */
+    at(PT.recall, function () {
       hide($('fp-why'), 200);
       $('fp-eye').textContent = 'All 50,000 recalled'; $('fp-h').className = 'fp-h gold'; $('fp-h').textContent = 'The corrected edition';
       $('fp-sub').textContent = 'Hanging in The Gallery for good.';
       anim($('fp-print'), [{ opacity: 1, transform: 'translateY(-54%) rotate(-2deg)' }, { opacity: 0, transform: 'translate(-120%,-30%) rotate(-50deg) scale(.6)' }], { duration: 500, fill: 'forwards', easing: 'ease-in' });
       S.whoosh();
     });
-    at(15800, function () { show($('fp-final'), 650, [{ opacity: 0, transform: 'translateY(-90%) scale(.9)' }, { opacity: 1, transform: 'translateY(-56%) scale(1)' }]); S.chime(); vib(mine ? [80, 40, 80, 40, 200] : [60]); try { confetti.rain(3000); } catch (e) {} });
-    at(16800, function () { show($('fp-btns'), 300, [{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }]); show($('fp-savehint'), 300, [{ opacity: 0 }, { opacity: 1 }]); });
+    at(PT.final, function () { show($('fp-final'), 650, [{ opacity: 0, transform: 'translateY(-90%) scale(.9)' }, { opacity: 1, transform: 'translateY(-56%) scale(1)' }]); S.chime(); vib(mine ? [80, 40, 80, 40, 200] : [60]); try { confetti.rain(3000); } catch (e) {} });
+    at(PT.btns, function () { show($('fp-btns'), 300, [{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }]); show($('fp-savehint'), 300, [{ opacity: 0 }, { opacity: 1 }]); });
 
     function finalNow() {
       ['fp-piece', 'fp-name', 'fp-press', 'fp-count'].forEach(function (id) { var e = $(id); if (e) e.style.opacity = 0; });

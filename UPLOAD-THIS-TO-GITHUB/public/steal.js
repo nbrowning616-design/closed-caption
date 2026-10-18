@@ -353,6 +353,9 @@
     var pl = $q('.st-pl'), pr = $q('.st-pr'), pc = $q('.st-pc');
     var victim = $q('[data-st="victim"]'), isVictim = st.victimId === myPlayerId;
     var W = o.clientWidth || innerWidth;
+    // #48: the moving dim only needs to cover the screen from wherever its centre goes (it was a fixed 2200px square)
+    var Hh = o.clientHeight || innerHeight;
+    if (dim) { dim.style.width = (2 * W + 80) + 'px'; dim.style.height = (2 * Hh + 80) + 'px'; dim.style.left = -(W + 40) + 'px'; dim.style.top = -(Hh + 40) + 'px'; }
     var lag = Math.max(0, performance.now() - startAt);
     var beat = function (n) { if (window.ccBeat) window.ccBeat(n); };
     var c = function (el) { var r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, el: el }; };
