@@ -1,5 +1,10 @@
 # Closed Caption — critical review (Oct 18 2026)
 
+## Nick's decisions (Oct 18 2026)
+- Do EVERYTHING, in 3 passes: all Must-fixes, then all Should-fixes, then Nice-to-haves. Test each pass, push between passes (never on a game night).
+- Hosting: a free uptime pinger first (no paid plan yet).
+- #30 steal +6: KEEP STACKING (his rule stands; do not change).
+
 Six reviewers, each on one area: rules and server, phone screens, animations and sound, first-time player, cartoons and captions, launch-readiness. Items marked "tested" were reproduced. Test scripts were in the session scratchpad (not kept).
 
 ## MUST FIX — broken, unfair, or embarrassing
@@ -45,7 +50,7 @@ Six reviewers, each on one area: rules and server, phone screens, animations and
 27. **Two tabs on one seat kick each other forever** (11 swaps in 6 s). Fix: on close code 4000, stop reconnecting and show "Playing on another device." Tested.
 28. **The steal can get stuck if the dealer is idle.** Fix: let the host pass for the dealer; auto-pass after 45 s. Tested.
 29. **Unfair deal when someone leaves mid-game** (the host can deal twice). Fix: end the game or skip anyone who has already dealt. Tested.
-30. **The dealer can earn +6 from one steal** (the chip's points plus the +4 revenge, because the steal emptied the real caption). This conflicts with Nick's stated "keep it stacking" choice for the revenge, so it needs Nick's decision.
+30. ~~DECIDED: keep~~ **The dealer can earn +6 from one steal** (the chip's points plus the +4 revenge, because the steal emptied the real caption). This conflicts with Nick's stated "keep it stacking" choice for the revenge, so it needs Nick's decision.
 31. **A player can type the real caption word for word** (regulars will remember). Fix: reject near-matches with "Too close to the real one."
 32. **Finale updates may not reach phones for 7 days** — the cache version list in server.js 33 is typed by hand and leaves out finale.js and heads-spots.js. Fix: build the version from every public/*.js.
 33. **Caption tidy errors**: "Who I am is none of your business." gets a "?"; "How about no." becomes a question; ALL-CAPS captions lose capitals on names (polish.js 65).
