@@ -113,6 +113,7 @@ const CARTOONS = [
   { id: 91, title: "Veni, Vidi", image: "card_91.jpg", correct: "Name for the cup?", adult: true },
   { id: 92, title: "The Standoff", image: "card_92.jpg", correct: "He wants the good tuna and a plane to Belize.", adult: true },
   { id: 93, title: "Spin Class", image: "card_93.jpg", correct: "The first class is free. Most of them never leave.", adult: true },
+  { id: 94, title: "Guest of Honor", image: "card_94.jpg", correct: "We all agreed he's been much more attentive than you.", adult: true },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
