@@ -30,7 +30,7 @@ const INDEX_PATH = path.join(__dirname, 'public', 'index.html');
 const INDEX_HTML = fs.readFileSync(INDEX_PATH, 'utf8');
 // (a helper that isn't there yet just counts as empty, so a missing file never stops the server)
 const readOr = (f) => { try { return fs.readFileSync(path.join(__dirname, f), 'utf8'); } catch (e) { return ''; } };
-const BUILD = crypto.createHash('sha1').update(INDEX_HTML + ['game.js', 'store.js', 'public/fx.js', 'public/hof.js', 'public/gallery.js', 'public/music.js', 'public/badges.js', 'public/qrcode.js', 'public/home.js', 'public/recap.js', 'public/guide.js', 'public/moments.js', 'public/steal.js', 'public/heists.js', 'public/heads.js', 'public/heads-pack1.js', 'public/heads-pack2.js', 'public/selfie.js'].map(readOr).join('')).digest('hex').slice(0, 10);
+const BUILD = crypto.createHash('sha1').update(INDEX_HTML + ['game.js', 'store.js', 'public/fx.js', 'public/hof.js', 'public/gallery.js', 'public/music.js', 'public/badges.js', 'public/qrcode.js', 'public/home.js', 'public/recap.js', 'public/guide.js', 'public/moments.js', 'public/steal.js', 'public/heists.js', 'public/heads.js', 'public/heads-pack1.js', 'public/heads-pack2.js', 'public/selfie.js', 'public/voice.js', 'public/howto.js'].map(readOr).join('')).digest('hex').slice(0, 10);
 // __V__ busts the phone's cache for the helper scripts after an update
 const PAGE = INDEX_HTML.replace('__BUILD__', BUILD).split('__V__').join(BUILD);
 app.get('/', (req, res) => { res.set('Cache-Control', 'no-store'); res.type('html').send(PAGE); });
@@ -125,6 +125,7 @@ wss.on('connection', (ws) => {
     clients[id] = { ws, gameCode: code };
     const p = games[code].players.find(x => x.id === id);
     if (p) { p.connected = true; p.disconnectedAt = null; }
+    G.clearVoice(games[code], id);   // a fresh connection starts outside the voice call (the phone re-joins it)
     send(ws, { type: 'joined', playerId: id, code });
     broadcast(code);
   };
@@ -198,6 +199,7 @@ wss.on('connection', (ws) => {
       case 'kick_player': {
         const targetId = msg.targetPlayerId;
         if (fail(G.kickPlayer(game, playerId, targetId))) return;
+        G.clearVoice(game, targetId);
         const kc = clients[targetId];
         if (kc) { send(kc.ws, { type: 'kicked', message: 'The host removed you from the game' }); try { kc.ws.close(); } catch (e) {} delete clients[targetId]; }
         broadcast(code);
@@ -378,10 +380,29 @@ wss.on('connection', (ws) => {
         broadcast(code);
         return;
       }
+      case 'rtc': {
+        // Voice call signalling: pass one small message to one other player in this room (never broadcast)
+        const now = Date.now();
+        if (!ws.rtcWin || now - ws.rtcWin > 10000) { ws.rtcWin = now; ws.rtcN = 0; }
+        if (++ws.rtcN > 300) return;
+        const to = String(msg.to || '');
+        if (!to || to === playerId || !game.players.some(p => p.id === to)) return;
+        const data = msg.data;
+        if (!data || typeof data !== 'object' || JSON.stringify(data).length > 16000) return;
+        const tc = clients[to];
+        if (tc && tc.gameCode === code) send(tc.ws, { type: 'rtc', from: playerId, data });
+        return;
+      }
+      case 'voice': {
+        G.setVoice(game, playerId, !!msg.on, !!msg.muted);
+        broadcast(code);
+        return;
+      }
       case 'leave': {
         // Leaving from the lobby frees the seat; mid-game the seat stays (scores are kept)
         if (game.phase === PHASES.LOBBY && !isHost) game.players = game.players.filter(p => p.id !== playerId);
         else { me.connected = false; me.disconnectedAt = Date.now(); }
+        G.clearVoice(game, playerId);
         delete clients[playerId];
         playerId = null;
         broadcast(code);
@@ -398,6 +419,7 @@ wss.on('connection', (ws) => {
     if (!game) return;
     const p = game.players.find(x => x.id === playerId);
     if (p) { p.connected = false; p.disconnectedAt = Date.now(); }
+    G.clearVoice(game, playerId);
     broadcast(code);
   });
 });

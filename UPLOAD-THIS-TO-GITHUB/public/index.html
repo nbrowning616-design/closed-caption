@@ -26,6 +26,7 @@
 <script src="/heads-pack1.js?v=__V__"></script>
 <script src="/heads-pack2.js?v=__V__"></script>
 <script src="/selfie.js?v=__V__"></script>
+<script src="/howto.js?v=__V__"></script>
 <script src="/qrcode.js?v=__V__"></script>
 <script src="/home.js?v=__V__"></script>
 <script src="/recap.js?v=__V__"></script>
@@ -616,7 +617,13 @@ body.quake { animation: quake .12s linear 10; }
 <!-- ═══════ RULES ═══════ -->
 <div id="screen-rules" class="screen">
   <button class="btn-link back-link" onclick="goBackFromRules()">← Back</button>
-  <h2 class="h1" style="margin-bottom: 6px;">How to play</h2>
+  <h2 class="h1" style="margin-bottom: 10px;">How to play</h2>
+  <div id="howto-mount"></div>
+  <div class="stack" style="margin:14px 0 8px;">
+    <button class="btn btn-yellow" onclick="goBackFromRules()">Got it — let’s play →</button>
+    <button class="btn" id="rules-full-btn" onclick="toggleFullRules()">📖 The full rules (scoring, strategy, all of it)</button>
+  </div>
+  <div id="rules-full" style="display:none; margin-top:18px;">
   <p class="sub" style="margin-bottom: 20px;">Every phone shows the same cartoon with no caption. The game knows the real caption. Everyone writes a fake one that could pass for it — then bets on which caption is real.</p>
 
   <p class="eyebrow" style="margin-bottom: 10px;">Each round</p>
@@ -658,6 +665,7 @@ body.quake { animation: quake .12s linear 10; }
     </ul>
   </div>
   <button class="btn btn-yellow" onclick="goBackFromRules()">Got it →</button>
+  </div>
 </div>
 
 <!-- ═══════ CREATE ═══════ -->
@@ -740,11 +748,17 @@ const BUILD = '__BUILD__';
 let rulesReturn = 'screen-home';
 function showScreen(id) {
   if (id === 'screen-rules') { const cur = document.querySelector('.screen.active'); rulesReturn = cur && cur.id !== 'screen-rules' ? cur.id : rulesReturn; renderRulesScoring(); }
+  if (window.HowTo) { if (id === 'screen-rules') { const fr = $('rules-full'); if (fr) fr.style.display = 'none'; setTimeout(() => HowTo.start($('howto-mount')), 30); } else HowTo.stop(); }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   $(id).classList.add('active');
   window.scrollTo(0, 0);
   if (id !== 'screen-game') setActionBar('');
   if (id === 'screen-home') { startHeroLoop(); offerRejoin(); } else stopHeroLoop();
+}
+function toggleFullRules() {
+  const fr = $('rules-full'); if (!fr) return;
+  const open = fr.style.display === 'none'; fr.style.display = open ? '' : 'none';
+  if (open) { if (window.HowTo) HowTo.pause(); fr.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 }
 function goBackFromRules() {
   if (rulesReturn === 'screen-game' && myPlayerId && state) { showScreen('screen-game'); render(true); }

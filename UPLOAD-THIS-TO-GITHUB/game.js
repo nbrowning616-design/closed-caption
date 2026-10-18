@@ -281,6 +281,7 @@ function createGame(hostId, hostName, timerDuration = 90, seenIds = []) {
     stepAt: null,         // server time of the latest reveal-reel step
     stealShows: 0,        // steals this game: only the first gets the full show
     players: [{ id: hostId, name: hostName, score: 0, connected: true }],
+    voice: {},            // voice call: { playerId: { on, muted } } (cleared when a phone drops)
     hostId,
     timerDuration,
     settings: { ...DEFAULT_SETTINGS },
@@ -1169,6 +1170,14 @@ const ANSWERED = [PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
 const TAKEOVER_SECS = 30;
 const GAZETTE_SIZE = 40;
 
+// Voice chat: who's in the call and who's muted ({ playerId: { on, muted } }); the audio itself goes phone to phone
+function setVoice(game, playerId, on, muted) {
+  if (!game.voice) game.voice = {};
+  if (on && game.players.some(p => p.id === playerId)) game.voice[playerId] = { on: true, muted: !!muted };
+  else delete game.voice[playerId];
+}
+const clearVoice = (game, playerId) => { if (game && game.voice) delete game.voice[playerId]; };
+
 // What each phone is allowed to see
 function getPlayerView(game, playerId) {
   const dealer = dealerOf(game);
@@ -1202,6 +1211,7 @@ function getPlayerView(game, playerId) {
     stepAt: game.stepAt || null,     // server time of the latest reveal-reel step
     stealShows: game.stealShows || 0,
     faces: Object.fromEntries(Object.entries(game.faces || {}).filter(([pid]) => game.players.some(p => p.id === pid)).map(([pid, f]) => [pid, f.v])),   // headshot versions; the photos come from /face/CODE/ID
+    voice: Object.fromEntries(Object.entries(game.voice || {}).filter(([pid]) => game.players.some(p => p.id === pid && p.connected)).map(([pid, v]) => [pid, { on: true, muted: !!v.muted }])),   // who's in the voice call
     winAct: game.winAct === undefined ? null : game.winAct,
     promotion: game.promotion || null,
     inductNeed: inductNeed(game),
@@ -1326,7 +1336,7 @@ module.exports = {
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,
-  setFace, faceOf, WIN_ACT_COUNT,
+  setFace, faceOf, WIN_ACT_COUNT, setVoice, clearVoice,
   stealChip, revealAnswer, moveToFraming, moveToScoreboard, isGameOver, resetForNewGame, isPresent,
   REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer,
   currentBetterId, pendingBetters, nextDealerIndex, getPlayerView, generateRoomCode,
