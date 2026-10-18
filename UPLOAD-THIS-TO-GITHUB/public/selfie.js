@@ -39,9 +39,9 @@
 
   var NO_FACE = ['No face found. Is that your thumb?', 'We see a ceiling. Nice ceiling. Where’s your face?', 'That’s not a face. Try again, with your face.'];
   var TWO = ['One face, please. This isn’t a group photo.', 'Too many faces. Who’s the winner here?'];
-  var FAR = ['Closer. This is a HEADSHOT, not a landscape.', 'We need your face, not your whole life story. Get closer.'];
-  var OFF = ['Put your face in the middle.', 'Centre yourself. Literally.'];
-  var GOOD = ['Gorgeous. Terrifying, but gorgeous.', 'That’s the one. The table will never recover.', 'Perfect headshot. Hollywood is calling.'];
+  var FAR = ['Closer. It’s a headshot, not a landscape.', 'Closer. Just the face.'];
+  var OFF = ['Put your face in the middle.', 'Center yourself.'];
+  var GOOD = ['Gorgeous. Terrifying, but gorgeous.', 'That’s the one. The table will never recover.', 'That’ll do nicely.'];
   var pick = function (a) { return a[Math.floor(Math.random() * a.length)]; };
 
   function saved() { try { var v = localStorage.getItem(KEY); return v && v.indexOf('data:image/jpeg;base64,') === 0 ? v : null; } catch (e) { return null; } }
@@ -125,7 +125,7 @@
       '<p class="sf-msg ' + (cls || '') + '" id="sf-msg">' + esc(msg || 'Whoever wins a round gets a victory bit starring their face. Face only — close up, looking at the camera.') + '</p>' +
       '<input type="file" id="sf-file" accept="image/*" capture="user" style="display:none">' +
       '<div class="stack">' +
-        (pending ? '<button class="btn btn-yellow" onclick="Selfie.use()">✅ Use this one</button><button class="btn" onclick="Selfie.shoot()">🔁 Retake</button>'
+        (pending ? '<button class="btn btn-yellow" onclick="Selfie.use()">Use this one</button><button class="btn" onclick="Selfie.shoot()">Retake</button>'
                  : '<button class="btn btn-yellow" onclick="Selfie.shoot()">📸 ' + (have ? 'Retake my headshot' : 'Take my headshot') + '</button>') +
         '<button class="btn-link" onclick="Selfie.later()">' + (have || pending ? 'Done' : 'Maybe later') + '</button>' +
         (saved() || mine() ? '<button class="btn-link sf-del" onclick="Selfie.remove()">Delete my photo</button>' : '') +
@@ -147,7 +147,7 @@
     }).then(function (r) {
       if (r.no) { pending = null; render(r.no, 'no'); try { sfx.error(); } catch (e) {} buzz([80, 40, 80]); return; }
       pending = crop(c, r.box);
-      render(r.fallback ? 'Couldn’t run the face check on this phone — make sure it’s your face!' : pick(GOOD), 'ok');
+      render(r.fallback ? 'Couldn’t run the face check on this phone. Make sure it’s your face.' : pick(GOOD), 'ok');
       try { sfx.tada ? sfx.tada() : sfx.tap(); } catch (e) {} buzz(40);
     }).catch(function () { pending = null; render('That photo didn’t open. Try again?', 'no'); });
   }

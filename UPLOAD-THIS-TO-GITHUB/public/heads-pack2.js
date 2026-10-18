@@ -63,7 +63,7 @@
   function heightOf(o) { var px = o.px || 100, w = o.w || 110; return Math.round(px * 1.08 + w * 160 / 148 - (w * 160 / 148 * 0.25 + px * 0.12)); }
 
   /* ════════ 1. Bobblehead ════════ */
-  add({ name: 'Bobblehead', tag: 'Agrees with everything. Literally.', run: function (c) {
+  add({ name: 'Bobblehead', tag: 'Agrees with everything.', run: function (c) {
     var W = c.W, H = c.H;
     var dashY = Math.round(H * 0.56), hz = Math.round(dashY * 0.42);
     c.sky('#8FD3F4');
@@ -125,7 +125,7 @@
     c.path(dice, sample(c, function (t) { return { x: W / 2 - 34, y: 70, r: lerp(R, t < 3200 ? t : 3150) * 0.6 + (t > 3200 && t < 3900 ? Math.sin(t / 60) * 30 : 0) }; }, 80), { jerky: 1 });
     var topY = hy - 172;
     c.say('Road trip!', bx, topY, 250, 1350, 50); c.talk(hd, 250, 1350);
-    c.say('Yes! Yes! YES!', bx, topY, 1700, 3000, 50); c.talk(hd, 1700, 3000);
+    c.say('Yes. Yes. Yes!', bx, topY, 1700, 3000, 50); c.talk(hd, 1700, 3000);
     c.text('BUMP!', W * 0.27, dashY - 120, 52, 3200, 3950, -10);
     c.scream(hd, 3200, 3800);
     c.say('Ask me anything. …Yes.', bx, topY, 3950, 5150, 60); c.talk(hd, 3950, 4900);
@@ -137,7 +137,7 @@
   } });
 
   /* ════════ 2. Pop Out of the Cake ════════ */
-  add({ name: 'Pop Out of the Cake', tag: 'Literally the icing on the cake.', run: function (c) {
+  add({ name: 'Pop Out of the Cake', tag: 'Patience, rewarded.', run: function (c) {
     var W = c.W, H = c.H, x = W / 2, gy = H - 120;
     c.sky('linear-gradient(#FF9BC2,#FFD1E3)');
     var bun = '<path d="M-10 40 Q' + (W / 2) + ' 80 ' + (W + 10) + ' 40" fill="none" ' + ink(3) + '/>';
@@ -168,10 +168,10 @@
     c.text('SURPRIIISE!', W / 2, 150, 46, 1650, 2900, -6);
     c.scream(p, 1650, 2100);
     c.burst(['🍰', '🎉', '💥', '🍦'], x, gy - 250, 18, 210, 1620, 1200, 60);
-    c.say('I’ve been in there since TUESDAY.', x, gy - 128 - ph, 2150, 3150, 50); c.talk(p, 2150, 3150);
+    c.say('I’ve been in there since Tuesday.', x, gy - 128 - ph, 2150, 3150, 50); c.talk(p, 2150, 3150);
     c.text('SPLAT!', W * 0.72, gy - ph - 160, 40, 3300, 4100, 10);
     c.burst(['🍰', '☁️'], x, gy - ph - 140, 10, 120, 3300, 800, 20);
-    c.say('I AM the icing on the cake.', x, gy - ph - 290, 3750, 5150, 50); c.talk(p, 3750, 4800);
+    c.say('Happy whatever-this-is.', x, gy - ph - 290, 3750, 5150, 50); c.talk(p, 3750, 4800);
     c.shake(1620, 450); c.shake(3300, 250);
     c.sfx(300, function () { tone(140, 0.25, 0, 'triangle', 0.06, 110); tone(130, 0.25, 520, 'triangle', 0.06, 100); });
     c.sfx(1620, function () { c.snd.pop(); c.snd.boom(); tone(500, 0.5, 60, 'sawtooth', 0.05, 900); });
@@ -181,7 +181,7 @@
   } });
 
   /* ════════ 3. Hula ════════ */
-  add({ name: 'Hula', tag: 'Island time. Coconut time.', run: function (c) {
+  add({ name: 'Hula', tag: 'On island time.', run: function (c) {
     var W = c.W, H = c.H, gy = H - 125, x = Math.round(W * 0.4);
     c.sky('linear-gradient(#5EC6E8,#BDEBF7 55%)');
     c.add(svgA(W, '0 0 ' + W + ' ' + H, '<circle cx="' + (W * 0.2) + '" cy="130" r="36" fill="#FFE04A" ' + ink(3) + '/>' +
@@ -211,7 +211,7 @@
     var star = c.add('<div style="position:absolute;left:0;top:0;font-size:24px;line-height:1;transform:translate(-50%,-50%);white-space:nowrap">💫 ⭐ 💫</div>', 30);
     c.path(star, [{ t: 0, x: hx, y: hyT - 10, o: 0 }, { t: 3380, x: hx, y: hyT - 10, o: 0 }, { t: 3400, x: hx, y: hyT - 10, o: 1, r: 0 }, { t: 3700, x: hx + 10, y: hyT - 4, r: 10 }, { t: 4000, x: hx - 10, y: hyT - 12, r: -10 }, { t: 4300, x: hx + 10, y: hyT - 4, r: 10 }, { t: 4600, x: hx - 10, y: hyT - 12, r: -10 }, { t: 4900, x: hx + 10, y: hyT - 4, r: 10 }], { jerky: 2 });
     c.say('Alohaaa!', hx, hyT - 6, 250, 1450, 40); c.talk(p, 250, 1450);
-    c.say('Check out these HIPS.', hx, hyT - 6, 1650, 2750, 40); c.talk(p, 1650, 2750);
+    c.say('Check out these hips.', hx, hyT - 6, 1650, 2750, 40); c.talk(p, 1650, 2750);
     c.text('BONK!', 80, hyT - 150, 50, 3300, 4100, -12);
     c.scream(p, 3300, 3700);
     c.say('Pretty sure aloha means “ow”.', hx, hyT - 30, 3850, 5150, 40); c.talk(p, 3850, 4900);
@@ -260,7 +260,7 @@
     [p2w, p3w].forEach(function (g) { if (g) c.anim(g, [{ transform: 'rotate(-6deg)' }, { transform: 'rotate(8deg)' }], { dur: 240, at: 2000, iterations: 5, direction: 'alternate', ease: 'steps(1,end)' }); });
     var top = gy - ph * 1.08 - 6;
     c.text('GROOVY!', W / 2, 250, 44, 700, 1900, -8);
-    c.say('Feel the FUNK!', x, top, 250, 1700, 50); c.talk(p1, 250, 1700);
+    c.say('Feel the funk!', x, top, 250, 1700, 50); c.talk(p1, 250, 1700);
     c.say('Point to the sky, baby!', x, top, 2050, 3250, 50); c.talk(p2, 2050, 3250);
     c.text('RRRRIP!', W / 2, 300, 56, 3300, 4200, 6);
     c.burst(['🩲', '🧵', '💥'], x, gy - 30, 10, 140, 3300, 900, 30);
@@ -273,7 +273,7 @@
   } });
 
   /* ════════ 5. The Mummy ════════ */
-  add({ name: 'The Mummy', tag: 'It’s a wrap.', run: function (c) {
+  add({ name: 'The Mummy', tag: 'Three thousand years for this.', run: function (c) {
     var W = c.W, H = c.H, gy = H - 125, x = W / 2;
     c.sky('linear-gradient(#2A1D12,#5A4024)');
     var glyphs = ''; for (var g = 0; g < 18; g++) glyphs += '<text x="' + (20 + (g % 6) * (W - 40) / 6).toFixed(0) + '" y="' + (120 + Math.floor(g / 6) * 70) + '" font-size="26" opacity=".28">' + ['👁️', '🐍', '🪲', '🦅', '☥', '〰️'][(g * 5) % 6] + '</text>';
@@ -321,7 +321,7 @@
     c.say('Uuuurrrgh…', x, top, 2100, 2850, 50); c.talk(mum, 2100, 2850);
     c.burst(['🧻', '💨'], x, gy - 130, 12, 190, 2900, 1000, 40);
     c.text('SPIN!', W / 2, 160, 42, 2900, 3700, -8);
-    c.say('Anyone need TP? I’m done.', x, gy - ph * 1.16 - 10, 3950, 5150, 50); c.talk(un, 3950, 4900);
+    c.say('I’ll need a minute.', x, gy - ph * 1.16 - 10, 3950, 5150, 50); c.talk(un, 3950, 4900);
     [400, 900, 1300].forEach(function (t) { c.sfx(t, function () { tone(150, 0.4, 0, 'sawtooth', 0.05, 90); }); });
     c.sfx(2000, c.snd.boom); c.shake(2000, 350); c.buzz(2000, [120]);
     c.sfx(2120, function () { tone(170, 0.8, 0, 'triangle', 0.08, 110); });
@@ -330,7 +330,7 @@
   } });
 
   /* ════════ 6. Piñata ════════ */
-  add({ name: 'Piñata', tag: 'Smashing success.', run: function (c) {
+  add({ name: 'Piñata', tag: 'Took a beating. Still won.', run: function (c) {
     var W = c.W, H = c.H, x = W / 2, ropeL = 150, hpx = 128;
     c.sky('#FFD86B');
     var dots = ''; for (var d = 0; d < 40; d++) dots += '<rect x="' + (c.rnd() * W).toFixed(0) + '" y="' + (c.rnd() * H * 0.8).toFixed(0) + '" width="8" height="8" fill="' + ['#E8453A', '#3FB8AF', '#5B3FB5', '#fff'][d % 4] + '" transform="rotate(' + (c.rnd() * 90).toFixed(0) + ')" opacity=".55"/>';
@@ -361,7 +361,7 @@
       { t: 1700, x: sx0, y: sy0, r: 32 }, { t: 1900, x: sx0, y: sy0, r: -40 }, { t: 2100, x: sx0, y: sy0, r: 22 }, { t: 2550, x: sx0, y: sy0, r: 60 }, { t: 2800, x: sx0, y: sy0, r: -42 }, { t: 2920, x: sx0, y: sy0, r: -75 },
       { t: 3300, x: -360, y: sy0 + 40, r: -30 }], { jerky: 2 });
     var hy = hc, topY = hc - hpx * 0.56;
-    c.say('Don’t you DARE.', x, topY - 4, 250, 1050, 50); c.talk(pin, 250, 1050);
+    c.say('Don’t you dare.', x, topY - 4, 250, 1050, 50); c.talk(pin, 250, 1050);
     c.text('WHACK!', W * 0.74, hy + 110, 40, 1150, 1700, 10);
     c.text('OOF!', W * 0.26, hy + 120, 44, 1900, 2450, -10);
     c.text('KA-BLAM!', W / 2, hy + 190, 54, 2800, 3700, -6);
@@ -382,7 +382,7 @@
   } });
 
   /* ════════ 7. Snowman ════════ */
-  add({ name: 'Snowman', tag: 'Cool under pressure. Briefly.', run: function (c) {
+  add({ name: 'Snowman', tag: 'Cool under pressure. Until noon.', run: function (c) {
     var W = c.W, H = c.H, gy = H - 128, x = W / 2;
     c.sky('linear-gradient(#9DB8D6,#DDE8F3)');
     var warm = c.add('<div style="position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;background:linear-gradient(#FFB347,#FFE08A)"></div>', 1);
@@ -417,10 +417,10 @@
     c.burst(['💧'], x, gy - 80, 6, 120, 3200, 900, -40);
     var top0 = gy - 236 - hpx * 1.08 - 48;
     c.say('Cool, cool, cool.', x, top0, 250, 1300, 50); c.talk(hd, 250, 1300);
-    c.say('Uh… is that the SUN?!', x, top0, 1850, 2850, 40); c.talk(hd, 1850, 2850);
+    c.say('Uh… is that the sun?', x, top0, 1850, 2850, 40); c.talk(hd, 1850, 2850);
     c.text('I’M MELTING!', W / 2, 230, 42, 2950, 3850, -6);
     c.scream(hd, 2950, 3850);
-    c.say('Just chillin’.', x, gy - hpx * 1.08 - 40, 4000, 5150, 50); c.talk(hd, 4000, 4800);
+    c.say('Still counts.', x, gy - hpx * 1.08 - 40, 4000, 5150, 50); c.talk(hd, 4000, 4800);
     c.sfx(0, function () { [1318, 1318, 1318, 1318, 1318, 1568, 1046, 1175, 1318].forEach(function (f, i) { tone(f, 0.12, i * 130, 'triangle', 0.04); }); });
     c.sfx(1600, function () { [523, 659, 784].forEach(function (f) { tone(f, 1.0, 0, 'sine', 0.05); }); });
     c.sfx(2000, function () { noise(2.3, 0, 0.1, 5000, 'highpass'); });
@@ -567,7 +567,7 @@
     c.text('IS IT REAL?!', W / 2, 150, 36, 500, 2200, -4);
     var top = gy + 10 - bh * 1.22 - 4;
     c.say('Oh hey! Don’t post this.', W / 2, top, 2450, 3550, 50); c.talk(wv, 2450, 3550);
-    c.say('No autographs.', W * 0.72, top + 40, 3650, 4600, 30); c.talk(wA, 3650, 4600); c.talk(wB, 3650, 4600);
+    c.say('We were never here.', W * 0.72, top + 40, 3650, 4600, 30); c.talk(wA, 3650, 4600); c.talk(wB, 3650, 4600);
     c.text('NO SIGNAL', W / 2, H * 0.42, 44, 4800, 0, 0);
     c.sfx(0, function () { noise(4.8, 0, 0.05, 600, 'bandpass'); tone(48, 4.7, 0, 'sawtooth', 0.012); });
     for (var f = 0; f < 10; f++) { var ft = f < 6 ? f * 440 : 3600 + (f - 6) * 300; c.sfx(ft, function () { noise(0.08, 0, 0.25, 300, 'lowpass'); tone(60, 0.1, 0, 'sine', 0.15, 40); }); }
@@ -577,7 +577,7 @@
   } });
 
   /* ════════ 11. Parade Float ════════ */
-  add({ name: 'Parade Float', tag: 'Royal wave. Royal fail.', run: function (c) {
+  add({ name: 'Parade Float', tag: 'Waved the whole way down.', run: function (c) {
     var W = c.W, H = c.H, gy = H - 125, side = H - 300;
     c.sky('#8ED1F2');
     c.add(svgA(W, '0 0 ' + W + ' ' + H, '<rect x="-4" y="' + (side - 80) + '" width="' + (W + 8) + '" height="90" fill="#D9D2C3" ' + ink(3) + '/>', 'tl'), 1);

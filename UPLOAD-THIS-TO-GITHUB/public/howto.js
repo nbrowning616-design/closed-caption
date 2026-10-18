@@ -156,11 +156,11 @@
       ['you', 'amy', 'bob', 'cat', 'dan'].forEach(function (w, i) { at(500 + i * 220, function () { $$('.ht-ph')[i].classList.add('on'); plink(i); }); });
       at(2600, function () { $('.ht-toon .ht-q').textContent = 'The caption is missing…'; });
     } },
-    { h: 'Write a fake caption.', note: 'make it sound REAL', ms: 7400, go: function () {
+    { h: 'Write a fake caption.', note: 'make it sound real', ms: 7400, go: function () {
       $$('.ht-ph').forEach(function (p) { p.classList.remove('on'); });
       $('.ht-toon').classList.add('small');
       var w = $('.ht-write'), box = w.querySelector('.ht-box'), btn = w.querySelector('.ht-btn');
-      w.style.top = '226px'; w.classList.add('on'); btn.classList.remove('done', 'press'); btn.textContent = 'Lock it in ✍️';
+      w.style.top = '226px'; w.classList.add('on'); btn.classList.remove('done', 'press'); btn.textContent = 'Lock it in ✓';
       var txt = CAPS[1].t, n = 0;
       box.innerHTML = '<span class="cur"></span>';
       for (var i = 1; i <= txt.length; i++) (function (i) { at(600 + i * 70, function () { box.innerHTML = txt.slice(0, i) + '<span class="cur"></span>'; if (i % 3 === 0) click(); }); })(i);
@@ -204,7 +204,7 @@
       at(1100, function () { thunk(); target.style.transition = 'transform .5s cubic-bezier(.4,0,.2,1)'; claw.style.transform = 'translate(' + x + 'px,-140px)'; target.style.transform = 'translateY(-' + (y + 170) + 'px)'; });
       at(1700, function () { target.outerHTML = chip('dan'); plink(2); head('The dealer steals one chip.', 'it’s Dan’s chip now. on the real one? Dan scores.'); });
     } },
-    { h: 'The reveal!', note: 'who wrote what · who fell for it', ms: 7600, go: function () {
+    { h: 'The reveal.', note: 'who wrote what · who fell for it', ms: 7600, go: function () {
       at(400, function () { stamp('1', 'Amy wrote it', P.amy.c); cap('1').classList.add('dim'); });
       at(1500, function () { stamp('2', 'You wrote it', P.you.c); });
       at(2000, function () { pts('2', '+1 fooled Amy'); });
@@ -213,13 +213,13 @@
       at(4800, function () { var c = cap('3'); c.classList.add('real'); stamp('3', '✓ The real one', 'var(--teal)'); snd(function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.25, i * 90, 'square', 0.04); }); }); });
       at(5500, function () { pts('3', '+2 You · +2 Dan'); });
     } },
-    { h: 'Frame It.', note: 'funnier than the real one? frame it. it lives in The Gallery.', ms: 5200, go: function () {
+    { h: 'Frame It.', note: 'beat the real one? frame it. it hangs in The Gallery.', ms: 5200, go: function () {
       $$('.ht-pts,.ht-stamp').forEach(function (e) { e.style.opacity = 0; });
       $$('.ht-cap').forEach(function (c) { if (c.dataset.k !== 'cc') c.classList.add('dim'); else c.classList.remove('dim'); });
       at(900, function () { var f = document.createElement('span'); f.className = 'ht-frame'; cap('cc').appendChild(f); void f.offsetWidth; f.classList.add('on'); thunk(); });
       at(1500, function () { snd(function () { [784, 988, 1175, 1568].forEach(function (f, i) { tone(f, 0.3, i * 110, 'triangle', 0.06); }); }); });
     } },
-    { h: 'Most points wins.', note: 'the best liar gets crowned the Grand Poobah 🎩', ms: 5200, go: function () {
+    { h: 'Most points wins.', note: 'the best liar gets crowned the Grand Poobah', ms: 5200, go: function () {
       $$('.ht-cap').forEach(function (c) { c.classList.remove('on', 'dim', 'real'); c.style.opacity = 0; });
       $('.ht-toon').style.opacity = 0;
       $('.ht-board').classList.add('on');
@@ -244,7 +244,7 @@
     return '<div class="ht-head"><div class="ht-h"></div><div class="ht-note"></div></div>' +
       '<div class="ht-it ht-toon" style="background-image:url(' + IMG + ')"><div class="ht-q">&nbsp;</div></div>' +
       '<div class="ht-it ht-phones">' + phones + '</div>' +
-      '<div class="ht-it ht-write"><div class="ht-box"></div><div class="ht-btn">Lock it in ✍️</div></div>' +
+      '<div class="ht-it ht-write"><div class="ht-box"></div><div class="ht-btn">Lock it in ✓</div></div>' +
       '<div class="ht-it ht-caps">' + caps + '</div>' +
       '<div class="ht-it ht-hand">👆</div><div class="ht-it ht-claw">🦾</div>' +
       '<div class="ht-it ht-board">' + rows + '</div>' +

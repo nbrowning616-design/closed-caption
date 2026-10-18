@@ -280,7 +280,7 @@
     if (!n) {
       panel(ctx, M, areaTop, W - 2 * M, 150, 26, '#fff', 7);
       ctx.textAlign = 'center'; ctx.fillStyle = C.muted; ctx.font = font(800, 32);
-      ctx.fillText('Nothing framed tonight. Next time, frame a favourite.', W / 2, areaTop + 86);
+      ctx.fillText('Nothing framed tonight. Tough room.', W / 2, areaTop + 86);
     } else {
       var cg = 22, ch = Math.min(n === 1 ? 380 : 220, (areaH - cg * (n - 1)) / n), cw = W - 2 * M;
       var top0 = areaTop + (areaH - (ch * n + cg * (n - 1))) / 2;
@@ -371,7 +371,7 @@
   }
   function share() {
     if (!blob) return;
-    var opts = { title: 'Closed Caption — game night', text: 'Our Closed Caption game night 📸', filename: filename() };
+    var opts = { title: 'Closed Caption — game night', text: 'Closed Caption, tonight.', filename: filename() };
     var p = window.HallCard && window.HallCard.share ? window.HallCard.share(blob, opts) : Promise.resolve('cancelled');
     p.then(function (r) { if (r === 'downloaded') { try { showToast('Saved to your downloads', 'ok'); } catch (e) {} } });
   }

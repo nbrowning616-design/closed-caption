@@ -149,7 +149,7 @@ wss.on('connection', (ws) => {
   };
 
   // One bad message must never take the whole server down
-  ws.on('message', (raw) => { try { onMessage(raw); } catch (e) { console.error('message failed', e); try { sendError(ws, 'Something went wrong'); } catch (e2) {} } });
+  ws.on('message', (raw) => { try { onMessage(raw); } catch (e) { console.error('message failed', e); try { sendError(ws, 'That didn’t take. Try again.'); } catch (e2) {} } });
   const onMessage = (raw) => {
     let msg;
     try { msg = JSON.parse(raw); } catch { return; }
@@ -182,7 +182,7 @@ wss.on('connection', (ws) => {
       if (existing) {
         // Same name = same seat (lets someone whose phone died rejoin from a new phone).
         // Only allowed when that seat isn't live on another phone right now.
-        if (existing.connected && clients[existing.id] && clients[existing.id].ws.readyState === 1) return sendError(ws, 'Someone is already playing as ' + existing.name);
+        if (existing.connected && clients[existing.id] && clients[existing.id].ws.readyState === 1) return sendError(ws, existing.name + ' is already at the table');
         return seat(existing.id, code);
       }
       const id = crypto.randomUUID();
@@ -219,7 +219,7 @@ wss.on('connection', (ws) => {
         if (fail(G.kickPlayer(game, playerId, targetId))) return;
         G.clearVoice(game, targetId);
         const kc = clients[targetId];
-        if (kc) { send(kc.ws, { type: 'kicked', message: 'The host removed you from the game' }); try { kc.ws.close(); } catch (e) {} delete clients[targetId]; }
+        if (kc) { send(kc.ws, { type: 'kicked', message: 'The host has shown you out.' }); try { kc.ws.close(); } catch (e) {} delete clients[targetId]; }
         broadcast(code);
         return;
       }
@@ -269,7 +269,7 @@ wss.on('connection', (ws) => {
         if (!canRun) return sendError(ws, 'The dealer runs the reveal');
         // Nobody skips ahead while the whole table is still watching the Claw
         const st = game.steal, showMs = st && st.at && st.victimId ? 7600 + 1200 : 0;   // every heist gets the full show
-        if (msg.action === 'reel_next' && game.reel && game.reel.step === 1 && showMs && Date.now() < st.at + showMs) return sendError(ws, 'Let the Claw finish');
+        if (msg.action === 'reel_next' && game.reel && game.reel.step === 1 && showMs && Date.now() < st.at + showMs) return sendError(ws, 'Let the thief finish');
         if (fail(G.reelStep(game, msg.action.slice(5)))) return;
         broadcast(code);
         return;
@@ -292,7 +292,7 @@ wss.on('connection', (ws) => {
         if (!isHost) return sendError(ws, 'Only the host can change the timer');
         if (game.phase !== PHASES.LOBBY) return sendError(ws, 'Timer can only be changed in the lobby');
         const t = Number(msg.timer);
-        if (G.cleanTimer(msg.timer) === null) return sendError(ws, 'Invalid timer');   // [settings] 0 (no timer) or 30 s – 10 min
+        if (G.cleanTimer(msg.timer) === null) return sendError(ws, 'That didn’t take. Try again.');   // [settings] 0 (no timer) or 30 s – 10 min
         game.timerDuration = t;
         broadcast(code);
         return;

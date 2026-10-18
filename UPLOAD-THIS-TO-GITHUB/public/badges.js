@@ -522,9 +522,9 @@
     var whoTxt = Array.isArray(o.who) ? o.who.join(' & ') : o.who;
     card.innerHTML =
       '<div class="bdg-medal"><div class="bdg-rays"></div><div class="bdg-coin">' + icon(kind, mine ? 124 : 96) + '</div><div class="bdg-glint"></div></div>' +
-      '<div class="bdg-eyebrow">' + (mine ? 'New badge!' : (kind === 'moon' ? 'Rocket earned' : 'Badge earned')) + '</div>' +
+      '<div class="bdg-eyebrow">' + (mine ? 'New badge' : (kind === 'moon' ? 'Rocket earned' : 'Badge earned')) + '</div>' +
       '<div class="bdg-title">' + esc(title) + '</div>' +
-      (whoTxt ? '<div class="bdg-who">' + esc(whoTxt) + (mine ? ' · you!' : '') + '</div>' : '') +
+      (whoTxt ? '<div class="bdg-who">' + esc(whoTxt) + (mine ? ' · you' : '') + '</div>' : '') +
       (o.line ? '<div class="bdg-line">' + esc(o.line) + '</div>' : '') +
       (mine ? '<div class="bdg-added">' + caseGlyph() + 'Added to your trophy case</div>' : '') +
       '<div class="bdg-timer"><i style="animation-duration:' + it.dur + 'ms"></i></div>';
@@ -549,7 +549,7 @@
       '<div class="bdg-insw"><div class="bdg-ins">' + insignia(title, 176, true) + '</div></div>' +
       '<div class="bdg-p-eyebrow">' + (mine ? 'Attention on deck' : 'Promotion') + '</div>' +
       '<div class="bdg-p-title">Promoted to<br>' + esc(title) + '</div>' +
-      (o.name ? '<div class="bdg-p-name">' + esc(o.name) + (mine ? ' · you!' : '') + '</div>' : '') +
+      (o.name ? '<div class="bdg-p-name">' + esc(o.name) + (mine ? ' · you' : '') + '</div>' : '') +
       (rk ? '<div class="bdg-p-line">' + rk.rockets + ' rockets landed' + (mine ? ' · added to your trophy case' : '') + '</div>' : '') +
       '<div class="bdg-p-hint">Tap to continue</div>';
     L.appendChild(ov);

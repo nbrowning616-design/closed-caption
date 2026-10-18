@@ -370,13 +370,13 @@
       var title = mine ? 'You’ve been framed.' : isReal ? 'The original, framed.' : 'Framed.';
       var who = isReal ? 'The original caption' : esc(author);
       var plaqueBy = framers ? 'Framed by ' + esc(framers) : 'Framed by the table';
-      var now = isReal ? 'The classics hold up.' : mine ? 'You beat the real one. Hanging in The Gallery for good.' : 'Better than the real one. Now hanging in The Gallery';
+      var now = isReal ? 'The classics hold up.' : mine ? 'You beat the real one. Hanging in The Gallery for good.' : 'Better than the real one. Now hanging in The Gallery.';
 
       root.innerHTML =
         '<div class="gal-wall"></div><div class="gal-plaster"></div><div class="gal-floor"></div>' +
         '<div class="gal-pool"></div><div class="gal-beam"></div><div class="gal-lamp"></div>' +
         '<div class="gal-stage">' +
-          '<div class="gal-head"><p class="gal-eyebrow">' + (mine ? 'You beat the real caption.' : isReal ? 'The table has spoken.' : 'Better than the real caption.') + '</p><h2 class="gal-title">' + esc(title) + '</h2></div>' +
+          '<div class="gal-head"><p class="gal-eyebrow">' + (mine ? 'You beat the real caption.' : isReal ? 'The table voted for the real one.' : 'Better than the real caption.') + '</p><h2 class="gal-title">' + esc(title) + '</h2></div>' +
           '<div class="gal-space" style="width:' + W + 'px">' +
             '<div class="gal-nail"></div>' +
             '<div class="gal-hang">' +

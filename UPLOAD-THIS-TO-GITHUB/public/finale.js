@@ -389,7 +389,7 @@
     { mode: 'static', line: 'Static electricity in the pressroom.', sub: '{n} has been through a lot.', props: ['⚡', '⚡'], say: 'Zzzzt.' },
     { mode: 'shoe', line: 'Paper jam. Somebody kicked it.', sub: 'The press kicked back.', props: ['🦶'], say: 'Come ON.' },
     { mode: 'paws', line: 'The office cat walked across the plate.', sub: 'Then sat on {n}.', props: ['🐈'], say: 'Mrrp.' },
-    { mode: 'twins', line: 'Someone loaded the mirror plate.', sub: 'Two {n}s. Twice the genius.', props: ['🪞'], say: 'Double it.' },
+    { mode: 'twins', line: 'Someone loaded the mirror plate.', sub: 'Two {n}s. One was plenty.', props: ['🪞'], say: 'Double it.' },
     { mode: 'sun', line: 'The press mistook {n} for the sun.', sub: 'An easy mistake. Very bright.', props: ['☀️'], say: 'Good morning!' },
     { mode: 'wallpaper', line: 'The night shift fell asleep on the button.', sub: '1,000,000 copies. Of {n}.', props: ['😴'], say: 'Zzzz…' },
     { mode: 'huge', line: 'The camera was stuck in portrait mode.', sub: 'Very portrait. Mostly {n}.', props: ['📷'], say: 'Closer… closer…' },
@@ -450,7 +450,7 @@
     var who = entry.writerName || nm(entry.writerId), mine = entry.writerId === (window.myPlayerId || (typeof myPlayerId !== 'undefined' ? myPlayerId : null));
     var fill = function (s) { return String(s).replace(/\{n\}/g, who); };
     var votes = f.counts ? (f.counts[entry.key] || 0) : 0, many = (f.entries || []).length > 1;
-    var subLine = !many ? 'The only frame tonight — and it earned it.' : f.tie ? 'A tie on the votes. The press flipped a coin.' : (votes === 1 ? '1 vote' : votes + ' votes') + ' from the table';
+    var subLine = !many ? 'The only frame tonight. Unopposed.' : f.tie ? 'A tie on the votes. The press flipped a coin.' : (votes === 1 ? '1 vote' : votes + ' votes') + ' from the table';
     var seed = String(f.pressAt).split('').reduce(function (a, ch) { return a * 31 + ch.charCodeAt(0) | 0; }, 5);
     var imgUrl = '/images/' + E(entry.image);
     o.className = 'on' + (reduced() ? ' reduce' : '');
@@ -466,7 +466,7 @@
       '<div class="fp-it fp-print" id="fp-print" style="transform:translateY(-54%)"></div>' +
       '<div class="fp-it fp-why" id="fp-why"><b>' + E(fill(act.line)) + '</b><span>' + E(fill(act.sub)) + '</span></div>' +
       '<div class="fp-it fp-final" id="fp-final" style="transform:translateY(-56%)"><img class="t" src="' + imgUrl + '" alt=""><p class="fp-fc">“' + E(entry.caption) + '”</p><p class="fp-fby">Caption by ' + E(who) + '</p><p class="fp-fbest">' + E(f.best || 'Caption of the Night') + '</p></div>' +
-      '<div class="fp-it fp-btns" id="fp-btns"><button class="btn btn-sm" id="fp-card">🖼 Real one</button><button class="btn btn-sm" id="fp-mis">😂 Misprint</button><button class="btn btn-sm btn-yellow" id="fp-done">Done</button></div>' +
+      '<div class="fp-it fp-btns" id="fp-btns"><button class="btn btn-sm" id="fp-card">Clean copy</button><button class="btn btn-sm" id="fp-mis">Misprint</button><button class="btn btn-sm btn-yellow" id="fp-done">Done</button></div>' +
       '<p class="fp-it" id="fp-savehint" style="left:0;right:0;bottom:calc(66px + var(--sab,0px));text-align:center;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#E9C86D;opacity:0;z-index:40;margin:0;">Save it · text it</p>';
     var $ = function (id) { return document.getElementById(id); };
     $('fp-done').onclick = function () { doneFor = tag; o.classList.add('out'); setTimeout(function () { close(); try { render(true); } catch (e) {} }, 380); };
@@ -609,7 +609,7 @@
     var run = false; try { run = canRun(); } catch (e) {}
     if (f.winner) {
       return '<p class="eyebrow center" style="margin:6px 0 2px;">Caption of the Night</p>' + memoHtml(f) +
-        '<div class="fp-foot" style="margin-bottom:12px;"><div style="display:flex;gap:10px;width:100%;"><button class="btn btn-sm" style="flex:1" onclick="ccFinale.saveClean()">🖼 Save the real one</button><button class="btn btn-sm" style="flex:1" onclick="ccFinale.saveMisprint()">😂 Save the misprint</button></div>' +
+        '<div class="fp-foot" style="margin-bottom:12px;"><div style="display:flex;gap:10px;width:100%;"><button class="btn btn-sm" style="flex:1" onclick="ccFinale.saveClean()">Save the clean copy</button><button class="btn btn-sm" style="flex:1" onclick="ccFinale.saveMisprint()">Save the misprint</button></div>' +
         '<button class="btn-link" onclick="ccFinale.replay()">▶ Watch it go to the presses again</button></div>';
     }
     var mine = myVote(f), many = f.entries.length;

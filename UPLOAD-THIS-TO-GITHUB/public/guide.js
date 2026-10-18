@@ -15,7 +15,7 @@
     facedown: { icon: '🃏', text: 'One caption is face-down. Sometimes it’s the real one.' },
     first_bets: { icon: '🎰', text: 'Bet on the one you think is real. Blind bets pay more; both chips is a Half-Moon.' },
     steal: { icon: '😈', text: 'The dealer can steal one chip. A chip stolen off the real one pays the dealer instead.' },
-    answer: { icon: '🍿', text: 'This is the fun part: who wrote what, who fell for it. Take your time.' },
+    answer: { icon: '🍿', text: 'Who wrote what. Who fell for it. No rush.' },
     frame: { icon: '🖼', text: 'Beat the real caption? Frame it. Enough frames and it hangs in The Gallery.' }
   };
   // How long after the moment arrives before the tip slides in (let the screen's own show land first)
@@ -89,7 +89,7 @@
     var waiting = here.filter(function (p) { return !sub[p.id]; });
     return here.length >= 2 && waiting.length === 1 ? waiting[0] : null;
   }
-  var LINES = ['Everyone else is locked in.', 'The table holds its breath.', 'Genius takes time. Apparently.', 'No pressure. (Some pressure.)', 'Every chip is waiting.'];
+  var LINES = ['Everyone else is locked in.', 'The table is being very patient.', 'Genius takes time. Apparently.', 'No pressure. (Some pressure.)', 'Every chip is waiting.'];
   function waitHtml(p) {
     if (!p) return '';
     var st = cur() || {}, line = LINES[hash((st.code || '') + '|' + st.round + '|' + p.id) % LINES.length];
@@ -112,7 +112,7 @@
       nudgeEl.addEventListener('click', hideNudge);
       document.body.appendChild(nudgeEl);
     }
-    nudgeEl.innerHTML = '<span class="gd-em" aria-hidden="true">👋</span><div><b>Everyone’s waiting on you!</b><span class="gd-s">No rush — the table’s ready when you are.</span></div>';
+    nudgeEl.innerHTML = '<span class="gd-em" aria-hidden="true">⏳</span><div><b>The table is waiting on you.</b><span class="gd-s">No rush. They’ve started talking about you.</span></div>';
     hideTip();   // the nudge matters more right now
     void nudgeEl.offsetWidth;
     nudgeEl.classList.add('on');

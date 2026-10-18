@@ -240,7 +240,7 @@
     o.style.background = '#7EC8E3';
     var me = ids.indexOf(myPlayerId) >= 0, names = listNamesSafe(ids);
     o.innerHTML = '<div class="bh-stage"></div><p class="bh-top"><span>Round winner</span></p>' +
-      '<div class="bh-ban"><b>' + esc(me ? (ids.length > 1 ? 'You (and friends) win the round' : 'YOU win the round') : names + (ids.length > 1 ? ' win the round' : ' wins the round')) + '</b><span>' + esc(act.tag || act.name || '') + '</span></div>';
+      '<div class="bh-ban"><b>' + esc(me ? (ids.length > 1 ? 'You and company win the round' : 'You win the round') : names + (ids.length > 1 ? ' win the round' : ' wins the round')) + '</b><span>' + esc(act.tag || act.name || '') + '</span></div>';
     o.className = 'on';
     o.style.visibility = 'hidden';
     o.onclick = close;
@@ -273,7 +273,7 @@
   /* ════════ The first three acts (the rest are in heads-pack1.js and heads-pack2.js) ════════ */
 
   // 0. Blast-off: strapped to a crude rocket, countdown, launch, gone. A star twinkles where they were.
-  add({ name: 'Blast-off', tag: 'Houston, we have a winner.', run: function (c) {
+  add({ name: 'Blast-off', tag: 'Cleared for launch. Barely.', run: function (c) {
     c.sky('linear-gradient(#0b1a3a,#24427a 60%,#5a7fbf)');
     for (var i = 0; i < 26; i++) c.add('<div style="width:3px;height:3px;background:#fff;border-radius:50%;opacity:' + (0.4 + c.rnd() * 0.6).toFixed(2) + '"></div>', 1).style.transform = 'translate(' + (c.rnd() * c.W).toFixed(0) + 'px,' + (c.rnd() * c.H * 0.7).toFixed(0) + 'px)';
     c.ground('#3d3a36', 90);
@@ -292,7 +292,7 @@
     flame.style.transformOrigin = '60px 172px';
     c.path(rocket, [{ t: 0, x: x, y: gy + 260 }, { t: 400, x: x, y: gy + 4, e: 'steps(3,end)' }, { t: 600, x: x, y: gy },
       { t: 2300, x: x, y: gy }, { t: 2500, x: x - 3, y: gy - 6 }, { t: 2700, x: x + 3, y: gy - 10, e: 'cubic-bezier(.6,0,1,.5)' }, { t: 3900, x: x + 40, y: -320, r: 8 }], { jerky: false });
-    c.say('Ten, nine… eh, ONE!', x, gy - 230, 700, 2200, 50);
+    c.say('Ten, nine… eh, one!', x, gy - 230, 700, 2200, 50);
     c.talk(rocket, 700, 2200);
     c.scream(rocket, 2350, 0);
     ['3', '2', '1'].forEach(function (n, i) { c.text(n, x + 90, gy - 140, 54, 900 + i * 420, 1200 + i * 420, -8); c.sfx(900 + i * 420, function () { tone(880, 0.1, 0, 'square', 0.05); }); });
@@ -307,7 +307,7 @@
   } });
 
   // 1. The bodybuilder: tiny head, enormous paper body, flexes until the shirt rips.
-  add({ name: 'Flex', tag: 'Do you even caption, bro?', run: function (c) {
+  add({ name: 'Flex', tag: 'Lifts. Captions. Mostly lifts.', run: function (c) {
     c.sky('linear-gradient(#FFE07A,#FFB84D)');
     c.ground('#B07A44', 110);
     var x = c.W / 2, gy = c.H - 110;
@@ -343,7 +343,7 @@
     c.path(p, pts, { jerky: 1 }); c.path(cup, cpts, { jerky: 1 });
     c.say('Can’t catch me!', c.W * 0.5, gy - 200, 700, 2200, 50);
     c.talk(p, 700, 2200);
-    c.say('Come back! I’m YOURS!', c.W * 0.5, gy - 130, 2700, 4400, 30);
+    c.say('Come back. I’m yours!', c.W * 0.5, gy - 130, 2700, 4400, 30);
     for (var k = 0; k < 14; k++) c.sfx(k * 320, function () { tone(220, 0.05, 0, 'square', 0.04); });
     c.sfx(2700, c.snd.boing);
   } });

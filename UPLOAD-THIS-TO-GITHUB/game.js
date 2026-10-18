@@ -154,7 +154,7 @@ function newRoomDeck() { const d = store.createDeck(); if (store.file) for (cons
 const deckOf = (game) => game.deck || (game.deck = newRoomDeck());
 // Phones carry the Gallery between nights: merge what one brings (max 300, cartoons we know)
 function syncGallery(game, entries) {
-  if (!Array.isArray(entries)) return { error: 'Invalid gallery' };
+  if (!Array.isArray(entries)) return { error: 'That didn’t take. Try again.' };
   const known = new Set(CARTOONS.map(c => c.id)); let added = 0;
   for (const e of entries.slice(0, 300)) if (e && known.has(Number(e.cartoonId)) && deckOf(game).add(e, true)) added++;
   return { ok: true, added };
@@ -164,11 +164,11 @@ const MAX_PLAYERS = 8;
 
 // Shown on everyone's screen when the table votes a cartoon off
 const MULLIGAN_QUIPS = [
-  'This cartoon has been voted off the island.',
-  'The table has spoken. Next!',
-  'Nope. Nope. Nope.',
-  'That cartoon is going to need therapy.',
-  'Rejected harder than a timeshare pitch.',
+  'Thank you for your submission.',
+  'The table has spoken.',
+  'Noted, and declined.',
+  'The cartoonist has been informed.',
+  'Politely, firmly, no.',
   'Into the shredder it goes.',
   'Not even the artist liked that one.',
   'Cartoon fired. Security will walk it out.',
@@ -178,10 +178,10 @@ const EXECUTIONS = ['punch', 'tear', 'fire', 'flush', 'stomp', 'shred'];
 
 // What the dealer says after the steal (rotates)
 const GLOATS = [
-  'Got you, buddy. It’s mine now.',
+  'Got you. It’s mine now.',
   'Thanks for the chip. I’ll treasure it.',
   'Nothing personal. Okay, a little personal.',
-  "Don't mind me.",
+  'Don’t mind me.',
   'You weren’t using that, were you?',
   'That’s going on my mantel.',
   'Shhh. It’s okay. Let it go.',
@@ -192,35 +192,35 @@ const GLOATS = [
 // 1..30 are public/heists.js (same order). A room deals them like a deck, so nobody sees a repeat until all 31 have played.
 const HEISTS = [
   { name: 'The Claw', gloats: GLOATS },
-  { name: 'The Bald Eagle', gloats: ['Freedom isn’t free. Neither was your chip.', 'Talons don’t lie.'] },
+  { name: 'The Bald Eagle', gloats: ['Freedom isn’t free. Neither was your chip.', 'Nothing personal. Just talons.'] },
   { name: 'The Raccoon', gloats: ['Rinsed it. Mine now.', 'I live in your walls. And now, your chips.'] },
-  { name: 'The Frog', gloats: ['Ribbit. Finders keepers.', 'It was a fly, I swear.'] },
+  { name: 'The Frog', gloats: ['Looked like a fly. Still mine.', 'It was a fly, I swear.'] },
   { name: 'The UFO', gloats: ['We come in peace. We leave with your chip.', 'Take me to your chips.'] },
   { name: 'The Magician', gloats: ['And for my next trick: your dignity.', 'Is this your chip? Not anymore.'] },
   { name: 'The Octopus', gloats: ['Eight arms. Zero apologies.', 'I had seven free hands. Do the math.'] },
-  { name: 'The Fisherman', gloats: ['Catch and keep.', 'You should’ve seen the one that got away. Oh wait — it didn’t.'] },
-  { name: 'The Magnet', gloats: ['Opposites attract. So does theft.', 'It was drawn to me. Physics.'] },
+  { name: 'The Fisherman', gloats: ['Catch and keep.', 'This one didn’t get away.'] },
+  { name: 'The Magnet', gloats: ['Opposites attract.', 'It was drawn to me. Physics.'] },
   { name: 'Grandma', gloats: ['Grandma says it’s hers, sweetie.', 'You can visit it on holidays.'] },
-  { name: 'The Cat', gloats: ['If I sit on it, it’s mine.', 'I knocked it off the table. That’s what I do.'] },
-  { name: 'The Parrot', gloats: ['Squawk! Mine! Squawk!', 'Pretty bird. Pretty chip. Both mine.'] },
+  { name: 'The Cat', gloats: ['If I sit on it, it’s mine.', 'It was on the table. Now it isn’t.'] },
+  { name: 'The Parrot', gloats: ['Repeat after me: mine.', 'Pretty bird. Pretty chip. Both mine.'] },
   { name: 'The Ninja', gloats: ['You saw nothing.', 'It was never here.'] },
-  { name: 'The Tornado', gloats: ['Act of God. Not my fault.', 'Check your homeowner’s policy.'] },
-  { name: 'The Good Boy', gloats: ['Good boy found a chip. Good boy keeps chip.', 'Who’s a thief? I’m a thief!'] },
+  { name: 'The Tornado', gloats: ['It was in the path.', 'Check your homeowner’s policy.'] },
+  { name: 'The Good Boy', gloats: ['Good boy found a chip. Good boy keeps chip.', 'Who’s a thief? Yes I am.'] },
   { name: 'The Ghost', gloats: ['Boo. It’s haunted now. By me.', 'Your chip has crossed over.'] },
-  { name: 'The Rocket', gloats: ['Houston, we have your chip.', 'One small step for me. One giant loss for you.'] },
+  { name: 'The Rocket', gloats: ['Houston, we have your chip.', 'One small step. One fewer chip.'] },
   { name: 'The Lawyer', gloats: ['Possession is nine-tenths of the law.', 'You’ll be hearing from my associates.'] },
   { name: 'The Crab', gloats: ['Pinch. Pinch. Mine.', 'Sideways is still forward if it’s toward your chip.'] },
-  { name: 'The T. rex', gloats: ['Tiny arms. Big ambitions.', 'Extinct? Not today.'] },
-  { name: 'The Snail', gloats: ['Slow and steady steals the chip.', 'You had all the time in the world. Literally.'] },
+  { name: 'The T. rex', gloats: ['Tiny arms. Big ambitions.', 'Not extinct. Just patient.'] },
+  { name: 'The Snail', gloats: ['Slow and steady steals the chip.', 'You had all the time in the world.'] },
   { name: 'The Seagull', gloats: ['Marked it. You know how.', 'Like a french fry at the beach.'] },
   { name: 'The Mosquito', gloats: ['Bzzz. It itches now.', 'I only take a little. Okay, all of it.'] },
-  { name: 'The Wizard', gloats: ['You shall not have this chip.', 'A wizard is never late. He steals precisely when he means to.'] },
+  { name: 'The Wizard', gloats: ['It’s been reassigned.', 'A wizard is never late. He steals precisely when he means to.'] },
   { name: 'The Robot', gloats: ['CHIP.EXE IS NOW PROPERTY OF DEALER.', 'Calculating your loss. Done.'] },
-  { name: 'The Bee', gloats: ['Sticky fingers. Literally.', 'It’s my chip, honey.'] },
+  { name: 'The Bee', gloats: ['Sticky fingers.', 'It’s my chip, honey.'] },
   { name: 'The Monkey', gloats: ['Ooh ooh. Ah ah. Mine.', 'Monkey see. Monkey steal.'] },
-  { name: 'The Cowboy', gloats: ['Branded. Yeehaw.', 'This table ain’t big enough for your chip.'] },
-  { name: 'The Vampire', gloats: ['I vant to steal your chip.', 'I don’t drink… chips. But I take them.'] },
-  { name: 'The Unicorn', gloats: ['Magic is just stealing with glitter.', 'Believe in yourself. Not in your chip.'] },
+  { name: 'The Cowboy', gloats: ['Branded. Don’t make it weird.', 'This table ain’t big enough for your chip.'] },
+  { name: 'The Vampire', gloats: ['Gone by sunrise. So is this.', 'I don’t drink chips. I collect them.'] },
+  { name: 'The Unicorn', gloats: ['Magic is just stealing with glitter.', 'Believe in yourself. Not in that chip.'] },
   { name: 'The Penguin', gloats: ['Cold. Calculated. Mine.', 'Chill out. It’s just a chip.'] },
 ];
 // Round-winner gags (public/heads*.js): dealt like a deck, so nobody sees a repeat until all have played
@@ -381,7 +381,7 @@ function setSeen(game, ids) { game.seenIds = cleanSeen(ids); (game.seenBy = game
 // A phone tells us which cartoons it has already seen (on joining, and back in the lobby)
 function setPlayerSeen(game, playerId, ids) {
   if (!game.players.some(p => p.id === playerId)) return { error: 'Player not in game' };
-  if (!Array.isArray(ids)) return { error: 'Invalid list' };
+  if (!Array.isArray(ids)) return { error: 'That didn’t take. Try again.' };
   (game.seenBy = game.seenBy || {})[playerId] = cleanSeen(ids.slice(0, 200));
   return { ok: true };
 }
@@ -422,40 +422,40 @@ function updateSettings(game, partial) {
     if (key === 'stealEnabled') { s.stealEnabled = !!val; continue; }
     // [settings] Dealer mode: the steal is on in 'steal' and 'both' ('kitchen sink'), off in 'bet'
     if (key === 'dealerMode') {
-      if (!['steal', 'bet', 'both'].includes(val)) return { error: 'Invalid dealer mode' };
+      if (!['steal', 'bet', 'both'].includes(val)) return { error: 'That didn’t take. Try again.' };
       s.dealerMode = val; s.stealEnabled = val !== 'bet'; continue;
     }
     // [settings] Game length: everyone deals 1, 2 or 3 times
     if (key === 'laps') {
       const n = Number(val);
-      if (![1, 2, 3].includes(n)) return { error: 'Invalid game length' };
+      if (![1, 2, 3].includes(n)) return { error: 'That didn’t take. Try again.' };
       s.laps = n; continue;
     }
     if (key === 'family') { s.family = !!val; if (s.family) s.spicy = false; continue; }
     if (key === 'spicy') { s.spicy = !!val; if (s.spicy) s.family = false; continue; }
     if (key === 'expert') {
-      if (typeof val !== 'boolean') return { error: 'Invalid expert mode' };
+      if (typeof val !== 'boolean') return { error: 'That didn’t take. Try again.' };
       if (val && deckCartoons(game) < 3) return { error: 'The Gallery opens once 3 cartoons have a framed caption' };
       s.expert = val; continue;
     }
-    if (key === 'direction') { if (val !== 'left' && val !== 'right') return { error: 'Invalid direction' }; s.direction = val; continue; }
+    if (key === 'direction') { if (val !== 'left' && val !== 'right') return { error: 'That didn’t take. Try again.' }; s.direction = val; continue; }
     if (key === 'autoCloseProbability') {
       const n = Number(val);
-      if (isNaN(n) || n < 0 || n > 1) return { error: 'Invalid auto-close probability' };
+      if (isNaN(n) || n < 0 || n > 1) return { error: 'That didn’t take. Try again.' };
       s.autoCloseProbability = n; continue;
     }
     if (!ints.includes(key)) continue;
     if (val === null && (key === 'rounds' || key === 'targetScore')) { s[key] = null; continue; }
     const n = Number(val);
-    if (!Number.isInteger(n) || n < 0 || n > 100) return { error: `Invalid ${key}` };
+    if (!Number.isInteger(n) || n < 0 || n > 100) return { error: 'That didn’t take. Try again.' };
     s[key] = n;
   }
   return { ok: true };
 }
 
 function addPlayer(game, playerId, playerName) {
-  if (game.players.length >= MAX_PLAYERS) return { error: `Game is full (max ${MAX_PLAYERS})` };
-  if (game.players.some(p => p.name.toLowerCase() === playerName.toLowerCase())) return { error: 'Name already taken' };
+  if (game.players.length >= MAX_PLAYERS) return { error: `The table’s full (${MAX_PLAYERS} max)` };
+  if (game.players.some(p => p.name.toLowerCase() === playerName.toLowerCase())) return { error: 'Someone here already has that name' };
   // Late joiners are added at the end of the table, so the deal order of everyone else is unchanged.
   // They score from zero and join in from the current writing phase or the next round.
   game.players.push({ id: playerId, name: playerName, score: 0, connected: true, joinedRound: game.round });
@@ -465,7 +465,7 @@ function addPlayer(game, playerId, playerName) {
 function kickPlayer(game, hostId, targetPlayerId) {
   if (game.phase !== PHASES.LOBBY) return { error: 'Can only remove players in the lobby' };
   if (game.hostId !== hostId) return { error: 'Only the host can remove players' };
-  if (hostId === targetPlayerId) return { error: 'You can\'t remove yourself' };
+  if (hostId === targetPlayerId) return { error: 'You can’t remove yourself' };
   const target = game.players.find(p => p.id === targetPlayerId);
   if (!target) return { error: 'Player not in game' };
   game.players = game.players.filter(p => p.id !== targetPlayerId);
@@ -636,10 +636,10 @@ function submitCaption(game, playerId, caption, mode = 'check') {
   if (!player) return { error: 'Player not in game' };
   if (game.submissions.some(s => s.playerId === playerId)) return { error: 'Already submitted' };
   const raw = (caption || '').toString();
-  if (raw.length > 400) return { error: 'Caption too long (max 200)' };
+  if (raw.length > 400) return { error: 'Too long. The real ones are short.' };
   const p = polish(raw);
-  if (!p.text || !/[A-Za-z0-9]/.test(p.text)) return { error: 'Caption cannot be empty' };
-  if (p.text.length > 220) return { error: 'Caption too long (max 200)' };
+  if (!p.text || !/[A-Za-z0-9]/.test(p.text)) return { error: 'Write something first' };
+  if (p.text.length > 220) return { error: 'Too long. The real ones are short.' };
   if (mode === 'check' && p.typos.length) return { ok: true, check: { polished: p.text, fixed: p.fixed, typos: p.typos } };
   const finalText = mode === 'keep' ? p.text : p.fixed;
   game.submissions.push({ playerId, playerName: player.name, caption: finalText });
@@ -705,7 +705,7 @@ function computeBetOrder(game) {
 }
 
 function moveToFirstBets(game) {
-  if (game.phase !== PHASES.READING) return { error: 'Not reading' };
+  if (game.phase !== PHASES.READING) return { error: 'Too late — the game moved on' };
   game.betOrder = computeBetOrder(game);
   game.bets = [];
   setPhase(game, PHASES.FIRST_BETS);
@@ -727,22 +727,22 @@ function currentBetterId(game) { const p = pendingBetters(game); return p.length
 
 function validateTarget(game, target) {
   if (target === 'closed') return { ok: true, target: 'closed' };
-  if ((typeof target !== 'number' && typeof target !== 'string') || target === '') return { error: 'Invalid caption' };   // Number({}) can throw; Number(null) is 0
+  if ((typeof target !== 'number' && typeof target !== 'string') || target === '') return { error: 'That didn’t take. Try again.' };   // Number({}) can throw; Number(null) is 0
   const idx = Number(target);
-  if (!Number.isInteger(idx) || idx < 0 || idx >= game.openCaptions.length) return { error: 'Invalid caption' };
+  if (!Number.isInteger(idx) || idx < 0 || idx >= game.openCaptions.length) return { error: 'That didn’t take. Try again.' };
   return { ok: true, target: idx };
 }
 
 function placeBet(game, playerId, betTarget) {
   const stage = game.phase === PHASES.FIRST_BETS ? 1 : game.phase === PHASES.SECOND_BETS ? 2 : 0;
-  if (!stage) return { error: 'Not a betting phase' };
+  if (!stage) return { error: 'Too late — the game moved on' };
   const dealer = dealerOf(game);
-  if (dealer && dealer.id === playerId && !dealerBets(game)) return { error: 'The dealer doesn\'t bet' };   // [settings] 'bet'/'both': the dealer bets too
+  if (dealer && dealer.id === playerId && !dealerBets(game)) return { error: 'The dealer doesn’t bet' };   // [settings] 'bet'/'both': the dealer bets too
   if (stageBet(game, playerId, stage)) return { error: 'You already bet' };
   if (currentBetterId(game) !== playerId) return { error: 'Not your turn yet' };
-  if (!betTarget || typeof betTarget !== 'object') return { error: 'Invalid bet' };
+  if (!betTarget || typeof betTarget !== 'object') return { error: 'That didn’t take. Try again.' };
   const count = Number(betTarget.count);
-  if (stage === 1 && count !== 1 && count !== 2) return { error: 'Invalid chip count' };
+  if (stage === 1 && count !== 1 && count !== 2) return { error: 'That didn’t take. Try again.' };
   if (stage === 2 && count !== 1) return { error: 'You have one chip left' };
   const v = validateTarget(game, betTarget.target);
   if (v.error) return v;
@@ -766,7 +766,7 @@ function undoBet(game, playerId) {
 }
 
 function skipCurrentBetter(game) {
-  if (game.phase !== PHASES.FIRST_BETS && game.phase !== PHASES.SECOND_BETS) return { error: 'Not a betting phase' };
+  if (game.phase !== PHASES.FIRST_BETS && game.phase !== PHASES.SECOND_BETS) return { error: 'Too late — the game moved on' };
   const pid = currentBetterId(game);
   if (!pid) return { error: 'Nobody is waiting to bet' };
   game.bets.push({ playerId: pid, target: 'pass', count: 0, stage: game.phase === PHASES.FIRST_BETS ? 1 : 2 });
@@ -774,7 +774,7 @@ function skipCurrentBetter(game) {
 }
 
 function moveToReveal(game) {
-  if (game.phase !== PHASES.FIRST_BETS) return { error: 'Not in blind bets' };
+  if (game.phase !== PHASES.FIRST_BETS) return { error: 'Too late — the game moved on' };
   setPhase(game, PHASES.REVEAL);
   return { ok: true };
 }
@@ -783,7 +783,7 @@ const chipsOnTable = (game) => game.bets.reduce((n, b) => n + (b.target === 'pas
 
 // After the reveal: second bets if anyone has a chip left, else straight on
 function moveFromReveal(game) {
-  if (game.phase !== PHASES.REVEAL) return { error: 'Not revealing' };
+  if (game.phase !== PHASES.REVEAL) return { error: 'Too late — the game moved on' };
   if (eligibleSecondBetters(game).length) { setPhase(game, PHASES.SECOND_BETS); return { ok: true }; }
   return afterAllBets(game);
 }
@@ -803,13 +803,13 @@ function afterAllBets(game) {
 }
 
 function moveFromSecondBets(game) {
-  if (game.phase !== PHASES.SECOND_BETS) return { error: 'Not in second bets' };
+  if (game.phase !== PHASES.SECOND_BETS) return { error: 'Too late — the game moved on' };
   return afterAllBets(game);
 }
 
 // The dealer knocks one chip off the table (betIndex = index in game.bets), or passes (null)
 function stealChip(game, betIndex) {
-  if (game.phase !== PHASES.STEAL) return { error: 'Not the steal' };
+  if (game.phase !== PHASES.STEAL) return { error: 'Too late — the game moved on' };
   if (betIndex === null || betIndex === undefined) {
     game.steal = { skipped: true };
   } else {
@@ -923,7 +923,7 @@ function revealAnswer(game) {
 
 // The recap is done: "Anything frame-worthy?"
 function moveToFraming(game) {
-  if (game.phase !== PHASES.ANSWER) return { error: 'Not on the answer' };
+  if (game.phase !== PHASES.ANSWER) return { error: 'Too late — the game moved on' };
   if (game.reel && game.reel.step < game.reel.order.length + 1) return { error: 'Finish the reveal first' };
   game.framePicks = {};
   game.frameVoters = game.players.filter(isPresent).map(p => p.id);
@@ -934,7 +934,7 @@ function moveToFraming(game) {
 // Framing over (resolving it first if the dealer moves on early): the scoreboard
 function moveToScoreboard(game) {
   if (game.phase === PHASES.ANSWER) return { error: 'Frame It comes first' };
-  if (game.phase !== PHASES.FRAMING) return { error: 'Not framing' };
+  if (game.phase !== PHASES.FRAMING) return { error: 'Too late — the game moved on' };
   if (!game.frameResult) resolveFraming(game);
   setPhase(game, PHASES.SCORES);
   game.scoresAt = Date.now();   // phones time the Grand Poobah ceremony from this, so it plays together
@@ -997,7 +997,7 @@ function allFramesIn(game) {
 const FRAME_LEAD_MS = 900, FRAME_SLOT_MS = 10000, FRAME_NONE_MS = 3600;   // a framing gets time to be admired before the scoreboard
 // Count the picks; every caption with enough is framed (most picks first). Happens once per round.
 function resolveFraming(game) {
-  if (game.phase !== PHASES.FRAMING) return { error: 'Not framing' };
+  if (game.phase !== PHASES.FRAMING) return { error: 'Too late — the game moved on' };
   if (game.frameResult) return { ok: true, noop: true };
   const at = Date.now(), counts = {}, by = {};
   const order = game.openCaptions.map((_, i) => String(i)).concat('closed');
@@ -1151,7 +1151,7 @@ function react(game, playerId, target, kind) {
   const early = REACT_FACE_UP.includes(game.phase);
   if (!early && !REACT_ALL.includes(game.phase)) return { error: 'Reactions close once the bets are in' };
   if (!game.players.some(p => p.id === playerId)) return { error: 'Player not in game' };
-  if (!REACTION_KINDS.includes(kind)) return { error: 'Invalid reaction' };
+  if (!REACTION_KINDS.includes(kind)) return { error: 'That didn’t take. Try again.' };
   const v = validateTarget(game, target);
   if (v.error) return v;
   if (early && v.target === 'closed') return { error: 'The Closed Caption is still face-down' };
@@ -1202,12 +1202,12 @@ function reelOrder(game) {
 }
 // The dealer steps through the reel one caption at a time; the last step is the round recap
 function reelStep(game, how) {
-  if (game.phase !== PHASES.ANSWER || !game.reel) return { error: 'Not on the answer' };
+  if (game.phase !== PHASES.ANSWER || !game.reel) return { error: 'Too late — the game moved on' };
   const last = game.reel.order.length + 1;
   if (how === 'next') { if (game.reel.step >= last) return { error: 'Already at the recap' }; setReelStep(game, game.reel.step + 1); }
   else if (how === 'prev') { if (game.reel.step <= 1) return { error: 'Already at the first caption' }; setReelStep(game, game.reel.step - 1); }
   else if (how === 'skip') setReelStep(game, last);
-  else return { error: 'Invalid step' };
+  else return { error: 'That didn’t take. Try again.' };
   return { ok: true, step: game.reel.step };
 }
 
@@ -1272,8 +1272,8 @@ const careerInt = (n) => Number.isInteger(n) && n >= 0 && n <= 100000;
 function setCareer(game, playerId, rank, rockets, total) {
   const p = game.players.find(x => x.id === playerId);
   if (!p) return { error: 'Player not in game' };
-  if (rank !== null && (typeof rank !== 'string' || rank.length > 20)) return { error: 'Invalid rank' };
-  if (!careerInt(rockets) || !careerInt(total)) return { error: 'Invalid career' };
+  if (rank !== null && (typeof rank !== 'string' || rank.length > 20)) return { error: 'That didn’t take. Try again.' };
+  if (!careerInt(rockets) || !careerInt(total)) return { error: 'That didn’t take. Try again.' };
   const before = p.rank === undefined ? null : p.rank;
   p.rank = rank; p.rockets = rockets; p.badgeTotal = total;
   // A new rank (not the first one we hear about) is a promotion the whole table sees

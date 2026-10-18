@@ -83,7 +83,7 @@
     c.sfx(2150, function () { tone(500, 0.85, 0, 'sawtooth', 0.04, 1100); });
     c.sfx(3050, c.snd.splat); c.shake(3050, 300);
     c.burst(['💦', '💧'], ex, ey + 20, 10, 90, 3050, 800, 40);
-    c.text('NAILED IT!', c.W / 2, 190, 50, 3300, 0, -5);
+    c.text('BULLSEYE.', c.W / 2, 190, 50, 3300, 0, -5);
     c.sfx(3300, c.snd.crowd);
     c.say('Ten out of ten.', ex, ey - 62, 3900, 5150, 78);
     c.talk(hd, 3900, 4900);
@@ -118,7 +118,7 @@
     c.sfx(1350, c.snd.whoosh); c.sfx(1400, c.snd.fanfare); c.sfx(1450, c.snd.crowd);
     c.text('TA-DA!', x, 130, 52, 1400, 2500, -6);
     c.burst(['✨', '⭐'], x, sy, 14, 150, 1400, 1000, 30);
-    c.say('Behold: ME. In GOLD.', x, top - 6, 1950, 2900, 50);
+    c.say('Behold: me. In gold.', x, top - 6, 1950, 2900, 50);
     c.talk(statue, 1950, 2800);
     // the pigeon
     var pig = c.add('<svg viewBox="0 0 84 64" width="84" style="position:absolute;left:-40px;top:-62px;overflow:visible">' +
@@ -180,7 +180,7 @@
       { t: 1800, x: 140, y: 380, r: 45 }, { t: 2050, x: 300, y: 250, r: 80 }, { t: 2300, x: W + 260, y: 220, r: 90, e: 'steps(1,end)' },
       { t: 2400, x: -300, y: 296, r: 90 }, { t: 3200, x: 150, y: 296, r: 90 }, { t: 3800, x: 150, y: 296, r: 90 },
       { t: 4500, x: 150, y: 340, r: 93 }, { t: 5200, x: 120, y: 520, r: 135 }], { jerky: 3 });
-    c.say('This is a job for… ME!', sx, sy - hTop(96, 100) - 6, 200, 1400, 18);
+    c.say('This is a job for… me.', sx, sy - hTop(96, 100) - 6, 200, 1400, 18);
     c.talk(hero, 200, 1300);
     c.sfx(1600, c.snd.whoosh); c.sfx(2400, c.snd.whoosh);
     c.text('WHOOSH!', W / 2, 170, 34, 1700, 2300, -8);
@@ -195,7 +195,7 @@
   } });
 
   /* ════════ 6. Ballerina ════════ */
-  add({ name: 'Ballerina', tag: 'Graceful. Briefly.', run: function (c) {
+  add({ name: 'Ballerina', tag: 'Graceful, until the landing.', run: function (c) {
     c.sky('linear-gradient(90deg,#7A0F1F 0 13%,#2B1830 13% 87%,#7A0F1F 87%)');
     var cur = ''; for (var i = 0; i < 4; i++) cur += '<path d="M' + (i * 13) + ' 0 V900" stroke="#4E0812" stroke-width="3"/>';
     c.add('<svg width="52" height="' + c.H + '" style="display:block">' + cur + '</svg>', 2);
@@ -220,7 +220,7 @@
     c.path(p2, [{ t: 0, x: x, y: gy + 20, o: 0 }, { t: 3149, x: x, y: gy + 20, o: 0 }, { t: 3150, x: x, y: gy + 26, o: 1, sx: 1.12, sy: 0.82 }, { t: 3300, x: x, y: gy + 20, sx: 1, sy: 1 }, { t: 3400, x: x, y: gy + 20, r: -2 }, { t: 3500, x: x, y: gy + 20 }], { jerky: 2 });
     var notes = [784, 988, 1175, 988, 784, 659, 784, 988, 1319, 1175, 988, 784];
     for (var m = 0; m < 12; m++) (function (f, dt) { c.sfx(dt, function () { tone(f, 0.22, 0, 'triangle', 0.05); }); })(notes[m], 100 + m * 250);
-    c.say('Prepare to be MOVED.', x, gy - 196, 1050, 1950, 50);
+    c.say('Prepare to be moved.', x, gy - 196, 1050, 1950, 50);
     c.talk(p1, 1050, 1900);
     c.text('SPIN!', x - 110, gy - 260, 34, 2100, 2700, -12);
     c.text('SPIN!', x + 110, gy - 300, 34, 2500, 3100, 12);
@@ -292,13 +292,13 @@
     c.sfx(3400, c.snd.pop);
     c.burst(['💨', '💚'], bxx, rim - 290, 8, 80, 3400, 700, 20);
     // singing
-    c.say('♪ Rub-a-dub-ME ♪', hx, hy - 66, 200, 1600, 40);
+    c.say('♪ Rub-a-dub-me ♪', hx, hy - 66, 200, 1600, 40);
     c.talk(hd, 200, 1550);
     [523, 659, 784, 659, 523, 784].forEach(function (f, n) { c.sfx(250 + n * 220, function () { tone(f, 0.18, 0, 'triangle', 0.05); }); });
     c.burst(['🎵', '🎶'], hx + 50, hy - 40, 6, 90, 400, 1100, 70);
     c.sfx(0, function () { noise(0.8, 0, 0.08, 700, 'lowpass'); });
     // the duck speaks
-    c.say('That bubble was NOT soap.', dx, dy - 64, 2950, 4150, 72);
+    c.say('That one wasn’t me.', dx, dy - 64, 2950, 4150, 72);
     for (var q = 0; q < 8; q++) c.sfx(2950 + q * 140, function () { tone(1250, 0.07, 0, 'square', 0.035, 1700); });
     c.scream(hd, 3050, 3650);
     c.say('Ducks can’t talk.', hx, hy - 66, 4250, 5150, 40);
@@ -348,7 +348,7 @@
   } });
 
   /* ════════ 9. Rock God ════════ */
-  add({ name: 'Rock God', tag: 'Turned it up to eleven. Then twelve.', run: function (c) {
+  add({ name: 'Rock God', tag: 'Turned it up to eleven.', run: function (c) {
     c.sky('radial-gradient(circle at 50% 28%,#6A3296,#1A0B2E 72%)');
     c.add('<svg width="' + c.W + '" height="' + c.H + '" style="display:block"><path d="M40 0 L80 0 L200 ' + (c.H - 160) + ' L60 ' + (c.H - 160) + ' Z" fill="rgba(255,90,200,.14)"/><path d="M' + (c.W - 80) + ' 0 L' + (c.W - 40) + ' 0 L' + (c.W - 60) + ' ' + (c.H - 160) + ' L' + (c.W - 220) + ' ' + (c.H - 160) + ' Z" fill="rgba(90,220,255,.14)"/></svg>', 2);
     c.ground('#2A2A2A', 160);
@@ -456,7 +456,7 @@
   } });
 
   /* ════════ 11. Head Spin ════════ */
-  add({ name: 'Head Spin', tag: 'Spun the competition. And themselves.', run: function (c) {
+  add({ name: 'Head Spin', tag: 'Still spinning.', run: function (c) {
     c.sky('repeating-linear-gradient(0deg,#B5523B 0 26px,#7A3424 26px 29px)');
     c.add('<div style="' + FONT + 'font-size:40px;color:#FFD23F;-webkit-text-stroke:2px ' + INK + ';transform:rotate(-8deg);opacity:.8">CAPTION<br>CREW</div>', 2).style.transform = 'translate(' + (c.W - 170) + 'px,110px) rotate(-8deg)';
     c.ground('#8E8E8E', 160);
@@ -487,11 +487,11 @@
     var lines = c.add('<svg viewBox="0 0 220 60" width="220" style="position:absolute;left:-110px;top:-30px;overflow:visible"><ellipse cx="110" cy="30" rx="104" ry="20" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="26 18"/><ellipse cx="110" cy="30" rx="80" ry="13" fill="none" stroke="#FFD23F" stroke-width="3" stroke-dasharray="14 14"/></svg>', 24);
     c.path(lines, [{ t: 0, x: x, y: fy + 40, o: 0 }, { t: 1799, x: x, y: fy + 40, o: 0 }, { t: 1800, x: x, y: fy + 40, o: 1 }, { t: 3399, x: x, y: fy + 40, o: 1 }, { t: 3400, x: x, y: fy + 40, o: 0 }], { jerky: 1 });
     c.anim(lines.firstChild, [{ transform: 'scaleX(1)' }, { transform: 'scaleX(-1)' }], { dur: 90, at: 1800, iterations: 18, direction: 'alternate', ease: 'steps(1)', fill: 'none' });
-    c.say('Watch THIS.', x, top - 4, 150, 1200, 50);
+    c.say('Watch this.', x, top - 4, 150, 1200, 50);
     c.talk(p1, 150, 1100);
     c.sfx(1250, function () { noise(0.2, 0, 0.3, 1500, 'bandpass'); tone(400, 0.2, 0, 'sawtooth', 0.04, 900); });
     c.text('HEAD SPIN!', x, 140, 46, 1400, 2400, -6);
-    c.text('FASTER!!', x, 210, 40, 2500, 3350, 6);
+    c.text('FASTER!', x, 210, 40, 2500, 3350, 6);
     [1400, 2000, 2500, 2900, 3200].forEach(function (s) { c.sfx(s, c.snd.whoosh); });
     c.scream(p2, 2600, 3400);
     c.sfx(3400, function () { tone(700, 0.3, 0, 'sawtooth', 0.05, 90); });
@@ -554,7 +554,7 @@
     c.path(p2, [{ t: 0, x: x, y: fy, o: 0 }, { t: 2599, x: x, y: fy, o: 0 }, { t: 2600, x: x, y: fy, o: 1, s: 1.08 }, { t: 2750, x: x, y: fy, s: 1 }], { jerky: 2 });
     c.say('Get my good side.', x, top - 4, 150, 1300, 40);
     c.talk(p1, 150, 1250);
-    c.say('They’re ALL good sides.', x, top - 4, 1450, 2550, 60);
+    c.say('They’re all good sides.', x, top - 4, 1450, 2550, 60);
     c.talk(p1, 1450, 2450);
     c.sfx(2600, c.snd.fanfare); c.shake(2600, 250); c.buzz(2600, [100, 40, 100]);
     c.sfx(3650, c.snd.crowd);
@@ -616,7 +616,7 @@
     c.sfx(3200, c.snd.zap); c.buzz(3200, [80, 40, 80]);
     c.say('MINE!', 140, 250, 3300, 3950, 50);
     c.scream(mer, 3250, 3850);
-    c.say('Give it BACK, you sky rat!', x, top - 6, 4000, 5150, 50);
+    c.say('Give it back, you sky rat!', x, top - 6, 4000, 5150, 50);
     c.talk(mer, 4000, 4900);
   } });
 })();

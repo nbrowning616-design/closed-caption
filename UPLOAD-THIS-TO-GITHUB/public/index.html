@@ -713,7 +713,7 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 
 <canvas id="confetti"></canvas>
 <div id="sr-live" class="sr-only" role="status" aria-live="assertive" aria-atomic="true"></div>
-<div id="warn"><div class="msg">20 seconds!<span>Lock in your caption</span></div></div>
+<div id="warn"><div class="msg">20 seconds.<span>Lock in your caption</span></div></div>
 <div id="viewer"><button class="close" onclick="closeViewer()" aria-label="Close">✕</button><img id="viewer-img" src="" alt="cartoon" draggable="false"><div class="hint">Pinch or double-tap to zoom</div></div>
 <div id="sheet"><div class="back" onclick="closeMenu()"></div><div class="body" id="sheet-body"></div></div>
 <div id="boom"></div>
@@ -742,8 +742,8 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
   <h2 class="h1" style="margin-bottom: 10px;">How to play</h2>
   <div id="howto-mount"></div>
   <div class="stack" style="margin:14px 0 8px;">
-    <button class="btn btn-yellow" onclick="goBackFromRules()">Got it — let’s play →</button>
-    <button class="btn" id="rules-full-btn" onclick="toggleFullRules()">📖 The full rules (scoring, strategy, all of it)</button>
+    <button class="btn btn-yellow" onclick="goBackFromRules()">Got it →</button>
+    <button class="btn" id="rules-full-btn" onclick="toggleFullRules()">The full rules</button>
   </div>
   <div id="rules-full" style="display:none; margin-top:18px;">
   <p class="sub" style="margin-bottom: 18px;">Everyone gets the same cartoon, no caption. The game knows the real one. Write a fake that could pass for it — then bet chips on which caption is real.</p>
@@ -762,7 +762,7 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
   <div class="panel flat" style="margin-bottom: 10px; padding: 6px 16px;" id="rules-scoring"></div>
   <div class="stack" style="margin-bottom: 22px;" id="rules-specials"></div>
 
-  <details class="box" id="rules-extras" style="margin-bottom: 22px;"><summary>✨ Extras you’ll discover <span class="arrow">▾</span></summary><div class="body">
+  <details class="box" id="rules-extras" style="margin-bottom: 22px;"><summary>The extras <span class="arrow">▾</span></summary><div class="body">
     <ul class="rules-extras">
       <li><b>Frame It.</b> After each round, pick a caption that beat the real one (never your own). When <span class="frame-need">two people</span> pick the same one, it hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
       <li><b>The Grand Poobah.</b> Points say who bet best. The hat goes to who wrote best: the most chips on their fakes, all night.</li>
@@ -1119,7 +1119,7 @@ function offerRejoin() {
   const s = readStore(localStorage), box = $('rejoin-box');
   if (!box) return;
   if (!s || myPlayerId) { box.innerHTML = ''; return; }
-  box.innerHTML = `<div class="panel yellow flat" style="text-align:left; display:flex; align-items:center; gap:12px;"><div style="flex:1;"><b>Back for more?</b><br><span class="small">Game ${esc(s.code)}${s.name ? ' as ' + esc(s.name) : ''}</span></div><button class="btn btn-sm btn-ink" style="width:auto;" onclick="rejoinSaved()">Rejoin</button><button class="btn-link" style="padding:4px;" aria-label="Dismiss" onclick="clearSession(); offerRejoin();">✕</button></div>`;
+  box.innerHTML = `<div class="panel yellow flat" style="text-align:left; display:flex; align-items:center; gap:12px;"><div style="flex:1;"><b>Still at the table?</b><br><span class="small">Game ${esc(s.code)}${s.name ? ' as ' + esc(s.name) : ''}</span></div><button class="btn btn-sm btn-ink" style="width:auto;" onclick="rejoinSaved()">Rejoin</button><button class="btn-link" style="padding:4px;" aria-label="Dismiss" onclick="clearSession(); offerRejoin();">✕</button></div>`;
 }
 function rejoinSaved() { const s = readStore(localStorage); if (s) { try { sessionStorage.setItem('cc_session', JSON.stringify(s)); } catch (e) {} send({ action: 'reconnect', playerId: s.playerId, code: s.code }); } }
 
@@ -1175,7 +1175,7 @@ function connect() {
       sfx.error();
     }
     else if (msg.type === 'caption_check') { submitting = false; showSpellCheck(msg); }
-    else if (msg.type === 'kicked') { clearSession(); wasKicked = true; myPlayerId = null; gameCode = null; state = null; showScreen('screen-home'); showToast(msg.message || 'You were removed from the game'); }
+    else if (msg.type === 'kicked') { clearSession(); wasKicked = true; myPlayerId = null; gameCode = null; state = null; showScreen('screen-home'); showToast(msg.message || 'The host has shown you out.'); }
   };
   ws.onclose = () => { connectionStatus = 'disconnected'; updateConnectionBanner(); reconnectTimer = setTimeout(connect, Math.min(6000, 600 * Math.pow(2, reconnectAttempts++))); };
   ws.onerror = () => {};
@@ -1315,7 +1315,7 @@ function toggleTrack(key) { if (!window.GameMusic) return; if (window.GameMusic.
 function joinAddress() { const local = ['localhost', '127.0.0.1'].includes(location.hostname); return local && state && state.lanUrl ? state.lanUrl.replace(/^https?:\/\//, '') : location.host; }
 function shareRoom() {
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
-  const url = joinUrl(), text = `Join my Closed Caption game! Room code: ${state.code}`;
+  const url = joinUrl(), text = `Closed Caption tonight. Room code: ${state.code}`;
   if (navigator.share) navigator.share({ title: 'Closed Caption', text, url }).catch(() => {});
   else if (navigator.clipboard) navigator.clipboard.writeText(`${text} — ${url}`).then(() => showToast('Copied — paste it to your friends', 'ok')).catch(() => showToast(`Code: ${state.code}`, 'ok'));
   else showToast(`Code: ${state.code}`, 'ok');
@@ -1482,7 +1482,7 @@ function bigToon(compact = false, mull = false) {
 function mullPillHtml() {
   const votes = (state.mulliganVotes || []).length, need = state.mulliganNeeded || 2, mine = state.myMulligan;
   return `<span data-live="mullpill"><button class="mull-pill ${mine ? 'on' : ''}" onclick="event.stopPropagation(); toggleMulligan()" aria-label="${mine ? 'Take back your mulligan vote' : 'Vote to swap this cartoon'}">
-    <span class="mp-word">${mine ? '🙅 Mulligan' : '🔀 Mulligan'}</span>${votes ? `<span class="mp-count">${votes}/${need}</span>` : ''}</button></span>`;
+    <span class="mp-word">${mine ? '✓ Mulligan' : 'Mulligan'}</span>${votes ? `<span class="mp-count">${votes}/${need}</span>` : ''}</button></span>`;
 }
 function ringHtml() {
   if (noTimer()) return `<div class="ring" aria-label="No timer"><svg viewBox="0 0 58 58"><circle class="track" cx="29" cy="29" r="24"/></svg><div class="t" style="font-size:22px;">∞</div></div>`;   // [settings] no timer
@@ -1523,11 +1523,11 @@ function renderLobby() {
   const timerWords = !td ? 'No timer' : td % 60 ? `${td}-second timer` : `${td / 60}-min timer`;
   const dealerWords = dm === 'bet' ? 'Dealer bets, no steal' : dm === 'both' ? 'Dealer bets + steals' : (s.stealEnabled === false ? 'No steal' : 'Dealer steals');
   const endCondition = s.targetScore ? `First to ${s.targetScore}` : s.rounds ? `${s.rounds} rounds` : laps === 2 ? 'Everyone deals twice' : laps === 3 ? 'Everyone deals 3 times' : 'Everyone deals once';
-  const summary = `⚙️ ${timerWords} · ${dealerWords} · ${endCondition} · ${s.family ? 'Family deck' : s.spicy ? 'Everything deck' : 'Standard deck'}`;
+  const summary = `${timerWords} · ${dealerWords} · ${endCondition} · ${s.family ? 'Family deck' : s.spicy ? 'Everything deck' : 'Standard deck'}`;
   const customOn = lobbyCustomTimer || (td !== 120 && td !== 0);
   const tmin = Math.max(1, Math.round((td || 120) / 60));
   const fresh = state.freshCount, pool = state.poolCount;
-  const freshLine = typeof fresh === 'number' ? `<p class="fresh-line${fresh < Math.max(3, state.players.length) ? ' low' : ''}">🆕 ${fresh} of ${pool} cartoons nobody here has seen${fresh < Math.max(3, state.players.length) ? (s.family ? ' — try Standard for more' : ' — some repeats ahead') : ''}</p>` : '';
+  const freshLine = typeof fresh === 'number' ? `<p class="fresh-line${fresh < Math.max(3, state.players.length) ? ' low' : ''}">${fresh} of ${pool} cartoons nobody here has seen${fresh < Math.max(3, state.players.length) ? (s.family ? ' — try Standard for more' : ' — some repeats ahead') : ''}</p>` : '';
   const deck = state.hofDeck || 0, galleryOpen = deck >= 3 || s.expert;
   const galleryToggle = state.isHost
     ? `<button class="gal-toggle ${s.expert ? 'on' : ''}" ${galleryOpen ? '' : 'disabled'} onclick="setHostSettings({expert:${!s.expert}})" aria-pressed="${!!s.expert}">
@@ -1535,7 +1535,7 @@ function renderLobby() {
     : s.expert ? `<div class="gal-toggle on" style="cursor:default;"><span style="font-size:24px;">🖼</span><span style="flex:1;">This game plays from The Gallery<br><span class="small">The table’s best captions are the real answers</span></span></div>` : '';
   const settings = state.isHost ? `
     <details class="box" id="settings-details" style="margin-bottom:14px;">
-      <summary>⚙️ Game settings <span class="arrow">▾</span></summary>
+      <summary>Game settings <span class="arrow">▾</span></summary>
       <div class="body">
         <!-- [settings] Writing timer: 2 min / Custom (1–10 min) / No timer -->
         <div class="field"><label class="eyebrow">Writing timer</label><div class="seg">${segBtn(td === 120 && !lobbyCustomTimer, 'setHostTimer(120)', '2 min')}${segBtn(customOn, 'openCustomTimer()', 'Custom')}${segBtn(td === 0 && !lobbyCustomTimer, 'setHostTimer(0)', 'No timer')}</div>
@@ -1548,11 +1548,11 @@ function renderLobby() {
           ${segBtn(!s.rounds && !s.targetScore && laps === 3, 'setHostSettings({rounds:null,targetScore:null,laps:3})', '3 times around')}
           ${segBtn(s.targetScore === 20, 'setHostSettings({rounds:null,targetScore:20,laps:1})', 'First to 20')}
         </div></div>
-        <div class="field"><label class="eyebrow">Cartoons</label><div class="seg">${segBtn(!!s.family, 'setHostSettings({family:true})', '👪 Family')}${segBtn(!s.family && !s.spicy, 'setHostSettings({family:false,spicy:false})', 'Standard')}${segBtn(!!s.spicy, 'setHostSettings({spicy:true})', '🌶 Everything')}</div><div style="color:var(--muted);font-size:13px;margin-top:6px">${s.family ? 'Family cartoons only.' : s.spicy ? 'Every cartoon in the game: Family, Standard and the After Dark (PG-13) ones.' : 'Family and Standard cartoons. No PG-13.'}</div></div>
+        <div class="field"><label class="eyebrow">Cartoons</label><div class="seg">${segBtn(!!s.family, 'setHostSettings({family:true})', 'Family')}${segBtn(!s.family && !s.spicy, 'setHostSettings({family:false,spicy:false})', 'Standard')}${segBtn(!!s.spicy, 'setHostSettings({spicy:true})', 'Everything')}</div><div style="color:var(--muted);font-size:13px;margin-top:6px">${s.family ? 'Family cartoons only.' : s.spicy ? 'Every cartoon in the game: Family, Standard and the After Dark (PG-13) ones.' : 'Family and Standard cartoons. No PG-13.'}</div></div>
         <!-- [settings] Dealer mode: Steal (default) / No steal (dealer bets 2 chips) / Kitchen sink (bets 2 chips, then steals) -->
-        <div class="field"><label class="eyebrow">The dealer</label><div class="seg">${segBtn(dm === 'steal', "setHostSettings({dealerMode:'steal'})", '😈 Steal')}${segBtn(dm === 'bet', "setHostSettings({dealerMode:'bet'})", 'No steal')}${segBtn(dm === 'both', "setHostSettings({dealerMode:'both'})", '🚰 Kitchen sink')}</div><div style="color:var(--muted);font-size:13px;margin-top:6px">${dm === 'bet' ? 'No steal. The dealer bets 2 chips like everyone else (last in the order).' : dm === 'both' ? 'The dealer bets 2 chips like everyone else (last), then steals one of anyone else’s chips.' : 'The dealer doesn’t bet. Once the chips are down, the dealer steals one.'}</div></div>
+        <div class="field"><label class="eyebrow">The dealer</label><div class="seg">${segBtn(dm === 'steal', "setHostSettings({dealerMode:'steal'})", 'Steal')}${segBtn(dm === 'bet', "setHostSettings({dealerMode:'bet'})", 'No steal')}${segBtn(dm === 'both', "setHostSettings({dealerMode:'both'})", 'Kitchen sink')}</div><div style="color:var(--muted);font-size:13px;margin-top:6px">${dm === 'bet' ? 'No steal. The dealer bets 2 chips like everyone else (last in the order).' : dm === 'both' ? 'The dealer bets 2 chips like everyone else (last), then steals one of anyone else’s chips.' : 'The dealer doesn’t bet. Once the chips are down, the dealer steals one.'}</div></div>
         <div class="field"><label class="eyebrow">How often the real caption is the face-down one</label><div class="seg">${[0.1, 0.15, 0.2, 0.3].map(v => segBtn(Math.abs((s.autoCloseProbability ?? 0.15) - v) < 0.001, `setHostSettings({autoCloseProbability:${v}})`, Math.round(v * 100) + '%')).join('')}</div></div>
-        <details class="box" id="adv-details"><summary>🎯 Points <span class="arrow">▾</span></summary><div class="body">
+        <details class="box" id="adv-details"><summary>Points <span class="arrow">▾</span></summary><div class="body">
           ${[['pointsOpenBet', 'Blind chip · real caption in the open', [1, 2, 3, 4]], ['pointsClosedBet', 'Blind chip · face-down Closed Caption', [2, 3, 4, 5, 6]], ['pointsOpenLate', 'Late chip (after the flip)', [0, 1, 2, 3]], ['pointsPerFool', 'Each chip that lands on your caption', [0, 1, 2, 3]], ['dealerBonus', 'Dealer’s revenge', [0, 2, 3, 4, 5, 6]]]
             .map(([k, label, opts]) => `<div class="field"><label class="small">${label}</label><div class="seg">${opts.map(n => segBtn(s[k] === n, `setHostSettings({${k}:${n}${k === 'pointsOpenLate' ? ',pointsClosedLate:' + n : ''}})`, n)).join('')}</div></div>`).join('')}
           <button class="btn-link" onclick="setHostSettings({pointsOpenBet:2,pointsClosedBet:3,pointsOpenLate:1,pointsClosedLate:1,pointsPerFool:1,dealerBonus:4,pointsStealCorrect:1,autoCloseProbability:0.15,stealEnabled:true,rounds:null,targetScore:null,dealerMode:'steal',laps:1})">Reset to defaults</button>
@@ -1567,7 +1567,7 @@ function renderLobby() {
       <div class="h-display" style="font-size:56px; letter-spacing:8px; padding-left:8px; margin:2px 0 6px;">${esc(state.code)}</div>
       <div class="qr-wrap" style="margin:4px auto 8px;">${qrSvg(joinUrl(), 148)}</div>
       <p class="small" style="color:var(--ink-2); margin-bottom:12px;">Friends point their camera here — or send them the link. It fills in the code for them.</p>
-      <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">📣 Send the invite link</button>
+      <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">Send the invite link</button>
     </div>
     ${state.isHost ? demoCardHtml() : ''}
     <p class="eyebrow" style="margin-bottom:6px;">At the table · ${connected} of ${state.players.length}</p>
@@ -1597,7 +1597,7 @@ function lobbyWatch() {
   // Watching the demo when the game starts: back to the table, no one left behind
   if (prev.phase === 'lobby' && state.phase !== 'lobby' && $('screen-rules').classList.contains('active') && rulesReturn === 'screen-game') {
     if (demoFrom) demoMarkWatched();
-    demoFrom = 0; if (window.HowTo) HowTo.stop(); showScreen('screen-game'); showToast('The game’s starting — you’re in!', 'ok');
+    demoFrom = 0; if (window.HowTo) HowTo.stop(); showScreen('screen-game'); showToast('The game’s starting. You’re in.', 'ok');
   }
   if (state.phase !== 'lobby' && prev.phase !== 'lobby' && state.totalRounds && prev.total && state.totalRounds > prev.total) {
     const fresh = state.players.filter(p => !prev.ids.includes(p.id) && p.id !== myPlayerId);
@@ -1651,7 +1651,7 @@ function writingStatusHtml() {
   return `<div data-live="status" class="panel flat center" style="padding:12px;">
       ${last && last.id !== myPlayerId ? Guide.waitHtml(last) : ''}<p class="small">${n} of ${here.length} captions in</p>
       <div class="order" style="margin:8px 0 0;">${here.map(p => chipHtml(p.id, submitted.has(p.id) ? '' : last && p.id === last.id ? 'dim gd-spot' : 'dim', submitted.has(p.id) ? '<span class="check">✓</span>' : '')).join('')}</div>
-      ${canRun() && n > 0 && n < here.length ? (noTimer() ? `<button class="btn btn-yellow" id="end-writing-btn" style="margin-top:10px;" onclick="confirmEndWriting()">✋ End writing — play these ${n}</button>` : `<button class="btn-link" style="margin-top:4px;" onclick="confirmEndWriting()">Stop waiting and play these ${n} →</button>`) : ''}
+      ${canRun() && n > 0 && n < here.length ? (noTimer() ? `<button class="btn btn-yellow" id="end-writing-btn" style="margin-top:10px;" onclick="confirmEndWriting()">End writing — play these ${n}</button>` : `<button class="btn-link" style="margin-top:4px;" onclick="confirmEndWriting()">Stop waiting and play these ${n} →</button>`) : ''}
       ${!noTimer() && canRun() && n < here.length && (state.timeAdds || 0) < 3 ? `<button class="time-btn" onclick="send({action:'add_time'})">⏱ +30 seconds</button>` : ''}
       ${noTimer() && n === 0 ? `<p class="small" style="margin-top:6px;">No timer this game — ${canRun() ? 'you end writing when you’re ready' : 'the dealer ends writing'}.</p>` : ''}
     </div>`;
@@ -1675,7 +1675,7 @@ function renderWriting() {
       </div>
       ${writingStatusHtml()}`;
   }
-  return `${header({ sticker: `<span class="sticker">${state.isDealer ? '🎲 Your deal' : 'Write'}</span>`, sub: `${roundLabel()} · ${dealerLine()}`, ring: true })}
+  return `${header({ sticker: `<span class="sticker">${state.isDealer ? 'Your deal' : 'Write'}</span>`, sub: `${roundLabel()} · ${dealerLine()}`, ring: true })}
     ${bigToon(false, true)}
     <div style="margin-top:18px;">
       <textarea id="caption-input" class="caption-input" placeholder="Write a caption that could pass for the real one…" maxlength="200" oninput="onCaptionInput()" enterkeyhint="done" autocapitalize="sentences" autocorrect="off" autocomplete="off" spellcheck="false" data-gramm="false"></textarea>
@@ -1684,7 +1684,7 @@ function renderWriting() {
       ${state.isDealer ? `<p class="small" style="margin:-6px 2px 12px;">${dealerMode() === 'bet' ? 'You write too — and you bet 2 chips, last' : dealerMode() === 'both' ? 'You write too, bet 2 chips last — then steal one' : 'You write too — but you don’t bet'}</p>` : ''}
       <div id="nudge-box" class="nudge"></div>
       <button class="btn btn-yellow" id="submit-btn" onclick="submitCaption()">Lock it in ✓</button>
-      <button class="btn-link" style="display:block; margin:6px auto 0;" onclick="nextNudge()">💡 Need a nudge?</button>
+      <button class="btn-link" style="display:block; margin:6px auto 0;" onclick="nextNudge()">Need a nudge?</button>
     </div>
     <div style="margin-top:12px;">${writingStatusHtml()}</div>`;
 }
@@ -1755,12 +1755,12 @@ function startTimer() {
   tick(); timerInterval = setInterval(tick, 250);
 }
 function warnAt(n) {
-  const w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `${n} seconds!<span>${n <= 10 ? 'Send it now' : 'Lock in your caption'}</span>`;
+  const w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `${n} seconds.<span>${n <= 10 ? 'Send it now' : 'Lock in your caption'}</span>`;
   w.classList.remove('on'); void w.offsetWidth; w.classList.add('on');
   if (n <= 10) { sfx.critical ? sfx.critical() : sfx.warn(); buzz([300, 120, 300]); }
 }
 function warn20() {
-  const w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = '20 seconds!<span>Lock in your caption</span>';
+  const w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = '20 seconds.<span>Lock in your caption</span>';
   w.classList.remove('on'); void w.offsetWidth; w.classList.add('on');
   sfx.warn(); buzz([200, 100, 200, 100, 400]);
 }
@@ -1768,7 +1768,7 @@ function warn20() {
 /* ── Mulligan: blow everyone's screen up ── */
 function playMulligan(ev, wait = 0) {
   const b = $('boom');
-  const bits = ['💥', '🗑️', '💨', '🔥', '🙅', '💥', '✂️', '💀'].map((e, i) => { const a = (i / 8) * Math.PI * 2; return `<span style="--x:${Math.round(Math.cos(a) * 170)}px; --y:${Math.round(Math.sin(a) * 220)}px; --r:${i * 50 - 160}deg;">${e}</span>`; }).join('');
+  const bits = ['✂️', '🗑️', '💨', '✂️', '🗑️', '💨', '✂️', '🗑️'].map((e, i) => { const a = (i / 8) * Math.PI * 2; return `<span style="--x:${Math.round(Math.cos(a) * 170)}px; --y:${Math.round(Math.sin(a) * 220)}px; --r:${i * 50 - 160}deg;">${e}</span>`; }).join('');
   b.innerHTML = '';
   b.classList.add('on');   // cover the new cartoon right away; the execution starts on the shared beat
   clearTimeout(window._boomT); clearTimeout(window._boomGo);
@@ -1782,7 +1782,7 @@ function playMulligan(ev, wait = 0) {
     if (window.Executions) { try { hit = window.Executions.play(ev.kind, ev.image ? '/images/' + ev.image : null, b) || 1500; } catch (e) { hit = 1500; } }
     else { b.innerHTML = ev.image ? `<div class="old"><img src="/images/${esc(ev.image)}" alt=""></div>` : ''; bsfx.swish(); }
     const s = hit / 1000;
-    b.insertAdjacentHTML('beforeend', `<div class="bits">${bits.replace(/<span /g, `<span data-d `)}</div><div class="word" style="animation-delay:${s}s">MULLIGAN!</div><div class="quip" style="animation-delay:${s + 0.45}s">${esc(ev.quip || 'Next!')}</div>`);
+    b.insertAdjacentHTML('beforeend', `<div class="bits">${bits.replace(/<span /g, `<span data-d `)}</div><div class="word" style="animation-delay:${s}s">MULLIGAN</div><div class="quip" style="animation-delay:${s + 0.45}s">${esc(ev.quip || 'Next.')}</div>`);
     b.querySelectorAll('.bits span').forEach(e => { e.style.animationDelay = (s - 0.05) + 's'; });
     window._boomGo = setTimeout(() => {
       if (window.ccBeat) window.ccBeat('mulligan:hit');
@@ -1822,7 +1822,7 @@ function renderReading(animate) {
     <div class="cap closed locked ${animate ? 'deal-in' : ''}" style="animation-delay:${nOpen * 0.14}s; text-align:center; padding:18px; margin-top:16px;">
       <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p><p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'It’s yours. Keep a straight face.' : 'Turned over after the blind bets'}</p>
     </div>
-    ${state.isDealer ? `<button class="btn" style="margin-top:18px;" onclick="openReadAloud()">📢 Read them big</button><button class="btn btn-yellow" style="margin-top:12px;" onclick="send({action:'advance'})">Done reading — start the betting 🎰</button>`
+    ${state.isDealer ? `<button class="btn" style="margin-top:18px;" onclick="openReadAloud()">📢 Read them big</button><button class="btn btn-yellow" style="margin-top:12px;" onclick="send({action:'advance'})">Done reading — start the betting</button>`
       : canRun() ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'advance'})">Start the betting →</button>`
       : `<p class="center small" style="margin-top:16px;">Betting starts when ${esc(firstName(state.dealerName))} is done reading</p>`}`;
 }
@@ -1879,7 +1879,7 @@ function renderBetting(stage) {
   let banner;
   if (state.allBetsIn) banner = `<div class="turn-banner"><div class="h2">All chips are down</div><p class="sub">${next}</p></div>`;
   else if (state.isDealer && !dealerBetsNow()) banner = `<div class="turn-banner dealer"><div class="h2">You’re dealing — no bets for you</div><p class="sub">${state.settings.stealEnabled ? 'Watch closely. When the chips are down, you get to steal one.' : 'Watch the table. If nobody finds the real one, you score.'}</p></div>`;
-  else if (state.isMyTurn && !myBet) banner = `<div class="turn-banner you" role="status"><div class="h2">Your turn to bet!</div><p class="sub" style="color:var(--ink);">${stage === 1 ? 'Tap a caption, then put down 1 chip or both.' : 'Tap where your last chip goes — anywhere.'}</p></div>`;
+  else if (state.isMyTurn && !myBet) banner = `<div class="turn-banner you" role="status"><div class="h2">Your turn to bet</div><p class="sub" style="color:var(--ink);">${stage === 1 ? 'Tap a caption, then put down 1 chip or both.' : 'Tap where your last chip goes — anywhere.'}</p></div>`;
   else if (myBet) banner = `<div class="turn-banner"><div class="h2">${betLabel(myBet.target, myBet.count)} ✓</div><p class="sub">${stage === 1 && myBet.count === 1 ? `Your second chip waits for the flip.${cur ? ` ${cur} is up.` : ''}` : `${cur} is up.`}</p></div>`;
   else if (stage === 2 && !eligible2.has(myPlayerId)) banner = `<div class="turn-banner"><div class="h2">${passed.has(myPlayerId) ? 'You sat this one out' : 'Both your chips are down'}</div><p class="sub">${cur} is betting…</p></div>`;
   else { const away = order.indexOf(myPlayerId) - order.indexOf(state.currentBetterId); banner = `<div class="turn-banner"><div class="h2">${cur} is betting<span class="dots"></span></div><p class="sub">${away > 0 ? `You’re ${away === 1 ? 'next' : away + ' away'}.` : 'Watch the chips land.'}</p></div>`; }
@@ -1956,7 +1956,7 @@ function renderReveal() {
         <div class="face back"><div class="panel yellow" style="transform:rotate(-1deg);"><p class="eyebrow" style="color:var(--ink-2);">The Closed Caption</p><p class="caption-text" style="font-size:22px; margin-top:6px;">“${esc(state.closedCaption)}”</p>${state.iWroteClosed ? '<p class="small" style="margin-top:6px;">(Yours. Poker face.)</p>' : ''}</div></div>
       </div></div>
       <p class="sub" id="reveal-hint" style="opacity:0; transition:opacity .4s; margin-top:30px;"></p>
-      ${canRun() ? `<button id="reveal-continue" class="btn ${state.isDealer ? 'btn-yellow' : ''}" style="margin-top:18px; opacity:0; transition:opacity .4s; pointer-events:none;" onclick="send({action:'advance'})">${n ? 'Read it aloud, then — last chips →' : 'Next →'}</button>` : `<p class="sub" id="reveal-continue" style="margin-top:18px; opacity:0; transition:opacity .4s;">⏳ Waiting for ${esc(firstName(state.dealerName))} to read it out — then ${n ? 'the last chips' : 'the answer'}.</p>`}
+      ${canRun() ? `<button id="reveal-continue" class="btn ${state.isDealer ? 'btn-yellow' : ''}" style="margin-top:18px; opacity:0; transition:opacity .4s; pointer-events:none;" onclick="send({action:'advance'})">${n ? 'Read it aloud, then — last chips →' : 'Next →'}</button>` : `<p class="sub" id="reveal-continue" style="margin-top:18px; opacity:0; transition:opacity .4s;">Waiting for ${esc(firstName(state.dealerName))} to read it out — then ${n ? 'the last chips' : 'the answer'}.</p>`}
     </div>`;
 }
 /* The Closed Caption turns over like a real card: it lifts (the shadow grows), trembles, then slaps
@@ -2104,7 +2104,7 @@ function fmListHtml() {
     const framed = r && r.framed.map(String).includes(k), n = r ? (r.counts[k] || 0) : 0;
     const who = own ? 'Yours' : c.isCorrect ? 'The real one' : esc(c.playerName || '');
     const t = c.idx === 'closed' ? "'closed'" : c.idx;
-    const tag = framed ? `<span class="fm-n done">Framed! · ${n}</span>` : r && n ? `<span class="fm-n">🖼 ${n} of ${need}</span>` : '';
+    const tag = framed ? `<span class="fm-n done">Framed · ${n}</span>` : r && n ? `<span class="fm-n">🖼 ${n} of ${need}</span>` : '';
     const cls = ['fm-card', own ? 'own' : '', on ? 'on' : '', framed ? 'framed' : '', r && !framed ? 'dim' : ''].filter(Boolean).join(' ');
     return `<button class="${cls}" data-k="${k}" ${own || r ? 'disabled' : `onclick="pickFrame(${t})"`} aria-pressed="${on ? 'true' : 'false'}"><span class="fm-cap">“${esc(c.caption)}”</span><span class="fm-meta"><span class="fm-who">${who}</span>${tag}</span></button>`;
   }).join('');
@@ -2130,7 +2130,7 @@ function fmHeadHtml() {
   const r = (state.framing || {}).result;
   const toon = state.cartoon ? `<div class="fm-toon" onclick="openViewer()" role="button" tabindex="0" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"></div>` : '';
   let title = 'Did anyone beat the real one?', sub = 'Frame the one that did. It hangs in The Gallery for good.';
-  if (r && r.framed.length) { title = r.framed.length > 1 ? `Framed! ×${r.framed.length}` : 'Framed!'; sub = 'Going up in The Gallery.'; }
+  if (r && r.framed.length) { title = r.framed.length > 1 ? `Framed ×${r.framed.length}` : 'Framed.'; sub = 'Going up in The Gallery.'; }
   else if (r) { title = 'Nothing framed this round.'; sub = 'Tough room.'; }
   return `${toon}<div style="min-width:0;"><div class="h-display fm-title ${r ? 'fm-stamp' : ''}" style="${r && !r.framed.length ? 'font-size:23px;' : ''}">${title}</div><p class="fm-sub">${sub}</p></div>`;
 }
@@ -2313,7 +2313,7 @@ function openGallery() {
   if (window.Gallery && typeof window.Gallery.archiveHtml === 'function') { try { body = window.Gallery.archiveHtml(list); } catch (e) { body = ''; } }
   if (!body) body = list.length
     ? `<div class="panel hof-panel">${list.map(e => `<div class="hof-item"><img src="/images/${esc(e.image)}" alt=""><div style="flex:1; min-width:0;"><p class="caption-text" style="font-size:15px;">“${esc(e.caption)}”</p><p class="small">— ${esc(e.author)} · framed ${esc(e.month)}</p></div></div>`).join('')}</div>`
-    : `<div class="panel flat center"><p class="sub">Nothing framed yet. Give your Frame It to a caption you love — when ${frameNeedWords()} agree, it hangs here.</p></div>`;
+    : `<div class="panel flat center"><p class="sub">Nothing framed yet. When ${frameNeedWords()} frame the same caption, it hangs here.</p></div>`;
   $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin-bottom:10px;">🖼 The Gallery</p>${body}<button class="btn btn-ink" style="margin-top:14px;" onclick="closeMenu()">Close</button>`;
   $('sheet').classList.add('on');
 }
@@ -2328,7 +2328,7 @@ function stealNewsHtml() {
   if (!st || st.skipped || !st.victimId) return st && st.skipped && state.settings.stealEnabled ? `<p class="center small" style="margin-bottom:12px;">${esc(firstName(state.dealerName))} kept the peace — no steal</p>` : '';
   const where = st.target === 'closed' ? 'the Closed Caption' : `Caption ${st.target + 1}`;
   const me = st.victimId === myPlayerId;
-  return `<div class="steal-news"><div class="h2">😈 ${state.isDealer ? 'You' : esc(firstName(state.dealerName))} stole ${me ? 'YOUR' : esc(fnameOf(st.victimId)) + '’s'} chip</div><p class="sub">${st.actName ? esc(st.actName) + ' took it off ' : 'Knocked off '}${where}.${st.gloat ? ` “${esc(st.gloat)}”` : ''}</p></div>`;
+  return `<div class="steal-news"><div class="h2">😈 ${state.isDealer ? 'You' : esc(firstName(state.dealerName))} stole ${me ? 'your' : esc(fnameOf(st.victimId)) + '’s'} chip</div><p class="sub">${st.actName ? esc(st.actName) + ' took it off ' : 'Knocked off '}${where}.${st.gloat ? ` “${esc(st.gloat)}”` : ''}</p></div>`;
 }
 /* The steal show (steal.js, heists.js). The server picks it (state.steal.stealShow), so every phone agrees:
    'full' — the first steal of a game, or a steal off the real caption: one of 31 heists (~7.6s);
@@ -2366,8 +2366,8 @@ function renderRecap() {
   return `${header({ sticker: '<span class="sticker teal">Round recap</span>', thumb: false })}
     <div id="answer-root" class="done">
     <div class="rc-real">${toon}<div class="rc-real-txt"><p class="rc-eyebrow">${state.closedIsCorrect ? 'The real one · face-down' : 'The real caption'}</p><p class="rc-cap">“${esc(real.caption || '')}”</p>${rc && rc.author ? `<p class="rc-credit">🖼 From The Gallery · ${esc(rc.author)}</p>` : ''}</div></div>
-    <div class="rc-pts ${scorers.length > 4 ? 'many' : ''}" id="answer-scores">${pts || '<p class="rc-none">Nobody scored. Brutal.</p>'}</div>
-    ${bluff ? `<p class="rc-line" id="bluff-shout">${f.bluffs.length ? '🏆' : '🎯'} ${bluff}</p>` : ''}
+    <div class="rc-pts ${scorers.length > 4 ? 'many' : ''}" id="answer-scores">${pts || '<p class="rc-none">Nobody scored. Not even the dealer.</p>'}</div>
+    ${bluff ? `<p class="rc-line" id="bluff-shout">${bluff}</p>` : ''}
     ${mischief ? `<p class="rc-line rc-dealer" id="rc-dealer">${mischief}</p>` : ''}
     <div id="answer-continue">${answerContinueHtml(isLastRound())}</div>
     </div>`;
@@ -2424,7 +2424,7 @@ function nobodyGroupHtml(k) {
     const badges = (state.roundBadges || []).filter(b => String(b.target) === String(c.idx) && !['moon', 'pickpocket'].includes(b.kind));
     return `<div class="nb-row">${chipHtml(c.playerId, 'sm')}<div class="nb-txt"><p class="nb-cap">“${esc(c.caption)}”</p><p class="nb-who">${esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}${c.isClosed ? ' · the face-down one' : ''}</p>${badgeChipsHtml(badges)}</div></div>`;
   }).join('');
-  const nextLabel = k === n - 1 ? 'And the real caption is… 🥁' : 'Next caption →';
+  const nextLabel = k === n - 1 ? 'And the real caption is…' : 'Next caption →';
   const ctl = canRun()
     ? `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" disabled aria-label="Previous caption">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'reel_next'})">${nextLabel}</button></div>
        <button class="btn-link" style="display:block; margin:6px auto 0; font-size:13px;" onclick="send({action:'reel_skip'})">Skip to the recap</button>`
@@ -2448,13 +2448,13 @@ function spotlightHtml() {
   const people = [...new Set(backers.map(b => b.playerId))];
   const chipsOf = (pid) => backers.filter(b => b.playerId === pid).reduce((s, b) => s + b.count + (b.stolen || 0), 0);
   const fell = people.length ? `<div class="fell"><p class="eyebrow" style="margin-bottom:8px;">${real ? 'Found the real one' : 'Fell for it'}</p><div class="fell-row">${people.map(pid => `<span class="fell-p">${chipHtml(pid, 'sm')}${esc(pid === myPlayerId ? 'You' : nameOf(pid))}${chipsOf(pid) > 1 ? ` <i>×${chipsOf(pid)}</i>` : ''}</span>`).join('')}</div></div>`
-    : `<p class="nobody">${real ? (fc.allChips ? 'Found, then stolen. Ouch.' : '<i>The truth had no friends.</i>') : 'Nobody bit.'}</p>`;
+    : `<p class="nobody">${real ? (fc.allChips ? 'Found. Then stolen.' : '<i>The truth had no friends.</i>') : 'Nobody bit.'}</p>`;
   const pts = !real && c.playerId ? backers.reduce((s, b) => s + b.count + (b.stolen || 0), 0) * (state.settings.pointsPerFool || 0) : 0;   // stolen chips still fooled them
   const who = real ? `<div class="stamp real-stamp" id="spot-stamp">The real caption</div>`
     : `<div class="writer-stamp" id="spot-stamp">${chipHtml(c.playerId, 'lg')}<div><p class="eyebrow">Written by</p><div class="wname">${esc(c.playerId === myPlayerId ? 'You' : c.playerName || '?')}</div></div>${pts ? `<span class="plus" style="margin-left:auto; font-size:26px;">+${pts}</span>` : ''}</div>`;
   const realBadges = real ? (state.roundBadges || []).filter(b => ['moon', 'pickpocket'].includes(b.kind)) : [];
   const badges = [...(state.roundBadges || []).filter(b => String(b.target) === String(key) && !['moon', 'pickpocket'].includes(b.kind)), ...realBadges];
-  const nextLabel = step < n - 1 ? 'Next caption →' : step === n - 1 ? 'And the real caption is… 🥁' : 'Round recap →';
+  const nextLabel = step < n - 1 ? 'Next caption →' : step === n - 1 ? 'And the real caption is…' : 'Round recap →';
   const ctl = canRun()
     ? `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" ${step <= 1 ? 'disabled' : ''} onclick="send({action:'reel_prev'})" aria-label="Previous caption">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'reel_next'})">${nextLabel}</button></div>
        ${step < n ? `<button class="btn-link" style="display:block; margin:6px auto 0; font-size:13px;" onclick="send({action:'reel_skip'})">Skip to the recap</button>` : ''}`
@@ -2653,7 +2653,7 @@ function openInvite() {
       <div class="h-display" style="font-size:56px; letter-spacing:8px; padding-left:8px; margin:2px 0 10px;">${esc(state.code)}</div>
       <div class="qr-wrap">${qrSvg(joinUrl(), 196)}</div>
       <p class="small" style="margin:10px 0 14px;">Point a phone camera here to join — or send the link</p></div>
-    <div class="stack"><button class="btn btn-yellow" onclick="shareRoom()">📣 Send the invite link</button><button class="btn btn-ink" onclick="closeMenu()">Close</button></div>`;
+    <div class="stack"><button class="btn btn-yellow" onclick="shareRoom()">Send the invite link</button><button class="btn btn-ink" onclick="closeMenu()">Close</button></div>`;
   $('sheet').classList.add('on');
 }
 // Opened from an invite link: straight to "join" with the code filled in
@@ -2696,7 +2696,7 @@ function renderScores() {
   return `${header({ sticker: '<span class="sticker">Scoreboard</span>', sub: goal, thumb: false })}
     <div class="sb-list ${sorted.length > 6 ? 'tight' : ''}">${rows}</div>
     <p class="sb-next">Next dealer: <b>${esc(firstName(state.nextDealerName))}</b></p>
-    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">🎲 Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>`}`;
+    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>`}`;
 }
 // Game over: two big moments (Winner, The Grand Poobah), a compact standings row, and the buttons
 function renderFinal(sorted, animated, goal) {
@@ -2721,7 +2721,7 @@ function renderFinal(sorted, animated, goal) {
     ${ccFinale.screenHtml()}
     <div class="fn-stand">${standings}</div>
     <div class="stack fn-btns">
-      ${state.finale.winner ? (state.isHost ? `<button class="btn btn-yellow" onclick="send({action:'play_again', seen:getSeen()})">Play again 🔁</button>` : `<p class="rc-wait">The host can start another game</p>`) : ''}
+      ${state.finale.winner ? (state.isHost ? `<button class="btn btn-yellow" onclick="send({action:'play_again', seen:getSeen()})">Play again</button>` : `<p class="rc-wait">The host can start another game</p>`) : ''}
       ${window.Recap && state.finale.winner ? `<button class="btn" onclick="Recap.open()">📸 Night recap</button>` : ''}
     </div>`;
   return `${header({ sticker: '<span class="sticker">Final scores</span>', sub: goal, thumb: false })}
@@ -2730,8 +2730,8 @@ function renderFinal(sorted, animated, goal) {
     <div class="stack fn-btns">
       ${galBtn}
       ${window.Recap ? `<button class="btn" onclick="Recap.open()">📸 Night recap</button>` : ''}
-      ${state.isHost ? `<button class="btn ${galBtn ? 'btn-sm' : 'btn-yellow'}" onclick="send({action:'play_again', seen:getSeen()})">${galBtn ? 'Skip the Gallery · play again' : 'Play again 🔁'}</button>` : galBtn ? '' : `<p class="rc-wait">The host can start another game</p>`}
-      ${state.history && state.history.length ? `<button class="btn-link fn-link" onclick="openHistory()">📖 Relive the rounds</button>` : ''}
+      ${state.isHost ? `<button class="btn ${galBtn ? 'btn-sm' : 'btn-yellow'}" onclick="send({action:'play_again', seen:getSeen()})">${galBtn ? 'Skip the Gallery · play again' : 'Play again'}</button>` : galBtn ? '' : `<p class="rc-wait">The host can start another game</p>`}
+      ${state.history && state.history.length ? `<button class="btn-link fn-link" onclick="openHistory()">Past rounds</button>` : ''}
     </div>`;
 }
 
@@ -2762,7 +2762,7 @@ function poobahHat(w = 120, cls = '') {
 const POOBAH_SLOGANS = [
   'The truth was on the table all night. The table chose this instead.',
   'Lied beautifully. Was believed. Is now wearing a hat.',
-  'History is written by the winners. Fiction, by the Poobah.',
+  'Never once told the truth. Nobody minded.',
   'The table was fooled, and would like it noted that it enjoyed it.',
   'Not the most points. Just the most persuasive.',
 ];
@@ -2827,7 +2827,7 @@ function playRoundPoobah() {
   o.innerHTML = `<div class="pb-card"><div class="pb-chips">${p.ids.map(id => `<div class="pb-seat"><div class="pb-hat">${poobahHat(92)}</div>${chipHtml(id, 'pb-chip')}</div>`).join('')}</div>
     <p class="eyebrow" style="color:var(--violet);">All hail</p>
     <div class="h-display pb-title">The Grand Poobah</div>
-    <div class="pb-name">${esc(names)}${me ? ' <span class="small">(you!)</span>' : ''}</div>
+    <div class="pb-name">${esc(names)}${me ? ' <span class="small">(you)</span>' : ''}</div>
     <p class="sub">${p.ids.length > 1 ? 'Each drew' : 'Drew'} ${plural(p.n, 'chip')} on a fake caption this round.</p>
     <p class="small" style="margin-top:6px;">${esc(pickBy(ROUND_TAGS, state.code + state.round))}</p></div>`;
   bsfx.swish();
@@ -2885,9 +2885,9 @@ function playGrandPoobah(g) {
     <div class="gp-tease" id="gp-tease">The Grand Poobah is…</div>
     <div class="gp-reveal" id="gp-reveal">
 ${gpWinnersHtml(g)}
-      <p class="gp-stats">${plural(g.n, 'chip')} on fake captions · crowned ${plural(g.crowns, 'round')}${me ? ' · that’s YOU' : ''}</p>
+      <p class="gp-stats">${plural(g.n, 'chip')} on fake captions · crowned ${plural(g.crowns, 'round')}${me ? ' · that’s you' : ''}</p>
       <p class="gp-slogan">“${esc(pickBy(POOBAH_SLOGANS, state.code + state.history.length))}”</p>
-      <button class="btn btn-yellow" style="margin-top:18px; width:auto; padding:13px 26px;" onclick="closeGrand(true)">Long live the Poobah 🎩${state.framedTonight && canRun() && window.ccFinale ? ' → Gallery' : ''}</button>
+      <button class="btn btn-yellow" style="margin-top:18px; width:auto; padding:13px 26px;" onclick="closeGrand(true)">Long live the Poobah${state.framedTonight && canRun() && window.ccFinale ? ' → Gallery' : ''}</button>
     </div>`;
   const step = (id, cls, t) => setTimeout(() => { const e = $(id); if (e) e.classList.add(cls); }, t);
   if (window.ccReducedMotion && window.ccReducedMotion()) {   // #11 Reduce Motion: the result, faded in, no drumroll show
@@ -2989,7 +2989,7 @@ function computeAwards() {
   const out = [];
   let t;
   if ((t = top(sharp)) && t.ids.length) out.push({ icon: '🦅', title: 'Sharpest Eye', who: names(t), line: `${plural(t.n, 'chip')} on the real caption` });
-  if ((t = top(moonHit)) && t.ids.length) out.push({ icon: '🌕', title: 'Moon Shooter', who: names(t), line: `Bet both chips blind and nailed it${t.n > 1 ? ' — ' + t.n + ' times' : ''}` });
+  if ((t = top(moonHit)) && t.ids.length) out.push({ icon: '🌕', title: 'Moon Shooter', who: names(t), line: `Both chips blind, on the real one${t.n > 1 ? ' — ' + t.n + ' times' : ''}` });
   // Most Framed: the most frames on one caption tonight (2 or more)
   const groups = {}, cut = state.scoresAt || Infinity;
   for (const f of state.allFlags || []) { if ((f.at || 0) > cut) continue; const k = f.round + '|' + f.target; groups[k] = (groups[k] || 0) + 1; }
