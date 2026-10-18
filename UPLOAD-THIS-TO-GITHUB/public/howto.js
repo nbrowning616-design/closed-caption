@@ -3,22 +3,23 @@
    among them → bet chips → the face-down one flips → the dealer steals → the reveal → Frame It → points.
    Big short headlines, a red-pen note, almost no reading. Tap the stage to pause; ◀ ▶ to jump.
    The full rules sit one tap below (index.html #rules-full).
-   window.HowTo = { start(mountEl), stop() }. The demo captions are written for this screen only.
+   window.HowTo = { start(mountEl), stop() }. The demo captions are written for this screen only, and the
+   cartoon (images/demo_snowman.jpg) was drawn for the demos: it is not in the deck, so nothing here is a spoiler.
    Uses host globals when present: tone(), noise(), soundEnabled(). CSS prefix: ht-. */
 (function () {
   'use strict';
   var RED = '#D7372C', INK = '#1F1A17';
   var SERIF = "'Libre Caslon Text',Georgia,'Times New Roman',serif", HAND = "'Caveat','Bradley Hand','Segoe Print',cursive";
-  var IMG = '/images/card_47.jpg';
+  var IMG = '/images/demo_snowman.jpg';
 
   // The cast (dealer doesn't bet). Colours match the game's chip palette feel.
   var P = { you: { n: 'You', i: 'Y', c: '#2F6FE0' }, amy: { n: 'Amy', i: 'A', c: '#E8453A' }, bob: { n: 'Bob', i: 'B', c: '#12A587' }, cat: { n: 'Cat', i: 'C', c: '#E89A2A' }, dan: { n: 'Dan', i: 'D', c: '#6E4CF5' } };
   // The table. One is real; one goes face-down (the Closed Caption).
   var CAPS = [
-    { k: '1', t: 'He’s here to renew his hibernation license.', by: 'amy' },
-    { k: '2', t: 'Smile. Or don’t. Honestly, your call.', by: 'you' },
-    { k: '3', t: 'Height: yes. Weight: let’s not.', by: null, real: true },
-    { k: 'cc', t: 'Organ donor? He’s more of a taker.', by: 'cat' },
+    { k: '1', t: 'I’m afraid it’s spread to the carrot.', by: 'amy' },
+    { k: '2', t: 'Relax. It’s mostly water weight.', by: 'you' },
+    { k: '3', t: 'Have you been under a lot of heat lately?', by: null, real: true },
+    { k: 'cc', t: 'Any symptoms besides the dripping?', by: 'cat' },
   ];
 
   var CSS = [

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FFF8EA">
+<meta name="description" content="What Closed Caption keeps, where, and for how long. Short version: very little, not for long.">
+<title>Closed Caption · Privacy</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='12' width='56' height='40' rx='9' fill='%231F1A17'/%3E%3Crect x='10' y='18' width='44' height='28' rx='6' fill='none' stroke='%23FFD23F' stroke-width='4'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-family='Arial Black,Arial' font-weight='900' font-size='18' fill='%23FFD23F'%3ECC%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<!--
+  Closed Caption privacy page. Plain words, true to the code (checked Oct 18 2026):
+  - server.js keeps every room in memory (the games object). A room is deleted 30 minutes after its last
+    phone leaves, and every room is gone whenever the server restarts or updates.
+  - Headshots: game.js setFace keeps one small JPEG per player in that room's memory, never on disk;
+    /face/CODE/ID serves it only to that room. Delete: the selfie sheet's "Delete my photo".
+  - Phones keep their own things in the browser's storage: name, headshot copy (cc_face), the Gallery
+    (cc_gallery), career/badges, which cartoons they've seen, sound settings.
+  - The Gallery deck (store.js) is memory-only unless the host sets DATA_DIR; on the current Render free plan
+    it isn't set. If it ever is, framed captions and the writer's name would be kept on the server — update
+    this page then.
+  - Voice: phone-to-phone (WebRTC). STUN from Google; if a direct path fails, audio may go through a TURN
+    relay (voice.js: the server's /ice list, else Metered's free Open Relay). Relays pass encrypted audio along.
+-->
+<style>
+  :root {
+    --display: 'Fredoka', 'Nunito', system-ui, sans-serif;
+    --sans: 'Nunito', -apple-system, system-ui, sans-serif;
+    --paper: #FFF8EA; --card: #FFFFFF; --ink: #1F1A17; --ink-2: #4A433D; --muted: #6E655C; --line: #E6DCC8;
+    --yellow: #FFD23F; --red: #E8453A; --teal: #12A587;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { font-family: var(--sans); font-weight: 700; color: var(--ink); background: var(--paper);
+         background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 18px 18px;
+         min-height: 100dvh; -webkit-font-smoothing: antialiased; }
+  main { max-width: 560px; margin: 0 auto; padding: calc(22px + env(safe-area-inset-top, 0px)) 16px calc(40px + env(safe-area-inset-bottom, 0px)); }
+  .mast { display: flex; align-items: center; gap: 8px; font-family: var(--display); font-weight: 700; font-size: 26px; letter-spacing: -.8px; line-height: 1; }
+  .mast b { display: inline-block; transform: rotate(-3deg); background: var(--yellow); padding: 3px 8px 4px; border: 3px solid var(--ink); border-radius: 9px; box-shadow: 3px 3px 0 var(--ink); font-weight: 700; }
+  h1 { font-family: var(--display); font-weight: 700; font-size: 34px; letter-spacing: -.6px; line-height: 1.05; margin: 26px 0 8px; }
+  .lede { font-size: 17px; line-height: 1.45; color: var(--ink-2); }
+  .card { background: var(--card); border: 2.5px solid var(--ink); border-radius: 16px; box-shadow: 4px 4px 0 var(--ink); padding: 16px 16px 6px; margin-top: 18px; }
+  h2 { font-family: var(--display); font-weight: 700; font-size: 19px; letter-spacing: -.2px; margin-bottom: 8px; }
+  p, li { font-size: 15.5px; line-height: 1.5; color: var(--ink-2); margin-bottom: 10px; }
+  ul { list-style: none; }
+  li { position: relative; padding-left: 22px; }
+  li::before { content: ""; position: absolute; left: 4px; top: .62em; width: 8px; height: 8px; border-radius: 50%; background: var(--ink); }
+  strong { color: var(--ink); font-weight: 900; }
+  .no li::before { content: "✕"; background: none; width: auto; height: auto; top: 0; left: 2px; color: var(--red); font-weight: 900; }
+  .stamp { display: inline-block; margin-top: 22px; font-family: var(--display); font-weight: 700; font-size: 15px; letter-spacing: 2px; color: var(--red);
+           border: 3px solid var(--red); border-radius: 8px; padding: 4px 10px; transform: rotate(-4deg); }
+  a { color: var(--ink); font-weight: 900; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  .back { display: inline-block; margin-top: 22px; padding: 12px 18px; background: var(--yellow); border: 2.5px solid var(--ink); border-radius: 14px;
+          box-shadow: 3px 3px 0 var(--ink); text-decoration: none; font-weight: 900; font-size: 16px; }
+  .small { font-size: 13px; color: var(--muted); margin-top: 16px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="mast"><b>CLOSED</b><span>CAPTION</span></div>
+
+  <h1>Privacy, briefly.</h1>
+  <p class="lede">It’s a party game. It keeps as little as it can, for as short as it can, and it doesn’t sell anything — least of all you.</p>
+
+  <section class="card">
+    <h2>What the game server holds</h2>
+    <ul>
+      <li><strong>Names</strong> you type to join, the <strong>captions</strong> you write, and your bets and scores.</li>
+      <li>Your <strong>headshot</strong>, only if you take one. It’s a small photo cropped to your face.</li>
+      <li>All of it sits in the server’s memory, <strong>only for that game room</strong>, seen only by the players in it. It’s never written to disk.</li>
+      <li>A room is <strong>deleted 30 minutes after the last phone leaves</strong> — and every room vanishes whenever the server restarts.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>What stays on your phone</h2>
+    <ul>
+      <li>Your name, your headshot (so you don’t retake it every game), <strong>The Gallery</strong> of framed captions, your badges, and which cartoons you’ve seen.</li>
+      <li>It lives in your browser’s storage on that phone, nowhere else. Clearing the site’s data in your browser settings erases it.</li>
+      <li>When you join a game, your phone shares your Gallery with that room so the table can see it.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Photos, and kids</h2>
+    <ul>
+      <li>The headshot is <strong>always optional</strong>. Skip it and the game draws you a cartoon head instead.</li>
+      <li><strong>Delete my photo</strong> (on the headshot screen) removes it from the room and from your phone, right away.</li>
+      <li>Kids are welcome to play. Nobody needs a real name, an email, or an account. A parent can delete a child’s photo the same way.</li>
+    </ul>
+  </section>
+
+  <section class="card no">
+    <h2>What we don’t do</h2>
+    <ul>
+      <li>No ads.</li>
+      <li>No tracking, analytics, or cookies for following you around.</li>
+      <li>No selling or sharing your names, captions, or photos. With anyone. Ever.</li>
+      <li>No accounts, no emails, no passwords.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>The fine print, in large print</h2>
+    <ul>
+      <li>The voice call (“Playing apart?”) goes phone to phone. On networks that block that, the encrypted audio may pass through a relay server on its way; nobody stores it.</li>
+      <li>The game’s lettering comes from Google Fonts, so your phone asks Google for the font files.</li>
+      <li>Like any website, the company that hosts the game may keep ordinary visit logs (like your network address) for a short time.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions?</h2>
+    <p>Ask the game’s owner — the person who shared Closed Caption with you. Want something deleted that you can’t delete yourself? They’ll take care of it.</p>
+  </section>
+
+  <span class="stamp">NOTHING TO SEE HERE</span>
+  <div><a class="back" href="/">← Back to the game</a></div>
+  <p class="small">Last updated October 2026.</p>
+</main>
+</body>
+</html>

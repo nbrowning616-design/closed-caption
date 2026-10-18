@@ -1,8 +1,14 @@
 /* ═══════════════════════════════════════════════════════════
    Closed Caption — THE OPENING SCREEN (home.js)
-   A face-down CC card flips to a cartoon; a caption types itself,
-   an editor's red pen strikes it out — twice — and a rubber stamp
-   asks the only question the game asks: REAL?
+   Two beats, taking turns, so the screen shows what makes the game different:
+   • the PEN: a face-down CC card flips to a cartoon; a caption types itself,
+     an editor's red pen strikes it out — twice — and a rubber stamp asks
+     the only question the game asks: REAL?
+   • the TABLE: chips land on a face-down caption, it flips, and a stamp says
+     what happened — FRAMED (a fake that beat the real one) or STOLEN (the
+     dealer's one-chip steal).
+   The cartoons are drawn for this screen only (images/demo_*.jpg): they are
+   not in the deck, so the home screen never gives an answer away.
 
    window.Home = {
      start()  -> renders into #home-mount and runs the loop
@@ -17,12 +23,12 @@
 (function () {
   'use strict';
 
-  /* Four edits: flat draft → better → dry. Never the real answers. */
+  /* Demo-only cartoons (never dealt). pen: flat draft → better → dry. table: a fake caption that fools the room. */
   var SEQ = [
-    { img: 'card_47.jpg', lines: ['A bear at the DMV.', 'Please don’t eat the camera.', 'Height: yes. Weight: let’s not.'], notes: ['Obvious.', 'Closer.'] },
-    { img: 'card_50.jpg', lines: ['The beaver ate the wood.', 'Did you find everything okay?', 'We’ll have to charge you for the snack.'], notes: ['Obvious.', 'Warmer.'] },
-    { img: 'card_51.jpg', lines: ['He swallowed the remote.', 'Have you tried turning him off?', 'Good news: the batteries are in there too.'], notes: ['Too literal.', 'Closer.'] },
-    { img: 'card_54.jpg', lines: ['That’s a lot of shoes.', 'What size? All of them.', 'Socks are extra. Very extra.'], notes: ['Obvious.', 'Almost.'] }
+    { img: 'demo_snowman.jpg', lines: ['The snowman is melting.', 'Have you tried somewhere colder?', 'Does this run in the family?'], notes: ['Obvious.', 'Closer.'] },
+    { img: 'demo_penguin.jpg', table: 'framed', fake: 'He says he’s with the drinks.', by: 'Amy', chips: ['#E8453A', '#12A587', '#6E4CF5'], note: 'fooled 3. framed.' },
+    { img: 'demo_goldfish.jpg', lines: ['The fish looks sad.', 'He misses the old neighborhood.', 'That’s his ex. She looks happy.'], notes: ['Too literal.', 'Warmer.'] },
+    { img: 'demo_robot.jpg', table: 'stolen', fake: 'It started when they upgraded my brother.', by: 'Bob', chips: ['#2F6FE0', '#E89A2A'], note: 'the dealer swipes a chip' }
   ];
 
   var CASLON = 'https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap';
@@ -45,6 +51,7 @@
     '.home-hello .home-wb{font-size:15px;font-weight:800;color:var(--ink);overflow:hidden;text-overflow:ellipsis;}',
     '.home-hello .home-wb b{font-weight:900;}',
     '.home-hello .home-ins{flex:0 0 auto;display:inline-flex;filter:drop-shadow(1px 1px 0 rgba(31,26,23,.35));}',
+    '.home-line{flex:0 0 auto;margin:2px auto 0;max-width:330px;padding:0 4px;font-size:13.5px;font-weight:800;line-height:1.35;color:var(--ink-2);}',
     '.home-hello .home-fr{flex:0 0 auto;font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:#8E1B22;border:1.5px solid #C9A24A;background:#FFF7DD;border-radius:999px;padding:3px 8px;}',
 
     /* stage: the card */
@@ -69,6 +76,22 @@
     '.home-stamp.home-on{opacity:.93;animation:homeStamp .34s cubic-bezier(.2,.9,.3,1.15) both;}',
     '.home-stamp.home-static{opacity:.93;}',
     '.home-stamp.home-off{opacity:0;transition:opacity .4s;}',
+    '.home-stamp.home-gold span{color:#A9781C;border-color:#A9781C;box-shadow:inset 0 0 0 2.5px rgba(255,251,242,.82),inset 0 0 0 4.5px #A9781C;}',
+    /* the table beat: a face-down caption slip, chips, a flip */
+    '.home-slip{position:absolute;left:50%;top:10px;width:min(318px,88%);height:58px;transform:translate(-50%,10px);opacity:0;perspective:700px;transition:opacity .3s,transform .35s cubic-bezier(.3,1.4,.5,1);}',
+    '.home-slip.home-on{opacity:1;transform:translate(-50%,0);}',
+    '.home-slip-in{position:absolute;inset:0;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .7s cubic-bezier(.45,.05,.2,1.12);}',
+    '.home-slip.home-flip .home-slip-in{transform:rotateX(180deg);}',
+    '.home-slip-f{position:absolute;inset:0;border:2.5px solid var(--ink);border-radius:11px;box-shadow:2px 2px 0 var(--ink);backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;align-items:center;justify-content:center;padding:0 62px 0 12px;}',
+    '.home-slip-back{background:var(--ink);color:var(--yellow);font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.12em;}',
+    '.home-slip-front{background:#fff;transform:rotateX(180deg);flex-direction:column;align-items:flex-start;text-align:left;}',
+    '.home-slip-t{font-family:' + SERIF + ';font-style:italic;font-size:14px;line-height:1.25;color:var(--ink);}',
+    '.home-slip-by{font-size:10.5px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-top:2px;}',
+    '.home-chips{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;z-index:2;}',
+    '.home-chip{display:block;width:22px;height:22px;margin-left:-7px;border-radius:50%;border:2px solid var(--ink);background:radial-gradient(circle,var(--c) 0 56%,transparent 57%),repeating-conic-gradient(from 8deg,var(--c) 0deg 28deg,#fff 28deg 60deg);box-shadow:0 2px 0 rgba(31,26,23,.9);animation:homeChip .42s cubic-bezier(.3,1.5,.5,1) both;}',
+    '@keyframes homeChip{0%{opacity:0;transform:translate(26px,-70px) scale(1.5) rotate(-40deg);}70%{opacity:1;}100%{opacity:1;transform:none;}}',
+    '.home-chip.home-yank{animation:homeYank .6s cubic-bezier(.5,0,.8,.4) both;}',
+    '@keyframes homeYank{0%{opacity:1;transform:none;}20%{opacity:1;transform:translateY(4px);}100%{opacity:0;transform:translate(-14px,-150px) rotate(30deg);}}',
     '@keyframes homeStamp{0%{opacity:0;transform:rotate(-4deg) scale(2.1);}60%{opacity:.95;transform:rotate(-12deg) scale(.95);}100%{opacity:.93;transform:rotate(-11deg) scale(1);}}',
 
     /* the caption under the card */
@@ -179,7 +202,7 @@
     try { name = (localStorage.getItem('cc_name') || '').trim(); } catch (e) {}
     try { car = typeof window.careerSummary === 'function' ? window.careerSummary() : null; } catch (e) {}
     try { gal = typeof window.galleryGet === 'function' ? window.galleryGet() : []; } catch (e) {}
-    if (!name) return '<span class="home-pitch">The caption game for people who think they’re funny.</span>';
+    if (!name) return '<span class="home-pitch">A bluffing game, not a joke contest.</span>';
     var rank = car && car.rank ? String(car.rank) : '';
     var title = rank && rank !== 'Cadet' ? rank + ' ' : '';
     var ins = '';
@@ -198,7 +221,8 @@
     mount.innerHTML =
       '<div class="home-mast" role="heading" aria-level="1"><span class="home-w1">CLOSED</span><span>CAPTION</span></div>' +
       '<div class="home-hello">' + helloHtml() + '</div>' +
-      '<p class="home-sr">Every phone sees the same cartoon. Write a fake caption that could pass for the real one, then bet on which caption is real.</p>' +
+      // the pitch, on screen: "A bluffing game…" leads (in the hello line for newcomers, here for regulars)
+      '<p class="home-line">' + (helloHtml().indexOf('home-pitch') < 0 ? '<b style="color:var(--ink)">A bluffing game, not a joke contest.</b> ' : '') + 'Everyone gets the same cartoon. Write a fake caption that passes for the real one, then bet on which one is.</p>' +
       '<div class="home-stage" aria-hidden="true">' +
         '<div class="home-card"><div class="home-inner">' +
           '<div class="home-face home-back"><span class="home-cc">CC</span><span class="home-lbl">Closed Caption</span></div>' +
@@ -206,12 +230,15 @@
         '</div></div>' +
         '<div class="home-stamp"><span>REAL?</span></div>' +
       '</div>' +
-      '<div class="home-capbox" aria-hidden="true"><p class="home-cap"><span class="home-txt"></span><span class="home-caret home-hide"></span></p><svg class="home-ink"></svg>' + PEN + '</div>' +
+      '<div class="home-capbox" aria-hidden="true"><p class="home-cap"><span class="home-txt"></span><span class="home-caret home-hide"></span></p><svg class="home-ink"></svg>' + PEN +
+        '<div class="home-slip"><div class="home-slip-in"><div class="home-slip-f home-slip-back">CLOSED CAPTION</div><div class="home-slip-f home-slip-front"><span class="home-slip-t"></span><span class="home-slip-by"></span></div></div><div class="home-chips"></div></div>' +
+      '</div>' +
       (gal.length ? '<div class="home-wall"></div>' : '');
     els = {
       card: mount.querySelector('.home-card'), img: mount.querySelector('.home-front img'), stamp: mount.querySelector('.home-stamp'),
       box: mount.querySelector('.home-capbox'), cap: mount.querySelector('.home-cap'), txt: mount.querySelector('.home-txt'), caret: mount.querySelector('.home-caret'),
-      ink: mount.querySelector('.home-ink'), pen: mount.querySelector('.home-pen'), wall: mount.querySelector('.home-wall'), gal: gal
+      ink: mount.querySelector('.home-ink'), pen: mount.querySelector('.home-pen'), wall: mount.querySelector('.home-wall'), gal: gal,
+      slip: mount.querySelector('.home-slip'), slipT: mount.querySelector('.home-slip-t'), slipBy: mount.querySelector('.home-slip-by'), chips: mount.querySelector('.home-chips'), stampTxt: mount.querySelector('.home-stamp span')
     };
     return true;
   }
@@ -315,8 +342,65 @@
     els.caret.classList.add('home-hide');
   }
 
+  function plink(i) { if (!soundOk()) return; try { window.noise(0.03, 0, 0.3, 3000, 'bandpass'); window.tone(1500 + i * 120, 0.05, 0, 'sine', 0.05, 500); window.tone(180, 0.08, 10, 'sine', 0.1); } catch (e) {} }
+  // a red-pen margin note above the slip
+  function note(text) {
+    var n = document.createElement('div'); n.className = 'home-note'; n.textContent = text;
+    els.box.appendChild(n);
+    var bw = els.box.clientWidth, nw = n.offsetWidth;
+    n.style.left = Math.max(2, Math.min(bw - nw - 2, bw / 2 - nw / 2 + 50)) + 'px'; n.style.top = '-16px';
+    n.classList.add('home-on');
+  }
+
+  /* the TABLE beat: chips land on the face-down caption → it flips → the stamp */
+  async function table(s) {
+    els.stamp.className = 'home-stamp' + (s.table === 'framed' ? ' home-gold' : '');
+    els.stampTxt.textContent = s.table === 'framed' ? 'FRAMED' : 'STOLEN';
+    els.img.src = imgUrl(s.img);
+    try { if (els.img.decode) await Promise.race([els.img.decode().catch(function () {}), wait(900)]); } catch (e) {}
+    els.cap.classList.add('home-gone'); els.txt.textContent = '';
+    els.slipT.textContent = s.fake; els.slipBy.textContent = '— ' + s.by + ' wrote it';
+    els.chips.innerHTML = ''; els.slip.className = 'home-slip';
+    await wait(450);
+    flick();
+    els.card.classList.remove('home-down'); els.card.classList.add('home-up');
+    await wait(700);
+    els.slip.classList.add('home-on');
+    await wait(650);
+    for (var i = 0; i < s.chips.length; i++) {
+      var c = document.createElement('i'); c.className = 'home-chip'; c.style.setProperty('--c', s.chips[i]);
+      els.chips.appendChild(c); later(300, (function (k) { return function () { plink(k); }; })(i));
+      await wait(380);
+    }
+    await wait(500);
+    flick();
+    els.slip.classList.add('home-flip');
+    await wait(1100);
+    if (s.table === 'stolen') {
+      var last = els.chips.lastElementChild;
+      if (last) last.classList.add('home-yank');
+      await wait(520);
+    }
+    thunk();
+    els.stamp.classList.add('home-on');
+    els.card.classList.remove('home-thunk'); void els.card.offsetWidth; els.card.classList.add('home-thunk');
+    await wait(260);
+    note(s.note);
+    await wait(2600);
+    els.stamp.classList.remove('home-on'); els.stamp.classList.add('home-off');
+    els.slip.classList.remove('home-on');
+    clearInk();
+    await wait(300);
+    flick();
+    els.card.classList.remove('home-up'); els.card.classList.add('home-down');
+    await wait(760);
+    els.slip.className = 'home-slip'; els.chips.innerHTML = '';
+  }
+
   async function sequence(s) {
+    if (s.table) return table(s);
     els.stamp.className = 'home-stamp';
+    els.stampTxt.textContent = 'REAL?';
     els.img.src = imgUrl(s.img);
     try { if (els.img.decode) await Promise.race([els.img.decode().catch(function () {}), wait(900)]); } catch (e) {}
     await wait(650);
@@ -359,7 +443,7 @@
   }
 
   function staticScene() {
-    var s = SEQ[seqIdx % SEQ.length];
+    var s = SEQ[0];   // a pen beat (it has lines)
     els.img.src = imgUrl(s.img);
     els.card.classList.add('home-up');
     els.card.querySelector('.home-inner').style.transition = 'none';
