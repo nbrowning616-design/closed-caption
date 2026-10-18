@@ -105,6 +105,7 @@ const CARTOONS = [
   { id: 83, title: "Actual Scorecards", image: "card_83.jpg", correct: "It says here you were a seven handicap." },
   { id: 84, title: "Red Card", image: "card_84.jpg", correct: "Go wait in the car." },
   { id: 85, title: "The First Marathon", image: "card_85.jpg", correct: "His last words were his split times." },
+  { id: 86, title: "The Inspector", image: "card_86.jpg", correct: "Ordinarily we'd start with a warning." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
