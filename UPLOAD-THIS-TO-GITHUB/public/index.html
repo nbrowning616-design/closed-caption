@@ -10,30 +10,74 @@
 <meta name="apple-mobile-web-app-title" content="Closed Caption">
 <meta name="description" content="Closed Caption — the caption-writing party game. Write a caption that could pass for the real one, then bet on which one is.">
 <title>Closed Caption</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='12' width='56' height='40' rx='9' fill='%231F1A17'/%3E%3Crect x='10' y='18' width='44' height='28' rx='6' fill='none' stroke='%23FFD23F' stroke-width='4'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-family='Arial Black,Arial' font-weight='900' font-size='18' fill='%23FFD23F'%3ECC%3C/text%3E%3C/svg%3E">
+<!-- Texted invite preview (iMessage, WhatsApp, Facebook, Slack...). Scrapers need an absolute image URL. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Closed Caption">
+<meta property="og:title" content="Closed Caption">
+<meta property="og:description" content="A bluffing game, not a joke contest. Everyone gets the same cartoon: write a caption that passes for the real one, then bet on which one is. 3–8 players, a phone each.">
+<meta property="og:image" content="https://closed-caption.onrender.com/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Closed Caption — A bluffing game, not a joke contest.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Closed Caption">
+<meta name="twitter:description" content="A bluffing game, not a joke contest. 3–8 players, a phone each.">
+<meta name="twitter:image" content="https://closed-caption.onrender.com/og-image.png">
+<!-- Icons: browser tab, home screen (iOS and Android) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='12' width='56' height='40' rx='9' fill='%231F1A17'/%3E%3Crect x='10' y='18' width='44' height='28' rx='6' fill='none' stroke='%23FFD23F' stroke-width='4'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-family='Arial Black,Arial' font-weight='900' font-size='18' fill='%23FFD23F'%3ECC%3C/text%3E%3C/svg%3E" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/icons/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" sizes="180x180">
+<link rel="manifest" href="/manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<!-- The serif (Gallery, home plaque, share cards) and the hand (home screen): fetched without holding up the first paint.
+     Same URLs home.js / gallery.js / hof.js ask for, so they find these and don't load them twice. -->
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<!-- First screen: what the app script needs as soon as it runs (home screen, lobby, QR code, badges, tips, sound, voice, headshots). -->
 <script src="/music.js?v=__V__"></script>
 <script src="/fx.js?v=__V__"></script>
-<script src="/hof.js?v=__V__"></script>
-<script src="/gallery.js?v=__V__"></script>
 <script src="/badges.js?v=__V__"></script>
 <script src="/moments.js?v=__V__"></script>
-<script src="/steal.js?v=__V__"></script>
-<script src="/heists.js?v=__V__"></script>
-<script src="/heads.js?v=__V__"></script>
-<script src="/heads-pack1.js?v=__V__"></script>
-<script src="/heads-pack2.js?v=__V__"></script>
 <script src="/selfie.js?v=__V__"></script>
 <script src="/voice.js?v=__V__"></script>
 <script src="/howto.js?v=__V__"></script>
 <script src="/qrcode.js?v=__V__"></script>
 <script src="/home.js?v=__V__"></script>
-<script src="/recap.js?v=__V__"></script>
-<script src="/heads-spots.js?v=__V__"></script>
-<script src="/finale.js?v=__V__"></script>
 <script src="/guide.js?v=__V__"></script>
+<script>
+/* The show scripts (Gallery + share card, steal + heists, Big Head gags, recap, finale) aren't needed until the middle
+   of a round, so they no longer hold up the first screen. Once the page has loaded (or 4 s after the app is up,
+   whichever comes first) they're all fetched at once and run one by one in their old order (a pack needs heads.js,
+   the finale reads heads-spots.js). A failed fetch is retried. Every use in the app checks window.X first, so a phone
+   that is still fetching them skips that moment's animation instead of breaking. window.ccShowReady() -> Promise. */
+(function () {
+  var V = '__V__';
+  var SHOW = ['hof', 'gallery', 'steal', 'heists', 'heads', 'heads-pack1', 'heads-pack2', 'recap', 'heads-spots', 'finale'];
+  var started = false, done = false, waiters = [];
+  window.ccShowReady = function () { return new Promise(function (res) { if (done) res(); else waiters.push(res); }); };
+  function src(n) { return '/' + n + '.js?v=' + V; }
+  function finish() { done = true; waiters.splice(0).forEach(function (f) { try { f(); } catch (e) {} });
+    try { if (document.fonts && document.fonts.load) { document.fonts.load("italic 20px 'Libre Caslon Text'"); document.fonts.load("400 20px 'Libre Caslon Text'"); document.fonts.load("700 20px 'Libre Caslon Text'"); } } catch (e) {} }
+  function run(i, tries) {
+    if (i >= SHOW.length) return finish();
+    var s = document.createElement('script'); s.src = src(SHOW[i]);
+    s.onload = function () { run(i + 1, 0); };
+    s.onerror = function () { s.remove(); if (tries < 4) setTimeout(function () { run(i, tries + 1); }, 1500 * (tries + 1)); else run(i + 1, 0); };
+    document.head.appendChild(s);
+  }
+  function start() {
+    if (started) return; started = true;
+    try { SHOW.forEach(function (n) { var l = document.createElement('link'); l.rel = 'preload'; l.as = 'script'; l.href = src(n); document.head.appendChild(l); }); } catch (e) {}
+    run(0, 0);
+  }
+  window.addEventListener('load', start);
+  document.addEventListener('DOMContentLoaded', function () { setTimeout(start, 4000); });
+})();
+</script>
 <style>
 /* ═══════════════════════════════════════════════════════════
    CLOSED CAPTION — design tokens
