@@ -47,6 +47,7 @@ function createDeck(FILE = null, quiet = true) {
       month: typeof e.month === 'string' && e.month ? e.month.slice(0, 40) : MONTH(at),
       at,
       ...(typeof e.best === 'string' && e.best ? { best: e.best.slice(0, 60) } : {}),
+      ...(typeof e.sig === 'string' && e.sig ? { sig: e.sig.slice(0, 64) } : {}),   // the server's stamp: framed at a real table (Expert Mode deals only these)
     };
   }
 

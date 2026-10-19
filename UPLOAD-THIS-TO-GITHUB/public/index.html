@@ -874,6 +874,7 @@ function buzz(pattern) {
 }
 
 let lastGazette = null, lastIndN = null;   // The Gallery: last list the server sent; the last framing moment seen
+let myKey = null, serverBoot = null, lastTry = null, restoring = false, lastNoticeAt = 0, otherDevice = false;   // #2 seat key, #6 restart
 let ws = null, state = null, myPlayerId = null, gameCode = null, selectedTimer = 120 /* [settings] 2 min default */, timerInterval = null, wasKicked = false, clockOffset = 0;
 const BUILD = '__BUILD__';
 
@@ -1172,7 +1173,7 @@ const confetti = (() => {
    Networking (auto-reconnect, session restore)
    ═══════════════════════════════════════════════════════════ */
 let reconnectAttempts = 0, connectionStatus = 'connecting', reconnectTimer = null;
-function saveSession() { if (myPlayerId && gameCode) { const v = JSON.stringify({ playerId: myPlayerId, code: gameCode, name: (playerById(myPlayerId) || {}).name || '', ts: Date.now() }); try { sessionStorage.setItem('cc_session', v); } catch (e) {} try { localStorage.setItem('cc_session', v); } catch (e) {} } }
+function saveSession() { if (myPlayerId && gameCode) { const v = JSON.stringify({ playerId: myPlayerId, code: gameCode, key: myKey, boot: serverBoot, name: (playerById(myPlayerId) || {}).name || '', ts: Date.now() }); try { sessionStorage.setItem('cc_session', v); } catch (e) {} try { localStorage.setItem('cc_session', v); } catch (e) {} } }
 function readStore(store) { try { const s = JSON.parse(store.getItem('cc_session') || 'null'); if (!s || Date.now() - s.ts > 12 * 3600 * 1000) return null; return s; } catch { return null; } }
 function clearSession() { try { sessionStorage.removeItem('cc_session'); } catch (e) {} try { localStorage.removeItem('cc_session'); } catch (e) {} }
 function offerRejoin() {
@@ -1181,18 +1182,22 @@ function offerRejoin() {
   if (!s || myPlayerId) { box.innerHTML = ''; return; }
   box.innerHTML = `<div class="panel yellow flat" style="text-align:left; display:flex; align-items:center; gap:12px;"><div style="flex:1;"><b>Still at the table?</b><br><span class="small">Game ${esc(s.code)}${s.name ? ' as ' + esc(s.name) : ''}</span></div><button class="btn btn-sm btn-ink" style="width:auto;" onclick="rejoinSaved()">Rejoin</button><button class="btn-link" style="padding:4px;" aria-label="Dismiss" onclick="clearSession(); offerRejoin();">✕</button></div>`;
 }
-function rejoinSaved() { const s = readStore(localStorage); if (s) { try { sessionStorage.setItem('cc_session', JSON.stringify(s)); } catch (e) {} send({ action: 'reconnect', playerId: s.playerId, code: s.code }); } }
+function rejoinSaved() { const s = readStore(localStorage); if (s) { myKey = s.key || null; try { sessionStorage.setItem('cc_session', JSON.stringify(s)); } catch (e) {} tryReconnect(s.playerId, s.code, s.key); } }
+// #2: the seat key proves this phone owns the seat; #6: if the room is gone after a restart, the sealed copy brings it back
+function tryReconnect(pid, code, key) { lastTry = { pid, code, key }; send({ action: 'reconnect', playerId: pid, code, key }); }
+function sealFor(code) { try { const x = JSON.parse(localStorage.getItem('cc_seal') || 'null'); return x && x.code === code && Date.now() - x.ts < 6 * 3600 * 1000 ? x : null; } catch (e) { return null; } }
 
 function connect() {
   clearTimeout(reconnectTimer);
+  if (otherDevice) return;   // #27: reload to take the seat back
   if (ws && (ws.readyState === 0 || ws.readyState === 1)) return;
   ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}`);
   ws.onopen = () => {
     connectionStatus = 'connected'; updateConnectionBanner();
     if (!wasKicked) {
       const s = readStore(sessionStorage);
-      if (myPlayerId && gameCode) send({ action: 'reconnect', playerId: myPlayerId, code: gameCode });
-      else if (s && !window._linkCode) send({ action: 'reconnect', playerId: s.playerId, code: s.code });
+      if (myPlayerId && gameCode) tryReconnect(myPlayerId, gameCode, myKey);
+      else if (s && !window._linkCode) { myKey = s.key || null; tryReconnect(s.playerId, s.code, s.key); }
       else offerRejoin();
     }
     reconnectAttempts = 0;
@@ -1200,7 +1205,9 @@ function connect() {
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
     if (msg.type === 'rtc') { if (window.Voice) Voice.onSignal(msg); return; }
-    if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; pendingJoin = null; if (pendingName) { rememberName(pendingName); pendingName = null; } saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); if (window.Selfie) Selfie.sync(); }, 300); }
+    if (msg.type === 'hello') { serverBoot = msg.boot; return; }
+    if (msg.type === 'seal') { try { localStorage.setItem('cc_seal', JSON.stringify({ code: msg.code, data: msg.data, ts: Date.now() })); } catch (e) {} return; }
+    if (msg.type === 'joined') { if (restoring) setTimeout(() => showToast('The server restarted. Your game is back where it was.', 'ok'), 600); restoring = false; lastTry = null; myKey = msg.key || null; if (msg.boot) serverBoot = msg.boot; if (demoWatched()) setTimeout(() => send({ action: 'demo_watched' }), 500); myPlayerId = msg.playerId; gameCode = msg.code; pendingJoin = null; if (pendingName) { rememberName(pendingName); pendingName = null; } saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); if (window.Selfie) Selfie.sync(); }, 300); }
     else if (msg.type === 'state') {
       state = msg.data;
       if (window.Voice) Voice.onState(state);
@@ -1208,6 +1215,8 @@ function connect() {
       if (Array.isArray(state.gazette)) lastGazette = state.gazette;   // only sent between rounds: keep the last one
       if (state.build && BUILD !== '__BUILD__' && state.build !== BUILD && !window._reloading) { window._reloading = true; saveSession(); saveDraftNow(); setTimeout(() => location.reload(), 300); return; }
       saveSession();
+      // #26 and others: a line for the whole table (fresh ones only)
+      if (state.notice && state.notice.at > lastNoticeAt) { if (state.serverNow - state.notice.at < 8000) setTimeout(() => showToast(state.notice.text, 'ok'), 300); lastNoticeAt = state.notice.at; }
       lobbyWatch();
       render();
     }
@@ -1221,7 +1230,15 @@ function connect() {
         return;
       }
       if ((msg.message === 'Player not in game' || msg.message === 'Game not found') && !myPlayerId && $('screen-join').classList.contains('active')) { clearSession(); return; }   // an old seat, while they type a new one
+      if (msg.message === 'Game not found' && lastTry && !restoring) {
+        const seal = sealFor(lastTry.code);
+        if (seal) { restoring = true; send({ action: 'restore', data: seal.data, playerId: lastTry.pid, key: lastTry.key }); return; }
+      }
       if (msg.message === 'Player not in game' || msg.message === 'Game not found') {
+        const saved = readStore(localStorage), restarted = restoring || (saved && saved.boot && serverBoot && saved.boot !== serverBoot);
+        restoring = false; lastTry = null;
+        try { localStorage.removeItem('cc_seal'); } catch (e) {}
+        if (restarted && msg.message === 'Game not found') { clearSession(); myPlayerId = null; gameCode = null; state = null; showScreen('screen-home'); showToast('The server restarted and the room couldn’t be saved. Sorry. Start a new one.'); return; }
         const quiet = !$('screen-join').classList.contains('active') && msg.message !== 'Game not found';
         clearSession(); myPlayerId = null; gameCode = null; state = null; showScreen('screen-home');
         if (!quiet) showToast(msg.message === 'Game not found' ? 'That room doesn’t exist (or it ended)' : msg.message);
@@ -1237,7 +1254,10 @@ function connect() {
     else if (msg.type === 'caption_check') { submitting = false; showSpellCheck(msg); }
     else if (msg.type === 'kicked') { clearSession(); wasKicked = true; myPlayerId = null; gameCode = null; state = null; showScreen('screen-home'); showToast(msg.message || 'The host has shown you out.'); }
   };
-  ws.onclose = () => { connectionStatus = 'disconnected'; updateConnectionBanner(); reconnectTimer = setTimeout(connect, Math.min(6000, 600 * Math.pow(2, reconnectAttempts++))); };
+  ws.onclose = (ev) => {
+    // #27: this seat opened on another phone or tab: stop fighting over it
+    if (ev && ev.code === 4000) { otherDevice = true; connectionStatus = 'disconnected'; updateConnectionBanner(); showToast('You’re playing on another device now. Reload this page to play here instead.'); return; }
+    connectionStatus = 'disconnected'; updateConnectionBanner(); reconnectTimer = setTimeout(connect, Math.min(6000, 600 * Math.pow(2, reconnectAttempts++))); };
   ws.onerror = () => {};
 }
 // Coming back to the tab (phone unlocked): reconnect right away instead of waiting
@@ -1631,8 +1651,9 @@ function renderLobby() {
       <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">Send the invite link</button>
     </div>
     ${state.isHost ? demoCardHtml() : ''}
-    <p class="eyebrow" style="margin-bottom:6px;">At the table · ${connected} of ${state.players.length}</p>
+    <p class="eyebrow" style="margin-bottom:6px;">At the table · ${connected} of ${state.players.length}${state.players.length > 1 ? ` <span style="text-transform:none;letter-spacing:0;font-weight:400;">· ${state.players.filter(p => p.watched).length} of ${state.players.length} watched the demo</span>` : ''}</p>
     <div style="margin-bottom:10px;">${players}</div>${seatHelp}
+    ${state.isHost ? `<button class="btn-link" style="display:block; margin:0 auto 10px; font-size:14px;" onclick="send({action:'lock', on:${!state.locked}})">${state.locked ? 'Room locked. Unlock it' : 'Everyone’s here? Lock the room'}</button>` : state.locked ? '<p class="center small" style="margin-bottom:10px;">The host has locked the room.</p>' : ''}
     ${galleryToggle}${settings}${freshLine}<p class="center small" style="margin-bottom:14px;">${summary}</p>
     ${state.isHost
       ? `<button class="btn btn-yellow" onclick="send({action:'start'})" ${connected < 3 ? 'disabled' : ''}>${connected < 3 ? `Need ${plural(3 - connected, 'more player')}` : 'Start the game →'}</button>`
@@ -1643,7 +1664,7 @@ function renderLobby() {
    "Watched" lives on this phone; the game starting brings them straight back to the table. */
 let demoFrom = 0;
 function demoWatched() { try { return localStorage.getItem('cc_demo_watched') === '1' || localStorage.getItem('cc_played_game') === '1'; } catch (e) { return false; } }
-function demoMarkWatched() { try { localStorage.setItem('cc_demo_watched', '1'); } catch (e) {} }
+function demoMarkWatched() { try { localStorage.setItem('cc_demo_watched', '1'); } catch (e) {} if (myPlayerId) send({ action: 'demo_watched' }); }
 function watchDemo() { demoFrom = Date.now(); showScreen('screen-rules'); }
 function demoCardHtml() {
   if (demoWatched()) return '';
@@ -2085,11 +2106,11 @@ function renderSteal() {
       <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">Steal one chip</h2><p class="sub steal-line">Tap ${dealerMode() === 'both' ? 'another player’s' : 'a'} chip to steal it. Off the real one = their points become yours. Off a fake, they get +1.</p></div>
       <div class="stack" style="margin-top:18px;">${cards}</div>`;
   }
-  const canPass = state.canTakeover;
+  const canPass = state.canTakeover || state.isHost;   // #28: the host can pass for a dealer who's wandered off
   return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
     <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">${esc(firstName(state.dealerName))} is choosing a chip to steal<span class="dots"></span></h2><p class="sub">Any chip on the table could go. Plead your case.</p></div>
     <div class="stack" style="margin-top:18px;">${cards}</div>
-    ${canPass ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'steal', betIndex:null})">Skip the steal and show the answer →</button>` : ''}`;
+    ${state.canTakeover ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'steal', betIndex:null})">Skip the steal and show the answer →</button>` : canPass ? `<button class="btn-link" style="display:block; margin:16px auto 0; font-size:14px;" onclick="send({action:'steal', betIndex:null})">Dealer stuck? Skip the steal</button>` : ''}`;
 }
 function grabChip(i) {
   grabbedBet = grabbedBet === i ? null : i; sfx.tap();

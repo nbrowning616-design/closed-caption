@@ -22,6 +22,9 @@ function lanUrl() {
 const LAN_URL = lanUrl();
 
 const app = express();
+// Smaller downloads on a weak party signal (gzip), when the helper is installed
+try { app.use(require('compression')()); } catch (e) { console.warn('  (compression not installed — serving uncompressed)'); }
+const BOOT = crypto.randomBytes(4).toString('hex');   // changes on every restart; phones use it to tell a restart from a closed room
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, maxPayload: 64 * 1024 });   // room for one small headshot
 
@@ -65,6 +68,10 @@ const clients = {};  // playerId -> { ws, gameCode }
 function broadcast(code) {
   const game = games[code];
   if (!game) return;
+  // #6: every phone keeps a sealed copy of the room, refreshed on each new stage (or every 20 s), to hand back after a restart
+  const tag = game.phase + '|' + game.round + '|' + (game.reel ? game.reel.step : '') + '|' + game.players.length + '|' + (game.frameResult ? 1 : 0) + '|' + (game.finale ? (game.finale.winner || 'v') : '');
+  let seal = null;
+  if (tag !== game._sealTag || Date.now() - (game._sealAt || 0) > 20000) { try { seal = G.sealGame(game); game._sealTag = tag; game._sealAt = Date.now(); } catch (e) { console.error('seal failed', e); } }
   for (const p of game.players) {
     const c = clients[p.id];
     if (c && c.ws.readyState === 1) {
@@ -72,6 +79,7 @@ function broadcast(code) {
       view.lanUrl = LAN_URL;
       view.build = BUILD;
       c.ws.send(JSON.stringify({ type: 'state', data: view }));
+      if (seal) c.ws.send(JSON.stringify({ type: 'seal', code, boot: BOOT, data: seal }));
     }
   }
 }
@@ -96,7 +104,16 @@ function scheduleWritingEnd(code) {
   const game = games[code];
   if (!game || game.phase !== PHASES.WRITING) return;
   if (!game.timerEnd) return;   // [settings] no timer: writing ends when everyone's in, or the dealer/host ends it
-  later(code, Math.max(0, game.timerEnd - Date.now()) + 2000, PHASES.WRITING, endWriting);
+  later(code, Math.max(0, game.timerEnd - Date.now()) + 2000, PHASES.WRITING, (g) => {
+    // #34: one caption plus the real one gives the answer away: 30 s more, up to twice, then on regardless
+    if (g.submissions.length === 1 && (g.oneCapExt || 0) < 2 && g.players.filter(G.isPresent).length >= 2) {
+      g.oneCapExt = (g.oneCapExt || 0) + 1; g.timerEnd = Date.now() + 30000; g.timerToken++;
+      g.notice = { text: 'One caption isn’t a game. Thirty more seconds.', at: Date.now() };
+      return setTimeout(() => scheduleWritingEnd(code), 0);
+    }
+    g.oneCapExt = 0;
+    endWriting(g);
+  });
 }
 function endWriting(g) {
   const r = G.finishWriting(g);
@@ -126,17 +143,44 @@ function resolveFrames(code) {
   return true;
 }
 
+// #4 / #51: limits, per phone address. New rooms: 6 a minute. Wrong room codes: 12 per 5 minutes, then a 2-minute wait.
+const MAX_ROOMS = 1500;
+const hits = new Map();   // ip -> { creates: [t], misses: [t], blockedUntil }
+function hitsOf(ip) { let h = hits.get(ip); if (!h) hits.set(ip, h = { creates: [], misses: [], blockedUntil: 0 }); return h; }
+const recent = (list, ms) => { const now = Date.now(); while (list.length && now - list[0] > ms) list.shift(); return list; };
+function wrongCode(ip) { const h = hitsOf(ip); recent(h.misses, 5 * 60000).push(Date.now()); if (h.misses.length >= 12) { h.blockedUntil = Date.now() + 2 * 60000; h.misses = []; } }
+const blocked = (ip) => hitsOf(ip).blockedUntil > Date.now();
+setInterval(() => { const now = Date.now(); for (const [ip, h] of hits) if (!h.creates.length && !h.misses.length && h.blockedUntil < now) hits.delete(ip); else { recent(h.creates, 60000); recent(h.misses, 5 * 60000); } }, 60000);
+const TAKE_SEAT_SECS = 30;   // #26: a seat can only be claimed by name once its phone has been gone this long
+
+// After a restart: a phone hands back its sealed copy and the room comes back as it was
+function resumeTimers(code) {
+  const g = games[code];
+  if (!g) return;
+  if (g.phase === PHASES.WRITING) scheduleWritingEnd(code);
+  if (g.phase === PHASES.FIRST_BETS || g.phase === PHASES.SECOND_BETS) autoAdvanceBets(code);
+  if (g.phase === PHASES.FRAMING && g.frameResult) later(code, Math.max(1500, g.frameResult.endsAt - Date.now()), PHASES.FRAMING, G.moveToScoreboard);
+}
+
 const send = (ws, obj) => { if (ws.readyState === 1) ws.send(JSON.stringify(obj)); };
 const sendError = (ws, message) => send(ws, { type: 'error', message });
 const cleanName = (s) => String(s || '').replace(/\s+/g, ' ').trim().slice(0, 12);
 
-wss.on('connection', (ws) => {
+wss.on('connection', (ws, req) => {
   let playerId = null;
+  const ip = String((req && req.headers['x-forwarded-for']) || (req && req.socket && req.socket.remoteAddress) || '').split(',')[0].trim();
+  send(ws, { type: 'hello', boot: BOOT });
   ws.isAlive = true;
   ws.on('pong', () => { ws.isAlive = true; });
 
   const seat = (id, code) => {
-    if (playerId && playerId !== id && clients[playerId] && clients[playerId].ws === ws) delete clients[playerId];
+    // #4: one room per phone. Moving to another seat or room leaves the old seat offline (never a ghost that holds up betting)
+    if (playerId && playerId !== id && clients[playerId] && clients[playerId].ws === ws) {
+      const oldCode = clients[playerId].gameCode, og = games[oldCode];
+      delete clients[playerId];
+      const op = og && og.players.find(x => x.id === playerId);
+      if (op) { op.connected = false; op.disconnectedAt = Date.now(); G.clearVoice(og, playerId); if (oldCode !== code) broadcast(oldCode); }
+    }
     const old = clients[id];
     if (old && old.ws !== ws) { try { old.ws.close(4000, 'replaced'); } catch (e) {} }
     playerId = id;
@@ -144,7 +188,8 @@ wss.on('connection', (ws) => {
     const p = games[code].players.find(x => x.id === id);
     if (p) { p.connected = true; p.disconnectedAt = null; }
     G.clearVoice(games[code], id);   // a fresh connection starts outside the voice call (the phone re-joins it)
-    send(ws, { type: 'joined', playerId: id, code });
+    if (p && !p.key) p.key = crypto.randomBytes(16).toString('base64url');
+    send(ws, { type: 'joined', playerId: id, code, key: p ? p.key : null, boot: BOOT });   // #2: the key never leaves this phone; everyone else only ever sees the public id
     broadcast(code);
   };
 
@@ -159,6 +204,9 @@ wss.on('connection', (ws) => {
     if (msg.action === 'create') {
       const name = cleanName(msg.name);
       if (!name) return sendError(ws, 'Enter your name');
+      const h = hitsOf(ip);
+      if (recent(h.creates, 60000).length >= 6 || Object.keys(games).length >= MAX_ROOMS) return sendError(ws, 'Too many new rooms just now. Try again in a minute.');
+      h.creates.push(Date.now());
       const timer = G.cleanTimer(msg.timer) ?? G.DEFAULT_TIMER;   // [settings] 0 = no timer; default 2 min
       const id = crypto.randomUUID();
       let game; do { game = G.createGame(id, name, timer, Array.isArray(msg.seen) ? msg.seen.slice(0, 200) : []); } while (games[game.code]);
@@ -167,24 +215,44 @@ wss.on('connection', (ws) => {
     }
     if (msg.action === 'reconnect') {
       const code = String(msg.code || '').toUpperCase().trim();
+      if (blocked(ip)) return sendError(ws, 'Too many tries. Wait a minute.');
       const game = games[code];
       if (!game) return sendError(ws, 'Game not found');
-      if (!game.players.some(p => p.id === msg.playerId)) return sendError(ws, 'Player not in game');
-      return seat(msg.playerId, code);
+      const p = game.players.find(x => x.id === msg.playerId);
+      if (!p) return sendError(ws, 'Player not in game');
+      if (p.key && msg.key !== p.key) { wrongCode(ip); return sendError(ws, 'Player not in game'); }   // #2: a seat answers only to its own phone
+      return seat(p.id, code);
+    }
+    if (msg.action === 'restore') {
+      // #6: the server restarted; this phone brings the room back from its sealed copy
+      const g = G.unsealGame(msg.data);
+      if (!g) return sendError(ws, 'Game not found');
+      const p = g.players.find(x => x.id === msg.playerId);
+      if (!p || (p.key && msg.key !== p.key)) return sendError(ws, 'Game not found');
+      if (!games[g.code]) { games[g.code] = g; g._lastAct = Date.now(); console.log('room restored after restart', g.code, g.phase); resumeTimers(g.code); }
+      else if (!games[g.code].players.some(x => x.id === p.id && x.key === p.key)) return sendError(ws, 'Game not found');
+      return seat(p.id, g.code);
     }
     if (msg.action === 'join') {
       const code = String(msg.code || '').toUpperCase().trim();
       const name = cleanName(msg.name);
       if (!name) return sendError(ws, 'Enter your name');
+      if (blocked(ip)) return sendError(ws, 'Too many tries. Wait a minute.');
       const game = games[code];
-      if (!game) return sendError(ws, 'Game not found');
+      if (!game) { wrongCode(ip); return sendError(ws, 'Game not found'); }
       const existing = game.players.find(p => p.name.toLowerCase() === name.toLowerCase());
       if (existing) {
         // Same name = same seat (lets someone whose phone died rejoin from a new phone).
-        // Only allowed when that seat isn't live on another phone right now.
+        // #26: only once that seat's phone has been gone a while, never in a locked room, and the table is told.
         if (existing.connected && clients[existing.id] && clients[existing.id].ws.readyState === 1) return sendError(ws, existing.name + ' is already at the table');
+        if (game.locked) return sendError(ws, 'The host has locked this room');
+        const away = existing.disconnectedAt ? (Date.now() - existing.disconnectedAt) / 1000 : 0;
+        if (!existing.connected && away < TAKE_SEAT_SECS) return sendError(ws, `${existing.name}’s phone only just dropped. Try again in ${Math.ceil(TAKE_SEAT_SECS - away)} seconds.`);
+        existing.key = null;   // the old phone's key stops working
+        game.notice = { text: `${existing.name} is back, on a different phone.`, at: Date.now() };
         return seat(existing.id, code);
       }
+      if (game.locked) return sendError(ws, 'The host has locked this room');
       const id = crypto.randomUUID();
       const r = G.addPlayer(game, id, name);
       if (r.error) return sendError(ws, r.error);
@@ -197,6 +265,7 @@ wss.on('connection', (ws) => {
     if (!game) return;
     const me = game.players.find(p => p.id === playerId);
     if (!me) return;
+    game._lastAct = Date.now();
     const dealer = game.players[game.dealerIndex];
     const isDealer = !!dealer && dealer.id === playerId;
     const isHost = game.hostId === playerId;
@@ -221,6 +290,18 @@ wss.on('connection', (ws) => {
         const kc = clients[targetId];
         if (kc) { send(kc.ws, { type: 'kicked', message: 'The host has shown you out.' }); try { kc.ws.close(); } catch (e) {} delete clients[targetId]; }
         broadcast(code);
+        return;
+      }
+      case 'lock': {
+        // #51: no new names while locked (people already seated can always come back)
+        if (!isHost) return sendError(ws, 'Only the host can lock the room');
+        game.locked = !!msg.on;
+        broadcast(code);
+        return;
+      }
+      case 'demo_watched': {
+        // #36: the host sees how many have watched the 1-minute demo
+        if (!me.watched) { me.watched = true; broadcast(code); }
         return;
       }
       case 'update_settings': {
@@ -317,6 +398,7 @@ wss.on('connection', (ws) => {
         if (!canRun) return sendError(ws, 'Only the dealer or host can do that');
         if (game.phase !== PHASES.WRITING) return;
         if (game.submissions.length === 0) return sendError(ws, 'Nobody has written anything yet');
+        if (game.submissions.length < 2) return sendError(ws, 'Wait for one more caption. With one, the real one is obvious.');   // #34
         endWriting(game);
         broadcast(code);
         return;
@@ -344,8 +426,8 @@ wss.on('connection', (ws) => {
       }
       case 'steal': {
         if (game.phase !== PHASES.STEAL) return;
-        if (!isDealer && !(dealerAway >= G.TAKEOVER_SECS)) return sendError(ws, 'Only the dealer can steal');
-        // A stand-in for a missing dealer can only pass
+        if (!isDealer && !isHost && !(dealerAway >= G.TAKEOVER_SECS)) return sendError(ws, 'Only the dealer can steal');
+        // A stand-in for a missing dealer (or the host, #28) can only pass
         const idx = isDealer ? msg.betIndex : null;
         if (fail(G.stealChip(game, idx === undefined ? null : idx))) return;
         broadcast(code);
@@ -473,11 +555,12 @@ setInterval(() => {
   const now = Date.now();
   for (const code of Object.keys(games)) try {
     const g = games[code];
-    // Empty for 30 minutes: close the room
+    // #4: empty for 30 minutes (10 in the lobby): close the room. Any room idle for 8 hours closes too.
     if (g.players.every(p => !p.connected)) {
-      const last = Math.max(...g.players.map(p => p.disconnectedAt || 0));
-      if (now - last > 30 * 60 * 1000) { delete games[code]; continue; }
+      const last = Math.max(0, ...g.players.map(p => p.disconnectedAt || 0));
+      if (now - last > (g.phase === PHASES.LOBBY ? 10 : 30) * 60 * 1000) { delete games[code]; continue; }
     }
+    if (now - (g._lastAct || g.phaseAt || now) > 8 * 3600 * 1000) { delete games[code]; continue; }
     let changed = false;
     // Host gone for a minute: the next person here becomes host (so someone can start / play again)
     const host = g.players.find(p => p.id === g.hostId);
@@ -486,7 +569,9 @@ setInterval(() => {
       if (nh && nh.id !== g.hostId) { g.hostId = nh.id; changed = true; }
     }
     // Writing: everyone still here has written (a phone that went away no longer holds it up)
-    if (g.phase === PHASES.WRITING && g.submissions.length && G.allCaptionsIn(g)) { endWriting(g); changed = true; }
+    if (g.phase === PHASES.WRITING && g.submissions.length >= 2 && G.allCaptionsIn(g)) { endWriting(g); changed = true; }
+    // #28: a dealer who wanders off doesn't freeze the steal: it passes by itself after 45 s
+    if (g.phase === PHASES.STEAL && g.phaseAt && now - g.phaseAt > 45000) { G.stealChip(g, null); changed = true; }
     // Betting: skip a player whose phone has been gone 45+ seconds
     if (g.phase === PHASES.FIRST_BETS || g.phase === PHASES.SECOND_BETS) {
       const cur = g.players.find(p => p.id === G.currentBetterId(g));

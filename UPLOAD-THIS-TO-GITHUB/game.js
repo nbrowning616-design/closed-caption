@@ -75,13 +75,13 @@ const CARTOONS = [
   { id: 53, title: "The Security Line", image: "card_53.jpg", correct: "This is why I drive." },
   { id: 54, title: "Shoe Rental", image: "card_54.jpg", correct: "Shoes are four dollars. Per pair." },
   { id: 55, title: "The Cubicle Knight", image: "card_55.jpg", correct: "He heard reviews were today." },
-  { id: 56, adult: true, title: "The Slideshow", image: "card_56.jpg", correct: "Let's use this one for the Christmas card. (8)" },
+  { id: 56, adult: true, title: "The Slideshow", image: "card_56.jpg", correct: "Let's use this one for the Christmas card." },
   { id: 57, spicy: true, title: "Name Tag", image: "card_57.jpg", correct: "Most guests go with the forehead." },
   { id: 58, spicy: true, title: "The Suite", image: "card_58.jpg", correct: "Your mother called ahead." },
-  { id: 59, spicy: true, title: "Senior Ed", image: "card_59.jpg", correct: "Skip to the bees, we don't have that kind of time. (11)" },
+  { id: 59, spicy: true, title: "Senior Ed", image: "card_59.jpg", correct: "Skip to the bees, we don't have that kind of time." },
   { id: 60, spicy: true, title: "The Refill", image: "card_60.jpg", correct: "And something for me to sleep through it." },
   { id: 61, spicy: true, title: "Room 12", image: "card_61.jpg", correct: "We'll give them until bingo." },
-  { id: 62, spicy: true, title: "Overnight Bag", image: "card_62.jpg", correct: "My profile did say long-term. (5)" },
+  { id: 62, spicy: true, title: "Overnight Bag", image: "card_62.jpg", correct: "My profile did say long-term." },
   { id: 63, spicy: true, title: "Noise Complaint", image: "card_63.jpg", correct: "I'm going to need all of you to stop tipping me." },
   { id: 64, spicy: true, title: "The Specialist", image: "card_64.jpg", correct: "Just the one, please." },
   { id: 65, spicy: true, title: "Sunday Morning", image: "card_65.jpg", correct: "She's either very early or very late." },
@@ -94,32 +94,32 @@ const CARTOONS = [
   { id: 72, spicy: true, title: "Bridge Night", image: "card_72.jpg", correct: "We'll take the barrel for five." },
   { id: 73, spicy: true, title: "The Judges", image: "card_73.jpg", correct: "The four is from her husband." },
   { id: 74, adult: true, title: "The Cone", image: "card_74.jpg", correct: "He's handling it better than you did." },
-  { id: 75, spicy: true, title: "Do Not Disturb", image: "card_75.jpg", correct: "On day five they asked for a chiropractor. (8)" },
+  { id: 75, spicy: true, title: "Do Not Disturb", image: "card_75.jpg", correct: "On day five they asked for a chiropractor." },
   { id: 76, spicy: true, title: "Book Club", image: "card_76.jpg", correct: "We should have started this club in 1958." },
   { id: 77, spicy: true, title: "Par Three", image: "card_77.jpg", correct: "He's never needed more than three." },
   { id: 78, spicy: true, title: "Boudoir Session", image: "card_78.jpg", correct: "Is this an anniversary gift or a threat?" },
   { id: 79, spicy: true, title: "From Mom", image: "card_79.jpg", correct: "I'm not getting any younger, kids." },
   { id: 80, spicy: true, title: "The Hotline", image: "card_80.jpg", correct: "Hold on, I dropped a stitch." },
-  { id: 81, title: "Going Down", image: "card_81.jpg", correct: "If it were me, you'd know. (6)" },
-  { id: 82, title: "The Commissioner", image: "card_82.jpg", correct: "He never did tell anyone the password. (7)" },
+  { id: 81, title: "Going Down", image: "card_81.jpg", correct: "If it were me, you'd know." },
+  { id: 82, title: "The Commissioner", image: "card_82.jpg", correct: "He never did tell anyone the password." },
   { id: 83, title: "Actual Scorecards", image: "card_83.jpg", correct: "It says here you were a seven handicap." },
   { id: 84, title: "Red Card", image: "card_84.jpg", correct: "Go wait in the car." },
   { id: 85, title: "The First Marathon", image: "card_85.jpg", correct: "His last words were his split times." },
   { id: 86, title: "The Inspector", image: "card_86.jpg", correct: "Ordinarily we'd start with a warning." },
-  { id: 87, title: "Night Shift", image: "card_87.jpg", correct: "Forty years and not one of them has asked about me. (11)" },
+  { id: 87, title: "Night Shift", image: "card_87.jpg", correct: "Forty years and not one of them has asked about me." },
   { id: 88, title: "Photo Finish", image: "card_88.jpg", correct: "Same three as last year." },
   { id: 89, title: "Jury of Peers", image: "card_89.jpg", correct: "Whatever happens, don't let them see the crusts.", adult: true },
   { id: 90, title: "Open House", image: "card_90.jpg", correct: "The previous owners are still very much in the area.", adult: true },
   { id: 91, title: "Veni, Vidi", image: "card_91.jpg", correct: "Name for the cup?", adult: true },
   { id: 92, title: "The Standoff", image: "card_92.jpg", correct: "He wants the good tuna and a plane to Belize.", adult: true },
   { id: 93, title: "Spin Class", image: "card_93.jpg", correct: "The first class is free. Most of them never leave.", adult: true },
-  { id: 94, title: "Guest of Honor", image: "card_94.jpg", correct: "He brought wine. (3)", adult: true },
-  { id: 95, title: "Series A", image: "card_95.jpg", correct: "Gerald still wants to know what it does. (8)", adult: true },
+  { id: 94, title: "Guest of Honor", image: "card_94.jpg", correct: "He brought wine.", adult: true },
+  { id: 95, title: "Series A", image: "card_95.jpg", correct: "Gerald still wants to know what it does.", adult: true },
   { id: 96, title: "Irreconcilable", image: "card_96.jpg", correct: "She's asking for the house. He's asking for the box.", adult: true },
   { id: 97, title: "The Pairing", image: "card_97.jpg", correct: "Pump four has a lovely finish.", adult: true },
   { id: 98, title: "Book Club", image: "card_98.jpg", correct: "I just think she deserved better than the duke.", adult: true },
   { id: 99, title: "Good Fences", image: "card_99.jpg", correct: "It started with one tomato hanging over the line.", adult: true },
-  { id: 100, title: "Annual Review", image: "card_100.jpg", correct: "Walk me through the bank on Fourth Street. (8)", adult: true },
+  { id: 100, title: "Annual Review", image: "card_100.jpg", correct: "Walk me through the bank on Fourth Street.", adult: true },
   { id: 101, title: "Open Plan", image: "card_101.jpg", correct: "Let's take the dragon offline.", adult: true },
   { id: 102, title: "Exit Interview", image: "card_102.jpg", correct: "Honestly, this is more than we did for your promotion.", adult: true },
   { id: 103, title: "On Duty", image: "card_103.jpg", correct: "He's very good with the whistle." },
@@ -127,9 +127,9 @@ const CARTOONS = [
   { id: 105, title: "Bake Sale", image: "card_105.jpg", correct: "Her brother did the cupcakes. He's eight." },
   { id: 106, title: "Lost & Found", image: "card_106.jpg", correct: "Funny. The skunk swore it was his." },
   { id: 107, title: "Overcast", image: "card_107.jpg", correct: "These won't help. You need to talk to somebody." },
-  { id: 108, title: "Moving Day", image: "card_108.jpg", correct: "Careful, he's been in that bowl since 1987. (8)" },
+  { id: 108, title: "Moving Day", image: "card_108.jpg", correct: "Careful, he's been in that bowl since 1987." },
   { id: 109, title: "Off Season", image: "card_109.jpg", correct: "He tried \"boo\" and she said \"no thanks.\"" },
-  { id: 110, title: "Last Stop", image: "card_110.jpg", correct: "Nobody's actually ordered anything since June. (6)" },
+  { id: 110, title: "Last Stop", image: "card_110.jpg", correct: "Nobody's actually ordered anything since June." },
   { id: 111, title: "Quiet Please", image: "card_111.jpg", correct: "Six o'clock. Somebody hide his watch." },
   { id: 112, title: "Deluxe", image: "card_112.jpg", correct: "He comes in every Tuesday. He's never once paid." },
 ];
@@ -152,6 +152,18 @@ const store = require('./store');
 // A room's Gallery starts from the server's saved copy (when there is one); phones add theirs on join
 function newRoomDeck() { const d = store.createDeck(); if (store.file) for (const e of store.all().reverse()) d.add(e, true); return d; }   // without a saved copy, rooms never see each other's captions
 const deckOf = (game) => game.deck || (game.deck = newRoomDeck());
+// #3: a Gallery caption is stamped by the server when a table frames it. Phones carry the stamp between nights;
+// a caption typed into a phone's storage has none, so Expert Mode never deals it as the real answer.
+const crypto = require('crypto');
+const SIGN_KEY = process.env.GALLERY_KEY || 'closed-caption/gallery/v1';
+const sigOf = (e) => crypto.createHmac('sha256', SIGN_KEY).update(Number(e.cartoonId) + '|' + store.norm(e.caption) + '|' + String(e.author || '').toLowerCase()).digest('base64url').slice(0, 32);
+const SIG_FROM = Date.UTC(2026, 9, 19, 16);   // frames from before stamping began are trusted as they are
+const signed = (e) => !!e && ((typeof e.sig === 'string' && e.sig === sigOf(e)) || (!e.sig && Number(e.at) > 0 && Number(e.at) < SIG_FROM));
+function trustedEntries(game) {
+  const d = deckOf(game), n = d.count(), top = n ? d.recent(1)[0].id : '';
+  if (!game._trusted || game._trusted.n !== n || game._trusted.top !== top) game._trusted = { n, top, list: d.all().filter(signed) };
+  return game._trusted.list;
+}
 // Phones carry the Gallery between nights: merge what one brings (max 300, cartoons we know)
 function syncGallery(game, entries) {
   if (!Array.isArray(entries)) return { error: 'That didn’t take. Try again.' };
@@ -511,6 +523,12 @@ function nextDealerIndex(game, from) {
   const n = game.players.length, step = stepOf(game);
   if (!n) return -1;
   if (from < 0) { for (let k = 0; k < n; k++) if (game.players[k].connected) return k; return 0; }
+  // #29: in 'everyone deals N times' games, nobody deals more than their share while someone here still has a deal to come
+  const s = game.settings, laps = [1, 2, 3].includes(s.laps) ? s.laps : 1, counts = game.dealCount || {};
+  if (!s.rounds && !s.targetScore) for (let k = 1; k <= n; k++) {
+    const i = seatAt(n, from + k * step);
+    if (game.players[i].connected && (counts[game.players[i].id] || 0) < laps) return i;
+  }
   for (let k = 1; k <= n; k++) {
     const i = seatAt(n, from + k * step);
     if (game.players[i].connected) return i;
@@ -550,7 +568,7 @@ function ensurePlan(game, round) {
 const tableNames = (game) => new Set(game.players.map(p => p.name.toLowerCase()));
 function expertCartoonIds(game) {
   const names = tableNames(game), out = new Set();
-  for (const [id, authors] of deckOf(game).cartoonAuthors()) for (const a of authors.keys()) if (!names.has(a)) { out.add(id); break; }
+  for (const e of trustedEntries(game)) if (!names.has(e.author.toLowerCase())) out.add(e.cartoonId);
   return CARTOONS.filter(c => !c.retired && out.has(c.id)).map(c => c.id);
 }
 const deckCartoons = (game) => expertCartoonIds(game).length;
@@ -562,7 +580,7 @@ function dealExpert(game, currentId) {
   const pool = freshest(game, allowed(game).filter(c => ok.has(c.id) && !game.usedCartoonIds.includes(c.id) && c.id !== currentId));
   if (!pool.length) return null;   // every deck cartoon has been played this game
   const cartoon = pick(pool), names = tableNames(game);
-  const entry = pick(deckOf(game).byCartoon(cartoon.id).filter(e => !names.has(e.author.toLowerCase())));
+  const entry = pick(trustedEntries(game).filter(e => e.cartoonId === cartoon.id && !names.has(e.author.toLowerCase())));
   return entry ? { cartoon, entry } : null;
 }
 
@@ -657,6 +675,7 @@ function submitCaption(game, playerId, caption, mode = 'check') {
   if (p.text.length > 220) return { error: 'Too long. The real ones are short.' };
   if (mode === 'check' && p.typos.length) return { ok: true, check: { polished: p.text, fixed: p.fixed, typos: p.typos } };
   const finalText = mode === 'keep' ? p.text : p.fixed;
+  if (tooCloseToReal(finalText, game.correctCaption)) return { error: 'Too close to the real one. Write your own.' };   // #31: regulars remember the real ones
   game.submissions.push({ playerId, playerName: player.name, caption: finalText });
   return { ok: true, allIn: allCaptionsIn(game) };
 }
@@ -925,7 +944,9 @@ function revealAnswer(game) {
     if (p) p.score += pts;
   }
 
-  game.reel = { order: reelOrder(game), step: 1 };
+  { const order = reelOrder(game), real = realKey(game); let k = 0;
+    while (k < order.length && order[k] !== real && votesOn(game, order[k]) === 0) k++;
+    game.reel = { order, step: 1, nobody: k >= 2 && k < order.length ? k : 0 }; }   // #24: the captions nobody bit on share one step
   game.stepAt = game.phaseAt;
   // Badges never break the answer: if anything goes wrong, the round just has none
   try { awardBadges(game); } catch (e) { console.error('badges', e); game.roundBadges = []; }
@@ -987,6 +1008,7 @@ function totalRounds(game) {
   for (let g = 0; g <= n * laps; g++) {
     i = seatAt(n, i + step);
     const id = game.players[i].id;
+    if (!isPresent(game.players[i]) && (c[id] || 0) < laps) continue;   // #29: someone who left doesn't hold the game open for their deal
     if ((c[id] || 0) >= laps) break;
     c[id] = (c[id] || 0) + 1; more++;
   }
@@ -1078,7 +1100,8 @@ function induct(game, target, fl, count, at = Date.now()) {
   let entry = null;
   // The real caption is celebrated but not added (it's already the real one)
   if (!isReal && author && c.caption) {
-    entry = deckOf(game).add({ cartoonId: h.cartoon.id, image, caption: c.caption, author, flaggers, flags: count, month });
+    const raw = { cartoonId: h.cartoon.id, image, caption: c.caption, author, flaggers, flags: count, month };
+    entry = deckOf(game).add({ ...raw, sig: sigOf(raw) });
     if (entry && store.file) store.add(entry, true);   // the server's saved copy (kept for good when DATA_DIR is set)
   }
   return {
@@ -1242,8 +1265,9 @@ function reelOrder(game) {
 function reelStep(game, how) {
   if (game.phase !== PHASES.ANSWER || !game.reel) return { error: 'Too late — the game moved on' };
   const last = game.reel.order.length + 1;
-  if (how === 'next') { if (game.reel.step >= last) return { error: 'Already at the recap' }; setReelStep(game, game.reel.step + 1); }
-  else if (how === 'prev') { if (game.reel.step <= 1) return { error: 'Already at the first caption' }; setReelStep(game, game.reel.step - 1); }
+  const k = game.reel.nobody || 0;   // #24: steps 1..k are one 'Nobody bit' screen
+  if (how === 'next') { if (game.reel.step >= last) return { error: 'Already at the recap' }; setReelStep(game, k && game.reel.step <= k ? k + 1 : game.reel.step + 1); }
+  else if (how === 'prev') { if (game.reel.step <= 1 || (k && game.reel.step <= k)) return { error: 'Already at the first caption' }; setReelStep(game, k && game.reel.step === k + 1 ? 1 : game.reel.step - 1); }
   else if (how === 'skip') setReelStep(game, last);
   else return { error: 'That didn’t take. Try again.' };
   return { ok: true, step: game.reel.step };
@@ -1260,6 +1284,17 @@ function nearlySame(a, b) {
   if (x.split(' ').length < 3 || y.split(' ').length < 3) return false;
   const both = [...wx].filter(w => wy.has(w)).length;
   return both / new Set([...wx, ...wy]).size >= 0.6;
+}
+// #31: word for word (or nearly) the real caption. Strict on purpose: a fresh caption almost never trips it,
+// and a loose test would hint at the real answer.
+function tooCloseToReal(a, real) {
+  const x = normCaption(a), y = normCaption(String(real || '').replace(/\s*\(\d+\)\s*$/, ''));
+  if (!x || !y) return false;
+  if (x === y) return true;
+  const xs = x.split(' '), ys = y.split(' ');
+  if (xs.length < 4 || ys.length < 4) return false;
+  const wx = new Set(xs), wy = new Set(ys), both = [...wx].filter(w => wy.has(w)).length;
+  return both / new Set([...wx, ...wy]).size >= 0.8;
 }
 function awardBadges(game) {
   const here = new Set(game.players.map(p => p.id));
@@ -1391,7 +1426,9 @@ function getPlayerView(game, playerId) {
   const base = {
     code: game.code,
     phase: game.phase,
-    players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: p.connected, rank: p.rank === undefined ? null : p.rank, rockets: p.rockets || 0, published: published.get(p.name.toLowerCase()) || 0 })),
+    locked: !!game.locked,           // #51: the host locked the room (no new names)
+    notice: game.notice || null,     // #26: a table announcement { text, at }
+    players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: p.connected, watched: !!p.watched, rank: p.rank === undefined ? null : p.rank, rockets: p.rockets || 0, published: published.get(p.name.toLowerCase()) || 0 })),
     round: game.round,
     totalRounds: s.targetScore ? null : totalRounds(game),
     settings: { ...s },
@@ -1422,7 +1459,11 @@ function getPlayerView(game, playerId) {
     hofTotal: deckOf(game).count(),
   };
   // The Gazette: the newest Hall of Fame captions, between rounds only
-  if (game.phase === PHASES.LOBBY || game.phase === PHASES.SCORES) base.gazette = deckOf(game).recent(GAZETTE_SIZE);
+  if (game.phase === PHASES.LOBBY || game.phase === PHASES.SCORES) {
+    // #3: in Expert games the Gallery holds the real answers, so the Gazette leaves out every cartoon still to be dealt
+    const hide = s.expert ? new Set(expertCartoonIds(game).filter(id => !game.usedCartoonIds.includes(id))) : null;
+    base.gazette = hide ? deckOf(game).recent(GAZETTE_SIZE * 4).filter(e => !hide.has(e.cartoonId)).slice(0, GAZETTE_SIZE) : deckOf(game).recent(GAZETTE_SIZE);
+  }
   if (game.phase === PHASES.LOBBY) {
     const pool = allowed(game), seen = seenCounts(game);
     base.freshCount = pool.filter(c => !(seen.get(c.id) > 0)).length; base.poolCount = pool.length;
@@ -1470,7 +1511,7 @@ function getPlayerView(game, playerId) {
   }
   if (ANSWERED.includes(game.phase)) {
     base.reactions = JSON.parse(JSON.stringify(game.reactions || {}));
-    base.reel = game.reel ? { order: [...game.reel.order], step: game.reel.step } : null;
+    base.reel = game.reel ? { order: [...game.reel.order], step: game.reel.step, nobody: game.reel.nobody || 0 } : null;
     base.roundBadges = (game.roundBadges || []).map(b => ({ ...b }));
   }
 
@@ -1544,7 +1585,36 @@ function addTime(game) {
   return { ok: true };
 }
 
+/* #6: a restart (every update restarts the server) used to wipe every room. The host's phone keeps a sealed copy
+   of the room (encrypted and signed by the server, unreadable on the phone) and hands it back after a restart. */
+const SEAL_KEY = crypto.createHash('sha256').update('seal|' + (process.env.RESTORE_KEY || process.env.GALLERY_KEY || 'closed-caption/restore/v1')).digest();
+const SKIP = new Set(['deck', 'faces', '_trusted', '_advAt', '_sealTag', '_sealAt', 'voice']);
+function sealGame(game) {
+  const plain = {};
+  for (const k of Object.keys(game)) if (!SKIP.has(k)) plain[k] = game[k];
+  plain.sealedAt = Date.now();
+  const iv = crypto.randomBytes(12), c = crypto.createCipheriv('aes-256-gcm', SEAL_KEY, iv);
+  const body = Buffer.concat([c.update(require('zlib').deflateSync(Buffer.from(JSON.stringify(plain)))), c.final()]);
+  return Buffer.concat([iv, c.getAuthTag(), body]).toString('base64url');
+}
+function unsealGame(blob) {
+  try {
+    const b = Buffer.from(String(blob || ''), 'base64url');
+    if (b.length < 30 || b.length > 400000) return null;
+    const d = crypto.createDecipheriv('aes-256-gcm', SEAL_KEY, b.subarray(0, 12));
+    d.setAuthTag(b.subarray(12, 28));
+    const g = JSON.parse(require('zlib').inflateSync(Buffer.concat([d.update(b.subarray(28)), d.final()])).toString());
+    if (!g || !g.code || !Array.isArray(g.players) || Date.now() - g.sealedAt > 6 * 3600 * 1000) return null;   // a copy older than 6 h is a different night
+    g.deck = newRoomDeck(); g.faces = {}; g.voice = {};
+    g.players.forEach(p => { p.connected = false; p.disconnectedAt = Date.now(); });
+    g.timerToken = (g.timerToken || 0) + 1;
+    if (g.timerEnd) g.timerEnd = Math.max(g.timerEnd, Date.now() + 30000);   // writers get a fair 30 s back
+    return g;
+  } catch (e) { return null; }
+}
+
 module.exports = {
+  sealGame, unsealGame, tooCloseToReal,
   PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS,
   cleanTimer, DEFAULT_TIMER, totalRounds,   // [settings]
   addTime, undoBet, freshest, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, pickFrame, allFramesIn, resolveFraming, hallOfFame, planBlock, ensurePlan,
