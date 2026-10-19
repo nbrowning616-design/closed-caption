@@ -287,3 +287,20 @@ Format: `date · queue item · result (redrawn card N / new card N / skipped: re
 - 419 · Baggage · style 1 · medium · afterdark · On a first date at a small restaurant table, a woman sits across from a man. On the chair beside him, a tower of old suitcases is stacked to the ceiling.
 - 420 · Regulars · style 2 · hard · afterdark · At a quiet bar, a man in a loosened tie sits on a stool next to a snack vending machine. The bartender sets a drink in front of each of them.
 - 421 · Dollhouse · style 3 · hard · afterdark · A woman kneels on the living room rug peering into a dollhouse. In its tiny living room, her husband, doll-sized, sits in a tiny armchair reading the newspaper.
+- 320 · Insulated · style 4 · hard · family · Two small birds sit on a power line. One of them is wearing tiny rubber boots.
+- 321 · Ink · style 5 · medium · standard · In a tattoo parlor, a sweet grandmother sits calmly knitting while a heavily tattooed artist works on a tattoo on her arm.
+- 322 · Training · style 1 · easy · afterdark · A woman relaxes in an armchair holding a small dog-training clicker. Her husband stands at attention beside her holding a tray with her tea.
+- 324 · Chores · style 3 · medium · standard · In space, an astronaut on a spacewalk floats out of the space station's hatch carrying a full kitchen trash bag.
+- 326 · Personal Best · style 5 · easy · family · A tiny mouse in a weightlifter's belt lifts a huge wedge of cheese over its head like a barbell.
+- 327 · Just a Trim · style 1 · medium · standard · A barber stands behind a completely bald customer in the barber chair, scissors and comb ready, studying the job.
+- 328 · The Check · style 2 · medium · afterdark · At a fancy restaurant, a waiter holds out the bill to an empty chair. The diner is hiding under the tablecloth, his shoes sticking out.
+- 329 · Delivery · style 3 · medium · family · A stork in a postman's cap stands at a front door holding a baby bundle. The tired couple who opened the door has a crowd of ten small children behind them.
+- 330 · Weekend · style 4 · easy · standard · A man in a fishing hat sits on the edge of his bathtub, fishing rod cast into the full tub, waiting patiently.
+- 331 · Patience · style 5 · medium · afterdark · Two vultures sit on a branch watching a red-faced man jog slowly past below.
+- 332 · Head Count · style 1 · medium · family · A shepherd in a field counts his flock of sheep. One of them is actually a small cloud floating just above the grass.
+- 333 · Feeding Time · style 2 · medium · standard · In a park, three pigeons sit on a bench reading newspapers while a man stands in front of them tossing breadcrumbs.
+- 334 · Dinner · style 3 · easy · afterdark · At a dinner party, one guest sits at the table wearing a big plastic veterinary cone around his neck. The other guests say nothing.
+- 323 · Self-Made · skipped (too close to the knitting-granny card)
+- 325 · Red Light · skipped (composition didn't read)
+- 335 · The Act · skipped (too close to the octopus recital)
+- 336 · Home Office · skipped (too many tiny-person-inside gags)

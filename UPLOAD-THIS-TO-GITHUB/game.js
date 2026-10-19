@@ -314,6 +314,19 @@ const CARTOONS = [
   { id: 419, spicy: true, level: "medium", title: "Baggage", image: "card_419.jpg", correct: "Fair warning: I'm a lot to unpack." },
   { id: 420, spicy: true, level: "hard", title: "Regulars", image: "card_420.jpg", correct: "He's a good listener. Takes exact change." },
   { id: 421, spicy: true, level: "hard", title: "Dollhouse", image: "card_421.jpg", correct: "He finally got his man cave." },
+  { id: 320, level: "hard", title: "Insulated", image: "card_320.jpg", correct: "He read something online." },
+  { id: 321, adult: true, level: "medium", title: "Ink", image: "card_321.jpg", correct: "We're up to grandchild number eleven." },
+  { id: 322, spicy: true, level: "easy", title: "Training", image: "card_322.jpg", correct: "Three weeks ago he couldn't find the kettle." },
+  { id: 324, adult: true, level: "medium", title: "Chores", image: "card_324.jpg", correct: "It's Tuesday. Even up here, it's Tuesday." },
+  { id: 326, level: "easy", title: "Personal Best", image: "card_326.jpg", correct: "Next month he's going for the whole wheel." },
+  { id: 327, adult: true, level: "medium", title: "Just a Trim", image: "card_327.jpg", correct: "The usual?" },
+  { id: 328, spicy: true, level: "medium", title: "The Check", image: "card_328.jpg", correct: "Shall I just leave this with the chair, sir?" },
+  { id: 329, level: "medium", title: "Delivery", image: "card_329.jpg", correct: "Do you take returns?" },
+  { id: 330, adult: true, level: "easy", title: "Weekend", image: "card_330.jpg", correct: "He swears they were biting last Tuesday." },
+  { id: 331, spicy: true, level: "medium", title: "Patience", image: "card_331.jpg", correct: "Give it till the second lap." },
+  { id: 332, level: "medium", title: "Head Count", image: "card_332.jpg", correct: "Four, five, six, and a chance of showers." },
+  { id: 333, adult: true, level: "medium", title: "Feeding Time", image: "card_333.jpg", correct: "Not now. They're checking the markets." },
+  { id: 334, spicy: true, level: "easy", title: "Dinner", image: "card_334.jpg", correct: "Gerald had a procedure. We don't ask." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
