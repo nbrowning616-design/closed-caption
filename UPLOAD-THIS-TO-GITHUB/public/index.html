@@ -2313,7 +2313,7 @@ function fmOutcomeFx(r) {
 /* The Gallery lives on the phones: every phone saves each caption it sees framed,
    and brings its collection to every game it joins. Free, and it survives server restarts. */
 // Pulled from The Gallery for good (Nate's "he he" was only a test of Frame It)
-function galleryRetired(e) { return String(e.author || '').trim().toLowerCase() === 'nate' && /^(he ?)+$/.test(String(e.caption || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim()); }
+function galleryRetired(e) { return /^((he+h?|ha+h?|hi+) ?)+$/.test(String(e.caption || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim()); }   // the "he he" test frame, gone for good (and any laugh-only frame)
 function galleryGet() { try { const v = JSON.parse(localStorage.getItem('cc_gallery') || '[]'); return Array.isArray(v) ? v.filter(e => e && e.caption && Number.isInteger(Number(e.cartoonId)) && !galleryRetired(e)) : []; } catch (e) { return []; } }
 (function galleryPurge() { try { const raw = JSON.parse(localStorage.getItem('cc_gallery') || '[]'); if (Array.isArray(raw) && raw.some(e => e && galleryRetired(e))) localStorage.setItem('cc_gallery', JSON.stringify(raw.filter(e => !(e && galleryRetired(e))))); } catch (e) {} })();
 function galleryKey(e) { return e.cartoonId + '|' + String(e.caption).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }

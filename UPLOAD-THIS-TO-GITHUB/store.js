@@ -14,8 +14,10 @@ const FILE = DIR ? path.join(DIR, 'hall-of-fame.json') : null;
 
 const norm = (t) => String(t || '').toLowerCase().replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, '').replace(/ +/g, ' ').trim();
 // Captions pulled from The Gallery for good (Nate's "he he" was a test of Frame It, not a real frame)
-const RETIRED = [{ author: 'nate', caption: /^(he ?)+$/ }];
-const isRetired = (e) => RETIRED.some(r => String(e.author || '').trim().toLowerCase() === r.author && r.caption.test(norm(e.caption)));
+// Captions pulled from The Gallery for good: the "he he" test frame (Nick, Oct 19 2026: gone for good), and any
+// frame that is nothing but laughing ("he he", "hehe", "heh", "hee hee", "ha ha"), whoever wrote it
+const LAUGH_ONLY = /^((he+h?|ha+h?|hi+) ?)+$/;
+const isRetired = (e) => LAUGH_ONLY.test(norm(e.caption));
 const keyOf = (e) => e.cartoonId + '|' + norm(e.caption);
 const MONTH = (ms) => new Date(ms).toLocaleString('en-US', { month: 'long', year: 'numeric', timeZone: 'America/New_York' });
 const str = (v, max) => String(v === undefined || v === null ? '' : v).slice(0, max);
