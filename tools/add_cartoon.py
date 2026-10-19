@@ -2,20 +2,18 @@
 """Add or redraw one Closed Caption cartoon.
 
   python3 tools/add_cartoon.py --image pic.jpg|pic.b64 --id 113 --title "The Neighbors" \
-      --rating family|standard|afterdark --caption "..." --spots '[[0.4,0.3,0.08],[0.7,0.35,0.07]]'
+      --rating family|standard|afterdark --caption "..."
 
   Redraw of an existing card: pass --id of that card and --redraw (keeps its title, rating and caption
-  unless you pass new ones). Writes public/images/card_N.jpg (720x720 JPEG), the CARTOONS line in game.js
-  and the heads line in public/heads-spots.js. Also writes a check picture with the head circles to
-  --check (default /tmp/check_N.jpg) so you can look at it.
+  unless you pass new ones). Writes public/images/card_N.jpg (720x720 JPEG) and the CARTOONS line in game.js.
+  (--spots and --check are still accepted from old commands but ignored: no heads are marked any more.)
 Never print the caption anywhere Nick can see it.
 """
 import argparse, base64, io, json, os, re, sys
-from PIL import Image, ImageDraw
+from PIL import Image
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'UPLOAD-THIS-TO-GITHUB')
 GAME = os.path.join(ROOT, 'game.js')
-SPOTS = os.path.join(ROOT, 'public', 'heads-spots.js')
 IMAGES = os.path.join(ROOT, 'public', 'images')
 FLAGS = {'family': '', 'standard': 'adult: true, ', 'afterdark': 'spicy: true, '}
 
@@ -36,10 +34,8 @@ def main():
     a = argparse.ArgumentParser()
     a.add_argument('--image', required=True); a.add_argument('--id', type=int, required=True)
     a.add_argument('--title'); a.add_argument('--rating', choices=FLAGS.keys()); a.add_argument('--caption')
-    a.add_argument('--spots', required=True); a.add_argument('--redraw', action='store_true'); a.add_argument('--check')
+    a.add_argument('--spots', help='ignored (kept so old commands still run)'); a.add_argument('--redraw', action='store_true'); a.add_argument('--check')
     o = a.parse_args()
-    spots = json.loads(o.spots)
-    assert isinstance(spots, list) and 1 <= len(spots) <= 4 and all(len(x) == 3 and all(0 <= v <= 1 for v in x) for x in spots), 'spots: 1-4 [x,y,r] fractions'
     game = open(GAME, encoding='utf8').read()
     line_re = re.compile(r'^  \{ id: %d, .*\},\n' % o.id, re.M)
     m = line_re.search(game)
@@ -60,16 +56,6 @@ def main():
     im = load_image(o.image)
     im.save(os.path.join(IMAGES, img), 'JPEG', quality=84, optimize=True, progressive=True)
     open(GAME, 'w', encoding='utf8').write(game)
-    sp = open(SPOTS, encoding='utf8').read()
-    entry = '  "%s": %s,' % (img, json.dumps([[round(v, 3) for v in x] for x in spots], separators=(',', ':')))
-    sp, n = re.subn(r'^  "%s": .*,$' % re.escape(img), entry, sp, flags=re.M)
-    if not n:
-        i = sp.rindex('};'); sp = sp[:i].rstrip() + '\n' + entry + '\n' + sp[i:]
-    open(SPOTS, 'w', encoding='utf8').write(sp)
-    chk = im.copy(); d = ImageDraw.Draw(chk)
-    for k, (x, y, r) in enumerate(spots):
-        d.ellipse([(x - r) * 720, y * 720 - r * 720, (x + r) * 720, y * 720 + r * 720], outline=(255, 0, 0) if k == 0 else (0, 120, 255), width=4)
-    chk.save(o.check or '/tmp/check_%d.jpg' % o.id)
-    print('saved', img, '(redraw)' if m else '(new)', 'check picture:', o.check or '/tmp/check_%d.jpg' % o.id)
+    print('saved', img, '(redraw)' if m else '(new)')
 
 if __name__ == '__main__': main()

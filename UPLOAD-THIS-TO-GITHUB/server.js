@@ -26,7 +26,7 @@ const app = express();
 try { app.use(require('compression')()); } catch (e) { console.warn('  (compression not installed — serving uncompressed)'); }
 const BOOT = crypto.randomBytes(4).toString('hex');   // changes on every restart; phones use it to tell a restart from a closed room
 const server = http.createServer(app);
-const wss = new WebSocketServer({ server, maxPayload: 64 * 1024 });   // room for one small headshot
+const wss = new WebSocketServer({ server, maxPayload: 32 * 1024 });   // phone → server messages are small: a full Gallery sync, a restore or a voice offer fits
 
 // Build id: phones compare it and refresh themselves after an update
 const INDEX_PATH = path.join(__dirname, 'public', 'index.html');
@@ -55,12 +55,6 @@ app.get('/status', (req, res) => {
   res.set('Cache-Control', 'no-store').json({ phones: live.length, rooms: codes.size, gamesInProgress: inGame });
 });
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
-// A player's headshot for this room (versioned by ?v=, so phones can cache it)
-app.get('/face/:code/:pid', (req, res) => {
-  const buf = G.faceOf(games[String(req.params.code || '').toUpperCase()], String(req.params.pid || ''));
-  if (!buf) return res.status(404).end();
-  res.set('Cache-Control', 'private, max-age=86400'); res.type('image/jpeg').send(buf);
-});
 
 const games = {};    // code -> game
 const clients = {};  // playerId -> { ws, gameCode }
@@ -172,6 +166,7 @@ wss.on('connection', (ws, req) => {
   send(ws, { type: 'hello', boot: BOOT });
   ws.isAlive = true;
   ws.on('pong', () => { ws.isAlive = true; });
+  ws.on('error', (e) => { console.warn('socket error:', e && (e.code || e.message)); });   // e.g. a message over maxPayload: that socket closes, the server carries on
 
   const seat = (id, code) => {
     // #4: one room per phone. Moving to another seat or room leaves the old seat offline (never a ghost that holds up betting)
@@ -312,12 +307,6 @@ wss.on('connection', (ws, req) => {
       }
       case 'seen_sync': {
         fail(G.setPlayerSeen(game, playerId, msg.seen));
-        return;
-      }
-      case 'set_face': {
-        // The phone checks it's a headshot before sending; the server only checks it's a small JPEG
-        if (fail(G.setFace(game, playerId, msg.data === null ? null : msg.data))) return;
-        broadcast(code);
         return;
       }
       case 'gallery_sync': {

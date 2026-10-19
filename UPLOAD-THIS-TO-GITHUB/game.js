@@ -141,12 +141,6 @@ for (const c of CARTOONS) c.correct = polish(c.correct).text;
 const RETIRED_BELOW = 47;
 for (const c of CARTOONS) if (c.id < RETIRED_BELOW) c.retired = true;
 
-// Every dealt cartoon needs its heads marked (public/heads-spots.js) for the Caption of the Night misprint
-try {
-  const spots = require('fs').readFileSync(require('path').join(__dirname, 'public', 'heads-spots.js'), 'utf8');
-  const missing = CARTOONS.filter(c => !c.retired && !spots.includes('"' + c.image + '"')).map(c => c.image);
-  if (missing.length) console.warn('  Heads not marked yet (misprint face goes mid-picture):', missing.join(', '));
-} catch (e) {}
 // The permanent Hall of Fame deck (lives across games and game nights)
 const store = require('./store');
 // A room's Gallery starts from the server's saved copy (when there is one); phones add theirs on join
@@ -250,31 +244,6 @@ const STEAL_CAUGHT_PTS = 1;
 const AGAIN_FULL = 'We meet again, {name}.';
 const AGAIN_SHORT = 'Received from {name}. Again.';
 const firstNameOf = (game, pid) => { const p = game.players.find(q => q.id === pid); return (String(p ? p.name : '').trim().split(/\s+/)[0]) || 'you'; };
-// Round-winner gags (public/heads*.js): dealt like a deck, so nobody sees a repeat until all have played
-const WIN_ACT_COUNT = 25;
-function nextWinAct(game) {
-  if (!Array.isArray(game.winDeck) || !game.winDeck.length) {
-    const d = shuffleArray(Array.from({ length: WIN_ACT_COUNT }, (_, i) => i));
-    if (d.length > 1 && d[0] === game.winAct) d.push(d.shift());
-    game.winDeck = d;
-  }
-  return (game.winAct = game.winDeck.shift());
-}
-// Headshots: one small JPEG per player, kept in memory for this room only (never saved to disk)
-const MAX_FACE_BYTES = 40 * 1024;
-function setFace(game, playerId, data) {
-  if (!game.players.some(p => p.id === playerId)) return { error: 'Not in this game' };
-  game.faces = game.faces || {};
-  if (data === null) { delete game.faces[playerId]; return { ok: true }; }
-  const m = /^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/.exec(String(data || ''));
-  if (!m) return { error: 'That photo didn’t come through' };
-  const buf = Buffer.from(m[1], 'base64');
-  if (buf.length < 500 || buf.length > MAX_FACE_BYTES || buf[0] !== 0xFF || buf[1] !== 0xD8) return { error: 'That photo didn’t come through' };
-  const old = game.faces[playerId];
-  game.faces[playerId] = { buf, v: (old ? old.v : 0) + 1 };
-  return { ok: true };
-}
-function faceOf(game, playerId) { const f = game && game.faces && game.faces[playerId]; return f ? f.buf : null; }
 // Next heist off the room's deck; a fresh shuffle never opens with the one that just played
 function nextHeist(game) {
   if (!Array.isArray(game.heistDeck) || !game.heistDeck.length) {
@@ -991,7 +960,6 @@ function moveToScoreboard(game) {
   if (!game.frameResult) resolveFraming(game);
   setPhase(game, PHASES.SCORES);
   game.scoresAt = Date.now();   // phones time the Grand Poobah ceremony from this, so it plays together
-  nextWinAct(game);             // which round-winner gag plays on the scoreboard
   return { ok: true };
 }
 
@@ -1130,19 +1098,9 @@ function hallOfFame(game) {
 
 /* ── The finale: after the winner and the Grand Poobah, tonight's Gallery.
    Every caption framed tonight is shown; with two or more, the table votes (never for your own).
-   The winner is Caption of the Night and goes to the presses — where something always goes wrong
-   (one of PRESS_ACT_COUNT misprints, dealt like a deck so a room doesn't see a repeat soon).
-   The misprint is the gag; the caption itself is memorialized on the untouched cartoon. ── */
-const PRESS_ACT_COUNT = 20;
-const PRESS_LEAD_MS = 1500;   // a beat after the result, so every phone starts together
-function nextPressAct(game) {
-  if (!Array.isArray(game.pressDeck) || !game.pressDeck.length) {
-    const d = shuffleArray(Array.from({ length: PRESS_ACT_COUNT }, (_, i) => i));
-    if (d.length > 1 && d[0] === game.pressAct) d.push(d.shift());
-    game.pressDeck = d;
-  }
-  return (game.pressAct = game.pressDeck.shift());
-}
+   The winner is Caption of the Night: a short ceremony on every phone at once, then memorialized
+   on the untouched cartoon in The Gallery. ── */
+const SHOW_LEAD_MS = 1500;   // a beat after the result, so every phone starts the ceremony together
 function finaleEntries(game) {
   return hallOfFame(game).filter(e => !e.isReal && e.caption && e.writerId).map(e => ({
     key: e.round + '|' + e.target, round: e.round, target: e.target, caption: e.caption,
@@ -1157,7 +1115,7 @@ function openFinale(game) {
   if (game.finale) return { ok: true, noop: true };
   const entries = finaleEntries(game);
   if (!entries.length) return { error: 'Nothing was framed tonight' };
-  game.finale = { at: Date.now(), entries, votes: {}, voters: game.players.filter(isPresent).map(p => p.id), winner: null, counts: null, tie: false, act: null, pressAt: null };
+  game.finale = { at: Date.now(), entries, votes: {}, voters: game.players.filter(isPresent).map(p => p.id), winner: null, counts: null, tie: false, showAt: null };
   if (entries.length === 1) resolveFinale(game);
   return { ok: true };
 }
@@ -1177,7 +1135,7 @@ function finaleAllIn(game) {
   const need = f.voters.filter(pid => { const p = game.players.find(x => x.id === pid); return p && isPresent(p) && finaleCanVote(f, pid); });
   return need.length > 0 && need.every(pid => pid in f.votes);
 }
-// Most votes; a tie goes to more frames, then the press flips a coin (and says so)
+// Most votes; a tie goes to more frames, then a coin flip (and the ceremony says so)
 function resolveFinale(game) {
   const f = game.finale;
   if (!f || f.winner) return { ok: true, noop: true };
@@ -1190,8 +1148,7 @@ function resolveFinale(game) {
   f.tie = best.length > 1;
   f.winner = best[Math.floor(Math.random() * best.length)].key;
   f.counts = counts;
-  f.act = nextPressAct(game);
-  f.pressAt = Date.now() + PRESS_LEAD_MS;
+  f.showAt = Date.now() + SHOW_LEAD_MS;
   // Memorialized: the room's Gallery remembers it was Caption of the Night
   const w = f.entries.find(e => e.key === f.winner);
   f.best = 'Caption of the Night · ' + MONTH();
@@ -1443,9 +1400,7 @@ function getPlayerView(game, playerId) {
     phaseAt: game.phaseAt || null,   // server time this phase began (phones sync the big moments to it)
     stepAt: game.stepAt || null,     // server time of the latest reveal-reel step
     stealShows: game.stealShows || 0,
-    faces: Object.fromEntries(Object.entries(game.faces || {}).filter(([pid]) => game.players.some(p => p.id === pid)).map(([pid, f]) => [pid, f.v])),   // headshot versions; the photos come from /face/CODE/ID
     voice: Object.fromEntries(Object.entries(game.voice || {}).filter(([pid]) => game.players.some(p => p.id === pid && p.connected)).map(([pid, v]) => [pid, { on: true, muted: !!v.muted }])),   // who's in the voice call
-    winAct: game.winAct === undefined ? null : game.winAct,
     promotion: game.promotion || null,
     inductNeed: inductNeed(game),
     lastInduction: game.lastInduction ? { ...game.lastInduction, flaggers: [...game.lastInduction.flaggers], list: (game.lastInduction.list || []).map(x => ({ ...x, flaggers: [...x.flaggers] })) } : null,   // only made when framing resolves
@@ -1563,7 +1518,7 @@ function getPlayerView(game, playerId) {
         at: f.at, entries: f.entries.map(e => ({ ...e, flaggers: [...e.flaggers] })),
         voters: [...f.voters], decided: Object.keys(f.votes), myVote: f.votes[playerId] || null,
         canVote: finaleCanVote(f, playerId), winner: f.winner, counts: f.counts ? { ...f.counts } : null,
-        tie: f.tie, act: f.act, pressAt: f.pressAt, best: f.best || null,
+        tie: f.tie, showAt: f.showAt, best: f.best || null,
       };
     }
   }
@@ -1584,7 +1539,7 @@ function addTime(game) {
 /* #6: a restart (every update restarts the server) used to wipe every room. The host's phone keeps a sealed copy
    of the room (encrypted and signed by the server, unreadable on the phone) and hands it back after a restart. */
 const SEAL_KEY = crypto.createHash('sha256').update('seal|' + (process.env.RESTORE_KEY || process.env.GALLERY_KEY || 'closed-caption/restore/v1')).digest();
-const SKIP = new Set(['deck', 'faces', '_trusted', '_advAt', '_sealTag', '_sealAt', 'voice']);
+const SKIP = new Set(['deck', '_trusted', '_advAt', '_sealTag', '_sealAt', 'voice']);
 function sealGame(game) {
   const plain = {};
   for (const k of Object.keys(game)) if (!SKIP.has(k)) plain[k] = game[k];
@@ -1601,7 +1556,7 @@ function unsealGame(blob) {
     d.setAuthTag(b.subarray(12, 28));
     const g = JSON.parse(require('zlib').inflateSync(Buffer.concat([d.update(b.subarray(28)), d.final()])).toString());
     if (!g || !g.code || !Array.isArray(g.players) || Date.now() - g.sealedAt > 6 * 3600 * 1000) return null;   // a copy older than 6 h is a different night
-    g.deck = newRoomDeck(); g.faces = {}; g.voice = {};
+    g.deck = newRoomDeck(); g.voice = {};
     g.players.forEach(p => { p.connected = false; p.disconnectedAt = Date.now(); });
     g.timerToken = (g.timerToken || 0) + 1;
     if (g.timerEnd) g.timerEnd = Math.max(g.timerEnd, Date.now() + 30000);   // writers get a fair 30 s back
@@ -1617,8 +1572,8 @@ module.exports = {
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,
-  openFinale, voteFinale, resolveFinale, finaleAllIn, PRESS_ACT_COUNT,
-  setFace, faceOf, WIN_ACT_COUNT, setVoice, clearVoice,
+  openFinale, voteFinale, resolveFinale, finaleAllIn,
+  setVoice, clearVoice,
   stealChip, revealAnswer, moveToFraming, moveToScoreboard, isGameOver, resetForNewGame, isPresent,
   REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer,
   currentBetterId, pendingBetters, nextDealerIndex, getPlayerView, generateRoomCode,

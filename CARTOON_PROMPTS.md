@@ -1,7 +1,7 @@
 # Closed Caption — 30 new cartoon prompts (Family and Standard)
 
 Paste one prompt at a time into ChatGPT. Save the picture as the next `card_N.jpg`, then add its line to `CARTOONS`
-in game.js (Family = no flag; Standard = `adult: true`), mark its heads in `public/heads-spots.js`, and write the real caption.
+in game.js (Family = no flag; Standard = `adult: true`) and write the real caption.
 
 Why these exist: Family has 16 cartoons and Standard 18, so a second game night repeats. The current Family set is
 mostly grey pencil while After Dark is colour, so the drawing style gives away the rating. These prompts mix

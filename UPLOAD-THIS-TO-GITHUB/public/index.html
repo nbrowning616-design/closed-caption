@@ -37,26 +37,24 @@
      Same URLs home.js / gallery.js / hof.js ask for, so they find these and don't load them twice. -->
 <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<!-- First screen: what the app script needs as soon as it runs (home screen, lobby, QR code, badges, tips, sound, voice, headshots). -->
+<!-- First screen: what the app script needs as soon as it runs (home screen, lobby, QR code, badges, tips, sound, voice). -->
 <script src="/music.js?v=__V__"></script>
 <script src="/fx.js?v=__V__"></script>
 <script src="/badges.js?v=__V__"></script>
 <script src="/moments.js?v=__V__"></script>
-<script src="/selfie.js?v=__V__"></script>
 <script src="/voice.js?v=__V__"></script>
 <script src="/howto.js?v=__V__"></script>
 <script src="/qrcode.js?v=__V__"></script>
 <script src="/home.js?v=__V__"></script>
 <script src="/guide.js?v=__V__"></script>
 <script>
-/* The show scripts (Gallery + share card, steal + heists, Big Head gags, recap, finale) aren't needed until the middle
+/* The show scripts (Gallery + share card, steal + heists, recap, finale) aren't needed until the middle
    of a round, so they no longer hold up the first screen. Once the page has loaded (or 4 s after the app is up,
-   whichever comes first) they're all fetched at once and run one by one in their old order (a pack needs heads.js,
-   the finale reads heads-spots.js). A failed fetch is retried. Every use in the app checks window.X first, so a phone
+   whichever comes first) they're all fetched at once and run one by one in their old order. A failed fetch is retried. Every use in the app checks window.X first, so a phone
    that is still fetching them skips that moment's animation instead of breaking. window.ccShowReady() -> Promise. */
 (function () {
   var V = '__V__';
-  var SHOW = ['hof', 'gallery', 'steal', 'heists', 'heads', 'heads-pack1', 'heads-pack2', 'recap', 'heads-spots', 'finale'];
+  var SHOW = ['hof', 'gallery', 'steal', 'heists', 'recap', 'finale'];
   var started = false, done = false, waiters = [];
   window.ccShowReady = function () { return new Promise(function (res) { if (done) res(); else waiters.push(res); }); };
   function src(n) { return '/' + n + '.js?v=' + V; }
@@ -575,8 +573,14 @@ body.quake { animation: quake .12s linear 10; }
 .gp-reveal.on { display: flex; }
 /* #22: during the drumroll the throne is carried in (its box laid out where it will rest; the rest waits, paused) */
 .gp-reveal.pre { display: flex; }
-.gp-reveal.pre:not(.on) > :not(#gp-face) { visibility: hidden; animation-play-state: paused; }
+.gp-reveal.pre:not(.on) > :not(#gp-throne) { visibility: hidden; animation-play-state: paused; }
 #poobah.pre .gp-tease { top: 9%; font-size: 29px; }
+.gp-throne { position: relative; width: 260px; height: 200px; margin: 64px auto 0; z-index: 3; }
+.gp-throne .gp-thsvg { display: block; }
+.gp-tplate { position: absolute; left: 50%; top: 112px; transform: translateX(-50%); max-width: 156px; padding: 4px 10px 3px; background: linear-gradient(180deg,#f3d989,#d4a94a 55%,#b08328); border: 2px solid #5a3f0c; border-radius: 3px; font-family: var(--serif); font-weight: 700; font-size: 19px; line-height: 1.1; color: #2b1d05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: inset 0 1px 0 rgba(255,255,255,.5); }
+.gp-tplate.squash { animation: gpSquash .5s ease-out; }
+@keyframes gpSquash { 0% { transform: translateX(-50%) scale(1.15,.7); } 60% { transform: translateX(-50%) scale(.95,1.06); } 100% { transform: translateX(-50%); } }
+.gp-thhat { position: absolute; left: 50%; top: -78px; margin-left: -55px; width: 110px; z-index: 4; filter: drop-shadow(0 0 18px rgba(255,210,63,.8)); }
 .gp-hat { animation: gpHat 1.4s cubic-bezier(.25,1.4,.5,1) both; filter: drop-shadow(0 0 22px rgba(255,210,63,.9)); margin-bottom: -26px; z-index: 3; }
 @keyframes gpHat { 0% { transform: translateY(-80vh) rotate(-40deg) scale(.6); } 75% { transform: translateY(8px) rotate(6deg) scale(1.05); } 100% { transform: rotate(-5deg); } }
 .chip.gp-chip { --s: 96px; font-size: 34px; animation: chipPop .7s var(--spring) .5s both; }
@@ -734,6 +738,13 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .noted { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-family: var(--serif); font-size: 18px; font-weight: 400; color: var(--ink); }
 .gp-plaque { display: inline-block; margin: 12px auto 4px; padding: 8px 16px 7px; background: #D9B23C; color: var(--ink); border: 3px solid var(--ink); border-radius: 4px; font-family: var(--serif); font-size: 15px; line-height: 1.3; box-shadow: 3px 3px 0 var(--ink); }
 .gp-plaque i { font-size: 13px; }
+#rw-stamp { position: fixed; left: 50%; top: 30%; z-index: 755; pointer-events: none; display: flex; align-items: center; gap: 10px; padding: 8px 16px 8px 10px; background: #FFF8EA; border: 4px solid #D7261E; border-radius: 14px; color: #D7261E; box-shadow: 0 0 0 2px #FFF8EA, 5px 6px 0 rgba(31,26,23,.85); transform: translate(-50%,-50%) rotate(-7deg); opacity: 0; }
+#rw-stamp .rw-chips { display: flex; flex: none; }
+#rw-stamp .rw-chips .chip + .chip { margin-left: -8px; }
+#rw-stamp .rw-t { display: flex; flex-direction: column; line-height: 1; font-family: var(--display); }
+#rw-stamp .rw-e { font-size: 12px; font-weight: 800; letter-spacing: .24em; text-transform: uppercase; }
+#rw-stamp .rw-n { font-family: var(--serif); font-size: 24px; font-weight: 700; color: var(--ink); margin-top: 3px; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#rw-stamp .rw-a { font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--ink); margin-top: 3px; }
 .ink-ic { display: inline-block; vertical-align: -4px; flex-shrink: 0; }
 .menu-row .ic { display: inline-flex; align-items: center; justify-content: center; }
 .steal-hero .em { animation: none; color: var(--ink); }
@@ -1188,6 +1199,8 @@ const confetti = (() => {
 let reconnectAttempts = 0, connectionStatus = 'connecting', reconnectTimer = null;
 function saveSession() { if (myPlayerId && gameCode) { const v = JSON.stringify({ playerId: myPlayerId, code: gameCode, key: myKey, boot: serverBoot, name: (playerById(myPlayerId) || {}).name || '', ts: Date.now() }); try { sessionStorage.setItem('cc_session', v); } catch (e) {} try { localStorage.setItem('cc_session', v); } catch (e) {} } }
 function readStore(store) { try { const s = JSON.parse(store.getItem('cc_session') || 'null'); if (!s || Date.now() - s.ts > 12 * 3600 * 1000) return null; return s; } catch { return null; } }
+// The game takes no photos any more: forget any headshot an older version left on this phone
+try { localStorage.removeItem('cc_face'); localStorage.removeItem('cc_face_no'); } catch (e) {}
 function clearSession() { try { sessionStorage.removeItem('cc_session'); } catch (e) {} try { localStorage.removeItem('cc_session'); } catch (e) {} }
 function offerRejoin() {
   const s = readStore(localStorage), box = $('rejoin-box');
@@ -1220,7 +1233,7 @@ function connect() {
     if (msg.type === 'rtc') { if (window.Voice) Voice.onSignal(msg); return; }
     if (msg.type === 'hello') { serverBoot = msg.boot; return; }
     if (msg.type === 'seal') { try { localStorage.setItem('cc_seal', JSON.stringify({ code: msg.code, data: msg.data, ts: Date.now() })); } catch (e) {} return; }
-    if (msg.type === 'joined') { if (restoring) setTimeout(() => showToast('The server restarted. Your game is back where it was.', 'ok'), 600); restoring = false; lastTry = null; myKey = msg.key || null; if (msg.boot) serverBoot = msg.boot; if (demoWatched()) setTimeout(() => send({ action: 'demo_watched' }), 500); myPlayerId = msg.playerId; gameCode = msg.code; pendingJoin = null; if (pendingName) { rememberName(pendingName); pendingName = null; } saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); if (window.Selfie) Selfie.sync(); }, 300); }
+    if (msg.type === 'joined') { if (restoring) setTimeout(() => showToast('The server restarted. Your game is back where it was.', 'ok'), 600); restoring = false; lastTry = null; myKey = msg.key || null; if (msg.boot) serverBoot = msg.boot; if (demoWatched()) setTimeout(() => send({ action: 'demo_watched' }), 500); myPlayerId = msg.playerId; gameCode = msg.code; pendingJoin = null; if (pendingName) { rememberName(pendingName); pendingName = null; } saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); }, 300); }
     else if (msg.type === 'state') {
       state = msg.data;
       if (window.Voice) Voice.onState(state);
@@ -1453,15 +1466,14 @@ function render(force = false) {
 
   if (phaseChanged) {
     selectedBetTarget = null; grabbedBet = null; phaseSeqPlayed = false; seenBets = 0; wasMyTurn = false;
-    // #9: no sheet (headshot, menu, past rounds…) outlives the screen it opened on — except a picture someone is sharing right now
+    // #9: no sheet (menu, past rounds…) outlives the screen it opened on — except a picture someone is sharing right now
     if (!$('sheet-body').querySelector('[onclick^="shareHofCard"]')) closeMenu();
-    if (window.Selfie && Selfie.onPhase) Selfie.onPhase();
     if (state.phase !== 'reading') closeReadAloud();
     if (lastPhase === 'scores' || state.phase === 'lobby') closeInduction();
     if (state.phase === 'lobby' && lastPhase) sendSeen();   // back in the lobby: refresh before the next game
     if (state.phase === 'lobby') { answerSeqRound = null; scoresAnimated = null; }
     if (lastPhase === 'framing') { clearFrameGos(); closeInduction(); }   // the scoreboard (and its hat) takes over
-    if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); if (window.ccHeads) ccHeads.close(); if (window.ccFinale) ccFinale.close(); }
+    if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); closeRoundStamp(); if (window.ccFinale) ccFinale.close(); }
     if (lastPhase && !['reveal', 'answer', 'framing', 'scores'].includes(state.phase)) bsfx.advance();
     document.body.classList.toggle('fm-on', state.phase === 'framing');
     if (state.phase !== 'writing') { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
@@ -1602,8 +1614,8 @@ function renderLobby() {
   const players = state.players.map((p, i) => `
     <div style="display:flex; align-items:center; gap:10px; padding:8px 0; ${!p.connected ? 'opacity:.5;' : ''}">
       <span class="seat-n" title="Seat ${i + 1}">${i + 1}</span>
-      ${chipHtml(p.id, 'lg pop' + (!p.connected ? ' dim' : ''))}${window.Selfie ? Selfie.mini(p.id) : ''}
-      <div style="flex:1; min-width:0;"><div style="font-weight:900; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(p.name)}${pubMark(p)}${p.id === myPlayerId ? ' <span class="small">(you)</span>' : ''}</div>${rankTag(p)}${p.id === myPlayerId && window.Selfie ? '<div>' + Selfie.button() + '</div>' : ''}
+      ${chipHtml(p.id, 'lg pop' + (!p.connected ? ' dim' : ''))}
+      <div style="flex:1; min-width:0;"><div style="font-weight:900; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(p.name)}${pubMark(p)}${p.id === myPlayerId ? ' <span class="small">(you)</span>' : ''}</div>${rankTag(p)}
         ${p.id === state.hostId ? '<span class="small" style="color:var(--yellow-d);">★ Host </span>' : ''}${i === 0 ? '<span class="small">deals first</span>' : ''}${!p.connected ? '<span class="small" style="color:var(--red);"> offline</span>' : ''}</div>
       ${state.isHost && n > 1 ? `<button class="seat-mv" aria-label="Move ${esc(p.name)} up" ${i === 0 ? 'disabled' : ''} onclick="moveSeat('${p.id}',-1)">↑</button><button class="seat-mv" aria-label="Move ${esc(p.name)} down" ${i === n - 1 ? 'disabled' : ''} onclick="moveSeat('${p.id}',1)">↓</button>` : ''}
       ${state.isHost && p.id !== myPlayerId ? `<button class="btn btn-sm seat-kick" onclick="confirmKick('${p.id}')" aria-label="Remove ${esc(p.name)}">✕</button>` : ''}
@@ -2310,7 +2322,14 @@ function gallerySave(rows) {
   for (const e of rows || []) { if (!e || !e.caption || !Number.isInteger(Number(e.cartoonId)) || galleryRetired(e) || keys.has(galleryKey(e))) continue; list.push({ id: e.id, cartoonId: Number(e.cartoonId), image: e.image, caption: e.caption, author: e.author, flaggers: e.flaggers || [], flags: e.flags || 0, month: e.month, at: e.at || Date.now(), ...(e.best ? { best: e.best } : {}) }); keys.add(galleryKey(e)); added = true; }
   if (added) { list.sort((a, b) => a.at - b.at); try { localStorage.setItem('cc_gallery', JSON.stringify(list.slice(-300))); } catch (e) {} }
 }
-function syncGallery() { const list = galleryGet(); if (list.length && ws && ws.readyState === 1 && myPlayerId) ws.send(JSON.stringify({ action: 'gallery_sync', entries: list.slice(-300) })); }
+// In pieces of under ~24 KB, so a full Gallery always fits the server's message limit (32 KB)
+function syncGallery() {
+  const list = galleryGet().slice(-300); if (!list.length || !ws || ws.readyState !== 1 || !myPlayerId) return;
+  let part = [], size = 0;
+  const flush = () => { if (part.length) ws.send(JSON.stringify({ action: 'gallery_sync', entries: part })); part = []; size = 0; };
+  for (const e of list) { const n = JSON.stringify(e).length + 1; if (size + n > 24000) flush(); part.push(e); size += n; }
+  flush();
+}
 function collectGallery() {
   if (!state) return;
   if (Array.isArray(state.gazette) && state.gazette.length) gallerySave(state.gazette);
@@ -2369,19 +2388,6 @@ function closeInduction() {
 // The share card for a framed caption (hof.js draws it)
 let hofBlob = null;
 function makeHofCard(i) { const e = (state.hallOfFame || [])[i]; if (e) makeCardFrom(e); }
-// The share sheet for a picture: a spinner first (blob null), then the picture with Share/Save. top: above the finale show
-function openCardSheet(blob, label, top, name) {
-  $('sheet').classList.toggle('top', !!top);
-  if (!blob) {
-    $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin:10px 0;">${esc(label)}</p><div class="center" style="padding:30px 0;"><span class="spin"></span><p class="small" style="margin-top:8px;">Running the presses…</p></div>`;
-    $('sheet').classList.add('on'); return;
-  }
-  hofBlob = blob; window._hofName = name || 'closed-caption.png';
-  $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin-bottom:10px;">${esc(label)}</p>
-    <img src="${URL.createObjectURL(blob)}" alt="${esc(label)}" style="width:100%; border:2px solid var(--ink); border-radius:10px; display:block;">
-    <div class="stack" style="margin-top:14px;"><button class="btn btn-yellow" onclick="shareHofCard()">Text it, share it, or save it</button><button class="btn btn-sm" onclick="closeMenu()">Close</button></div>`;
-  $('sheet').classList.add('on');
-}
 async function makeCardFrom(e) {
   if (!e || !window.HallCard) return;
   closeInduction();
@@ -3021,7 +3027,7 @@ ${gpWinnersHtml(g)}
   if (window.ccReducedMotion && window.ccReducedMotion()) {   // #11 Reduce Motion: the result, faded in, no drumroll show
     o.classList.add('revealed'); step('gp-reveal', 'on', 0);
     const r = $('gp-reveal'); if (r) r.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, easing: 'ease-out', fill: 'both' });
-    setTimeout(() => gpFaces(g), 30);
+    gpThrones(g);
     gong(); buzz([200, 80, 200]); if (window.ccBeat) window.ccBeat('poobah:reveal');
     o.onclick = (e) => { if (e.target === o) closeGrand(); };
     return;
@@ -3035,15 +3041,15 @@ ${gpWinnersHtml(g)}
   step('gp-l1', 'on', 120); step('gp-l1', 'off', ROLL - 200);
   at(() => {
     o.classList.add('roll', 'pre'); step('gp-tease', 'on', 0); bsfx.drumroll(R - ROLL); timpaniRoll(R - ROLL);
-    const rv = $('gp-reveal'), face = g.ids.length < 2 ? $('gp-face-0') : null;   // ties: faces go on at the gong
-    if (window.ccHeads && face && rv) { rv.classList.add('pre'); ccHeads.poobah(face, g.ids, Math.max(600, R - (performance.now() - t0))); }   // lands on the gong even if this timer ran late
+    const rv = $('gp-reveal'), seat = g.ids.length < 2 ? $('gp-throne') : null;   // ties: the hats go on at the gong
+    if (seat && rv) { rv.classList.add('pre'); gpThrones(g, Math.max(600, R - (performance.now() - t0))); }   // lands on the gong even if this timer ran late
   }, ROLL);
   [0, 700, 1300, 1800, 2150, 2350].forEach(t => at(() => buzz(40 + t / 30), ROLL + t));
   at(() => {
     o.classList.remove('roll'); o.classList.add('flash', 'revealed');
     const t = $('gp-tease'); if (t) t.classList.remove('on');
     step('gp-reveal', 'on', 0);
-    { const f0 = $('gp-face-0'); if (!(f0 && f0.firstChild) || g.ids.length > 1) setTimeout(() => gpFaces(g), 30); }   // tied Poobahs each get their face
+    gpThrones(g);   // a phone whose drumroll timer ran late still gets the throne (ties: their hats are CSS)
     // The gong carries the size (the crash, the boom and the fanfare are gone, so no duck is needed; the limiter still guards)
     gong(); buzz([300, 100, 300]); if (window.ccFlash) window.ccFlash(0.4); if (window.ccBeat) window.ccBeat('poobah:reveal');
     confetti.cannons();
@@ -3051,23 +3057,52 @@ ${gpWinnersHtml(g)}
   }, R);
   o.onclick = (e) => { if (o.classList.contains('revealed') && e.target === o) closeGrand(); };
 }
-// #21: one Poobah gets the throne; tied Poobahs sit side by side, each under their own name
+// #21: one Poobah gets the throne; tied Poobahs sit side by side, each under their own name.
+// No photos: the name itself is the one on the throne — a brass nameplate carried in on a sedan chair, the hat dropped on it.
 function gpWinnersHtml(g) {
   const n = g.ids.length;
-  if (n < 2) return window.ccHeads
-    ? `<div id="gp-face-0" style="width:260px;height:300px;margin:-20px auto 0;position:relative;z-index:3;"></div><div class="gp-name" style="${gpSize(nameOf(g.ids[0]))}">${esc(nameOf(g.ids[0]))}</div>`
-    : `<div class="gp-hat">${poobahHat(150)}</div><div style="display:flex; justify-content:center;">${chipHtml(g.ids[0], 'gp-chip')}</div><div class="gp-name" style="${gpSize(nameOf(g.ids[0]))}">${esc(nameOf(g.ids[0]))}</div>`;
-  const k = n === 2 ? 0.62 : n === 3 ? 0.44 : 0.34;
-  return `<div class="gp-tie">${g.ids.map((id, i) => `<div class="gp-seat">${window.ccHeads
-      ? `<div style="width:${Math.round(260 * k)}px;height:${Math.round(300 * k)}px;position:relative;z-index:3;"><div id="gp-face-${i}" style="width:260px;height:300px;position:absolute;left:0;top:0;transform:scale(${k});transform-origin:0 0;"></div></div>`
-      : `<div class="gp-hat">${poobahHat(n === 2 ? 96 : 70)}</div>${chipHtml(id, 'gp-chip' + (n > 2 ? ' sm3' : ''))}`}
+  if (n < 2) return `<div id="gp-throne" class="gp-throne">${gpThroneSvg()}<div class="gp-tplate" style="${gpPlateSize(nameOf(g.ids[0]))}" data-name="${esc(nameOf(g.ids[0]))}">${esc(nameOf(g.ids[0]))}</div><div class="gp-thhat">${poobahHat(110)}</div></div><div class="gp-name" style="${gpSize(nameOf(g.ids[0]))}">${esc(nameOf(g.ids[0]))}</div>`;
+  return `<div class="gp-tie">${g.ids.map((id, i) => `<div class="gp-seat"><div class="gp-hat">${poobahHat(n === 2 ? 96 : 70)}</div>${chipHtml(id, 'gp-chip' + (n > 2 ? ' sm3' : ''))}
     <div class="gp-name gp-name-tie">${esc(firstName(nameOf(id)))}</div></div>`).join('')}</div><p class="gp-tied">${n === 2 ? 'A tie. Two hats.' : `A ${n}-way tie. Hats all round.`}</p>`;
 }
 const gpSize = (t) => t.length > 10 ? 'font-size:36px;' : t.length > 8 ? 'font-size:44px;' : '';
-function gpFaces(g) {
-  if (!window.ccHeads) return;
-  if (g.ids.length < 2) { const el = $('gp-face-0'); if (el) ccHeads.poobah(el, g.ids); return; }
-  g.ids.forEach((id, i) => { const el = $('gp-face-' + i); if (el) ccHeads.poobah(el, [id]); });
+const gpPlateSize = (t) => t.length > 9 ? 'font-size:13px;' : t.length > 6 ? 'font-size:16px;' : '';
+function gpThroneSvg() {
+  const ink = '#1F1A17', st = `stroke="${ink}" stroke-width="5" stroke-linejoin="round"`;
+  const bearer = (x, c) => `<g transform="translate(${x} 150)"><path d="M-9 0 V-34" stroke="${ink}" stroke-width="12" stroke-linecap="round"/><path d="M-9 0 V-34" stroke="${c}" stroke-width="7" stroke-linecap="round"/><circle cx="-9" cy="-44" r="10" fill="#F2C9A0" ${st}/><path d="M-20 -60 Q-9 -70 2 -60" fill="none" stroke="${ink}" stroke-width="4"/><path d="M-15 0 L-19 26 M-3 0 L1 26" stroke="${ink}" stroke-width="7" stroke-linecap="round"/></g>`;
+  return `<svg class="gp-thsvg" viewBox="0 0 260 200" width="260" height="200" aria-hidden="true" style="overflow:visible">
+    <g class="gp-carry">${[30, 78, 182, 230].map((x, i) => bearer(x, ['#E8453A', '#2E9E6B', '#2E5EAA', '#E89A2A'][i])).join('')}</g>
+    <rect x="6" y="104" width="248" height="12" rx="5" fill="#8a6418" ${st}/>
+    <path d="M62 104 V30 Q62 2 130 0 Q198 2 198 30 V104 Z" fill="#B3263A" ${st}/>
+    <path d="M78 98 V40 Q78 18 130 16 Q182 18 182 40 V98 Z" fill="#8C1C2C" stroke="${ink}" stroke-width="2.5" stroke-opacity=".5"/>
+    <circle cx="130" cy="0" r="10" fill="#FFD23F" ${st}/>
+    <path d="M40 104 H220 V138 H40 Z" fill="#D4A017" ${st}/>
+  </svg>`;
+}
+// The throne bit: carried in from the left, bouncing, under the drumroll; set down; the hat drops onto the nameplate
+// on the gong (landMs from now). Without landMs (Reduce Motion, a tie, a late phone): everything simply in place.
+function gpThrones(g, landMs) {
+  const box = $('gp-throne'); if (!box) return;
+  const hat = box.querySelector('.gp-thhat'), carry = box.querySelector('.gp-carry'), plate = box.querySelector('.gp-tplate');
+  if (box.dataset.on) { if (!landMs && plate && !plate.textContent) plate.textContent = plate.dataset.name || ''; return; }   // the gong: the name is on, whatever the timers did
+  box.dataset.on = '1';
+  const RM = !!(window.ccReducedMotion && window.ccReducedMotion());
+  if (!landMs || RM) {
+    try { box.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 450, easing: 'ease-out', fill: 'both' }); } catch (e) {}
+    if (carry) carry.style.opacity = 0;
+    return;
+  }
+  if (plate) plate.textContent = '';   // carried in blank under the drumroll; the name goes on with the hat, on the gong
+  const D = Math.max(1200, landMs / 0.76), W = Math.min(window.innerWidth || 390, 600);
+  const bob = []; for (let i = 0; i <= 10; i++) bob.push({ offset: i / 10 * 0.55, transform: `translateX(${Math.round(-W + W * (i / 10))}px) translateY(${i % 2 ? -10 : 0}px) rotate(${i % 2 ? 3 : -3}deg)`, easing: 'steps(2,end)' });
+  bob.push({ offset: 0.62, transform: 'none' }, { offset: 1, transform: 'none' });
+  try { box.animate(bob, { duration: D, fill: 'both' }); } catch (e) {}
+  // the bearers set it down and walk off to the right
+  try { carry.animate([{ transform: 'none', opacity: 1 }, { offset: 0.66, transform: 'none', opacity: 1 }, { offset: 0.72, transform: `translateX(${W}px)`, opacity: 1 }, { transform: `translateX(${W}px)`, opacity: 0 }], { duration: D, fill: 'both' }); } catch (e) {}
+  try { hat.animate([{ transform: 'translateY(-110vh)', opacity: 1 }, { offset: 0.7, transform: 'translateY(-110vh)', opacity: 1, easing: 'cubic-bezier(.6,0,1,.5)' }, { offset: 0.76, transform: 'translateY(6px) scale(1.1,.9)' }, { offset: 0.8, transform: 'translateY(-4px) rotate(-3deg)' }, { transform: 'rotate(-6deg)' }], { duration: D, fill: 'both' }); } catch (e) {}
+  (window._gpT || (window._gpT = [])).push(setTimeout(() => { if (plate) { plate.textContent = plate.dataset.name || ''; plate.classList.remove('squash'); void plate.offsetWidth; plate.classList.add('squash'); } }, D * 0.76));
+  const steps = 8, gap = (D * 0.55) / steps;
+  for (let k = 0; k < steps; k++) window._gpT.push(setTimeout(() => big(() => tone(196, 0.06, 0, 'square', 0.035)), k * gap));   // the bearers' march
 }
 function closeGrand(tapped) {
   (window._gpT || []).forEach(clearTimeout); window._gpT = [];
@@ -3202,28 +3237,43 @@ function playScoreboardCount(key) {
   }));
   at(SB_LEAD + hits.length * SB_STEP + SB_SETTLE, () => sortScoreRows());
   at(total, finish);
-  // then the round's winner (most points this round) gets their Big Head gag — same moment on every phone
+  // then the round's winner (most points this round) gets a quiet stamp — same moment on every phone (it's all from state)
   const pts = state.roundScores || {}, best = Math.max(0, ...Object.values(pts));
   const winners = best > 0 ? state.players.filter(p => pts[p.id] === best).map(p => p.id) : [];
-  // #23: the full face gag only when it means something: the last round, or the lead truly changes hands after round 2.
-  // Every other round: a ~1s stamp with the winner's face and name. (Same answer on every phone: it's all from state.)
-  const leadersOf = (sc) => { const m = Math.max(0, ...state.players.map(p => sc(p))); return m > 0 ? state.players.filter(p => sc(p) === m).map(p => p.id).sort().join(',') : ''; };
-  const leadChanged = leadersOf(p => p.score) !== leadersOf(p => p.score - (pts[p.id] || 0));
-  const bigGag = isLastRound() || (leadChanged && state.round > 2);
   // the callback: a repeat winner. How many earlier rounds tonight did this (single) winner take?
   const again = winners.length === 1 ? (state.history || []).filter(r => r.round < state.round).filter(r => { const rs = r.roundScores || {}, m = Math.max(0, ...Object.values(rs)); return m > 0 && rs[winners[0]] === m && Object.values(rs).filter(v => v === m).length === 1; }).length : 0;
-  const gagMs = !window.ccHeads ? 0 : bigGag ? (ccHeads.DUR || 5200) : (ccHeads.STAMP_MS || 1100);
-  if (winners.length && window.ccHeads && state.winAct !== null && state.winAct !== undefined) {
-    const gagAt = total + 500;
-    if (elapsed < gagAt + (bigGag ? 2500 : 600)) seq.timers.push(setTimeout(() => {
+  if (winners.length) {
+    const stampAt = total + 500;
+    if (elapsed < stampAt + 600) seq.timers.push(setTimeout(() => {
       if (!state || state.phase !== 'scores' || state.round + '|' + state.code !== key) return;
-      const wait = state.scoresAt + gagAt - (Date.now() + clockOffset);
-      if (bigGag) ccHeads.play(state.winAct, winners, Math.max(0, wait), (state.round * 7919) ^ state.code.charCodeAt(0), { again });
-      else if (ccHeads.stamp) ccHeads.stamp(winners, Math.max(0, wait), { again });
-    }, Math.max(0, gagAt - elapsed - 150)));
+      roundStamp(winners, Math.max(0, state.scoresAt + stampAt - (Date.now() + clockOffset)), again);
+    }, Math.max(0, stampAt - elapsed - 150)));
   }
-  // #9: a round winner with no headshot gets a gentle offer once the gag (with its stand-in head) has played
-  if (winners.length && window.Selfie && Selfie.onRoundWin) Selfie.onRoundWin(winners, (window.ccHeads && state.winAct != null ? total + 500 + gagMs + 900 : total + 600) - elapsed);
+}
+// The round winner's stamp: slams onto the scoreboard with their chip and name, then lifts away. Not a gag.
+const ROUND_STAMP_MS = 1100;
+let roundStampT = [];
+function closeRoundStamp() { roundStampT.forEach(clearTimeout); roundStampT = []; const el = $('rw-stamp'); if (el) el.remove(); }
+function roundStamp(ids, wait, again) {
+  closeRoundStamp();
+  const me = ids.includes(myPlayerId), el = document.createElement('div');
+  const ord = (n) => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+  el.id = 'rw-stamp';
+  el.innerHTML = `<span class="rw-chips">${ids.slice(0, 3).map(id => chipHtml(id, ids.length > 1 ? 'sm' : '')).join('')}</span><span class="rw-t"><span class="rw-e">${ids.length > 1 ? 'Round winners' : 'Round winner'}</span><span class="rw-n">${esc(me ? (ids.length > 1 ? 'You & co.' : 'You') : listNames(ids.map(nameOf)))}</span>${again ? `<span class="rw-a">Again.${again >= 2 ? ' (' + ord(again + 1) + ' time.)' : ''}</span>` : ''}</span>`;
+  document.body.appendChild(el);
+  const RM = !!(window.ccReducedMotion && window.ccReducedMotion());
+  roundStampT.push(setTimeout(() => {
+    try {
+      el.animate(RM
+        ? [{ opacity: 0 }, { opacity: 1, offset: 0.2 }, { opacity: 1, offset: 0.8 }, { opacity: 0 }]
+        : [{ opacity: 0, transform: 'translate(-50%,-50%) rotate(-16deg) scale(2.2)' }, { opacity: 1, transform: 'translate(-50%,-50%) rotate(-7deg) scale(.96)', offset: 0.13 },
+           { opacity: 1, transform: 'translate(-50%,-50%) rotate(-7deg) scale(1)', offset: 0.2 }, { opacity: 1, transform: 'translate(-50%,-50%) rotate(-7deg) scale(1)', offset: 0.8 },
+           { opacity: 0, transform: 'translate(-50%,-62%) rotate(-5deg) scale(1.04)' }], { duration: ROUND_STAMP_MS, easing: 'ease-out', fill: 'both' });
+    } catch (e) {}
+    big(() => { noise(0.12, 0, 0.35, 700, 'lowpass'); tone(150, 0.16, 0, 'sine', 0.2, 70); });
+    buzz(me ? [50, 30, 90] : 25);
+  }, Math.max(0, wait || 0)));
+  roundStampT.push(setTimeout(() => { if (el.parentNode) el.remove(); }, Math.max(0, wait || 0) + ROUND_STAMP_MS + 60));
 }
 // Slide the rows into the new standings (FLIP), and move the ranks and the leader's highlight with them
 function sortScoreRows() {

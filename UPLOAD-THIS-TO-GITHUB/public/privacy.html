@@ -11,12 +11,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
 <!--
-  Closed Caption privacy page. Plain words, true to the code (checked Oct 18 2026):
+  Closed Caption privacy page. Plain words, true to the code (checked Oct 19 2026):
   - server.js keeps every room in memory (the games object). A room is deleted 30 minutes after its last
     phone leaves, and every room is gone whenever the server restarts or updates.
-  - Headshots: game.js setFace keeps one small JPEG per player in that room's memory, never on disk;
-    /face/CODE/ID serves it only to that room. Delete: the selfie sheet's "Delete my photo".
-  - Phones keep their own things in the browser's storage: name, headshot copy (cc_face), the Gallery
+  - No photos: the game never uses the camera and takes no pictures of anyone (the old headshot feature was
+    removed Oct 19 2026; index.html deletes any old copy, cc_face, left on a phone).
+  - Phones keep their own things in the browser's storage: name, the Gallery
     (cc_gallery), career/badges, which cartoons they've seen, sound settings.
   - The Gallery deck (store.js) is memory-only unless the host sets DATA_DIR; on the current Render free plan
     it isn't set. If it ever is, framed captions and the writer's name would be kept on the server — update
@@ -68,7 +68,6 @@
     <h2>What the game server holds</h2>
     <ul>
       <li><strong>Names</strong> you type to join, the <strong>captions</strong> you write, and your bets and scores.</li>
-      <li>Your <strong>headshot</strong>, only if you take one. It’s a small photo cropped to your face.</li>
       <li>All of it sits in the server’s memory, <strong>only for that game room</strong>, seen only by the players in it. It’s never written to disk.</li>
       <li>A room is <strong>deleted 30 minutes after the last phone leaves</strong> — and every room vanishes whenever the server restarts.</li>
     </ul>
@@ -77,7 +76,7 @@
   <section class="card">
     <h2>What stays on your phone</h2>
     <ul>
-      <li>Your name, your headshot (so you don’t retake it every game), <strong>The Gallery</strong> of framed captions, your badges, and which cartoons you’ve seen.</li>
+      <li>Your name, <strong>The Gallery</strong> of framed captions, your badges, and which cartoons you’ve seen.</li>
       <li>It lives in your browser’s storage on that phone, nowhere else. Clearing the site’s data in your browser settings erases it.</li>
       <li>When you join a game, your phone shares your Gallery with that room so the table can see it.</li>
     </ul>
@@ -86,9 +85,8 @@
   <section class="card">
     <h2>Photos, and kids</h2>
     <ul>
-      <li>The headshot is <strong>always optional</strong>. Skip it and the game draws you a cartoon head instead.</li>
-      <li><strong>Delete my photo</strong> (on the headshot screen) removes it from the room and from your phone, right away.</li>
-      <li>Kids are welcome to play. Nobody needs a real name, an email, or an account. A parent can delete a child’s photo the same way.</li>
+      <li>The game takes <strong>no photos</strong>. It never asks for your camera, and nobody’s picture is kept anywhere.</li>
+      <li>Kids are welcome to play. Nobody needs a real name, an email, or an account.</li>
     </ul>
   </section>
 
@@ -97,7 +95,7 @@
     <ul>
       <li>No ads.</li>
       <li>No tracking, analytics, or cookies for following you around.</li>
-      <li>No selling or sharing your names, captions, or photos. With anyone. Ever.</li>
+      <li>No selling or sharing your names or captions. With anyone. Ever.</li>
       <li>No accounts, no emails, no passwords.</li>
     </ul>
   </section>
