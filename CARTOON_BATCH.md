@@ -1,50 +1,50 @@
 # Closed Caption — daily cartoon batch (runbook)
 
-Nick's decision (Oct 18 2026): grow the deck to **1,000 cartoons**, all in ONE house style, by having Claude drive
-**his own signed-in ChatGPT** in the browser on his computer (no API key), as a daily scheduled batch.
+Nick's decisions (Oct 19 2026): the whole old deck (ids ≤ 112) and every old Gallery frame are retired for good. The new
+deck is built from scratch toward **1,000 cartoons**, using ONLY the five styles Nick approved — read `CARTOON_STYLES.md`
+first; it is the art direction and overrides anything else. Claude drives **Nick's own signed-in ChatGPT** in the
+built-in browser of the Claude desktop app on his computer (no API key), every day, **as many as ChatGPT allows**.
 He must **never see any real caption** — never print, quote or summarise one in any message to him.
 
 Progress lives in `CARTOON_PROGRESS.md` (one line per item). Read it first; append to it as you go.
 
 ## Each run
-1. Clone the repo, read this file, `CARTOON_PROGRESS.md`, the BRAND section of `REVIEW.md`, and the top of
-   `CARTOON_REDRAW.md` / `CARTOON_NEW.md` (house style, sign rule, setups to avoid, paused categories).
-2. Reach the browser on Nick's computer: the built-in browser (Claude desktop app) first, else Claude in Chrome.
-   If neither can be reached: tell Nick in one line ("Today's cartoon batch couldn't run: your computer or the Claude app
-   was off. It'll try again tomorrow.") and stop.
-3. Open https://chatgpt.com in a new tab. If it isn't signed in, or asks for a password, verification, CAPTCHA or
-   payment: stop and tell Nick in one line. Never type a password or solve a CAPTCHA.
-4. Work through the queue, **one prompt per new ChatGPT chat**, up to **20 images a run**. Stop early when ChatGPT says
-   the image limit is reached (note the time it gives in the progress file).
-5. Queue order:
-   a. `CARTOON_REDRAW.md` Part 1, then Part 2 (redraws keep their card number and real caption).
-   b. `CARTOON_NEW.md` (60 new).
-   c. Then Claude writes NEW premises itself, following CARTOON_NEW.md's rules: one odd situation, someone reacting
-      with a straight face, room for many captions, nobody obviously talking. Mix ~40% Family, 35% Standard,
-      25% After Dark; ~1 in 5 with a large readable sign as a foothold. Never repeat a setup already in the deck or
-      in `CARTOON_PROGRESS.md` (keep the one-line premise there). Keep the paused categories paused. No real people,
-      brands, logos, characters or copyrighted designs. After Dark = PG-13: a little risqué or bathroom humour, varied
-      (office, dating, divorce, hangovers, HR, bad decisions); never sexual content, never minors.
-   Every prompt ends with the house-style sentence used in those files.
-6. Getting the picture out: when the image has finished (not the blurry preview), run JavaScript in the page that
-   finds the newest generated `<img>` in the last assistant message, draws it on a canvas at 900×900 (centre crop),
-   and returns `canvas.toDataURL('image/jpeg', 0.85)` in chunks of 90,000 characters (call once for the length, then
-   once per chunk). Join the chunks into a `.b64` file in the workspace. Don't download through the browser.
-7. Check every picture yourself (open it with Read) before it goes in:
-   - house style: black ink line + soft grey wash on white, no colour, not comic/3D/photo/painterly;
-   - no caption, no speech or thought bubbles, no stray words (a sign only when the prompt asks for one, readable);
-   - matches the premise; faces and hands not mangled; no real logos or recognisable characters.
-   One retry in the same chat with a short correction ("Redraw: no colour" etc.). Still wrong → log it as `skipped`
-   with the reason and move on.
-8. Add it: `python3 tools/add_cartoon.py ...` (see the script's header). New cards take the next free id.
-   For a new card write the real caption the way the deck's captions are written: short, specific, dry, trusts the
-   reader; the line that makes the picture land. Vary it (REVIEW #16): mostly 4–10 words, ~15% at 11–16; different
-   shapes and speakers; at most 1 in 10 uses a name or "Sir/Ma'am". It must be clearly better than an average
-   player's caption but not so polished it gives itself away. Never show it to Nick.
+1. Clone the repo; read `CARTOON_STYLES.md`, this file, `CARTOON_PROGRESS.md`, and the BRAND section of `REVIEW.md`.
+2. Reach the built-in browser (tools `mcp__remote-devices__Claude_Browser__*`; load them all with one ToolSearch).
+   If it can't be reached: tell Nick in one line ("Today's cartoon batch couldn't run: your computer or the Claude app
+   was off. It'll try again tomorrow.") and stop. Fall back to Claude in Chrome only if the built-in browser is
+   unavailable and Chrome is signed in to ChatGPT.
+3. Open https://chatgpt.com. If it isn't signed in, or asks for a password, verification, CAPTCHA or payment: stop and
+   tell Nick in one line. Never type a password, never solve a CAPTCHA, never change ChatGPT settings.
+4. Write the scene list for today yourself: new premises, never a setup already in `CARTOON_PROGRESS.md` (keep a one-line
+   premise there for every card). One odd situation, someone reacting with a straight face, room for many captions,
+   nobody obviously talking. Mix ~40% Family, 35% Standard, 25% After Dark (PG-13: a little risqué or bathroom humour,
+   varied; never sexual, never minors). About 1 in 10 with a sign that IS the setup. No real people, brands, logos or
+   characters. Rotate the five styles evenly. Follow the background rule in `CARTOON_STYLES.md` (almost always bare;
+   style 2 is the barest; a little ink adds a lot; ~1 in 8 a nice background).
+5. One prompt per **new chat** (open https://chatgpt.com fresh each time), using the template in `CARTOON_STYLES.md`.
+   Keep going until ChatGPT says the image limit is reached (note the time it gives in the progress file) or 40 images.
+6. Getting the picture out (ChatGPT's page can't send files anywhere, so it hands them to the game's private drop-box):
+   run this in the page with javascript_tool once the image is finished — it waits for it, then opens the drop-box page:
+   ```js
+   let im=null; for (let i=0;i<45;i++){ const imgs=[...document.querySelectorAll('img')].filter(x=>x.naturalWidth>500 && /Generated image/.test(x.alt)); const busy=/One last tweak|Creating image|Thinking/.test(document.body.innerText); if (imgs.length && !busy){ im=imgs[imgs.length-1]; break;} await new Promise(r=>setTimeout(r,1000)); }
+   if(!im) 'not ready'; else { const b=await (await fetch(im.src,{credentials:'include'})).blob(); const bm=await createImageBitmap(b); const c=document.createElement('canvas'); c.width=bm.width; c.height=bm.height; c.getContext('2d').drawImage(bm,0,0); const d=c.toDataURL('image/jpeg',0.92); setTimeout(()=>{ location.href='https://closed-caption.onrender.com/intake.html#k=KEY&n=NAME&d='+encodeURIComponent(d); }, 50); 'sending '+d.length }
+   ```
+   KEY is the drop-box key given in the scheduled task's instructions (never write it into the repo). NAME = c<id>.
+   Then collect it from the workspace: `curl -s -o pic.jpg "https://closed-caption.onrender.com/intake/get?k=KEY&name=NAME"`
+   and empty it: `curl -s "https://closed-caption.onrender.com/intake/clear?k=KEY&name=NAME"`.
+7. Check every picture yourself (open it with Read) before it goes in: one of the five styles and nothing else; black
+   and white; bare background (unless it's a deliberate nice-background one); no caption, bubbles or stray words; matches
+   the premise; hands and faces not mangled; no logos or recognisable characters. One retry in the same chat with a short
+   correction ("Redraw: less background, no grey"). Still wrong → log it as `skipped` with the reason.
+8. Add it: `python3 tools/add_cartoon.py --image pic.jpg --id N --title "..." --rating family|standard|afterdark --caption "..."`
+   (next free id, 118 and up). Write the real caption the way the deck's captions are written: short, specific, dry,
+   trusts the reader; the line that makes the picture land. Vary length (mostly 4–10 words, ~15% at 11–16), shape and
+   speaker; at most 1 in 10 uses a name or "Sir/Ma'am". Clearly better than an average player's caption but not so
+   polished it gives itself away. Never show it to Nick.
 9. After the batch: run the server once (`node server.js`, check it starts with no errors), commit
-   ("Cartoon batch: N redrawn, M new"), and push with `./safe_push.sh` (it waits until nobody is playing).
-10. Tell Nick in two lines: how many were added or redrawn today, the deck's total, how many to go to 1,000.
-    No captions. Mention anything he has to do (sign in, etc.).
+   ("Cartoon batch: N new"), and push with `./safe_push.sh` (it waits until nobody is playing).
+10. Tell Nick in two lines: how many were added today, the deck's total, how many to go to 1,000. No captions.
 
 ## Counting toward 1,000
-Count the active cards in `CARTOONS` (game.js) that are not retired (ids below 47 are retired and never dealt).
+Count the cards in `CARTOONS` (game.js) with id 113 and up.
