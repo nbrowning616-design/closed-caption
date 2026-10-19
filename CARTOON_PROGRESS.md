@@ -183,3 +183,23 @@ Format: `date · queue item · result (redrawn card N / new card N / skipped: re
 - 294 · Camouflage · style 3 · medium · family · A chameleon sits on a chessboard, its skin patterned in perfect black and white squares.
 - 295 · Flight Plan · style 4 · medium · standard · In the aisle of a passenger plane, the pilot in uniform holds open a big road map and asks the passengers for directions.
 - 296 · Economy · style 5 · medium · afterdark · In a cramped row of airplane seats, a man has opened a full-size newspaper across the faces of the two strangers beside him.
+- 297 · Fitting · style 1 · easy · family · In a shoe store, a giant in a suit sits on the floor because he's too big for the chair. A clerk stands on a tall ladder, measuring his foot.
+- 298 · Maintenance · style 2 · medium · family · Two old-fashioned tin robots sit side by side on a park bench. One gently oils the other's squeaky knee with a small oil can.
+- 299 · References · style 3 · medium · standard · At a job interview, a pirate with an eye patch and a wooden leg sits across the desk. The interviewer looks only at the parrot on the pirate's shoulder.
+- 300 · Reach · style 4 · medium · family · At night, a man standing in a small rowboat on a calm sea throws a lasso up toward the moon.
+- 301 · Self-Portrait · style 5 · easy · standard · A plain, balding painter sits at an easel painting a self-portrait. On the canvas is a dashing, square-jawed, handsome man.
+- 302 · Between Jobs · style 1 · easy · standard · At an employment office, a chubby little cupid with wings sits in a plastic chair filling out a form, his bow and arrows on his lap.
+- 303 · House Hunting · style 2 · medium · family · A hermit crab sits across the desk from a real-estate agent who is showing it a selection of empty seashells.
+- 304 · Killing Time · style 3 · hard · standard · A man sits on a small stool inside a giant hourglass, calmly reading a newspaper while sand falls slowly onto his hat.
+- 305 · Lie · style 4 · hard · afterdark · On a golf course, one golfer quietly drops a second ball out of his trouser leg while his partner looks the other way.
+- 306 · The Comb · style 5 · easy · family · Two completely bald men struggle over a single comb.
+- 307 · The Forecast · style 1 · medium · standard · A TV weatherman stands in front of a blank map, dripping wet, holding an umbrella, inside the studio.
+- 308 · The Act · style 2 · medium · afterdark · At a bar, a ventriloquist sits on a stool with his wooden dummy on his knee. The dummy is the one holding the drink.
+- 309 · Upgrade · style 3 · medium · family · In an ordinary living room, a small whale floats in a fish tank that takes up the whole wall. Next to it on a table sits an empty goldfish bowl.
+- 310 · Signal · style 4 · easy · standard · High on a mountain peak, a monk in robes holds his phone up toward the sky, searching for a signal.
+- 311 · Midlife · style 5 · medium · standard · A middle-aged man in a business suit and a brand-new leather jacket sits proudly on a tiny toy motorcycle in his driveway.
+- 312 · Hanging On · style 1 · hard · family · On a bare autumn tree, one last leaf remains. A squirrel on the branch is carefully taping it back on.
+- 313 · Mondays · style 2 · medium · standard · At the office coffee machine, a line of shambling zombies in shirts and ties waits its turn.
+- 314 · Dutch · style 3 · easy · afterdark · On a candlelit first date, the man pulls out an enormous calculator to split the bill. His date watches.
+- 315 · Help Desk · style 4 · hard · family · A spider sits in the middle of its web wearing a tiny telephone headset, as if working at a call center.
+- 316 · The Viewing · style 5 · hard · standard · In a museum, a man sits on a bench in front of a large painting of a formal family. Everyone in the painting has turned to look at him.
