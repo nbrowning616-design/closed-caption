@@ -304,3 +304,11 @@ Format: `date · queue item · result (redrawn card N / new card N / skipped: re
 - 325 · Red Light · skipped (composition didn't read)
 - 335 · The Act · skipped (too close to the octopus recital)
 - 336 · Home Office · skipped (too many tiny-person-inside gags)
+- 422 · Self-Portrait · style 4 · medium · family · In a forest, a beaver stands proudly beside a tree trunk it has gnawed into a perfect life-size statue of a beaver. A second beaver stands looking at the statue.
+- 423 · Office Party · style 5 · easy · afterdark · At an office holiday party, coworkers stand around holding drinks. The water cooler in the corner leans at a tilt, a lampshade on its jug.
+- 424 · Lookout Point · style 1 · medium · afterdark · At night, two cars are parked on a hilltop overlook, their windows fogged. Above them the full moon has a face and is pointedly looking the other way.
+- 425 · Wrong Hole · style 2 · hard · afterdark · In a quiet cemetery, a gravedigger leans on his shovel beside a freshly dug grave that is very wide and very long. A short, thin man stands beside him, looking down into it.
+- 426 · Dusty Wait · style 3 · hard · afterdark · A man sits alone in an endless row of identical waiting-room chairs. Cobwebs stretch from his hat to the chair, and a magazine on his lap is thick with dust.
+- 427 · Safe Cracker · style 4 · hard · standard · A man in a bathrobe stands in a dark hallway with his ear pressed to a small round smart speaker on a shelf, slowly turning its top like the dial of a safe.
+- 428 · Downpour · style 5 · easy · family · A man in a raincoat stands on a city sidewalk holding an open umbrella. All around him, small cats and dogs are falling gently from the sky and landing neatly on their feet.
+- (ChatGPT daily image limit reached at 429; queue 429–540 planned)

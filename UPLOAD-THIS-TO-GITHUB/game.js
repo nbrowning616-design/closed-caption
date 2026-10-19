@@ -327,6 +327,13 @@ const CARTOONS = [
   { id: 332, level: "medium", title: "Head Count", image: "card_332.jpg", correct: "Four, five, six, and a chance of showers." },
   { id: 333, adult: true, level: "medium", title: "Feeding Time", image: "card_333.jpg", correct: "Not now. They're checking the markets." },
   { id: 334, spicy: true, level: "easy", title: "Dinner", image: "card_334.jpg", correct: "Gerald had a procedure. We don't ask." },
+  { id: 422, level: "medium", title: "Self-Portrait", image: "card_422.jpg", correct: "He says it's a self-portrait. I say it's a cry for help." },
+  { id: 423, spicy: true, level: "easy", title: "Office Party", image: "card_423.jpg", correct: "Wait till you see what the copier did." },
+  { id: 424, spicy: true, level: "medium", title: "Lookout Point", image: "card_424.jpg", correct: "Even he has his limits." },
+  { id: 425, spicy: true, level: "hard", title: "Wrong Hole", image: "card_425.jpg", correct: "He insisted on room to grow." },
+  { id: 426, spicy: true, level: "hard", title: "Dusty Wait", image: "card_426.jpg", correct: "They said the doctor would be right with me." },
+  { id: 427, adult: true, level: "hard", title: "Safe Cracker", image: "card_427.jpg", correct: "Three to the left, two to the right, and it orders more paper towels." },
+  { id: 428, level: "easy", title: "Downpour", image: "card_428.jpg", correct: "Forecast said scattered showers. Nobody mentioned breeds." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
