@@ -47,6 +47,7 @@
 <script src="/qrcode.js?v=__V__"></script>
 <script src="/home.js?v=__V__"></script>
 <script src="/guide.js?v=__V__"></script>
+<script src="/verdicts.js?v=__V__"></script>
 <script>
 /* The show scripts (Gallery + share card, steal + heists, recap, finale) aren't needed until the middle
    of a round, so they no longer hold up the first screen. Once the page has loaded (or 4 s after the app is up,
@@ -612,7 +613,6 @@ body.quake { animation: quake .12s linear 10; }
 .badge-strip { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
 .badge-chip { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; padding: 4px 10px 4px 4px; border-radius: 999px; background: var(--yellow-bg); border: 2px solid var(--ink); }
 .bdg-mini { display: inline-flex; flex-wrap: wrap; gap: 3px; }
-.rank-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .6px; color: #1E2A5A; }
 
 /* ── Nudges, invite, code pill ── */
 .nudge { display: none; align-items: center; gap: 8px; margin: -2px 0 12px; padding: 10px 12px; border: 2px solid var(--ink); border-radius: 12px; background: var(--yellow-bg); font-size: 14px; font-weight: 800; line-height: 1.35; }
@@ -765,6 +765,73 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .ft-chips { display: inline-flex; gap: 4px; flex-wrap: wrap; }
 .ft-who { font-size: 13px; font-weight: 800; color: var(--ink-2); margin-left: auto; }
 .ft-none { margin-top: 6px; color: var(--muted); }
+
+.rules-pitch { margin: 0 0 14px; }
+.rules-pitch .rp1 { font-family: var(--serif); font-weight: 700; font-size: 19px; line-height: 1.2; }
+.rules-pitch .rp2 { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 15px; color: var(--ink-2); margin-top: 2px; }
+/* ── The rating (chess-style): lobby card + sheet, the opening card, the verdicts ── */
+.rt-tag { display: inline-block; font-family: var(--serif); font-size: 13px; font-weight: 700; color: var(--ink-2); margin-right: 6px; }
+.rt-card { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; padding: 12px 14px; margin-bottom: 16px; background: var(--card); border: var(--bw) solid var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); cursor: pointer; font: inherit; color: var(--ink); }
+.rt-card:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.rt-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.rt-num { font-family: var(--serif); font-weight: 700; font-size: 30px; line-height: 1.1; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.rt-title { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 16px; color: var(--ink-2); }
+.rt-note { font-size: 12.5px; font-weight: 800; color: var(--muted); margin-top: 2px; }
+.rt-side { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; color: var(--ink); }
+.rt-spark { display: block; }
+.rt-badges { display: flex; gap: 3px; }
+.rt-bdg { position: relative; display: inline-flex; }
+.rt-bdg i { position: absolute; right: -5px; bottom: -3px; font-style: normal; font-size: 10px; font-weight: 900; background: var(--paper); border-radius: 6px; padding: 0 2px; }
+.rt-how { font-size: 12px; font-weight: 800; color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
+.rt-sheet { max-width: 420px; margin: 0 auto; }
+.rt-big { font-family: var(--serif); font-weight: 700; font-size: 52px; line-height: 1; text-align: center; margin-top: 6px; }
+.rt-big-sub { text-align: center; font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--ink-2); margin-top: 4px; }
+.rt-big-spark { display: flex; justify-content: center; margin-top: 10px; color: var(--ink); }
+.rt-h { font-family: var(--serif); font-weight: 700; font-size: 18px; margin: 20px 0 6px; }
+.rt-p { font-family: var(--serif); font-size: 15.5px; line-height: 1.45; color: var(--ink); font-weight: 400; margin-bottom: 8px; }
+.rt-p.small { font-size: 13.5px; color: var(--muted); font-style: italic; }
+.rt-titles { border: 2px solid var(--ink); border-radius: 12px; background: var(--card); overflow: hidden; margin-bottom: 8px; }
+.rt-trow { display: flex; justify-content: space-between; padding: 8px 12px; border-top: 1.5px dashed var(--line); font-family: var(--serif); font-size: 15.5px; }
+.rt-trow:first-child { border-top: 0; }
+.rt-trow b { font-weight: 700; }
+.rt-trow.on { background: var(--yellow-bg); }
+#opening { position: fixed; inset: 0; z-index: 770; display: none; align-items: center; justify-content: center; padding: calc(20px + var(--sat)) 16px calc(20px + var(--sab)); background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 18px 18px; }
+#opening.on { display: flex; animation: fadeIn .35s ease-out; }
+.op-card { width: 100%; max-width: 380px; max-height: 100%; overflow-y: auto; text-align: center; }
+.op-head { font-family: var(--serif); font-weight: 700; font-size: 22px; line-height: 1.2; color: var(--ink); }
+.op-line { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 16px; line-height: 1.4; color: var(--ink-2); margin-top: 6px; }
+.op-table { margin: 16px auto 14px; text-align: left; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); padding: 4px 0; animation: fadeIn .35s ease-out .3s both; }
+.op-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 2px; font-size: 15px; font-weight: 800; }
+.op-row + .op-row { border-top: 1.5px dashed var(--line); }
+.op-name { display: inline-flex; align-items: center; gap: 7px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.op-r { font-family: var(--serif); font-weight: 700; flex: none; }
+.op-pick { margin-top: 10px; animation: fadeIn .35s ease-out .7s both; }
+.op-pick + .op-pick { animation-delay: 1s; }
+.op-who { font-family: var(--serif); font-size: 16px; color: var(--ink); }
+.op-who b { font-weight: 700; }
+.op-pick .op-line { margin-top: 2px; font-size: 15px; }
+#verdicts { position: fixed; inset: 0; z-index: 765; display: none; overflow-y: auto; background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 18px 18px; }
+#verdicts.on { display: block; animation: fadeIn .35s ease-out; }
+.vd-wrap { max-width: 440px; margin: 0 auto; padding: calc(22px + var(--sat)) 16px calc(24px + var(--sab)); }
+.vd-h { font-family: var(--serif); font-weight: 700; font-size: 28px; text-align: center; margin: 2px 0 14px; }
+.vd-list { display: flex; flex-direction: column; }
+.vd-row { padding: 11px 2px 12px; border-top: 1.5px dashed var(--line); animation: vdIn .45s var(--ease-out) both; }
+.vd-row:first-child { border-top: 2px solid var(--ink); }
+.vd-row:last-child { border-bottom: 2px solid var(--ink); }
+.vd-row.me { background: linear-gradient(90deg, var(--yellow-bg), transparent); margin: 0 -8px; padding-left: 10px; padding-right: 10px; }
+.vd-top { display: flex; align-items: baseline; gap: 7px; }
+.vd-top .chip { align-self: center; }
+.vd-name { font-weight: 900; font-size: 16px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vd-title { font-family: var(--serif); font-style: italic; font-size: 13.5px; color: var(--ink-2); white-space: nowrap; }
+.vd-num { margin-left: auto; flex: none; font-family: var(--serif); font-weight: 700; font-size: 18px; white-space: nowrap; }
+.vd-d { font-family: var(--sans); font-size: 13px; font-weight: 900; margin-left: 6px; color: var(--muted); }
+.vd-d.up { color: var(--teal); } .vd-d.down { color: var(--red); }
+.vd-line { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 15.5px; line-height: 1.4; color: var(--ink); margin-top: 4px; padding-left: 27px; }
+.vd-extra { font-family: var(--serif); font-weight: 400; font-size: 13.5px; line-height: 1.4; color: var(--muted); margin-top: 3px; padding-left: 27px; }
+.vd-extra b { font-weight: 700; color: var(--ink); }
+.vd-foot { margin-top: 18px; }
+@keyframes vdIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .vd-row, .op-table, .op-pick { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -778,6 +845,8 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 <div id="stealshow"></div>
 <div id="induct" onclick="if (event.target === this) closeInduction()"></div>
 <div id="awards"></div>
+<div id="opening"></div>
+<div id="verdicts"></div>
 <div id="poobah"></div>
 <label class="ios-haptic" id="haptic-label"><input type="checkbox" switch id="haptic-input"></label>
 
@@ -797,7 +866,8 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 <!-- ═══════ RULES ═══════ -->
 <div id="screen-rules" class="screen">
   <button class="btn-link back-link" onclick="goBackFromRules()">← Back</button>
-  <h2 class="h1" style="margin-bottom: 10px;">How to play</h2>
+  <h2 class="h1" style="margin-bottom: 6px;">How to play</h2>
+  <div class="rules-pitch"><p class="rp1">Think you’re clever? Prove it.</p><p class="rp2">Ranked like chess, but judged by friends.</p></div>
   <div id="howto-mount"></div>
   <div class="stack" style="margin:14px 0 8px;">
     <button class="btn btn-yellow" onclick="goBackFromRules()">Got it →</button>
@@ -824,7 +894,8 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
     <ul class="rules-extras">
       <li><b>Frame It.</b> After each round, pick a caption that beat the real one (never your own). Frame as many as deserve it, one a round. When <span class="frame-need">most of the other players</span> pick the same one, it hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
       <li><b>The Grand Poobah.</b> Points say who bet best. The hat goes to who wrote best: the most chips on their fakes, all night.</li>
-      <li><b>Badges and ranks.</b> Rare moments earn badges: Moon Landing 🚀, Three Bagger, Clean Sweep, Great Minds, Pickpocket. Ten rockets makes you Captain. Your phone keeps them.</li>
+      <li><b>Your rating.</b> Ranked like chess, but judged by friends. Everyone starts at 1,200; after each game you gain points from everyone you finished above and lose them to everyone who finished above you. Beating higher-rated players moves it more. Titles: Candidate 1,400, Master 1,600, Senior Master 1,800, Grandmaster 2,000. Your phone keeps it.</li>
+      <li><b>Badges.</b> Rare moments earn badges: Moon Landing, Three Bagger, Clean Sweep, Great Minds, Pickpocket. Your phone keeps those too.</li>
       <li><b>Good to know.</b> Bet on your own caption to bluff — it scores nothing. Captions are tidied the same way, the real one too. The real one isn’t always the funniest. Tap the cartoon to zoom.</li>
     </ul>
   </div></details>
@@ -1405,7 +1476,7 @@ function openMenu() {
     ${window.Voice && !(Voice.isOn && Voice.isOn()) && state && state.phase !== 'lobby' ? `<button class="menu-row" onclick="closeMenu(); Voice.ask()"><span class="ic">${inkIcon('speaker')}</span>Playing apart?<span class="r">Voice call</span></button>` : ''}
     <button class="menu-row" onclick="openInvite()"><span class="ic">${inkIcon('invite')}</span>Invite someone<span class="r">QR + link</span></button>
     <button class="menu-row" onclick="openGallery()"><span class="ic">${inkIcon('frame')}</span>The Gallery<span class="r">${galleryList().length ? plural(galleryList().length, 'caption') : ''}</span></button>
-    <button class="menu-row" onclick="openTrophyCase()"><span class="ic">${inkIcon('trophy')}</span>My trophy case<span class="r">${esc(careerSummary().rank || '')}</span></button>
+    <button class="menu-row" onclick="openRatingSheet()"><span class="ic">${inkIcon('trophy')}</span>My rating and badges<span class="r">${fmtRating(careerSummary().rating)}</span></button>
     <button class="menu-row" onclick="toggleSound()"><span class="ic">${inkIcon(soundEnabled() ? 'sound' : 'mute')}</span>Sound<span class="r">${soundEnabled() ? 'On' : 'Off'}</span></button>
     <button class="menu-row" id="bigsound-row" onclick="toggleBigSound()"><span class="ic">${inkIcon('speaker')}</span>This phone plays the big sounds<span class="r">${bigSound() ? 'On' : 'Off'}</span></button>
     <details class="box" style="margin-bottom:8px;" ${cur ? 'open' : ''}><summary><span style="width:26px; text-align:center;">${inkIcon('music')}</span>Table music${cur ? ' · playing' : ''}<span class="arrow">▾</span></summary><div class="body stack">
@@ -1473,15 +1544,16 @@ function render(force = false) {
     if (state.phase === 'lobby' && lastPhase) sendSeen();   // back in the lobby: refresh before the next game
     if (state.phase === 'lobby') { answerSeqRound = null; scoresAnimated = null; }
     if (lastPhase === 'framing') { clearFrameGos(); closeInduction(); }   // the scoreboard (and its hat) takes over
-    if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); closeRoundStamp(); if (window.ccFinale) ccFinale.close(); }
+    if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); closeRoundStamp(); closeVerdicts(); if (window.ccFinale) ccFinale.close(); }
+    if (state.phase !== 'writing') closeOpening();
     if (lastPhase && !['reveal', 'answer', 'framing', 'scores'].includes(state.phase)) bsfx.advance();
     document.body.classList.toggle('fm-on', state.phase === 'framing');
     if (state.phase !== 'writing') { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
     setActionBar('');
   } else if (state.phase === 'answer' && !force && key === lastKey) {
-    recordSeen(); recordCareer(); checkPromotion(); answerLive(); return;   // same step: only buttons update
+    recordSeen(); recordCareer(); answerLive(); return;   // same step: only buttons update
   } else if (state.phase === 'framing' && !force && key === lastKey && $('fm-root')) {
-    recordSeen(); recordCareer(); checkPromotion(); framingLive(); window.Guide && Guide.onRender(state); return;   // picks tick in without redrawing the list
+    recordSeen(); recordCareer(); framingLive(); window.Guide && Guide.onRender(state); return;   // picks tick in without redrawing the list
   } else if (state.phase === 'scores' && !force && key === lastKey && scoreSeq && scoreSeq.key === state.round + '|' + state.code) {
     return;   // the round's points are still landing: don't jump them to the end
   } else if (state.phase === 'reveal' && !force && revealRunner === canRun()) {
@@ -1489,7 +1561,6 @@ function render(force = false) {
   }
   recordSeen();
   recordCareer();
-  checkPromotion();
 
   // Everyone hears captions land while writing
   if (state.phase === 'writing') {
@@ -1525,6 +1596,7 @@ function render(force = false) {
   }
   if (state.phase === 'writing') startTimer();
   afterRender(phaseChanged);
+  syncOpening(); syncVerdicts();
   lastPhase = state.phase; lastRound = state.round; lastKey = key;
   window.Guide && Guide.onRender(state);   // first-game tips + the last writer's nudge (guide.js)
 }
@@ -1615,8 +1687,7 @@ function renderLobby() {
     <div style="display:flex; align-items:center; gap:10px; padding:8px 0; ${!p.connected ? 'opacity:.5;' : ''}">
       <span class="seat-n" title="Seat ${i + 1}">${i + 1}</span>
       ${chipHtml(p.id, 'lg pop' + (!p.connected ? ' dim' : ''))}
-      <div style="flex:1; min-width:0;"><div style="font-weight:900; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(p.name)}${pubMark(p)}${p.id === myPlayerId ? ' <span class="small">(you)</span>' : ''}</div>${rankTag(p)}
-        ${p.id === state.hostId ? '<span class="small" style="color:var(--yellow-d);">★ Host </span>' : ''}${i === 0 ? '<span class="small">deals first</span>' : ''}${!p.connected ? '<span class="small" style="color:var(--red);"> offline</span>' : ''}</div>
+      <div style="flex:1; min-width:0;"><div style="font-weight:900; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(p.name)}${pubMark(p)}${p.id === myPlayerId ? ' <span class="small">(you)</span>' : ''}</div>${ratingTag(p)}${p.id === state.hostId ? '<span class="small" style="color:var(--yellow-d);">★ Host </span>' : ''}${i === 0 ? '<span class="small">deals first</span>' : ''}${!p.connected ? '<span class="small" style="color:var(--red);"> offline</span>' : ''}</div>
       ${state.isHost && n > 1 ? `<button class="seat-mv" aria-label="Move ${esc(p.name)} up" ${i === 0 ? 'disabled' : ''} onclick="moveSeat('${p.id}',-1)">↑</button><button class="seat-mv" aria-label="Move ${esc(p.name)} down" ${i === n - 1 ? 'disabled' : ''} onclick="moveSeat('${p.id}',1)">↓</button>` : ''}
       ${state.isHost && p.id !== myPlayerId ? `<button class="btn btn-sm seat-kick" onclick="confirmKick('${p.id}')" aria-label="Remove ${esc(p.name)}">✕</button>` : ''}
     </div>`).join('');
@@ -1676,6 +1747,7 @@ function renderLobby() {
       <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">Send the invite link</button>
     </div>
     ${state.isHost ? demoCardHtml() : ''}
+    ${ratingCardHtml()}
     <p class="eyebrow" style="margin-bottom:6px;">At the table · ${connected} of ${state.players.length}${state.players.length > 1 ? ` <span style="text-transform:none;letter-spacing:0;font-weight:400;">· ${state.players.filter(p => p.watched).length} of ${state.players.length} watched the demo</span>` : ''}</p>
     <div style="margin-bottom:10px;">${players}</div>${seatHelp}
     ${state.isHost ? `<button class="btn-link" style="display:block; margin:0 auto 10px; font-size:14px;" onclick="send({action:'lock', on:${!state.locked}})">${state.locked ? 'Room locked. Unlock it' : 'Everyone’s here? Lock the room'}</button>` : state.locked ? '<p class="center small" style="margin-bottom:10px;">The host has locked the room.</p>' : ''}
@@ -2686,30 +2758,54 @@ function onReelRecap() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Career: badges collected on this phone across game nights.
-   10 rockets (Moon Landings) = Captain.
+   Career: this phone's rating (chess-style, worked out by the server at
+   game over: rating.js) and the badges it has collected across game nights.
+   cc_career = { counts, seen, rating, games, hist, lines, applied }
+     hist: ratings after each game (the sparkline); lines: short keys of the verdict lines
+     this phone has been shown (no repeats); applied: the games already counted (room + game number).
+   Older phones only had { counts, seen }: they start at 1200, provisional, badges kept.
    ═══════════════════════════════════════════════════════════ */
+const RATING_START = 1200, PROVISIONAL_GAMES = 3;
+const TITLES = [{ at: 1400, name: 'Candidate' }, { at: 1600, name: 'Master' }, { at: 1800, name: 'Senior Master' }, { at: 2000, name: 'Grandmaster' }];
+const titleFor = (r, games) => { if (games < PROVISIONAL_GAMES) return null; let t = null; for (const x of TITLES) if (r >= x.at) t = x.name; return t; };
+const fmtRating = (r) => Number(r).toLocaleString('en-US');
+const okInt = (n, lo, hi) => Number.isInteger(n) && n >= lo && n <= hi;
 function careerGet() {
+  const c = { counts: {}, seen: [], rating: RATING_START, games: 0, hist: [], lines: [], applied: [] };
   try {
-    const c = JSON.parse(localStorage.getItem('cc_career') || 'null');
-    if (c && c.counts && typeof c.counts === 'object') {
-      const counts = {}; for (const [k, v] of Object.entries(c.counts)) if (Number.isInteger(v) && v > 0 && v < 100000) counts[k] = v;
-      return { counts, seen: Array.isArray(c.seen) ? c.seen.filter(x => typeof x === 'string') : [] };
+    const o = JSON.parse(localStorage.getItem('cc_career') || 'null');
+    if (o && typeof o === 'object') {
+      if (o.counts && typeof o.counts === 'object') for (const [k, v] of Object.entries(o.counts)) if (Number.isInteger(v) && v > 0 && v < 100000) c.counts[k] = v;
+      if (Array.isArray(o.seen)) c.seen = o.seen.filter(x => typeof x === 'string');
+      if (okInt(o.rating, 100, 3500)) c.rating = o.rating;
+      if (okInt(o.games, 0, 100000)) c.games = o.games;
+      if (Array.isArray(o.hist)) c.hist = o.hist.filter(x => okInt(x, 100, 3500)).slice(-30);
+      if (Array.isArray(o.lines)) c.lines = o.lines.filter(x => typeof x === 'string' && /^[0-9a-z]{6}$/.test(x)).slice(-1500);
+      if (Array.isArray(o.applied)) c.applied = o.applied.filter(x => typeof x === 'string').slice(-50);
     }
   } catch (e) {}
-  return { counts: {}, seen: [] };
+  return c;
 }
-function careerSave(c) { try { c.seen = c.seen.slice(-500); localStorage.setItem('cc_career', JSON.stringify(c)); } catch (e) {} }
-function careerSummary() { const c = careerGet(), rockets = c.counts.moon || 0, total = Object.values(c.counts).reduce((a, b) => a + b, 0); return { rank: window.Badges ? window.Badges.rankOf(rockets).title : null, rockets, total }; }
+function careerSave(c) {
+  try { c.seen = c.seen.slice(-500); c.lines = c.lines.slice(-1500); c.hist = c.hist.slice(-30); c.applied = c.applied.slice(-50); localStorage.setItem('cc_career', JSON.stringify(c)); } catch (e) {}
+}
+function careerSummary() {
+  const c = careerGet(), total = Object.values(c.counts).reduce((a, b) => a + b, 0);
+  return { rating: c.rating, games: c.games, provisional: c.games < PROVISIONAL_GAMES, title: titleFor(c.rating, c.games), total };
+}
 let careerSent = null;
 function sendCareer(force) {
-  const s = careerSummary(), k = JSON.stringify(s) + '|' + gameCode + '|' + myPlayerId;
+  const c = careerGet(), s = careerSummary();
+  const k = [s.rating, s.games, s.total, c.lines.length, c.lines[c.lines.length - 1] || '', gameCode, myPlayerId].join('|');
   if (!force && k === careerSent) return;
-  if (ws && ws.readyState === 1 && myPlayerId) { ws.send(JSON.stringify({ action: 'career', ...s })); careerSent = k; }
+  if (ws && ws.readyState === 1 && myPlayerId) { ws.send(JSON.stringify({ action: 'career', rating: s.rating, games: s.games, total: s.total, lines: c.lines })); careerSent = k; }
 }
+function addSeenLines(c, keys) { let n = 0; for (const k of keys || []) if (typeof k === 'string' && /^[0-9a-z]{6}$/.test(k)) { const i = c.lines.indexOf(k); if (i >= 0) c.lines.splice(i, 1); c.lines.push(k); n++; } return n; }
 function recordCareer() {
-  if (!state || !['answer', 'framing', 'scores'].includes(state.phase) || !state.cartoon) return;
-  if (state.phase === 'answer') { const { step, n } = reelInfo(); if (step < n) return; }   // a rank-up must not spoil the real caption
+  if (!state) return;
+  applyRating();
+  if (!['answer', 'framing', 'scores'].includes(state.phase) || !state.cartoon) return;
+  if (state.phase === 'answer') { const { step, n } = reelInfo(); if (step < n) return; }   // a badge must not spoil the real caption
   const c = careerGet(); let added = false;
   for (const b of state.roundBadges || []) {
     if (!b.playerIds.includes(myPlayerId) || (window.Badges && !window.Badges.KINDS[b.kind])) continue;
@@ -2719,24 +2815,136 @@ function recordCareer() {
   }
   if (added) { careerSave(c); sendCareer(); }
 }
-let lastPromoN = null;
-function checkPromotion() {
-  const p = state.promotion;
-  if (lastPromoN === null) { lastPromoN = p ? p.n : 0; return; }
-  if (p && p.n > lastPromoN) {
-    lastPromoN = p.n;
-    if (Date.now() + clockOffset - p.at < 20000 && window.Badges) window.Badges.promotion({ rank: p.rank, name: p.name, mine: p.playerId === myPlayerId });
-  }
-}
-function rankTag(p, size = 18) {
-  if (!p || !p.rank || p.rank === 'Cadet' || !window.Badges) return '';
-  return `<span class="rank-tag">${window.Badges.insignia(p.rank, size)}${esc(p.rank)}</span>`;
-}
-function openTrophyCase() {
-  if (!window.Badges) return;
+// Game over: this phone takes its own row of the server's result, once (keyed by room + game number,
+// so a reconnect or a reload never counts it twice), and remembers every line the table was shown.
+function applyRating() {
+  const R = state && state.phase === 'scores' && state.gameOver ? state.rating : null;
+  if (!R || !R.gameId) return;
   const c = careerGet();
-  $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin-bottom:10px;">My trophy case · this phone</p>${window.Badges.caseHtml(c.counts, c.counts.moon || 0)}<button class="btn btn-ink" style="margin-top:14px;" onclick="closeMenu()">Close</button>`;
+  if (c.applied.includes(R.gameId)) return;
+  c.applied.push(R.gameId);
+  const row = R.rows && R.rows[myPlayerId];
+  if (row && okInt(row.after, 100, 3500)) {
+    if (!c.hist.length) c.hist.push(c.rating);
+    c.rating = row.after; c.games += 1; c.hist.push(row.after);
+  }
+  const keys = []; for (const id of R.order || []) { const r = R.rows[id]; if (r && r.line) keys.push(r.line.key); if (r && r.extra) keys.push(r.extra.key); }
+  addSeenLines(c, keys);
+  careerSave(c); sendCareer();
+}
+// The opening card's lines count as seen once they're on screen
+function noteOpeningSeen(o) { const c = careerGet(); if (addSeenLines(c, o.keys)) { careerSave(c); sendCareer(); } }
+
+/* ── The rating, in the lobby: a card for this phone, and a tag next to every name ── */
+function ratingTag(p) {
+  if (!p || !p.rating) return '<span class="rt-tag">new</span>';
+  return `<span class="rt-tag">${p.provisional ? 'new' : fmtRating(p.rating)}${p.title ? ' · ' + esc(p.title) : ''}</span>`;
+}
+function sparkSvg(hist, w = 92, h = 30) {
+  const v = hist.slice(-10); if (v.length < 2) return '';
+  const lo = Math.min(...v), hi = Math.max(...v), span = Math.max(40, hi - lo), mid = (hi + lo) / 2;
+  const x = (i) => 3 + i * (w - 6) / (v.length - 1), y = (r) => h / 2 - (r - mid) / span * (h - 8);
+  const pts = v.map((r, i) => `${x(i).toFixed(1)},${y(r).toFixed(1)}`).join(' ');
+  return `<svg class="rt-spark" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="Last ${v.length} ratings, from ${fmtRating(v[0])} to ${fmtRating(v[v.length - 1])}"><polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${x(v.length - 1).toFixed(1)}" cy="${y(v[v.length - 1]).toFixed(1)}" r="3" fill="currentColor"/></svg>`;
+}
+function ratingNote(s) {
+  if (s.provisional) return s.games ? `Provisional · ${s.games} of ${PROVISIONAL_GAMES} games` : 'New · the first three games are provisional';
+  const nx = TITLES.find(t => t.at > s.rating);
+  return nx ? `${fmtRating(nx.at - s.rating)} to ${nx.name}` : 'The top title';
+}
+function badgeStrip(counts, size = 22) {
+  if (!window.Badges) return '';
+  const got = (window.Badges.ORDER || []).filter(k => counts[k] > 0);
+  return got.length ? `<span class="rt-badges">${got.map(k => `<span class="rt-bdg" title="${esc(window.Badges.KINDS[k].name)}">${window.Badges.icon(k, size)}${counts[k] > 1 ? `<i>×${counts[k]}</i>` : ''}</span>`).join('')}</span>` : '';
+}
+function ratingCardHtml() {
+  const c = careerGet(), s = careerSummary();
+  return `<button class="rt-card" onclick="openRatingSheet()" aria-label="Your rating: ${s.provisional ? 'new' : fmtRating(s.rating)}. How it works">
+    <span class="rt-main"><span class="eyebrow">Your rating</span>
+      <span class="rt-num">${fmtRating(s.rating)}${s.title ? `<span class="rt-title">${esc(s.title)}</span>` : ''}</span>
+      <span class="rt-note">${esc(ratingNote(s))}</span></span>
+    <span class="rt-side">${sparkSvg(c.hist)}${badgeStrip(c.counts, 20)}<span class="rt-how">How it works ›</span></span>
+  </button>`;
+}
+function openRatingSheet() {
+  const c = careerGet(), s = careerSummary();
+  $('sheet-body').innerHTML = `<div class="grip"></div>
+    <div class="rt-sheet">
+      <p class="eyebrow center">Your rating · this phone</p>
+      <div class="rt-big">${fmtRating(s.rating)}</div>
+      <p class="rt-big-sub">${s.title ? esc(s.title) + ' · ' : ''}${esc(ratingNote(s))}</p>
+      ${c.hist.length > 1 ? `<div class="rt-big-spark">${sparkSvg(c.hist, 220, 46)}</div>` : ''}
+      <h3 class="rt-h">How it works</h3>
+      <p class="rt-p">Ranked like chess, but judged by friends. Everyone starts at 1,200. After each game you are measured against everyone at the table: finish above someone and you take points from them; finish below and they take yours.</p>
+      <p class="rt-p">Fool people. See through the fakes. Beat players rated above you and it moves a lot; beat players rated below you and it barely moves. Your first three games count double while the game works out who you are.</p>
+      <h3 class="rt-h">Titles</h3>
+      <div class="rt-titles">${TITLES.slice().reverse().map(t => `<div class="rt-trow${s.title === t.name ? ' on' : ''}"><span>${t.name}</span><b>${fmtRating(t.at)}</b></div>`).join('')}</div>
+      <p class="rt-p small">Below 1,400, no title. Just a number, and your friends’ opinion of you.</p>
+      ${window.Badges ? window.Badges.caseHtml(c.counts) : ''}
+      <p class="rt-p small center" style="margin-top:12px;">Kept on this phone.</p>
+    </div>
+    <button class="btn btn-ink" style="margin-top:14px;" onclick="closeMenu()">Close</button>`;
   $('sheet').classList.add('on');
+}
+
+/* ── The opening card: ~3.5 s before the first cartoon of each game, the same on every phone.
+   The writing clock was given the time back by the server, so nobody loses a second to it. ── */
+let openingShown = null, openingT = null;
+function closeOpening() { clearTimeout(openingT); const o = $('opening'); if (o) { o.className = ''; o.innerHTML = ''; } }
+function syncOpening() {
+  const o = state && state.phase === 'writing' && state.round === 1 ? state.opening : null;
+  if (!o || !o.gameId) { if ($('opening').className) closeOpening(); return; }
+  if (openingShown === o.gameId) return;
+  openingShown = o.gameId;
+  const left = o.at + o.ms - (Date.now() + clockOffset);
+  noteOpeningSeen(o);
+  if (left < 600) return;   // walked in late: straight to the cartoon
+  const row = (t) => `<div class="op-row"><span class="op-name">${chipHtml(t.id, 'xs')}${esc(t.name)}</span><span class="op-r">${t.provisional ? 'new' : fmtRating(t.rating)}</span></div>`;
+  const line = (x) => x ? `<p class="op-line">${esc(x.text)}</p>` : '';
+  const pick = o.favorite ? `<div class="op-pick"><p class="op-who">Favorite: <b>${esc(o.favorite.name)}</b> (${fmtRating(o.favorite.rating)}).</p>${line(o.favorite.line)}</div>
+      <div class="op-pick"><p class="op-who">Long shot: <b>${esc(o.underdog.name)}</b>.</p>${line(o.underdog.line)}</div>`
+    : `<div class="op-pick">${line(o.evenTable || o.newTable)}</div>`;
+  const el = $('opening');
+  el.innerHTML = `<div class="op-card" onclick="closeOpening()">
+    <p class="op-head">Ranked like chess, but judged by friends.</p>${line(o.opener)}
+    <div class="op-table">${(o.table || []).slice().sort((a, b) => (a.provisional - b.provisional) || b.rating - a.rating).map(row).join('')}</div>${pick}</div>`;
+  el.className = 'on';
+  openingT = setTimeout(closeOpening, left);
+}
+
+/* ── The verdicts: after the awards and the winner, before the Grand Poobah. A reading moment:
+   everyone's new rating, the change, the title, and one line each (picked by the server: same on every
+   phone, never one this phone has read before). The dealer or host taps on. ── */
+const VERDICT_LEAD_MS = 2000;   // the winner's card gets its moment first
+const verdictsPending = () => !!(state && state.phase === 'scores' && state.gameOver && state.rating && !state.verdictsAt && !state.finale);
+const verdictsStart = () => state.scoresAt + 300 + computeAwards().length * AWARD_SLIDE_MS + VERDICT_LEAD_MS;
+let verdictsFor = null, verdictsT = null;
+function closeVerdicts() { clearTimeout(verdictsT); const o = $('verdicts'); if (o && o.className) { o.className = ''; o.innerHTML = ''; } verdictsFor = null; }
+function syncVerdicts() {
+  if (!verdictsPending()) { closeVerdicts(); if (state && state.phase === 'scores' && state.gameOver && state.verdictsAt && !state.finale) scheduleGrandPoobah(); return; }
+  const R = state.rating, key = R.gameId + '|' + (canRun() ? 1 : 0);
+  if (verdictsFor === key) return;
+  clearTimeout(verdictsT);
+  const wait = verdictsStart() - (Date.now() + clockOffset);
+  if (wait > 0) { verdictsT = setTimeout(() => { verdictsFor = null; syncVerdicts(); }, wait); return; }
+  const fresh = !$('verdicts').className;
+  verdictsFor = key;
+  const sign = (d) => d > 0 ? '+' + d : d < 0 ? '−' + Math.abs(d) : '±0';
+  const rows = (R.order || []).map((id, i) => {
+    const r = R.rows[id]; if (!r) return '';
+    return `<div class="vd-row${id === myPlayerId ? ' me' : ''}" style="animation-delay:${fresh ? 0.25 + i * 0.12 : 0}s">
+      <div class="vd-top">${chipHtml(id, 'xs')}<span class="vd-name">${esc(nameOf(id))}</span>${r.title ? `<span class="vd-title">${esc(r.title)}</span>` : r.provisional ? '<span class="vd-title">new</span>' : ''}
+        <span class="vd-num">${fmtRating(r.after)}<span class="vd-d ${r.delta > 0 ? 'up' : r.delta < 0 ? 'down' : ''}">${sign(r.delta)}</span></span></div>
+      ${r.line ? `<p class="vd-line">${esc(r.line.text)}</p>` : ''}
+      ${r.extra ? `<p class="vd-extra">${r.newTitle ? `<b>New title: ${esc(r.newTitle)}.</b> ` : ''}${esc(r.extra.text)}</p>` : ''}
+    </div>`;
+  }).join('');
+  const nextWord = gamePoobah() && !poobahIsWinner() ? 'On to the Grand Poobah' : 'On to the final scores';
+  $('verdicts').innerHTML = `<div class="vd-wrap"><p class="eyebrow center">After tonight</p><h2 class="vd-h">The ratings</h2>
+    <div class="vd-list">${rows}</div>
+    <div class="vd-foot">${canRun() ? `<button class="btn btn-yellow" onclick="this.disabled=true; send({action:'verdicts_done'})">${nextWord} →</button>` : `<p class="rc-wait">${esc(firstName(state.dealerName || nameOf(state.hostId)))} moves things along<span class="dots"></span></p>`}</div></div>`;
+  $('verdicts').className = 'on';
+  if (fresh) { try { bsfx.swish(); } catch (e) {} }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -2847,7 +3055,8 @@ function renderFinal(sorted, animated, goal) {
   const winner = sorted[0], tops = sorted.filter(p => p.score === winner.score), tie = tops.length > 1;
   const g = gamePoobah(), at = ceremonyAt();
   const folded = !!g && poobahIsWinner(g);
-  const showHat = g && !folded && (grandShown || !at || Date.now() + clockOffset >= at + POOBAH_SHOW_MS);   // no spoilers before the ceremony
+  const vPend = verdictsPending();
+  const showHat = g && !folded && !vPend && (grandShown || !at || Date.now() + clockOffset >= at + POOBAH_SHOW_MS);   // no spoilers before the ceremony
   const also = folded ? `<p class="fn-also">${poobahHat(22)} ${g.ids.length > 1 || tie ? esc(listNames(g.ids.map(nameOf))) + ' also took' : 'Also took'} the Grand Poobah. ${esc(poobahStatLine(g))}</p>` : '';
   // #39: one name per line, and long names shrink — never split mid-word
   const fit = (list) => { const m = Math.max(...list.map(t => t.length)), k = list.length; return m > 12 ? 'font-size:19px;' : m > 8 || k > 2 ? 'font-size:23px;' : k > 1 ? 'font-size:27px;' : ''; };
@@ -2858,8 +3067,8 @@ function renderFinal(sorted, animated, goal) {
   const nFr = state.framedTonight || 0, fin = state.finale && window.ccFinale;
   // Tonight's Gallery: after the winner and the Poobah, the host opens it for every phone.
   // #21: the button waits until the Poobah's ceremony is over (or there's no Poobah to crown)
-  const poobahDue = !!g && !grandShown && !!at && Date.now() + clockOffset < at + POOBAH_SHOW_MS;
-  if (poobahDue && !fin) { clearTimeout(window._galGateT); window._galGateT = setTimeout(() => { if (state && state.phase === 'scores' && state.gameOver && !state.finale) render(true); }, at + POOBAH_SHOW_MS - (Date.now() + clockOffset) + 100); }
+  const poobahDue = (vPend && !!g && !folded) || (!!g && !grandShown && !!at && Date.now() + clockOffset < at + POOBAH_SHOW_MS);
+  if (poobahDue && !fin && at) { clearTimeout(window._galGateT); window._galGateT = setTimeout(() => { if (state && state.phase === 'scores' && state.gameOver && !state.finale) render(true); }, at + POOBAH_SHOW_MS - (Date.now() + clockOffset) + 100); }
   const galBtn = !fin && nFr && window.ccFinale ? (canRun()
       ? (poobahDue ? `<button class="btn btn-yellow fn-gal" disabled aria-disabled="true">Tonight’s Gallery — after the Poobah</button>` : `<button class="btn btn-yellow fn-gal" onclick="openFinale()">Tonight’s Gallery (${nFr}) →</button>`)
       : `<p class="rc-wait">Next: tonight’s Gallery — ${plural(nFr, 'frame')}. The host opens it<span class="dots"></span></p>`) : '';
@@ -2990,11 +3199,12 @@ const POOBAH_REVEAL_MS = 4000;   // the Grand Poobah: "And now…", the drumroll
 const POOBAH_SHOW_MS = POOBAH_REVEAL_MS + 2200;   // reveal + the slogan read: after this the hat is no spoiler
 function ceremonyAt() {
   if (!state.scoresAt || poobahIsWinner()) return null;   // folded into the winner's card: no ceremony
+  if (state.rating) return state.verdictsAt ? state.verdictsAt + 600 : null;   // the ratings come first; the dealer/host taps on
   return state.scoresAt + 300 + computeAwards().length * AWARD_SLIDE_MS + CEREMONY_LEAD_MS;
 }
 let ceremonyFor = null, ceremonyTimer = null, grandShown = false;
 function scheduleGrandPoobah() {
-  const key = state.code + '|' + state.round + '|' + state.scoresAt;
+  const key = state.code + '|' + state.round + '|' + state.scoresAt + '|' + (state.verdictsAt || '');
   if (ceremonyFor === key) return;
   ceremonyFor = key;
   clearTimeout(ceremonyTimer);
@@ -3005,6 +3215,7 @@ function scheduleGrandPoobah() {
 }
 // #21: the Gallery waits for the Poobah (no ceremony, or it's over, or this phone already saw it)
 function poobahDone() {
+  if (verdictsPending()) return false;
   const at = ceremonyAt();
   return grandShown || !gamePoobah() || !at || Date.now() + clockOffset >= at + POOBAH_SHOW_MS;
 }

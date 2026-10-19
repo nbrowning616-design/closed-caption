@@ -21,7 +21,7 @@ A web-based multiplayer party game. One person creates a game, shares a 4-letter
 - The host lines up the seats in the lobby and picks which way the deal passes (left or right)
 - Stealing a chip that was on the real caption scores the dealer +1; the real caption is face-down in about 15% of rounds, never two in a row
 - The answer is a dealer-paced reveal, one caption at a time, with a few badges for great moments
-- Each phone keeps a trophy case across game nights; 10 Moon Landings = Captain
+- Each phone keeps a chess-style rating (starts at 1,200; titles from Candidate to Grandmaster) and its badges across game nights
 - Invite friends with the lobby QR code or the invite link (it fills in the room code)
 - Frame It: every round, each player can frame one caption (never their own, never the real one). No limit per game. When most of the other players (2 of 2, 2 of 3, 3 of 4…) frame the same caption, it's hung in The Gallery with a shareable print. Gallery games use framed captions as the real answers.
 - The Gallery lives on the phones: each phone saves every caption it sees framed and brings its collection to every game it joins, so it survives server restarts at no cost. Rooms never see each other's captions. (Optional: set DATA_DIR on a Render disk to also keep a server copy.) End-of-game awards play before the final scores
@@ -55,7 +55,9 @@ Both have free tiers that work fine for game nights.
 - `public/hof.js` — Draws the Gallery share print
 - `public/gallery.js` — The framing moment and the Gallery wall
 - `store.js` — Saves The Gallery
-- `public/badges.js` — Badge artwork, badge pops, rank-ups, trophy case
+- `public/badges.js` — Badge artwork, badge pops, badge case
+- `rating.js` — The chess-style rating: Elo over every pair at the table, the opening card and the verdict lines (server side)
+- `public/verdicts.js` — The pool of verdict lines (shared by the server and the phones)
 - `public/home.js` — The opening screen
 - `public/moments.js` — Keeps big moments in sync across phones; one phone plays the big sounds
 - `public/steal.js` — The Claw: the dealer's steal animation

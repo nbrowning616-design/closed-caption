@@ -345,9 +345,15 @@ wss.on('connection', (ws, req) => {
         return;
       }
       case 'career': {
-        // Each phone keeps its own career; we just pass the rank around the table
-        const rank = msg.rank === undefined ? null : msg.rank;
-        if (fail(G.setCareer(game, playerId, rank, msg.rockets, msg.total))) return;
+        // Each phone keeps its own rating (and the verdict lines it has seen); the server only does the arithmetic
+        if (fail(G.setCareer(game, playerId, msg))) return;
+        broadcast(code);
+        return;
+      }
+      case 'verdicts_done': {
+        // Game over: the dealer/host taps on from the rating verdicts to the Grand Poobah
+        if (!canRun) return sendError(ws, 'The dealer moves things along');
+        if (fail(G.closeVerdicts(game))) return;
         broadcast(code);
         return;
       }

@@ -1,16 +1,14 @@
 /* ═══════════════════════════════════════════════════════════
-   Closed Caption — BADGES, rockets & ranks (badges.js)
+   Closed Caption — BADGES (badges.js)
    Self-contained. No images, no libraries, no network.
 
    window.Badges = {
-     KINDS, RANKS,
+     KINDS, ORDER,
      icon(kind, size=48)            -> SVG string (round stitched patch)
-     insignia(rankTitle, size=40)   -> SVG string (gold-on-navy shield)
-     rankOf(rockets)                -> { title, next, need, progress }
      pop({kind,title,who,line,mine})-> ms it stays (queued; tap dismisses)
-     promotion({rank,name,mine})    -> ms it stays (queued with pops)
      clearQueue()                   -> removes pending + current
-     caseHtml(counts, rockets)      -> trophy-case HTML (bdg- classes)
+     caseHtml(counts)               -> badge-case HTML (bdg- classes)
+   (The chess-style rating replaced the old military ranks: index.html ratingCardHtml / openRatingSheet.)
    }
 
    Uses host globals when present: tone(), noise(), buzz(), soundEnabled(),
@@ -25,7 +23,7 @@
 
   /* ── Kinds ── rim = patch colour, bg = inner disc */
   // Only the five badges that tell a story. Old careers on a phone may still count removed kinds
-  // (ice_cold, better_than_real, less_is_more, crowd_favorite, poobah, hat_trick): the trophy case ignores them.
+  // (ice_cold, better_than_real, less_is_more, crowd_favorite, poobah, hat_trick): the badge case ignores them.
   var KINDS = {
     moon:             { name: 'Moon Landing',               desc: 'Bet both chips blind on the real caption — and hit.' },
     three_bagger:     { name: 'Three Bagger',               desc: 'Three players bet both chips on your caption.' },
@@ -47,13 +45,6 @@
     poobah:           { rim: VIOLET,    bg: '#ECE7FF' },
     hat_trick:        { rim: '#3B2A8F', bg: '#FFF4C7', stitch: YELLOW }
   };
-
-  var RANKS = [
-    { title: 'Cadet', rockets: 0 },
-    { title: 'Captain', rockets: 10 },
-    { title: 'Commodore', rockets: 25 },
-    { title: 'Admiral', rockets: 50 }
-  ];
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -246,81 +237,11 @@
     } catch (e) { return ''; }
   }
 
-  /* ═════════════ Rank insignia (gold on navy shield) ═════════════ */
-  var GOLD = '#FFC93C', GOLD_L = '#FFE58A', GOLD_S = '#B9860B';
-  var SHIELD = 'M32 4.5 L55 11 V31 C55 45 45 54.5 32 59.5 C19 54.5 9 45 9 31 V11 Z';
-  function miniRocket(x, y, k, sw) {
-    return '<g transform="translate(' + x + ' ' + y + ') scale(' + k + ') translate(-32 -32)" stroke-width="' + (sw / k) + '">' +
-      '<path d="M28 41 L32 51 L36 41 Z" fill="' + RED + '"/>' +
-      '<path d="M24.5 32 L18 40 L18 45 L24.5 42 Z" fill="' + GOLD + '"/><path d="M39.5 32 L46 40 L46 45 L39.5 42 Z" fill="' + GOLD + '"/>' +
-      '<path d="M32 11 C38.5 16 40 24 40 31 L40 42 L24 42 L24 31 C24 24 25.5 16 32 11 Z" fill="' + GOLD + '"/>' +
-      '<circle cx="32" cy="28" r="4.2" fill="' + NAVY + '"/></g>';
-  }
-  function laurel(side, sw) {
-    var m = side < 0 ? '' : 'transform="translate(64 0) scale(-1 1)"', s = '<g ' + m + '>';
-    s += '<path d="M20 47 Q12.5 38 14.5 24" fill="none" stroke="' + GOLD + '" stroke-width="' + (sw * 0.9) + '"/>';
-    var leaves = [[15.5, 42, -50], [13.5, 36, -30], [13.2, 30, -10], [14.5, 24.5, 10]];
-    for (var i = 0; i < leaves.length; i++) {
-      var L = leaves[i];
-      s += '<ellipse cx="' + L[0] + '" cy="' + L[1] + '" rx="2.2" ry="4.2" fill="' + GOLD + '" transform="rotate(' + L[2] + ' ' + L[0] + ' ' + L[1] + ')" stroke-width="' + (sw * 0.55) + '"/>';
-    }
-    return s + '</g>';
-  }
-  function insigniaInner(rank, sw, big, shineId) {
-    var t = String(rank || 'Cadet').toLowerCase(), body = '';
-    var lineGold = 'stroke="' + INK + '" stroke-width="' + sw + '" stroke-linejoin="round" stroke-linecap="round"';
-    if (t === 'captain') {
-      body = '<g ' + lineGold + '>' + miniRocket(32, 20.5, 0.5, sw) +
-        '<rect x="18" y="32.5" width="28" height="6" rx="2" fill="' + GOLD + '"/>' +
-        '<rect x="20" y="41.5" width="24" height="6" rx="2" fill="' + GOLD + '"/></g>';
-    } else if (t === 'commodore') {
-      body = '<g ' + lineGold + '>' + laurel(-1, sw) + laurel(1, sw) + star5(32, 31, 11.5, GOLD, sw) +
-        '<path d="M24 47.5 L32 44 L40 47.5" fill="none" stroke="' + GOLD + '" stroke-width="' + (sw * 1.1) + '"/></g>';
-    } else if (t === 'admiral') {
-      body = '<g ' + lineGold + '>' +
-        star5(19.5, 18, 4.8, GOLD, sw * 0.75) + star5(32, 14.5, 5.4, GOLD, sw * 0.75) + star5(44.5, 18, 4.8, GOLD, sw * 0.75) +
-        '<path d="M18.5 37 Q19.5 50.5 32 51.5 Q44.5 50.5 45.5 37" fill="none" stroke="' + INK + '" stroke-width="' + (sw * 2.6) + '"/>' +
-        '<path d="M18.5 37 Q19.5 50.5 32 51.5 Q44.5 50.5 45.5 37" fill="none" stroke="' + GOLD + '" stroke-width="' + (sw * 1.2) + '"/>' +
-        '<path d="M14.8 39.5 L18.5 33.5 L22.2 39.5 Z M41.8 39.5 L45.5 33.5 L49.2 39.5 Z" fill="' + GOLD + '" stroke-width="' + (sw * 0.7) + '"/>' +
-        miniRocket(32, 35.5, 0.52, sw) + '</g>';
-    } else {
-      body = '<g ' + lineGold + '>' +
-        '<path d="M16 38 L32 26 L48 38 L48 46 L32 34 L16 46 Z" fill="' + GOLD + '"/>' +
-        (big ? star5(32, 17, 4, GOLD, sw * 0.7) : '') + '</g>';
-    }
-    var s = '<path d="' + SHIELD + '" fill="' + NAVY + '" stroke="' + INK + '" stroke-width="' + (sw * 1.25) + '" stroke-linejoin="round"/>' +
-      '<path d="M32 8.6 L51.5 14 V31 C51.5 43 43.2 51 32 55.6 C20.8 51 12.5 43 12.5 31 V14 Z" fill="none" stroke="' + GOLD + '" stroke-width="' + (big ? 1.6 : 2) + '"' + (big ? ' stroke-dasharray="0.1 3.1" stroke-linecap="round"' : '') + '/>' + body;
-    if (shineId) {
-      s += '<clipPath id="' + shineId + '"><path d="' + SHIELD + '"/></clipPath>' +
-        '<g clip-path="url(#' + shineId + ')"><rect class="bdg-shine" x="-30" y="-10" width="12" height="90" fill="#fff" opacity=".42" transform="skewX(-20)"/></g>';
-    }
-    return s;
-  }
-  function insignia(rankTitle, size, _shine) {
-    try {
-      size = +size || 40;
-      var sw = size < 34 ? 3 : 2.3, big = size >= 40;
-      return '<svg class="bdg-insignia" viewBox="0 0 64 64" width="' + size + '" height="' + size + '" aria-hidden="true" focusable="false">' +
-        insigniaInner(rankTitle, sw, big, _shine ? nextId() : null) + '</svg>';
-    } catch (e) { return ''; }
-  }
-
-  function rankOf(rockets) {
-    try {
-      var r = Math.max(0, Math.floor(+rockets || 0)), i = 0;
-      for (var k = 0; k < RANKS.length; k++) if (r >= RANKS[k].rockets) i = k;
-      var cur = RANKS[i], nx = RANKS[i + 1] || null;
-      if (!nx) return { title: cur.title, next: null, need: 0, progress: 1 };
-      return { title: cur.title, next: nx.title, need: nx.rockets - r, progress: Math.max(0, Math.min(1, (r - cur.rockets) / (nx.rockets - cur.rockets))) };
-    } catch (e) { return { title: 'Cadet', next: 'Captain', need: 10, progress: 0 }; }
-  }
-
   /* ═════════════ CSS ═════════════ */
   var CSS = [
     /* ── overlay layer ── */
     '#bdg-layer,#bdg-layer *,.bdg-case,.bdg-case *{box-sizing:border-box;}',
     '#bdg-layer{position:fixed;left:0;right:0;top:0;z-index:850;pointer-events:none;display:flex;justify-content:center;padding:calc(64px + env(safe-area-inset-top,0px)) 16px 0;}',
-    '#bdg-layer.bdg-promo-on{bottom:0;padding:0;align-items:center;}',
     '.bdg-pop{pointer-events:auto;cursor:pointer;position:relative;width:min(320px,100%);margin-top:34px;padding:52px 18px 16px;text-align:center;background:#fff;border:3px solid ' + INK + ';border-radius:22px;box-shadow:6px 6px 0 ' + INK + ';font-family:' + "'Nunito',-apple-system,system-ui,sans-serif" + ';color:' + INK + ';animation:bdgStamp .62s cubic-bezier(.2,1.25,.4,1) both;}',
     '.bdg-pop.bdg-mine{width:min(344px,100%);padding-top:70px;background:#FFF4C7;box-shadow:7px 7px 0 ' + INK + ';}',
     '.bdg-pop.bdg-out{animation:bdgOut .32s cubic-bezier(.5,0,.75,0) forwards;}',
@@ -343,36 +264,8 @@
     '.bdg-timer i{display:block;height:100%;background:' + INK + ';transform-origin:left;animation:bdgTimer linear both;}',
     '.bdg-spark{position:absolute;width:12px;height:12px;background:' + YELLOW + ';clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:bdgTwinkle 1.1s ease-out both;}',
 
-    /* ── promotion ── */
-    '.bdg-promo{pointer-events:auto;cursor:pointer;position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(24px + env(safe-area-inset-top,0px)) 24px calc(24px + env(safe-area-inset-bottom,0px));text-align:center;color:' + PAPER + ';background:radial-gradient(ellipse at 50% 42%,#2E3F86 0%,#16204A 55%,#0B1028 100%);overflow:hidden;animation:bdgFade .35s ease-out both;font-family:' + "'Nunito',-apple-system,system-ui,sans-serif" + ';}',
-    '.bdg-promo.bdg-out{animation:bdgFadeOut .4s ease-in forwards;}',
-    '.bdg-promo .bdg-sunburst{position:absolute;left:50%;top:40%;width:760px;height:760px;margin:-380px 0 0 -380px;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(255,201,60,.13) 0 7deg,rgba(255,201,60,0) 7deg 18deg);-webkit-mask:radial-gradient(circle,#000 20%,transparent 62%);mask:radial-gradient(circle,#000 20%,transparent 62%);animation:bdgRays 14s linear infinite,bdgFade 1s ease-out .5s both;}',
-    '.bdg-promo .bdg-insw{position:relative;width:176px;height:176px;}',
-    '.bdg-promo .bdg-ins{position:relative;width:176px;height:176px;filter:drop-shadow(5px 6px 0 rgba(0,0,0,.55)) drop-shadow(0 0 26px rgba(255,201,60,.45));animation:bdgInsIn 1s cubic-bezier(.2,1.3,.4,1) .15s both;}',
-    '.bdg-promo .bdg-ins svg{width:100%;height:100%;display:block;overflow:visible;}',
-    '.bdg-promo .bdg-shine{animation:bdgShine 1.1s cubic-bezier(.4,0,.2,1) 1.05s both;}',
-    '.bdg-promo .bdg-p-eyebrow{position:relative;margin-top:20px;font-size:12px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#FFE58A;animation:bdgUp .5s ease-out .75s both;}',
-    '.bdg-promo .bdg-p-title{position:relative;margin-top:4px;font-family:' + DISPLAY + ';font-weight:700;font-size:40px;line-height:1;letter-spacing:-.6px;color:' + GOLD + ';-webkit-text-stroke:2px ' + INK + ';paint-order:stroke fill;text-shadow:4px 4px 0 ' + INK + ';animation:bdgWord .7s cubic-bezier(.2,1.4,.4,1) .9s both;}',
-    '.bdg-promo .bdg-p-name{position:relative;display:inline-block;margin-top:16px;padding:6px 16px;border:2.5px solid ' + INK + ';border-radius:999px;background:' + PAPER + ';color:' + INK + ';font-family:' + DISPLAY + ';font-weight:700;font-size:19px;box-shadow:3px 3px 0 #000;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;animation:bdgUp .5s ease-out 1.25s both;}',
-    '.bdg-promo .bdg-p-line{position:relative;margin-top:12px;font-size:14px;font-weight:800;color:#C9D3F5;animation:bdgUp .5s ease-out 1.45s both;}',
-    '.bdg-promo .bdg-p-hint{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom,0px));left:0;right:0;font-size:12px;font-weight:800;color:rgba(255,255,255,.45);animation:bdgFade .5s ease-out 2.2s both;}',
-    '.bdg-promo .bdg-spark{background:' + GOLD + ';}',
-    '.bdg-promo .bdg-spark.w{background:#fff;}',
-    '.bdg-promo .bdg-ribbon{position:absolute;width:9px;height:16px;border-radius:2px;top:-20px;animation:bdgFall linear both;}',
-
-    /* ── trophy case ── */
+    /* ── badge case ── */
     '.bdg-case{font-family:' + "'Nunito',-apple-system,system-ui,sans-serif" + ';color:' + INK + ';width:100%;max-width:420px;margin:0 auto;}',
-    '.bdg-rank{display:flex;align-items:center;gap:12px;padding:12px 14px;background:' + NAVY + ';color:' + PAPER + ';border:2.5px solid ' + INK + ';border-radius:18px;box-shadow:4px 4px 0 ' + INK + ';}',
-    '.bdg-rank .bdg-insignia{flex:none;filter:drop-shadow(2px 3px 0 rgba(0,0,0,.45));}',
-    '.bdg-rank-body{flex:1;min-width:0;}',
-    '.bdg-rank-eyebrow{font-size:10.5px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:#FFE58A;display:flex;justify-content:space-between;gap:8px;}',
-    '.bdg-rank-eyebrow span{color:#C9D3F5;letter-spacing:.4px;text-transform:none;font-size:12px;display:inline-flex;align-items:center;gap:3px;white-space:nowrap;}',
-    '.bdg-rank-title{font-family:' + DISPLAY + ';font-weight:700;font-size:25px;line-height:1.05;letter-spacing:-.3px;color:' + GOLD + ';margin-top:1px;}',
-    '.bdg-bar{position:relative;height:12px;margin-top:8px;border:2px solid ' + INK + ';border-radius:999px;background:#0E1533;overflow:hidden;}',
-    '.bdg-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(180deg,#FFE58A 0 35%,' + GOLD + ' 35%);border-right:2px solid ' + INK + ';}',
-    '.bdg-bar i.full{border-right:0;}',
-    '.bdg-rank-next{margin-top:5px;font-size:12.5px;font-weight:800;color:#E3E8FA;}',
-    '.bdg-rank-next b{color:' + GOLD + ';font-weight:900;}',
     '.bdg-case-head{display:flex;align-items:baseline;justify-content:space-between;margin:18px 2px 10px;}',
     '.bdg-case-head .bdg-eyebrow{color:#6E655C;}',
     '.bdg-case-head b{font-family:' + DISPLAY + ';font-weight:700;font-size:15px;}',
@@ -387,7 +280,6 @@
     '.bdg-cell.bdg-locked .bdg-ic svg.bdg-icon{filter:grayscale(1);opacity:.32;}',
     '.bdg-cell.bdg-locked .bdg-name{color:#857A6E;}',
     '.bdg-cell .bdg-lock{position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;}',
-    '.bdg-cell.bdg-rocket{grid-column:span 1;}',
 
     /* ── keyframes ── */
     '@keyframes bdgStamp{0%{opacity:0;transform:translateY(-40px) scale(1.35) rotate(-7deg);}55%{opacity:1;transform:translateY(0) scale(.95) rotate(-1deg);}78%{transform:scale(1.02) rotate(-1.5deg);}100%{opacity:1;transform:scale(1) rotate(-1deg);}}',
@@ -399,16 +291,12 @@
     '@keyframes bdgGlint{from{left:-40%;}to{left:120%;}}',
     '@keyframes bdgTimer{from{transform:scaleX(1);}to{transform:scaleX(0);}}',
     '@keyframes bdgTwinkle{0%{opacity:0;transform:scale(0) rotate(0);}40%{opacity:1;transform:scale(1.2) rotate(45deg);}100%{opacity:0;transform:scale(.4) rotate(90deg);}}',
-    '@keyframes bdgInsIn{0%{opacity:0;transform:translateY(-60px) scale(2.2) rotate(-14deg);}55%{opacity:1;transform:translateY(0) scale(.92) rotate(2deg);}75%{transform:scale(1.05) rotate(-1deg);}100%{opacity:1;transform:scale(1) rotate(0);}}',
-    '@keyframes bdgShine{from{transform:translateX(0) skewX(-20deg);}to{transform:translateX(130px) skewX(-20deg);}}',
     '@keyframes bdgUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}',
-    '@keyframes bdgWord{0%{opacity:0;transform:scale(.3) rotate(-6deg);}100%{opacity:1;transform:scale(1) rotate(-2deg);}}',
-    '@keyframes bdgFall{0%{transform:translateY(0) rotate(0);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:.9;}}',
     '@media (prefers-reduced-motion: reduce){',
-    '.bdg-pop,.bdg-promo,.bdg-medal .bdg-coin,.bdg-promo .bdg-ins,.bdg-promo .bdg-p-title,.bdg-promo .bdg-p-name,.bdg-promo .bdg-p-line,.bdg-promo .bdg-p-eyebrow,.bdg-added{animation:bdgFade .3s ease-out both !important;}',
-    '.bdg-pop.bdg-out,.bdg-promo.bdg-out{animation:bdgFadeOut .25s ease-in forwards !important;}',
-    '.bdg-medal .bdg-rays,.bdg-promo .bdg-sunburst{animation:bdgFade .3s both !important;}',
-    '.bdg-spark,.bdg-ribbon,.bdg-glint,.bdg-shine{display:none !important;}',
+    '.bdg-pop,.bdg-medal .bdg-coin,.bdg-added{animation:bdgFade .3s ease-out both !important;}',
+    '.bdg-pop.bdg-out{animation:bdgFadeOut .25s ease-in forwards !important;}',
+    '.bdg-medal .bdg-rays{animation:bdgFade .3s both !important;}',
+    '.bdg-spark,.bdg-glint{display:none !important;}',
     '}'
   ].join('\n');
 
@@ -460,29 +348,6 @@
       if (mine) { [1047, 1319, 1568].forEach(function (f) { T(f, 0.8, t + 360 + notes.length * 75, 'sine', 0.035); }); N(0.25, t + 640, 0.06, 6000, 'highpass'); }
     } catch (e) {}
   }
-  function sndPromo(mine) {
-    if (!soundOn() || !bigOk(mine)) return;
-    try {
-      var v = mine ? 1 : 0.75;
-      // brass: stacked saw + square + triangle, slightly detuned
-      function brass(f, d, at, vol) {
-        T(f, d, at, 'sawtooth', 0.028 * vol); T(f * 1.004, d, at, 'square', 0.018 * vol); T(f, d, at, 'triangle', 0.05 * vol); T(f / 2, d, at, 'triangle', 0.03 * vol);
-      }
-      var G4 = 392, C5 = 523.25, E5 = 659.25, G5 = 783.99, C6 = 1046.5;
-      N(0.5, 0, 0.1 * v, 1200, 'bandpass'); T(200, 0.5, 0, 'sine', 0.04, 900);   // rise
-      sndStamp(520, true);
-      [[G4, 0.13, 640], [G4, 0.13, 780], [C5, 0.13, 920], [E5, 0.3, 1060], [C5, 0.13, 1380], [E5, 0.13, 1520]].forEach(function (n) { brass(n[0], n[1], n[2], v); });
-      [C5, E5, G5].forEach(function (f) { brass(f, 1.5, 1680, v * 0.8); });
-      brass(C6, 1.5, 1680, v * 0.6);
-      T(130.8, 1.4, 1680, 'sine', 0.12 * v);
-      N(0.9, 1700, 0.07 * v, 6000, 'highpass');                                  // cymbal
-      [2093, 2637, 3136, 4186].forEach(function (f, i) { T(f, 0.25, 1180 + i * 60, 'sine', 0.025); }); // shine sparkle
-    } catch (e) {}
-  }
-
-  /* ═════════════ Queue / overlay ═════════════ */
-  var queue = [], current = null, layer = null;
-
   function getLayer() {
     if (layer && document.body && document.body.contains(layer)) return layer;
     layer = document.createElement('div');
@@ -522,11 +387,11 @@
     var whoTxt = Array.isArray(o.who) ? o.who.join(' & ') : o.who;
     card.innerHTML =
       '<div class="bdg-medal"><div class="bdg-rays"></div><div class="bdg-coin">' + icon(kind, mine ? 124 : 96) + '</div><div class="bdg-glint"></div></div>' +
-      '<div class="bdg-eyebrow">' + (mine ? 'New badge' : (kind === 'moon' ? 'Rocket earned' : 'Badge earned')) + '</div>' +
+      '<div class="bdg-eyebrow">' + (mine ? 'New badge' : 'Badge earned') + '</div>' +
       '<div class="bdg-title">' + esc(title) + '</div>' +
       (whoTxt ? '<div class="bdg-who">' + esc(whoTxt) + (mine ? ' · you' : '') + '</div>' : '') +
       (o.line ? '<div class="bdg-line">' + esc(o.line) + '</div>' : '') +
-      (mine ? '<div class="bdg-added">' + caseGlyph() + 'Added to your trophy case</div>' : '') +
+      (mine ? '<div class="bdg-added">' + caseGlyph() + 'Kept on this phone</div>' : '') +
       '<div class="bdg-timer"><i style="animation-duration:' + it.dur + 'ms"></i></div>';
     L.appendChild(card);
     sparkles(card.querySelector('.bdg-medal'), mine ? 9 : 6, mine ? 74 : 60);
@@ -534,44 +399,6 @@
     it.el = card;
     sndPop(kind, mine);
     if (mine) setTimeout(function () { vib(kind === 'moon' ? [30, 50, 30, 50, 120] : [25, 45, 90]); }, kind === 'moon' ? 560 : 260);
-  }
-
-  function showPromo(it) {
-    var o = it.opts, rank = o.rank || 'Captain', mine = !!o.mine;
-    var L = getLayer(); L.className = 'bdg-promo-on';
-    var ov = document.createElement('div');
-    ov.className = 'bdg-promo';
-    ov.setAttribute('role', 'status');
-    var rk = null; for (var i = 0; i < RANKS.length; i++) if (RANKS[i].title.toLowerCase() === String(rank).toLowerCase()) rk = RANKS[i];
-    var title = rk ? rk.title : String(rank);
-    ov.innerHTML =
-      '<div class="bdg-sunburst"></div>' +
-      '<div class="bdg-insw"><div class="bdg-ins">' + insignia(title, 176, true) + '</div></div>' +
-      '<div class="bdg-p-eyebrow">' + (mine ? 'Attention on deck' : 'Promotion') + '</div>' +
-      '<div class="bdg-p-title">Promoted to<br>' + esc(title) + '</div>' +
-      (o.name ? '<div class="bdg-p-name">' + esc(o.name) + (mine ? ' · you' : '') + '</div>' : '') +
-      (rk ? '<div class="bdg-p-line">' + rk.rockets + ' rockets landed' + (mine ? ' · added to your trophy case' : '') + '</div>' : '') +
-      '<div class="bdg-p-hint">Tap to continue</div>';
-    L.appendChild(ov);
-    sparkles(ov.querySelector('.bdg-insw'), 14, 120, 'w');
-    try {
-      if (!reduced()) {
-        var cols = [GOLD, '#FFE58A', '#fff', RED, '#7FC4FF'];
-        for (var k = 0; k < 26; k++) {
-          var r = document.createElement('i');
-          r.className = 'bdg-ribbon';
-          r.style.cssText = 'left:' + (Math.random() * 100).toFixed(1) + '%;background:' + cols[k % cols.length] + ';animation-delay:' + (0.9 + Math.random() * 1.6).toFixed(2) + 's;animation-duration:' + (2.2 + Math.random() * 1.6).toFixed(2) + 's;width:' + (6 + Math.random() * 5).toFixed(0) + 'px;';
-          ov.appendChild(r);
-        }
-      }
-    } catch (e) {}
-    ov.addEventListener('click', function (e) { try { e.stopPropagation(); } catch (x) {} finish(it); });
-    it.el = ov;
-    sndPromo(mine);
-    setTimeout(function () {
-      if (current !== it) return;
-      if (mine) vib([40, 60, 40, 60, 220]);
-    }, 620);
   }
 
   function finish(it) {
@@ -596,7 +423,7 @@
       if (!it) { if (layer) layer.className = ''; return; }
       current = it;
       injectCss();
-      if (it.type === 'promo') showPromo(it); else showPop(it);
+      showPop(it);
       it.timer = setTimeout(function () { finish(it); }, it.dur);
     } catch (e) { current = null; }
   }
@@ -613,10 +440,6 @@
     opts = opts || {};
     return enqueue('pop', opts, opts.mine ? 3800 : 3200);   // long enough to read before the dealer moves on
   }
-  function promotion(opts) {
-    opts = opts || {};
-    return enqueue('promo', opts, opts.mine ? 4400 : 3800);
-  }
   function clearQueue() {
     try {
       queue = [];
@@ -624,38 +447,28 @@
     } catch (e) {}
   }
 
-  /* ═════════════ Trophy case ═════════════ */
+  /* ═════════════ Badge case ═════════════ */
   function lockGlyph() {
     return '<svg class="bdg-lock" viewBox="0 0 24 24" aria-hidden="true"><g stroke="' + INK + '" stroke-width="2.2" stroke-linejoin="round">' +
       '<path d="M8 11 V8 Q8 4 12 4 Q16 4 16 8 V11" fill="none" stroke-linecap="round"/>' +
       '<rect x="5.5" y="10.5" width="13" height="10" rx="2.5" fill="' + YELLOW + '"/><circle cx="12" cy="15.5" r="1.6" fill="' + INK + '" stroke="none"/></g></svg>';
   }
-  function caseHtml(counts, rockets) {
+  // The badge case: every badge, with how many this phone has (the rating card lives in index.html)
+  function caseHtml(counts) {
     try {
       injectCss();
       counts = counts || {};
-      var r = Math.max(0, Math.floor(+rockets || 0)), rk = rankOf(r), pct = Math.round(rk.progress * 100);
-      var nextTxt = rk.next ? '<b>' + rk.need + '</b> more rocket' + (rk.need === 1 ? '' : 's') + ' to ' + esc(rk.next) : 'Top rank. The fleet salutes you.';
       var earned = 0, cells = '';
       for (var i = 0; i < ORDER.length; i++) {
         var k = ORDER[i], n = Math.max(0, Math.floor(+counts[k] || 0));
-        if (k === 'moon' && !n && r) n = r;
         if (n) earned++;
         cells += '<div class="bdg-cell' + (n ? '' : ' bdg-locked') + '" title="' + esc(KINDS[k].desc) + '">' +
           '<div class="bdg-ic">' + icon(k, 54) + (n ? (n > 1 ? '<span class="bdg-n">×' + n + '</span>' : '') : lockGlyph()) + '</div>' +
           '<div class="bdg-name">' + esc(KINDS[k].name) + '</div>' +
           '<div class="bdg-desc">' + esc(KINDS[k].desc) + '</div></div>';
       }
-      var rocketTiny = icon('moon', 18);
       return '<div class="bdg-case">' +
-        '<div class="bdg-rank">' + insignia(rk.title, 62) +
-          '<div class="bdg-rank-body">' +
-            '<div class="bdg-rank-eyebrow">Your rank<span>' + rocketTiny + ' ' + r + ' rocket' + (r === 1 ? '' : 's') + '</span></div>' +
-            '<div class="bdg-rank-title">' + esc(rk.title) + '</div>' +
-            '<div class="bdg-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><i class="' + (pct >= 100 ? 'full' : '') + '" style="width:' + Math.max(pct, pct > 0 ? 6 : 0) + '%"></i></div>' +
-            '<div class="bdg-rank-next">' + nextTxt + '</div>' +
-          '</div></div>' +
-        '<div class="bdg-case-head"><span class="bdg-eyebrow">Trophy case</span><b>' + earned + ' / ' + ORDER.length + '</b></div>' +
+        '<div class="bdg-case-head"><span class="bdg-eyebrow">Badges</span><b>' + earned + ' / ' + ORDER.length + '</b></div>' +
         '<div class="bdg-grid">' + cells + '</div></div>';
     } catch (e) { return ''; }
   }
@@ -664,13 +477,9 @@
 
   window.Badges = {
     KINDS: KINDS,
-    RANKS: RANKS,
     ORDER: ORDER,
     icon: icon,
-    insignia: function (rankTitle, size) { return insignia(rankTitle, size, false); },
-    rankOf: rankOf,
     pop: function (o) { try { return pop(o); } catch (e) { return 0; } },
-    promotion: function (o) { try { return promotion(o); } catch (e) { return 0; } },
     clearQueue: clearQueue,
     caseHtml: caseHtml
   };

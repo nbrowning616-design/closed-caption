@@ -47,11 +47,13 @@
     '.home-mast{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:9px;padding-top:4px;font-family:var(--display);font-weight:700;font-size:33px;line-height:1;letter-spacing:-1px;}',
     '.home-mast .home-w1{display:inline-block;transform:rotate(-3deg);background:var(--yellow);padding:4px 10px 5px;border:3px solid var(--ink);border-radius:10px;box-shadow:var(--shadow-sm);}',
     '.home-hello{flex:0 0 auto;height:34px;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;overflow:hidden;}',
-    '.home-hello .home-pitch{font-family:' + SERIF + ';font-style:italic;font-weight:400;font-size:min(14.5px,3.7vw);color:var(--ink-2);letter-spacing:-.15px;}',
+    '.home-pitch{flex:0 0 auto;margin:12px auto 0;}',
+    '.home-pitch .home-p1{font-family:' + SERIF + ';font-weight:700;font-size:min(21px,5.4vw);line-height:1.15;color:var(--ink);letter-spacing:-.2px;}',
+    '.home-pitch .home-p2{font-family:' + SERIF + ';font-style:italic;font-weight:400;font-size:min(14.5px,3.8vw);color:var(--ink-2);margin-top:3px;}',
+    '.home-hello .home-rt{flex:0 0 auto;font-family:' + SERIF + ';font-size:13px;font-weight:700;color:var(--ink-2);}',
     '.home-hello .home-wb{font-size:15px;font-weight:800;color:var(--ink);overflow:hidden;text-overflow:ellipsis;}',
     '.home-hello .home-wb b{font-weight:900;}',
-    '.home-hello .home-ins{flex:0 0 auto;display:inline-flex;filter:drop-shadow(1px 1px 0 rgba(31,26,23,.35));}',
-    '.home-line{flex:0 0 auto;margin:2px auto 0;max-width:330px;padding:0 4px;font-size:13.5px;font-weight:800;line-height:1.35;color:var(--ink-2);}',
+    '.home-line{flex:0 0 auto;margin:6px auto 0;max-width:330px;padding:0 4px;font-size:13.5px;font-weight:800;line-height:1.35;color:var(--ink-2);}',
     '.home-hello .home-fr{flex:0 0 auto;font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:#8E1B22;border:1.5px solid #C9A24A;background:#FFF7DD;border-radius:999px;padding:3px 8px;}',
 
     /* stage: the card */
@@ -202,14 +204,13 @@
     try { name = (localStorage.getItem('cc_name') || '').trim(); } catch (e) {}
     try { car = typeof window.careerSummary === 'function' ? window.careerSummary() : null; } catch (e) {}
     try { gal = typeof window.galleryGet === 'function' ? window.galleryGet() : []; } catch (e) {}
-    if (!name) return '<span class="home-pitch">A bluffing game, not a joke contest.</span>';
-    var rank = car && car.rank ? String(car.rank) : '';
-    var title = rank && rank !== 'Cadet' ? rank + ' ' : '';
-    var ins = '';
-    try { if (rank && rank !== 'Cadet' && window.Badges && window.Badges.insignia) ins = '<span class="home-ins">' + window.Badges.insignia(rank, 30) + '</span>'; } catch (e) {}
+    if (!name) return '';
     var me = name.toLowerCase(), mine = 0;
     gal.forEach(function (g) { if (g && g.author && String(g.author).trim().toLowerCase() === me) mine++; });
-    return ins + '<span class="home-wb">Welcome back, <b>' + esc(title + name) + '</b></span>' + (mine ? '<span class="home-fr">' + mine + ' framed</span>' : '');
+    // the rating, once this phone has played a game: "1,412 · Candidate"
+    var rt = '';
+    if (car && car.games > 0 && car.rating) rt = '<span class="home-rt">' + Number(car.rating).toLocaleString('en-US') + (car.title ? ' · ' + esc(car.title) : car.provisional ? ' · new' : '') + '</span>';
+    return '<span class="home-wb">Welcome back, <b>' + esc(name) + '</b></span>' + rt + (mine ? '<span class="home-fr">' + mine + ' framed</span>' : '');
   }
 
   function render() {
@@ -220,9 +221,10 @@
     gal = gal.filter(function (g) { return g && g.caption; }).slice().reverse();   // newest first
     mount.innerHTML =
       '<div class="home-mast" role="heading" aria-level="1"><span class="home-w1">CLOSED</span><span>CAPTION</span></div>' +
-      '<div class="home-hello">' + helloHtml() + '</div>' +
-      // the pitch, on screen: "A bluffing game…" leads (in the hello line for newcomers, here for regulars)
-      '<p class="home-line">' + (helloHtml().indexOf('home-pitch') < 0 ? '<b style="color:var(--ink)">A bluffing game, not a joke contest.</b> ' : '') + 'Everyone gets the same cartoon. Write a fake caption that passes for the real one, then bet on which one is.</p>' +
+      (helloHtml() ? '<div class="home-hello">' + helloHtml() + '</div>' : '') +
+      // the pitch, on screen
+      '<div class="home-pitch"><p class="home-p1">Think you’re clever? Prove it.</p><p class="home-p2">Ranked like chess, but judged by friends.</p></div>' +
+      '<p class="home-line">A bluffing game, not a joke contest. Everyone gets the same cartoon. Write a fake caption that passes for the real one, then bet on which one is.</p>' +
       '<div class="home-stage" aria-hidden="true">' +
         '<div class="home-card"><div class="home-inner">' +
           '<div class="home-face home-back"><span class="home-cc">CC</span><span class="home-lbl">Closed Caption</span></div>' +

@@ -143,6 +143,7 @@ for (const c of CARTOONS) if (c.id < RETIRED_BELOW) c.retired = true;
 
 // The permanent Hall of Fame deck (lives across games and game nights)
 const store = require('./store');
+const Rating = require('./rating');
 // A room's Gallery starts from the server's saved copy (when there is one); phones add theirs on join
 function newRoomDeck() { const d = store.createDeck(); if (store.file) for (const e of store.all().reverse()) d.add(e, true); return d; }   // without a saved copy, rooms never see each other's captions
 const deckOf = (game) => game.deck || (game.deck = newRoomDeck());
@@ -331,7 +332,11 @@ function createGame(hostId, hostName, timerDuration = DEFAULT_TIMER, seenIds = [
     roundBadges: [],      // { kind, playerIds, target, detail } — this round
     gameBadges: [],       // every round's badges this game, each with its round
     crowns: {},           // Grand Poobah crowns this game: { playerId: n }
-    promotion: null,      // the latest rank-up: { playerId, name, rank, n, at }
+    gameNo: 0,            // games started in this room (the rating result is keyed by room + game)
+    ratingSnap: null,     // the table as the game started: { playerId: { r, g, name } } (rating.js)
+    opening: null,        // the opening card: { at, gameId, table, opener, favorite, underdog, ... }
+    ratingResult: null,   // game over: { gameId, rows: { playerId: { before, after, delta, ... } }, order }
+    verdictsAt: null,     // the dealer/host moved on from the verdicts (phones time the Grand Poobah from this)
   };
 }
 
@@ -567,6 +572,7 @@ function startRound(game, options = {}) {
     if (d) { game.dealCount = game.dealCount || {}; game.dealCount[d.id] = (game.dealCount[d.id] || 0) + 1; }
   }
   dealCartoon(game);
+  if (game.round === 1 && !options.sameRound && !game.ratingSnap) beginRated(game);
   game.closedCaption = '';
   game.closedIsCorrect = false;
   game.closedPlayerId = null;
@@ -930,6 +936,7 @@ function moveToScoreboard(game) {
   if (!game.frameResult) resolveFraming(game);
   setPhase(game, PHASES.SCORES);
   game.scoresAt = Date.now();   // phones time the Grand Poobah ceremony from this, so it plays together
+  if (isGameOver(game)) settleRating(game);
   return { ok: true };
 }
 
@@ -1262,22 +1269,65 @@ function awardBadges(game) {
   game.gameBadges = (game.gameBadges || []).concat(out.map(b => ({ ...b, round: game.round })));
 }
 
-/* ── Ranks: each phone keeps its own career; the server only passes it around ── */
-const careerInt = (n) => Number.isInteger(n) && n >= 0 && n <= 100000;
-function setCareer(game, playerId, rank, rockets, total) {
+/* ── The rating (chess-style, rating.js): each phone keeps its own; the server does the arithmetic once a game ──
+   The 'career' message: { rating, games, total, lines } — this phone's rating and games played, its badge count,
+   and the short keys of the verdict lines it has already been shown (so nobody reads the same line twice). */
+const OPEN_MS = 3500;   // the opening card before the first cartoon (round 1's writing clock starts after it)
+function setCareer(game, playerId, msg) {
   const p = game.players.find(x => x.id === playerId);
   if (!p) return { error: 'Player not in game' };
-  if (rank !== null && (typeof rank !== 'string' || rank.length > 20)) return { error: 'That didn’t take. Try again.' };
-  if (!careerInt(rockets) || !careerInt(total)) return { error: 'That didn’t take. Try again.' };
-  const before = p.rank === undefined ? null : p.rank;
-  p.rank = rank; p.rockets = rockets; p.badgeTotal = total;
-  // A new rank (not the first one we hear about) is a promotion the whole table sees
-  const RANKS = ['Cadet', 'Captain', 'Commodore', 'Admiral'];
-  // Only a real step UP is announced (a borrowed phone or a reset never shows as a 'promotion')
-  if (before !== null && rank !== null && RANKS.indexOf(rank) > RANKS.indexOf(before) && RANKS.indexOf(before) >= 0) {
-    game.promotion = { playerId, name: p.name, rank, n: (game.promotion ? game.promotion.n : 0) + 1, at: Date.now() };
-    return { ok: true, promoted: true };
+  msg = msg || {};
+  const bad = { error: 'That didn’t take. Try again.' };
+  if (msg.rating !== undefined && msg.rating !== null && !Rating.validRating(msg.rating)) return bad;
+  if (msg.games !== undefined && !Rating.validGames(msg.games)) return bad;
+  if (msg.total !== undefined && !Rating.validGames(msg.total)) return bad;
+  let lines = null;
+  if (msg.lines !== undefined) { lines = Rating.cleanSeenLines(msg.lines); if (!lines) return bad; }
+  const rated = Rating.validRating(msg.rating);
+  p.rating = rated ? msg.rating : null;
+  p.games = rated && Rating.validGames(msg.games) ? msg.games : 0;
+  if (msg.total !== undefined) p.badgeTotal = msg.total;
+  if (lines) p.seenLines = lines;
+  // A phone that reports a moment after the start (it was still connecting) still counts, until the first answer
+  const sn = game.ratingSnap && game.ratingSnap[playerId];
+  if (sn && !sn.reported && rated && game.round <= 1 && !ANSWERED.includes(game.phase)) {
+    game.ratingSnap[playerId] = { ...Rating.snapshot([p])[playerId], reported: true };
   }
+  return { ok: true };
+}
+const ratingTitle = (p) => Rating.validRating(p.rating) && (p.games || 0) >= Rating.PROVISIONAL_GAMES ? Rating.titleOf(p.rating) : null;
+// The game starts: freeze the table's ratings, pick the opening card's lines, give round 1 its full clock back
+function beginRated(game) {
+  game.gameNo = (game.gameNo || 0) + 1;
+  game.gameId = game.code + '-' + game.gameNo + '-' + Date.now().toString(36);
+  const here = game.players.filter(isPresent);
+  const snap = Rating.snapshot(here);
+  here.forEach(p => { snap[p.id].reported = Rating.validRating(p.rating); });
+  game.ratingSnap = snap;
+  game.ratingResult = null;
+  game.verdictsAt = null;
+  try {
+    const o = Rating.opening(here, snap, game.gameId);
+    game.opening = { ...o, at: Date.now(), ms: OPEN_MS, gameId: game.gameId };
+    if (game.timerEnd) game.timerEnd += OPEN_MS;   // the writers never lose time to the card
+  } catch (e) { console.error('opening card failed', e); game.opening = null; }
+}
+// Game over: everyone seated at the start is rated on their final score (a player who left counts on the score they left with)
+function settleRating(game) {
+  if (game.ratingResult || !game.ratingSnap) return;
+  try {
+    const scores = {};
+    for (const p of game.players) if (game.ratingSnap[p.id]) scores[p.id] = p.score;
+    const fav = game.opening && game.opening.favorite ? game.opening.favorite.id : null;
+    const r = Rating.settle(game.ratingSnap, scores, game.players, game.gameId, fav);
+    if (r.order.length < 2) { game.ratingResult = { gameId: game.gameId, rows: {}, order: [], none: true }; return; }
+    game.ratingResult = { gameId: game.gameId, rows: r.rows, order: r.order, at: Date.now() };
+  } catch (e) { console.error('rating failed', e); game.ratingResult = { gameId: game.gameId, rows: {}, order: [], none: true }; }
+}
+// The dealer/host moves on from the verdicts to the Grand Poobah
+function closeVerdicts(game) {
+  if (game.phase !== PHASES.SCORES || !isGameOver(game)) return { error: 'Not yet' };
+  if (!game.verdictsAt) game.verdictsAt = Date.now();
   return { ok: true };
 }
 
@@ -1318,6 +1368,10 @@ function resetForNewGame(game) {
   game.crowns = {};
   game.stealShows = 0;
   game.stepAt = null;
+  game.ratingSnap = null;
+  game.opening = null;
+  game.ratingResult = null;
+  game.verdictsAt = null;
 }
 
 const AFTER_WRITING = [PHASES.READING, PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
@@ -1349,7 +1403,7 @@ function getPlayerView(game, playerId) {
     phase: game.phase,
     locked: !!game.locked,           // #51: the host locked the room (no new names)
     notice: game.notice || null,     // #26: a table announcement { text, at }
-    players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: p.connected, watched: !!p.watched, rank: p.rank === undefined ? null : p.rank, rockets: p.rockets || 0, published: published.get(p.name.toLowerCase()) || 0 })),
+    players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: p.connected, watched: !!p.watched, rating: Rating.validRating(p.rating) ? p.rating : null, provisional: !Rating.validRating(p.rating) || (p.games || 0) < Rating.PROVISIONAL_GAMES, title: ratingTitle(p), published: published.get(p.name.toLowerCase()) || 0 })),
     round: game.round,
     totalRounds: s.targetScore ? null : totalRounds(game),
     settings: { ...s },
@@ -1371,7 +1425,6 @@ function getPlayerView(game, playerId) {
     stepAt: game.stepAt || null,     // server time of the latest reveal-reel step
     stealShows: game.stealShows || 0,
     voice: Object.fromEntries(Object.entries(game.voice || {}).filter(([pid]) => game.players.some(p => p.id === pid && p.connected)).map(([pid, v]) => [pid, { on: true, muted: !!v.muted }])),   // who's in the voice call
-    promotion: game.promotion || null,
     inductNeed: inductNeed(game),
     lastInduction: game.lastInduction ? { ...game.lastInduction, flaggers: [...game.lastInduction.flaggers], list: (game.lastInduction.list || []).map(x => ({ ...x, flaggers: [...x.flaggers] })) } : null,   // only made when framing resolves
     hofDeck: deckCartoons(game),
@@ -1393,6 +1446,7 @@ function getPlayerView(game, playerId) {
   }
 
   if (game.cartoon) base.cartoon = game.cartoon;
+  if (game.opening && game.round === 1 && game.phase === PHASES.WRITING) base.opening = JSON.parse(JSON.stringify(game.opening));
   const mine = game.submissions.find(x => x.playerId === playerId);
 
   if (game.phase === PHASES.WRITING) {
@@ -1483,6 +1537,9 @@ function getPlayerView(game, playerId) {
     }
     if (base.gameOver) {
       base.framedTonight = finaleEntries(game).length;
+      settleRating(game);   // (a room restored from before the rating: worked out now, once)
+      if (game.ratingResult && !game.ratingResult.none) base.rating = JSON.parse(JSON.stringify(game.ratingResult));
+      base.verdictsAt = game.verdictsAt || null;
       const f = game.finale;
       if (f) base.finale = {
         at: f.at, entries: f.entries.map(e => ({ ...e, flaggers: [...e.flaggers] })),
@@ -1513,6 +1570,7 @@ const SKIP = new Set(['deck', '_trusted', '_advAt', '_sealTag', '_sealAt', 'voic
 function sealGame(game) {
   const plain = {};
   for (const k of Object.keys(game)) if (!SKIP.has(k)) plain[k] = game[k];
+  plain.players = (game.players || []).map(p => { const { seenLines, ...rest } = p; return rest; });   // the phones send their seen lines again when they rejoin (keeps the copy small)
   plain.sealedAt = Date.now();
   const iv = crypto.randomBytes(12), c = crypto.createCipheriv('aes-256-gcm', SEAL_KEY, iv);
   const body = Buffer.concat([c.update(require('zlib').deflateSync(Buffer.from(JSON.stringify(plain)))), c.final()]);
@@ -1545,6 +1603,6 @@ module.exports = {
   openFinale, voteFinale, resolveFinale, finaleAllIn,
   setVoice, clearVoice,
   stealChip, revealAnswer, moveToFraming, moveToScoreboard, isGameOver, resetForNewGame, isPresent,
-  REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer,
+  REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer, closeVerdicts, OPEN_MS,
   currentBetterId, pendingBetters, nextDealerIndex, getPlayerView, generateRoomCode,
 };
