@@ -267,3 +267,23 @@ Format: `date · queue item · result (redrawn card N / new card N / skipped: re
 - 399 · Cubicle Moat · style 4 · medium · standard · A row of identical office cubicles. One has a small water-filled moat around it with a tiny drawbridge, lowered. A coworker stands at the edge holding a file folder.
 - 400 · Cuckoo Clock · style 5 · medium · afterdark · Late at night, the little door of a cuckoo clock has just swung open and the bird has popped out. Inches away stands a man in pajamas holding a hammer.
 - 401 · Tiptoe · style 1 · hard · afterdark · At a cocktail party, two men in suits stand side by side holding drinks, chatting with a woman. Both men are quietly standing on tiptoe.
+- 402 · Full Service · style 4 · easy · family · At an automatic car wash, a large tortoise rides the conveyor between the spinning brushes, eyes closed, shell covered in suds. An attendant waits at the exit holding a towel.
+- 403 · Uneven Match · style 5 · easy · family · On a playground seesaw, a hippo sits firmly on the low end. High in the air on the other end sits a tiny mouse, legs crossed, perfectly calm.
+- 404 · Safety First · style 1 · medium · family · A man on a tall ladder changes the bulb in a street lamp at night. At the foot of the ladder, a moth in a tiny hard hat holds it steady with both arms.
+- 405 · Early Bird · style 2 · medium · family · At dawn on a lawn, a robin stands staring down at a small hole. A worm pokes its head out of the hole, holding up a ringing alarm clock.
+- 406 · Road Crew · style 3 · medium · family · On a country road, a cow lies asleep across the center line. A road worker with a line-painting cart has painted the white stripe straight up and over the cow and kept going.
+- 407 · Too Hot · style 4 · medium · family · At sunset on a beach, a man in swim trunks stands at the water's edge aiming a fire extinguisher at the sun as it sinks into the sea.
+- 408 · Bright Idea · style 5 · hard · family · In a backyard vegetable garden, an old woman with a watering can waters a neat row of light bulbs planted in the soil. One bulb has come up and is glowing.
+- 409 · Dinner Upstairs · style 1 · easy · standard · At a dinner party, one guest sits upside down on the ceiling, chair, plate and all, eating normally. The host stands on tiptoe reaching up to pass him the salt.
+- 410 · Fill It Up · style 2 · easy · standard · At a gas station, a small dragon sits at the pump with the fuel nozzle in its mouth. The attendant stands beside it watching the numbers on the pump.
+- 411 · Pawn Shop · skipped (drawing didn't read)
+- 412 · Wait Here · style 4 · medium · standard · Outside a coffee shop, a fire hydrant is tied to the bike rack by a leash. A man comes out the door holding two coffees.
+- 413 · Steeping · style 5 · medium · standard · A woman lifts the lid of her teapot to pour. Inside, a tiny man with a towel around his neck is soaking up to his chest in the hot tea, eyes closed.
+- 414 · Crosswalk Thief · style 1 · medium · standard · A man in a suit waits at the curb to cross a city street. The crosswalk is bare asphalt. A zebra walks away down the road with the white stripes rolled up under its arm.
+- 415 · The Bag · style 2 · hard · standard · In a kitchen, a woman holds open a paper grocery bag. A cat is climbing out of it. Her husband stands across the counter, frozen, holding a set of car keys.
+- 416 · Cold Feet · style 3 · medium · standard · A young man sits on a park bench holding an open ring box. His shoes and socks are beside him, and his bare feet are in a bucket of ice cubes.
+- 417 · Spare Key · style 4 · hard · standard · At a hardware store key-cutting counter, the clerk hands a man a freshly cut key. Standing right behind the man is an exact copy of him, also holding a key.
+- 418 · In His Cups · style 5 · easy · afterdark · At a bar, a man in a business suit sits chest-deep inside a giant pint of beer on the bar top. The bartender wipes the counter beside the glass.
+- 419 · Baggage · style 1 · medium · afterdark · On a first date at a small restaurant table, a woman sits across from a man. On the chair beside him, a tower of old suitcases is stacked to the ceiling.
+- 420 · Regulars · style 2 · hard · afterdark · At a quiet bar, a man in a loosened tie sits on a stool next to a snack vending machine. The bartender sets a drink in front of each of them.
+- 421 · Dollhouse · style 3 · hard · afterdark · A woman kneels on the living room rug peering into a dollhouse. In its tiny living room, her husband, doll-sized, sits in a tiny armchair reading the newspaper.
