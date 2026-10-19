@@ -60,4 +60,7 @@ drawings to keep it fresh but familiar."
   from below / cutaway / silhouette / line-up / rare crowd / ~1 in 8 a nice background), so the deck doesn't settle
   into one medium-shot look. The five styles stay exactly as approved.
 - Interleave voices in the queue so neighbours feel different; nods to news/sports/movies stay occasional.
+- Every card added also gets its variety tags: `python3 tools/card_meta.py --id N --style S --voice V --title "..." --scene "..."`
+  (S = 1–5 style number, V = the premise-writer voice). The deal uses them so no two cards in a row share a creator,
+  a style, a setting or a subject (Nick: "always well shuffled ... no really similar in a row").
 - When ChatGPT hits its daily image limit: ingest, commit, safe_push, and schedule a resume for when it resets.
