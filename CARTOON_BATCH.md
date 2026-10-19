@@ -37,8 +37,7 @@ Progress lives in `CARTOON_PROGRESS.md` (one line per item). Read it first; appe
    and white; bare background (unless it's a deliberate nice-background one); no caption, bubbles or stray words; matches
    the premise; hands and faces not mangled; no logos or recognisable characters. One retry in the same chat with a short
    correction ("Redraw: less background, no grey"). Still wrong → log it as `skipped` with the reason.
-8. Add it: `python3 tools/add_cartoon.py --image pic.jpg --id N --title "..." --rating family|standard|afterdark --caption "..."`
-   (next free id, 118 and up). Write the real caption the way the deck's captions are written: short, specific, dry,
+8. Add it: `python3 tools/add_cartoon.py --image pic.jpg --id N --title "..." --rating family|standard|afterdark --caption "..." --level easy|medium|hard` (next free id, 118 and up). Level (hidden from players; it orders the deal): easy = a visual gag or a sign, gettable in seconds; medium = needs a moment; hard = subtle, you have to think. Aim for roughly 30% easy, 45% medium, 25% hard. Write the real caption the way the deck's captions are written: short, specific, dry,
    trusts the reader; the line that makes the picture land. Vary length (mostly 4–10 words, ~15% at 11–16), shape and
    speaker; at most 1 in 10 uses a name or "Sir/Ma'am". Clearly better than an average player's caption but not so
    polished it gives itself away. Never show it to Nick.

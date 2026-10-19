@@ -44,3 +44,6 @@ no signature. Square.
 ## The approved samples (Oct 19 2026)
 1 man with a briefcase on the high dive · 2 two snowmen and a hair dryer · 3 octopus at the piano for an audience of one ·
 4 couple at the far ends of a very long couch · 5 granny knitting a sheep.
+
+## Difficulty (Nick, Oct 19 2026)
+Every cartoon is quietly tagged easy, medium or hard. Never shown to players and no setting: the deal uses it. A new player's first game (or a table of new players) gets mostly easy and medium; regulars get more hard ones; every game opens easier and builds, like a setlist.
