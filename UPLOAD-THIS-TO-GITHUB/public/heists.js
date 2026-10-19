@@ -232,22 +232,33 @@
 })();
 
 /* ── The heists: one comic beat structure, eleven thieves ──
-   Index = HEISTS in game.js (the server deals them like a deck). Every full show runs 9.6 s on the shared beat:
-     0.0  the panel: who's sending whom in; the doomed chip is circled in pencil  (anticipation)
-     1.3  the thief arrives, and stops. A look at the chip.                          (anticipation)
-     3.7  the grab
-     4.5  the thief makes it the dealer's own (each in its own way)
-     5.9  set back on the table, in the dealer's colour; the thief leaves
-     6.6  held: the chip circled again, "Lilah's chip. Margaret's now."               (the result)
-     7.6  the gloat line, given time to land; 9.1 fade; 9.6 gone
+   Index = HEISTS in game.js (the server deals them like a deck). Every full show runs 12.4 s on the shared beat:
+     0.0  the panel: who's sending whom in; the doomed chip is circled in pencil and lifted, the rest dim
+     0.45 "Lilah's chip." under the panel, big, the chip beside it. Nothing else moves: read it.  (whose)
+     1.8  the thief arrives, and stops. A look at the chip.                          (anticipation)
+     4.2  the grab
+     5.0  the thief makes it the dealer's own (each in its own way)
+     6.9  set back on the table, in the dealer's colour; the thief leaves
+     7.15 the chip circled again and lifted; "Margaret's now." under "Lilah's chip."
+     8.2  the thief is gone. Held, nothing moving: the chip, the two names.           (the result)
+     10.0 the gloat line, given time to land; 11.95 fade; 12.4 gone
+   The thieves' choreography is written on its own clock (TM, script time); SHOW() maps it onto the show:
+   script time 0-1.3 s is stretched over 0-1.8 s (the 'whose' beat), everything after runs 0.5 s later.
    Every layer is sampled from one function of time and played as a Web Animation pinned to the beat, so a
    frame at time t is the same on every phone. No flashes, no strobing; Reduce Motion gets a still panel and
    cross-fades on the same beats. Layers are the size of the panel or smaller. */
 (function () {
   'use strict';
   var CAST = window.ccCast || {};
-  var L = 9600;
-  var TM = { ring: 300, enter0: 1300, enter1: 3000, look1: 3700, grab: 3700, take: 3950, held: 4500, claim1: 5900, set: 6400, exit0: 6550, exit1: 7700, result: 6650, gloat: 7600 };
+  var L = 12400;   // steal.js FULL_MS, index.html STEAL_SHOW_MS; server.js holds the reveal this + a margin
+  // Script time (the thieves' choreography below)
+  var TM = { ring: 300, enter0: 1300, enter1: 3000, look1: 3700, grab: 3700, take: 3950, held: 4500, claim1: 5900, set: 6400, exit0: 6550, exit1: 7700 };
+  // Show time <-> script time: the 'whose' beat stretches the opening; the rest runs PRE later
+  var PRE = 500, OPEN = TM.enter0 + PRE;
+  var SCRIPT = function (t) { return t < OPEN ? t * TM.enter0 / OPEN : t - PRE; };
+  var SHOW = function (t) { return t < TM.enter0 ? t * OPEN / TM.enter0 : t + PRE; };
+  // Show-time beats: whose chip (before), the result (after, held), the gloat
+  var BT = { ring: 300, who: 450, result: SHOW(TM.set) + 250, still: SHOW(TM.exit1), gloat: 10000 };
   var INK = '#1F1A17';
 
   // key, the thief's drawing, size (px per viewBox unit), hand/shoulder points in the drawing, tagline
@@ -412,7 +423,7 @@
         frame: function (t) {
           var f = JSON.parse(JSON.stringify(F)), y, x = fx;
           if (oc) {   // rises from behind the table, sinks back
-            y = t < TM.enter1 ? lerp(ffeet + 170 * G.kz, ffeet, eo(U(t, TM.enter0, TM.enter1))) : (t < TM.exit0 + 200 ? ffeet : lerp(ffeet, ffeet + 190 * G.kz, ei(U(t, TM.exit0 + 200, TM.exit1))));
+            y = t < TM.enter1 ? lerp(ffeet + 170 * G.kz, ffeet, eo(U(t, TM.enter0, TM.enter1))) : (t < TM.exit0 + 200 ? ffeet : lerp(ffeet, ffeet + 300 * G.kz, ei(U(t, TM.exit0 + 200, TM.exit1))));
             y += Math.sin(t / 600) * 2.5 * G.kz;
           } else {     // three hops in, three hops out
             var hopIn = function (tt) { var u = U(tt, TM.enter0, TM.enter1), n = 3, i = Math.min(n - 1, Math.floor(u * n)), ph = u * n - i; return { x: lerp(off(m), fx, (i + eio(ph)) / n), y: ffeet - (u < 1 ? 46 * G.kz * bell(ph) : 0) }; };
@@ -576,14 +587,14 @@
         '<svg class="hz-glint" id="hz-glint" viewBox="-10 -10 20 20" aria-hidden="true"><path d="M0 -9 L0 9 M-9 0 L9 0 M-4 -4 L4 4 M-4 4 L4 -4" stroke="' + INK + '" stroke-width="1.6" stroke-linecap="round"/></svg>' +
         (act.key === 'auctioneer' ? SAY.map(function (w) { return '<span class="hz-say">' + w + '</span>'; }).join('') : '') +
       '</div>' +
-      '<div class="st-cap"><p class="st-res" id="st-res">' + K.resultLine(st) + '</p><p class="st-quote" id="st-quote">“' + esc(st.gloat || 'Mine now.') + '”</p></div>' +
+      '<div class="st-cap">' + K.whoHtml(st) + '<p class="st-quote" id="st-quote">“' + esc(st.gloat || 'Mine now.') + '”</p></div>' +
       '</div>';
     var $q = function (s) { return o.querySelector(s); };
     var stage = $q('#st-stage'), panel = $q('#st-panel'), table = o.querySelector('.st-table');
     if (table && table.children.length > 4) table.classList.add('tight');
     var victim = $q('[data-st="victim"]'), tcoat = victim && victim.querySelector('.st-over');
     var thief = $q('#hz-thief'), svg = thief.firstChild, chip = $q('#hz-chip'), coat = $q('#hz-coat'), line = $q('#hz-line'), ring = $q('#st-ring');
-    var res = $q('#st-res'), quote = $q('#st-quote');
+    var w1 = $q('#st-w1'), w2 = $q('#st-w2'), quote = $q('#st-quote');
     var anim = K.animator(startAt), beat = function (b) { if (window.ccBeat) window.ccBeat(b); };
 
     // Measure the panel: where the chip is, where the table starts, how big the thief can be
@@ -600,28 +611,36 @@
     var part = function (c) { return svg.querySelector('.' + c); };
 
     var RM = K.reduced();
+    // The spotlight: the other chips dim; the doomed one is lifted while its owner's name is read, goes at the
+    // grab, comes back the dealer's and is lifted again for the result
+    var G0 = SHOW(TM.grab), SET = SHOW(TM.set);
+    K.spotlight(anim, o, victim, L, [[0, 1], [BT.ring, 1], [BT.ring + 350, 1.22], [G0 - 150, 1.22], [G0 + 250, 1], [BT.result, 1], [BT.result + 300, 1.15], [L, 1.15]], RM);
+    var who = function (rm) {
+      anim(w1, rm ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], 340, BT.who, 'cubic-bezier(.2,.7,.3,1)');
+      anim(w2, rm ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], 340, BT.result, 'cubic-bezier(.2,.7,.3,1)');
+    };
     if (RM) {
       // Reduce Motion: the thief stands still where it will strike; the chip cross-fades to the dealer's;
       // the result, then the line. Same beats, no movement, no flash.
       var f0 = S.frame(act.key === 'claw' ? 3000 : 3200);
       thief.style.transform = 'translate3d(' + f0.th.x.toFixed(1) + 'px,' + f0.th.y.toFixed(1) + 'px,0) scale(' + f0.th.m + ',1)';
       if (act.key === 'cat') { thief.style.transform = 'translate3d(' + f0.th.x.toFixed(1) + 'px,' + f0.th.y.toFixed(1) + 'px,0) scale(' + f0.th.m + ',1)'; }
-      if (ring) { ring.firstChild.style.strokeDashoffset = '0'; anim(ring, [{ opacity: 0 }, { opacity: 1 }], 400, TM.ring, 'ease-out'); }
-      anim(thief, [{ opacity: 0 }, { opacity: 1 }], 500, TM.enter0, 'ease-out');
-      anim(tcoat, [{ opacity: 0 }, { opacity: 1 }], 700, 4000, 'ease-in-out');
-      anim(thief, [{ opacity: 1 }, { opacity: 0 }], 600, TM.exit0, 'ease-in', { fill: 'forwards' });
-      anim(res, [{ opacity: 0 }, { opacity: 1 }], 400, TM.result, 'ease-out');
-      anim(quote, [{ opacity: 0 }, { opacity: 1 }], 500, TM.gloat, 'ease-out');
+      if (ring) { ring.firstChild.style.strokeDashoffset = '0'; anim(ring, [{ opacity: 0 }, { opacity: 1 }, { opacity: 1, offset: 0.9 }, { opacity: 0 }], G0 - BT.ring, BT.ring, 'linear'); anim(ring, [{ opacity: 0 }, { opacity: 1 }], 400, BT.result - 150, 'ease-out', { fill: 'forwards' }); }
+      anim(thief, [{ opacity: 0 }, { opacity: 1 }], 500, SHOW(TM.enter0), 'ease-out');
+      anim(tcoat, [{ opacity: 0 }, { opacity: 1 }], 700, G0 + 300, 'ease-in-out');
+      anim(thief, [{ opacity: 1 }, { opacity: 0 }], 600, SHOW(TM.exit0), 'ease-in', { fill: 'forwards' });
+      who(true);
+      anim(quote, [{ opacity: 0 }, { opacity: 1 }], 500, BT.gloat, 'ease-out');
       T(function () { stage.style.visibility = ''; beat('steal:full'); }, 0);
-      T(function () { beat('steal:snatch'); buzz(isVictim ? [120, 40, 200] : 40); }, 4000);
-      T(function () { beat('steal:set'); big(K.SND.clack); }, 4700);
-      T(function () { beat('steal:gloat'); big(K.SND.gloat); if (isVictim) buzz([200, 100, 200]); }, TM.gloat);
+      T(function () { beat('steal:snatch'); buzz(isVictim ? [120, 40, 200] : 40); }, G0 + 300);
+      T(function () { beat('steal:set'); big(K.SND.clack); }, G0 + 1000);
+      T(function () { beat('steal:gloat'); big(K.SND.gloat); if (isVictim) buzz([200, 100, 200]); }, BT.gloat);
       return;
     }
 
     /* Sample every layer from the one clock */
     var STEP = 40, frames = [];
-    for (var t = 0; t <= L; t += STEP) frames.push(S.frame(t));
+    for (var t = 0; t <= L; t += STEP) frames.push(S.frame(SCRIPT(t)));
     var kf = function (fn) { return frames.map(function (f, i) { var k = fn(f); k.offset = Math.min(1, i * STEP / L); return k; }); };
     var whole = function (el, fn) { if (el) anim(el, kf(fn), L, 0, 'linear'); };
     whole(thief, function (f) { var th = f.th; return { transform: 'translate3d(' + th.x.toFixed(1) + 'px,' + th.y.toFixed(1) + 'px,0) rotate(' + (th.r || 0).toFixed(2) + 'deg) scale(' + (th.m * th.sx).toFixed(3) + ',' + th.sy.toFixed(3) + ')', opacity: th.o }; });
@@ -653,27 +672,27 @@
       var fa = S.frame(TM.held), side = fa.th.m;
       says.forEach(function (el, i) {
         // to the right of his head (the lamp hangs on the left), clear of the panel's edge
-        var at = TM.held + 150 + i * 450, x = clamp(fa.th.x + 70 * kk, 70, W - 62), y = Math.max(24, fa.th.y - 172 * kk);
+        var at = SHOW(TM.held) + 150 + i * 450, x = clamp(fa.th.x + 70 * kk, 70, W - 62), y = Math.max(24, fa.th.y - 172 * kk);
         el.style.left = x.toFixed(1) + 'px'; el.style.top = y.toFixed(1) + 'px';
         anim(el, [{ opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.85 }, { opacity: 0 }], i === 2 ? 900 : 430, at, 'ease-out');
       });
     }
     // the pencil ring: around the doomed chip, gone at the grab, around the dealer's chip for the result
-    K.ringOn(anim, ring, TM.ring, 600);
-    anim(ring, [{ opacity: 1 }, { opacity: 0 }], 200, TM.grab - 150, 'ease-out', { fill: 'forwards' });
-    T(function () { if (!ring) return; ring.getAnimations().forEach(function (a) { a.cancel(); }); ring.style.opacity = '1'; K.ringOn(K.animator(startAt), ring, TM.result, 560); }, TM.result - 80);
-    anim(res, [{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }], 380, TM.result + 250, 'ease-out');
-    anim(quote, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], 520, TM.gloat, 'cubic-bezier(.2,.7,.3,1)');
+    K.ringOn(anim, ring, BT.ring, 600);
+    anim(ring, [{ opacity: 1 }, { opacity: 0 }], 200, G0 - 150, 'ease-out', { fill: 'forwards' });
+    T(function () { if (!ring) return; ring.getAnimations().forEach(function (a) { a.cancel(); }); ring.style.opacity = '1'; K.ringOn(K.animator(startAt), ring, BT.result - 150, 560); }, BT.result - 230);
+    who(false);
+    anim(quote, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], 520, BT.gloat, 'cubic-bezier(.2,.7,.3,1)');
 
     // Sound and touch, on the beats
-    (S.sounds || []).forEach(function (sd) { if (sd[1]) T(function () { big(sd[1]); }, sd[0]); });
+    (S.sounds || []).forEach(function (sd) { if (sd[1]) T(function () { big(sd[1]); }, SHOW(sd[0])); });
     T(function () { stage.style.visibility = ''; beat('steal:full'); buzz(25); big(K.SND.pencil); }, 0);
-    T(function () { beat('steal:hover'); big(K.SND.creep); }, TM.enter1);
-    T(function () { beat('steal:snatch'); buzz(isVictim ? [120, 40, 200] : 35); }, act.key === 'claw' ? 4000 : TM.take);
-    T(function () { beat('steal:paint'); }, TM.held);
-    T(function () { beat('steal:set'); big(K.SND.clack); buzz(isVictim ? [80, 40, 80] : 20); }, TM.set);
-    T(function () { big(K.SND.pencil); }, TM.result);
-    T(function () { beat('steal:gloat'); big(K.SND.gloat); if (isVictim) buzz([200, 100, 200]); }, TM.gloat);
+    T(function () { beat('steal:hover'); big(K.SND.creep); }, SHOW(TM.enter1));
+    T(function () { beat('steal:snatch'); buzz(isVictim ? [120, 40, 200] : 35); }, SHOW(act.key === 'claw' ? 4000 : TM.take));
+    T(function () { beat('steal:paint'); }, SHOW(TM.held));
+    T(function () { beat('steal:set'); big(K.SND.clack); buzz(isVictim ? [80, 40, 80] : 20); }, SET);
+    T(function () { big(K.SND.pencil); }, BT.result - 150);
+    T(function () { beat('steal:gloat'); big(K.SND.gloat); if (isVictim) buzz([200, 100, 200]); }, BT.gloat);
   }
 
   window.ccHeist = { play: play, count: ACTS.length, names: ACTS.map(function (a) { return a.name; }), keys: ACTS.map(function (a) { return a.key; }), L: L };

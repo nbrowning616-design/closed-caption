@@ -1,9 +1,12 @@
 /* Closed Caption — the steal show: the stage they share, and the short stamp.
    The dealer's steal plays on every phone at once, timed from the shared beat (ccSync(state.steal.at)).
    The server says which show (state.steal.stealShow):
-     'full'  — the first steal of a game, or a steal off the real caption: one of the heists in heists.js (9.6 s);
+     'full'  — the first steal of a game, or a steal off the real caption: one of the heists in heists.js (12.4 s);
      'short' — every other steal: paperwork. The chip is circled, an ink TRANSFERRED stamp lands on it in the
-               dealer's colour, one typed line (3.5 s).
+               dealer's colour, one typed line (6 s).
+   Both have the same two held beats, so nobody misses WHOSE chip it was:
+     before the grab — the chip circled and lifted, the rest of the table dimmed, "Lilah's chip." large;
+     after the grab  — still: the chip in the dealer's colour, "Margaret's now." under it; then the gloat.
    House style: a cartoon panel. Black ink line, soft grey wash, white paper; the chips are the only colour.
    Both shows end on their own (a timer clears the overlay at the end, and a tap skips it).
    Everything is driven by the Web Animations API from one clock, so a frame at time t is the same frame on
@@ -15,7 +18,7 @@
   'use strict';
 
   var INK = '#1F1A17';
-  var FULL_MS = 9600, SHORT_MS = 3500;   // index.html STEAL_SHOW_MS / STEAL_QUICK_MS; server.js waits these + a margin
+  var FULL_MS = 12400, SHORT_MS = 6000;   // index.html STEAL_SHOW_MS / STEAL_QUICK_MS; server.js waits these + a margin
 
   var CSS = [
     '@keyframes stFade{from{opacity:0}to{opacity:1}}',
@@ -41,10 +44,17 @@
     '.st-ring{position:absolute;left:0;top:0;width:64px;height:58px;margin:-29px 0 0 -32px;z-index:2;overflow:visible;pointer-events:none;}',
     '.st-ring path{fill:none;stroke:' + INK + ';stroke-width:2.2;stroke-linecap:round;stroke-dasharray:190;stroke-dashoffset:190;}',
     /* the caption under the panel */
-    '.st-cap{flex:0 0 auto;min-height:150px;text-align:center;padding:16px 10px 0;}',
+    '.st-cap{flex:0 0 auto;min-height:182px;text-align:center;padding:16px 4px 0;}',
     '.st-res{font-family:var(--sans);font-weight:800;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#7A7066;margin:0;opacity:0;}',
     '.st-res b{color:' + INK + ';}',
-    '.st-quote{font-family:var(--serif,"Libre Caslon Text",Georgia,serif);font-style:italic;font-weight:400;font-size:23px;line-height:1.3;margin:12px auto 0;max-width:330px;color:' + INK + ';opacity:0;text-wrap:balance;}',
+    /* whose chip: two big lines, the chip beside each name. "Lilah's chip." / "Margaret's now." */
+    '.st-who{margin:0 auto;max-width:370px;}',
+    '.st-w{display:flex;align-items:center;justify-content:center;gap:11px;margin:0;font-family:var(--serif,"Libre Caslon Text",Georgia,serif);font-weight:700;font-size:29px;line-height:1.12;letter-spacing:-.005em;color:' + INK + ';opacity:0;}',
+    '.st-w>span:last-child{text-wrap:balance;text-align:left;}',
+    '.st-w+.st-w{margin-top:9px;}',
+    '.st-w .chip{flex-shrink:0;margin:0;box-shadow:0 2px 0 rgba(31,26,23,.75);}',
+    '.st-chips .chip[data-st="victim"]{position:relative;z-index:1;}',
+    '.st-quote{font-family:var(--serif,"Libre Caslon Text",Georgia,serif);font-style:italic;font-weight:400;font-size:21px;line-height:1.3;margin:14px auto 0;max-width:330px;color:' + INK + ';opacity:0;text-wrap:balance;}',
     /* the short show: no thief, so the panel is just the table; a stamp in the dealer's colour */
     '.st-q{justify-content:center;}',
     '.st-q .st-panel{flex:0 0 auto;height:auto;min-height:0;margin:0;background:#fff;}',
@@ -129,6 +139,21 @@
     var now = d === me || state.isDealer ? 'Yours now.' : esc(first(d) || state.dealerName || 'The dealer') + '’s now.';
     return whose + ' <b>' + now + '</b>';
   }
+  // The same thing as two big lines, a chip beside each: "Lilah’s chip." then "Margaret’s now."
+  function whoHtml(st) {
+    var me = myPlayerId, d = dealerId(), dealerMe = d === me || state.isDealer;
+    var w1 = st.victimId === me ? 'Your chip.' : esc(first(st.victimId)) + '’s chip.';
+    var w2 = dealerMe ? 'Yours now.' : esc(first(d) || state.dealerName || 'The dealer') + '’s now.';
+    return '<div class="st-who"><p class="st-w" id="st-w1">' + (st.victimId ? chipHtml(st.victimId, '') : '') + '<span>' + w1 + '</span></p>' +
+      '<p class="st-w" id="st-w2">' + (d ? chipHtml(d, '') : '') + '<span>' + w2 + '</span></p></div>';
+  }
+  /* The table's spotlight: the other chips dim, the doomed one is lifted while everyone reads whose it is.
+     scaleAt: [[ms, scale], ...] on the show's clock (one animation, so nothing fights). Reduce Motion: no lift. */
+  function spotlight(anim, o, victim, len, scaleAt, RM) {
+    [].slice.call(o.querySelectorAll('.st-chips [data-st="other"]')).forEach(function (el) { anim(el, [{ opacity: 1 }, { opacity: 0.28 }], 400, 250, 'ease-out'); });
+    if (!victim || RM || !scaleAt) return;
+    anim(victim, scaleAt.map(function (k) { return { transform: 'scale(' + k[1] + ')', offset: Math.min(1, k[0] / len) }; }), len, 0, 'linear');
+  }
   function centreIn(el, box) {
     var r = el.getBoundingClientRect(), b = box.getBoundingClientRect();
     return { x: r.left - b.left + r.width / 2, y: r.top - b.top + r.height / 2, w: r.width, h: r.height };
@@ -174,9 +199,11 @@
     return short(wait, showKind(st) === 'short' ? SHORT_MS : (opt && opt.fullMs) || FULL_MS);
   }
 
-  /* ── The short show (3.5 s): paperwork, not a heist ──
-     0.15 s the chip is circled · 1.1 s the stamp lands, the chip is the dealer's · 1.5 s whose it was ·
-     1.8 s the line is typed · held · 3.1 s fade. Reduce Motion: fades only. */
+  /* ── The short show (6 s): paperwork, not a heist ──
+     0.15 s the chip is circled and lifted, the table dims · 0.35 s "Lilah's chip." · held, read it ·
+     2.1 s the stamp lands, the chip is the dealer's · 2.35 s "Margaret's now." · held, nothing moves ·
+     4.15 s the line · 5.6 s fade. Reduce Motion: fades only, same beats. */
+  var SQ = { ring: 150, who: 350, hit: 2100, now: 2350, line: 4150 };
   function short(wait, len) {
     var st = state.steal, o = document.getElementById('stealshow');
     (window._ssT || []).forEach(clearTimeout); window._ssT = [];
@@ -193,39 +220,44 @@
         '<div class="st-head"><p class="st-eye">Transfer of ownership</p></div>' +
         '<div class="st-panel" id="st-panel">' + tableHtml(st, true) + RING +
           '<div class="stq-stamp" id="stq-stamp"><b>Transferred</b><i>to ' + (me ? 'you' : esc(first(dId) || state.dealerName)) + '</i></div></div>' +
-        '<div class="st-cap"><p class="st-res" id="st-res">' + resultLine(st) + '</p><p class="st-quote" id="st-quote">' + esc(st.gloat || 'Received. Condition: used.') + '</p></div>' +
+        '<div class="st-cap">' + whoHtml(st) + '<p class="st-quote" id="st-quote">' + esc(st.gloat || 'Received. Condition: used.') + '</p></div>' +
         '</div>';
       var $q = function (sel) { return o.querySelector(sel); };
       var stage = $q('#st-stage'), panel = $q('#st-panel'), victim = $q('[data-st="victim"]'), stamp = $q('#stq-stamp'), ring = $q('#st-ring');
-      var res = $q('#st-res'), line = $q('#st-quote'), RM = reduced(), anim = animator(startAt);
+      var w1 = $q('#st-w1'), w2 = $q('#st-w2'), line = $q('#st-quote'), RM = reduced(), anim = animator(startAt);
       var beat = function (n) { if (window.ccBeat) window.ccBeat(n); };
       var V = victim ? centreIn(victim, panel) : { x: panel.clientWidth / 2, y: panel.clientHeight / 2 };
       if (ring) ring.style.transform = 'translate(' + V.x.toFixed(1) + 'px,' + V.y.toFixed(1) + 'px)';
       var coat = victim && victim.querySelector('.st-over');
       var px = Math.max(70, Math.min(panel.clientWidth - 70, V.x + 6));
       var place = 'translate(' + px.toFixed(1) + 'px,' + (V.y - (V.h || 34) / 2 - 4).toFixed(1) + 'px) translate(-50%,-100%) rotate(-7deg)';
-      var RINGAT = 150, HIT = 1100, WHO = 1500, LINE = 1800;
+      // lifted while it's read; set down under the stamp; lifted again, the dealer's now, for the result
+      spotlight(anim, o, victim, len, [[0, 1], [SQ.ring, 1], [SQ.ring + 350, 1.2], [SQ.hit - 160, 1.2], [SQ.hit, 1], [SQ.now, 1], [SQ.now + 300, 1.14], [len, 1.14]], RM);
       if (RM) {
-        anim(ring, [{ opacity: 0 }, { opacity: 1 }], 300, RINGAT, 'ease-out'); if (ring) ring.firstChild.style.strokeDashoffset = '0';
-        anim(stamp, [{ opacity: 0, transform: place }, { opacity: 0.94, transform: place }], 300, HIT, 'ease-out');
-        anim(coat, [{ opacity: 0 }, { opacity: 1 }], 300, HIT, 'ease-out');
-        anim(line, [{ opacity: 0 }, { opacity: 1 }], 300, LINE, 'ease-out');
+        anim(ring, [{ opacity: 0 }, { opacity: 1 }], 300, SQ.ring, 'ease-out'); if (ring) ring.firstChild.style.strokeDashoffset = '0';
+        anim(ring, [{ opacity: 1 }, { opacity: 0 }], 250, SQ.hit, 'ease-out', { fill: 'forwards' });
+        anim(stamp, [{ opacity: 0, transform: place }, { opacity: 0.94, transform: place }], 300, SQ.hit, 'ease-out');
+        anim(coat, [{ opacity: 0 }, { opacity: 1 }], 300, SQ.hit, 'ease-out');
+        anim(w1, [{ opacity: 0 }, { opacity: 1 }], 300, SQ.who, 'ease-out');
+        anim(w2, [{ opacity: 0 }, { opacity: 1 }], 300, SQ.now, 'ease-out');
+        anim(line, [{ opacity: 0 }, { opacity: 1 }], 300, SQ.line, 'ease-out');
       } else {
-        ringOn(anim, ring, RINGAT, 480);
-        anim(ring, [{ opacity: 1 }, { opacity: 0 }], 200, HIT, 'ease-out');
-        anim(stamp, [{ opacity: 0, transform: place + ' scale(1.45)' }, { opacity: 0.94, transform: place + ' scale(1)' }], 120, HIT - 120, 'cubic-bezier(.6,0,1,.6)');
-        anim(coat, [{ opacity: 0 }, { opacity: 1 }], 1, HIT, 'linear');
-        anim(line, [{ opacity: 0, transform: 'translateY(5px)' }, { opacity: 1, transform: 'none' }], 450, LINE, 'cubic-bezier(.2,.7,.3,1)');
+        ringOn(anim, ring, SQ.ring, 480);
+        anim(ring, [{ opacity: 1 }, { opacity: 0 }], 200, SQ.hit, 'ease-out', { fill: 'forwards' });
+        anim(stamp, [{ opacity: 0, transform: place + ' scale(1.45)' }, { opacity: 0.94, transform: place + ' scale(1)' }], 120, SQ.hit - 120, 'cubic-bezier(.6,0,1,.6)');
+        anim(coat, [{ opacity: 0 }, { opacity: 1 }], 1, SQ.hit, 'linear');
+        anim(w1, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], 320, SQ.who, 'cubic-bezier(.2,.7,.3,1)');
+        anim(w2, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], 320, SQ.now, 'cubic-bezier(.2,.7,.3,1)');
+        anim(line, [{ opacity: 0, transform: 'translateY(5px)' }, { opacity: 1, transform: 'none' }], 450, SQ.line, 'cubic-bezier(.2,.7,.3,1)');
       }
-      anim(res, [{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }], 280, WHO, 'ease-out');
       T(function () { stage.style.visibility = ''; beat('steal:quick'); big(SND.pencil); buzz(isVictim ? [40] : 15); }, 0);
-      T(function () { beat('steal:set'); big(SND.stamp); buzz(isVictim ? [120, 40, 120] : 25); }, HIT);
-      T(function () { beat('steal:gloat'); }, LINE);
+      T(function () { beat('steal:set'); big(SND.stamp); buzz(isVictim ? [120, 40, 120] : 25); }, SQ.hit);
+      T(function () { beat('steal:gloat'); }, SQ.line);
     } catch (e) { console.error('steal', e); var sg = o.querySelector('#st-stage'); if (sg) sg.style.visibility = ''; }
     return Math.max(0, wait) + len;
   }
 
   window.ccClaw = { play: play, lengthFor: lengthFor, SHORT_MS: SHORT_MS, FULL_MS: FULL_MS };
   window.ccStealKit = { seeded: seeded, SND: SND, dealerId: dealerId, colourOf: colourOf, reduced: reduced, DRIP: DRIP, first: first,
-    tableHtml: tableHtml, ROOM: ROOM, RING: RING, resultLine: resultLine, centreIn: centreIn, animator: animator, ringOn: ringOn, FULL_MS: FULL_MS };
+    tableHtml: tableHtml, ROOM: ROOM, RING: RING, resultLine: resultLine, whoHtml: whoHtml, spotlight: spotlight, centreIn: centreIn, animator: animator, ringOn: ringOn, FULL_MS: FULL_MS };
 })();
