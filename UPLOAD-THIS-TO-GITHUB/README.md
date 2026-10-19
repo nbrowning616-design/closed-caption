@@ -23,7 +23,7 @@ A web-based multiplayer party game. One person creates a game, shares a 4-letter
 - The answer is a dealer-paced reveal, one caption at a time, with a few badges for great moments
 - Each phone keeps a trophy case across game nights; 10 Moon Landings = Captain
 - Invite friends with the lobby QR code or the invite link (it fills in the room code)
-- Everyone gets one Frame It per game. When 2 (3–5 players) or 3 (6–8) people frame a caption, it's hung in The Gallery with a shareable print. Gallery games use framed captions as the real answers.
+- Frame It: every round, each player can frame one caption (never their own, never the real one). No limit per game. When most of the other players (2 of 2, 2 of 3, 3 of 4…) frame the same caption, it's hung in The Gallery with a shareable print. Gallery games use framed captions as the real answers.
 - The Gallery lives on the phones: each phone saves every caption it sees framed and brings its collection to every game it joins, so it survives server restarts at no cost. Rooms never see each other's captions. (Optional: set DATA_DIR on a Render disk to also keep a server copy.) End-of-game awards play before the final scores
 - Every caption, including the real ones, is tidied the same way (capitals, punctuation, apostrophes, quotes) so style never gives anything away. Likely typos get a "Did you mean…?" before locking in
 

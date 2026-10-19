@@ -626,6 +626,19 @@ body.quake { animation: quake .12s linear 10; }
 .gal-toggle .sw { margin-left: auto; width: 44px; height: 26px; border-radius: 13px; border: 2px solid var(--ink); background: #EADFCB; position: relative; flex-shrink: 0; transition: background .2s; }
 .gal-toggle .sw::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid var(--ink); transition: left .2s var(--spring); }
 .gal-toggle.on .sw { background: #E9B92A; } .gal-toggle.on .sw::after { left: 20px; }
+/* The Gallery in the lobby: a short wall of framed thumbnails; tap one and it zooms (gallery.js Gallery.zoom) */
+.lob-gal { position: relative; margin: 0 0 14px; padding: 12px 0 14px; border: var(--bw) solid var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow); overflow: hidden; color: #F3E6C8; background-color: #4A1A1E; background-image: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(255,214,150,.22), rgba(255,214,150,0) 70%), radial-gradient(ellipse 120% 100% at 50% 30%, rgba(0,0,0,0) 50%, rgba(12,3,4,.55) 100%); }
+.lob-gal-hd { display: flex; align-items: baseline; gap: 8px; padding: 0 14px; }
+.lob-gal-t { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 22px; line-height: 1.1; color: #F6E7C4; }
+.lob-gal-n { font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: rgba(243,230,200,.7); font-weight: 700; }
+.lob-gal-all { margin-left: auto; padding: 6px 2px 6px 10px; border: 0; background: none; color: #E9C46A; font-weight: 900; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.lob-gal-row { display: flex; align-items: flex-start; gap: 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding: 0 14px; padding: 6px 14px 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.lob-gal-row::-webkit-scrollbar { display: none; }
+.lob-gal-row > .gal-mini { flex: 0 0 124px; margin: 0; scroll-snap-align: start; }
+.lob-gal-row .gal-mini .gal-mimg { height: 84px; }
+.lob-gal-row .gal-mini .gal-mcap { -webkit-line-clamp: 4; }
+.lob-gal-empty { margin: 8px 14px 0; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 14px; line-height: 1.4; color: rgba(243,230,200,.85); }
+.lob-gal-note { margin: 8px 14px 0; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 12.5px; color: rgba(243,230,200,.66); }
 .aw-img { width: 120px; height: 120px; object-fit: cover; border: 3px solid var(--ink); border-radius: 12px; margin: 6px auto 0; display: block; background: #fff; }
 
 /* ── Read-aloud ── */
@@ -798,7 +811,7 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 
   <details class="box" id="rules-extras" style="margin-bottom: 22px;"><summary>The extras <span class="arrow">▾</span></summary><div class="body">
     <ul class="rules-extras">
-      <li><b>Frame It.</b> After each round, pick a caption that beat the real one (never your own). You get one frame a game. When <span class="frame-need">most of the other players</span> pick the same one, it hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
+      <li><b>Frame It.</b> After each round, pick a caption that beat the real one (never your own). Frame as many as deserve it, one a round. When <span class="frame-need">most of the other players</span> pick the same one, it hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
       <li><b>The Grand Poobah.</b> Points say who bet best. The hat goes to who wrote best: the most chips on their fakes, all night.</li>
       <li><b>Badges and ranks.</b> Rare moments earn badges: Moon Landing 🚀, Three Bagger, Clean Sweep, Great Minds, Pickpocket. Ten rockets makes you Captain. Your phone keeps them.</li>
       <li><b>Good to know.</b> Bet on your own caption to bluff — it scores nothing. Captions are tidied the same way, the real one too. The real one isn’t always the funniest. Tap the cartoon to zoom.</li>
@@ -1378,7 +1391,7 @@ function openMenu() {
     </div>
     ${window.Voice && !(Voice.isOn && Voice.isOn()) && state && state.phase !== 'lobby' ? `<button class="menu-row" onclick="closeMenu(); Voice.ask()"><span class="ic">${inkIcon('speaker')}</span>Playing apart?<span class="r">Voice call</span></button>` : ''}
     <button class="menu-row" onclick="openInvite()"><span class="ic">${inkIcon('invite')}</span>Invite someone<span class="r">QR + link</span></button>
-    <button class="menu-row" onclick="openGallery()"><span class="ic">${inkIcon('frame')}</span>The Gallery<span class="r">${(lastGazette || []).length ? plural((lastGazette || []).length, 'caption') : ''}</span></button>
+    <button class="menu-row" onclick="openGallery()"><span class="ic">${inkIcon('frame')}</span>The Gallery<span class="r">${galleryList().length ? plural(galleryList().length, 'caption') : ''}</span></button>
     <button class="menu-row" onclick="openTrophyCase()"><span class="ic">${inkIcon('trophy')}</span>My trophy case<span class="r">${esc(careerSummary().rank || '')}</span></button>
     <button class="menu-row" onclick="toggleSound()"><span class="ic">${inkIcon(soundEnabled() ? 'sound' : 'mute')}</span>Sound<span class="r">${soundEnabled() ? 'On' : 'Off'}</span></button>
     <button class="menu-row" id="bigsound-row" onclick="toggleBigSound()"><span class="ic">${inkIcon('speaker')}</span>This phone plays the big sounds<span class="r">${bigSound() ? 'On' : 'Off'}</span></button>
@@ -1391,7 +1404,7 @@ function openMenu() {
     <button class="btn btn-ink" style="margin-top:6px;" onclick="closeMenu()">Close</button>`;
   $('sheet').classList.add('on');
 }
-function closeMenu() { $('sheet').classList.remove('on', 'top'); }
+function closeMenu() { $('sheet').classList.remove('on', 'top'); if (window.Gallery && Gallery.isZoomed && Gallery.isZoomed()) Gallery.zoomClose(); }
 function toggleTrack(key) { if (!window.GameMusic) return; if (window.GameMusic.currentTrack() === key) window.GameMusic.stop(); else window.GameMusic.play(key); openMenu(); }
 function joinAddress() { const local = ['localhost', '127.0.0.1'].includes(location.hostname); return local && state && state.lanUrl ? state.lanUrl.replace(/^https?:\/\//, '') : location.host; }
 function shareRoom() {
@@ -1654,7 +1667,7 @@ function renderLobby() {
     <p class="eyebrow" style="margin-bottom:6px;">At the table · ${connected} of ${state.players.length}${state.players.length > 1 ? ` <span style="text-transform:none;letter-spacing:0;font-weight:400;">· ${state.players.filter(p => p.watched).length} of ${state.players.length} watched the demo</span>` : ''}</p>
     <div style="margin-bottom:10px;">${players}</div>${seatHelp}
     ${state.isHost ? `<button class="btn-link" style="display:block; margin:0 auto 10px; font-size:14px;" onclick="send({action:'lock', on:${!state.locked}})">${state.locked ? 'Room locked. Unlock it' : 'Everyone’s here? Lock the room'}</button>` : state.locked ? '<p class="center small" style="margin-bottom:10px;">The host has locked the room.</p>' : ''}
-    ${galleryToggle}${settings}${freshLine}<p class="center small" style="margin-bottom:14px;">${summary}</p>
+    ${lobbyGalleryHtml()}${galleryToggle}${settings}${freshLine}<p class="center small" style="margin-bottom:14px;">${summary}</p>
     ${state.isHost
       ? `<button class="btn btn-yellow" onclick="send({action:'start'})" ${connected < 3 ? 'disabled' : ''}>${connected < 3 ? `Need ${plural(3 - connected, 'more player')}` : 'Start the game →'}</button>`
       : `<div class="panel flat center"><span class="spin" style="margin-bottom:8px;"></span><p class="sub">Waiting for ${esc(fnameOf(state.hostId))} to start<span class="dots"></span></p></div>`}
@@ -2163,7 +2176,7 @@ function bluffShort(f) {
   return same ? `<b>${esc(listNames(writers))}</b> each fooled ${plural(n, 'person', 'people')}` : `<b>${esc(listNames(writers))}</b> tie for biggest bluff`;
 }
 
-/* Frame It — after every answer, one secret pick per player per cartoon; one frame per player per game (internally 'flags').
+/* Frame It — after every answer, one secret pick per player per cartoon, every round, no limit per game (internally 'flags').
    A majority of the other players (everyone but the writer; state.inductNeed) and it's FRAMED: it hangs in The Gallery. */
 const frameNeed = () => (state && state.inductNeed) || 2;
 const frameNeedWords = () => { const n = state && state.players ? state.players.length : 0; return n > 1 ? `most of the other players (${frameNeed()} of ${n - 1})` : 'most of the other players'; };
@@ -2198,7 +2211,7 @@ function fmListHtml() {
     const t = c.idx === 'closed' ? "'closed'" : c.idx;
     const tag = framed ? `<span class="fm-n done">Framed · ${n}</span>` : r && n ? `<span class="fm-n">${n} of ${need}</span>` : '';
     const cls = ['fm-card', own ? 'own' : '', on ? 'on' : '', framed ? 'framed' : '', r && !framed ? 'dim' : ''].filter(Boolean).join(' ');
-    return `<button class="${cls}" data-k="${k}" ${own || r || f.myFrameSpent ? 'disabled' : `onclick="pickFrame(${t})"`} aria-pressed="${on ? 'true' : 'false'}"><span class="fm-cap">“${esc(c.caption)}”</span><span class="fm-meta"><span class="fm-who">${who}</span>${tag}</span></button>`;
+    return `<button class="${cls}" data-k="${k}" ${own || r ? 'disabled' : `onclick="pickFrame(${t})"`} aria-pressed="${on ? 'true' : 'false'}"><span class="fm-cap">“${esc(c.caption)}”</span><span class="fm-meta"><span class="fm-who">${who}</span>${tag}</span></button>`;
   }).join('');
 }
 function fmFootHtml() {
@@ -2214,8 +2227,7 @@ function fmFootHtml() {
   const here = ids.filter(id => (playerById(id) || {}).connected || decided.has(id));
   const chips = ids.map(id => `<span class="fm-chip ${decided.has(id) ? 'done' : ''}">${chipHtml(id)}</span>`).join('');
   const passed = mine === 'pass';
-  const spent = f.myFrameSpent ? '<p class="fm-wait" style="margin:0 0 8px;">You’ve used your one frame this game.</p>' : '';
-  return `${spent}<button class="btn fm-pass ${passed ? 'on' : ''}" onclick="pickFrame('pass')" aria-pressed="${passed ? 'true' : 'false'}">${passed ? '✓ The real one wins · tap a caption to change' : 'Nothing beat the real one'}</button>
+  return `<button class="btn fm-pass ${passed ? 'on' : ''}" onclick="pickFrame('pass')" aria-pressed="${passed ? 'true' : 'false'}">${passed ? '✓ The real one wins · tap a caption to change' : 'Nothing beat the real one'}</button>
     <div class="fm-row"><div class="fm-chips ${ids.length > 6 ? 'many' : ''}">${chips}</div><span class="fm-count">${(() => { const wait = here.filter(id => !decided.has(id)); return wait.length && wait.length <= 2 && here.length > 2 ? 'Waiting on ' + wait.map(id => id === myPlayerId ? 'you' : esc(fnameOf(id))).join(' & ') + '…' : `${here.length - wait.length} of ${here.length} decided`; })()}</span></div>
     ${canRun() ? `<div class="center" style="margin-top:-6px;"><button class="btn-link fm-move" onclick="send({action:'advance'})">Move on</button></div>` : ''}`;
 }
@@ -2400,8 +2412,7 @@ function hofListHtml() {
 // The Gallery: every framed caption, newest first (the server sends it between rounds)
 function openGallery() {
   // This phone's whole collection, plus anything new the room has (newest first)
-  gallerySave((state && state.gazette) || lastGazette || []);
-  const list = galleryGet().slice().reverse();
+  const list = galleryList();
   let body = '';
   if (window.Gallery && typeof window.Gallery.archiveHtml === 'function') { try { body = window.Gallery.archiveHtml(list); } catch (e) { body = ''; } }
   if (!body) body = list.length
@@ -2410,6 +2421,31 @@ function openGallery() {
   $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin-bottom:10px;">The Gallery</p>${body}<button class="btn btn-ink" style="margin-top:14px;" onclick="closeMenu()">Close</button>`;
   $('sheet').classList.add('on');
 }
+/* What this phone can show of The Gallery: its own collection plus the room's deck (state.gazette), newest first.
+   #3: in a Gallery (Expert) game the framed captions are the real answers, so every cartoon that could still be
+   dealt is left out (the server lists them in state.galleryHidden); they come back once they've been played. */
+function galleryList() {
+  gallerySave((state && state.gazette) || lastGazette || []);
+  const hide = new Set(((state && state.galleryHidden) || []).map(Number));
+  return galleryGet().filter(e => !hide.has(Number(e.cartoonId))).reverse();
+}
+const galleryHiddenCount = () => { const hide = new Set(((state && state.galleryHidden) || []).map(Number)); return hide.size ? galleryGet().filter(e => hide.has(Number(e.cartoonId))).length : 0; };
+// The lobby's Gallery: a strip of framed thumbnails; tap one and it zooms, swipe through the rest
+let lobbyGal = [], lobbyGalX = 0, lobbyGalWait = false;
+function lobbyGalleryHtml() {
+  const list = galleryList(), hidden = galleryHiddenCount();
+  lobbyGal = list;
+  if (!window.Gallery || !Gallery.miniHtml) {   // gallery.js loads just after the first screen: draw the strip once it's here
+    if (!lobbyGalWait && window.ccShowReady) { lobbyGalWait = true; ccShowReady().then(() => { if (state && state.phase === 'lobby') render(true); }); }
+    if (!list.length) return '';
+  }
+  const thumbs = window.Gallery && Gallery.miniHtml ? list.slice(0, 24).map((e, i) => Gallery.miniHtml(e, i, 'lobbyZoom')).join('') : '';
+  const note = hidden ? `<p class="lob-gal-note">${plural(hidden, 'caption')} under a sheet until ${hidden === 1 ? 'its cartoon is' : 'their cartoons are'} dealt.</p>` : '';
+  queueMicrotask(() => { const r = document.querySelector('.lob-gal-row'); if (r && lobbyGalX) r.scrollLeft = lobbyGalX; });   // a new state redraws the lobby: keep the strip where it was
+  return `<section class="lob-gal" aria-label="The Gallery"><div class="lob-gal-hd"><span class="lob-gal-t">The Gallery</span><span class="lob-gal-n">${list.length || ''}</span>${list.length ? '<button class="lob-gal-all" onclick="openGallery()">See all ›</button>' : ''}</div>
+    ${list.length ? `<div class="lob-gal-row" onscroll="lobbyGalX=this.scrollLeft">${thumbs}</div>` : `<p class="lob-gal-empty">Nothing on the walls yet. Beat the real caption and it hangs here.</p>`}${note}</section>`;
+}
+function lobbyZoom(i) { if (window.Gallery && Gallery.zoom && lobbyGal[i]) Gallery.zoom(lobbyGal[i], lobbyGal, i, { from: '.lob-gal-row button.gal-mini' }); }
 function galleryCreditHtml() {
   const rc = state.realCredit;
   return rc && rc.author ? `<p class="gallery-credit">From The Gallery — caption by ${esc(rc.author)}, framed ${esc(rc.month || '')}</p>` : '';

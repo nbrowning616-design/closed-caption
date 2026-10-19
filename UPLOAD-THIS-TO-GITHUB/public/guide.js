@@ -16,7 +16,7 @@
     first_bets: { icon: '', text: 'Bet on the one you think is real. Blind bets pay more; both chips is a Half-Moon.' },
     steal: { icon: '', text: 'The dealer can steal one chip. Off the real one, it pays the dealer instead. Off a fake, its owner gets +1.' },
     answer: { icon: '', text: 'Who wrote what. Who fell for it. No rush.' },
-    frame: { icon: '', text: 'Beat the real caption? Frame it. If most of the table frames it, it hangs in The Gallery. One frame each per game.' }
+    frame: { icon: '', text: 'Beat the real caption? Frame it. If most of the table frames it, it hangs in The Gallery. No limit: if it’s good, it’s good.' }
   };
   // How long after the moment arrives before the tip slides in (let the screen's own show land first)
   var DELAY = { writing: 2600, facedown: 2400, first_bets: 1200, steal: 1800, answer: 5200, frame: 2200 };   // after the moment lands, never on top of it

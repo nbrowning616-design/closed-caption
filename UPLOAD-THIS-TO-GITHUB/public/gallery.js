@@ -8,8 +8,10 @@
      hang({ caption, author, isReal, image, framers, frames, month, mine, onPrint })
                          -> ms until the framed piece has settled
      close()             -> fades out and removes the overlay
-     miniHtml(entry)     -> small framed thumbnail card (gal- classes)
-     archiveHtml(list)   -> "The Gallery" wall for a bottom sheet
+     miniHtml(entry, i?) -> small framed thumbnail card (gal- classes); with i, a button that zooms
+     archiveHtml(list)   -> "The Gallery" wall for a bottom sheet (tap a thumbnail: it zooms)
+     zoom(entry, list?, i?) / zoomAt(i) -> one framed caption, big; tap, the X, Esc or a swipe down
+                         goes back, a sideways swipe pages; zoomClose(), isZoomed()
    }
 
    Uses host globals when present: tone(), noise(), buzz(), soundEnabled().
@@ -103,8 +105,8 @@
     '.gal-mini .gal-mimg{display:block;width:100%;height:96px;object-fit:contain;background:#fff;box-shadow:0 0 0 1px rgba(150,130,100,.35);}',
     '.gal-mini .gal-mlabel{margin-top:10px;padding:7px 8px 6px;background:#FBF8F0;border-radius:2px;box-shadow:0 2px 5px rgba(0,0,0,.4);color:#221B16;}',
     '.gal-mini .gal-mcap{margin:0;font-style:italic;font-size:12px;line-height:1.3;overflow-wrap:break-word;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5;overflow:hidden;}',
-    '.gal-mini .gal-mwho{margin:5px 0 0;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B5A43;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
-    '.gal-mini .gal-mwho b{font-weight:700;color:#3a2c1c;}\n.gal-mini .gal-mmo{margin:1px 0 0;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#7d6c55;}',
+    '.gal-mini .gal-mwho{display:block;margin:5px 0 0;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B5A43;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
+    '.gal-mini .gal-mwho b{font-weight:700;color:#3a2c1c;}\n.gal-mini .gal-mmo{display:block;margin:1px 0 0;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#7d6c55;}',
     '.gal-mini .gal-mfr{display:inline-block;margin-top:4px;font-size:9.5px;letter-spacing:.06em;color:#8E1B22;font-style:italic;}',
     '.gal-arch{position:relative;overflow:hidden;border-radius:18px;padding:22px 14px 22px;font-family:' + SERIF + ';color:#F3E6C8;background-color:#4A1A1E;background-image:radial-gradient(ellipse 90% 40% at 50% 0%,rgba(255,214,150,.22),rgba(255,214,150,0) 70%),radial-gradient(ellipse 120% 100% at 50% 30%,rgba(0,0,0,0) 50%,rgba(12,3,4,.6) 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.4);}',
     '.gal-arch .gal-plaster{position:absolute;inset:0;opacity:.5;mix-blend-mode:overlay;pointer-events:none;background-size:260px 260px;}',
@@ -117,7 +119,30 @@
     '.gal-arch .gal-eframe{width:116px;height:136px;margin:4px auto 18px;border:2px dashed rgba(230,195,120,.5);border-radius:3px;position:relative;}',
     '.gal-arch .gal-eframe::before{content:"";position:absolute;left:50%;top:-18px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff2c4,#b8902f 50%,#4a3208);}',
     '.gal-arch .gal-etext{margin:0 auto;max-width:280px;font-style:italic;font-size:15px;line-height:1.45;color:rgba(243,230,200,.9);}',
-    '@media (prefers-reduced-motion: reduce){.gal-ov .gal-btn{transition:none;}}'
+    /* ── tap a thumbnail: it zooms to a big, readable framed card (zoom / zoomAt) ── */
+    'button.gal-mini{display:block;border:0;background:none;color:inherit;cursor:zoom-in;-webkit-appearance:none;appearance:none;font:inherit;font-family:' + SERIF + ';-webkit-tap-highlight-color:transparent;transition:transform .14s;}',
+    'button.gal-mini:active{transform:scale(.96);}',
+    'button.gal-mini:focus-visible{outline:2px solid #E9C46A;outline-offset:4px;border-radius:4px;}',
+    '.gal-mini .gal-frame,.gal-mini .gal-liner,.gal-mini .gal-mat,.gal-mini .gal-mlabel{display:block;}',
+    '.gal-zm{z-index:950;touch-action:none;cursor:zoom-out;}',
+    '.gal-zm .gal-zstage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(58px + env(safe-area-inset-top,0px)) 16px calc(18px + env(safe-area-inset-bottom,0px));}',
+    '.gal-zm .gal-zpiece{position:relative;flex:none;will-change:transform;transform-origin:50% 50%;}',
+    '.gal-zm .gal-zshadow{position:absolute;inset:0;pointer-events:none;box-shadow:0 26px 40px -10px rgba(0,0,0,.75),0 6px 14px rgba(0,0,0,.45);}',
+    '.gal-zm .gal-mat{padding:12px 12px 14px;background:#FBF8F0;}',
+    '.gal-zm .gal-zimg{display:block;margin:0 auto;max-width:100%;width:auto;height:auto;max-height:calc(100dvh - 380px);min-height:120px;object-fit:contain;background:#fff;box-shadow:0 0 0 1px rgba(150,130,100,.35);}',
+    '.gal-zm .gal-zcap{margin:12px 4px 0;text-align:center;font-style:italic;color:#221B16;line-height:1.3;text-wrap:balance;overflow-wrap:anywhere;hyphens:auto;}',
+    '.gal-zm .gal-zplaque{position:relative;flex:none;margin-top:16px;padding:9px 18px 8px;max-width:calc(100% - 30px);text-align:center;color:#2E2108;border-radius:3px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,rgba(0,0,0,0) 1px 3px),linear-gradient(180deg,#F2DC98 0%,#D7B25E 38%,#BF953F 62%,#D9BA6C 100%);box-shadow:0 10px 20px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,250,220,.75),inset 0 -1px 0 rgba(70,45,5,.45);text-shadow:0 1px 0 rgba(255,244,205,.55);}',
+    '.gal-zm .gal-zwho{margin:0;font-weight:700;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;overflow-wrap:anywhere;}',
+    '.gal-zm .gal-zwho span{font-weight:400;letter-spacing:.04em;text-transform:none;}',
+    '.gal-zm .gal-zby{margin:3px 0 0;font-size:11.5px;line-height:1.3;color:#4A3710;overflow-wrap:anywhere;}',
+    '.gal-zm .gal-zbest{display:inline-block;margin-top:5px;padding:1px 8px;border-radius:2px;background:#8E1B22;color:#F6E7C4;font-size:10px;letter-spacing:.14em;text-transform:uppercase;text-shadow:none;}',
+    '.gal-zm .gal-zx{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:3;width:44px;height:44px;border-radius:50%;border:1px solid rgba(243,230,200,.4);background:rgba(20,6,6,.35);color:#F3E6C8;font:400 20px/1 ' + SANS + ';cursor:pointer;}',
+    '.gal-zm .gal-zcount{position:absolute;top:calc(24px + env(safe-area-inset-top,0px));left:0;right:0;margin:0;text-align:center;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:rgba(243,230,200,.66);pointer-events:none;}',
+    '.gal-zm .gal-znav{position:absolute;top:50%;z-index:3;width:40px;height:64px;margin-top:-32px;border:0;background:none;color:rgba(243,230,200,.75);font:400 34px/1 ' + SERIF + ';cursor:pointer;}',
+    '.gal-zm .gal-zprev{left:0;}.gal-zm .gal-znext{right:0;}',
+    '.gal-zm .gal-znav[disabled]{opacity:0;pointer-events:none;}',
+    '.gal-zm .gal-zhint{flex:none;margin:12px 0 0;font-style:italic;font-size:12.5px;color:rgba(243,230,200,.6);}',
+    '@media (prefers-reduced-motion: reduce){.gal-ov .gal-btn,button.gal-mini{transition:none;}}'
   ].join('\n');
 
   /* Plaster: fractal noise as an inline SVG, used as a background tile */
@@ -666,8 +691,10 @@
   }
 
   /* ── thumbnails & the archive wall ── */
-  function miniHtml(entry) {
+  // idx: make it a button that zooms (call: the function it calls with idx, default Gallery.zoomAt)
+  function miniHtml(entry, idx, call) {
     try {
+      var tap = typeof idx === 'number';
       injectCss();
       entry = entry || {};
       var cap = smarten(entry.caption);
@@ -676,16 +703,18 @@
       var month = shortMonth(entry.month);
       var n = parseInt(entry.frames != null ? entry.frames : entry.flags, 10) || 0;
       var src = imgUrl(entry.image);
-      return '<figure class="gal-mini" style="margin:0">' +
+      var open = tap ? '<button type="button" class="gal-mini" onclick="' + (/^[\w.]+$/.test(call || '') ? call : 'Gallery.zoomAt') + '(' + idx + ')" aria-label="' + esc('“' + cap + '”, ' + who + (month ? ', ' + month : '') + '. Tap to see it big.') + '">' : '<figure class="gal-mini" style="margin:0">';
+      var B = tap ? 'span' : 'div', P = tap ? 'span' : 'p', L = tap ? 'span' : 'figcaption';
+      return open +
         '<svg class="gal-mwire" viewBox="0 0 100 16" preserveAspectRatio="none" aria-hidden="true"><path d="M22 17 L50 1 L78 17" fill="none" stroke="#B9AE9C" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><i class="gal-mnail"></i>' +
-        '<div class="gal-frame">' + sticksHtml(false) +
-          '<div class="gal-liner"><div class="gal-mat">' + (src ? '<img class="gal-mimg" src="' + esc(src) + '" alt="" loading="lazy" draggable="false">' : '<div class="gal-mimg"></div>') + '</div></div>' +
-        '</div>' +
-        '<figcaption class="gal-mlabel"><p class="gal-mcap">“' + esc(cap) + '”</p>' +
-          '<p class="gal-mwho" title="' + esc(who) + '"><b>' + esc(who) + '</b></p>' + (month ? '<p class="gal-mmo">' + esc(month) + '</p>' : '') +
+        '<' + B + ' class="gal-frame">' + sticksHtml(false) +
+          '<' + B + ' class="gal-liner"><' + B + ' class="gal-mat">' + (src ? '<img class="gal-mimg" src="' + esc(src) + '" alt="" loading="lazy" draggable="false">' : '<' + B + ' class="gal-mimg"></' + B + '>') + '</' + B + '></' + B + '>' +
+        '</' + B + '>' +
+        '<' + L + ' class="gal-mlabel"><' + P + ' class="gal-mcap">“' + esc(cap) + '”</' + P + '>' +
+          '<' + P + ' class="gal-mwho" title="' + esc(who) + '"><b>' + esc(who) + '</b></' + P + '>' + (month ? '<' + P + ' class="gal-mmo">' + esc(month) + '</' + P + '>' : '') +
           (n > 0 ? '<span class="gal-mfr">' + n + (n === 1 ? ' frame' : ' frames') + '</span>' : '') +
           (entry.best ? '<span class="gal-mfr" style="background:#D7261E;color:#fff;border-color:#8a1410;">🏅 ' + esc(entry.best) + '</span>' : '') +
-        '</figcaption></figure>';
+        '</' + L + '>' + (tap ? '</button>' : '</figure>');
     } catch (e) { return ''; }
   }
 
@@ -696,15 +725,160 @@
       // newest first: trust the caller's order, but sort by timestamp when one is provided
       if (list.length > 1 && list.every(function (x) { return typeof x.at === 'number'; })) list = list.slice().sort(function (a, b) { return b.at - a.at; });
       var n = list.length;
-      var head = '<div class="gal-ahead"><h3 class="gal-atitle">The Gallery</h3><p class="gal-asub">' + (n + (n === 1 ? ' framed caption' : ' framed captions')) + '</p><div class="gal-arule"></div></div>';
+      var head = '<div class="gal-ahead"><h3 class="gal-atitle">The Gallery</h3><p class="gal-asub">' + (n + (n === 1 ? ' framed caption' : ' framed captions')) + (n ? ' · tap one' : '') + '</p><div class="gal-arule"></div></div>';
+      wall = list;   // what zoomAt(i) opens, and what a swipe pages through
       var body = n
-        ? '<div class="gal-grid">' + list.map(miniHtml).join('') + '</div>'
+        ? '<div class="gal-grid">' + list.map(function (e, i) { return miniHtml(e, i); }).join('') + '</div>'
         : '<div class="gal-empty"><div class="gal-eframe"></div><p class="gal-etext">Nothing on the walls yet. When enough of the table frames a caption, it’s hung here — and becomes the real caption in Gallery games.</p></div>';
       return '<section class="gal-arch" aria-label="The Gallery"><div class="gal-plaster"></div>' + head + body + '</section>';
     } catch (e) { return ''; }
   }
 
-  window.Gallery = { hang: hang, close: close, miniHtml: miniHtml, archiveHtml: archiveHtml };
+  /* ── zoom: one framed caption, big and readable. It grows out of the thumbnail that was tapped (a plain fade
+     with Reduce Motion). Tap anywhere, the X, Escape or a swipe down goes back; a sideways swipe (or the arrows)
+     pages through the wall. No sound: it's a quiet look, not a moment. ── */
+  var wall = [], zm = null;
+  function zoomPieceHtml(entry) {
+    var cap = smarten(entry.caption) || '…';
+    var isReal = !!entry.isReal || !entry.author;
+    var who = isReal ? 'The original caption' : String(entry.author);
+    var month = String(entry.month || '').trim();
+    var framers = nameList(entry.framers || entry.flaggers);
+    var n = parseInt(entry.frames != null ? entry.frames : entry.flags, 10) || 0;
+    var src = imgUrl(entry.image), len = cap.length;
+    var VW = window.innerWidth || 390;
+    var W = Math.round(Math.min(VW - 48, 440));
+    var TH = W >= 300 ? 18 : 15;
+    var fs = len <= 50 ? 21 : len <= 90 ? 19 : len <= 140 ? 17 : 15.5;
+    var by = framers ? 'Framed by ' + esc(framers) : (n ? 'Framed by the table' : '');
+    if (n) by += (by ? '&nbsp;·&nbsp;' : '') + n + (n === 1 ? '&nbsp;frame' : '&nbsp;frames');
+    return '<div class="gal-zpiece" style="width:' + W + 'px"><div class="gal-zshadow"></div>' +
+        '<div class="gal-frame" style="--t:' + TH + 'px">' + sticksHtml(true) +
+          '<div class="gal-liner"><div class="gal-mat">' +
+            (src ? '<img class="gal-zimg" src="' + esc(src) + '" alt="The cartoon" draggable="false">' : '') +
+            '<p class="gal-zcap" style="font-size:' + fs + 'px">“' + esc(cap) + '”</p>' +
+          '</div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="gal-zplaque"><p class="gal-zwho">' + esc(who) + (month ? ', <span>' + esc(month) + '</span>' : '') + '</p>' +
+        (by ? '<p class="gal-zby">' + by + '</p>' : '') +
+        (entry.best ? '<span class="gal-zbest">' + esc(entry.best) + '</span>' : '') + '</div>';
+  }
+  // The tapped thumbnail's frame on screen (the zoom grows out of it and shrinks back into it)
+  function thumbRect(i, sel) {
+    try {
+      var b = document.querySelectorAll(sel || 'button.gal-mini')[i];
+      var f = b && (b.querySelector('.gal-frame,[data-zoom-from]') || b);
+      var r = f && f.getBoundingClientRect();
+      return r && r.width > 4 && r.bottom > 0 && r.top < (window.innerHeight || 844) ? r : null;
+    } catch (e) { return null; }
+  }
+  function flipFrom(piece, r) {
+    var p = piece.getBoundingClientRect();
+    if (!r || !p.width) return null;
+    return 'translate(' + Math.round(r.left + r.width / 2 - (p.left + p.width / 2)) + 'px,' + Math.round(r.top + r.height / 2 - (p.top + p.height / 2)) + 'px) scale(' + (r.width / p.width).toFixed(3) + ')';
+  }
+  function zoomShow(i, dir) {
+    if (!zm) return;
+    var list = zm.list, e = list[i];
+    if (!e) return;
+    zm.i = i;
+    var stage = zm.root.querySelector('.gal-zstage');
+    stage.innerHTML = zoomPieceHtml(e) + '<p class="gal-zhint">' + (list.length > 1 ? 'Swipe for the next one · tap to go back' : 'Tap to go back') + '</p>';
+    var cnt = zm.root.querySelector('.gal-zcount');
+    if (cnt) cnt.textContent = list.length > 1 ? (i + 1) + ' of ' + list.length : 'The Gallery';
+    var pv = zm.root.querySelector('.gal-zprev'), nx = zm.root.querySelector('.gal-znext');
+    if (pv) pv.disabled = i <= 0;
+    if (nx) nx.disabled = i >= list.length - 1;
+    zm.root.setAttribute('aria-label', 'Framed caption: ' + smarten(e.caption));
+    if (dir) [stage.querySelector('.gal-zpiece'), stage.querySelector('.gal-zplaque')].forEach(function (k, j) {
+      if (k) anim(k, zm.rm ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateX(' + (dir * 46) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: zm.rm ? 160 : 300, delay: j * 30, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'backwards' });
+    });
+  }
+  // opts.from: a CSS selector for the thumbnails the zoom grows out of (default: the wall's), nth = i
+  function zoom(entry, list, i, opts) {
+    try {
+      injectCss();
+      zoomClose(true);
+      list = Array.isArray(list) && list.length ? list : [entry];
+      i = Math.max(0, Math.min(list.length - 1, typeof i === 'number' ? i : list.indexOf(entry)));
+      if (!list[i]) return;
+      var RM = reduced();
+      var root = el('div', 'gal-ov gal-zm', null);
+      root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true');
+      root.innerHTML = '<div class="gal-wall"></div><div class="gal-plaster"></div>' +
+        '<p class="gal-zcount"></p><button type="button" class="gal-zx" aria-label="Back to The Gallery">✕</button>' +
+        (list.length > 1 ? '<button type="button" class="gal-znav gal-zprev" aria-label="Previous caption">‹</button><button type="button" class="gal-znav gal-znext" aria-label="Next caption">›</button>' : '') +
+        '<div class="gal-zstage"></div>';
+      document.body.appendChild(root);
+      zm = { root: root, list: list, i: i, rm: RM, sel: (opts && opts.from) || null };
+      zoomShow(i, 0);
+      anim(root.querySelector('.gal-wall'), [{ opacity: 0 }, { opacity: 1 }], { duration: RM ? 140 : 280, easing: 'ease-out', fill: 'backwards' });
+      anim(root.querySelector('.gal-plaster'), [{ opacity: 0 }, { opacity: 0.55 }], { duration: RM ? 140 : 280, easing: 'ease-out', fill: 'backwards' });
+      var piece = root.querySelector('.gal-zpiece'), plaque = root.querySelector('.gal-zplaque'), hint = root.querySelector('.gal-zhint');
+      var from = !RM && piece ? flipFrom(piece, thumbRect(i, zm.sel)) : null;
+      if (from) anim(piece, [{ transform: from, opacity: 0.6 }, { transform: 'none', opacity: 1 }], { duration: 420, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'backwards' });
+      else if (piece) anim(piece, [{ opacity: 0 }, { opacity: 1 }], { duration: RM ? 140 : 240, fill: 'backwards' });
+      [plaque, hint].forEach(function (k, j) { if (k) anim(k, RM ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: RM ? 140 : 300, delay: RM ? 0 : 200 + j * 60, easing: 'ease-out', fill: 'backwards' }); });
+      // Gestures: a tap goes back, a sideways swipe pages, a swipe down goes back
+      var sx = 0, sy = 0, down = false, moved = false;
+      root.addEventListener('pointerdown', function (ev) { down = true; moved = false; sx = ev.clientX; sy = ev.clientY; });
+      root.addEventListener('pointermove', function (ev) {
+        if (!down || !zm) return;
+        var dx = ev.clientX - sx, dy = ev.clientY - sy;
+        if (Math.abs(dx) > 8 || Math.abs(dy) > 8) moved = true;
+        var p = root.querySelector('.gal-zpiece');
+        if (p && moved && !zm.rm) p.style.transform = Math.abs(dx) > Math.abs(dy) ? 'translateX(' + Math.round(dx * 0.6) + 'px) rotate(' + (dx * 0.012).toFixed(2) + 'deg)' : dy > 0 ? 'translateY(' + Math.round(dy * 0.6) + 'px) scale(' + Math.max(0.9, 1 - dy / 2000).toFixed(3) + ')' : '';
+      });
+      var end = function (ev) {
+        if (!down || !zm) return;
+        down = false;
+        var dx = ev.clientX - sx, dy = ev.clientY - sy, p = root.querySelector('.gal-zpiece');
+        var onBtn = ev.target && ev.target.closest && ev.target.closest('button');
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+          var j = zm.i + (dx < 0 ? 1 : -1);
+          if (j >= 0 && j < zm.list.length) { zoomShow(j, dx < 0 ? 1 : -1); return; }
+        } else if (dy > 70 && dy > Math.abs(dx)) { zoomClose(false); return; }
+        if (p && p.style.transform) { p.style.transition = 'transform .2s'; p.style.transform = ''; setTimeout(function () { p.style.transition = ''; }, 220); }
+        if (!moved && !onBtn && ev.type === 'pointerup') zoomClose(false);
+      };
+      root.addEventListener('pointerup', end);
+      root.addEventListener('pointercancel', end);
+      root.querySelector('.gal-zx').addEventListener('click', function () { zoomClose(false); });
+      var pv = root.querySelector('.gal-zprev'), nx = root.querySelector('.gal-znext');
+      if (pv) pv.addEventListener('click', function () { if (zm && zm.i > 0) zoomShow(zm.i - 1, -1); });
+      if (nx) nx.addEventListener('click', function () { if (zm && zm.i < zm.list.length - 1) zoomShow(zm.i + 1, 1); });
+      zm.onKey = function (ev) {
+        if (!zm) return;
+        if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); zoomClose(false); }
+        else if (ev.key === 'ArrowRight' && zm.i < zm.list.length - 1) zoomShow(zm.i + 1, 1);
+        else if (ev.key === 'ArrowLeft' && zm.i > 0) zoomShow(zm.i - 1, -1);
+      };
+      document.addEventListener('keydown', zm.onKey, true);
+      try { root.querySelector('.gal-zx').focus({ preventScroll: true }); } catch (e) {}
+    } catch (e) { try { console.warn('[gallery] zoom failed', e); } catch (e2) {} zoomClose(true); }
+  }
+  function zoomAt(i) { zoom(wall[i], wall, i, { from: '.gal-arch button.gal-mini' }); }
+  function zoomClose(now) {
+    var z = zm; zm = null;
+    if (!z) return;
+    try { document.removeEventListener('keydown', z.onKey, true); } catch (e) {}
+    var rm = function () { try { z.root.remove(); } catch (e) {} };
+    if (now) { rm(); return; }
+    try {
+      z.root.style.pointerEvents = 'none';
+      var piece = z.root.querySelector('.gal-zpiece');
+      if (piece) piece.style.transform = '';
+      var to = !z.rm && piece ? flipFrom(piece, thumbRect(z.i, z.sel)) : null;
+      if (piece) anim(piece, to ? [{ transform: 'none', opacity: 1 }, { transform: to, opacity: 0.4 }] : [{ opacity: 1 }, { opacity: 0 }], { duration: to ? 300 : 160, easing: 'cubic-bezier(.4,0,.7,.2)' });
+      var a = anim(z.root, [{ opacity: 1 }, { opacity: 0 }], { duration: z.rm ? 160 : 300, delay: to ? 60 : 0, easing: 'ease-in' });
+      if (a) { a.onfinish = rm; setTimeout(rm, 700); } else rm();
+      var b = document.querySelectorAll(z.sel || 'button.gal-mini')[z.i];   // focus back where it came from
+      if (b) try { b.focus({ preventScroll: true }); } catch (e) {}
+    } catch (e) { rm(); }
+  }
+
+  window.Gallery = { hang: hang, close: close, miniHtml: miniHtml, archiveHtml: archiveHtml, zoom: zoom, zoomAt: zoomAt, zoomClose: function () { zoomClose(false); }, isZoomed: function () { return !!zm; } };
 
   /* #60: fetch the Gallery serif (Libre Caslon Text) early — a moment after the page has loaded, so it never
      competes with the first screen — instead of at the first framing, where it swapped in mid-ceremony.

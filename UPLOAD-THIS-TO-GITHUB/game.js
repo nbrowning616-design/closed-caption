@@ -1022,9 +1022,9 @@ function isGameOver(game) {
   return game.round >= totalRounds(game);
 }
 
-/* ── Frame It: after every answer, one secret pick per player per cartoon, and ONE frame per player per game ──
+/* ── Frame It: after every answer, one secret pick per player per cartoon, every round (no limit per game) ──
    A caption is FRAMED when a majority of the other players (everyone but its writer) pick it (inductNeed):
-   player-written ones join The Gallery deck. A frame is spent when the round's picks resolve (game.frameUsed). */
+   player-written ones join The Gallery deck. */
 function authorOf(game, target) { return target === 'closed' ? game.closedPlayerId : (game.openCaptions[target] || {}).playerId; }
 // Pick a caption (not your own) or 'pass'. Changeable until the framing resolves.
 function pickFrame(game, playerId, target) {
@@ -1037,14 +1037,11 @@ function pickFrame(game, playerId, target) {
     if (v.error) return v;
     if (authorOf(game, v.target) === playerId) return { error: 'You can’t frame your own caption' };
     if (isBetOnCorrect(game, { target: v.target })) return { error: 'The real caption can’t be framed' };
-    if (frameSpent(game, playerId)) return { error: 'You’ve used your one frame this game' };
     t = v.target;
   }
   (game.framePicks = game.framePicks || {})[playerId] = t;
   return { ok: true, allIn: allFramesIn(game) };
 }
-// One frame per player per game: spent in an earlier round of this game
-function frameSpent(game, playerId) { const r = (game.frameUsed || {})[playerId]; return r !== undefined && r !== game.round; }
 // Everyone who was here when framing began, and is still here, has decided (a dropped phone stops counting after the grace)
 function allFramesIn(game) {
   const picks = game.framePicks || {};
@@ -1067,8 +1064,6 @@ function resolveFraming(game) {
   }
   // Every pick is kept (the night's 'Most Framed' award and the Gallery's 'framed by' read them)
   game.flags = (game.flags || []).filter(f => f.round !== game.round);
-  game.frameUsed = game.frameUsed || {};
-  for (const [pid, t] of Object.entries(game.framePicks || {})) if (t !== 'pass' && !frameSpent(game, pid)) game.frameUsed[pid] = game.round;
   for (const k of order) for (const pid of by[k] || []) game.flags.push({ fromId: pid, round: game.round, target: k === 'closed' ? 'closed' : Number(k), at });
   const need = inductNeed(game);
   const framed = Object.keys(counts).filter(k => counts[k] >= need).sort((x, y) => counts[y] - counts[x] || order.indexOf(x) - order.indexOf(y));
@@ -1395,7 +1390,6 @@ function resetForNewGame(game) {
   game.gameBadges = [];
   game.crowns = {};
   game.stealShows = 0;
-  game.frameUsed = {};
   game.stepAt = null;
 }
 
@@ -1458,10 +1452,13 @@ function getPlayerView(game, playerId) {
     hofDeck: deckCartoons(game),
     hofTotal: deckOf(game).count(),
   };
+  // #3: in Expert games the Gallery holds the real answers, so every cartoon still to be dealt is kept out of sight
+  // (and the one on the table until its answer is out). Phones hide these from the Gallery they carry, too.
+  const hide = s.expert ? new Set(expertCartoonIds(game).filter(id => !game.usedCartoonIds.includes(id))) : null;
+  if (hide && game.cartoon && !ANSWERED.includes(game.phase)) hide.add(game.cartoon.id);
+  base.galleryHidden = hide ? [...hide] : [];
   // The Gazette: the newest Hall of Fame captions, between rounds only
   if (game.phase === PHASES.LOBBY || game.phase === PHASES.SCORES) {
-    // #3: in Expert games the Gallery holds the real answers, so the Gazette leaves out every cartoon still to be dealt
-    const hide = s.expert ? new Set(expertCartoonIds(game).filter(id => !game.usedCartoonIds.includes(id))) : null;
     base.gazette = hide ? deckOf(game).recent(GAZETTE_SIZE * 4).filter(e => !hide.has(e.cartoonId)).slice(0, GAZETTE_SIZE) : deckOf(game).recent(GAZETTE_SIZE);
   }
   if (game.phase === PHASES.LOBBY) {
@@ -1542,7 +1539,6 @@ function getPlayerView(game, playerId) {
       voters: [...(game.frameVoters || [])],
       decided: Object.keys(picks),
       myPick: playerId in picks ? picks[playerId] : null,
-      myFrameSpent: frameSpent(game, playerId),   // one frame per game: this player framed in an earlier round
       resolved: !!r,
       result: r ? { at: r.at, framed: [...r.framed], counts: { ...r.counts }, endsAt: r.endsAt } : null,
     };
