@@ -3,8 +3,8 @@
    Full show (the first steal of a game, ~7.6s): the claw glides over the felt, dips on a decoy, thinks
    better of it, lines up, drops, CLUNK, and lifts the chip into the spotlight. A spray can swoops in,
    rattles, and sprays it in the DEALER's colour (their chip now, their initials); the claw sets it back
-   down in the same spot, lets go, and leaves. Quick show (every later steal, ~2.6s): down, CLUNK, up a
-   little, pssst, back down, gone. Scoring never changes; this is presentation.
+   down in the same spot, lets go, and leaves. Short show (every later steal, ~2.5s; state.steal.stealShow):
+   no thief, just paperwork, an ink TRANSFERRED stamp and one typed line. Scoring never changes; this is presentation.
    Beats: steal:full|quick, steal:hover, steal:fake, steal:snatch, steal:paint, steal:set, steal:gloat.
    Everything is driven by the Web Animations API from one clock, so a frame at time t is the same
    frame on every phone. Big sounds play on the speaker phone only (big()). CSS prefix: st-.
@@ -130,7 +130,8 @@
     '.st-eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:#FFD23F;margin-bottom:6px;}',
     '.st-eyebrow::before,.st-eyebrow::after{content:"";width:26px;height:1.5px;background:linear-gradient(90deg,transparent,#FFD23F);}',
     '.st-eyebrow::after{transform:scaleX(-1);}',
-    '.st-title{color:#FFF8EA;}',
+    '.st-title{color:#FFF8EA;font-family:var(--serif,"Libre Caslon Text",Georgia,serif);font-weight:700;letter-spacing:0;}',
+    '.st-tagline{font-family:var(--serif,"Libre Caslon Text",Georgia,serif);font-style:italic;font-size:16px;line-height:1.3;color:rgba(255,248,234,.72);margin-top:6px;}',
     '.st-rail{position:relative;z-index:1;width:100%;max-width:372px;padding:7px;border-radius:30px;border:3px solid ' + INK + ';background:linear-gradient(160deg,#8a5a34,#5e3a1f 45%,#7a4c2a 70%,#4c2e18);box-shadow:0 22px 50px rgba(0,0,0,.6),inset 0 1.5px 0 rgba(255,220,180,.35);}',
     '.st-felt{border-radius:22px;border:2.5px solid ' + INK + ';padding:4px 12px;background:radial-gradient(ellipse 90% 70% at 50% 40%,#2f7d5c,#1d5440 62%,#143b2d),' + INK + ';box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.07),inset 0 10px 30px rgba(0,0,0,.45);}',
     '.st-row{display:flex;align-items:center;gap:12px;min-height:66px;padding:8px 2px;}',
@@ -178,15 +179,12 @@
     '.st-locked .st-ledR,.st-locked .st-haloR{opacity:1;}',
     '.st-locked .st-ledA,.st-locked .st-halo{opacity:0;animation:none;}',
     '.st-veil{position:absolute;inset:0;z-index:8;background:rgba(10,7,6,.55);opacity:0;pointer-events:none;}',
-    '.st-gloat{position:absolute;left:22px;right:22px;top:50%;z-index:9;opacity:0;text-align:center;color:#fff;background:linear-gradient(180deg,#EE5247,#C9362C);border:3px solid ' + INK + ';border-radius:20px;padding:30px 20px 26px;box-shadow:7px 7px 0 ' + INK + ',0 24px 60px rgba(0,0,0,.55);transform:translateY(-50%);}',
-    '.st-gloat::after{content:"";position:absolute;inset:7px;border-radius:14px;border:1.5px solid rgba(255,226,140,.6);pointer-events:none;}',
-    '.st-bulbs{position:absolute;left:18px;right:18px;height:10px;background:radial-gradient(circle,#FFFBE0 0 1.8px,#FFD23F 2.4px,rgba(255,210,63,.3) 3.4px,transparent 4.6px) 0 50%/14px 10px repeat-x;animation:stChase .5s steps(1) infinite;}',
-    '.st-bulbs.t{top:-5px;}.st-bulbs.b{bottom:-5px;animation-direction:reverse;}',
-    '@keyframes stChase{0%{background-position:0 50%}50%{background-position:7px 50%}}',
-    '.st-g-eye{font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:#FFE38A;}',
-    '.st-g-head{font-family:var(--display);font-weight:700;font-size:21px;line-height:1.15;margin-top:6px;}',
-    '.st-quote{font-family:var(--display);font-weight:700;font-size:29px;line-height:1.12;margin:14px 0 8px;text-shadow:0 2px 0 rgba(31,26,23,.35);}',
-    '.st-by{font-size:13px;font-weight:800;color:#FFD9D4;}',
+    /* The gloat: a cream index card in ink, the line set like a caption (Libre Caslon italic). No marquee. */
+    '.st-gloat{position:absolute;left:26px;right:26px;top:50%;z-index:9;opacity:0;text-align:left;color:' + INK + ';background:#FFF8EA;border:2.5px solid ' + INK + ';border-radius:4px;padding:20px 22px 16px;box-shadow:4px 4px 0 ' + INK + ';transform:translateY(-50%) rotate(-1deg);}',
+    '.st-g-eye{font-family:var(--sans);font-weight:800;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#6E655C;}',
+    '.st-g-head{font-family:var(--sans);font-weight:800;font-size:15px;line-height:1.25;margin-top:4px;color:#4A433D;}',
+    '.st-quote{font-family:var(--serif,"Libre Caslon Text",Georgia,serif);font-style:italic;font-weight:400;font-size:25px;line-height:1.22;margin:12px 0 8px;}',
+    '.st-by{font-family:var(--serif,"Libre Caslon Text",Georgia,serif);font-size:15px;color:#6E655C;text-align:right;}',
     '.st-quake{animation:stQuake .5s cubic-bezier(.36,.07,.19,.97);}',
     '@keyframes stQuake{0%,100%{transform:none}10%{transform:translate(-14px,7px) rotate(-1deg)}25%{transform:translate(12px,-9px) rotate(1deg)}40%{transform:translate(-9px,6px)}55%{transform:translate(7px,-4px)}72%{transform:translate(-4px,2px)}86%{transform:translate(2px,-1px)}}',
     /* After the show: a stolen chip is the dealer's now — their colour, their initials, still wet */
@@ -197,15 +195,15 @@
     '.chip.lg.painted .pd{width:24px;height:15px;bottom:-10px;margin-left:-12px;}',
     '.chip.xs.painted .ps,.chip.xs.painted .pd{display:none;}',
     /* The short show (every later steal, ~2.5s): a spray can slashes the chip in the dealer's colour, the line is tagged under the felt */
-    '.st-q .st-head{margin-bottom:26px;}',
-    '.stq-swipe{position:absolute;left:0;top:0;width:150px;height:30px;margin:-15px 0 0 -75px;z-index:6;pointer-events:none;border-radius:16px 8px 18px 6px;background:var(--dc);box-shadow:0 0 12px 2px var(--dc);opacity:.92;clip-path:inset(0 100% 0 0);-webkit-clip-path:inset(0 100% 0 0);}',
-    '.stq-mist{position:absolute;left:0;top:0;width:190px;height:70px;margin:-35px 0 0 -95px;z-index:6;pointer-events:none;opacity:0;}',
-    '.stq-can{position:absolute;left:0;top:0;width:0;height:0;z-index:7;pointer-events:none;opacity:0;}',
-    '.stq-can .st-cansvg{transform:scale(.6);transform-origin:' + NOZ_X + 'px ' + NOZ_Y + 'px;}',
-    '.stq-tag{position:relative;z-index:8;margin-top:22px;text-align:center;max-width:340px;}',
-    '.stq-who{font-size:13px;font-weight:800;letter-spacing:.04em;color:rgba(255,248,234,.75);opacity:0;}',
-    '.stq-line{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.1;margin-top:6px;color:var(--dc);-webkit-text-stroke:1.5px ' + INK + ';paint-order:stroke fill;text-shadow:3px 3px 0 ' + INK + ';transform:rotate(-3deg);clip-path:inset(-20px 100% -20px -20px);-webkit-clip-path:inset(-20px 100% -20px -20px);}',
-    '@media (prefers-reduced-motion: reduce){.st-ledA,.st-halo,.st-bulbs{animation:none;}}'
+    '.st-q .st-head{margin-bottom:22px;}',
+    /* the short show: an ink rubber stamp in the dealer's colour, and a typed line under the felt */
+    '.stq-stamp{position:absolute;left:0;top:0;z-index:7;pointer-events:none;opacity:0;padding:4px 9px 3px;border:3px double var(--dc);border-radius:5px;color:var(--dc);background:rgba(255,248,234,.9);box-shadow:2px 2px 0 rgba(0,0,0,.35);text-align:center;line-height:1;white-space:nowrap;}',
+    '.stq-stamp b{display:block;font-family:var(--sans);font-weight:900;font-size:13px;letter-spacing:.2em;text-transform:uppercase;}',
+    '.stq-stamp i{display:block;font-family:var(--serif,"Libre Caslon Text",Georgia,serif);font-size:11px;margin-top:2px;}',
+    '.stq-tag{position:relative;z-index:8;margin-top:26px;text-align:center;max-width:330px;}',
+    '.stq-who{font-size:13px;font-weight:800;letter-spacing:.04em;color:rgba(255,248,234,.7);opacity:0;}',
+    '.stq-line{font-family:var(--serif,"Libre Caslon Text",Georgia,serif);font-style:italic;font-weight:400;font-size:21px;line-height:1.25;margin-top:8px;color:#FFF8EA;clip-path:inset(-10px 100% -10px -10px);-webkit-clip-path:inset(-10px 100% -10px -10px);}',
+    '@media (prefers-reduced-motion: reduce){.st-ledA,.st-halo{animation:none;}}'
   ].join('\n');
   try { var s = document.createElement('style'); s.id = 'cc-steal-css'; s.textContent = CSS; (document.head || document.documentElement).appendChild(s); } catch (e) {}
 
@@ -262,7 +260,7 @@
   }
   function arcadeTune(ms) {   // a sly minor-key claw-machine arpeggio
     var seq = [293.7, 220, 349.2, 220, 329.6, 220, 277.2, 220];
-    for (var t = 0, i = 0; t < ms; t += 165, i++) tone(seq[i % 8], 0.12, t, 'square', i % 2 ? 0.014 : 0.024);
+    for (var t = 0, i = 0; t < ms; t += 165, i++) tone(seq[i % 8], 0.12, t, 'triangle', i % 2 ? 0.02 : 0.03);
   }
   var SND = {
     whir: function (ms, up) { tone(up ? 150 : 210, ms / 1000, 0, 'sawtooth', 0.03, up ? 230 : 140); noise(ms / 1000, 0, 0.05, 700, 'lowpass'); },
@@ -283,7 +281,8 @@
     },
     pop: function () { tone(1900, 0.05, 0, 'sine', 0.05, 900); },
     clack: function () { noise(0.06, 0, 0.32, 2600, 'bandpass'); tone(560, 0.07, 0, 'triangle', 0.09, 320); tone(140, 0.12, 0, 'sine', 0.16, 90); },
-    gloat: function () { sfx.evil(); tone(1568, 0.22, 420, 'sine', 0.05); tone(1568, 0.3, 640, 'sine', 0.05); }
+    gloat: function () { noise(0.07, 0, 0.1, 1600, 'bandpass'); tone(196, 0.3, 30, 'sine', 0.05); },
+    stamp: function () { noise(0.1, 0, 0.18, 600, 'lowpass'); tone(110, 0.22, 0, 'sine', 0.12, 70); }
   };
 
   /* ── The show ── */
@@ -323,7 +322,7 @@
     }).join('');
     var me = state.isDealer, dealer = me ? 'You' : esc(state.dealerName), isVictim = st.victimId === myPlayerId;
     var title = quick ? dealer + (me ? ' strike' : ' strikes') + ' again' : (me ? 'You’re' : dealer + ' is') + ' at the controls<span class="dots"></span>';
-    var head = isVictim ? 'That was YOUR chip.' : dealer + ' stole ' + esc(nameOf(st.victimId)) + '’s chip';
+    var head = isVictim ? 'Your chip.' : dealer + ' stole ' + esc(nameOf(st.victimId)) + '’s chip';
     var rnd = seeded((st.seed || 7) + 99), N = quick ? 30 : 70, mist = '';
     for (var i = 0; i < N; i++) mist += '<i></i>';
     var dots = [];   // overspray speckle, in the dealer's colour
@@ -338,9 +337,9 @@
         '<div class="st-conewrap"><div class="st-cone"></div></div><div class="st-mist">' + mist + '</div>' + CAN_SVG +
       '</div></div></div>' +
       '<div class="st-veil" id="st-veil"></div>' +
-      '<div class="st-gloat" id="st-gloat"><i class="st-bulbs t"></i><i class="st-bulbs b"></i>' +
+      '<div class="st-gloat" id="st-gloat">' +
         '<p class="st-g-eye">Stolen</p><p class="st-g-head">' + head + '</p>' +
-        '<p class="st-quote">“' + esc(st.gloat || 'Mine now.') + '”</p><p class="st-by">— ' + (me ? 'you' : esc(state.dealerName)) + '</p>' +
+        '<p class="st-quote">“' + esc(st.gloat || 'Mine now.') + '”</p>' +
         '</div>' +
       '</div>';
     o.querySelector('#st-stage').dataset.speck = dots.join(',');
@@ -614,7 +613,7 @@
 
     // the gloat card: veil, then a sprung entrance with a slight tilt
     anim(veil, [{ opacity: 0 }, { opacity: 1 }], 320, tm.gloat - 60, 'ease-out');
-    anim(gl, [{ opacity: 0, transform: 'translateY(-50%) scale(.55) rotate(4deg)' }, { opacity: 1, transform: 'translateY(-50%) scale(1.06) rotate(-2.5deg)', offset: 0.55 }, { opacity: 1, transform: 'translateY(-50%) scale(1) rotate(-2deg)' }], 520, tm.gloat, 'cubic-bezier(.2,.8,.3,1)');
+    anim(gl, [{ opacity: 0, transform: 'translateY(-46%) rotate(-1deg)' }, { opacity: 1, transform: 'translateY(-50%) rotate(-1deg)' }], 380, tm.gloat, 'cubic-bezier(.2,.8,.3,1)');
 
     /* The beats */
     T(function () { stage.style.visibility = ''; beat(quick ? 'steal:quick' : 'steal:full'); buzz(30); }, 0);
@@ -641,15 +640,15 @@
     }, tm.set);
     T(function () {
       beat('steal:gloat');
-      if (window.ccPunch) window.ccPunch(gl.querySelector('.st-quote'));
       big(SND.gloat);
-      if (isVictim) { document.body.classList.remove('quake'); void document.body.offsetWidth; document.body.classList.add('quake'); buzz([300, 100, 300, 100, 600]); setTimeout(function () { document.body.classList.remove('quake'); }, 1300); }
+      if (isVictim) buzz([200, 100, 300]);
     }, tm.gloat);
   }
 
   /* ── The short show (~2.5s): every steal after the first, unless it's off the real caption ──
-     The table; the doomed chip; a spray can slashes across it in the dealer's colour (pssht); the chip is
-     theirs; the steal line is tagged under the felt. Same clock on every phone. Reduce Motion: fades only. */
+     Paperwork, not a heist. The table; the chip; an ink TRANSFERRED stamp lands on it in the dealer's colour
+     (one thud) and the chip is theirs underneath; one typed line: "Received from Bob. Condition: used."
+     Same clock on every phone. Reduce Motion: fades only. */
   var SHORT_MS = 2500;
   function short(wait) {
     var st = state.steal, o = document.getElementById('stealshow');
@@ -672,18 +671,16 @@
       return '<div class="st-row"><span class="st-lbl">' + (t === 'closed' ? '<span class="cc-badge">CC</span>' : t + 1) + '</span><div class="st-chips">' + chips.join('') + '</div></div>';
     }).join('');
     var me = state.isDealer, dealer = me ? 'You' : esc(state.dealerName), isVictim = st.victimId === myPlayerId;
-    var who = isVictim ? 'That was YOUR chip.' : dealer + ' stole ' + esc(nameOf(st.victimId)) + '’s chip';
-    var dId = dealerId(), rnd = seeded((st.seed || 7) + 7), dots = [];
-    for (var j = 0; j < 22; j++) { var r = (0.8 + rnd() * 1.8).toFixed(1); dots.push('radial-gradient(circle at ' + (4 + rnd() * 92).toFixed(0) + '% ' + (10 + rnd() * 80).toFixed(0) + '%,var(--dc) 0 ' + r + 'px,transparent ' + (+r + 0.6) + 'px)'); }
+    var who = isVictim ? 'Your chip.' : dealer + ' took ' + esc(nameOf(st.victimId)) + '’s chip';
+    var dId = dealerId();
     o.innerHTML = '<div class="st-stage st-q" id="st-stage" style="visibility:hidden;--dc:' + colourOf(dId) + '">' +
-      '<div class="st-head" id="st-head"><p class="st-eyebrow">Stolen</p><p class="h2 st-title">' + dealer + (me ? ' strike' : ' strikes') + ' again</p></div>' +
+      '<div class="st-head" id="st-head"><p class="st-eyebrow">Transfer of ownership</p></div>' +
       '<div class="st-rail"><div class="st-felt">' + rows + '</div></div>' +
-      '<div class="stq-tag"><p class="stq-who" id="stq-who">' + who + '</p><p class="stq-line" id="stq-line">“' + esc(st.gloat || 'Mine now.') + '”</p></div>' +
-      '<div class="stq-mist" id="stq-mist" style="background:' + dots.join(',') + '"></div><div class="stq-swipe" id="stq-swipe"></div>' +
-      '<div class="stq-can" id="stq-can">' + CAN_SVG + '</div>' +
+      '<div class="stq-stamp" id="stq-stamp"><b>Transferred</b><i>to ' + (me ? 'you' : esc(state.dealerName)) + '</i></div>' +
+      '<div class="stq-tag"><p class="stq-who" id="stq-who">' + who + '</p><p class="stq-line" id="stq-line">' + esc(st.gloat || 'Received. Condition: used.') + '</p></div>' +
       '</div>';
     var $q = function (sel) { return o.querySelector(sel); };
-    var stage = $q('#st-stage'), victim = $q('[data-st="victim"]'), swipe = $q('#stq-swipe'), mist = $q('#stq-mist'), can = $q('#stq-can');
+    var stage = $q('#st-stage'), victim = $q('[data-st="victim"]'), stamp = $q('#stq-stamp');
     var whoEl = $q('#stq-who'), line = $q('#stq-line'), RM = reduced();
     var lag = Math.max(0, performance.now() - startAt);
     var anim = function (el, kf, ms, at, easing, extra) {
@@ -695,44 +692,26 @@
     var beat = function (n) { if (window.ccBeat) window.ccBeat(n); };
     var oc = o.getBoundingClientRect(), vr = victim ? victim.getBoundingClientRect() : null;
     var V = vr ? { x: vr.left - oc.left + vr.width / 2, y: vr.top - oc.top + vr.height / 2 } : { x: oc.width / 2, y: oc.height / 2 };
-    // the dealer's chip, laid over the victim's (hidden until the paint reaches it)
+    // the dealer's chip, laid over the victim's (it shows the instant the stamp lands)
     var coat = null;
     if (victim && dId) { victim.insertAdjacentHTML('beforeend', chipHtml(dId, 'lg st-over painted', DRIP)); coat = victim.lastElementChild; coat.removeAttribute('title'); coat.style.opacity = '0'; }
-    var PAINT = 300, PAINT1 = 560, LINE = 880;
+    var place = 'translate(' + (V.x + 10).toFixed(1) + 'px,' + (V.y - 2).toFixed(1) + 'px) translate(-50%,-50%) rotate(-9deg)';
+    var HIT = 520, LINE = 980;
     if (RM) {
-      [swipe, mist, can].forEach(function (el) { el.style.display = 'none'; });
-      anim(coat, [{ opacity: 0 }, { opacity: 1 }], 400, PAINT, 'ease-out');
-      anim(whoEl, [{ opacity: 0 }, { opacity: 1 }], 300, LINE - 200, 'ease-out');
-      line.style.clipPath = 'none'; line.style.webkitClipPath = 'none';
-      anim(line, [{ opacity: 0 }, { opacity: 1 }], 400, LINE, 'ease-out');
+      anim(stamp, [{ opacity: 0, transform: place }, { opacity: 0.92, transform: place }], 300, HIT, 'ease-out');
+      anim(coat, [{ opacity: 0 }, { opacity: 1 }], 300, HIT, 'ease-out');
     } else {
-      // the slash: tilted a touch, wiped on left to right behind the nozzle; then it evaporates
-      var ROT = -17, rad = ROT * Math.PI / 180, dx = Math.cos(rad) * 70, dy = Math.sin(rad) * 70;
-      var place = 'translate3d(' + V.x.toFixed(1) + 'px,' + V.y.toFixed(1) + 'px,0) rotate(' + ROT + 'deg)';
-      swipe.style.transform = place; mist.style.transform = place;
-      anim(swipe, [{ clipPath: 'inset(0 100% 0 0)', WebkitClipPath: 'inset(0 100% 0 0)', opacity: 0.92 }, { clipPath: 'inset(0 0 0 0)', WebkitClipPath: 'inset(0 0 0 0)', opacity: 0.92, offset: 0.4 },
-        { clipPath: 'inset(0 0 0 0)', WebkitClipPath: 'inset(0 0 0 0)', opacity: 0.92, offset: 0.62 }, { clipPath: 'inset(0 0 0 0)', WebkitClipPath: 'inset(0 0 0 0)', opacity: 0 }], 660, PAINT, 'cubic-bezier(.4,0,.6,1)');
-      anim(mist, [{ opacity: 0 }, { opacity: 0.9, offset: 0.3 }, { opacity: 0.6, offset: 0.7 }, { opacity: 0 }], 900, PAINT, 'ease-out');
-      // the can rides the leading edge of the slash (it sprays to its left), then is gone up and right
-      var at0 = { x: V.x - dx - 18, y: V.y - dy + 14 }, at1 = { x: V.x + dx + 22, y: V.y + dy + 10 };
-      var cpos = function (p, r) { return 'translate3d(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px,0) rotate(' + r + 'deg)'; };
-      anim(can, [
-        { opacity: 0, transform: cpos({ x: at0.x - 90, y: at0.y + 70 }, -30), offset: 0 },
-        { opacity: 1, transform: cpos(at0, -8), offset: 150 / 760, easing: 'cubic-bezier(.3,0,.5,1)' },
-        { opacity: 1, transform: cpos(at0, -8), offset: PAINT / 760, easing: 'cubic-bezier(.4,0,.6,1)' },
-        { opacity: 1, transform: cpos(at1, 6), offset: PAINT1 / 760, easing: 'cubic-bezier(.5,0,.9,.5)' },
-        { opacity: 0, transform: cpos({ x: at1.x + 90, y: at1.y - 120 }, 40), offset: 1 }
-      ], 760, 0, 'linear');
-      // the coat follows the paint: wiped on in the same direction, then the chip punches
-      if (coat) anim(coat, [{ opacity: 1, clipPath: 'inset(0 100% 0 0)', WebkitClipPath: 'inset(0 100% 0 0)' }, { opacity: 1, clipPath: 'inset(0 0 0 0)', WebkitClipPath: 'inset(0 0 0 0)' }], PAINT1 - PAINT - 40, PAINT + 40, 'cubic-bezier(.4,0,.6,1)');
-      if (victim) anim(victim, [{ transform: 'scale(1.32) rotate(-6deg)', filter: 'brightness(1.5)' }, { transform: 'scale(.94) rotate(2deg)', filter: 'none', offset: 0.55 }, { transform: 'none', filter: 'none' }], 380, PAINT1, 'cubic-bezier(.2,.9,.3,1.3)', { fill: 'none' });
-      anim(whoEl, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], 260, LINE - 160, 'ease-out');
-      anim(line, [{ clipPath: 'inset(-20px 100% -20px -20px)', WebkitClipPath: 'inset(-20px 100% -20px -20px)' }, { clipPath: 'inset(-20px -20px -20px -20px)', WebkitClipPath: 'inset(-20px -20px -20px -20px)' }], 380, LINE, 'cubic-bezier(.4,0,.5,1)');
+      anim(stamp, [{ opacity: 0, transform: place + ' scale(1.5)' }, { opacity: 0.92, transform: place + ' scale(1)' }], 110, HIT - 110, 'cubic-bezier(.6,0,1,.6)');
+      anim(coat, [{ opacity: 0 }, { opacity: 1 }], 1, HIT, 'linear');
     }
-    T(function () { stage.style.visibility = ''; beat('steal:quick'); if (victim) victim.classList.add('st-doomed'); buzz(isVictim ? [60, 30, 60] : 25); }, 0);
-    T(function () { beat('steal:paint'); big(function () { hiss(RM ? 380 : PAINT1 - PAINT + 60); }); }, PAINT);
-    T(function () { beat('steal:set'); if (victim) victim.classList.remove('st-doomed'); big(SND.clack); buzz(isVictim ? [140, 50, 220] : 35); }, PAINT1);
-    T(function () { beat('steal:gloat'); big(SND.gloat); if (isVictim) buzz([200, 80, 300]); }, LINE);
+    anim(whoEl, [{ opacity: 0 }, { opacity: 1 }], 260, LINE - 220, 'ease-out');
+    // the line is typed: revealed left to right in steps
+    var nCh = Math.max(8, (st.gloat || '').length);
+    if (RM) anim(line, [{ opacity: 0 }, { opacity: 1 }], 300, LINE, 'ease-out');
+    else anim(line, [{ clipPath: 'inset(-10px 100% -10px -10px)', WebkitClipPath: 'inset(-10px 100% -10px -10px)' }, { clipPath: 'inset(-10px -10px -10px -10px)', WebkitClipPath: 'inset(-10px -10px -10px -10px)' }], Math.min(900, nCh * 24), LINE, 'steps(' + Math.min(40, nCh) + ',end)');
+    T(function () { stage.style.visibility = ''; beat('steal:quick'); buzz(isVictim ? [40] : 15); }, 0);
+    T(function () { beat('steal:set'); big(SND.stamp); buzz(isVictim ? [120, 40, 120] : 25); }, HIT);
+    T(function () { beat('steal:gloat'); }, LINE);
     T(function () { o.classList.add('out'); }, SHORT_MS - 350);
     T(close, SHORT_MS);
     return Math.max(0, wait) + SHORT_MS;

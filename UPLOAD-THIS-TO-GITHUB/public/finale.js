@@ -105,11 +105,11 @@
     '.fp-why b{display:block;font-size:22px;line-height:1.1;color:#fff;}',
     '.fp-why span{display:block;font-size:14px;font-weight:700;color:#d9cfc0;margin-top:5px;}',
     /* the corrected edition */
-    '.fp-final{left:50%;top:46%;width:min(80vw,310px);margin-left:calc(min(80vw,310px) / -2);background:#FBF6EA;color:' + INK + ';padding:11px 11px 12px;border-radius:3px;box-shadow:0 0 0 4px #6b4b10,0 0 0 9px #e4c167,0 0 0 12px #8f6820,0 18px 40px rgba(0,0,0,.6);z-index:16;opacity:0;text-align:center;}',
-    '.fp-final img.t{display:block;width:100%;border:1px solid #cfc3a8;}',
+    '.fp-final{left:50%;top:56%;width:min(78vw,300px);margin-left:calc(min(78vw,300px) / -2);background:#FBF6EA;color:' + INK + ';padding:11px 11px 12px;border-radius:3px;box-shadow:0 0 0 4px #6b4b10,0 0 0 9px #e4c167,0 0 0 12px #8f6820,0 18px 40px rgba(0,0,0,.6);z-index:16;opacity:0;text-align:center;}',
+    '.fp-final img.t{display:block;width:100%;max-height:34vh;object-fit:contain;background:#fff;border:1px solid #cfc3a8;}',
     '.fp-final .fp-fc{font-family:"Libre Caslon Text",Georgia,serif;font-style:italic;font-size:17px;line-height:1.3;margin:10px 4px 6px;}',
     '.fp-final .fp-fby{font-size:12.5px;font-weight:800;color:#6b5f52;}',
-    '.fp-final .fp-fbest{font-size:11px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:#a8761e;margin-top:3px;}',
+    '.fp-final .fp-fbest{font-size:10.5px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;color:#a8761e;margin-top:3px;}',
     '.fp-btns{left:16px;right:16px;bottom:calc(16px + var(--sab,0px));z-index:40;display:flex;gap:10px;opacity:0;}',
     '.fp-btns button{flex:1;padding-left:6px;padding-right:6px;font-size:14px;}',
     '#fpress.reduce *{animation-duration:.01s!important;}',
@@ -376,26 +376,26 @@
   /* ── The 20 misprints. Each: what went wrong (scene, ~2.6s at the press), where the face ends up (mode),
      and the line under the misprint. {n} = the author's name. ── */
   var ACTS = [
-    { mode: 'tape', line: 'The intern “fixed” the plate with a photo of {n}.', sub: 'And a lot of tape.', props: ['🧑‍💼', '📎'], say: 'I can fix this.' },
-    { mode: 'main', line: 'A pigeon got into the pressroom.', sub: 'It had opinions about {n}.', props: ['🐦', '🐦'], say: 'COO.' },
-    { mode: 'smudge', line: 'Somebody sneezed on the plate.', sub: 'Mid-print. Bless them.', props: ['🤧'], say: 'Ah… ah… AH-CHOO!' },
-    { mode: 'upside', line: 'The plate went in upside down.', sub: 'Nobody noticed for 40,000 copies.', props: ['🙃'], say: 'Looks fine to me.' },
-    { mode: 'slide', line: 'The ink was mostly glue.', sub: '{n} is still sliding.', props: ['🧴'], say: 'It’s “archival.”' },
-    { mode: 'all', line: 'Budget cuts.', sub: 'The press can afford one face. It’s {n}’s.', props: ['💸', '✂️'], say: 'Everybody is {n} now.' },
-    { mode: 'mustache', line: 'The art director had notes.', sub: 'In permanent marker.', props: ['🖍️'], say: 'Needs more… authority.' },
-    { mode: 'pixel', line: 'Someone hit “Enhance” eleven times.', sub: 'It did not enhance.', props: ['🔍'], say: 'ENHANCE. ENHANCE. ENHANCE.' },
-    { mode: 'shades', line: 'It printed as the Celebrity Edition.', sub: '{n} has a publicist now.', props: ['📸', '📸'], say: 'No photos! …okay one.' },
-    { mode: 'captain', line: 'Spellcheck changed “caption” to “captain.”', sub: 'Permission to come aboard, {n}.', props: ['⚓'], say: 'Aye aye.' },
-    { mode: 'static', line: 'Static electricity in the pressroom.', sub: '{n} has been through a lot.', props: ['⚡', '⚡'], say: 'Zzzzt.' },
-    { mode: 'shoe', line: 'Paper jam. Somebody kicked it.', sub: 'The press kicked back.', props: ['🦶'], say: 'Come ON.' },
-    { mode: 'paws', line: 'The office cat walked across the plate.', sub: 'Then sat on {n}.', props: ['🐈'], say: 'Mrrp.' },
-    { mode: 'twins', line: 'Someone loaded the mirror plate.', sub: 'Two {n}s. One was plenty.', props: ['🪞'], say: 'Double it.' },
-    { mode: 'sun', line: 'The press mistook {n} for the sun.', sub: 'An easy mistake. Very bright.', props: ['☀️'], say: 'Good morning!' },
-    { mode: 'wallpaper', line: 'The night shift fell asleep on the button.', sub: '1,000,000 copies. Of {n}.', props: ['😴'], say: 'Zzzz…' },
-    { mode: 'huge', line: 'The camera was stuck in portrait mode.', sub: 'Very portrait. Mostly {n}.', props: ['📷'], say: 'Closer… closer…' },
-    { mode: 'tiny', line: 'Someone set the face size to “conservative.”', sub: 'Squint. That’s {n}.', props: ['🔬'], say: 'Where’d they go?' },
-    { mode: 'stretch', line: 'The press warped in the heat.', sub: '{n} grew a little.', props: ['🔥', '🌡️'], say: 'Is it hot in here?' },
-    { mode: 'hole', line: 'There was a small hole in the paper.', sub: '{n} has been watching the whole time.', props: ['👀'], say: '…' },
+    { mode: 'tape', line: 'The intern “fixed” the plate with a photo of {n}.', sub: 'And a lot of tape.', say: 'I can fix this.' },
+    { mode: 'main', line: 'A pigeon got into the pressroom.', sub: 'It had opinions about {n}.', say: 'Coo.' },
+    { mode: 'smudge', line: 'Somebody sneezed on the plate.', sub: 'Mid-print. Bless them.', say: 'Ah… ah…' },
+    { mode: 'upside', line: 'The plate went in upside down.', sub: 'Nobody noticed for 40,000 copies.', say: 'Looks fine to me.' },
+    { mode: 'slide', line: 'The ink was mostly glue.', sub: '{n} is still sliding.', say: 'It’s “archival.”' },
+    { mode: 'all', line: 'Budget cuts.', sub: 'The press can afford one face. It’s {n}’s.', say: 'Everybody is {n} now.' },
+    { mode: 'mustache', line: 'The art director had notes.', sub: 'In permanent marker.', say: 'Needs more… authority.' },
+    { mode: 'pixel', line: 'Someone hit “Enhance” eleven times.', sub: 'It did not enhance.', say: 'Enhance.' },
+    { mode: 'shades', line: 'It printed as the Celebrity Edition.', sub: '{n} has a publicist now.', say: 'No photos. …Okay, one.' },
+    { mode: 'captain', line: 'Spellcheck changed “caption” to “captain.”', sub: 'Permission to come aboard, {n}.', say: 'Aye aye.' },
+    { mode: 'static', line: 'Static electricity in the pressroom.', sub: '{n} has been through a lot.', say: 'Zzzzt.' },
+    { mode: 'shoe', line: 'Paper jam. Somebody kicked it.', sub: 'The press kicked back.', say: 'Come on.' },
+    { mode: 'paws', line: 'The office cat walked across the plate.', sub: 'Then sat on {n}.', say: 'Mrrp.' },
+    { mode: 'twins', line: 'Someone loaded the mirror plate.', sub: 'Two {n}s. One was plenty.', say: 'Double it.' },
+    { mode: 'sun', line: 'The press mistook {n} for the sun.', sub: 'An easy mistake. Very bright.', say: 'Good morning.' },
+    { mode: 'wallpaper', line: 'The night shift fell asleep on the button.', sub: '1,000,000 copies. Of {n}.', say: 'Zzzz…' },
+    { mode: 'huge', line: 'The camera was stuck in portrait mode.', sub: 'Very portrait. Mostly {n}.', say: 'Closer… closer…' },
+    { mode: 'tiny', line: 'Someone set the face size to “conservative.”', sub: 'Squint. That’s {n}.', say: 'Where’d they go?' },
+    { mode: 'stretch', line: 'The press warped in the heat.', sub: '{n} grew a little.', say: 'Is it hot in here?' },
+    { mode: 'hole', line: 'There was a small hole in the paper.', sub: '{n} has been watching the whole time.', say: '…' },
   ];
 
   /* ── The show ── */
@@ -482,14 +482,14 @@
     var at = function (ms, fn) { if (ms + t0 - skip >= -60) later(ms + t0 - skip, fn); };
     // a phone that arrives after the misprint just gets the corrected edition
     /* #21: the show runs ~9s (it was ~17s). The misprint lands at 5s and holds ~3.3s before the recall. */
-    var PT = { press: 2200, k: [2700, 3050, 3400], wrong: 3800, stop: 4700, mis: 5150, stamp: 5650, why: 5950, recall: 8400, final: 8750, btns: 9350 };
+    var PT = { press: 2200, k: [2700, 3050, 3400], wrong: 3800, stop: 4700, mis: 4900, stamp: 5400, why: 5700, recall: 8400, final: 8750, btns: 9350 };
     if (skip > PT.recall + 100) { finalNow(); return; }
     // Reduce Motion: no press, no siren, no flying paper. Three cross-fades carry the same news —
     // Caption of the Night, the misprint (with its stamp and its excuse), the corrected edition — in ~6s.
     if (reduced()) {
       if (skip > 4900) { finalNow(); return; }
       var fade = function (el, ms) { if (el) anim(el, [{ opacity: 0 }, { opacity: 1 }], { duration: ms || 400, fill: 'forwards', easing: 'ease-out' }); };
-      at(0, function () { $('fp-sub').textContent = ''; fade($('fp-piece')); fade($('fp-name')); var r = $('fp-ros'); if (r) r.style.opacity = 1; S.fan(); vib(mine ? [120, 40, 120] : [60]); });
+      at(0, function () { $('fp-sub').textContent = ''; fade($('fp-piece')); fade($('fp-name')); var r = $('fp-ros'); if (r) r.style.opacity = 1; S.thunk(); vib(mine ? [120, 40, 120] : [60]); });
       at(1800, function () {
         hide($('fp-piece'), 300); hide($('fp-name'), 300);
         var pr = $('fp-print'); pr.innerHTML = misprintHtml(entry, act.mode, faceReady, pixReady, seed);
@@ -511,7 +511,7 @@
     /* 1. Caption of the Night (0 – 2.2s) */
     at(0, function () { $('fp-sub').textContent = ''; show($('fp-piece'), 650, [{ opacity: 0, transform: 'translateY(-50%) scale(.3) rotate(-8deg)' }, { opacity: 1, transform: 'translateY(-50%) scale(1) rotate(0)' }]); S.whoosh(); vib(40); });
     at(650, function () { var r = $('fp-ros'); anim(r, [{ opacity: 0, transform: 'scale(2.6) rotate(-40deg)' }, { opacity: 1, transform: 'scale(1) rotate(8deg)' }], { duration: 380, fill: 'forwards', easing: 'cubic-bezier(.3,1.6,.5,1)' }); S.thunk(); vib(mine ? [120, 40, 120] : [60]); });
-    at(900, function () { show($('fp-name'), 400, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }]); S.fan(); try { confetti.cannons(); } catch (e) {} });
+    at(900, function () { show($('fp-name'), 400, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }]); });   // the ribbon lands quietly: the misprint is the joke
     /* 2. To the presses! (2.2 – 3.85s) */
     at(PT.press, function () {
       $('fp-eye').textContent = 'Off it goes'; $('fp-h').textContent = 'To the presses!'; $('fp-h').className = 'fp-h';
@@ -538,7 +538,7 @@
       var say = $('fp-say'); say.textContent = fill(act.say);
       show(say, 300, [{ opacity: 0, transform: 'scale(.5)' }, { opacity: 1, transform: 'scale(1)' }]);
       S.pop();
-      (act.props || []).forEach(function (p, i) {
+      [].forEach(function (p, i) {   // (the emoji props are gone: the line carries it)
         var e = document.createElement('div'); e.className = 'fp-it fp-prop'; e.textContent = p;
         e.style.left = '0'; e.style.top = (46 + i * 10) + '%';
         o.appendChild(e);

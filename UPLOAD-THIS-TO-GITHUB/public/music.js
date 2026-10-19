@@ -216,7 +216,7 @@
     lounge: {
       name: 'Lounge',
       description: 'Easy jazz piano',
-      icon: '🎹',
+      icon: '',
       start() {
         const t0 = audioCtx.currentTime;
         let beat = 0;
@@ -261,9 +261,9 @@
 
     // 2. Mystery — suspenseful pulses
     mystery: {
-      name: 'Mystery',
+      name: 'Stakeout',
       description: 'Slow-building suspense',
-      icon: '🕵️',
+      icon: '',
       start() {
         let beat = 0;
         const bpm = 70;
@@ -306,96 +306,11 @@
       }
     },
 
-    // 3. Bouncy — playful upbeat
-    bouncy: {
-      name: 'Bouncy',
-      description: 'Playful and upbeat',
-      icon: '🎪',
-      start() {
-        let beat = 0;
-        const bpm = 130;
-        const beatDur = 60 / bpm;
-
-        // Simple I-V-vi-IV in C
-        const bassNotes = [
-          note('C', -1), note('G', -1), note('A', -1), note('F', -1),
-        ];
-
-        const melody = [
-          note('E', 1), note('G', 1), note('A', 1), note('G', 1),
-          note('E', 1), note('D', 1), note('C', 1), note('D', 1),
-        ];
-
-        const tick = () => {
-          if (!isPlaying) return;
-          const when = audioCtx.currentTime + 0.05;
-
-          // Bass line — quarter notes
-          const bassIdx = Math.floor(beat / 4) % bassNotes.length;
-          pluck(bassNotes[bassIdx], beatDur * 0.8, when, 0.5);
-
-          // Melody — eighth notes
-          const melIdx = beat % melody.length;
-          pluck(melody[melIdx], beatDur * 0.6, when, 0.35);
-
-          // Off-beat percussion-like tick
-          const offWhen = when + beatDur * 0.5;
-          const ctx = audioCtx;
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.value = note('C', 2);
-          gain.gain.setValueAtTime(0.15, offWhen);
-          gain.gain.exponentialRampToValueAtTime(0.001, offWhen + 0.1);
-          osc.connect(gain);
-          gain.connect(masterGain);
-          osc.start(offWhen);
-          osc.stop(offWhen + 0.15);
-
-          beat++;
-        };
-
-        tick();
-        currentInterval = setInterval(tick, beatDur * 1000);
-      }
-    },
-
-    // 4. Game show — classic countdown tension
-    gameshow: {
-      name: 'Game Show',
-      description: 'Classic countdown tension',
-      icon: '⏱️',
-      start() {
-        let beat = 0;
-        const bpm = 110;
-        const beatDur = 60 / bpm;
-
-        const tick = () => {
-          if (!isPlaying) return;
-          const when = audioCtx.currentTime + 0.05;
-
-          // Steady bass
-          thump(when, note('D', -2), 0.4);
-          // Walking quarter notes
-          const walk = [note('D', 0), note('F', 0), note('A', 0), note('F', 0)];
-          pluck(walk[beat % 4], beatDur * 0.7, when, 0.3);
-          // High accent every 4 beats
-          if (beat % 4 === 0) {
-            pluck(note('D', 1), beatDur * 1.5, when, 0.4);
-          }
-          beat++;
-        };
-
-        tick();
-        currentInterval = setInterval(tick, beatDur * 1000);
-      }
-    },
-
     // 5. Ambient — calm spacious
     ambient: {
-      name: 'Ambient',
+      name: 'Waiting Room',
       description: 'Calm and spacious',
-      icon: '🌙',
+      icon: '',
       start() {
         let beat = 0;
         const beatDur = 2.5; // slow
@@ -428,7 +343,7 @@
     speakeasy: {
       name: 'Speakeasy',
       description: 'Old-timey jazz club',
-      icon: '🎷',
+      icon: '',
       start() {
         let beat = 0;
         const bpm = 100;

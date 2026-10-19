@@ -1,7 +1,9 @@
 /* Closed Caption — BIG HEAD MODE. The round's winner gets a quick, crude, cut-out-paper gag starring
    their own face (the selfie they took in the lobby): head on a construction-paper body, jaw that flaps
    when they "talk", jerky stop-motion movement. Intentionally crude. ~5s, on every phone at once.
-   Acts register with ccHeads.add({ name, tag, run(ctx) }); the server deals act numbers like a deck
+   Acts register with ccHeads.add({ name, tag, run(ctx) }); the server deals act numbers like a deck.
+   House rules (Oct 2026): no shouted words, no emoji (ctx.burst is cut paper, ccHeads.icon draws props in ink);
+   the joke is one quiet visual idea and one line. A repeat winner gets a callback on the banner ("Again.").
    (game.js WIN_ACT_COUNT). Packs: heads.js (0-2), heads-pack1.js (3-13), heads-pack2.js (14-24).
    Also: ccHeads.poobah(ids) — the Grand Poobah finale's face-on-a-throne bit.
    Reads the page's globals at call time: state, myPlayerId, esc, nameOf, chipHtml, playerColor,
@@ -18,8 +20,9 @@
     '@keyframes bhIn{from{opacity:0}to{opacity:1}}',
     '.bh-stage{position:absolute;inset:0;overflow:hidden;}',
     '.bh-ban{position:absolute;left:12px;right:12px;bottom:calc(18px + var(--sab,0px));z-index:50;text-align:center;background:#FFF8EA;color:' + INK + ';border:3px solid ' + INK + ';border-radius:14px;padding:10px 12px 9px;box-shadow:4px 4px 0 ' + INK + ';transform:rotate(-1.2deg);}',
-    '.bh-ban b{display:block;font-family:var(--display);font-size:22px;line-height:1.05;}',
-    '.bh-ban span{display:block;font-size:13px;font-weight:800;color:#5a4f47;margin-top:3px;}',
+    '.bh-ban b{display:block;font-family:var(--serif,"Libre Caslon Text",Georgia,serif);font-weight:700;font-size:21px;line-height:1.1;}',
+    '.bh-ban span{display:block;font-family:var(--serif,"Libre Caslon Text",Georgia,serif);font-style:italic;font-size:14px;font-weight:400;color:#5a4f47;margin-top:3px;}',
+    '.bh-bit{position:absolute;left:0;top:0;border:1.5px solid ' + INK + ';opacity:0;}',
     '.bh-top{position:absolute;left:0;right:0;top:calc(14px + var(--sat,0px));z-index:50;text-align:center;font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:' + INK + ';}',
     '.bh-top span{display:inline-block;background:#FFF8EA;border:2px solid ' + INK + ';border-radius:999px;padding:3px 10px;}',
     /* a thing on the stage: absolutely placed at (0,0), moved by transform */
@@ -49,7 +52,7 @@
     '.bh-say::after{content:"";position:absolute;left:var(--tx,30%);bottom:-13px;border:10px solid transparent;border-top-color:' + INK + ';border-bottom:0;}',
     '.bh-say::before{content:"";position:absolute;left:calc(var(--tx,30%) + 3px);bottom:-8px;border:7px solid transparent;border-top-color:#fff;border-bottom:0;z-index:1;}',
     '.bh-txt{position:absolute;z-index:45;font-family:var(--display);font-weight:700;color:#fff;-webkit-text-stroke:2px ' + INK + ';paint-order:stroke fill;text-shadow:3px 3px 0 ' + INK + ';white-space:nowrap;opacity:0;}',
-    '.bh-emoji{position:absolute;line-height:1;opacity:0;}',
+
     /* the Poobah finale */
     '.bh-poo{position:relative;width:260px;height:300px;margin:0 auto;}',
   ].join('\n');
@@ -187,14 +190,18 @@
         if (to) ctx.anim(t, [{ opacity: 1 }, { opacity: 0 }], { dur: 150, at: to, fill: 'forwards' });
         return t;
       },
-      // a burst of emoji from (x, y)
+      // a small burst of cut paper in the winner's colours (the list is ignored: no emoji, ever)
       burst: function (list, x, y, n, spread, at, dur, rise) {
-        for (var i = 0; i < (n || 10); i++) {
-          var e = document.createElement('div'); e.className = 'bh-emoji'; e.textContent = list[i % list.length]; e.style.fontSize = (22 + rnd() * 18) + 'px';
-          e.style.left = '0'; e.style.top = '0'; e.style.zIndex = 30; stage.appendChild(e);
-          var a = rnd() * Math.PI * 2, d = (spread || 120) * (0.4 + rnd() * 0.8), dx = Math.cos(a) * d, dy = Math.sin(a) * d - (rise || 0);
-          ctx.anim(e, [{ transform: 'translate(' + x + 'px,' + y + 'px) scale(.3)', opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .7 },
-            { transform: 'translate(' + (x + dx).toFixed(0) + 'px,' + (y + dy).toFixed(0) + 'px) scale(1) rotate(' + ((rnd() - .5) * 160).toFixed(0) + 'deg)', opacity: 0 }], { dur: dur || 900, at: at || 0, ease: 'cubic-bezier(.2,.7,.3,1)' });
+        var cols = ctx.colors.concat(['#FFF8EA']);
+        n = Math.min(8, Math.ceil((n || 10) / 2));
+        for (var i = 0; i < n; i++) {
+          var e = document.createElement('div'), w = 6 + rnd() * 7, h = 4 + rnd() * 6;
+          e.className = 'bh-bit'; e.style.width = w.toFixed(0) + 'px'; e.style.height = h.toFixed(0) + 'px'; e.style.background = cols[i % cols.length];
+          if (i % 3 === 2) e.style.clipPath = 'polygon(0 100%,50% 0,100% 100%)';
+          e.style.zIndex = 30; stage.appendChild(e);
+          var a = rnd() * Math.PI * 2, d = (spread || 120) * (0.3 + rnd() * 0.6), dx = Math.cos(a) * d, dy = Math.sin(a) * d - (rise || 0) * 0.5;
+          ctx.anim(e, [{ transform: 'translate(' + x + 'px,' + y + 'px) rotate(0deg)', opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .7 },
+            { transform: 'translate(' + (x + dx).toFixed(0) + 'px,' + (y + dy + 30).toFixed(0) + 'px) rotate(' + ((rnd() - .5) * 300).toFixed(0) + 'deg)', opacity: 0 }], { dur: dur || 900, at: at || 0, ease: 'steps(6,end)' });
         }
       },
       // background: a flat colour or gradient, and optional crude ground
@@ -212,11 +219,10 @@
         whoosh: function () { noise(0.5, 0, 0.25, 1200, 'bandpass'); },
         slide: function () { tone(300, 0.5, 0, 'sine', 0.08, 1200); },
         fall: function () { tone(1400, 0.9, 0, 'sine', 0.06, 200); },
-        fart: function () { for (var i = 0; i < 9; i++) tone(70 + (i % 3) * 9, 0.07, i * 55, 'sawtooth', 0.12, 55); },
-        crowd: function () { noise(1.6, 0, 0.18, 900, 'bandpass'); noise(1.2, 300, 0.12, 2400, 'bandpass'); },
+        crowd: function () { noise(1.2, 0, 0.08, 900, 'bandpass'); },
         ding: function () { tone(1568, 0.5, 0, 'sine', 0.08); tone(2093, 0.6, 90, 'sine', 0.06); },
-        fanfare: function () { [[523, 0], [659, 140], [784, 280], [1047, 430]].forEach(function (n) { tone(n[0], 0.3, n[1], 'square', 0.04); tone(n[0] / 2, 0.3, n[1], 'triangle', 0.06); }); },
-        womp: function () { [392, 370, 349, 311].forEach(function (f, i) { tone(f, i === 3 ? 0.7 : 0.25, i * 260, 'sawtooth', 0.05, i === 3 ? 280 : null); }); },
+        fanfare: function () { tone(784, 0.25, 0, 'triangle', 0.04); tone(1047, 0.4, 140, 'triangle', 0.035); },   // two notes, not a brass band
+        womp: function () { tone(330, 0.5, 0, 'sine', 0.05, 220); },
         splat: function () { noise(0.25, 0, 0.5, 600, 'lowpass'); tone(180, 0.2, 0, 'sine', 0.2, 60); },
         zap: function () { noise(0.15, 0, 0.4, 5000, 'highpass'); tone(1800, 0.12, 0, 'sawtooth', 0.06, 200); },
         drum: function (ms) { var t = 0, g = 110; while (t < (ms || 900)) { tone(80, 0.07, t, 'sine', 0.2); noise(0.03, t, 0.2, 800, 'lowpass'); t += g; g = Math.max(40, g * 0.9); } },
@@ -226,11 +232,33 @@
   }
   function listNamesSafe(ids) { try { return typeof listNames === 'function' ? listNames(ids.map(nameOf)) : ids.map(nameOf).join(' & '); } catch (e) { return ''; } }
 
+  /* ── A few small props in the house ink (they replace emoji in the older acts) ── */
+  var I0 = '<g stroke="' + INK + '" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">';
+  var ICONS = {
+    '✨': I0 + '<path d="M50 6 L58 42 L94 50 L58 58 L50 94 L42 58 L6 50 L42 42 Z" fill="#FFD23F"/></g>',
+    '📸': I0 + '<rect x="8" y="30" width="84" height="56" rx="8" fill="#4A5260"/><path d="M32 30 L38 18 H62 L68 30" fill="#4A5260"/><circle cx="50" cy="58" r="17" fill="#AAB4BE"/><circle cx="50" cy="58" r="8" fill="#2A2522"/><rect x="72" y="38" width="12" height="7" fill="#FFF8EA"/></g>',
+    '👑': I0 + '<path d="M10 80 L14 30 L32 52 L50 20 L68 52 L86 30 L90 80 Z" fill="#FFD23F"/><circle cx="50" cy="62" r="6" fill="#E8453A"/></g>',
+    '🌲': I0 + '<path d="M50 6 L80 52 H64 L86 84 H14 L36 52 H20 Z" fill="#2E9E6B"/><rect x="44" y="84" width="12" height="12" fill="#8A5A2B"/></g>',
+    '🎲': I0 + '<rect x="12" y="12" width="76" height="76" rx="12" fill="#FFF8EA"/><circle cx="32" cy="32" r="6" fill="' + INK + '"/><circle cx="50" cy="50" r="6" fill="' + INK + '"/><circle cx="68" cy="68" r="6" fill="' + INK + '"/></g>',
+    '🍬': I0 + '<path d="M30 50 L8 34 V66 Z M70 50 L92 34 V66 Z" fill="#E8559E"/><ellipse cx="50" cy="50" rx="24" ry="18" fill="#E8559E"/><path d="M36 40 Q50 50 40 62 M54 36 Q66 50 56 64" fill="none" stroke="#fff" stroke-width="3"/></g>',
+  };
+  ICONS['🍭'] = ICONS['🍬']; ICONS['🍫'] = ICONS['🍬'];
+  function icon(e, px) {
+    if (e === '🔥') return window.ccInk && window.ccInk.flame ? window.ccInk.flame(px * 0.8) : '';
+    var s = ICONS[e]; if (!s) return '';
+    return '<svg viewBox="0 0 100 100" width="' + px + '" height="' + px + '" aria-hidden="true" style="display:block;overflow:visible">' + s + '</svg>';
+  }
+  var SERIF = 'font-family:var(--serif,"Libre Caslon Text",Georgia,serif);';
+  var put = function (el, x, y, r) { el.style.transform = 'translate(' + x + 'px,' + y + 'px)' + (r ? ' rotate(' + r + 'deg)' : ''); return el; };
+
   var acts = [];
   function add(a) { acts.push(a); return acts.length - 1; }
 
   // play(actIndex, ids, wait): wait = ms from now until the shared start
-  function play(actIndex, ids, wait, seed) {
+  // opts.again: how many earlier rounds tonight this winner already won (a callback, never a new gag)
+  function againLine(opts) { var n = opts && opts.again; return n ? ' Again.' + (n >= 2 ? ' (' + ordinal(n + 1) + ' time.)' : '') : ''; }
+  function ordinal(n) { var s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+  function play(actIndex, ids, wait, seed, opts) {
     ids = [].concat(ids || []).filter(Boolean);
     if (!ids.length || !acts.length) return 0;
     var act = acts[((actIndex % acts.length) + acts.length) % acts.length];
@@ -240,7 +268,7 @@
     o.style.background = '#7EC8E3';
     var me = ids.indexOf(myPlayerId) >= 0, names = listNamesSafe(ids);
     o.innerHTML = '<div class="bh-stage"></div><p class="bh-top"><span>Round winner</span></p>' +
-      '<div class="bh-ban"><b>' + esc(me ? (ids.length > 1 ? 'You and company win the round' : 'You win the round') : names + (ids.length > 1 ? ' win the round' : ' wins the round')) + '</b><span>' + esc(act.tag || act.name || '') + '</span></div>';
+      '<div class="bh-ban"><b>' + esc((me ? (ids.length > 1 ? 'You and company win the round.' : 'You win the round.') : names + (ids.length > 1 ? ' win the round.' : ' wins the round.')) + againLine(opts)) + '</b><span>' + esc(act.tag || act.name || '') + '</span></div>';
     o.className = 'on';
     o.style.visibility = 'hidden';
     o.onclick = close;
@@ -295,57 +323,62 @@
     c.say('Ten, nine… eh, one!', x, gy - 230, 700, 2200, 50);
     c.talk(rocket, 700, 2200);
     c.scream(rocket, 2350, 0);
-    ['3', '2', '1'].forEach(function (n, i) { c.text(n, x + 90, gy - 140, 54, 900 + i * 420, 1200 + i * 420, -8); c.sfx(900 + i * 420, function () { tone(880, 0.1, 0, 'square', 0.05); }); });
-    c.text('BLASTOFF!', c.W / 2, c.H * 0.32, 46, 2500, 4400, -6);
     c.burst(['💨', '☁️', '🔥'], x, gy - 10, 16, 140, 2400, 1100, 20);
     c.shake(2400, 700);
     c.sfx(2350, function () { noise(1.8, 0, 0.5, 400, 'lowpass'); tone(90, 1.8, 0, 'sawtooth', 0.06, 600); });
     c.buzz(2400, [200, 60, 200]);
-    var star = c.add('<div style="font-size:30px;transform:translate(-50%,-50%)">✨</div>', 30);
+    var star = c.add('<div style="transform:translate(-50%,-50%)">' + icon('✨', 30) + '</div>', 30);
     c.path(star, [{ t: 0, x: x + 46, y: 70, o: 0, s: 0.2 }, { t: 4000, x: x + 46, y: 70, o: 0, s: 0.2 }, { t: 4200, x: x + 46, y: 70, o: 1, s: 1.4 }, { t: 4500, x: x + 46, y: 70, o: 1, s: 0.8 }, { t: 4800, x: x + 46, y: 70, o: 1, s: 1.3 }], { jerky: 2 });
     c.sfx(4200, c.snd.ding);
   } });
 
-  // 1. The bodybuilder: tiny head, enormous paper body, flexes until the shirt rips.
-  add({ name: 'Flex', tag: 'Lifts. Captions. Mostly lifts.', run: function (c) {
-    c.sky('linear-gradient(#FFE07A,#FFB84D)');
-    c.ground('#B07A44', 110);
-    var x = c.W / 2, gy = c.H - 110;
-    var p = c.puppet({ px: 74, w: 190, arms: 'down', shirt: c.color, pants: '#222' });
-    var p2 = c.puppet({ px: 74, w: 210, arms: 'flex', shirt: '#F2C9A0', pants: '#222' });
-    c.path(p, [{ t: 0, x: x, y: gy }, { t: 600, x: x, y: gy, sy: 1.04 }, { t: 900, x: x, y: gy }, { t: 1300, x: x, y: gy, sy: 1.06, sx: 1.04 }, { t: 1700, x: x, y: gy }, { t: 1999, x: x, y: gy, o: 1 }, { t: 2000, x: x, y: gy, o: 0 }], { jerky: 3 });
-    c.path(p2, [{ t: 0, x: x, y: gy, o: 0 }, { t: 1999, x: x, y: gy, o: 0 }, { t: 2000, x: x, y: gy, o: 1, s: 1.12 }, { t: 2200, x: x, y: gy, s: 1 }, { t: 2600, x: x, y: gy, sx: 1.06, sy: .97 }, { t: 3000, x: x, y: gy }, { t: 3400, x: x, y: gy, sx: 1.06, sy: .97 }, { t: 3800, x: x, y: gy }, { t: 4200, x: x, y: gy, sx: 1.08, sy: .96 }], { jerky: 3 });
-    c.say('Hnnnngh…', x, gy - 250, 300, 1900, 50);
-    c.talk(p, 300, 1900);
-    c.text('RIIIIP!', x, gy - 150, 48, 2000, 3000, 8);
-    c.burst(['👕', '🧵', '💥'], x, gy - 120, 14, 170, 2000, 900, 40);
-    c.sfx(2000, function () { noise(0.4, 0, 0.6, 2500, 'bandpass'); });
-    c.shake(2000, 400);
-    c.say('Gains.', x, gy - 280, 2600, 4700, 50);
-    c.talk(p2, 2600, 3400);
-    c.sfx(2600, c.snd.crowd);
-    c.burst(['💪', '✨'], x, gy - 160, 10, 160, 3200, 1100, 60);
+  // 1. The Portrait: their face in oil, in a gilt frame, hung crooked. Straightened. It slips again.
+  add({ name: 'The Portrait', tag: 'Commissioned. Hung slightly crooked.', run: function (c) {
+    c.sky('repeating-linear-gradient(90deg,#7A2E3A 0 22px,#6E2833 22px 44px)');
+    c.ground('#5A3A26', 150);
+    var x = c.W / 2, y = Math.round(c.H * 0.36), fw = 228, fh = 268, gy = c.H - 150;
+    var nail = c.add('<svg viewBox="0 0 120 60" width="120" style="position:absolute;left:-60px;top:-56px;overflow:visible"><path d="M8 56 L60 6 L112 56" fill="none" stroke="' + c.INK + '" stroke-width="2.5"/><circle cx="60" cy="6" r="5" fill="#9AA3AD" stroke="' + c.INK + '" stroke-width="2.5"/></svg>', 18);
+    put(nail, x, y - fh / 2 + 6);
+    var frame = c.add('<div style="position:absolute;left:' + (-fw / 2) + 'px;top:0;width:' + fw + 'px;height:' + fh + 'px;box-sizing:border-box;border:16px solid #C9A227;box-shadow:0 0 0 3px ' + c.INK + ',inset 0 0 0 3px ' + c.INK + ',6px 9px 0 rgba(0,0,0,.35);background:radial-gradient(ellipse at 50% 40%,#66744F,#2E3524 75%);display:flex;align-items:center;justify-content:center;transform-origin:50% 0">' +
+      '<div style="filter:sepia(.35) saturate(1.2) contrast(1.05)">' + c.head(150) + '</div></div>', 20);
+    var top = y - fh / 2;
+    c.path(frame, [{ t: 0, x: x, y: top, r: -7 }, { t: 1900, x: x, y: top, r: -7 }, { t: 2050, x: x, y: top, r: -3 }, { t: 2200, x: x, y: top, r: 0 },
+      { t: 3550, x: x, y: top, r: 0 }, { t: 3650, x: x, y: top, r: 3 }, { t: 3800, x: x, y: top, r: 6.5 }], { jerky: 1 });
+    var plaque = c.add('<div style="position:absolute;left:-74px;top:0;width:148px;box-sizing:border-box;background:#D9B23C;border:3px solid ' + c.INK + ';padding:6px 6px 5px;text-align:center;' + SERIF + 'font-size:13px;line-height:1.2;color:' + c.INK + '">Round winner<br><i>Oil on cardboard</i></div>', 19);
+    put(plaque, x, top + fh + 26);
+    var rope = c.add('<svg viewBox="0 0 300 80" width="300" style="position:absolute;left:-150px;top:-80px;overflow:visible">' +
+      '<path d="M30 20 Q150 70 270 20" fill="none" stroke="' + c.INK + '" stroke-width="11" stroke-linecap="round"/><path d="M30 20 Q150 70 270 20" fill="none" stroke="#B3263A" stroke-width="6" stroke-linecap="round"/>' +
+      '<path d="M30 12 V78 M270 12 V78" stroke="' + c.INK + '" stroke-width="10"/><path d="M30 12 V78 M270 12 V78" stroke="#C9A227" stroke-width="5"/><circle cx="30" cy="10" r="8" fill="#C9A227" stroke="' + c.INK + '" stroke-width="3"/><circle cx="270" cy="10" r="8" fill="#C9A227" stroke="' + c.INK + '" stroke-width="3"/></svg>', 30);
+    put(rope, x, gy + 10);
+    c.say('Left a bit.', x, top + 30, 700, 1800, 50); c.talk(frame, 700, 1700);
+    c.sfx(2000, function () { noise(0.15, 0, 0.08, 900, 'bandpass'); });
+    c.say('Perfect.', x, top + 30, 2400, 3300, 50); c.talk(frame, 2400, 3100);
+    c.sfx(3650, function () { noise(0.1, 0, 0.08, 1400, 'bandpass'); tone(330, 0.12, 60, 'triangle', 0.03); });
+    c.say('…Close enough.', x, top + 30, 4100, 5150, 50); c.talk(frame, 4100, 4900);
   } });
 
-  // 2. Victory lap: their head on a stick body running across the screen in a loop, pursued by a bewildered trophy.
-  add({ name: 'Victory Lap', tag: 'Running up the score.', run: function (c) {
-    c.sky('#9BD3F0');
-    c.ground('#5BAF4A', 130);
-    var gy = c.H - 120;
-    var p = c.puppet({ px: 104, w: 110, arms: 'up', legs: 'run' });
-    var cup = c.add('<div style="font-size:64px;transform:translate(-50%,-100%)">🏆</div>', 18);
-    var pts = [], cpts = [];
-    for (var t = 0, i = 0; t <= 4800; t += 160, i++) {
-      var u = t / 4800, x = -80 + (c.W + 160) * ((u * 1.6) % 1);
-      pts.push({ t: t, x: x, y: gy - (i % 2 ? 14 : 0), r: i % 2 ? 6 : -6 });
-      cpts.push({ t: t, x: x - 130, y: gy - (i % 2 ? 0 : 18), r: i % 2 ? -10 : 10 });
-    }
-    c.path(p, pts, { jerky: 1 }); c.path(cup, cpts, { jerky: 1 });
-    c.say('Can’t catch me!', c.W * 0.5, gy - 200, 700, 2200, 50);
-    c.talk(p, 700, 2200);
-    c.say('Come back. I’m yours!', c.W * 0.5, gy - 130, 2700, 4400, 30);
-    for (var k = 0; k < 14; k++) c.sfx(k * 320, function () { tone(220, 0.05, 0, 'square', 0.04); });
-    c.sfx(2700, c.snd.boing);
+  // 2. Employee of the Month: their face on the break-room corkboard. A sticky note goes up beside it.
+  add({ name: 'Employee of the Month', tag: 'Recognised by management. Possibly.', run: function (c) {
+    c.sky('linear-gradient(#DCE8D2,#C7D8BC)');
+    c.ground('#8E7A63', 130);
+    var x = c.W / 2, gy = c.H - 130, bw = Math.min(330, c.W - 40), bh = 300, by = 120;
+    var board = c.add('<div style="position:absolute;left:' + (-bw / 2) + 'px;top:0;width:' + bw + 'px;height:' + bh + 'px;box-sizing:border-box;background:radial-gradient(#B98A5A 1.2px,transparent 1.5px) 0 0/9px 9px,#C99A68;border:10px solid #8A5A2B;box-shadow:0 0 0 3px ' + c.INK + ',inset 0 0 0 3px ' + c.INK + ',5px 7px 0 rgba(0,0,0,.25)"></div>', 4);
+    put(board, x, by);
+    var card = c.add('<div style="position:absolute;left:-82px;top:0;width:164px;box-sizing:border-box;background:#FFF8EA;border:3px solid ' + c.INK + ';padding:8px 8px 10px;text-align:center;' + SERIF + 'color:' + c.INK + '">' +
+      '<div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase">Employee of the Month</div>' +
+      '<div style="margin:8px auto 6px;width:116px;height:118px;background:#E9E3D6;border:2px solid ' + c.INK + ';display:flex;align-items:center;justify-content:center;overflow:hidden">' + c.head(98) + '</div>' +
+      '<div style="font-size:15px;font-style:italic">' + esc(c.names) + '</div></div>' +
+      '<i style="position:absolute;left:-6px;top:-8px;width:13px;height:13px;border-radius:50%;background:#E8453A;border:2.5px solid ' + c.INK + '"></i>', 20);
+    var cx = x - 50, cy = by + 32;
+    c.path(card, [{ t: 0, x: cx, y: cy - 400, r: -14 }, { t: 300, x: cx, y: cy - 400, r: -14 }, { t: 600, x: cx, y: cy, r: -3, e: 'steps(3,end)' }, { t: 5200, x: cx, y: cy, r: -3 }], { jerky: false });
+    c.sfx(600, function () { noise(0.05, 0, 0.12, 2500, 'bandpass'); tone(160, 0.08, 0, 'sine', 0.04); });
+    var mach = c.add('<svg viewBox="0 0 90 120" width="90" style="position:absolute;left:-45px;top:-120px;overflow:visible"><rect x="6" y="8" width="78" height="104" rx="6" fill="#4A5260" stroke="' + c.INK + '" stroke-width="4"/><rect x="18" y="20" width="54" height="22" rx="3" fill="#7FD8FF" stroke="' + c.INK + '" stroke-width="3"/><rect x="28" y="62" width="34" height="40" fill="#2A2522" stroke="' + c.INK + '" stroke-width="3"/><path d="M36 84 h18 v14 h-18 z" fill="#fff" stroke="' + c.INK + '" stroke-width="2.5"/></svg>', 6);
+    put(mach, c.W - 60, gy);
+    c.say('I’d like to thank me.', cx, cy + 30, 1300, 2700, 50); c.talk(card, 1300, 2500);
+    var note = c.add('<div style="position:absolute;left:-60px;top:-50px;width:120px;height:100px;box-sizing:border-box;background:#FFE680;border:2.5px solid ' + c.INK + ';padding:10px 9px;' + SERIF + 'font-style:italic;font-size:15px;line-height:1.2;color:' + c.INK + ';box-shadow:3px 4px 0 rgba(0,0,0,.2)">Parking space: under review.</div>', 21);
+    c.path(note, [{ t: 0, x: x + 92, y: by + 170, o: 0, r: 8, s: 1.2 }, { t: 3199, x: x + 92, y: by + 170, o: 0, r: 8, s: 1.2 }, { t: 3200, x: x + 92, y: by + 170, o: 1, r: 6, s: 1.05 }, { t: 3320, x: x + 92, y: by + 170, r: 6, s: 1 }], { jerky: 2 });
+    c.sfx(3200, function () { noise(0.04, 0, 0.12, 3000, 'bandpass'); });
+    c.sfx(1000, function () { noise(1.2, 0, 0.05, 500, 'lowpass'); });
   } });
 
   /* ════════ The Grand Poobah finale: the face, under the hat, on a throne, carried by tiny bodies ════════ */
@@ -356,7 +389,7 @@
     ids = [].concat(ids || []);
     if (!el || !ids.length) return;
     var DURP = Math.max(1200, (landMs || 4560) / 0.76);   // the hat lands at 76% of the bit
-    var hat = typeof poobahHat === 'function' ? poobahHat(120) : '🎩';
+    var hat = typeof poobahHat === 'function' ? poobahHat(120) : '';
     el.innerHTML = '<div class="bh-poo" id="bh-poo">' +
       '<div class="bh-it" id="bh-poo-throne" style="z-index:3"><svg viewBox="0 0 200 200" width="200" style="display:block;transform:translate(-50%,-100%);overflow:visible">' +
         '<path d="M30 70 Q30 10 100 6 Q170 10 170 70 L170 160 L30 160 Z" fill="#B3263A" stroke="' + INK + '" stroke-width="5"/>' +
@@ -416,15 +449,16 @@
     '#bh-stamp .bh-head{flex:none;}' +
     '#bh-stamp .bh-st-t{display:flex;flex-direction:column;line-height:1;font-family:var(--display,system-ui);}' +
     '#bh-stamp .bh-st-e{font-size:12px;font-weight:800;letter-spacing:.24em;text-transform:uppercase;}' +
-    '#bh-stamp .bh-st-n{font-size:26px;font-weight:700;color:' + INK + ';margin-top:3px;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}';
-  function stamp(ids, wait) {
+    '#bh-stamp .bh-st-n{font-family:var(--serif,"Libre Caslon Text",Georgia,serif);font-size:24px;font-weight:700;color:' + INK + ';margin-top:3px;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}' +
+    '#bh-stamp .bh-st-a{font-family:var(--serif,"Libre Caslon Text",Georgia,serif);font-style:italic;font-size:14px;color:' + INK + ';margin-top:3px;}';
+  function stamp(ids, wait, opts) {
     ids = [].concat(ids || []).filter(Boolean);
     if (!ids.length) return 0;
     try { if (!document.getElementById('bh-stamp-css')) { var s = document.createElement('style'); s.id = 'bh-stamp-css'; s.textContent = STAMP_CSS; document.head.appendChild(s); } } catch (e) {}
     var old = document.getElementById('bh-stamp'); if (old) old.remove();
     var me = ids.indexOf(myPlayerId) >= 0, el = document.createElement('div');
     el.id = 'bh-stamp';
-    el.innerHTML = headHtml(ids, ids.length > 1 ? 40 : 52) + '<span class="bh-st-t"><span class="bh-st-e">' + (ids.length > 1 ? 'Round winners' : 'Round winner') + '</span><span class="bh-st-n">' + esc(me ? (ids.length > 1 ? 'You & co.' : 'You') : listNamesSafe(ids)) + '</span></span>';
+    el.innerHTML = headHtml(ids, ids.length > 1 ? 40 : 52) + '<span class="bh-st-t"><span class="bh-st-e">' + (ids.length > 1 ? 'Round winners' : 'Round winner') + '</span><span class="bh-st-n">' + esc(me ? (ids.length > 1 ? 'You & co.' : 'You') : listNamesSafe(ids)) + '</span>' + (opts && opts.again ? '<span class="bh-st-a">' + esc(againLine(opts).trim()) + '</span>' : '') + '</span>';
     document.body.appendChild(el);
     var RM = !!(window.ccReducedMotion && window.ccReducedMotion());
     var go = function () {
@@ -443,5 +477,5 @@
     return Math.max(0, wait || 0) + STAMP_MS;
   }
 
-  window.ccHeads = { add: add, play: play, close: close, poobah: poobah, stamp: stamp, STAMP_MS: STAMP_MS, head: headHtml, body: bodySvg, faceUrl: faceUrl, count: function () { return acts.length; }, acts: acts, DUR: DUR };
+  window.ccHeads = { icon: icon, add: add, play: play, close: close, poobah: poobah, stamp: stamp, STAMP_MS: STAMP_MS, head: headHtml, body: bodySvg, faceUrl: faceUrl, count: function () { return acts.length; }, acts: acts, DUR: DUR };
 })();

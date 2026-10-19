@@ -32,6 +32,8 @@ const CONTRACTIONS = {
   yall: "y'all",
 };
 
+// Long acronyms that are never shouting
+const ACRONYMS = new Set('NASA NATO ASAP HTML HVAC CAPTCHA NASCAR UNICEF FIFA OPEC SCUBA LASER AWOL YOLO RSVP TV USA UK US EU CEO CFO CTO FBI CIA IRS DMV DNA ATM CPR HR PR DJ OK MVP GPS VIP BBQ PTA NFL NBA NHL MLB IT AI PC TBD FAQ ID IQ AM PM'.split(' '));
 const EMOJI = /[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}\u{1F3FB}-\u{1F3FF}️‍⃣]/gu;
 
 function matchCase(src, word) {
@@ -77,7 +79,11 @@ function tidy(input) {
   let s = String(input || '').normalize('NFC');
   s = s.replace(/[‘’‚‛′`]/g, "'").replace(/[“”„‟″«»]/g, '"');
   s = s.replace(EMOJI, ' ').replace(/[\u0000-\u001F\u007F]/g, ' ');
-  s = s.replace(/\s+/g, ' ').trim();
+  // Internet laughter is a tell (and winking): lol / lmao / lmfao / rofl go, as whole words only
+  const before = s;
+  s = s.replace(/(^|[\s,;:(])(?:lol|lmao|lmfao|rofl)(?=$|[\s.,!?;:)…])[.!,]*/gi, '$1 ');
+  s = s.replace(/\s+/g, ' ').trim().replace(/^[\s,;:.!?]+/, '').replace(/[\s,;:]+([.!?…]*)$/, '$1');
+  if (!/[A-Za-z0-9]/.test(s)) s = before.replace(/\s+/g, ' ').trim();   // nothing else was there: leave it be
 
   // Quotes wrapped around the whole caption (the game adds its own)
   for (let k = 0; k < 3; k++) {
@@ -122,6 +128,14 @@ function tidy(input) {
   const letters = s.replace(/[^A-Za-z]/g, '');
   if (letters.length > 6 && letters === letters.toUpperCase() && s.split(' ').length > 1) s = s.toLowerCase().replace(/\bi\b/g, 'I').replace(/\bi'/g, "I'");
 
+  // A shouted word in an otherwise normal sentence is lowercased ("I am SO tired" -> "I am so tired").
+  // Short acronyms (TV, USA, CEO) and a few long ones stay; a caption in ALL CAPS was handled just above.
+  if (/[a-z]/.test(s)) s = s.replace(/\b[A-Z]{2,}\b/g, (w) => {
+    if (ACRONYMS.has(w)) return w;
+    if (w.length >= 4) return w.toLowerCase();
+    return (FREQ.get(w.toLowerCase()) || 0) >= 50 ? w.toLowerCase() : w;   // "SO", "NOT", "YOU": shouting; "TV", "USA": not words
+  });
+
   // Capital at the start of the caption and of each new sentence
   s = s.replace(/^([^A-Za-z]*)([a-z])/, (m, a, b) => a + b.toUpperCase());
   s = s.replace(/([.!?]\s+["']?)([a-z])/g, (m, a, b, i) => (/\b[a-z]\.[a-z]\.\s*$/i.test(s.slice(0, i + 2)) ? a + b : a + b.toUpperCase()));
@@ -138,6 +152,7 @@ function tidy(input) {
     const last = s.slice(0, -1).split(/[.!?…]\s+/).pop();
     const m = last.match(/^["']?([A-Za-z]+(?:'[A-Za-z]+)?)(,?)(?:\s+([A-Za-z]+(?:'[A-Za-z]+)?))?/);
     if (m && !m[2] && isQuestion(m[1].toLowerCase(), m[3] || '')) s = s.slice(0, -1) + '?'; // a comma ("Why, thank you.") rules it out
+    else if (/(^|[\s,])am I right\.$/i.test(s)) s = s.slice(0, -1) + '?';                  // "Marriage, am I right?"
   }
 
   return curlQuotes(s.replace(/\s+/g, ' ').trim());

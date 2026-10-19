@@ -202,7 +202,7 @@
       claw.style.transition = 'none'; claw.style.transform = 'translate(' + x + 'px,-120px)'; claw.style.opacity = 1; void claw.offsetWidth; claw.style.transition = '';
       at(300, function () { claw.style.transform = 'translate(' + x + 'px,' + y + 'px)'; snd(function () { tone(300, 0.5, 0, 'sawtooth', 0.03, 140); }); });
       at(1100, function () { thunk(); target.style.transition = 'transform .5s cubic-bezier(.4,0,.2,1)'; claw.style.transform = 'translate(' + x + 'px,-140px)'; target.style.transform = 'translateY(-' + (y + 170) + 'px)'; });
-      at(1700, function () { target.outerHTML = chip('dan'); plink(2); head('The dealer steals one chip.', 'it’s Dan’s chip now. on the real one? Dan scores.'); });
+      at(1700, function () { target.outerHTML = chip('dan'); plink(2); head('The dealer steals one chip.', 'it’s Dan’s chip now. on the real one? Dan scores. on a fake? you get +1.'); });
     } },
     { h: 'The reveal.', note: 'who wrote what · who fell for it', ms: 7600, go: function () {
       at(400, function () { stamp('1', 'Amy wrote it', P.amy.c); cap('1').classList.add('dim'); });

@@ -188,41 +188,56 @@ const GLOATS = [
   'Mine now. Say goodbye.',
 ];
 
-// The steal shows: every steal gets a full show, a different heist each time. Index 0 is The Claw (steal.js);
-// 1..30 are public/heists.js (same order). A room deals them like a deck, so nobody sees a repeat until all 31 have played.
+// The steal shows. 'full' (the first steal of a game, or a steal off the real caption): one of 31 heists.
+// Index 0 is The Claw (steal.js); 1..30 are public/heists.js (same order). A room deals them like a deck, so
+// nobody sees a repeat until all 31 have played. Every other steal is 'short': a transfer-of-ownership stamp.
+// House rule for every line here: a caption. Short, specific, deadpan, one beat.
 const HEISTS = [
   { name: 'The Claw', gloats: GLOATS },
-  { name: 'The Bald Eagle', gloats: ['Freedom isn’t free. Neither was your chip.', 'Nothing personal. Just talons.'] },
+  { name: 'The Bald Eagle', gloats: ['Talons don’t lie.', 'Nothing personal. Just talons.'] },
   { name: 'The Raccoon', gloats: ['Rinsed it. Mine now.', 'I live in your walls. And now, your chips.'] },
-  { name: 'The Frog', gloats: ['Looked like a fly. Still mine.', 'It was a fly, I swear.'] },
-  { name: 'The UFO', gloats: ['We come in peace. We leave with your chip.', 'Take me to your chips.'] },
-  { name: 'The Magician', gloats: ['And for my next trick: your dignity.', 'Is this your chip? Not anymore.'] },
-  { name: 'The Octopus', gloats: ['Eight arms. Zero apologies.', 'I had seven free hands. Do the math.'] },
-  { name: 'The Fisherman', gloats: ['Catch and keep.', 'This one didn’t get away.'] },
-  { name: 'The Magnet', gloats: ['Opposites attract.', 'It was drawn to me. Physics.'] },
-  { name: 'Grandma', gloats: ['Grandma says it’s hers, sweetie.', 'You can visit it on holidays.'] },
+  { name: 'The Frog', gloats: ['It was a fly, I swear.', 'Looked like a fly. Still mine.'] },
+  { name: 'The UFO', gloats: ['We come in peace. We leave with your chip.', 'Taken for study.'] },
+  { name: 'The Magician', gloats: ['Is this your chip? Not anymore.', 'And for my next trick: your dignity.'] },
+  { name: 'The Octopus', gloats: ['I had seven free hands. Do the math.', 'Eight arms. Zero apologies.'] },
+  { name: 'The Accountant', gloats: ['For tax purposes, it’s mine.', 'It balances now.'] },
+  { name: 'The Butler', gloats: ['Will that be all?', 'I’ll see myself out.'] },
+  { name: 'Grandma', gloats: ['You can visit it on holidays.', 'I’ll keep it somewhere safe. You’ll never find it.'] },
   { name: 'The Cat', gloats: ['If I sit on it, it’s mine.', 'It was on the table. Now it isn’t.'] },
-  { name: 'The Parrot', gloats: ['Repeat after me: mine.', 'Pretty bird. Pretty chip. Both mine.'] },
+  { name: 'The Mime', gloats: ['(Pockets it. Says nothing.)', '(Points at you. Shrugs.)'] },
   { name: 'The Ninja', gloats: ['You saw nothing.', 'It was never here.'] },
-  { name: 'The Tornado', gloats: ['It was in the path.', 'Check your homeowner’s policy.'] },
-  { name: 'The Good Boy', gloats: ['Good boy found a chip. Good boy keeps chip.', 'Who’s a thief? Yes I am.'] },
-  { name: 'The Ghost', gloats: ['Boo. It’s haunted now. By me.', 'Your chip has crossed over.'] },
-  { name: 'The Rocket', gloats: ['Houston, we have your chip.', 'One small step. One fewer chip.'] },
+  { name: 'The Tornado', gloats: ['Check your homeowner’s policy.', 'It was in the path.'] },
+  { name: 'The Good Boy', gloats: ['Found it. Keeping it.', 'You weren’t going to throw it anyway.'] },
+  { name: 'The Ghost', gloats: ['Passed through. Took this.', 'Your chip has crossed over.'] },
+  { name: 'The Auctioneer', gloats: ['Sold, to the dealer.', 'No other bids.'] },
   { name: 'The Lawyer', gloats: ['Possession is nine-tenths of the law.', 'You’ll be hearing from my associates.'] },
-  { name: 'The Crab', gloats: ['Pinch. Pinch. Mine.', 'Sideways is still forward if it’s toward your chip.'] },
+  { name: 'The Crab', gloats: ['Not sorry. Hard shell.', 'It’s a shell thing. You wouldn’t get it.'] },
   { name: 'The T. rex', gloats: ['Tiny arms. Big ambitions.', 'Not extinct. Just patient.'] },
-  { name: 'The Snail', gloats: ['Slow and steady steals the chip.', 'You had all the time in the world.'] },
-  { name: 'The Seagull', gloats: ['Marked it. You know how.', 'Like a french fry at the beach.'] },
-  { name: 'The Mosquito', gloats: ['Bzzz. It itches now.', 'I only take a little. Okay, all of it.'] },
-  { name: 'The Wizard', gloats: ['It’s been reassigned.', 'A wizard is never late. He steals precisely when he means to.'] },
-  { name: 'The Robot', gloats: ['CHIP.EXE IS NOW PROPERTY OF DEALER.', 'Calculating your loss. Done.'] },
-  { name: 'The Bee', gloats: ['Sticky fingers.', 'It’s my chip, honey.'] },
-  { name: 'The Monkey', gloats: ['Ooh ooh. Ah ah. Mine.', 'Monkey see. Monkey steal.'] },
-  { name: 'The Cowboy', gloats: ['Branded. Don’t make it weird.', 'This table ain’t big enough for your chip.'] },
+  { name: 'The Snail', gloats: ['You had all the time in the world.', 'I’d apologise, but it would take too long.'] },
+  { name: 'The Seagull', gloats: ['Like a french fry at the beach.', 'Never made eye contact.'] },
+  { name: 'The Mole', gloats: ['Nobody checks under the table.', 'Filed under lost.'] },
+  { name: 'The Pelican', gloats: ['It’s in the pouch now.', 'Pouch rules. Sorry.'] },
+  { name: 'The Robot', gloats: ['Calculating your loss. Done.', 'Reassigned. No further action required.'] },
+  { name: 'The Bee', gloats: ['Standard fee.', 'The queen sends her regards.'] },
+  { name: 'The Hedgehog', gloats: ['It stuck to me. These things happen.', 'No refunds. No exchanges.'] },
+  { name: 'The Cowboy', gloats: ['Branded. Don’t make it weird.', 'I’ll take good care of it. Out on the range.'] },
   { name: 'The Vampire', gloats: ['Gone by sunrise. So is this.', 'I don’t drink chips. I collect them.'] },
-  { name: 'The Unicorn', gloats: ['Magic is just stealing with glitter.', 'Believe in yourself. Not in that chip.'] },
-  { name: 'The Penguin', gloats: ['Cold. Calculated. Mine.', 'Chill out. It’s just a chip.'] },
+  { name: 'The Night Watchman', gloats: ['For safekeeping.', 'I’ll hold on to this for now.'] },
+  { name: 'The Penguin', gloats: ['Cold. Calculated. Mine.', 'Black tie. No questions.'] },
 ];
+// The short show is paperwork: a transfer-of-ownership stamp and one typed line. {name} = whose chip it was.
+const RECEIPTS = [
+  'Received from {name}. Condition: used.',
+  'Received from {name}. No receipt.',
+  'Transferred from {name}. Signed for.',
+  'Formerly {name}’s. Condition: fair.',
+];
+// Callbacks: the same player robbed twice in one game
+// A chip stolen off a fake caption pays its owner this much (the steal's cost)
+const STEAL_CAUGHT_PTS = 1;
+const AGAIN_FULL = 'We meet again, {name}.';
+const AGAIN_SHORT = 'Received from {name}. Again.';
+const firstNameOf = (game, pid) => { const p = game.players.find(q => q.id === pid); return (String(p ? p.name : '').trim().split(/\s+/)[0]) || 'you'; };
 // Round-winner gags (public/heads*.js): dealt like a deck, so nobody sees a repeat until all have played
 const WIN_ACT_COUNT = 25;
 function nextWinAct(game) {
@@ -819,8 +834,20 @@ function stealChip(game, betIndex) {
     if (dl && bet.playerId === dl.id) return { error: 'You can’t steal your own chip' };   // [settings] kitchen sink: the dealer's own chips stay put
     bet.count -= 1;
     bet.stolen = (bet.stolen || 0) + 1;
-    const act = nextHeist(game);
-    game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect: isBetOnCorrect(game, bet), act, actName: HEISTS[act].name, gloat: pick(HEISTS[act].gloats), seed: Math.floor(Math.random() * 1e9), at: Date.now(), show: (game.stealShows = (game.stealShows || 0) + 1) };
+    const onCorrect = isBetOnCorrect(game, bet);
+    game.stealShows = (game.stealShows || 0) + 1;
+    // 'full' for the first steal of the game or a steal off the real caption; every other steal is 'short'
+    const stealShow = game.stealShows === 1 || onCorrect ? 'full' : 'short';
+    const robbedBefore = game.history.some(h => h.steal && h.steal.victimId === bet.playerId);
+    const vname = firstNameOf(game, bet.playerId);
+    let act = null, actName = null, gloat;
+    if (stealShow === 'full') {   // only a full show deals a heist off the deck, so the 31 stay a treat
+      act = nextHeist(game); actName = HEISTS[act].name;
+      gloat = robbedBefore ? AGAIN_FULL.replace('{name}', vname) : pick(HEISTS[act].gloats);
+    } else {
+      gloat = (robbedBefore ? AGAIN_SHORT : pick(RECEIPTS)).replace('{name}', vname);
+    }
+    game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect, act, actName, gloat, again: robbedBefore, stealShow, seed: Math.floor(Math.random() * 1e9), at: Date.now(), show: game.stealShows };
   }
   revealAnswer(game);
   return { ok: true };
@@ -875,6 +902,11 @@ function revealAnswer(game) {
     const st = game.steal, blind = st.stage === 1;
     const per = blind ? (st.target === 'closed' ? s.pointsClosedBet : s.pointsOpenBet) : s.pointsOpenLate;
     add(dealer.id, per, blind ? 'Stole a blind chip off the real caption — it’s yours now' : 'Stole a chip off the real caption — it’s yours now');
+  }
+  // Owner's rule (Oct 2026): the steal has a cost. A chip stolen off a FAKE caption pays its owner +1 ("caught you"):
+  // the dealer has shown everyone which caption they think is fake. (Off the real caption: unchanged, it pays the dealer.)
+  if (dealer && game.steal && game.steal.victimId && !game.steal.onCorrect) {
+    add(game.steal.victimId, STEAL_CAUGHT_PTS, 'Caught you: your chip was stolen off a fake caption');
   }
   game.dealerBonusAwarded = false;
   if (!anyoneRight && dealer && s.dealerBonus > 0) {
@@ -968,8 +1000,9 @@ function isGameOver(game) {
   return game.round >= totalRounds(game);
 }
 
-/* ── Frame It: after every answer, one secret pick per player per cartoon (honour only, no game limit) ──
-   Enough picks on one caption (inductNeed) and it's FRAMED: player-written ones join The Gallery deck. */
+/* ── Frame It: after every answer, one secret pick per player per cartoon, and ONE frame per player per game ──
+   A caption is FRAMED when a majority of the other players (everyone but its writer) pick it (inductNeed):
+   player-written ones join The Gallery deck. A frame is spent when the round's picks resolve (game.frameUsed). */
 function authorOf(game, target) { return target === 'closed' ? game.closedPlayerId : (game.openCaptions[target] || {}).playerId; }
 // Pick a caption (not your own) or 'pass'. Changeable until the framing resolves.
 function pickFrame(game, playerId, target) {
@@ -982,11 +1015,14 @@ function pickFrame(game, playerId, target) {
     if (v.error) return v;
     if (authorOf(game, v.target) === playerId) return { error: 'You can’t frame your own caption' };
     if (isBetOnCorrect(game, { target: v.target })) return { error: 'The real caption can’t be framed' };
+    if (frameSpent(game, playerId)) return { error: 'You’ve used your one frame this game' };
     t = v.target;
   }
   (game.framePicks = game.framePicks || {})[playerId] = t;
   return { ok: true, allIn: allFramesIn(game) };
 }
+// One frame per player per game: spent in an earlier round of this game
+function frameSpent(game, playerId) { const r = (game.frameUsed || {})[playerId]; return r !== undefined && r !== game.round; }
 // Everyone who was here when framing began, and is still here, has decided (a dropped phone stops counting after the grace)
 function allFramesIn(game) {
   const picks = game.framePicks || {};
@@ -1009,6 +1045,8 @@ function resolveFraming(game) {
   }
   // Every pick is kept (the night's 'Most Framed' award and the Gallery's 'framed by' read them)
   game.flags = (game.flags || []).filter(f => f.round !== game.round);
+  game.frameUsed = game.frameUsed || {};
+  for (const [pid, t] of Object.entries(game.framePicks || {})) if (t !== 'pass' && !frameSpent(game, pid)) game.frameUsed[pid] = game.round;
   for (const k of order) for (const pid of by[k] || []) game.flags.push({ fromId: pid, round: game.round, target: k === 'closed' ? 'closed' : Number(k), at });
   const need = inductNeed(game);
   const framed = Object.keys(counts).filter(k => counts[k] >= need).sort((x, y) => counts[y] - counts[x] || order.indexOf(x) - order.indexOf(y));
@@ -1028,8 +1066,8 @@ function resolveFraming(game) {
   game.frameResult = { at, framed: framed.map(k => (k === 'closed' ? 'closed' : Number(k))), counts, endsAt };
   return { ok: true, framed: game.frameResult.framed, endsAt };
 }
-// Big tables need three frames; five or fewer, two
-const inductNeed = (game) => (game.players.length <= 5 ? 2 : 3);
+// Framed = a majority of the OTHER players (the writer can't frame their own): 3 players -> 2, 4 -> 2, 5 -> 3, 6 -> 3, 8 -> 4
+const inductNeed = (game) => Math.floor(Math.max(1, game.players.length - 1) / 2) + 1;
 // A caption was just framed: player-written fakes join the permanent deck. Returns the celebration (at = when it plays)
 function induct(game, target, fl, count, at = Date.now()) {
   const h = game.history.find(x => x.round === game.round);
@@ -1322,6 +1360,7 @@ function resetForNewGame(game) {
   game.gameBadges = [];
   game.crowns = {};
   game.stealShows = 0;
+  game.frameUsed = {};
   game.stepAt = null;
 }
 
@@ -1462,6 +1501,7 @@ function getPlayerView(game, playerId) {
       voters: [...(game.frameVoters || [])],
       decided: Object.keys(picks),
       myPick: playerId in picks ? picks[playerId] : null,
+      myFrameSpent: frameSpent(game, playerId),   // one frame per game: this player framed in an earlier round
       resolved: !!r,
       result: r ? { at: r.at, framed: [...r.framed], counts: { ...r.counts }, endsAt: r.endsAt } : null,
     };
