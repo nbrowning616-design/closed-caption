@@ -14,7 +14,7 @@
     writing: { icon: '✍️', text: 'Write a fake that could pass for the real caption. The real ones are short and dry.' },
     facedown: { icon: '🃏', text: 'One caption is face-down. Sometimes it’s the real one.' },
     first_bets: { icon: '🎰', text: 'Bet on the one you think is real. Blind bets pay more; both chips is a Half-Moon.' },
-    steal: { icon: '😈', text: 'The dealer can steal one chip. A chip on the real one scores them +1.' },
+    steal: { icon: '😈', text: 'The dealer can steal one chip, and it becomes theirs. If it was on the real caption, the dealer gets its points — not you.' },
     answer: { icon: '🍿', text: 'This is the fun part: who wrote what, who fell for it. Take your time.' },
     frame: { icon: '🖼', text: 'Beat the real caption? Frame it. Enough frames and it hangs in The Gallery.' }
   };

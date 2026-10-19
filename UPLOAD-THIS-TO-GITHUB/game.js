@@ -493,7 +493,8 @@ function dealExpert(game, currentId) {
   const pool = freshest(game, allowed(game).filter(c => ok.has(c.id) && !game.usedCartoonIds.includes(c.id) && c.id !== currentId));
   if (!pool.length) return null;   // every deck cartoon has been played this game
   const cartoon = pick(pool), names = tableNames(game);
-  const entry = pick(deckOf(game).byCartoon(cartoon.id).filter(e => !names.has(e.author.toLowerCase())));
+  // Only captions this server framed (stamped) are ever dealt as the real answer — never one a phone typed in
+  const entry = pick(deckOf(game).byCartoon(cartoon.id, true).filter(e => !names.has(e.author.toLowerCase()) && store.isStamped(e)));
   return entry ? { cartoon, entry } : null;
 }
 
@@ -535,7 +536,11 @@ function dealNormal(game, currentId) {
 function startRound(game, options = {}) {
   if (!options.sameRound) {
     game.round++;
-    game.dealerIndex = nextDealerIndex(game, game.dealerIndex);
+    // A restored room replays the round the restart interrupted with the same dealer (if they're back)
+    const rd = game.resumeDealer, rp = Number.isInteger(rd) ? game.players[rd] : null;
+    game.dealerIndex = rp && rp.connected ? rd : nextDealerIndex(game, game.dealerIndex);
+    game.resumeDealer = null;
+    game.resumed = null;   // the 'restored' note in the lobby has done its job
   }
   dealCartoon(game);
   game.closedCaption = '';
@@ -745,6 +750,8 @@ function moveFromSecondBets(game) {
   return afterAllBets(game);
 }
 
+// How long each steal show plays on the phones (the server holds the answer reel for this long, plus a beat)
+const STEAL_SHOW_MS = { full: 7600, short: 2800 };
 // The dealer knocks one chip off the table (betIndex = index in game.bets), or passes (null)
 function stealChip(game, betIndex) {
   if (game.phase !== PHASES.STEAL) return { error: 'Not the steal' };
@@ -755,8 +762,10 @@ function stealChip(game, betIndex) {
     if (!bet || bet.target === 'pass' || bet.count < 1) return { error: 'No chip there' };
     bet.count -= 1;
     bet.stolen = (bet.stolen || 0) + 1;
-    const act = nextHeist(game);
-    game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect: isBetOnCorrect(game, bet), act, actName: HEISTS[act].name, gloat: pick(HEISTS[act].gloats), seed: Math.floor(Math.random() * 1e9), at: Date.now(), show: (game.stealShows = (game.stealShows || 0) + 1) };
+    const act = nextHeist(game), onCorrect = isBetOnCorrect(game, bet), show = (game.stealShows = (game.stealShows || 0) + 1);
+    // The full heist for the game's first steal, or a steal off the real caption; otherwise the short show
+    const stealShow = show === 1 || onCorrect ? 'full' : 'short';
+    game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect, act, actName: HEISTS[act].name, gloat: pick(HEISTS[act].gloats), seed: Math.floor(Math.random() * 1e9), at: Date.now(), show, stealShow, showMs: STEAL_SHOW_MS[stealShow] };
   }
   revealAnswer(game);
   return { ok: true };
@@ -956,7 +965,8 @@ function induct(game, target, fl, count, at = Date.now()) {
   let entry = null;
   // The real caption is celebrated but not added (it's already the real one)
   if (!isReal && author && c.caption) {
-    entry = deckOf(game).add({ cartoonId: h.cartoon.id, image, caption: c.caption, author, flaggers, flags: count, month });
+    const fresh = { cartoonId: h.cartoon.id, image, caption: c.caption, author, flaggers, flags: count, month };
+    entry = deckOf(game).add({ ...fresh, sig: store.stampOf(fresh) });   // stamped: Gallery games may deal it
     if (entry && store.file) store.add(entry, true);   // the server's saved copy (kept for good when DATA_DIR is set)
   }
   return {
@@ -1204,6 +1214,8 @@ function setCareer(game, playerId, rank, rockets, total) {
 
 function resetForNewGame(game) {
   setPhase(game, PHASES.LOBBY);
+  game.resumed = null;
+  game.resumeDealer = null;
   game.finale = null;
   game.flags = [];
   game.framePicks = {};
@@ -1247,6 +1259,89 @@ const ANSWERED = [PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
 
 const TAKEOVER_SECS = 30;
 const GAZETTE_SIZE = 40;
+
+// The Gazette: the newest Gallery captions. In a Gallery (Expert) game those are the real answers,
+// so the captions of every cartoon this table could still be dealt are left out.
+function gazetteFor(game) {
+  const list = deckOf(game).recent(GAZETTE_SIZE);
+  if (!game.settings.expert) return list;
+  const hide = new Set(expertCartoonIds(game));
+  return list.filter(e => !hide.has(e.cartoonId));
+}
+
+/* ── Restore after a server restart ──
+   The host's phone keeps a small snapshot of the room (players, scores, rounds played, settings, cartoons used).
+   If the server restarts, the host taps Restore and the room comes back with the same code, from the start of the
+   next round (a round in progress is replayed). Seats are matched by a fingerprint of each phone's private seat key,
+   never the key itself. Everything in a snapshot is checked before it's used. */
+const SNAP_PHASES_DONE = [PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
+function snapshotOf(game) {
+  const over = game.phase === PHASES.SCORES && isGameOver(game);
+  const done = SNAP_PHASES_DONE.includes(game.phase);
+  const inRound = game.phase !== PHASES.LOBBY && !done;   // the round in progress is replayed after a restore
+  return {
+    v: 1, code: game.code, at: Date.now(), hostId: game.hostId,
+    timerDuration: game.timerDuration, settings: { ...game.settings },
+    round: over ? 0 : inRound ? Math.max(0, game.round - 1) : game.round,
+    dealerIndex: over ? -1 : game.dealerIndex, sameDealer: inRound,
+    players: game.players.map(p => ({ id: p.id, name: p.name, score: over ? 0 : p.score, kh: (game.seatHash || {})[p.id] || '' })),
+    usedCartoonIds: [...(game.usedCartoonIds || [])].slice(-200),
+    closePlan: over ? [] : (game.closePlan || []).slice(0, 400).map(Boolean),
+    stealShows: over ? 0 : game.stealShows || 0,
+  };
+}
+const SNAP_ID = /^[A-Za-z0-9_-]{8,64}$/, SNAP_KH = /^[A-Za-z0-9_-]{43}$/, SNAP_CODE = /^[A-HJ-NP-Z]{4}$/;
+// Returns { error } or { game, hostKh } — a lobby with everyone offline but the host, ready to pick up again
+function gameFromSnapshot(snap) {
+  const bad = (why) => ({ error: 'That saved game can’t be restored (' + why + ')' });
+  if (!snap || typeof snap !== 'object' || Array.isArray(snap)) return bad('missing');
+  if (JSON.stringify(snap).length > 24000) return bad('too big');
+  if (snap.v !== 1) return bad('old version');
+  const code = String(snap.code || '');
+  if (!SNAP_CODE.test(code)) return bad('code');
+  const list = snap.players;
+  if (!Array.isArray(list) || list.length < 1 || list.length > MAX_PLAYERS) return bad('players');
+  const players = [], seatHash = {}, ids = new Set(), names = new Set();
+  for (const x of list) {
+    if (!x || typeof x !== 'object' || typeof x.id !== 'string' || typeof x.name !== 'string' || typeof x.kh !== 'string' || typeof x.score !== 'number') return bad('player');
+    const id = String(x.id || ''), name = String(x.name || '').replace(/\s+/g, ' ').trim().slice(0, 20), score = Number(x.score), kh = String(x.kh || '');
+    if (!SNAP_ID.test(id) || ids.has(id)) return bad('player id');
+    if (!name || names.has(name.toLowerCase())) return bad('player name');
+    if (!Number.isInteger(score) || score < -1000 || score > 10000) return bad('score');
+    if (!SNAP_KH.test(kh)) return bad('seat');
+    ids.add(id); names.add(name.toLowerCase());
+    players.push({ id, name, score, connected: false, disconnectedAt: Date.now() });
+    seatHash[id] = kh;
+  }
+  if (typeof snap.hostId !== 'string' || typeof snap.code !== 'string') return bad('host');
+  const hostId = snap.hostId;
+  if (!ids.has(hostId)) return bad('host');
+  const round = Number(snap.round), dealerIndex = Number(snap.dealerIndex), stealShows = Number(snap.stealShows || 0);
+  if (!Number.isInteger(round) || round < 0 || round > 500) return bad('round');
+  if (!Number.isInteger(dealerIndex) || dealerIndex < -1 || dealerIndex >= players.length) return bad('dealer');
+  if (!Number.isInteger(stealShows) || stealShows < 0 || stealShows > 1000) return bad('steals');
+  const timer = [60, 90, 120, 180].includes(snap.timerDuration) ? snap.timerDuration : 90;
+  if (snap.usedCartoonIds !== undefined && !Array.isArray(snap.usedCartoonIds)) return bad('cartoons');
+  if (snap.closePlan !== undefined && (!Array.isArray(snap.closePlan) || snap.closePlan.length > 400)) return bad('plan');
+  const host = players.find(p => p.id === hostId);
+  const game = createGame(hostId, host.name, timer, []);
+  game.code = code;
+  game.players = players;
+  // Settings go through the same checks as the lobby's (one at a time: one that no longer applies, e.g. a
+  // Gallery game before the phones have brought their Gallery back, is just skipped)
+  const st = snap.settings && typeof snap.settings === 'object' && !Array.isArray(snap.settings) ? snap.settings : {};
+  for (const k of Object.keys(DEFAULT_SETTINGS)) if (k in st) updateSettings(game, { [k]: st[k] });
+  game.round = round;
+  game.dealerIndex = dealerIndex;
+  game.resumeDealer = snap.sameDealer === true && dealerIndex >= 0 ? dealerIndex : null;
+  if (game.resumeDealer !== null) game.dealerIndex = seatAt(players.length, dealerIndex - stepOf(game));   // so a missing dealer passes the deal on as usual
+  game.usedCartoonIds = cleanSeen(snap.usedCartoonIds || []).slice(-200);
+  game.closePlan = (snap.closePlan || []).map(v => v === true);
+  game.stealShows = stealShows;
+  game.seatHash = seatHash;
+  game.resumed = { round, at: Date.now() };
+  return { game, hostKh: seatHash[hostId] };
+}
 
 // Voice chat: who's in the call and who's muted ({ playerId: { on, muted } }); the audio itself goes phone to phone
 function setVoice(game, playerId, on, muted) {
@@ -1298,7 +1393,9 @@ function getPlayerView(game, playerId) {
     hofTotal: deckOf(game).count(),
   };
   // The Gazette: the newest Hall of Fame captions, between rounds only
-  if (game.phase === PHASES.LOBBY || game.phase === PHASES.SCORES) base.gazette = deckOf(game).recent(GAZETTE_SIZE);
+  if (game.phase === PHASES.LOBBY || game.phase === PHASES.SCORES) base.gazette = gazetteFor(game);
+  if (game.resumed) base.resumed = { ...game.resumed };   // a room brought back after a server restart
+  if (game.hostId === playerId) base.snapshot = snapshotOf(game);   // the host's phone keeps this, to restore the room after a restart
   if (game.phase === PHASES.LOBBY) {
     const pool = allowed(game), seen = seenCounts(game);
     base.freshCount = pool.filter(c => !(seen.get(c.id) > 0)).length; base.poolCount = pool.length;
@@ -1425,7 +1522,7 @@ module.exports = {
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,
   openFinale, voteFinale, resolveFinale, finaleAllIn, PRESS_ACT_COUNT,
-  setFace, faceOf, WIN_ACT_COUNT, setVoice, clearVoice,
+  setFace, faceOf, WIN_ACT_COUNT, setVoice, clearVoice, snapshotOf, gameFromSnapshot, gazetteFor, STEAL_SHOW_MS,
   stealChip, revealAnswer, moveToFraming, moveToScoreboard, isGameOver, resetForNewGame, isPresent,
   REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer,
   currentBetterId, pendingBetters, nextDealerIndex, getPlayerView, generateRoomCode,

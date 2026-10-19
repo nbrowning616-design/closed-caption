@@ -1,0 +1,23 @@
+# Keeps the free Render server awake, so the first person at the party doesn't wait 30-60 seconds.
+# GitHub runs this about every 10 minutes (its schedule can run a few minutes late) and it just asks the
+# game "are you there?" at /healthz. It can also be run by hand from the Actions tab ("Run workflow").
+name: Keep the game awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping /healthz
+        run: |
+          curl --fail --silent --show-error --max-time 60 \
+               --retry 5 --retry-delay 15 --retry-all-errors --retry-connrefused \
+               https://closed-caption.onrender.com/healthz
+          echo

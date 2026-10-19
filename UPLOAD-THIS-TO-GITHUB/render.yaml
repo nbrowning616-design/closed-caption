@@ -5,4 +5,7 @@ services:
     plan: free
     buildCommand: npm install
     startCommand: node server.js
-    healthCheckPath: /
+    healthCheckPath: /healthz
+    envVars:
+      - key: GALLERY_SECRET   # signs the Gallery captions this server framed (made once by Render, kept across restarts)
+        generateValue: true

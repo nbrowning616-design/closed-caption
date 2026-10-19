@@ -972,16 +972,20 @@ const confetti = (() => {
    Networking (auto-reconnect, session restore)
    ═══════════════════════════════════════════════════════════ */
 let reconnectAttempts = 0, connectionStatus = 'connecting', reconnectTimer = null;
-function saveSession() { if (myPlayerId && gameCode) { const v = JSON.stringify({ playerId: myPlayerId, code: gameCode, name: (playerById(myPlayerId) || {}).name || '', ts: Date.now() }); try { sessionStorage.setItem('cc_session', v); } catch (e) {} try { localStorage.setItem('cc_session', v); } catch (e) {} } }
+// PASS A #2: mySeatKey is this phone's private key for its seat (from the server's 'joined'); it lives in cc_session
+// next to playerId/code and is sent only with reconnect/join/restore. Nobody else ever sees it.
+let mySeatKey = null;
+function saveSession() { if (myPlayerId && gameCode) { const v = JSON.stringify({ playerId: myPlayerId, code: gameCode, seatKey: mySeatKey || undefined, name: (playerById(myPlayerId) || {}).name || '', ts: Date.now() }); try { sessionStorage.setItem('cc_session', v); } catch (e) {} try { localStorage.setItem('cc_session', v); } catch (e) {} } }
 function readStore(store) { try { const s = JSON.parse(store.getItem('cc_session') || 'null'); if (!s || Date.now() - s.ts > 12 * 3600 * 1000) return null; return s; } catch { return null; } }
 function clearSession() { try { sessionStorage.removeItem('cc_session'); } catch (e) {} try { localStorage.removeItem('cc_session'); } catch (e) {} }
 function offerRejoin() {
+  if (roomGone) return renderRoomGone();   // PASS A #6: the server lost the room — say so (and offer Restore)
   const s = readStore(localStorage), box = $('rejoin-box');
   if (!box) return;
   if (!s || myPlayerId) { box.innerHTML = ''; return; }
   box.innerHTML = `<div class="panel yellow flat" style="text-align:left; display:flex; align-items:center; gap:12px;"><div style="flex:1;"><b>Back for more?</b><br><span class="small">Game ${esc(s.code)}${s.name ? ' as ' + esc(s.name) : ''}</span></div><button class="btn btn-sm btn-ink" style="width:auto;" onclick="rejoinSaved()">Rejoin</button><button class="btn-link" style="padding:4px;" aria-label="Dismiss" onclick="clearSession(); offerRejoin();">✕</button></div>`;
 }
-function rejoinSaved() { const s = readStore(localStorage); if (s) { try { sessionStorage.setItem('cc_session', JSON.stringify(s)); } catch (e) {} send({ action: 'reconnect', playerId: s.playerId, code: s.code }); } }
+function rejoinSaved() { const s = readStore(localStorage); if (s) { try { sessionStorage.setItem('cc_session', JSON.stringify(s)); } catch (e) {} send({ action: 'reconnect', playerId: s.playerId, code: s.code, seatKey: s.seatKey }); } }
 
 function connect() {
   clearTimeout(reconnectTimer);
@@ -991,8 +995,8 @@ function connect() {
     connectionStatus = 'connected'; updateConnectionBanner();
     if (!wasKicked) {
       const s = readStore(sessionStorage);
-      if (myPlayerId && gameCode) send({ action: 'reconnect', playerId: myPlayerId, code: gameCode });
-      else if (s && !window._linkCode) send({ action: 'reconnect', playerId: s.playerId, code: s.code });
+      if (myPlayerId && gameCode) send({ action: 'reconnect', playerId: myPlayerId, code: gameCode, seatKey: mySeatKey });
+      else if (s && !window._linkCode) send({ action: 'reconnect', playerId: s.playerId, code: s.code, seatKey: s.seatKey });
       else offerRejoin();
     }
     reconnectAttempts = 0;
@@ -1000,17 +1004,23 @@ function connect() {
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
     if (msg.type === 'rtc') { if (window.Voice) Voice.onSignal(msg); return; }
-    if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); if (window.Selfie) Selfie.sync(); }, 300); }
+    if (msg.type === 'joined') { myPlayerId = msg.playerId; gameCode = msg.code; if (msg.seatKey) mySeatKey = msg.seatKey; roomGoneDone(); saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); if (window.Selfie) Selfie.sync(); }, 300); }
     else if (msg.type === 'state') {
       state = msg.data;
       if (window.Voice) Voice.onState(state);
       if (state.serverNow) clockOffset = window.ccClock ? window.ccClock(state.serverNow - Date.now()) : state.serverNow - Date.now();
       if (Array.isArray(state.gazette)) lastGazette = state.gazette;   // only sent between rounds: keep the last one
+      if (state.snapshot) snapSave(state.snapshot);   // PASS A #6: only the host gets this — kept to restore the room after a server restart
       if (state.build && BUILD !== '__BUILD__' && state.build !== BUILD && !window._reloading) { window._reloading = true; saveSession(); saveDraftNow(); setTimeout(() => location.reload(), 300); return; }
       saveSession();
       render();
     }
     else if (msg.type === 'error') {
+      // PASS A #6: reconnecting to a room this server doesn't have (it restarted): keep the seat, explain, offer Restore
+      if (msg.message === 'Game not found' && msg.gone) {
+        const s = (myPlayerId && gameCode) ? { playerId: myPlayerId, code: gameCode, seatKey: mySeatKey } : (readStore(sessionStorage) || readStore(localStorage));
+        if (s && String(s.code).toUpperCase() === String(msg.code || s.code).toUpperCase()) { showRoomGone(s, msg.gone); return; }
+      }
       if (msg.message === 'Player not in game' || msg.message === 'Game not found') {
         const quiet = !$('screen-join').classList.contains('active') && msg.message !== 'Game not found';
         clearSession(); myPlayerId = null; gameCode = null; state = null; showScreen('screen-home');
@@ -1025,7 +1035,7 @@ function connect() {
       sfx.error();
     }
     else if (msg.type === 'caption_check') { submitting = false; showSpellCheck(msg); }
-    else if (msg.type === 'kicked') { clearSession(); wasKicked = true; myPlayerId = null; gameCode = null; state = null; showScreen('screen-home'); showToast(msg.message || 'You were removed from the game'); }
+    else if (msg.type === 'kicked') { roomGoneDone(); clearSession(); wasKicked = true; myPlayerId = null; gameCode = null; state = null; showScreen('screen-home'); showToast(msg.message || 'You were removed from the game'); }
   };
   ws.onclose = () => { connectionStatus = 'disconnected'; updateConnectionBanner(); reconnectTimer = setTimeout(connect, Math.min(6000, 600 * Math.pow(2, reconnectAttempts++))); };
   ws.onerror = () => {};
@@ -1040,6 +1050,59 @@ function updateConnectionBanner() {
   else b.style.transform = 'translateY(-100%)';
 }
 function send(obj) { if (ws && ws.readyState === 1) { ws.send(JSON.stringify(obj)); return true; } showToast('Reconnecting — try again in a second'); return false; }
+
+/* PASS A #1: every move-the-table-along tap says which screen it came from (phase, round, step). The server ignores
+   a tap from a screen that's already gone (a double tap), and the button locks after one tap until the screen changes. */
+function stepTagOf(s) { return s.phase === 'answer' ? (s.reel ? s.reel.step : 0) : s.phase === 'framing' ? (s.framing && s.framing.resolved ? 1 : 0) : 0; }
+function tagged(action, extra) { return Object.assign({ action, phase: state ? state.phase : null, round: state ? state.round : null, step: state ? stepTagOf(state) : 0 }, extra || {}); }
+function advTap(btn, action, extra) {
+  if (btn && btn.disabled) return false;
+  if (!state || !send(tagged(action || 'advance', extra))) return false;
+  if (btn) {
+    btn.disabled = true;
+    const was = state.phase + '|' + state.round + '|' + stepTagOf(state);
+    setTimeout(() => { if (btn.isConnected && state && state.phase + '|' + state.round + '|' + stepTagOf(state) === was) btn.disabled = false; }, 3000);   // the server said no (e.g. not yet): tap again
+  }
+  return true;
+}
+
+/* PASS A #6: the server restarted (every update restarts it) and this room is gone. The host's phone keeps a recent
+   snapshot of the room (state.snapshot → cc_snapshot); its Restore button brings the room back with the same code and
+   scores, from the start of the next round. Everyone else's phone keeps trying to rejoin with its seat key. */
+let roomGone = null, roomGoneTimer = null;
+function snapGet() { try { const v = JSON.parse(localStorage.getItem('cc_snapshot') || 'null'); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } }
+function snapSave(v) { try { localStorage.setItem('cc_snapshot', JSON.stringify(v)); } catch (e) {} }
+function canRestore(s) { const snap = snapGet(); return !!(s && s.seatKey && snap && snap.code === s.code && snap.hostId === s.playerId && Date.now() - (snap.at || 0) < 12 * 3600 * 1000); }
+function showRoomGone(s, why) {
+  roomGone = { s, why, since: (roomGone && roomGone.s.code === s.code) ? roomGone.since : Date.now() };
+  myPlayerId = null; gameCode = null; state = null;
+  try { const v = JSON.stringify({ ...s, ts: Date.now() }); sessionStorage.setItem('cc_session', v); localStorage.setItem('cc_session', v); } catch (e) {}
+  if (!$('screen-home').classList.contains('active')) showScreen('screen-home');
+  renderRoomGone();
+  clearTimeout(roomGoneTimer);
+  // Not the host: try again every few seconds (for up to 20 minutes) — the host may tap Restore any moment
+  if (!canRestore(s) && Date.now() - roomGone.since < 20 * 60 * 1000) roomGoneTimer = setTimeout(roomGoneRetry, 4000);
+}
+function roomGoneRetry() { const g = roomGone; if (g && ws && ws.readyState === 1) ws.send(JSON.stringify({ action: 'reconnect', playerId: g.s.playerId, code: g.s.code, seatKey: g.s.seatKey })); else if (g) roomGoneTimer = setTimeout(roomGoneRetry, 4000); }
+function renderRoomGone() {
+  const box = $('rejoin-box'), g = roomGone;
+  if (!box || !g) return;
+  const host = canRestore(g.s);
+  const head = g.why === 'closed' ? 'That room closed — it sat empty for a while.' : 'The game server restarted — sorry!';
+  const body = host
+    ? 'You’re the host: tap <b>Restore</b> to pick up where you left off. Scores are kept; the round you were in starts over.'
+    : 'Hang tight — when the host taps <b>Restore</b> on their phone, you’ll be back in by yourself.';
+  box.innerHTML = `<div class="panel yellow flat" style="text-align:left;"><div style="display:flex; align-items:flex-start; gap:10px;"><div style="flex:1;"><b>${head}</b><br><span class="small">Game ${esc(g.s.code)}${g.s.name ? ' · ' + esc(g.s.name) : ''}. ${body}</span></div><button class="btn-link" style="padding:4px;" aria-label="Dismiss" onclick="roomGoneDone(); clearSession(); offerRejoin();">✕</button></div>
+    <div class="btn-row" style="margin-top:10px;">${host ? `<button class="btn btn-sm btn-ink" onclick="restoreRoom(this)">↺ Restore the game</button>` : `<button class="btn btn-sm" onclick="roomGoneRetry()"><span class="dots">Waiting for the host</span></button>`}</div></div>`;
+}
+function restoreRoom(btn) {
+  const g = roomGone, snap = snapGet();
+  if (!g || !snap) return;
+  if (btn) { btn.disabled = true; setTimeout(() => { if (btn.isConnected) btn.disabled = false; }, 3000); }
+  wasKicked = false;
+  send({ action: 'restore', snapshot: snap, seatKey: g.s.seatKey });
+}
+function roomGoneDone() { roomGone = null; clearTimeout(roomGoneTimer); roomGoneTimer = null; const b = $('rejoin-box'); if (b && b.querySelector('[onclick^="restoreRoom"],[onclick^="roomGoneRetry"]')) b.innerHTML = ''; }
 function showToast(message, type = 'error') {
   let t = $('app-toast');
   if (!t) { t = document.createElement('div'); t.id = 'app-toast'; document.body.appendChild(t); }
@@ -1052,7 +1115,7 @@ function leaveGame() {
   if (!confirm(mid ? 'Leave this game? Your seat and score are kept if you rejoin with the same name.' : 'Leave this game?')) return;
   if (window.Voice) Voice.leave();
   send({ action: 'leave' });
-  clearSession(); myPlayerId = null; gameCode = null; state = null; lastPhase = null; showScreen('screen-home');
+  clearSession(); myPlayerId = null; gameCode = null; mySeatKey = null; state = null; lastPhase = null; showScreen('screen-home');
 }
 // Cartoons this phone has seen, so the next game it hosts deals fresh ones
 function getSeen() { try { const v = JSON.parse(localStorage.getItem('cc_seen') || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
@@ -1070,14 +1133,17 @@ function createGame() {
   const name = $('create-name').value.trim();
   if (!name) { const e = $('create-error'); e.textContent = 'Enter your name first'; e.style.display = 'block'; sfx.error(); return; }
   try { localStorage.setItem('cc_name', name); } catch (e) {}
-  wasKicked = false; send({ action: 'create', name, timer: selectedTimer, seen: getSeen() });
+  // PASS A #4: prev = the seat this phone had (the server marks it offline so that game doesn't wait on a ghost)
+  wasKicked = false; roomGoneDone(); send({ action: 'create', name, timer: selectedTimer, seen: getSeen(), prev: readStore(localStorage) || undefined });
 }
 function joinGame() {
   const code = $('join-code').value.trim().toUpperCase(), name = $('join-name').value.trim(), e = $('join-error');
   if (code.length !== 4) { e.textContent = 'The room code is 4 letters'; e.style.display = 'block'; sfx.error(); return; }
   if (!name) { e.textContent = 'Enter your name'; e.style.display = 'block'; sfx.error(); return; }
   try { localStorage.setItem('cc_name', name); } catch (e) {}
-  wasKicked = false; send({ action: 'join', code, name });
+  // PASS A #2/#4: our seat key for this room, if we have one (rejoin by name), and the seat we had before
+  const had = readStore(localStorage);
+  wasKicked = false; roomGoneDone(); send({ action: 'join', code, name, seatKey: had && had.code === code ? had.seatKey : undefined, prev: had && had.code !== code ? had : undefined });
 }
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter') return;
@@ -1352,10 +1418,17 @@ function renderLobby() {
     <p class="eyebrow" style="margin-bottom:6px;">At the table · ${connected} of ${state.players.length}</p>
     <div style="margin-bottom:10px;">${players}</div>${seatHelp}
     ${galleryToggle}${settings}${freshLine}<p class="center small" style="margin-bottom:14px;">${summary}</p>
+    ${resumedHtml()}
     ${state.isHost
-      ? `<button class="btn btn-yellow" onclick="send({action:'start'})" ${connected < 3 ? 'disabled' : ''}>${connected < 3 ? `Need ${plural(3 - connected, 'more player')}` : 'Start the game →'}</button>`
+      ? `<button class="btn btn-yellow" onclick="advTap(this,'start')" ${connected < 3 ? 'disabled' : ''}>${connected < 3 ? `Need ${plural(3 - connected, 'more player')}` : state.resumed && state.round > 0 ? `Deal round ${state.round + 1} →` : 'Start the game →'}</button>`
       : `<div class="panel flat center"><span class="spin" style="margin-bottom:8px;"></span><p class="sub">Waiting for ${esc(nameOf(state.hostId))} to start<span class="dots"></span></p></div>`}
     <button class="btn-link" style="display:block; margin:12px auto 0;" onclick="showScreen('screen-rules')">How to play</button>`;
+}
+// PASS A #6: a room brought back after a server restart: who's back, and the scores so far
+function resumedHtml() {
+  if (!state.resumed) return '';
+  const sc = state.round > 0 ? state.players.slice().sort((a, b) => b.score - a.score).map(p => `${esc(p.name)} ${p.score}`).join(' · ') : '';
+  return `<div class="panel teal flat" style="margin-bottom:14px; text-align:left;"><b>↺ Game restored</b><br><span class="small">The server restarted, so ${state.round > 0 ? `the game picks up at round ${state.round + 1}` : 'the game starts fresh'}. Everyone’s phone rejoins by itself.${sc ? `<br>Scores: ${sc}` : ''}</span></div>`;
 }
 function setHostTimer(timer) { send({ action: 'update_timer', timer }); }
 function setHostSettings(partial) { send({ action: 'update_settings', settings: partial }); }
@@ -1434,7 +1507,7 @@ function renderWriting() {
 function confirmEndWriting() {
   const submitted = new Set(state.submittedPlayerIds || []), missing = state.players.filter(p => p.connected && !submitted.has(p.id)).length;
   if (missing > 0 && !confirm(`Stop waiting? ${plural(missing, 'player hasn’t', 'players haven’t')} locked in yet.`)) return;
-  send({ action: 'end_writing' });
+  send(tagged('end_writing'));   // PASS A #1
 }
 function toggleMulligan() { if (send({ action: 'mulligan' })) buzz(15); }
 let submitting = false;
@@ -1565,8 +1638,8 @@ function renderReading(animate) {
     <div class="cap closed locked ${animate ? 'deal-in' : ''}" style="animation-delay:${nOpen * 0.14}s; text-align:center; padding:18px; margin-top:16px;">
       <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p><p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'It’s yours. Keep a straight face.' : 'Turned over after the blind bets'}</p>
     </div>
-    ${state.isDealer ? `<button class="btn" style="margin-top:18px;" onclick="openReadAloud()">📢 Read them big</button><button class="btn btn-yellow" style="margin-top:12px;" onclick="send({action:'advance'})">Done reading — start the betting 🎰</button>`
-      : canRun() ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'advance'})">Start the betting →</button>`
+    ${state.isDealer ? `<button class="btn" style="margin-top:18px;" onclick="openReadAloud()">📢 Read them big</button><button class="btn btn-yellow" style="margin-top:12px;" onclick="advTap(this)">Done reading — start the betting 🎰</button>`
+      : canRun() ? `<button class="btn" style="margin-top:18px;" onclick="advTap(this)">Start the betting →</button>`
       : `<p class="center small" style="margin-top:16px;">Betting starts when ${esc(state.dealerName)} is done reading</p>`}`;
 }
 
@@ -1638,8 +1711,8 @@ function renderBetting(stage) {
     <div class="stack" style="margin-top:18px;">${cards}${closedCard}</div>${tools}`;
 }
 function undoBet() { undoUntil = 0; setActionBar(''); send({ action: 'undo_bet' }); }
-function skipBetter() { if (confirm(`Skip ${state.currentBetterName}’s turn? They sit this bet out.`)) send({ action: 'skip_better' }); }
-function forceAdvance() { if (confirm(`Move on without ${plural((state.pendingBetters || []).length, 'more bet')}?`)) send({ action: 'advance' }); }
+function skipBetter() { if (confirm(`Skip ${state.currentBetterName}’s turn? They sit this bet out.`)) send(tagged('skip_better', { better: state.currentBetterId })); }   // PASS A #1
+function forceAdvance() { if (confirm(`Move on without ${plural((state.pendingBetters || []).length, 'more bet')}?`)) advTap(null); }   // PASS A #1
 function selectBet(target) {
   if (!state.isMyTurn) return;
   const stage = state.phase === 'first_bets' ? 1 : 2;
@@ -1700,7 +1773,7 @@ function renderReveal() {
         <div class="face back"><div class="panel yellow" style="transform:rotate(-1deg);"><p class="eyebrow" style="color:var(--ink-2);">The Closed Caption</p><p class="caption-text" style="font-size:22px; margin-top:6px;">“${esc(state.closedCaption)}”</p>${state.iWroteClosed ? '<p class="small" style="margin-top:6px;">(Yours. Poker face.)</p>' : ''}</div></div>
       </div></div>
       <p class="sub" id="reveal-hint" style="opacity:0; transition:opacity .4s; margin-top:30px;"></p>
-      ${canRun() ? `<button id="reveal-continue" class="btn ${state.isDealer ? 'btn-yellow' : ''}" style="margin-top:18px; opacity:0; transition:opacity .4s; pointer-events:none;" onclick="send({action:'advance'})">${n ? 'Read it aloud, then — last chips →' : 'Next →'}</button>` : `<p class="sub" id="reveal-continue" style="margin-top:18px; opacity:0; transition:opacity .4s;">⏳ Waiting for ${esc(state.dealerName)} to read it out — then ${n ? 'the last chips' : 'the answer'}.</p>`}
+      ${canRun() ? `<button id="reveal-continue" class="btn ${state.isDealer ? 'btn-yellow' : ''}" style="margin-top:18px; opacity:0; transition:opacity .4s; pointer-events:none;" onclick="advTap(this)">${n ? 'Read it aloud, then — last chips →' : 'Next →'}</button>` : `<p class="sub" id="reveal-continue" style="margin-top:18px; opacity:0; transition:opacity .4s;">⏳ Waiting for ${esc(state.dealerName)} to read it out — then ${n ? 'the last chips' : 'the answer'}.</p>`}
     </div>`;
 }
 /* The Closed Caption turns over like a real card: it lifts (the shadow grows), trembles, then slaps
@@ -1762,7 +1835,7 @@ function renderSteal() {
   return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
     <div class="steal-hero"><span class="em">😈</span><h2 class="h2" style="margin-top:6px;">${esc(state.dealerName)} is choosing a chip to steal<span class="dots"></span></h2><p class="sub">Any chip on the table could go. Plead your case.</p></div>
     <div class="stack" style="margin-top:18px;">${cards}</div>
-    ${canPass ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'steal', betIndex:null})">Skip the steal and show the answer →</button>` : ''}`;
+    ${canPass ? `<button class="btn" style="margin-top:18px;" onclick="advTap(this,'steal',{betIndex:null})">Skip the steal and show the answer →</button>` : ''}`;
 }
 function grabChip(i) {
   grabbedBet = grabbedBet === i ? null : i; sfx.tap();
@@ -1778,7 +1851,7 @@ function renderStealBar() {
     <div class="btn-row"><button class="btn" onclick="grabChip(${grabbedBet})">Cancel</button><button class="btn btn-red" onclick="doSteal(${grabbedBet})">😈 Steal it</button></div>`);
 }
 function doSteal(i) {
-  send({ action: 'steal', betIndex: i });   // every phone, yours too, plays the steal show
+  send(tagged('steal', { betIndex: i }));   // every phone, yours too, plays the steal show (PASS A #1: tagged)
   setActionBar('');
 }
 
@@ -1857,7 +1930,7 @@ function fmFootHtml() {
     const next = isLastRound() ? 'Final scores' : 'Scoreboard';
     const late = (Date.now() + clockOffset) > (r.endsAt || 0) + 2500;
     if (!late && canRun()) { clearTimeout(window._fmLateT); window._fmLateT = setTimeout(() => { if (state && state.phase === 'framing') framingLive(true); }, Math.max(0, (r.endsAt || 0) + 2600 - (Date.now() + clockOffset))); }
-    return canRun() && late ? `<button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'advance'})">${next} →</button>` : `<p class="fm-wait">${next} in a moment — it comes up by itself<span class="dots"></span></p>`;
+    return canRun() && late ? `<button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="advTap(this)">${next} →</button>` : `<p class="fm-wait">${next} in a moment — it comes up by itself<span class="dots"></span></p>`;
   }
   const voters = f.voters || [], decided = new Set(f.decided || []);
   const ids = voters.concat((f.decided || []).filter(id => !voters.includes(id))).filter(id => playerById(id));
@@ -1866,7 +1939,7 @@ function fmFootHtml() {
   const passed = mine === 'pass';
   return `<button class="btn fm-pass ${passed ? 'on' : ''}" onclick="pickFrame('pass')" aria-pressed="${passed ? 'true' : 'false'}">${passed ? '✓ The real one wins · tap a caption to change' : 'Nothing beat the real one'}</button>
     <div class="fm-row"><div class="fm-chips ${ids.length > 6 ? 'many' : ''}">${chips}</div><span class="fm-count">${(() => { const wait = here.filter(id => !decided.has(id)); return wait.length && wait.length <= 2 && here.length > 2 ? 'Waiting on ' + wait.map(id => id === myPlayerId ? 'you' : esc(nameOf(id))).join(' & ') + '…' : `${here.length - wait.length} of ${here.length} decided`; })()}</span></div>
-    ${canRun() ? `<div class="center" style="margin-top:-6px;"><button class="btn-link fm-move" onclick="send({action:'advance'})">Move on</button></div>` : ''}`;
+    ${canRun() ? `<div class="center" style="margin-top:-6px;"><button class="btn-link fm-move" onclick="advTap(this)">Move on</button></div>` : ''}`;
 }
 function fmHeadHtml() {
   const r = (state.framing || {}).result;
@@ -1936,7 +2009,10 @@ function galleryGet() { try { const v = JSON.parse(localStorage.getItem('cc_gall
 function galleryKey(e) { return e.cartoonId + '|' + String(e.caption).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
 function gallerySave(rows) {
   const list = galleryGet(), keys = new Set(list.map(galleryKey)); let added = false;
-  for (const e of rows || []) { if (!e || !e.caption || !Number.isInteger(Number(e.cartoonId)) || galleryRetired(e) || keys.has(galleryKey(e))) continue; list.push({ id: e.id, cartoonId: Number(e.cartoonId), image: e.image, caption: e.caption, author: e.author, flaggers: e.flaggers || [], flags: e.flags || 0, month: e.month, at: e.at || Date.now(), ...(e.best ? { best: e.best } : {}) }); keys.add(galleryKey(e)); added = true; }
+  for (const e of rows || []) {
+    // PASS A #3: keep the server's stamp (sig) — an entry we already have picks it up when the server sends it
+    if (e && e.sig && e.caption && keys.has(galleryKey(e))) { const x = list.find(y => galleryKey(y) === galleryKey(e)); if (x && !x.sig) { x.sig = e.sig; added = true; } continue; }
+    if (!e || !e.caption || !Number.isInteger(Number(e.cartoonId)) || galleryRetired(e) || keys.has(galleryKey(e))) continue; list.push({ id: e.id, cartoonId: Number(e.cartoonId), image: e.image, caption: e.caption, author: e.author, flaggers: e.flaggers || [], flags: e.flags || 0, month: e.month, at: e.at || Date.now(), ...(e.best ? { best: e.best } : {}), ...(e.sig ? { sig: e.sig } : {}) }); keys.add(galleryKey(e)); added = true; }
   if (added) { list.sort((a, b) => a.at - b.at); try { localStorage.setItem('cc_gallery', JSON.stringify(list.slice(-300))); } catch (e) {} }
 }
 function syncGallery() { const list = galleryGet(); if (list.length && ws && ws.readyState === 1 && myPlayerId) ws.send(JSON.stringify({ action: 'gallery_sync', entries: list.slice(-300) })); }
@@ -2110,7 +2186,7 @@ function isLastRound() {
 }
 function answerContinueHtml(lastRound) {
   const label = '🖼 Frame It →';   // then the scoreboard (or the final scores)
-  if (canRun()) return `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" onclick="send({action:'reel_prev'})" aria-label="Back to the reveal">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'advance'})">${state.isDealer ? label : `${label.replace(' →', '')} for ${esc(state.dealerName)} →`}</button></div>`;
+  if (canRun()) return `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" onclick="advTap(this,'reel_prev')" aria-label="Back to the reveal">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="advTap(this)">${state.isDealer ? label : `${label.replace(' →', '')} for ${esc(state.dealerName)} →`}</button></div>`;
   return `<p class="rc-wait">Waiting for ${esc(state.dealerName)}<span class="dots"></span></p>`;
 }
 // Live updates while the answer is up (who can move on) without replaying the show
@@ -2164,8 +2240,8 @@ function spotlightHtml() {
   const badges = [...(state.roundBadges || []).filter(b => String(b.target) === String(key) && !['moon', 'pickpocket'].includes(b.kind)), ...realBadges];
   const nextLabel = step < n - 1 ? 'Next caption →' : step === n - 1 ? 'And the real caption is… 🥁' : 'Round recap →';
   const ctl = canRun()
-    ? `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" ${step <= 1 ? 'disabled' : ''} onclick="send({action:'reel_prev'})" aria-label="Previous caption">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'reel_next'})">${nextLabel}</button></div>
-       ${step < n ? `<button class="btn-link" style="display:block; margin:6px auto 0; font-size:13px;" onclick="send({action:'reel_skip'})">Skip to the recap</button>` : ''}`
+    ? `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" ${step <= 1 ? 'disabled' : ''} onclick="advTap(this,'reel_prev')" aria-label="Previous caption">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="advTap(this,'reel_next')">${nextLabel}</button></div>
+       ${step < n ? `<button class="btn-link" style="display:block; margin:6px auto 0; font-size:13px;" onclick="advTap(this,'reel_skip')">Skip to the recap</button>` : ''}`
     : `<p class="center small">Take your time — ${esc(state.dealerName)} moves to the next one.</p>`;
   return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `${roundLabel()} · caption ${step} of ${n}` })}
     ${step === 1 ? `<div id="steal-slot">${stealNewsHtml()}</div>` : ''}
@@ -2402,7 +2478,7 @@ function renderScores() {
   return `${header({ sticker: '<span class="sticker">Scoreboard</span>', sub: goal, thumb: false })}
     <div class="sb-list ${sorted.length > 6 ? 'tight' : ''}">${rows}</div>
     <p class="sb-next">Next dealer: <b>${esc(state.nextDealerName)}</b></p>
-    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">🎲 Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(state.nextDealerName)} →</button>` : `<p class="rc-wait">Waiting for ${esc(state.nextDealerName)} to deal<span class="dots"></span></p>`}`;
+    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="advTap(this)">🎲 Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="advTap(this)">Deal round ${state.round + 1} for ${esc(state.nextDealerName)} →</button>` : `<p class="rc-wait">Waiting for ${esc(state.nextDealerName)} to deal<span class="dots"></span></p>`}`;
 }
 // Game over: two big moments (Winner, The Grand Poobah), a compact standings row, and the buttons
 function renderFinal(sorted, animated, goal) {
@@ -2422,7 +2498,7 @@ function renderFinal(sorted, animated, goal) {
     ${ccFinale.screenHtml()}
     <div class="fn-stand">${standings}</div>
     <div class="stack fn-btns">
-      ${state.finale.winner ? (state.isHost ? `<button class="btn btn-yellow" onclick="send({action:'play_again', seen:getSeen()})">Play again 🔁</button>` : `<p class="rc-wait">The host can start another game</p>`) : ''}
+      ${state.finale.winner ? (state.isHost ? `<button class="btn btn-yellow" onclick="advTap(this,'play_again',{seen:getSeen()})">Play again 🔁</button>` : `<p class="rc-wait">The host can start another game</p>`) : ''}
       ${window.Recap && state.finale.winner ? `<button class="btn" onclick="Recap.open()">📸 Night recap</button>` : ''}
     </div>`;
   return `${header({ sticker: '<span class="sticker">Final scores</span>', sub: goal, thumb: false })}
@@ -2431,7 +2507,7 @@ function renderFinal(sorted, animated, goal) {
     <div class="stack fn-btns">
       ${galBtn}
       ${window.Recap ? `<button class="btn" onclick="Recap.open()">📸 Night recap</button>` : ''}
-      ${state.isHost ? `<button class="btn ${galBtn ? 'btn-sm' : 'btn-yellow'}" onclick="send({action:'play_again', seen:getSeen()})">${galBtn ? 'Skip the Gallery · play again' : 'Play again 🔁'}</button>` : galBtn ? '' : `<p class="rc-wait">The host can start another game</p>`}
+      ${state.isHost ? `<button class="btn ${galBtn ? 'btn-sm' : 'btn-yellow'}" onclick="advTap(this,'play_again',{seen:getSeen()})">${galBtn ? 'Skip the Gallery · play again' : 'Play again 🔁'}</button>` : galBtn ? '' : `<p class="rc-wait">The host can start another game</p>`}
       ${state.history && state.history.length ? `<button class="btn-link fn-link" onclick="openHistory()">📖 Relive the rounds</button>` : ''}
     </div>`;
 }
@@ -2607,7 +2683,7 @@ function closeGrand(tapped) {
   if (tapped && state && state.phase === 'scores' && state.gameOver && state.framedTonight && !state.finale && canRun() && window.ccFinale) { openFinale(); return; }
   if (state && state.phase === 'scores') render(true);
 }
-function openFinale() { if (send({ action: 'finale_open' })) { buzz(30); } }
+function openFinale() { if (send(tagged('finale_open'))) { buzz(30); } }   // PASS A #1: tagged
 // Caption of the Night: this phone's copy of The Gallery remembers it too (a ribbon on the wall)
 function markBestLocally() {
   const f = state.finale; if (!f || !f.winner || !f.best) return;
