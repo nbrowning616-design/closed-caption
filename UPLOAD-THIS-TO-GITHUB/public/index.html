@@ -2466,12 +2466,12 @@ function stealNewsHtml() {
   return `<div class="steal-news"><div class="h2">${state.isDealer ? 'You' : esc(firstName(state.dealerName))} stole ${me ? 'your' : esc(fnameOf(st.victimId)) + '’s'} chip</div><p class="sub">${st.actName ? esc(st.actName) + ' took it off ' : 'Knocked off '}${where}.${st.gloat ? ` “${esc(st.gloat)}”` : ''}</p></div>`;
 }
 /* The steal show (steal.js, heists.js). The server picks it (state.steal.stealShow), so every phone agrees:
-   'full' — the first steal of a game, or a steal off the real caption: one of 31 heists (~7.6s);
-   'short' — every other steal: a spray can tags the chip in the dealer's colour, with the line (~2.5s).
+   'full' — the first steal of a game, or a steal off the real caption: one of the heists (9.6s);
+   'short' — every other steal: a TRANSFERRED stamp in the dealer's colour, with the line (3.5s).
    No stealShow (an older server): the full show, as before.
-   Starts on the shared beat. Returns ms until the show is over. */
-const STEAL_SHOW_MS = 7600, STEAL_QUICK_MS = 2500;   // full heist 7.6s; the short one ~2.5s (server: state.steal.stealShow)
-// How long this round's steal show runs: 'short' -> 2.5s; 'full' or an older server (no stealShow) -> the full 7.6s
+   Starts on the shared beat. Returns ms until the show is over. server.js holds the reveal for the same length. */
+const STEAL_SHOW_MS = 9600, STEAL_QUICK_MS = 3500;   // full heist 9.6s; the short stamp 3.5s (server.js 'reel_next' matches)
+// How long this round's steal show runs: 'short' -> 3.5s; 'full' or an older server (no stealShow) -> the full 9.6s
 const stealShowMs = (st) => window.ccClaw && window.ccClaw.lengthFor ? window.ccClaw.lengthFor(st, STEAL_SHOW_MS) : STEAL_SHOW_MS;
 function playStealShow(wait = 0) {
   if (!window.ccClaw) return 0;

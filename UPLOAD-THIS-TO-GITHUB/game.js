@@ -182,54 +182,22 @@ const MULLIGAN_QUIPS = [
 // How the rejected cartoon meets its end (every phone plays the same one)
 const EXECUTIONS = ['punch', 'tear', 'fire', 'flush', 'stomp', 'shred'];
 
-// What the dealer says after the steal (rotates)
-const GLOATS = [
-  'Got you. It’s mine now.',
-  'Thanks for the chip. I’ll treasure it.',
-  'Nothing personal. Okay, a little personal.',
-  'Don’t mind me.',
-  'You weren’t using that, were you?',
-  'That’s going on my mantel.',
-  'Shhh. It’s okay. Let it go.',
-  'Mine now. Say goodbye.',
-];
-
-// The steal shows. 'full' (the first steal of a game, or a steal off the real caption): one of 31 heists.
-// Index 0 is The Claw (steal.js); 1..30 are public/heists.js (same order). A room deals them like a deck, so
-// nobody sees a repeat until all 31 have played. Every other steal is 'short': a transfer-of-ownership stamp.
-// House rule for every line here: a caption. Short, specific, deadpan, one beat.
+// The steal shows. 'full' (the first steal of a game, or a steal off the real caption): one of the heists below,
+// drawn in public/heists.js in this same order (index = act). A room deals them like a deck, so nobody sees a
+// repeat until all have played. Every other steal is 'short': a transfer-of-ownership stamp (RECEIPTS).
+// House rule for every line here: a caption. Short, specific, deadpan, one beat. Every line is used once.
 const HEISTS = [
-  { name: 'The Claw', gloats: GLOATS },
-  { name: 'The Bald Eagle', gloats: ['Talons don’t lie.', 'Nothing personal. Just talons.'] },
-  { name: 'The Raccoon', gloats: ['Rinsed it. Mine now.', 'I live in your walls. And now, your chips.'] },
-  { name: 'The Frog', gloats: ['It was a fly, I swear.', 'Looked like a fly. Still mine.'] },
-  { name: 'The UFO', gloats: ['We come in peace. We leave with your chip.', 'Taken for study.'] },
-  { name: 'The Magician', gloats: ['Is this your chip? Not anymore.', 'And for my next trick: your dignity.'] },
-  { name: 'The Octopus', gloats: ['I had seven free hands. Do the math.', 'Eight arms. Zero apologies.'] },
-  { name: 'The Accountant', gloats: ['For tax purposes, it’s mine.', 'It balances now.'] },
-  { name: 'The Butler', gloats: ['Will that be all?', 'I’ll see myself out.'] },
+  { name: 'The Claw', gloats: ['Skill game.', 'First try, too.'] },
+  { name: 'The Butler', gloats: ['Will that be all?', 'I’ve put it with the good silver.'] },
+  { name: 'The Magician', gloats: ['Is this your chip? Not anymore.', 'No, you may not examine it.'] },
   { name: 'Grandma', gloats: ['You can visit it on holidays.', 'I’ll keep it somewhere safe. You’ll never find it.'] },
-  { name: 'The Cat', gloats: ['If I sit on it, it’s mine.', 'It was on the table. Now it isn’t.'] },
-  { name: 'The Mime', gloats: ['(Pockets it. Says nothing.)', '(Points at you. Shrugs.)'] },
-  { name: 'The Ninja', gloats: ['You saw nothing.', 'It was never here.'] },
-  { name: 'The Tornado', gloats: ['Check your homeowner’s policy.', 'It was in the path.'] },
-  { name: 'The Good Boy', gloats: ['Found it. Keeping it.', 'You weren’t going to throw it anyway.'] },
-  { name: 'The Ghost', gloats: ['Passed through. Took this.', 'Your chip has crossed over.'] },
+  { name: 'The Cat', gloats: ['If I sat on it, it’s mine.', 'Next time, don’t leave it out.'] },
   { name: 'The Auctioneer', gloats: ['Sold, to the dealer.', 'No other bids.'] },
-  { name: 'The Lawyer', gloats: ['Possession is nine-tenths of the law.', 'You’ll be hearing from my associates.'] },
-  { name: 'The Crab', gloats: ['Not sorry. Hard shell.', 'It’s a shell thing. You wouldn’t get it.'] },
-  { name: 'The T. rex', gloats: ['Tiny arms. Big ambitions.', 'Not extinct. Just patient.'] },
-  { name: 'The Snail', gloats: ['You had all the time in the world.', 'I’d apologise, but it would take too long.'] },
-  { name: 'The Seagull', gloats: ['Like a french fry at the beach.', 'Never made eye contact.'] },
-  { name: 'The Mole', gloats: ['Nobody checks under the table.', 'Filed under lost.'] },
-  { name: 'The Pelican', gloats: ['It’s in the pouch now.', 'Pouch rules. Sorry.'] },
-  { name: 'The Robot', gloats: ['Calculating your loss. Done.', 'Reassigned. No further action required.'] },
-  { name: 'The Bee', gloats: ['Standard fee.', 'The queen sends her regards.'] },
-  { name: 'The Hedgehog', gloats: ['It stuck to me. These things happen.', 'No refunds. No exchanges.'] },
-  { name: 'The Cowboy', gloats: ['Branded. Don’t make it weird.', 'I’ll take good care of it. Out on the range.'] },
-  { name: 'The Vampire', gloats: ['Gone by sunrise. So is this.', 'I don’t drink chips. I collect them.'] },
-  { name: 'The Night Watchman', gloats: ['For safekeeping.', 'I’ll hold on to this for now.'] },
-  { name: 'The Penguin', gloats: ['Cold. Calculated. Mine.', 'Black tie. No questions.'] },
+  { name: 'The Raccoon', gloats: ['Rinsed it. Mine now.', 'Found it in the open. Basically garbage.'] },
+  { name: 'The Accountant', gloats: ['For tax purposes, it’s mine.', 'It balances now.'] },
+  { name: 'The Mime', gloats: ['(Pockets it. Says nothing.)', '(Points at you. Shrugs.)'] },
+  { name: 'The Frog', gloats: ['It looked like a fly. Still mine.', 'It was moving slowly. That’s on you.'] },
+  { name: 'The Octopus', gloats: ['I had seven free hands. Do the math.', 'Eight arms. Zero apologies.'] },
 ];
 // The short show is paperwork: a transfer-of-ownership stamp and one typed line. {name} = whose chip it was.
 const RECEIPTS = [
@@ -246,6 +214,8 @@ const AGAIN_SHORT = 'Received from {name}. Again.';
 const firstNameOf = (game, pid) => { const p = game.players.find(q => q.id === pid); return (String(p ? p.name : '').trim().split(/\s+/)[0]) || 'you'; };
 // Next heist off the room's deck; a fresh shuffle never opens with the one that just played
 function nextHeist(game) {
+  // a room restored from an older server may hold a deck from the old 31-heist list: keep only acts that still exist
+  if (Array.isArray(game.heistDeck)) game.heistDeck = game.heistDeck.filter(i => Number.isInteger(i) && i >= 0 && i < HEISTS.length);
   if (!Array.isArray(game.heistDeck) || !game.heistDeck.length) {
     let d = shuffleArray(HEISTS.map((_, i) => i));
     if (d.length > 1 && d[0] === game.lastHeist) d.push(d.shift());
@@ -829,7 +799,7 @@ function stealChip(game, betIndex) {
     const robbedBefore = game.history.some(h => h.steal && h.steal.victimId === bet.playerId);
     const vname = firstNameOf(game, bet.playerId);
     let act = null, actName = null, gloat;
-    if (stealShow === 'full') {   // only a full show deals a heist off the deck, so the 31 stay a treat
+    if (stealShow === 'full') {   // only a full show deals a heist off the deck, so they stay a treat
       act = nextHeist(game); actName = HEISTS[act].name;
       gloat = robbedBefore ? AGAIN_FULL.replace('{name}', vname) : pick(HEISTS[act].gloats);
     } else {
