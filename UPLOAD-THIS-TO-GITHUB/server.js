@@ -39,6 +39,26 @@ const PAGE = INDEX_HTML.replace('__BUILD__', BUILD).split('__V__').join(BUILD);
 app.get('/', (req, res) => { res.set('Cache-Control', 'no-store'); res.type('html').send(PAGE); });
 app.get('/index.html', (req, res) => res.redirect('/'));
 app.get('/healthz', (req, res) => res.send('ok'));
+// Cartoon drop-box for the daily ChatGPT batch: the browser hands a finished picture to /intake.html, which posts it
+// here; the batch session (with the key) collects it. Pictures only, in memory, gone after 6 hours. Key: sha256 below.
+const INTAKE_HASH = '79b119f2571078130ab0bc5d1ef2d2b7a590d274017c29cb9332d8afeec2af69';
+const intake = new Map();   // name -> { buf, type, at }
+const intakeOk = (k) => typeof k === 'string' && k.length < 100 && crypto.createHash('sha256').update(k).digest('hex') === INTAKE_HASH;
+const intakeSweep = () => { const now = Date.now(); for (const [n, v] of intake) if (now - v.at > 6 * 3600 * 1000) intake.delete(n); };
+app.post('/intake', express.json({ limit: '6mb' }), (req, res) => {
+  const { k, name, data } = req.body || {};
+  if (!intakeOk(k)) return res.status(403).end();
+  const m = /^data:(image\/(png|jpeg|webp));base64,(.+)$/.exec(String(data || ''));
+  const n = String(name || '').replace(/[^a-z0-9_-]/gi, '').slice(0, 40);
+  if (!m || !n) return res.status(400).end();
+  intakeSweep();
+  if (intake.size >= 60) return res.status(507).end();
+  intake.set(n, { buf: Buffer.from(m[3], 'base64'), type: m[1], at: Date.now() });
+  res.set('Cache-Control', 'no-store').json({ ok: true, name: n, bytes: intake.get(n).buf.length });
+});
+app.get('/intake/list', (req, res) => { if (!intakeOk(req.query.k)) return res.status(403).end(); intakeSweep(); res.set('Cache-Control', 'no-store').json([...intake].map(([n, v]) => ({ name: n, type: v.type, bytes: v.buf.length }))); });
+app.get('/intake/get', (req, res) => { if (!intakeOk(req.query.k)) return res.status(403).end(); const v = intake.get(String(req.query.name || '')); if (!v) return res.status(404).end(); res.set('Cache-Control', 'no-store').type(v.type).send(v.buf); });
+app.get('/intake/clear', (req, res) => { if (!intakeOk(req.query.k)) return res.status(403).end(); intake.delete(String(req.query.name || '')); res.status(204).end(); });
 // Is anyone playing right now? Updates are only pushed when this says no phones are connected.
 // Counts only — no names, codes or captions.
 // The phone's name, kept as a year-long cookie set by the server: iPhones wipe a site's own storage after

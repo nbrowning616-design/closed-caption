@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Cartoon drop-box</title>
+<style>body{font:16px system-ui;margin:40px;text-align:center;color:#222;background:#fff}</style></head><body><p id="m">Saving the cartoon…</p>
+<script>
+(async () => {
+  const m = document.getElementById('m');
+  const h = new URLSearchParams(location.hash.slice(1));
+  const k = h.get('k'), name = h.get('n'), data = h.get('d');
+  history.replaceState(null, '', location.pathname);   // the picture and key leave the address bar straight away
+  if (!k || !name || !data) { m.textContent = 'Nothing to save.'; document.title = 'CC:EMPTY'; return; }
+  try {
+    const r = await fetch('/intake', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ k, name, data }) });
+    const j = r.ok ? await r.json() : null;
+    m.textContent = j ? 'Saved ' + j.name + ' (' + Math.round(j.bytes / 1024) + ' KB).' : 'Not saved (' + r.status + ').';
+    document.title = j ? 'CC:SAVED:' + j.name : 'CC:FAILED:' + r.status;
+  } catch (e) { m.textContent = 'Not saved: ' + e.message; document.title = 'CC:FAILED'; }
+})();
+</script></body></html>
