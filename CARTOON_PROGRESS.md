@@ -163,3 +163,23 @@ Format: `date · queue item · result (redrawn card N / new card N / skipped: re
 - 273 · Door to Door · style 2 · medium · standard · A door-to-door salesman in a suit stands at the entrance of an igloo, demonstrating a portable electric heater to a man in a fur-hooded parka.
 - 275 · Running Late · style 4 · medium · family · A centipede sits on a bench, slowly putting on a long row of tiny shoes. A man in a running outfit waits beside it, checking his watch.
 - 276 · The Reading · style 5 · hard · standard · A fortune teller in a headscarf peers into her crystal ball. Inside the ball, a tiny fortune teller peers back at her through a tiny crystal ball.
+- 277 · On Duty · style 1 · medium · family · A lifeguard sits high in a tall lifeguard chair on the beach, calmly knitting a scarf so long it trails all the way down to the sand.
+- 278 · The Jury · style 2 · medium · standard · In a courtroom, a lawyer addresses the jury box. All twelve jurors are cats, sitting in rows.
+- 279 · Race Day · style 3 · hard · standard · At the horse races, a woman wears an enormous wide-brimmed hat. On the brim, a tiny family has set up home and is hanging out laundry.
+- 280 · Clean Beach · style 4 · medium · family · A man with a push broom sweeps an empty beach. Behind him is an enormous neat pile of sand.
+- 281 · Pulled Over · style 5 · easy · standard · On the freeway shoulder, a highway patrolman writes a ticket for a man sitting on a ride-on lawn mower.
+- 282 · The Trick · style 1 · medium · standard · On a stage, a magician saws a box in half. The lady in the box calmly reads a magazine.
+- 283 · The Meeting · style 2 · easy · family · Around a conference table, a group of office workers carefully avoid looking at the large elephant sitting in one of the chairs.
+- 284 · Body Wrap · style 3 · easy · standard · At a day spa, a mummy lies on a treatment table while a spa therapist carefully wraps him in fresh bandages.
+- 285 · Expecting · style 4 · medium · family · A hen sits on her nest of eggs, reading a thick parenting book through reading glasses.
+- 286 · Power Plant · style 5 · hard · standard · A small hamster runs in a wheel. Wires from the wheel lead to a huge office tower behind it, all its windows lit.
+- 287 · Blood Drive · style 1 · medium · afterdark · At a blood drive, a vampire in a cape sits in the donor chair. The nurse holds a bag of blood and looks at him.
+- 288 · Rodeo · style 2 · easy · family · In a rodeo arena, a cowboy in full gear rides a child's rocking horse. The crowd in the stands cheers.
+- 289 · Dinner Party · style 3 · easy · standard · At an elegant dinner party, one guest eats his soup with a big ladle. The others continue politely.
+- 290 · The Verdict · style 4 · medium · standard · At a cooking contest, a Roman emperor in a toga and laurel wreath gives a thumbs down to a nervous chef holding a plate.
+- 291 · The Commute · style 5 · medium · family · At a city bus stop, a large dinosaur waits patiently in line behind two commuters, holding a small umbrella.
+- 292 · Motivation · style 1 · easy · standard · A man runs on a treadmill. His wife stands behind him dangling a doughnut on a fishing rod just in front of his face.
+- 293 · The Getaway · style 2 · easy · afterdark · On top of a tall wedding cake, the little plastic groom figure is climbing down a tiny rope ladder. The bride figure stands alone at the top.
+- 294 · Camouflage · style 3 · medium · family · A chameleon sits on a chessboard, its skin patterned in perfect black and white squares.
+- 295 · Flight Plan · style 4 · medium · standard · In the aisle of a passenger plane, the pilot in uniform holds open a big road map and asks the passengers for directions.
+- 296 · Economy · style 5 · medium · afterdark · In a cramped row of airplane seats, a man has opened a full-size newspaper across the faces of the two strangers beside him.
