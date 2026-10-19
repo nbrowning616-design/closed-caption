@@ -772,8 +772,42 @@ function pickByLevel(game, list) {
   let r = Math.random() * (w[0] + w[1] + w[2]), lv = r < w[0] ? 'easy' : r < w[0] + w[1] ? 'medium' : 'hard';
   const order = lv === 'easy' ? ['easy', 'medium', 'hard'] : lv === 'hard' ? ['hard', 'medium', 'easy']
     : (w[0] >= w[2] ? ['medium', 'easy', 'hard'] : ['medium', 'hard', 'easy']);
-  for (const l of order) if (by[l].length) return pick(by[l]);
-  return pick(list);
+  for (const l of order) if (by[l].length) return pickVaried(game, by[l]);
+  return pickVaried(game, list);
+}
+
+/* Variety (Nick, Oct 19 2026: "always well shuffled with different creators' work randomly distributed ... no really
+   similar in a row"). card_meta.json tags every card with its creator voice, drawing style and setting/subject words.
+   Of the cards the rules allow, the deal picks at random among those that share the least with the last three played:
+   never the same creator or style back to back, no shared setting or subject with the card just before, and less
+   overlap with the two before that. Cards without tags count as different from everything. */
+let CARD_META = {};
+try { CARD_META = require('./card_meta.json'); } catch (e) { CARD_META = {}; }
+function samenessScore(id, recent) {
+  const m = CARD_META[id];
+  if (!m) return 0;
+  let s = 0;
+  recent.forEach((rid, k) => {
+    const r = CARD_META[rid];
+    if (!r) return;
+    const near = k === 0;                       // k = 0 is the card just played
+    if (near && m.voice && m.voice === r.voice) s += 3;
+    if (near && m.style && m.style === r.style) s += 2;
+    const shared = (m.tags || []).filter(t => (r.tags || []).includes(t)).length;
+    s += shared * (k === 0 ? 3 : k === 1 ? 2 : 1);
+  });
+  return s;
+}
+function pickVaried(game, list) {
+  if (list.length <= 1) return list[0];
+  const recent = (game.usedCartoonIds || []).slice(-3).reverse();
+  if (!recent.length) return pick(list);
+  let best = Infinity, bestList = [];
+  for (const c of list) {
+    const s = samenessScore(c.id, recent);
+    if (s < best) { best = s; bestList = [c]; } else if (s === best) bestList.push(c);
+  }
+  return pick(bestList);
 }
 
 // Is there a cartoon this game hasn't played yet? (never a repeat within a game, never a retired one)

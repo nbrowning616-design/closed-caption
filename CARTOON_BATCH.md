@@ -47,3 +47,17 @@ Progress lives in `CARTOON_PROGRESS.md` (one line per item). Read it first; appe
 
 ## Counting toward 1,000
 Count the cards in `CARTOONS` (game.js) with id 113 and up.
+
+## Standing direction (Nick, Oct 19 2026, evening)
+"Keep going until 1000 made. Keep cycling in new agents with great senses of humor. Need slightly different voices and
+drawings to keep it fresh but familiar."
+- Every round of ~120 premises comes from a NEW set of 4 premise-writer voices (never reuse a voice two rounds running).
+  Voices used so far: absurdist, naturalist, minimalist, satirist · sitcom (work/family), animals, well-read winks, sight
+  gags · dry understatement, late-night monologue, small-town/outdoors, surreal deadpan.
+  Ideas for later rounds: retired cop, kindergarten teacher, sportswriter, ER nurse, wedding DJ, Borscht-belt comic,
+  tech-support lifer, art-school dropout, food critic, flight attendant, Little League coach, historian.
+- Fresh drawings, same five styles: every premise also carries a "composition" (wide shot / close-up / from above /
+  from below / cutaway / silhouette / line-up / rare crowd / ~1 in 8 a nice background), so the deck doesn't settle
+  into one medium-shot look. The five styles stay exactly as approved.
+- Interleave voices in the queue so neighbours feel different; nods to news/sports/movies stay occasional.
+- When ChatGPT hits its daily image limit: ingest, commit, safe_push, and schedule a resume for when it resets.
