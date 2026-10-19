@@ -1,3 +1,127 @@
 # Cartoon batch progress (newest last)
 Format: `date · queue item · result (redrawn card N / new card N / skipped: reason) · one-line premise for new ones`
 
+
+## 2026-10-19 · first new deck (old deck <= 112 retired) · format: id · title · style · level · rating · premise
+- 113 · The High Dive · style unknown · medium · family · 
+- 114 · Porch Talk · style unknown · easy · family · 
+- 115 · The Recital · style unknown · medium · family · 
+- 116 · The Couch · style unknown · easy · family · 
+- 117 · Park Bench · style unknown · medium · family · 
+- 118 · Checkmate · style unknown · easy · family · A dog sits at a kitchen table across from a man; between them a chessboard. The dog has one paw on a piece it has just moved. The man stares at the board.
+- 119 · The Stand · style unknown · medium · family · A businessman in a suit stands at a small lemonade stand reading a thick stapled contract. The little girl behind the stand waits, hands folded.
+- 120 · Dawn · style unknown · easy · standard · A man in a bathrobe stands on his front lawn at dawn holding a newspaper, surrounded by thirty plastic flamingo lawn ornaments that were not there last night.
+- 121 · Open Plan · style unknown · hard · standard · A man sits at a single desk in a vast, completely empty office floor. Far away at the other end of the room, a single potted plant.
+- 122 · Crossing · style unknown · medium · family · A mother duck leads a line of ducklings across a street. The last duckling in the line is a rubber duck being pulled along on a string by the duckling in front of it.
+- 123 · Patience · style unknown · medium · afterdark · Two vultures sit on a dead branch above a man jogging alone across the desert. One vulture checks a wristwatch.
+- 124 · Spin Cycle · style unknown · easy · family · A ghost sits on a bench at a laundromat, watching a single white bedsheet tumble in a dryer.
+- 125 · Self-Checkout · style unknown · medium · standard · A knight in full armor stands at a modern self-checkout machine holding a single banana. Behind him, a store employee watches.
+- 126 · Neighbors · style unknown · hard · family · Two tiny desert islands, each just big enough for one palm tree and one man, sit a few feet apart in the sea. The two castaways sit with their backs to each other.
+- 127 · The Morning After · style unknown · medium · afterdark · A man in a rumpled tuxedo wakes up in a hotel bathtub full of ice. On the closed toilet lid beside him sits a goldfish bowl with one goldfish, watching him.
+- 128 · Guess Your Salary · style unknown · easy · standard · A carnival booth with a big sign reading GUESS YOUR SALARY. The carnival barker squints at a nervous man in a suit standing in front of the booth.
+- 129 · The Gift · style unknown · medium · family · A cat sits contentedly inside an empty cardboard box in the middle of a living room. Beside it stands a huge expensive cat tower, still wrapped in plastic.
+- 130 · Drive-In · style unknown · hard · standard · A man sits in his car at a drive-in movie theater at night. On the big screen is the same car with the same man sitting in it, watching.
+- 131 · Keynote · style unknown · medium · standard · A tiny man stands at a podium on a stage addressing a huge auditorium. The only person in the audience, in the front row, is asleep.
+- 132 · Beach Rental · style unknown · easy · family · A penguin stands at a beach rental counter. The attendant hands it a tiny cocktail umbrella.
+- 133 · Tasting Menu · style unknown · easy · afterdark · At a fancy restaurant a man looks down at an enormous white plate holding a single pea. A waiter stands beside him with a napkin over his arm.
+- 134 · Self-Portrait · style unknown · hard · standard · A painter stands at an easel painting a self-portrait. The finished painting on the easel shows the back of his head.
+- 135 · Empty · style unknown · medium · family · A bear in a bathrobe stands at a kitchen counter, staring into an empty honey jar. Another bear in curlers watches from the doorway.
+- 136 · Second Date · style unknown · medium · afterdark · A man and a woman sit at a small restaurant table on a date. Between them, in a third chair, sits a lawyer with a briefcase open.
+- 137 · Off Duty · style unknown · medium · standard · A lighthouse keeper sits on the rocks fishing at dusk. Behind him the lighthouse stands with its light switched off.
+- 138 · Performance Review · style unknown · medium · standard · A man sits across a desk from his boss. The boss is holding the man's pet goldfish bowl up to the light, studying it.
+- 139 · Tall Order · style unknown · easy · family · A giraffe stands at a drive-through window, bending its long neck down to the window. The cashier hands up a very long straw.
+- 140 · The Ex · style unknown · medium · afterdark · At a funeral, a widow stands by the coffin. Off to one side, a second woman in a much bigger black hat and veil stands slightly closer to the coffin.
+- 141 · Summit · style unknown · hard · family · A man reaches the top of a tall mountain peak and finds a second man already sitting there in a folding chair, reading a newspaper.
+- 142 · Exhibit · style unknown · medium · standard · A museum visitor stands in front of an empty frame on a gallery wall. A security guard stands nearby, perfectly still.
+- 143 · Bedtime · style unknown · easy · family · A child lies in bed with the covers pulled up. A monster sits on the edge of the bed reading the child a bedtime story from a book.
+- 144 · Neighborhood Watch · style unknown · easy · afterdark · Two retirees in lawn chairs sit side by side in a driveway at night, both holding binoculars, both pointed at the same house across the street.
+- 145 · Vacancy · style unknown · hard · standard · A hermit crab stands in a real estate office across a desk from an agent, who is showing it a photograph of a tin can.
+- 146 · Open Door · style unknown · medium · standard · A man sits at a desk in a tiny office. Behind him a door marked with nothing stands open onto a cliff edge and the open sky.
+- 147 · Rehearsal · style unknown · medium · family · A scarecrow stands in a cornfield practicing in front of a full-length mirror. Two crows sit on a fence post watching.
+- 148 · Couples Yoga · style unknown · medium · afterdark · A couple on yoga mats. She is in a perfect pose. He is lying flat on his back on his mat, eyes open, staring at the ceiling.
+- 149 · Crossing Guard · style unknown · easy · family · A turtle in a crossing guard vest holds up a stop sign in the middle of a road. A long line of cars waits patiently.
+- 150 · The Interview · style unknown · medium · standard · A job interview. The candidate is a wolf in a sheep costume, the sheep head pushed back like a hood. The interviewer reads the resume without looking up.
+- 151 · Anniversary · style unknown · hard · afterdark · A husband and wife at a candlelit table. The husband has a small velvet box open; inside is a single key. The wife looks at the key.
+- 152 · Ice Fishing · style unknown · medium · family · A man sits on an upturned bucket ice fishing through a hole in the ice. A penguin stands beside him with its own tiny fishing rod in the same hole.
+- 153 · No Vacancy · style unknown · easy · standard · A tired traveller stands at a hotel front desk. Behind the desk, the clerk is a bat hanging upside down.
+- 154 · Dinner Guest · style unknown · medium · afterdark · A dinner party. All the guests are seated. At the head of the table, in the place of honor, sits a large houseplant in a pot, with its own wine glass.
+- 155 · Lost and Found · style unknown · hard · family · A lost-and-found counter. A clerk holds up a single sock. On the other side of the counter stands a pair of shoes with no one in them.
+- 156 · Parallel Parking · style unknown · medium · standard · A man in a tiny car is parked between two enormous trucks. He is looking up at the sky out of his open sunroof.
+- 157 · Fetch · style unknown · easy · family · A man in a park throws a stick. His dog sits beside him, unmoved, watching the stick fly. Far away, a second man is running after it.
+- 158 · Exit Interview · style unknown · medium · standard · An office. A woman in a suit sits across a desk from a human resources manager. On the desk between them is a single potted cactus she is clearly taking with her.
+- 159 · Plus One · style unknown · medium · afterdark · A formal gala dinner table with place cards. A man sits beside an empty chair holding a cardboard cutout of himself.
+- 161 · The Grill · style unknown · medium · standard · A suburban backyard barbecue. Five men stand in a tight semicircle around one small grill, all holding drinks, all staring at a single hot dog.
+- 162 · The Nap · style unknown · easy · afterdark · A man is fast asleep in a barber chair, mouth wide open. The barber and a second barber stand beside him, holding scissors, waiting.
+- 164 · Fire Drill · style unknown · hard · standard · An office building's staff stands outside on the sidewalk during a fire drill. One man has brought his entire desk outside with him and is still typing.
+- 165 · The Bridge · style unknown · medium · family · A troll sits under a tiny footbridge with a small table and a card machine. A goat stands on the bridge holding out a credit card.
+- 166 · Wine Tasting · style unknown · medium · afterdark · At a wine tasting, a man in a sweater swirls a glass of red wine with intense concentration. Behind him, a long row of empty glasses.
+- 167 · The Upgrade · style unknown · easy · standard · An airplane cabin. One passenger sits in a seat that has been replaced with a full living-room recliner. The flight attendant stands beside him, holding a tray.
+- 168 · Sandcastle · style unknown · hard · family · On a beach, a child has built an enormous, elaborate sandcastle. In front of it, a crab stands holding a tiny clipboard.
+- 169 · The Cake · style unknown · medium · afterdark · At an office party, a coworker holds out a huge farewell cake. The man leaving holds a single cardboard box of belongings and looks at the cake.
+- 170 · Space · style unknown · medium · standard · Two astronauts float in empty space, tethered to nothing, holding a single folded paper map between them.
+- 171 · Bath Time · style unknown · easy · family · A large dog sits in a bathtub full of bubbles, wearing a shower cap, holding a rubber duck. Its owner stands in the doorway holding a towel.
+- 172 · Tax Season · style unknown · hard · standard · A husband and wife sit at a kitchen table doing their taxes. The dog sits in the third chair with a calculator in front of it.
+- 173 · The Meeting · style unknown · medium · standard · A conference room. Six people sit around a table. At the head of the table, the boss is a small potted plant.
+- 174 · Night Shift · style unknown · medium · family · A night watchman sits in a museum at night reading a newspaper by flashlight. Behind him a dinosaur skeleton is reading over his shoulder.
+- 175 · Speed Dating · style unknown · easy · afterdark · A long row of speed-dating tables. Every table has a man and a woman, except the last one, where a man sits across from a mirror.
+- 176 · The Commute · style unknown · hard · standard · A crowded subway car. Every passenger stands holding the overhead strap. One man sits alone in an armchair in the middle of the car, reading.
+- 177 · The Audition · style unknown · medium · family · A tiny mouse stands alone on a huge empty stage, under one spotlight. In the dark seats, a cat sits with a clipboard.
+- 178 · Garage Sale · style unknown · easy · afterdark · A man runs a garage sale. On the table, among the lamps and books, sits his wife's wedding dress with a price tag. A neighbor holds it up, looking at him.
+- 179 · The Escape · style unknown · medium · standard · A prisoner in a striped uniform has dug a tunnel and popped his head up through the floor of a fancy restaurant, right beside a table where a couple is dining.
+- 180 · Lifeguard · style unknown · easy · family · A tiny lifeguard tower stands beside a kiddie pool. A large, serious lifeguard sits in it with a whistle, watching one rubber duck float.
+- 181 · Retirement · style unknown · hard · afterdark · An old man in a gold watch sits on a park bench. Beside him on the bench sits his entire desk, with the in-tray full.
+- 182 · Assembly Required · style unknown · medium · standard · A man sits on the floor surrounded by hundreds of flat-pack furniture parts. In front of him stands a perfect finished bookcase that he did not build, with a small elf beside it.
+- 183 · Hide and Seek · style unknown · medium · family · A child is counting with eyes closed against a tree. Behind the child, an elephant is trying to hide behind a lamppost.
+- 184 · The Hangover · style unknown · medium · afterdark · A man in a suit lies face-down on a hotel bed, fully dressed, shoes on. A small tiger cub sits on his back, looking at the door.
+- 185 · Dress Code · style unknown · hard · standard · A long queue outside a nightclub. Everyone in line wears black. At the front, the bouncer is holding up a velvet rope for a single man wearing a full suit of armor.
+- 186 · Story Time · style unknown · medium · family · A grandfather sits in an armchair reading a bedtime story to a row of attentive garden gnomes.
+- 187 · The Proposal · style unknown · medium · afterdark · A man kneels on one knee in a crowded bowling alley, holding up a ring. The woman he is proposing to is mid-throw, her bowling ball in the air.
+- 188 · Wrong Number · style unknown · easy · standard · A bank robber in a mask stands at a teller window with a note. The teller is on the phone, holding up one finger for him to wait.
+- 189 · Graduation · style unknown · hard · family · A row of caps and gowns. In the middle of the graduates sits a very old tortoise in a cap and gown, holding a diploma.
+- 190 · The Ex Files · style unknown · easy · afterdark · A man stands in a living room holding a single sock. On the floor in front of him sits an enormous mountain of boxes labeled with nothing.
+- 191 · Saturday · style unknown · medium · standard · A man in a bathrobe stands at his front door. On the doorstep, a dozen identical delivery boxes are stacked higher than his head.
+- 192 · The Pitch · style unknown · medium · family · Two fish in business suits sit at a desk on the sea floor. One of them is presenting a chart drawn on a piece of seaweed to the other.
+- 193 · Couples Massage · style unknown · medium · afterdark · A couple lies side by side on massage tables. The massage therapist works on the wife. The husband's therapist is a raccoon standing on his back.
+- 194 · Overtime · style unknown · hard · standard · A grim reaper sits at an office desk late at night, the only light on, with a huge stack of paperwork and a cold cup of coffee.
+- 195 · Lemonade · style unknown · easy · family · A girl sits behind a tiny lemonade stand in a vast empty desert. A single thirsty camel stands in front of it.
+- 196 · The Toast · style unknown · hard · afterdark · At a big birthday dinner, a man stands with his glass raised to give a toast. Every other guest has quietly put on earplugs.
+- 197 · Photo Finish · style unknown · easy · family · Two snails cross a finish line ribbon, neck and neck. Beside the line, the referee is fast asleep in a lawn chair, holding a stopwatch.
+- 198 · The Interview · style unknown · medium · standard · At a job interview, a large brown bear in a shirt and tie sits across a desk from a man in glasses who is reading the bear's résumé.
+- 199 · Separate Beds · style unknown · medium · afterdark · A middle-aged couple lies in a king-size bed, both awake and staring at the ceiling. A neat brick wall has been built down the middle of the bed.
+- 200 · The Keeper · style unknown · hard · family · A lighthouse stands alone in the middle of a vast empty desert. The keeper leans on the railing at the top, looking out.
+- 201 · Laundry Day · style unknown · medium · standard · A ghost in a white sheet stands at a laundromat folding table, folding a tall pile of identical white sheets.
+- 202 · Last Call · style unknown · easy · afterdark · A mime in white face paint and a striped shirt sits at a bar, silently trying to get the bartender's attention. The bartender is looking right at him.
+- 203 · Time Off · style unknown · medium · family · A penguin lies in a deck chair on a tropical beach under a palm tree, with a small cooler beside it full of ice.
+- 204 · The Board · style unknown · medium · standard · A very long boardroom table with twenty empty leather chairs. At the far head of the table sits a small boy in a suit, hands folded.
+- 205 · Test Drive · style unknown · medium · afterdark · In a mattress showroom, a man in a suit is fast asleep on one of the beds. A salesman stands over him holding a clipboard.
+- 206 · The Toll · style unknown · easy · family · A bird feeder hangs from a branch. In front of it, a tiny tollbooth with a squirrel inside. A small bird waits at the barrier.
+- 207 · Going Up · style unknown · medium · standard · A crowded elevator. Everyone faces the back wall in silence, except one man who faces the doors.
+- 208 · The Will · style unknown · hard · afterdark · A lawyer reads a will to a seated family in a wood-panelled office. In the big leather armchair of honor sits a fat cat.
+- 209 · Ballooning · style unknown · medium · family · High in the sky, a man in a hot-air balloon basket reads a newspaper. A goose has landed on the edge of the basket beside him.
+- 210 · Next · style unknown · easy · standard · At a barber shop, a barber is cutting a man's hair. In the next chair, a fluffy sheep waits its turn.
+- 211 · Speed Dating · style unknown · medium · afterdark · At a speed-dating event, a row of little tables with couples talking. At one table, a man sits across from a life-size cardboard cutout of a woman.
+- 212 · Quiet, Please · style unknown · hard · family · In a library, a small librarian with a finger to her lips stands in front of a large lion sitting at a reading table with a book.
+- 213 · Touch-Up · style unknown · medium · standard · A man on a very tall ladder is carefully painting a cloud in the sky with a small brush and a pot of white paint.
+- 214 · Midnight Snack · style unknown · easy · afterdark · A man in pajamas opens his fridge at night. Inside, sitting on a tiny stool among the food, is a small security guard in a uniform.
+- 215 · The Summit · style unknown · medium · family · An exhausted mountain climber with ropes and an ice axe reaches the very top of a peak. A man is already there, selling hot dogs from a cart.
+- 216 · The Collection · style unknown · hard · standard · In a hushed museum gallery, a small crowd stands admiring a fire extinguisher mounted on the wall, as if it were a masterpiece.
+- 217 · The Walk · style unknown · easy · family · In a park, a man walks a goldfish in its round glass bowl on a little cart, pulled along on a leash. A woman on a bench watches.
+- 218 · Cubicles · style unknown · medium · standard · Two office cubicles side by side. In one, a man in a tie types. In the next, a horse in a tie types too, hooves on the keyboard.
+- 219 · Dawn · style unknown · medium · afterdark · At dawn, a vampire in a cape tiptoes into a dark crypt holding his shoes. His wife waits beside the open coffin with her arms crossed.
+- 220 · Table for One · style unknown · hard · family · A tiny desert island with nothing on it but a castaway sitting at a small table with a white tablecloth and two candles, alone, waiting.
+- 221 · Yoga · style unknown · medium · standard · A yoga class: a row of people on mats doing downward dog. At the end of the row, on its own mat, a cow is doing it too.
+- 222 · The Exit · style unknown · easy · afterdark · Outside a grand house where a party is going on, a man in a tuxedo climbs out of a ground-floor window. His wife waits in the car right below, engine running.
+- 223 · Special Delivery · style unknown · easy · family · A snail in a mail carrier's cap and bag arrives at a mailbox. A man with a very long white beard has been waiting beside it.
+- 224 · The Witness · style unknown · hard · standard · A courtroom. A parrot sits on a perch in the witness box. The judge leans down toward it, very interested.
+- 225 · Personal Best · style unknown · medium · afterdark · At a gym, a man lies on a bench, pressing a bar with a single donut on it. His trainer spots him with total seriousness.
+- 226 · Competition · style unknown · easy · family · A man fishes from a rowboat on a calm lake. In the next rowboat, a large fish in a fishing hat is also fishing, with a worm on its line.
+- 227 · Open House · style unknown · medium · standard · A real-estate agent shows a young couple around an empty living room. In the corner stands a large moose, quietly, as if it comes with the house.
+- 228 · Confession · style unknown · hard · afterdark · Outside a church confessional booth, a long line of people waits. The next man in line has brought a folding chair and a packed lunch.
+- 229 · Parking · style unknown · medium · family · On the moon, an astronaut finds a ticket tucked under the wiper of his lunar rover. Earth hangs in the black sky.
+- 230 · Presentation · style unknown · medium · standard · At a fancy restaurant, a proud chef lifts a giant silver dome for a diner. Under it, in the middle of the huge plate, sits one pea.
+- 231 · Breakfast · style unknown · medium · afterdark · A cat sits at the kitchen table in a chair, reading the morning paper over coffee. On the floor, the man of the house eats from a bowl.
+- 232 · Picnic · style unknown · easy · family · On a sunny day in a park, a man sits on a picnic blanket. A single small rain cloud hangs over only him, raining. Everyone else is in the sun.
+- 233 · Take a Number · style unknown · medium · standard · At a government office, a man in a superhero costume and cape sits in a row of plastic chairs, holding a paper number, waiting.
+- 234 · Cocktails · style unknown · easy · family · At a cocktail party, a giraffe in a bow tie holds a tiny cocktail glass. The other guests look up at him politely.
+- 235 · Retirement Plan · style unknown · hard · standard · Two skeletons sit side by side on a park bench, feeding pigeons.
+- 236 · Summer · style unknown · medium · family · On an iceberg, a line of polar bears waits patiently at an ice-cream truck.

@@ -287,6 +287,9 @@ textarea.caption-input::placeholder { color: #A99F93; }
 .my-rack { display: flex; align-items: center; justify-content: center; gap: 12px; margin: -4px 0 14px; }
 .my-rack .lbl { font-weight: 900; font-size: 14px; }
 .rack-chips { display: flex; gap: 8px; min-height: 46px; align-items: center; }
+.deck-note { border: 2px solid var(--ink); border-radius: 14px; background: var(--card); padding: 12px 14px; margin: 0 0 14px; text-align: center; }
+.deck-note-t { font-family: var(--serif); font-style: italic; font-size: 17px; line-height: 1.35; margin: 0; }
+.deck-note-s { font-size: 13px; color: var(--muted); margin: 6px 0 0; line-height: 1.4; }
 .fresh-line { text-align: center; font-weight: 900; font-size: 14px; margin: 4px 0 6px; } .fresh-line.low { color: var(--red); }
 .chip.fly { pointer-events: none; box-shadow: 0 10px 18px rgba(0,0,0,.3); }
 
@@ -1317,6 +1320,7 @@ function connect() {
       lobbyWatch();
       render();
     }
+    else if (msg.type === 'gallery_purge') { galleryPurge(); if (state && state.phase === 'lobby') render(true); }   // the server refused retired frames: drop them here too
     else if (msg.type === 'error') {
       // #35: a wrong room code keeps you on Join, with what you typed, and says so right there
       if (msg.message === 'Game not found' && pendingJoin && $('screen-join').classList.contains('active')) {
@@ -1703,8 +1707,10 @@ function renderLobby() {
   const summary = `${timerWords} · ${dealerWords} · ${endCondition} · ${s.family ? 'Family deck' : s.spicy ? 'Everything deck' : 'Standard deck'}`;
   const customOn = lobbyCustomTimer || (td !== 120 && td !== 0);
   const tmin = Math.max(1, Math.round((td || 120) / 60));
-  const fresh = state.freshCount, pool = state.poolCount;
-  const freshLine = typeof fresh === 'number' ? `<p class="fresh-line${fresh < Math.max(3, state.players.length) ? ' low' : ''}">${fresh} of ${pool} cartoons nobody here has seen${fresh < Math.max(3, state.players.length) ? (s.family ? ' — try Standard for more' : ' — some repeats ahead') : ''}</p>` : '';
+  const fresh = state.freshCount, pool = state.poolCount, dk = state.deck || null, deckShort = !!(dk && !dk.ok);
+  // The new deck is still being drawn: say so plainly; the host can't start a game the deck can't finish
+  const deckNote = dk && (dk.drawing || !dk.ok) ? `<div class="deck-note" role="status"><p class="deck-note-t">${esc(dk.line)}</p>${!dk.ok ? `<p class="deck-note-s">${dk.pool ? `This game needs ${dk.need} cartoons. This deck has ${dk.pool}.${s.family && dk.live > dk.pool ? ' Standard has more.' : s.targetScore || (laps > 1) ? ' A shorter game might fit.' : ''}` : 'Come back when a few are finished.'}</p>` : ''}</div>` : '';
+  const freshLine = deckShort ? '' : typeof fresh === 'number' ? `<p class="fresh-line${fresh < Math.max(3, state.players.length) ? ' low' : ''}">${fresh} of ${pool} cartoons nobody here has seen${fresh < Math.max(3, state.players.length) ? (s.family ? ' — try Standard for more' : ' — some repeats ahead') : ''}</p>` : '';
   const deck = state.hofDeck || 0, galleryOpen = deck >= 3 || s.expert;
   const galleryToggle = state.isHost
     ? `<button class="gal-toggle ${s.expert ? 'on' : ''}" ${galleryOpen ? '' : 'disabled'} onclick="setHostSettings({expert:${!s.expert}})" aria-pressed="${!!s.expert}">
@@ -1751,9 +1757,9 @@ function renderLobby() {
     <p class="eyebrow" style="margin-bottom:6px;">At the table · ${connected} of ${state.players.length}${state.players.length > 1 ? ` <span style="text-transform:none;letter-spacing:0;font-weight:400;">· ${state.players.filter(p => p.watched).length} of ${state.players.length} watched the demo</span>` : ''}</p>
     <div style="margin-bottom:10px;">${players}</div>${seatHelp}
     ${state.isHost ? `<button class="btn-link" style="display:block; margin:0 auto 10px; font-size:14px;" onclick="send({action:'lock', on:${!state.locked}})">${state.locked ? 'Room locked. Unlock it' : 'Everyone’s here? Lock the room'}</button>` : state.locked ? '<p class="center small" style="margin-bottom:10px;">The host has locked the room.</p>' : ''}
-    ${lobbyGalleryHtml()}${galleryToggle}${settings}${freshLine}<p class="center small" style="margin-bottom:14px;">${summary}</p>
+    ${deckNote}${lobbyGalleryHtml()}${galleryToggle}${settings}${freshLine}<p class="center small" style="margin-bottom:14px;">${summary}</p>
     ${state.isHost
-      ? `<button class="btn btn-yellow" onclick="send({action:'start'})" ${connected < 3 ? 'disabled' : ''}>${connected < 3 ? `Need ${plural(3 - connected, 'more player')}` : 'Start the game →'}</button>`
+      ? `<button class="btn btn-yellow" onclick="send({action:'start'})" ${connected < 3 || deckShort ? 'disabled' : ''}>${deckShort ? 'Not enough cartoons yet' : connected < 3 ? `Need ${plural(3 - connected, 'more player')}` : 'Start the game →'}</button>`
       : `<div class="panel flat center"><span class="spin" style="margin-bottom:8px;"></span><p class="sub">Waiting for ${esc(fnameOf(state.hostId))} to start<span class="dots"></span></p></div>`}
     <button class="btn-link" style="display:block; margin:12px auto 0;" onclick="showScreen('screen-rules')">How to play</button>`;
 }
@@ -2384,10 +2390,13 @@ function fmOutcomeFx(r) {
    The first state only sets the baseline, so a reconnect never replays an old one. */
 /* The Gallery lives on the phones: every phone saves each caption it sees framed,
    and brings its collection to every game it joins. Free, and it survives server restarts. */
-// Pulled from The Gallery for good (Nate's "he he" was only a test of Frame It)
-function galleryRetired(e) { return /^((he+h?|ha+h?|hi+) ?)+$/.test(String(e.caption || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim()); }   // the "he he" test frame, gone for good (and any laugh-only frame)
+// Pulled from The Gallery for good: Nate's "he he" (only a test of Frame It), and every frame on a retired cartoon
+// (Nick, Oct 19 2026: "retire all and build new. remove all prior framed." The new deck starts at id 113.)
+const FIRST_LIVE_ID = 113;
+function galleryRetired(e) { return !(Number(e.cartoonId) >= FIRST_LIVE_ID) || /^((he+h?|ha+h?|hi+) ?)+$/.test(String(e.caption || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim()); }   // the "he he" test frame, gone for good (and any laugh-only frame)
 function galleryGet() { try { const v = JSON.parse(localStorage.getItem('cc_gallery') || '[]'); return Array.isArray(v) ? v.filter(e => e && e.caption && Number.isInteger(Number(e.cartoonId)) && !galleryRetired(e)) : []; } catch (e) { return []; } }
-(function galleryPurge() { try { const raw = JSON.parse(localStorage.getItem('cc_gallery') || '[]'); if (Array.isArray(raw) && raw.some(e => e && galleryRetired(e))) localStorage.setItem('cc_gallery', JSON.stringify(raw.filter(e => !(e && galleryRetired(e))))); } catch (e) {} })();
+function galleryPurge() { try { const raw = JSON.parse(localStorage.getItem('cc_gallery') || '[]'); if (Array.isArray(raw) && raw.some(e => e && galleryRetired(e))) localStorage.setItem('cc_gallery', JSON.stringify(raw.filter(e => e && !galleryRetired(e)))); } catch (e) {} }
+galleryPurge();   // on every load: retired frames (and their Caption of the Night ribbons) leave this phone for good
 function galleryKey(e) { return e.cartoonId + '|' + String(e.caption).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
 function gallerySave(rows) {
   const list = galleryGet(), keys = new Set(list.map(galleryKey)); let added = false;
@@ -2521,7 +2530,7 @@ function lobbyGalleryHtml() {
   const note = hidden ? `<p class="lob-gal-note">${plural(hidden, 'caption')} under a sheet until ${hidden === 1 ? 'its cartoon is' : 'their cartoons are'} dealt.</p>` : '';
   queueMicrotask(() => { const r = document.querySelector('.lob-gal-row'); if (r && lobbyGalX) r.scrollLeft = lobbyGalX; });   // a new state redraws the lobby: keep the strip where it was
   return `<section class="lob-gal" aria-label="The Gallery"><div class="lob-gal-hd"><span class="lob-gal-t">The Gallery</span><span class="lob-gal-n">${list.length || ''}</span>${list.length ? '<button class="lob-gal-all" onclick="openGallery()">See all ›</button>' : ''}</div>
-    ${list.length ? `<div class="lob-gal-row" onscroll="lobbyGalX=this.scrollLeft">${thumbs}</div>` : `<p class="lob-gal-empty">Nothing on the walls yet. Beat the real caption and it hangs here.</p>`}${note}</section>`;
+    ${list.length ? `<div class="lob-gal-row" onscroll="lobbyGalX=this.scrollLeft">${thumbs}</div>` : `<p class="lob-gal-empty">Nothing framed yet.</p>`}${note}</section>`;
 }
 function lobbyZoom(i) { if (window.Gallery && Gallery.zoom && lobbyGal[i]) Gallery.zoom(lobbyGal[i], lobbyGal, i, { from: '.lob-gal-row button.gal-mini' }); }
 function galleryCreditHtml() {

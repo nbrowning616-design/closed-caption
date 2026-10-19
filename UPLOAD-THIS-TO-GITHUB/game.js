@@ -28,118 +28,142 @@ const PHASES = {
   SCORES: 'scores',
 };
 
+// The deck. Every cartoon up to id 112 was retired for good (Nick, Oct 19 2026: "retire all and build new"):
+// the new deck is drawn in the new black-and-white style and starts at id 113 (tools/add_cartoon.py adds them here).
 const CARTOONS = [
-  { id: 1, title: "The Fish Therapist", image: "card_1.jpg", correct: "From now on, let’s keep these sessions to fifteen minutes." },
-  { id: 2, title: "The Alien Restaurant", image: "card_2.jpg", correct: "Could you take our picture? Nobody back home will believe this." },
-  { id: 3, title: "Dog Board Meeting", image: "card_3.jpg", correct: "That’s all for today. Henderson, stay." },
-  { id: 5, title: "Grim Reaper Café", image: "card_5.jpg", correct: "Don’t mind me. I’m early." },
-  { id: 6, title: "Self-Driving Car", image: "card_6.jpg", correct: "Can we please not do this in front of the car?" },
-  { id: 7, title: "Snowman Doctor", image: "card_7.jpg", correct: "Any recent travel to Florida?" },
-  { id: 10, title: "Pigeon Consultant", image: "card_10.jpg", correct: "Keep wearing the suit. She’ll never know." },
-  { id: 11, title: "Airplane Squeeze", image: "card_11.jpg", correct: "I haven’t felt my arms since Cleveland." },
-  { id: 12, title: "Scuba Date", image: "card_12.jpg", correct: "I hear the soup is bottomless." },
-  { id: 13, title: "Victorian Beach Lady", image: "card_13.jpg", correct: "Is that ironic? Tell me it’s ironic." },
-  { id: 14, title: "Octopus Interview", image: "card_14.jpg", correct: "Strong résumé. The handshake was a lot." },
-  { id: 16, title: "The Gym", image: "card_16.jpg", correct: "Is this what they meant by ‘results may vary’?" },
-  { id: 17, title: "Pirate Therapy", image: "card_17.jpg", correct: "He tells the parrot things he won’t tell me." },
-  { id: 19, title: "Giant Sushi", image: "card_19.jpg", correct: "Omakase means you don’t get to say when." },
-  { id: 21, title: "Big Head Barber", image: "card_21.jpg", correct: "Just a little off the top." },
-  { id: 22, title: "Giant Mouth Dentist", image: "card_22.jpg", correct: "Doctor, he says he’d like to rinse now." },
-  { id: 23, title: "The Speedo Strut", image: "card_23.jpg", correct: "Everyone stay in the water until he passes." },
-  { id: 24, title: "Horse Witness", image: "card_24.jpg", correct: "Isn’t it true you started wearing glasses for this trial?" },
-  { id: 25, adult: true, title: "Stick Figure Art", image: "card_25.jpg", correct: "Honestly, it’s the twenty-five cents that gets me." },
-  { id: 26, title: "Yoga Pretzel", image: "card_26.jpg", correct: "His free trial ended in April." },
-  { id: 27, title: "Giraffe Tailor", image: "card_27.jpg", correct: "Nothing with spots. I don’t want to look like I’m trying." },
-  { id: 29, title: "Enormous Cat", image: "card_29.jpg", correct: "The vet says it’s mostly fur." },
-  { id: 30, title: "The Elevator", image: "card_30.jpg", correct: "Don’t look up. He’s from corporate." },
-  { id: 31, title: "The Burger", image: "card_31.jpg", correct: "She keeps saying it isn’t a competition." },
-  { id: 32, adult: true, title: "The Consultation", image: "card_32.jpg", correct: "Before we begin, I’ll need your previous surgeon’s name." },
-  { id: 33, title: "The Tee Shot", image: "card_33.jpg", correct: "Last year he came in shorts." },
-  { id: 34, title: "The Worm", image: "card_34.jpg", correct: "Earl took the free lunch. We don't talk about Earl." },
-  { id: 35, title: "The Landing Zone", image: "card_35.jpg", correct: "Her doctor told her to get more fresh air." },
-  { id: 36, title: "The First Date", image: "card_36.jpg", correct: "Watch closely, dear. I won't be around forever." },
-  { id: 37, adult: true, title: "The Interview", image: "card_37.jpg", correct: "We'll have to keep this short. I go down at two." },
-  { id: 38, title: "The Dress", image: "card_38.jpg", correct: "It's a beach wedding, so we're keeping it casual." },
-  { id: 39, title: "The Arm Wrestle", image: "card_39.jpg", correct: "Frank always said he'd die before he lost." },
-  { id: 40, title: "The Drive-Through", image: "card_40.jpg", correct: "He asked us to throw it." },
-  { id: 41, title: "The Proposal", image: "card_41.jpg", correct: "My dog introduced us." },
-  { id: 42, title: "The Birthday Inferno", image: "card_42.jpg", correct: "Sir, the permit only covered eighty." },
-  { id: 44, title: "The Spa", image: "card_44.jpg", correct: "Don’t worry. He only does deep tissue." },
-  { id: 46, title: "The Plumber", image: "card_46.jpg", correct: "You've sprung a leak. Several, actually." },
-  { id: 47, title: "The DMV Bear", image: "card_47.jpg", correct: "Your license expired in November. Again." },
-  { id: 48, title: "The Conference", image: "card_48.jpg", correct: "The good news is he's very observant." },
-  { id: 49, title: "The Groom's Side", image: "card_49.jpg", correct: "They insisted on black tie." },
-  { id: 50, title: "The Lumber Aisle", image: "card_50.jpg", correct: "There's no sampling in lumber." },
-  { id: 51, title: "The X-Ray", image: "card_51.jpg", correct: "He still says it's in the couch." },
-  { id: 52, title: "Farm to Table", image: "card_52.jpg", correct: "She'd like to know who ordered the omelet." },
-  { id: 53, title: "The Security Line", image: "card_53.jpg", correct: "This is why I drive." },
-  { id: 54, title: "Shoe Rental", image: "card_54.jpg", correct: "Shoes are four dollars. Per pair." },
-  { id: 55, title: "The Cubicle Knight", image: "card_55.jpg", correct: "He heard reviews were today." },
-  { id: 56, adult: true, title: "The Slideshow", image: "card_56.jpg", correct: "Let's use this one for the Christmas card." },
-  { id: 57, spicy: true, title: "Name Tag", image: "card_57.jpg", correct: "Most guests go with the forehead." },
-  { id: 58, spicy: true, title: "The Suite", image: "card_58.jpg", correct: "Your mother called ahead." },
-  { id: 59, spicy: true, title: "Senior Ed", image: "card_59.jpg", correct: "Skip to the bees, we don't have that kind of time." },
-  { id: 60, spicy: true, title: "The Refill", image: "card_60.jpg", correct: "And something for me to sleep through it." },
-  { id: 61, spicy: true, title: "Room 12", image: "card_61.jpg", correct: "We'll give them until bingo." },
-  { id: 62, spicy: true, title: "Overnight Bag", image: "card_62.jpg", correct: "My profile did say long-term." },
-  { id: 63, spicy: true, title: "Noise Complaint", image: "card_63.jpg", correct: "I'm going to need all of you to stop tipping me." },
-  { id: 64, spicy: true, title: "The Specialist", image: "card_64.jpg", correct: "Just the one, please." },
-  { id: 65, spicy: true, title: "Sunday Morning", image: "card_65.jpg", correct: "She's either very early or very late." },
-  { id: 66, spicy: true, title: "Donor of the Month", image: "card_66.jpg", correct: "He's the reason the whole town has that chin." },
-  { id: 67, title: "Let It Go", image: "card_67.jpg", correct: "And now we breathe through the mouth." },
-  { id: 68, title: "Open House", image: "card_68.jpg", correct: "The previous owners were married fifty-one years." },
-  { id: 69, spicy: true, title: "The Chart", image: "card_69.jpg", correct: "That was the week the cable went out." },
-  { id: 70, spicy: true, title: "Mood Lighting", image: "card_70.jpg", correct: "You can breathe on your own for ten minutes." },
-  { id: 71, spicy: true, title: "The Scanner", image: "card_71.jpg", correct: "You only had to take off the shoes." },
-  { id: 72, spicy: true, title: "Bridge Night", image: "card_72.jpg", correct: "We'll take the barrel for five." },
-  { id: 73, spicy: true, title: "The Judges", image: "card_73.jpg", correct: "The four is from her husband." },
-  { id: 74, adult: true, title: "The Cone", image: "card_74.jpg", correct: "He's handling it better than you did." },
-  { id: 75, spicy: true, title: "Do Not Disturb", image: "card_75.jpg", correct: "On day five they asked for a chiropractor." },
-  { id: 76, spicy: true, title: "Book Club", image: "card_76.jpg", correct: "We should have started this club in 1958." },
-  { id: 77, spicy: true, title: "Par Three", image: "card_77.jpg", correct: "He's never needed more than three." },
-  { id: 78, spicy: true, title: "Boudoir Session", image: "card_78.jpg", correct: "Is this an anniversary gift or a threat?" },
-  { id: 79, spicy: true, title: "From Mom", image: "card_79.jpg", correct: "I'm not getting any younger, kids." },
-  { id: 80, spicy: true, title: "The Hotline", image: "card_80.jpg", correct: "Hold on, I dropped a stitch." },
-  { id: 81, title: "Going Down", image: "card_81.jpg", correct: "If it were me, you'd know." },
-  { id: 82, title: "The Commissioner", image: "card_82.jpg", correct: "He never did tell anyone the password." },
-  { id: 83, title: "Actual Scorecards", image: "card_83.jpg", correct: "It says here you were a seven handicap." },
-  { id: 84, title: "Red Card", image: "card_84.jpg", correct: "Go wait in the car." },
-  { id: 85, title: "The First Marathon", image: "card_85.jpg", correct: "His last words were his split times." },
-  { id: 86, title: "The Inspector", image: "card_86.jpg", correct: "Ordinarily we'd start with a warning." },
-  { id: 87, title: "Night Shift", image: "card_87.jpg", correct: "Forty years and not one of them has asked about me." },
-  { id: 88, title: "Photo Finish", image: "card_88.jpg", correct: "Same three as last year." },
-  { id: 89, title: "Jury of Peers", image: "card_89.jpg", correct: "Whatever happens, don't let them see the crusts.", adult: true },
-  { id: 90, title: "Open House", image: "card_90.jpg", correct: "The previous owners are still very much in the area.", adult: true },
-  { id: 91, title: "Veni, Vidi", image: "card_91.jpg", correct: "Name for the cup?", adult: true },
-  { id: 92, title: "The Standoff", image: "card_92.jpg", correct: "He wants the good tuna and a plane to Belize.", adult: true },
-  { id: 93, title: "Spin Class", image: "card_93.jpg", correct: "The first class is free. Most of them never leave.", adult: true },
-  { id: 94, title: "Guest of Honor", image: "card_94.jpg", correct: "He brought wine.", adult: true },
-  { id: 95, title: "Series A", image: "card_95.jpg", correct: "Gerald still wants to know what it does.", adult: true },
-  { id: 96, title: "Irreconcilable", image: "card_96.jpg", correct: "She's asking for the house. He's asking for the box.", adult: true },
-  { id: 97, title: "The Pairing", image: "card_97.jpg", correct: "Pump four has a lovely finish.", adult: true },
-  { id: 98, title: "Book Club", image: "card_98.jpg", correct: "I just think she deserved better than the duke.", adult: true },
-  { id: 99, title: "Good Fences", image: "card_99.jpg", correct: "It started with one tomato hanging over the line.", adult: true },
-  { id: 100, title: "Annual Review", image: "card_100.jpg", correct: "Walk me through the bank on Fourth Street.", adult: true },
-  { id: 101, title: "Open Plan", image: "card_101.jpg", correct: "Let's take the dragon offline.", adult: true },
-  { id: 102, title: "Exit Interview", image: "card_102.jpg", correct: "Honestly, this is more than we did for your promotion.", adult: true },
-  { id: 103, title: "On Duty", image: "card_103.jpg", correct: "He's very good with the whistle." },
-  { id: 104, title: "Night School", image: "card_104.jpg", correct: "Who can tell me what a mouse is worth?" },
-  { id: 105, title: "Bake Sale", image: "card_105.jpg", correct: "Her brother did the cupcakes. He's eight." },
-  { id: 106, title: "Lost & Found", image: "card_106.jpg", correct: "Funny. The skunk swore it was his." },
-  { id: 107, title: "Overcast", image: "card_107.jpg", correct: "These won't help. You need to talk to somebody." },
-  { id: 108, title: "Moving Day", image: "card_108.jpg", correct: "Careful, he's been in that bowl since 1987." },
-  { id: 109, title: "Off Season", image: "card_109.jpg", correct: "He tried \"boo\" and she said \"no thanks.\"" },
-  { id: 110, title: "Last Stop", image: "card_110.jpg", correct: "Nobody's actually ordered anything since June." },
-  { id: 111, title: "Quiet Please", image: "card_111.jpg", correct: "Six o'clock. Somebody hide his watch." },
-  { id: 112, title: "Deluxe", image: "card_112.jpg", correct: "He comes in every Tuesday. He's never once paid." },
+  { id: 113, level: "medium", title: "The High Dive", image: "card_113.jpg", correct: "He's been up there since the merger." },
+  { id: 114, level: "easy", title: "Porch Talk", image: "card_114.jpg", correct: "He's been talking about Florida all week." },
+  { id: 115, level: "medium", title: "The Recital", image: "card_115.jpg", correct: "His agent promised there'd be more of us." },
+  { id: 116, level: "easy", title: "The Couch", image: "card_116.jpg", correct: "We compromised on the size." },
+  { id: 117, level: "medium", title: "Park Bench", image: "card_117.jpg", correct: "She buys local." },
+  { id: 118, level: "easy", title: "Checkmate", image: "card_118.jpg", correct: "He's been reading my books again." },
+  { id: 119, level: "medium", title: "The Stand", image: "card_119.jpg", correct: "Clause nine covers refills." },
+  { id: 120, adult: true, level: "easy", title: "Dawn", image: "card_120.jpg", correct: "Your mother says happy birthday." },
+  { id: 121, adult: true, level: "hard", title: "Open Plan", image: "card_121.jpg", correct: "HR asked us to keep some distance." },
+  { id: 122, level: "medium", title: "Crossing", image: "card_122.jpg", correct: "We don't talk about it. He's happy." },
+  { id: 123, spicy: true, level: "medium", title: "Patience", image: "card_123.jpg", correct: "He usually stops at the cactus." },
+  { id: 124, level: "easy", title: "Spin Cycle", image: "card_124.jpg", correct: "It's his cousin. They were close." },
+  { id: 125, adult: true, level: "medium", title: "Self-Checkout", image: "card_125.jpg", correct: "He's been here since the Crusades." },
+  { id: 126, level: "hard", title: "Neighbors", image: "card_126.jpg", correct: "We were fine until he got a tree." },
+  { id: 127, spicy: true, level: "medium", title: "The Morning After", image: "card_127.jpg", correct: "He says you two talked all night." },
+  { id: 128, adult: true, level: "easy", title: "Guess Your Salary", image: "card_128.jpg", correct: "Higher. No, lower. Much lower." },
+  { id: 129, level: "medium", title: "The Gift", image: "card_129.jpg", correct: "Four hundred dollars, and she picked the packaging." },
+  { id: 130, adult: true, level: "hard", title: "Drive-In", image: "card_130.jpg", correct: "Spoiler: he goes home." },
+  { id: 131, adult: true, level: "medium", title: "Keynote", image: "card_131.jpg", correct: "And that brings us to my second hour." },
+  { id: 132, level: "easy", title: "Beach Rental", image: "card_132.jpg", correct: "First time south?" },
+  { id: 133, spicy: true, level: "easy", title: "Tasting Menu", image: "card_133.jpg", correct: "The chef recommends chewing slowly." },
+  { id: 134, adult: true, level: "hard", title: "Self-Portrait", image: "card_134.jpg", correct: "He says it's his good side." },
+  { id: 135, level: "medium", title: "Empty", image: "card_135.jpg", correct: "It was empty when I got here, Doris." },
+  { id: 136, spicy: true, level: "medium", title: "Second Date", image: "card_136.jpg", correct: "My client is enjoying the evening." },
+  { id: 137, adult: true, level: "medium", title: "Off Duty", image: "card_137.jpg", correct: "Ships have GPS now. Fish don't." },
+  { id: 138, adult: true, level: "medium", title: "Performance Review", image: "card_138.jpg", correct: "Before we discuss the raise, tell me about the fish." },
+  { id: 139, level: "easy", title: "Tall Order", image: "card_139.jpg", correct: "Ask if it comes in a large." },
+  { id: 140, spicy: true, level: "medium", title: "The Ex", image: "card_140.jpg", correct: "She was his first wife. And, apparently, his last." },
+  { id: 141, level: "hard", title: "Summit", image: "card_141.jpg", correct: "I came up for the quiet. You're the third today." },
+  { id: 142, adult: true, level: "medium", title: "Exhibit", image: "card_142.jpg", correct: "It's on loan from a private collector." },
+  { id: 143, level: "easy", title: "Bedtime", image: "card_143.jpg", correct: "Same time tomorrow. No peeking." },
+  { id: 144, spicy: true, level: "easy", title: "Neighborhood Watch", image: "card_144.jpg", correct: "Third night this week. Same car." },
+  { id: 145, adult: true, level: "hard", title: "Vacancy", image: "card_145.jpg", correct: "It's a starter home. Great school district." },
+  { id: 146, adult: true, level: "medium", title: "Open Door", image: "card_146.jpg", correct: "That's how they let you go here." },
+  { id: 147, level: "medium", title: "Rehearsal", image: "card_147.jpg", correct: "Be the crow you want to scare." },
+  { id: 148, spicy: true, level: "medium", title: "Couples Yoga", image: "card_148.jpg", correct: "He's working on acceptance." },
+  { id: 149, level: "easy", title: "Crossing Guard", image: "card_149.jpg", correct: "He's been on this shift since Tuesday." },
+  { id: 150, adult: true, level: "medium", title: "The Interview", image: "card_150.jpg", correct: "Says here you're a team player." },
+  { id: 151, spicy: true, level: "hard", title: "Anniversary", image: "card_151.jpg", correct: "It's to the storage unit. Happy anniversary." },
+  { id: 152, level: "medium", title: "Ice Fishing", image: "card_152.jpg", correct: "He's been here longer. Let him have the hole." },
+  { id: 153, adult: true, level: "easy", title: "No Vacancy", image: "card_153.jpg", correct: "Check-in isn't until dusk." },
+  { id: 154, spicy: true, level: "medium", title: "Dinner Guest", image: "card_154.jpg", correct: "Watered it twice and suddenly it's family." },
+  { id: 155, level: "hard", title: "Lost and Found", image: "card_155.jpg", correct: "Describe the other one." },
+  { id: 156, adult: true, level: "medium", title: "Parallel Parking", image: "card_156.jpg", correct: "I was here first. That's all I'm saying." },
+  { id: 157, level: "easy", title: "Fetch", image: "card_157.jpg", correct: "He has a guy for that." },
+  { id: 158, adult: true, level: "medium", title: "Exit Interview", image: "card_158.jpg", correct: "It's the only one here that never lied to me." },
+  { id: 159, spicy: true, level: "medium", title: "Plus One", image: "card_159.jpg", correct: "My wife couldn't make it, so I brought someone who agrees with me." },
+  { id: 161, adult: true, level: "medium", title: "The Grill", image: "card_161.jpg", correct: "Nobody touch it. Gary has a system." },
+  { id: 162, spicy: true, level: "easy", title: "The Nap", image: "card_162.jpg", correct: "Don't wake him. He tips by the hour." },
+  { id: 164, adult: true, level: "hard", title: "Fire Drill", image: "card_164.jpg", correct: "I'm on a deadline. The building can wait." },
+  { id: 165, level: "medium", title: "The Bridge", image: "card_165.jpg", correct: "We stopped taking riddles in March." },
+  { id: 166, spicy: true, level: "medium", title: "Wine Tasting", image: "card_166.jpg", correct: "Notes of oak, leather, and a second bottle." },
+  { id: 167, adult: true, level: "easy", title: "The Upgrade", image: "card_167.jpg", correct: "He's been flying with us a long time." },
+  { id: 168, level: "hard", title: "Sandcastle", image: "card_168.jpg", correct: "It's lovely, but you'll need a permit for the moat." },
+  { id: 169, spicy: true, level: "medium", title: "The Cake", image: "card_169.jpg", correct: "We got the big one. Nobody knew which one you were." },
+  { id: 170, adult: true, level: "medium", title: "Space", image: "card_170.jpg", correct: "I told you to turn left at Saturn." },
+  { id: 171, level: "easy", title: "Bath Time", image: "card_171.jpg", correct: "He won't get out until you say sorry." },
+  { id: 172, adult: true, level: "hard", title: "Tax Season", image: "card_172.jpg", correct: "He says we can deduct the vet." },
+  { id: 173, adult: true, level: "medium", title: "The Meeting", image: "card_173.jpg", correct: "He's reviewed the quarterly numbers. They're under the couch now." },
+  { id: 174, level: "medium", title: "Night Shift", image: "card_174.jpg", correct: "Anything good in sports?" },
+  { id: 175, spicy: true, level: "easy", title: "Speed Dating", image: "card_175.jpg", correct: "So far it's going really well." },
+  { id: 176, adult: true, level: "hard", title: "The Commute", image: "card_176.jpg", correct: "Some people bring a book." },
+  { id: 177, level: "medium", title: "The Audition", image: "card_177.jpg", correct: "Lovely. Now do it again, but slower." },
+  { id: 178, spicy: true, level: "easy", title: "Garage Sale", image: "card_178.jpg", correct: "It was only worn once." },
+  { id: 179, adult: true, level: "medium", title: "The Escape", image: "card_179.jpg", correct: "Don't make eye contact. He'll want the bread." },
+  { id: 180, level: "easy", title: "Lifeguard", image: "card_180.jpg", correct: "He takes the job very seriously since the incident." },
+  { id: 181, spicy: true, level: "hard", title: "Retirement", image: "card_181.jpg", correct: "They said I could take anything I wanted." },
+  { id: 182, adult: true, level: "medium", title: "Assembly Required", image: "card_182.jpg", correct: "It's not the same if you didn't suffer." },
+  { id: 183, level: "medium", title: "Hide and Seek", image: "card_183.jpg", correct: "He's getting better at this." },
+  { id: 184, spicy: true, level: "medium", title: "The Hangover", image: "card_184.jpg", correct: "Whatever you do, don't open the minibar." },
+  { id: 185, adult: true, level: "hard", title: "Dress Code", image: "card_185.jpg", correct: "He's on the list." },
+  { id: 186, level: "medium", title: "Story Time", image: "card_186.jpg", correct: "They never interrupt." },
+  { id: 187, spicy: true, level: "medium", title: "The Proposal", image: "card_187.jpg", correct: "Let her finish the frame." },
+  { id: 188, adult: true, level: "easy", title: "Wrong Number", image: "card_188.jpg", correct: "He's been on hold with his bank for an hour." },
+  { id: 189, level: "hard", title: "Graduation", image: "card_189.jpg", correct: "He took the scenic route." },
+  { id: 190, spicy: true, level: "easy", title: "The Ex Files", image: "card_190.jpg", correct: "She kept the other one." },
+  { id: 191, adult: true, level: "medium", title: "Saturday", image: "card_191.jpg", correct: "I said one-click, not one click a minute." },
+  { id: 192, level: "medium", title: "The Pitch", image: "card_192.jpg", correct: "And this is where we stop swimming in circles." },
+  { id: 193, spicy: true, level: "medium", title: "Couples Massage", image: "card_193.jpg", correct: "He's not licensed, but he's very affordable." },
+  { id: 194, adult: true, level: "hard", title: "Overtime", image: "card_194.jpg", correct: "Nobody tells you about the follow-up." },
+  { id: 195, level: "easy", title: "Lemonade", image: "card_195.jpg", correct: "It's two dollars, or one hump." },
+  { id: 196, spicy: true, level: "hard", title: "The Toast", image: "card_196.jpg", correct: "He's only on his second anecdote." },
+  { id: 197, level: "easy", title: "Photo Finish", image: "card_197.jpg", correct: "Too close to call. Also, too asleep." },
+  { id: 198, adult: true, level: "medium", title: "The Interview", image: "card_198.jpg", correct: "It says here you were in hibernation from November to March." },
+  { id: 199, spicy: true, level: "medium", title: "Separate Beds", image: "card_199.jpg", correct: "It's load-bearing." },
+  { id: 200, level: "hard", title: "The Keeper", image: "card_200.jpg", correct: "Nobody's hit it yet." },
+  { id: 201, adult: true, level: "medium", title: "Laundry Day", image: "card_201.jpg", correct: "Tuesdays I'm also my own dry cleaner." },
+  { id: 202, spicy: true, level: "easy", title: "Last Call", image: "card_202.jpg", correct: "I'll have what he's not saying." },
+  { id: 203, level: "medium", title: "Time Off", image: "card_203.jpg", correct: "It's not a vacation if you go somewhere colder." },
+  { id: 204, adult: true, level: "medium", title: "The Board", image: "card_204.jpg", correct: "Let's keep this short. I have a nap at two." },
+  { id: 205, spicy: true, level: "medium", title: "Test Drive", image: "card_205.jpg", correct: "He's still deciding." },
+  { id: 206, level: "easy", title: "The Toll", image: "card_206.jpg", correct: "Exact change only." },
+  { id: 207, adult: true, level: "medium", title: "Going Up", image: "card_207.jpg", correct: "He's new." },
+  { id: 208, spicy: true, level: "hard", title: "The Will", image: "card_208.jpg", correct: "And to Mr. Whiskers, everything else." },
+  { id: 209, level: "medium", title: "Ballooning", image: "card_209.jpg", correct: "He doesn't have a ticket either." },
+  { id: 210, adult: true, level: "easy", title: "Next", image: "card_210.jpg", correct: "Just a little off the everything." },
+  { id: 211, spicy: true, level: "medium", title: "Speed Dating", image: "card_211.jpg", correct: "She's a much better listener than the last three." },
+  { id: 212, level: "hard", title: "Quiet, Please", image: "card_212.jpg", correct: "I don't make the rules, sir." },
+  { id: 213, adult: true, level: "medium", title: "Touch-Up", image: "card_213.jpg", correct: "The forecast said partly cloudy." },
+  { id: 214, spicy: true, level: "easy", title: "Midnight Snack", image: "card_214.jpg", correct: "Since the cheesecake incident, we take no chances." },
+  { id: 215, level: "medium", title: "The Summit", image: "card_215.jpg", correct: "Mustard's extra." },
+  { id: 216, adult: true, level: "hard", title: "The Collection", image: "card_216.jpg", correct: "It's the first piece in here that's ever been useful." },
+  { id: 217, level: "easy", title: "The Walk", image: "card_217.jpg", correct: "He needed more exercise." },
+  { id: 218, adult: true, level: "medium", title: "Cubicles", image: "card_218.jpg", correct: "Don't mention the glue factory. He's very sensitive." },
+  { id: 219, spicy: true, level: "medium", title: "Dawn", image: "card_219.jpg", correct: "You said you were working late. You don't work." },
+  { id: 220, level: "hard", title: "Table for One", image: "card_220.jpg", correct: "She said she'd be here by eight." },
+  { id: 221, adult: true, level: "medium", title: "Yoga", image: "card_221.jpg", correct: "She's not flexible, but she's very centered." },
+  { id: 222, spicy: true, level: "easy", title: "The Exit", image: "card_222.jpg", correct: "Did you at least say goodbye to the Hendersons?" },
+  { id: 223, level: "easy", title: "Special Delivery", image: "card_223.jpg", correct: "I ordered it on my fortieth birthday." },
+  { id: 224, adult: true, level: "hard", title: "The Witness", image: "card_224.jpg", correct: "Let the record show the witness said 'Pretty bird.'" },
+  { id: 225, spicy: true, level: "medium", title: "Personal Best", image: "card_225.jpg", correct: "Slowly. Don't let it touch your mouth." },
+  { id: 226, level: "easy", title: "Competition", image: "card_226.jpg", correct: "He's using live bait." },
+  { id: 227, adult: true, level: "medium", title: "Open House", image: "card_227.jpg", correct: "The previous owners couldn't get him out either." },
+  { id: 228, spicy: true, level: "hard", title: "Confession", image: "card_228.jpg", correct: "He's been saving up since Lent." },
+  { id: 229, level: "medium", title: "Parking", image: "card_229.jpg", correct: "They come by once every forty years." },
+  { id: 230, adult: true, level: "medium", title: "Presentation", image: "card_230.jpg", correct: "The chef recommends you savor it." },
+  { id: 231, spicy: true, level: "medium", title: "Breakfast", image: "card_231.jpg", correct: "He's been very good lately." },
+  { id: 232, level: "easy", title: "Picnic", image: "card_232.jpg", correct: "Same as every Fourth of July." },
+  { id: 233, adult: true, level: "medium", title: "Take a Number", image: "card_233.jpg", correct: "My powers don't include patience." },
+  { id: 234, level: "easy", title: "Cocktails", image: "card_234.jpg", correct: "I'm told he's very down to earth." },
+  { id: 235, adult: true, level: "hard", title: "Retirement Plan", image: "card_235.jpg", correct: "We said we'd wait till they came back." },
+  { id: 236, level: "medium", title: "Summer", image: "card_236.jpg", correct: "Global warming has been great for business." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
 const { polish } = require('./polish');
 for (const c of CARTOONS) c.correct = polish(c.correct).text;
-// The original deck is retired: never dealt again (kept only so old Gallery frames still show their picture)
-const RETIRED_BELOW = 47;
-for (const c of CARTOONS) if (c.id < RETIRED_BELOW) c.retired = true;
+// Retired for good: nothing below FIRST_LIVE_ID is ever dealt, shown, framed or synced (store.js refuses them too)
+const { FIRST_LIVE_ID } = require('./store');
+const isRetiredId = (id) => !(Number(id) >= FIRST_LIVE_ID);
+for (let i = CARTOONS.length - 1; i >= 0; i--) if (isRetiredId(CARTOONS[i].id)) CARTOONS.splice(i, 1);
+// The lobby says the deck is still being drawn until it holds this many cartoons
+const DECK_DRAWN = 60;
 
 // The permanent Hall of Fame deck (lives across games and game nights)
 const store = require('./store');
@@ -162,9 +186,12 @@ function trustedEntries(game) {
 // Phones carry the Gallery between nights: merge what one brings (max 300, cartoons we know)
 function syncGallery(game, entries) {
   if (!Array.isArray(entries)) return { error: 'That didn’t take. Try again.' };
-  const known = new Set(CARTOONS.map(c => c.id)); let added = 0;
-  for (const e of entries.slice(0, 300)) if (e && known.has(Number(e.cartoonId)) && deckOf(game).add(e, true)) added++;
-  return { ok: true, added };
+  const known = new Set(CARTOONS.map(c => c.id)); let added = 0, refused = 0;
+  for (const e of entries.slice(0, 300)) {
+    if (!e || isRetiredId(e.cartoonId) || !known.has(Number(e.cartoonId))) { refused++; continue; }   // a retired cartoon's frame never comes back
+    if (deckOf(game).add(e, true)) added++;
+  }
+  return { ok: true, added, refused };
 }
 
 const MAX_PLAYERS = 8;
@@ -375,7 +402,7 @@ function freshest(game, list) {
   const ago = seenAgo(game), most = Math.max(...out.map(c => ago.get(c.id) ?? 1e9));
   return out.filter(c => (ago.get(c.id) ?? 1e9) === most);
 }
-const NEWEST_FROM = 47;                  // the newest batch of cartoons
+const NEWEST_FROM = FIRST_LIVE_ID;       // the newest batch of cartoons (raise it when a new batch lands)
 // For each cartoon: how many cartoons ago anyone here last saw it (0 = the last one they saw)
 function seenAgo(game) {
   const here = new Set(game.players.map(p => p.id)), m = new Map();
@@ -513,7 +540,7 @@ const tableNames = (game) => new Set(game.players.map(p => p.name.toLowerCase())
 function expertCartoonIds(game) {
   const names = tableNames(game), out = new Set();
   for (const e of trustedEntries(game)) if (!names.has(e.author.toLowerCase())) out.add(e.cartoonId);
-  return CARTOONS.filter(c => !c.retired && out.has(c.id)).map(c => c.id);
+  return CARTOONS.filter(c => out.has(c.id)).map(c => c.id);
 }
 const deckCartoons = (game) => expertCartoonIds(game).length;
 
@@ -523,15 +550,59 @@ function dealExpert(game, currentId) {
   // Never twice in one game; otherwise the ones the fewest people here have seen
   const pool = freshest(game, allowed(game).filter(c => ok.has(c.id) && !game.usedCartoonIds.includes(c.id) && c.id !== currentId));
   if (!pool.length) return null;   // every deck cartoon has been played this game
-  const cartoon = pick(pool), names = tableNames(game);
+  const cartoon = pickByLevel(game, pool), names = tableNames(game);
   const entry = pick(trustedEntries(game).filter(e => e.cartoonId === cartoon.id && !names.has(e.author.toLowerCase())));
   return entry ? { cartoon, entry } : null;
 }
 
-// Put a fresh cartoon on the table, never the one being replaced
+/* The hidden difficulty (Nick, Oct 19 2026). Every cartoon is tagged easy, medium or hard; players never see it and
+   there is no setting. A game is a setlist: it opens easier and builds. A table of new players (most have played
+   fewer than REGULAR_GAMES games, as their phones report through 'career'; unknown = new) gets mostly easy and
+   medium, very few hard; a table of regulars gets more hard. The level only chooses among the cartoons the normal
+   rules already allow (never twice in a game, fewest people here have seen it, the deck's rating). */
+const LEVELS = ['easy', 'medium', 'hard'];
+const levelOf = (c) => LEVELS.includes(c.level) ? c.level : 'medium';
+const REGULAR_GAMES = 5;
+//                 opening third         middle third          last third     (weights for easy, medium, hard)
+const SETLIST = {
+  fresh:   [[0.75, 0.25, 0.00], [0.40, 0.55, 0.05], [0.25, 0.60, 0.15]],
+  regular: [[0.40, 0.50, 0.10], [0.15, 0.50, 0.35], [0.05, 0.40, 0.55]],
+};
+function tableKind(game) {
+  const ps = game.players.filter(p => p.connected !== false);
+  const list = ps.length ? ps : game.players;
+  const regulars = list.filter(p => (p.games || 0) >= REGULAR_GAMES).length;
+  return list.length && regulars * 2 > list.length ? 'regular' : 'fresh';   // half or more new: a new table
+}
+// Where this deal sits in the game: 0 = the opening third, 1 = the middle, 2 = the last third
+function setPosition(game) {
+  const s = game.settings, round = Math.max(1, game.round || 1);
+  const total = s.targetScore ? Math.max(6, game.players.length * 2) : Math.max(1, totalRounds(game));
+  if (total <= 1) return 0;
+  const f = (round - 1) / (total - 1);
+  return f < 1 / 3 ? 0 : f < 2 / 3 ? 1 : 2;
+}
+function pickByLevel(game, list) {
+  if (list.length <= 1) return list[0];
+  const w = SETLIST[tableKind(game)][setPosition(game)];
+  const by = { easy: [], medium: [], hard: [] };
+  for (const c of list) by[levelOf(c)].push(c);
+  // Roll a level; if that bucket is empty, try its neighbours (medium sits next to both)
+  let r = Math.random() * (w[0] + w[1] + w[2]), lv = r < w[0] ? 'easy' : r < w[0] + w[1] ? 'medium' : 'hard';
+  const order = lv === 'easy' ? ['easy', 'medium', 'hard'] : lv === 'hard' ? ['hard', 'medium', 'easy']
+    : (w[0] >= w[2] ? ['medium', 'easy', 'hard'] : ['medium', 'hard', 'easy']);
+  for (const l of order) if (by[l].length) return pick(by[l]);
+  return pick(list);
+}
+
+// Is there a cartoon this game hasn't played yet? (never a repeat within a game, never a retired one)
+const canDeal = (game) => allowed(game).some(c => !(game.usedCartoonIds || []).includes(c.id) && !(game.cartoon && c.id === game.cartoon.id));
+// Put a fresh cartoon on the table, never the one being replaced. False when the deck has nothing new left
+// (the cartoon on the table, if any, stays).
 function dealCartoon(game) {
   const currentId = game.cartoon ? game.cartoon.id : null;
   const x = game.settings.expert ? dealExpert(game, currentId) : null;
+  if (!x && !canDeal(game)) return false;
   if (x) {
     game.usedCartoonIds.push(x.cartoon.id);
     game.cartoon = { id: x.cartoon.id, title: x.cartoon.title, image: x.cartoon.image };
@@ -544,26 +615,48 @@ function dealCartoon(game) {
   game.timerEnd = game.timerDuration > 0 ? Date.now() + game.timerDuration * 1000 : null;   // [settings] no timer: no end time
   game.timeAdds = 0;
   game.timerToken = (game.timerToken || 0) + 1;
+  return true;
 }
 // Family games never deal the grown-up cartoons
 // PG-13 cartoons only come up in 'After dark' games
-const allowed = (game) => CARTOONS.filter(c => !c.retired && !(game.settings.family && (c.adult || c.spicy)) && !(c.spicy && !game.settings.spicy));
+const allowed = (game) => CARTOONS.filter(c => !isRetiredId(c.id) && !(game.settings.family && (c.adult || c.spicy)) && !(c.spicy && !game.settings.spicy));
 function dealNormal(game, currentId) {
   // Never twice in one game; of the rest, the ones the fewest people at the table have seen.
   // Nobody sees a repeat until they've seen the whole deck.
-  let available = freshest(game, allowed(game).filter(c => !game.usedCartoonIds.includes(c.id) && c.id !== currentId));
-  if (available.length === 0) {
-    game.usedCartoonIds = currentId ? [currentId] : [];
-    available = allowed(game).filter(c => c.id !== currentId);
-  }
-  const cartoon = pick(available.length ? available : allowed(game).length ? allowed(game) : CARTOONS.filter(c => !c.retired));
+  const available = freshest(game, allowed(game).filter(c => !game.usedCartoonIds.includes(c.id) && c.id !== currentId));
+  if (!available.length) return false;   // out of new cartoons: the caller decides (end the game, keep the cartoon, skip the mulligan)
+  const cartoon = pickByLevel(game, available);
   game.usedCartoonIds.push(cartoon.id);
   game.cartoon = { id: cartoon.id, title: cartoon.title, image: cartoon.image };
   game.correctCaption = cartoon.correct;
   game.realCredit = null;
+  return true;
+}
+
+// Before a game starts: enough cartoons in this deck (Family / Standard / Everything) for the whole game?
+// (Repeats for regulars are fine: the lobby says so. An empty deck never crashes: the lobby shows a calm note.) Needs one per round: players x laps, the fixed round count, or (first to X) at least 6.
+function deckStatus(game) {
+  const s = game.settings, n = Math.max(3, connectedPlayers(game).length), laps = [1, 2, 3].includes(s.laps) ? s.laps : 1;
+  const need = s.targetScore ? Math.max(6, n) : s.rounds ? s.rounds : n * laps;
+  const pool = allowed(game), seen = seenCounts(game), used = new Set(game.usedCartoonIds || []);
+  const fresh = pool.filter(c => !(seen.get(c.id) > 0) && !used.has(c.id)).length;   // never one this room has already played
+  return { live: CARTOONS.length, pool: pool.length, fresh, need, ok: pool.length >= need, drawing: CARTOONS.length < DECK_DRAWN };
+}
+const nWord = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+function deckLine(d) { return d.live ? `The new deck is being drawn. ${nWord(d.live, 'cartoon')} so far.` : 'The new deck is being drawn. No cartoons yet.'; }
+function startCheck(game) {
+  const d = deckStatus(game);
+  if (d.ok) return { ok: true };
+  return { error: d.pool ? `This game needs ${nWord(d.need, 'cartoon')}. This deck has ${d.pool}.` : 'No cartoons in this deck yet.' };
+}
+// The deck ran out mid-game: this scoreboard is the last one
+function endForDeck(game) {
+  game.deckOut = true;
+  game.notice = { text: 'That was the last new cartoon. Final scores.', at: Date.now() };
 }
 
 function startRound(game, options = {}) {
+  if (!options.sameRound && !canDeal(game) && !(game.settings.expert && dealExpert(game, game.cartoon && game.cartoon.id))) return { error: 'The deck is out of new cartoons' };
   if (!options.sameRound) {
     game.round++;
     game.dealerIndex = nextDealerIndex(game, game.dealerIndex);
@@ -571,7 +664,13 @@ function startRound(game, options = {}) {
     const d = game.players[game.dealerIndex];
     if (d) { game.dealCount = game.dealCount || {}; game.dealCount[d.id] = (game.dealCount[d.id] || 0) + 1; }
   }
-  dealCartoon(game);
+  if (!dealCartoon(game)) {
+    // Nobody wrote anything and the deck has nothing new: the same cartoon again, fresh clock
+    game.submissions = []; game.mulliganVotes = [];
+    game.timerEnd = game.timerDuration > 0 ? Date.now() + game.timerDuration * 1000 : null;
+    game.timeAdds = 0; game.timerToken = (game.timerToken || 0) + 1;
+    game.notice = { text: 'Same cartoon. The deck has nothing new left.', at: Date.now() };
+  }
   if (game.round === 1 && !options.sameRound && !game.ratingSnap) beginRated(game);
   game.closedCaption = '';
   game.closedIsCorrect = false;
@@ -641,7 +740,11 @@ function voteMulligan(game, playerId) {
   if (votes < mulliganThreshold(game)) return { ok: true, triggered: false };
 
   const oldImage = game.cartoon ? game.cartoon.image : null;
-  dealCartoon(game);
+  if (!dealCartoon(game)) {   // nothing new left in the deck: no mulligan, this cartoon stays
+    game.mulliganVotes = [];
+    game.notice = { text: 'That’s the last new cartoon. It stays.', at: Date.now() };
+    return { ok: true, triggered: false, skipped: true };
+  }
   game.mulliganCount = (game.mulliganCount || 0) + 1;
   if (game.timerEnd) game.timerEnd += 4500;   // the execution plays over the new cartoon: give that time back ([settings] no timer: nothing to give)
   game.mulliganEvent = { n: game.mulliganCount, quip: pick(MULLIGAN_QUIPS), kind: pick(EXECUTIONS), image: oldImage, at: Date.now() };
@@ -934,6 +1037,7 @@ function moveToScoreboard(game) {
   if (game.phase === PHASES.ANSWER) return { error: 'Frame It comes first' };
   if (game.phase !== PHASES.FRAMING) return { error: 'Too late — the game moved on' };
   if (!game.frameResult) resolveFraming(game);
+  if (!isGameOver(game) && !canDeal(game)) endForDeck(game);   // nothing left to deal: this is the final scoreboard
   setPhase(game, PHASES.SCORES);
   game.scoresAt = Date.now();   // phones time the Grand Poobah ceremony from this, so it plays together
   if (isGameOver(game)) settleRating(game);
@@ -962,6 +1066,7 @@ function totalRounds(game) {
 
 function isGameOver(game) {
   const s = game.settings;
+  if (game.deckOut) return true;
   if (s.targetScore && s.targetScore > 0 && game.players.some(p => p.score >= s.targetScore)) return true;
   if (s.targetScore && s.targetScore > 0) return false;
   return game.round >= totalRounds(game);
@@ -1333,6 +1438,7 @@ function closeVerdicts(game) {
 
 function resetForNewGame(game) {
   setPhase(game, PHASES.LOBBY);
+  game.deckOut = false;
   game.finale = null;
   game.flags = [];
   game.framePicks = {};
@@ -1407,7 +1513,7 @@ function getPlayerView(game, playerId) {
     round: game.round,
     totalRounds: s.targetScore ? null : totalRounds(game),
     settings: { ...s },
-    deckSize: CARTOONS.filter(c => !c.retired).length,
+    deckSize: CARTOONS.length,
     hostId: game.hostId,
     isHost: game.hostId === playerId,
     dealerId: dealer ? dealer.id : null,
@@ -1440,8 +1546,9 @@ function getPlayerView(game, playerId) {
     base.gazette = hide ? deckOf(game).recent(GAZETTE_SIZE * 4).filter(e => !hide.has(e.cartoonId)).slice(0, GAZETTE_SIZE) : deckOf(game).recent(GAZETTE_SIZE);
   }
   if (game.phase === PHASES.LOBBY) {
-    const pool = allowed(game), seen = seenCounts(game);
-    base.freshCount = pool.filter(c => !(seen.get(c.id) > 0)).length; base.poolCount = pool.length;
+    const d = deckStatus(game);   // only the live deck counts (retired ids a phone has seen are ignored)
+    base.freshCount = d.fresh; base.poolCount = d.pool;
+    base.deck = { ...d, line: deckLine(d) };
     return base;
   }
 
@@ -1585,6 +1692,8 @@ function unsealGame(blob) {
     const g = JSON.parse(require('zlib').inflateSync(Buffer.concat([d.update(b.subarray(28)), d.final()])).toString());
     if (!g || !g.code || !Array.isArray(g.players) || Date.now() - g.sealedAt > 6 * 3600 * 1000) return null;   // a copy older than 6 h is a different night
     g.deck = newRoomDeck(); g.voice = {};
+    g.usedCartoonIds = (g.usedCartoonIds || []).filter(id => !isRetiredId(id));
+    if (g.cartoon && isRetiredId(g.cartoon.id)) resetForNewGame(g);   // a room from before the retirement: back to the lobby
     g.players.forEach(p => { p.connected = false; p.disconnectedAt = Date.now(); });
     g.timerToken = (g.timerToken || 0) + 1;
     if (g.timerEnd) g.timerEnd = Math.max(g.timerEnd, Date.now() + 30000);   // writers get a fair 30 s back
@@ -1593,7 +1702,7 @@ function unsealGame(blob) {
 }
 
 module.exports = {
-  sealGame, unsealGame, tooCloseToReal,
+  sealGame, unsealGame, tooCloseToReal, pickByLevel, tableKind, setPosition, levelOf, canDeal, deckStatus, startCheck, endForDeck, isRetiredId, FIRST_LIVE_ID,
   PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS,
   cleanTimer, DEFAULT_TIMER, totalRounds,   // [settings]
   addTime, undoBet, freshest, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, pickFrame, allFramesIn, resolveFraming, hallOfFame, planBlock, ensurePlan,

@@ -293,7 +293,8 @@ wss.on('connection', (ws, req) => {
         if (!isHost) return sendError(ws, 'Only the host can start');
         if (game.phase !== PHASES.LOBBY) return sendError(ws, 'Game already in progress');
         if (game.players.filter(p => p.connected).length < 3) return sendError(ws, 'Need at least 3 players');
-        G.startRound(game);
+        { const c = G.startCheck(game); if (c.error) return sendError(ws, c.error); }   // the new deck is still being drawn: never start a game that would run out
+        if (fail(G.startRound(game))) return;
         broadcast(code);
         scheduleWritingEnd(code);
         return;
@@ -332,6 +333,7 @@ wss.on('connection', (ws, req) => {
       case 'gallery_sync': {
         const r = G.syncGallery(game, msg.entries);
         if (fail(r)) return;
+        if (r.refused) send(ws, { type: 'gallery_purge', below: G.FIRST_LIVE_ID });   // retired frames: refused here, and the phone drops its copy
         if (r.added) broadcast(code);
         return;
       }
@@ -483,7 +485,7 @@ wss.on('connection', (ws, req) => {
             const nd = game.players[G.nextDealerIndex(game, game.dealerIndex)];
             if (!canRun && !(nd && nd.id === playerId)) return sendError(ws, 'Waiting for the next dealer');
             if (G.isGameOver(game)) return;
-            G.startRound(game);
+            if (fail(G.startRound(game))) return;
             broadcast(code);
             scheduleWritingEnd(code);
             return;

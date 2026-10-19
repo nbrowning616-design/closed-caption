@@ -17,7 +17,10 @@ const norm = (t) => String(t || '').toLowerCase().replace(/\s+/g, ' ').replace(/
 // Captions pulled from The Gallery for good: the "he he" test frame (Nick, Oct 19 2026: gone for good), and any
 // frame that is nothing but laughing ("he he", "hehe", "heh", "hee hee", "ha ha"), whoever wrote it
 const LAUGH_ONLY = /^((he+h?|ha+h?|hi+) ?)+$/;
-const isRetired = (e) => LAUGH_ONLY.test(norm(e.caption));
+// Every cartoon below this id was retired for good (Nick, Oct 19 2026: "retire all and build new. remove all prior framed."):
+// their frames are dropped from the saved file on load and refused from any phone that still carries them
+const FIRST_LIVE_ID = 113;
+const isRetired = (e) => LAUGH_ONLY.test(norm(e.caption)) || !(Number(e.cartoonId) >= FIRST_LIVE_ID);
 const keyOf = (e) => e.cartoonId + '|' + norm(e.caption);
 const MONTH = (ms) => new Date(ms).toLocaleString('en-US', { month: 'long', year: 'numeric', timeZone: 'America/New_York' });
 const str = (v, max) => String(v === undefined || v === null ? '' : v).slice(0, max);
@@ -36,7 +39,7 @@ function createDeck(FILE = null, quiet = true) {
     if (!e || typeof e !== 'object') return null;
     const cartoonId = Number(e.cartoonId), caption = str(e.caption, 300).trim();
     if (!Number.isInteger(cartoonId) || !caption) return null;
-    if (isRetired({ caption, author: e.author })) return null;
+    if (isRetired({ caption, cartoonId, author: e.author })) return null;
     const at = Number.isFinite(Number(e.at)) && Number(e.at) > 0 ? Number(e.at) : Date.now();
     return {
       id: typeof e.id === 'string' && e.id ? e.id.slice(0, 24) : newId(),
@@ -65,10 +68,12 @@ function createDeck(FILE = null, quiet = true) {
     try {
       const list = JSON.parse(raw);
       if (!Array.isArray(list)) throw new Error('not a list');
-      for (const x of list) { const e = clean(x); if (e && !keys.has(keyOf(e))) { entries.push(e); keys.add(keyOf(e)); } }
+      let dropped = 0;
+      for (const x of list) { const e = clean(x); if (e && !keys.has(keyOf(e))) { entries.push(e); keys.add(keyOf(e)); } else dropped++; }
       entries.sort((a, b) => a.at - b.at);
       while (entries.length > MAX_ENTRIES) keys.delete(keyOf(entries.shift()));
-      console.log(`  Hall of Fame: ${entries.length} captions loaded from ${FILE}`);
+      console.log(`  Hall of Fame: ${entries.length} captions loaded from ${FILE}${dropped ? ` (${dropped} retired or duplicate dropped)` : ''}`);
+      if (dropped) save();   // the retired frames leave the file for good
     } catch (e) {
       // Keep the broken file for a human to look at; start a fresh deck
       console.warn(`  Hall of Fame: ${FILE} is unreadable (${e.message}) — starting empty.`);
@@ -139,4 +144,4 @@ function createDeck(FILE = null, quiet = true) {
 }
 
 const server = createDeck(FILE, false);
-module.exports = { ...server, createDeck, norm, isRetired, MAX_ENTRIES, file: FILE };
+module.exports = { ...server, createDeck, norm, isRetired, FIRST_LIVE_ID, MAX_ENTRIES, file: FILE };
