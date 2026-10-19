@@ -268,7 +268,7 @@ wss.on('connection', (ws) => {
         // The dealer paces the answer, one caption at a time
         if (!canRun) return sendError(ws, 'The dealer runs the reveal');
         // Nobody skips ahead while the whole table is still watching the Claw
-        const st = game.steal, showMs = st && st.at && st.victimId ? 7600 + 1200 : 0;   // every heist gets the full show
+        const st = game.steal, showMs = st && st.at && st.victimId ? (st.stealShow === 'short' ? 2500 + 400 : 7600 + 1200) : 0;   // the full heist, or the short stamp (~2.9s)
         if (msg.action === 'reel_next' && game.reel && game.reel.step === 1 && showMs && Date.now() < st.at + showMs) return sendError(ws, 'Let the thief finish');
         if (fail(G.reelStep(game, msg.action.slice(5)))) return;
         broadcast(code);

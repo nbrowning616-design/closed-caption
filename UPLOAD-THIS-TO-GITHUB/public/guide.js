@@ -11,12 +11,12 @@
   var SHOW_MS = 7000;
 
   var TIPS = {
-    writing: { icon: '✍️', text: 'Write a fake that could pass for the real caption. The real ones are short and dry.' },
-    facedown: { icon: '🃏', text: 'One caption is face-down. Sometimes it’s the real one.' },
-    first_bets: { icon: '🎰', text: 'Bet on the one you think is real. Blind bets pay more; both chips is a Half-Moon.' },
-    steal: { icon: '😈', text: 'The dealer can steal one chip. A chip stolen off the real one pays the dealer instead.' },
-    answer: { icon: '🍿', text: 'Who wrote what. Who fell for it. No rush.' },
-    frame: { icon: '🖼', text: 'Beat the real caption? Frame it. Enough frames and it hangs in The Gallery.' }
+    writing: { icon: '', text: 'Write a fake that could pass for the real caption.' },
+    facedown: { icon: '', text: 'One caption is face-down. Sometimes it’s the real one.' },
+    first_bets: { icon: '', text: 'Bet on the one you think is real. Blind bets pay more; both chips is a Half-Moon.' },
+    steal: { icon: '', text: 'The dealer can steal one chip. Off the real one, it pays the dealer instead. Off a fake, its owner gets +1.' },
+    answer: { icon: '', text: 'Who wrote what. Who fell for it. No rush.' },
+    frame: { icon: '', text: 'Beat the real caption? Frame it. If most of the table frames it, it hangs in The Gallery. One frame each per game.' }
   };
   // How long after the moment arrives before the tip slides in (let the screen's own show land first)
   var DELAY = { writing: 2600, facedown: 2400, first_bets: 1200, steal: 1800, answer: 5200, frame: 2200 };   // after the moment lands, never on top of it
@@ -162,7 +162,7 @@
   function showTip(id) {
     var t = TIPS[id]; if (!t) return;
     var el = ensureTip();
-    el.innerHTML = '<div class="gd-row"><span class="gd-ic" aria-hidden="true">' + t.icon + '</span><div style="flex:1;min-width:0;"><span class="gd-lab">First-game tip</span><p>' + esc(t.text) + '</p></div><button class="gd-x" type="button" tabindex="-1" aria-label="Dismiss tip">✕</button></div>'
+    el.innerHTML = '<div class="gd-row">' + (t.icon ? '<span class="gd-ic" aria-hidden="true">' + t.icon + '</span>' : '') + '<div style="flex:1;min-width:0;"><span class="gd-lab">First-game tip</span><p>' + esc(t.text) + '</p></div><button class="gd-x" type="button" tabindex="-1" aria-label="Dismiss tip">✕</button></div>'
       + '<div class="gd-foot"><button class="gd-off" type="button" tabindex="-1">Don’t show tips</button><button class="gd-ok" type="button" tabindex="-1">Got it</button></div><i class="gd-bar" style="animation-duration:' + SHOW_MS + 'ms"></i>';
     el.classList.remove('on');
     tipId = id; tipShownAt = Date.now(); markSeen(id);

@@ -571,7 +571,6 @@
     setTimeout(function () {
       if (current !== it) return;
       if (mine) vib([40, 60, 40, 60, 220]);
-      try { if (window.confetti && typeof window.confetti.burst === 'function') window.confetti.burst(innerWidth / 2, innerHeight * 0.36, mine ? 110 : 60); } catch (e) {}
     }, 620);
   }
 

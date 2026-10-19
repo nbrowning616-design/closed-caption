@@ -1,4 +1,5 @@
 /* Closed Caption — BIG HEAD MODE, pack 1: eleven more round-winner acts (global act numbers 3-13).
+   7 The Weather, 8 The Elevator and 11 The Stamp replaced Bubble Bath, Big Baby and Head Spin (Oct 2026).
    Crude cut-out paper gags starring the winner's own face. Uses the kit in heads.js (window.ccHeads). */
 (function () {
   'use strict';
@@ -14,8 +15,8 @@
   function place(el, x, y, r) { el.style.transform = 'translate(' + x + 'px,' + y + 'px)' + (r ? ' rotate(' + r + 'deg)' : ''); return el; }
   // the head on its own, centred on (0,0)
   function headAt(c, px, z, style) { return c.add('<div style="position:absolute;left:0;top:0;transform:translate(-50%,-50%);' + (style || '') + '">' + c.head(px) + '</div>', z || 20); }
-  // an emoji centred on (0,0)
-  function emo(c, e, size, z) { return c.add('<div style="position:absolute;left:0;top:0;transform:translate(-50%,-50%);font-size:' + size + 'px;line-height:1">' + e + '</div>', z || 25); }
+  // a small prop centred on (0,0), drawn in the house ink (ccHeads.icon; these used to be emoji)
+  function emo(c, e, size, z) { return c.add('<div style="position:absolute;left:0;top:0;transform:translate(-50%,-50%);line-height:1">' + window.ccHeads.icon(e, size) + '</div>', z || 25); }
   // puppet with an optional svg drawn BEHIND the body (same viewBox as the body)
   function rig(c, o) {
     var px = o.px || 100, w = o.w || 110, bh = w * 160 / 148, neck = Math.round(bh * 0.25 + px * 0.12);
@@ -76,14 +77,12 @@
     c.path(spark, [{ t: 0, x: 14, y: gy, o: 0 }, { t: 899, x: 14, y: gy, o: 0 }, { t: 900, x: 14, y: gy, o: 1 }, { t: 1700, x: 54, y: gy - 38, o: 1, s: 1.3 }, { t: 1990, x: 66, y: gy - 44, o: 1 }, { t: 2000, x: 66, y: gy - 44, o: 0 }], { jerky: 8 });
     c.sfx(900, function () { noise(1.05, 0, 0.07, 6000, 'highpass'); });
     c.scream(hd, 2000, 3100);
-    c.text('BOOM!', 210, gy - 250, 56, 2000, 2900, -10);
     c.burst(['💨', '☁️', '💥'], 205, gy - 127, 14, 110, 2000, 900, 30);
     flashW(c, 2000, 0.7); c.shake(2000, 450); c.buzz(2000, [150, 50, 80]);
     c.sfx(2000, c.snd.boom);
     c.sfx(2150, function () { tone(500, 0.85, 0, 'sawtooth', 0.04, 1100); });
     c.sfx(3050, c.snd.splat); c.shake(3050, 300);
     c.burst(['💦', '💧'], ex, ey + 20, 10, 90, 3050, 800, 40);
-    c.text('BULLSEYE.', c.W / 2, 190, 50, 3300, 0, -5);
     c.sfx(3300, c.snd.crowd);
     c.say('Ten out of ten.', ex, ey - 62, 3900, 5150, 78);
     c.talk(hd, 3900, 4900);
@@ -116,7 +115,6 @@
     c.path(sheet, [{ t: 0, x: x, y: gy - 142 }, { t: 1300, x: x, y: gy - 142 }, { t: 1420, x: x + 30, y: gy - 190, r: 10 }, { t: 1750, x: x + 280, y: gy - 520, r: 55, o: 1 }, { t: 1800, x: x + 300, y: gy - 540, r: 60, o: 0 }], { jerky: 3 });
     c.sfx(0, function () { c.snd.drum(1250); });
     c.sfx(1350, c.snd.whoosh); c.sfx(1400, c.snd.fanfare); c.sfx(1450, c.snd.crowd);
-    c.text('TA-DA!', x, 130, 52, 1400, 2500, -6);
     c.burst(['✨', '⭐'], x, sy, 14, 150, 1400, 1000, 30);
     c.say('Behold: me. In gold.', x, top - 6, 1950, 2900, 50);
     c.talk(statue, 1950, 2800);
@@ -143,7 +141,6 @@
     place(splat, x - 4, top + 4);
     c.anim(splat.querySelector('.sp'), [{ opacity: 0, transform: 'scaleY(.2)' }, { opacity: 1, transform: 'scaleY(.5)', offset: 0.3 }, { opacity: 1, transform: 'scaleY(1)' }], { dur: 900, at: 3650, ease: 'steps(4,end)' });
     c.sfx(3650, c.snd.splat);
-    c.text('PLOP.', x + 110, top - 30, 40, 3650, 4600, 10);
     c.scream(statue, 3700, 4150);
     c.sfx(4250, c.snd.womp);
     c.say('…Every. Single. Time.', x, top - 6, 4300, 5150, 50);
@@ -183,11 +180,9 @@
     c.say('This is a job for… me.', sx, sy - hTop(96, 100) - 6, 200, 1400, 18);
     c.talk(hero, 200, 1300);
     c.sfx(1600, c.snd.whoosh); c.sfx(2400, c.snd.whoosh);
-    c.text('WHOOSH!', W / 2, 170, 34, 1700, 2300, -8);
     c.scream(hero, 2900, 3250);
     c.sfx(3200, c.snd.boom); c.sfx(3200, c.snd.splat);
     c.shake(3200, 500); c.buzz(3200, [200, 60, 120]); flashW(c, 3200, 0.5);
-    c.text('SPLAT!', 290, 196, 52, 3200, 4200, 12);
     c.burst(['💥', '⭐'], 272, 296, 10, 110, 3200, 800, 0);
     c.sfx(4500, c.snd.fall);
     c.say('I meant to do that.', 272, 252, 3900, 5150, 50);
@@ -222,10 +217,7 @@
     for (var m = 0; m < 12; m++) (function (f, dt) { c.sfx(dt, function () { tone(f, 0.22, 0, 'triangle', 0.05); }); })(notes[m], 100 + m * 250);
     c.say('Prepare to be moved.', x, gy - 196, 1050, 1950, 50);
     c.talk(p1, 1050, 1900);
-    c.text('SPIN!', x - 110, gy - 260, 34, 2100, 2700, -12);
-    c.text('SPIN!', x + 110, gy - 300, 34, 2500, 3100, 12);
     c.sfx(2000, function () { noise(1.1, 0, 0.12, 1500, 'bandpass'); });
-    c.text('CRUNCH!', x, gy - 280, 54, 3150, 4100, -8);
     c.sfx(3150, function () { for (var j = 0; j < 4; j++) noise(0.06, j * 50, 0.55, 1800, 'bandpass'); tone(90, 0.3, 0, 'square', 0.08, 40); });
     c.shake(3150, 400); c.buzz(3150, [120, 40, 200]);
     c.burst(['💥'], x - 90, gy - 10, 3, 40, 3150, 600, 10); c.burst(['💥'], x + 90, gy - 10, 3, 40, 3150, 600, 10);
@@ -236,115 +228,73 @@
     c.sfx(4300, c.snd.crowd);
   } });
 
-  /* ════════ 7. Bubble Bath ════════ */
-  add({ name: 'Bubble Bath', tag: 'Squeaky clean. Mostly.', run: function (c) {
-    c.sky('repeating-linear-gradient(90deg,transparent 0 40px,#8FC9C0 40px 43px),repeating-linear-gradient(0deg,#D3EFEA 0 40px,#8FC9C0 40px 43px)');
-    c.ground('#E9E2D0', 160);
-    var gy = c.H - 160, x = c.W / 2, rim = gy - 140;
-    var tub = c.add('<svg viewBox="0 0 300 180" width="300" style="position:absolute;left:-150px;top:-180px;overflow:visible">' +
-      '<path d="M22 30 V6 H52 V18" fill="none" stroke="' + INK + '" stroke-width="12" stroke-linecap="round"/><path d="M22 30 V6 H52 V18" fill="none" stroke="#B9C2CC" stroke-width="6" stroke-linecap="round"/>' +
-      '<path d="M60 150 L46 178 L80 178 L86 152 Z M240 150 L254 178 L220 178 L214 152 Z" fill="#D4A017" ' + st(4) + '/>' +
-      '<path d="M10 40 L290 40 Q292 152 200 158 L100 158 Q8 152 10 40 Z" fill="#FFFFFF" ' + st(5) + '/>' +
-      '<rect x="0" y="30" width="300" height="16" rx="8" fill="#F1F1F1" ' + st(5) + '/>' +
-      '<path d="M40 70 Q44 120 80 136" fill="none" stroke="#DDE3E8" stroke-width="6"/></svg>', 20);
-    place(tub, x, gy + 10);
-    var hx = x - 22, hy = rim - 62;
-    var hd = headAt(c, 110, 18);
-    c.path(hd, [{ t: 0, x: hx, y: hy }, { t: 400, x: hx, y: hy - 6, r: -5 }, { t: 800, x: hx, y: hy, r: 5 }, { t: 1200, x: hx, y: hy - 6, r: -5 }, { t: 1600, x: hx, y: hy, r: 0 },
-      { t: 3000, x: hx, y: hy }, { t: 3100, x: hx, y: hy - 22 }, { t: 3500, x: hx, y: hy - 4 }, { t: 3600, x: hx, y: hy }], { jerky: 2 });
-    // foam on the rim
-    var foam = '';
-    for (var i = 0; i < 26; i++) {
-      var fx = 4 + c.rnd() * 292, fr = 10 + c.rnd() * 14;
-      if (fx > 100 && fx < 168) continue;   // keep the chin clear
-      foam += '<circle cx="' + fx.toFixed(0) + '" cy="' + (20 + c.rnd() * 18).toFixed(0) + '" r="' + fr.toFixed(0) + '" fill="#fff" stroke="' + INK + '" stroke-width="2.5"/>';
-    }
-    var fm = c.add('<svg viewBox="0 0 300 50" width="300" style="position:absolute;left:-150px;top:-36px;overflow:visible">' + foam + '</svg>', 22);
-    place(fm, x, rim + 4);
-    // the duck, on the rim
-    var dx = x + 104, dy = rim - 2;
-    var duck = c.add('<svg viewBox="0 0 70 60" width="66" style="position:absolute;left:-33px;top:-56px;overflow:visible">' +
-      '<path d="M10 34 Q12 58 40 56 Q64 56 66 34 Q60 40 52 36 Q50 26 40 30 Z" fill="#FFD23F" ' + st(3) + '/><circle cx="24" cy="20" r="13" fill="#FFD23F" ' + st(3) + '/>' +
-      '<path d="M12 18 L-1 23 L12 29 Z" fill="#F28C28" ' + st(2) + '/><circle cx="21" cy="16" r="2.6" fill="' + INK + '"/><path d="M16 10 L26 12" stroke="' + INK + '" stroke-width="2.5" class="brow"/></svg>', 24);
-    var dp = [];
-    for (var t = 0; t <= 2800; t += 300) dp.push({ t: t, x: dx, y: dy - (t / 300 % 2 ? 3 : 0), r: t / 300 % 2 ? 4 : -4 });
-    for (t = 2900; t <= 4100; t += 120) dp.push({ t: t, x: dx, y: dy - ((t / 120) % 2 ? 10 : 0), s: (t / 120) % 2 ? 1.12 : 1 });
-    dp.push({ t: 4300, x: dx, y: dy, r: -8 }, { t: 5200, x: dx, y: dy, r: -8 });
-    c.path(duck, dp, { jerky: 1 });
-    // rising bubbles
-    function bubble(bx0, r, t0, dur, rise, drift) {
-      var b = c.add('<div style="position:absolute;left:' + (-r) + 'px;top:' + (-r) + 'px;width:' + (2 * r) + 'px;height:' + (2 * r) + 'px;border-radius:50%;background:rgba(255,255,255,.72);border:2.5px solid ' + INK + ';box-shadow:inset -' + (r / 3).toFixed(0) + 'px -' + (r / 3).toFixed(0) + 'px 0 rgba(150,205,255,.75)"></div>', 26);
-      c.path(b, [{ t: 0, x: bx0, y: rim, o: 0, s: 0.3 }, { t: t0, x: bx0, y: rim, o: 0, s: 0.3 }, { t: t0 + 80, x: bx0, y: rim - 10, o: 1, s: 1 },
-        { t: t0 + dur, x: bx0 + drift, y: rim - rise, o: 1, s: 1.1 }, { t: t0 + dur + 1, x: bx0 + drift, y: rim - rise, o: 0 }], { jerky: 4 });
-      return b;
-    }
-    for (var j = 0; j < 30; j++) {
-      var t0 = 500 + (j < 18 ? j * 140 : 2600 + (j - 18) * 190) + c.rnd() * 80;
-      bubble(x - 140 + c.rnd() * 280, 8 + c.rnd() * 14, t0, 900 + c.rnd() * 700, 180 + c.rnd() * 260, (c.rnd() - 0.5) * 80);
-    }
-    // the BIG one
-    var big1 = c.add('<div style="position:absolute;left:-44px;top:-44px;width:88px;height:88px;border-radius:50%;background:rgba(220,255,200,.55);border:3px solid ' + INK + ';box-shadow:inset -14px -12px 0 rgba(170,220,120,.6)"></div>', 27);
-    var bxx = x - 30;
-    c.path(big1, [{ t: 0, x: bxx, y: rim, o: 0, s: 0.2 }, { t: 2399, x: bxx, y: rim, o: 0, s: 0.2 }, { t: 2400, x: bxx, y: rim - 10, o: 1, s: 0.5 }, { t: 2700, x: bxx - 10, y: rim - 120, s: 1.1, sx: 1.2 }, { t: 3000, x: bxx + 8, y: rim - 210, s: 1 },
-      { t: 3300, x: bxx - 4, y: rim - 260, sx: 0.9, sy: 1.1 }, { t: 3399, x: bxx, y: rim - 290, o: 1 }, { t: 3400, x: bxx, y: rim - 290, o: 0 }], { jerky: 3 });
-    c.sfx(2400, c.snd.fart); c.buzz(2400, [60, 30, 60, 30, 60]);
-    c.text('BLORP!', x + 80, rim - 200, 40, 2450, 3300, 10);
-    c.sfx(3400, c.snd.pop);
-    c.burst(['💨', '💚'], bxx, rim - 290, 8, 80, 3400, 700, 20);
-    // singing
-    c.say('♪ Rub-a-dub-me ♪', hx, hy - 66, 200, 1600, 40);
-    c.talk(hd, 200, 1550);
-    [523, 659, 784, 659, 523, 784].forEach(function (f, n) { c.sfx(250 + n * 220, function () { tone(f, 0.18, 0, 'triangle', 0.05); }); });
-    c.burst(['🎵', '🎶'], hx + 50, hy - 40, 6, 90, 400, 1100, 70);
-    c.sfx(0, function () { noise(0.8, 0, 0.08, 700, 'lowpass'); });
-    // the duck speaks
-    c.say('That one wasn’t me.', dx, dy - 64, 2950, 4150, 72);
-    for (var q = 0; q < 8; q++) c.sfx(2950 + q * 140, function () { tone(1250, 0.07, 0, 'square', 0.035, 1700); });
-    c.scream(hd, 3050, 3650);
-    c.say('Ducks can’t talk.', hx, hy - 66, 4250, 5150, 40);
-    c.talk(hd, 4250, 5000);
+  /* ════════ 7. The Weather ════════ */
+  add({ name: 'The Weather', tag: 'Clear skies. Locally smug.', run: function (c) {
+    c.sky('linear-gradient(#1E3A66,#2E5EAA)');
+    c.ground('#16294A', 120);
+    var W = c.W, gy = c.H - 120, mx = Math.round(W * 0.6), my = 300, mw = Math.min(280, W - 120), mh = 230;
+    // the map: the table, seen from above, with a seat for everyone
+    var seats = '', n = 6, cx = mw / 2, cy = mh / 2 + 14, rx = mw * 0.34, ry = mh * 0.27, win = 0;
+    for (var i = 0; i < n; i++) { var a = -Math.PI / 2 + i / n * Math.PI * 2; seats += '<circle cx="' + (cx + Math.cos(a) * rx).toFixed(0) + '" cy="' + (cy + Math.sin(a) * ry).toFixed(0) + '" r="9" fill="' + (i === win ? c.color : '#E9E3D6') + '" ' + st(3) + '/>'; }
+    var map = c.add('<svg viewBox="0 0 ' + mw + ' ' + mh + '" width="' + mw + '" style="position:absolute;left:' + (-mw / 2) + 'px;top:' + (-mh / 2) + 'px;overflow:visible">' +
+      '<rect x="2" y="2" width="' + (mw - 4) + '" height="' + (mh - 4) + '" rx="8" fill="#7EC8E3" ' + st(4) + '/>' +
+      '<rect x="2" y="2" width="' + (mw - 4) + '" height="26" rx="6" fill="#FFF8EA" ' + st(3) + '/>' +
+      '<text x="' + (mw / 2) + '" y="20" text-anchor="middle" font-family="Libre Caslon Text,Georgia,serif" font-style="italic" font-size="14" fill="' + INK + '">The table, tonight</text>' +
+      '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + (rx - 18) + '" ry="' + (ry - 14) + '" fill="#5BAF4A" ' + st(3) + '/>' + seats + '</svg>', 6);
+    place(map, mx, my);
+    var seat = function (k) { var a = -Math.PI / 2 + k / n * Math.PI * 2; return { x: mx - mw / 2 + cx + Math.cos(a) * rx, y: my - mh / 2 + cy + Math.sin(a) * ry }; };
+    // a sun over the winner's seat; a small cloud over everyone else's
+    var sun = c.add('<svg viewBox="0 0 60 60" width="56" style="position:absolute;left:-28px;top:-28px;overflow:visible"><path d="M30 2 V12 M30 48 V58 M2 30 H12 M48 30 H58 M10 10 L17 17 M43 43 L50 50 M50 10 L43 17 M10 50 L17 43" ' + st(3) + '/><circle cx="30" cy="30" r="13" fill="#FFD23F" ' + st(3) + '/></svg>', 9);
+    var s0 = seat(win);
+    c.path(sun, [{ t: 0, x: s0.x, y: s0.y - 30, o: 0, s: 0.3 }, { t: 1199, x: s0.x, y: s0.y - 30, o: 0, s: 0.3 }, { t: 1200, x: s0.x, y: s0.y - 30, o: 1, s: 1.1 }, { t: 1350, x: s0.x, y: s0.y - 30, s: 1 }], { jerky: 2 });
+    c.sfx(1200, function () { tone(880, 0.2, 0, 'sine', 0.04); });
+    for (var k = 1; k < n; k++) (function (k) {
+      var p = seat(k), cl = c.add('<svg viewBox="0 0 60 40" width="48" style="position:absolute;left:-24px;top:-20px;overflow:visible"><path d="M12 32 C2 32 2 18 12 18 C12 6 30 4 34 14 C40 6 54 10 52 22 C60 24 58 34 50 34 Z" fill="#E9E3D6" ' + st(3) + '/><path d="M20 36 L18 42 M32 36 L30 42 M44 36 L42 42" ' + st(2.5) + '/></svg>', 9);
+      var t0 = 2700 + k * 130;
+      c.path(cl, [{ t: 0, x: p.x, y: p.y - 26, o: 0 }, { t: t0 - 1, x: p.x, y: p.y - 26, o: 0 }, { t: t0, x: p.x, y: p.y - 26, o: 1, s: 1.15 }, { t: t0 + 120, x: p.x, y: p.y - 26, s: 1 }], { jerky: 2 });
+      c.sfx(t0, function () { noise(0.04, 0, 0.08, 1800, 'bandpass'); });
+    })(k);
+    // the forecaster, pointing
+    var p = c.puppet({ px: 92, w: 96, arms: 'out', shirt: '#2A2522', pants: '#2A2522', extra: '<path d="M44 12 L50 40 L56 12 Z" fill="#fff" ' + st(2) + '/><path d="M48 16 L50 30 L52 16 Z" fill="' + c.color + '"/>' });
+    var px = 70, top = gy - hTop(92, 96);
+    c.path(p, [{ t: 0, x: px, y: gy }, { t: 1100, x: px, y: gy, r: 0 }, { t: 1200, x: px, y: gy, r: 3 }, { t: 2600, x: px, y: gy, r: 3 }, { t: 2700, x: px, y: gy, r: -2 }, { t: 5200, x: px, y: gy, r: -2 }], { jerky: 1 });
+    c.say('Sunny where I’m sitting.', px + 40, top - 4, 1400, 2600, 20); c.talk(p, 1400, 2500);
+    c.say('Scattered losses elsewhere.', px + 40, top - 4, 3500, 5150, 20); c.talk(p, 3500, 4800);
   } });
 
-  /* ════════ 8. Big Baby ════════ */
-  add({ name: 'Big Baby', tag: 'Won the round. Still wants a bottle.', run: function (c) {
-    c.sky('radial-gradient(#F7B6CB 3px,transparent 4px) 0 0/34px 34px,#FCE3EC');
-    c.ground('#9FD3E8', 160);
-    var gy = c.H - 160, x = c.W / 2;
-    var blocks = c.add('<div style="position:absolute;left:0;top:-50px;display:flex;gap:2px;' + FONT + 'font-size:26px;color:#fff;text-shadow:0 2px 0 ' + INK + '">' +
-      ['A', 'B', 'C'].map(function (L, i) { return '<div style="width:44px;height:44px;border:3px solid ' + INK + ';background:' + ['#E8453A', '#2E9E6B', '#2E5EAA'][i] + ';text-align:center;line-height:42px;transform:rotate(' + [-6, 4, -2][i] + 'deg)">' + L + '</div>'; }).join('') + '</div>', 8);
-    place(blocks, 18, gy + 8);
-    var bear = emo(c, '🧸', 54, 8); place(bear, c.W - 50, gy - 18);
-    var diaper = '<path d="M18 76 Q50 84 82 76 L82 94 Q50 104 18 94 Z" fill="#fff" ' + st(3) + '/><circle cx="26" cy="84" r="4" fill="#9FD3E8" ' + st(2) + '/><circle cx="74" cy="84" r="4" fill="#9FD3E8" ' + st(2) + '/>';
-    var rattle = '<path d="M118 22 L168 -6" stroke="' + INK + '" stroke-width="6" stroke-linecap="round"/><circle cx="178" cy="-14" r="17" fill="#7FD1AE" ' + st(3) + '/><circle cx="172" cy="-18" r="3.5" fill="#FFD23F"/><circle cx="184" cy="-10" r="3.5" fill="#E8453A"/>';
-    var baby = c.puppet({ px: 128, w: 90, arms: 'out', legs: 'sit', shirt: '#F2C9A0', pants: '#FFFFFF', extra: diaper + rattle });
-    var top = gy - hTop(128, 90);
-    var pts = [];
-    for (var k = 0; k <= 10; k++) pts.push({ t: k * 150, x: -110 + (x + 110) * k / 10, y: gy - (k % 2 ? 10 : 0), r: k % 2 ? 7 : -7 });
-    pts.push({ t: 1650, x: x, y: gy });
-    for (var t = 1800, n = 0; t < 2700; t += 90, n++) pts.push({ t: t, x: x, y: gy, r: n % 2 ? 9 : -9 });
-    pts.push({ t: 2750, x: x, y: gy });
-    for (t = 2800, n = 0; t < 3450; t += 70, n++) pts.push({ t: t, x: x + (n % 2 ? 5 : -5), y: gy - (n % 2 ? 12 : 0), r: n % 2 ? 4 : -4 });
-    pts.push({ t: 3500, x: x, y: gy }, { t: 4300, x: x, y: gy }, { t: 4400, x: x, y: gy - 10 }, { t: 4500, x: x, y: gy }, { t: 4850, x: x, y: gy }, { t: 4900, x: x, y: gy - 16, sy: 1.06 }, { t: 5050, x: x, y: gy });
-    c.path(baby, pts, { jerky: 1 });
-    c.say('Goo goo. Ga ga.', x, top - 4, 1000, 1800, 50);
-    c.talk(baby, 1000, 1750);
-    for (var r = 0; r < 10; r++) c.sfx(1800 + r * 90, function () { noise(0.05, 0, 0.3, 5000, 'highpass'); });
-    c.text('*shake shake*', x, top - 50, 26, 1850, 2700, -6);
-    c.scream(baby, 2800, 3450);
-    c.text('WAAAAH!', x, top - 70, 54, 2800, 3500, 6);
-    c.burst(['💧'], x - 50, top + 60, 6, 70, 2850, 700, -30); c.burst(['💧'], x + 50, top + 60, 6, 70, 3050, 700, -30);
-    c.shake(2800, 600); c.buzz(2800, [80, 40, 80, 40, 80]);
-    c.sfx(2800, function () { tone(520, 0.3, 0, 'sawtooth', 0.05, 760); tone(560, 0.35, 330, 'sawtooth', 0.05, 820); });
-    c.say('BOTTLE. NOW.', x, top - 4, 3550, 4300, 50);
-    c.talk(baby, 3550, 4250);
-    c.sfx(3550, function () { tone(85, 0.7, 0, 'sawtooth', 0.09, 65); });
-    var bottle = emo(c, '🍼', 56, 25);
-    c.path(bottle, [{ t: 0, x: x + 46, y: -80, o: 0 }, { t: 4050, x: x + 46, y: -80, o: 1, r: 20 }, { t: 4300, x: x + 58, y: gy - 84, r: -10 }, { t: 4380, x: x + 58, y: gy - 92, r: -10 }, { t: 4500, x: x + 44, y: gy - 100, r: -50 }], { jerky: 3 });
-    c.sfx(4050, c.snd.fall); c.sfx(4300, c.snd.ding);
-    c.text('glug glug', x - 105, gy - 70, 22, 4450, 4850, -4);
-    for (var g = 0; g < 4; g++) c.sfx(4450 + g * 100, function () { tone(220, 0.07, 0, 'sine', 0.1, 140); });
-    c.text('BURP!', x, top - 60, 54, 4880, 0, -8);
-    c.sfx(4880, function () { tone(110, 0.45, 0, 'sawtooth', 0.12, 55); noise(0.4, 0, 0.12, 400, 'lowpass'); });
+  /* ════════ 8. The Elevator ════════ */
+  add({ name: 'The Elevator', tag: 'Going up. Alone.', run: function (c) {
+    c.sky('linear-gradient(#E9E0CF,#D8CCB4)');
+    c.ground('#6E655C', 120);
+    var W = c.W, gy = c.H - 120, x = W / 2, dw = 220, dh = 360, dt = gy - dh;
+    // the car: wood panels, a rail, and the winner, alone, with a plant
+    var car = c.add('<div style="width:' + dw + 'px;height:' + dh + 'px;box-sizing:border-box;background:repeating-linear-gradient(90deg,#B07A44 0 54px,#9A6A3A 54px 56px);border:3px solid ' + INK + '"></div>', 3);
+    place(car, x - dw / 2, dt);
+    var p = c.puppet({ px: 96, w: 100, arms: 'down', shirt: c.color, z: 5 });
+    place(p, x - 20, gy);
+    var plant = c.add('<svg viewBox="0 0 60 110" width="60" style="position:absolute;left:-30px;top:-110px;overflow:visible"><path d="M30 70 C10 50 6 26 14 10 C24 24 28 44 30 70 C32 40 40 18 52 8 C56 30 48 52 30 70" fill="#2E9E6B" ' + st(3) + '/><path d="M14 70 H46 L42 108 H18 Z" fill="#C46A3A" ' + st(3) + '/></svg>', 5);
+    place(plant, x + 70, gy);
+    // the doors: closed, open on the ding, closed again (they slide into the wall: the shaft clips them)
+    var shaft = c.add('<div style="position:relative;width:' + dw + 'px;height:' + dh + 'px;overflow:hidden"><div class="dl" style="position:absolute;left:0;top:0;width:' + (dw / 2) + 'px;height:' + dh + 'px;box-sizing:border-box;background:linear-gradient(90deg,#AAB4BE,#DCE2E8 45%,#AAB4BE);border:3px solid ' + INK + '"></div><div class="dr" style="position:absolute;left:' + (dw / 2) + 'px;top:0;width:' + (dw / 2) + 'px;height:' + dh + 'px;box-sizing:border-box;background:linear-gradient(90deg,#AAB4BE,#DCE2E8 45%,#AAB4BE);border:3px solid ' + INK + '"></div></div>', 8);
+    place(shaft, x - dw / 2, dt);
+    [['.dl', -1], ['.dr', 1]].forEach(function (d) {
+      var el = shaft.querySelector(d[0]), o = d[1] * (dw / 2 - 8);
+      c.anim(el, [{ transform: 'translateX(0)', offset: 0 }, { transform: 'translateX(0)', offset: 1500 / c.DUR }, { transform: 'translateX(' + o + 'px)', offset: 2000 / c.DUR, easing: 'ease-in' }, { transform: 'translateX(' + o + 'px)', offset: 3700 / c.DUR }, { transform: 'translateX(0)', offset: 4200 / c.DUR }, { transform: 'translateX(0)', offset: 1 }], { dur: c.DUR });
+    });
+    var frame = c.add('<div style="width:' + (dw + 36) + 'px;height:' + (dh + 30) + 'px;box-sizing:border-box;border:18px solid #C9A227;border-bottom:0;box-shadow:0 0 0 3px ' + INK + ',inset 0 0 0 3px ' + INK + '"></div>', 9);
+    place(frame, x - dw / 2 - 18, dt - 30);
+    // the floor dial over the door
+    var dial = c.add('<svg viewBox="0 0 120 60" width="120" style="position:absolute;left:-60px;top:-60px;overflow:visible"><path d="M6 56 A54 54 0 0 1 114 56 Z" fill="#C9A227" ' + st(3) + '/>' +
+      '<text x="18" y="50" font-family="Libre Caslon Text,Georgia,serif" font-size="11" fill="' + INK + '">1</text><text x="38" y="28" font-family="Libre Caslon Text,Georgia,serif" font-size="11" fill="' + INK + '">2</text><text x="74" y="28" font-family="Libre Caslon Text,Georgia,serif" font-size="11" fill="' + INK + '">3</text><text x="92" y="50" font-family="Libre Caslon Text,Georgia,serif" font-size="10" fill="' + INK + '">PH</text>' +
+      '<g class="nd" style="transform-origin:60px 56px"><path d="M60 56 L60 16" ' + st(3) + '/></g><circle cx="60" cy="56" r="5" fill="' + INK + '"/></svg>', 10);
+    place(dial, x, dt - 34);
+    c.anim(dial.querySelector('.nd'), [{ transform: 'rotate(-70deg)' }, { transform: 'rotate(-70deg)', offset: 0.1 }, { transform: 'rotate(-35deg)', offset: 0.18 }, { transform: 'rotate(-35deg)', offset: 0.27 }, { transform: 'rotate(-70deg)', offset: 0.3 },
+      { transform: 'rotate(-70deg)', offset: 0.82 }, { transform: 'rotate(-20deg)', offset: 0.88 }, { transform: 'rotate(25deg)', offset: 0.94 }, { transform: 'rotate(70deg)' }], { dur: c.DUR, ease: 'steps(1,end)' });
+    c.sfx(1450, c.snd.ding);
+    c.sfx(0, function () { [392, 494, 587, 494].forEach(function (f, i) { tone(f, 0.3, i * 360, 'sine', 0.025); }); });
+    var top = gy - hTop(96, 100);
+    c.say('Oh. This one’s full.', x - 20, top - 4, 2200, 3600, 40); c.talk(p, 2200, 3400);
+    c.sfx(4200, function () { noise(0.1, 0, 0.08, 600, 'lowpass'); });
   } });
 
   /* ════════ 9. Rock God ════════ */
@@ -392,10 +342,8 @@
     c.sfx(1400, function () { tone(110, 0.4, 0, 'sawtooth', 0.07); tone(165, 0.4, 0, 'sawtooth', 0.05); });
     for (var k = 0; k < 5; k++) c.sfx(1500 + k * 320, function () { tone(98, 0.3, 0, 'sawtooth', 0.08); tone(147, 0.3, 0, 'sawtooth', 0.06); tone(196, 0.3, 0, 'square', 0.03); noise(0.2, 0, 0.08, 2500, 'bandpass'); });
     c.burst(['🎸', '🤘', '⚡', '🎵'], x + 40, top + 40, 12, 150, 1600, 1300, 60);
-    c.text('WINDMILL!', c.W / 2, 150, 40, 1600, 2600, -6);
     c.sfx(2700, function () { tone(1400, 0.4, 0, 'sawtooth', 0.03, 2600); });
     c.sfx(3100, c.snd.boom); flashW(c, 3100, 0.95); c.shake(3100, 700); c.buzz(3100, [250, 80, 250]);
-    c.text('KA-BLAM!', c.W * 0.6, top - 110, 54, 3100, 3950, 8);
     c.burst(['💥', '🔥', '⚡'], ax, gy - 80, 14, 160, 3100, 900, 40);
     c.burst(['☁️', '💨'], ax, gy - 140, 10, 90, 3300, 1800, 220);
     c.burst(['💨'], x - 20, top + 10, 4, 40, 3400, 1500, 120);
@@ -436,75 +384,45 @@
     c.path(ghost, gp, { jerky: 2 });
     var lbl = c.add('<div style="position:absolute;left:-60px;top:0;width:120px;text-align:center;' + FONT + 'font-size:12px;color:#3a2a20">(imaginary<br>opponent)</div>', 15);
     c.path(lbl, [{ t: 0, x: gx, y: gy + 8 }, { t: 3000, x: gx, y: gy + 8, o: 1 }, { t: 3050, x: gx, y: gy + 8, o: 0 }], { jerky: 1 });
-    var stomp = function () { tone(58, 0.35, 0, 'sine', 0.35, 34); noise(0.22, 0, 0.4, 300, 'lowpass'); };
+    var stomp = function () { tone(58, 0.35, 0, 'sine', 0.15, 34); noise(0.22, 0, 0.12, 300, 'lowpass'); };
     c.sfx(450, stomp); c.sfx(1000, stomp); c.shake(450, 250); c.shake(1000, 250); c.buzz(450, 80); c.buzz(1000, 80);
-    c.text('STOMP!', x0 - 40, gy + 30, 34, 450, 900, -10);
-    c.text('STOMP!', x0 + 70, gy + 30, 34, 1000, 1450, 10);
     [1500, 1800, 2100].forEach(function (s, n) {
-      c.text('SLAP!', x0 + (n % 2 ? 50 : -50), gy - 80 - n * 18, 30, s, s + 260, n % 2 ? 12 : -12);
       c.sfx(s, function () { noise(0.08, 0, 0.6, 3000, 'bandpass'); });
     });
     c.say('(I’m not even here.)', gx, gy - 168, 1600, 2500, 72);
     c.scream(s2, 2600, 3100);
-    c.text('HUP!', x0 + 20, top - 30, 36, 2620, 3000, -6);
     c.sfx(3050, c.snd.whoosh);
-    c.text('OUT!', c.W / 2, 200, 68, 3250, 0, -6);
     c.sfx(3250, c.snd.crowd); c.sfx(3400, c.snd.fanfare);
     c.burst(['🧂', '✨'], x0 + 70, top - 40, 8, 110, 3600, 1000, 90);
     c.say('Undefeated.', x0 + 70, top - 4, 3950, 5150, 40);
     c.talk(s2, 3950, 4600);
   } });
 
-  /* ════════ 11. Head Spin ════════ */
-  add({ name: 'Head Spin', tag: 'Still spinning.', run: function (c) {
-    c.sky('repeating-linear-gradient(0deg,#B5523B 0 26px,#7A3424 26px 29px)');
-    c.add('<div style="' + FONT + 'font-size:40px;color:#FFD23F;-webkit-text-stroke:2px ' + INK + ';transform:rotate(-8deg);opacity:.8">CAPTION<br>CREW</div>', 2).style.transform = 'translate(' + (c.W - 170) + 'px,110px) rotate(-8deg)';
-    c.ground('#8E8E8E', 160);
-    var gy = c.H - 160, x = c.W / 2;
-    var mat = c.add('<div style="position:absolute;left:-120px;top:-14px;width:240px;height:30px;background:#C49A5E;border:3px solid ' + INK + ';transform:skewX(-20deg)"></div>', 4);
-    place(mat, x, gy);
-    var box = emo(c, '📻', 62, 6);
-    var bp = []; for (var t = 0; t <= 3400; t += 250) bp.push({ t: t, x: 46, y: gy - 30 - (t / 250 % 2 ? 0 : 8), s: t / 250 % 2 ? 1 : 1.1 });
-    bp.push({ t: 3500, x: 46, y: gy - 30 });
-    c.path(box, bp, { jerky: 1 });
-    for (t = 0; t < 3400; t += 125) (function (tt, n) { c.sfx(tt, n % 2 ? function () { noise(0.03, 0, 0.12, 7000, 'highpass'); } : (n % 4 === 0 ? function () { tone(70, 0.12, 0, 'sine', 0.3, 40); } : function () { noise(0.08, 0, 0.25, 1800, 'bandpass'); })); })(t, t / 125);
-    var p1 = c.puppet({ px: 100, w: 110, arms: 'out' });
-    var p2 = c.puppet({ px: 100, w: 110, arms: 'out', legs: 'run' });
-    var p3 = c.puppet({ px: 100, w: 110, arms: 'down' });
-    var ht = hTop(100, 110), top = gy - ht;
-    var a = [{ t: 0, x: x, y: gy }];
-    for (t = 250; t < 1250; t += 250) a.push({ t: t, x: x, y: gy - (t / 250 % 2 ? 8 : 0), r: t / 250 % 2 ? 4 : -4 });
-    a.push({ t: 1249, x: x, y: gy, o: 1 }, { t: 1250, x: x, y: gy, o: 0 });
-    c.path(p1, a, { jerky: 1 });
-    var n, fy = gy - ht, cyc = [1, 0.35, -1, -0.35], b =[{ t: 0, x: x, y: fy, r: 180, o: 0 }, { t: 1249, x: x, y: fy, r: 180, o: 0 }];
-    for (t = 1250, n = 0; t < 3400; n++) { b.push({ t: t, x: x + (n % 2 ? 2 : -2), y: fy, r: 180 + (n % 2 ? 3 : -3), sx: cyc[n % 4] }); t += Math.max(45, 140 - (t - 1250) * 0.06); }
-    b.push({ t: 3399, x: x, y: fy, r: 180, o: 1 }, { t: 3400, x: x, y: fy, r: 180, o: 0 });
-    c.path(p2, b, { jerky: 1 });
-    var d = [{ t: 0, x: x, y: gy, o: 0 }, { t: 3399, x: x, y: gy, o: 0 }];
-    for (t = 3400, n = 0; t <= 5200; t += 220, n++) d.push({ t: t, x: x + (n % 2 ? 16 : -16), y: gy, r: n % 2 ? 9 : -9 });
-    c.path(p3, d, { jerky: 2 });
-    // spin lines
-    var lines = c.add('<svg viewBox="0 0 220 60" width="220" style="position:absolute;left:-110px;top:-30px;overflow:visible"><ellipse cx="110" cy="30" rx="104" ry="20" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="26 18"/><ellipse cx="110" cy="30" rx="80" ry="13" fill="none" stroke="#FFD23F" stroke-width="3" stroke-dasharray="14 14"/></svg>', 24);
-    c.path(lines, [{ t: 0, x: x, y: fy + 40, o: 0 }, { t: 1799, x: x, y: fy + 40, o: 0 }, { t: 1800, x: x, y: fy + 40, o: 1 }, { t: 3399, x: x, y: fy + 40, o: 1 }, { t: 3400, x: x, y: fy + 40, o: 0 }], { jerky: 1 });
-    c.anim(lines.firstChild, [{ transform: 'scaleX(1)' }, { transform: 'scaleX(-1)' }], { dur: 90, at: 1800, iterations: 18, direction: 'alternate', ease: 'steps(1)', fill: 'none' });
-    c.say('Watch this.', x, top - 4, 150, 1200, 50);
-    c.talk(p1, 150, 1100);
-    c.sfx(1250, function () { noise(0.2, 0, 0.3, 1500, 'bandpass'); tone(400, 0.2, 0, 'sawtooth', 0.04, 900); });
-    c.text('HEAD SPIN!', x, 140, 46, 1400, 2400, -6);
-    c.text('FASTER!', x, 210, 40, 2500, 3350, 6);
-    [1400, 2000, 2500, 2900, 3200].forEach(function (s) { c.sfx(s, c.snd.whoosh); });
-    c.scream(p2, 2600, 3400);
-    c.sfx(3400, function () { tone(700, 0.3, 0, 'sawtooth', 0.05, 90); });
-    c.shake(3400, 300);
-    // dizzy stars orbiting the head
-    ['⭐', '💫', '⭐'].forEach(function (e, k) {
-      var s = emo(c, e, 26, 30), pts = [{ t: 0, x: x, y: top, o: 0 }, { t: 3449, x: x, y: top, o: 0 }];
-      for (var tt = 3450, j = 0; tt <= 5200; tt += 100, j++) { var ang = (j / 8 + k / 3) * Math.PI * 2; pts.push({ t: tt, x: x + Math.cos(ang) * 64, y: top - 6 + Math.sin(ang) * 16, o: 1 }); }
-      c.path(s, pts, { jerky: 1 });
-    });
-    c.sfx(3600, function () { tone(900, 1.1, 0, 'sine', 0.04, 300); });
-    c.say('I can taste colors.', x, top - 30, 3900, 5150, 50);
-    c.talk(p3, 3900, 4800);
+  /* ════════ 11. The Stamp ════════ */
+  add({ name: 'The Stamp', tag: 'Issued in a limited edition of one.', run: function (c) {
+    c.sky('repeating-linear-gradient(-45deg,#E8453A 0 18px,#FFF8EA 18px 36px,#2E5EAA 36px 54px,#FFF8EA 54px 72px)');
+    var W = c.W, H = c.H, x = W / 2, y = Math.round(H * 0.4);
+    c.add('<div style="width:' + (W - 36) + 'px;height:' + (H - 200) + 'px;background:#FFF8EA;border:3px solid ' + INK + '"></div>', 2).style.transform = 'translate(18px,70px)';
+    var sw = 220, sh = 266;
+    // perforated edge: the stamp sits on a scalloped backing
+    var perf = 'radial-gradient(circle at 50% 50%,transparent 6px,#F4EFE4 6.5px) -9px -9px/18px 18px';
+    var stamp = c.add('<div style="position:absolute;left:' + (-sw / 2) + 'px;top:' + (-sh / 2) + 'px;width:' + sw + 'px;height:' + sh + 'px;box-sizing:border-box;padding:16px;background:' + perf + ';filter:drop-shadow(3px 4px 0 rgba(31,26,23,.35))">' +
+      '<div style="position:relative;width:100%;height:100%;box-sizing:border-box;border:3px solid ' + INK + ';background:' + c.color + ';display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden">' +
+      '<div style="filter:grayscale(.3) contrast(1.1)">' + c.head(120) + '</div>' +
+      '<div style="position:absolute;right:8px;top:4px;' + FONT + 'font-size:24px;color:#FFF8EA;-webkit-text-stroke:1px ' + INK + '">1¢</div>' +
+      '<div style="position:absolute;left:0;right:0;bottom:6px;text-align:center;font-family:var(--serif,Georgia,serif);font-style:italic;font-size:14px;color:#FFF8EA">Round Winner</div></div></div>', 10);
+    c.path(stamp, [{ t: 0, x: x, y: y - 500, r: -10 }, { t: 250, x: x, y: y - 500, r: -10 }, { t: 600, x: x, y: y, r: -3, e: 'steps(3,end)' }, { t: 5200, x: x, y: y, r: -3 }], { jerky: false });
+    c.sfx(600, function () { noise(0.06, 0, 0.12, 2000, 'bandpass'); });
+    c.say('Commemorative.', x, y - sh / 2 + 10, 900, 2200, 50); c.talk(stamp, 900, 2000);
+    // the postmark: a ring with tonight's date and wavy lines, thumped across a corner of the face
+    var pm = c.add('<svg viewBox="0 0 260 110" width="260" style="position:absolute;left:-130px;top:-55px;overflow:visible;opacity:.85"><g fill="none" stroke="' + INK + '" stroke-width="4">' +
+      '<circle cx="55" cy="55" r="44"/><circle cx="55" cy="55" r="34" stroke-width="2"/>' +
+      '<path d="M108 30 q16 -10 32 0 t32 0 t32 0 t32 0 M108 55 q16 -10 32 0 t32 0 t32 0 t32 0 M108 80 q16 -10 32 0 t32 0 t32 0 t32 0"/></g>' +
+      '<text x="55" y="52" text-anchor="middle" font-family="Libre Caslon Text,Georgia,serif" font-size="13" fill="' + INK + '">TONIGHT</text><text x="55" y="68" text-anchor="middle" font-family="Libre Caslon Text,Georgia,serif" font-size="10" fill="' + INK + '">GAME NIGHT</text></svg>', 12);
+    c.path(pm, [{ t: 0, x: x + 30, y: y - 40, o: 0, s: 1.4, r: -12 }, { t: 2699, x: x + 30, y: y - 40, o: 0, s: 1.4, r: -12 }, { t: 2700, x: x + 30, y: y - 40, o: 1, s: 1, r: -12 }], { jerky: 1 });
+    c.sfx(2700, function () { noise(0.12, 0, 0.15, 500, 'lowpass'); tone(110, 0.2, 0, 'sine', 0.06, 70); });
+    c.shake(2700, 200); c.buzz(2700, 40);
+    c.say('…Lightly used.', x, y - sh / 2 + 10, 3500, 5150, 50); c.talk(stamp, 3500, 4800);
   } });
 
   /* ════════ 12. Cover Star ════════ */
@@ -592,7 +510,7 @@
     c.anim(tl, [{ transform: 'rotate(0deg)' }, { transform: 'rotate(-20deg)' }], { dur: 120, at: 4000, iterations: 9, direction: 'alternate', ease: 'steps(1)', fill: 'none' });
     var tipX = x + 86, tipY = ay - 10;
     [1600, 2000, 2400, 4100, 4600].forEach(function (s) { c.burst(['💦', '💧'], tipX, tipY, 6, 70, s, 700, 50); c.sfx(s, function () { noise(0.25, 0, 0.3, 1200, 'lowpass'); }); });
-    var crown = c.add('<div style="position:absolute;left:0;top:0;transform:translate(-50%,-100%);font-size:46px;line-height:1">👑</div>', 26);
+    var crown = c.add('<div style="position:absolute;left:0;top:0;transform:translate(-50%,-100%);line-height:1">' + window.ccHeads.icon('👑', 46) + '</div>', 26);
     var cy = top + 14;
     var gull = c.add('<svg viewBox="0 0 100 70" width="100" style="position:absolute;left:-50px;top:-62px;overflow:visible">' +
       '<path d="M76 34 L98 24 L92 46 Z" fill="#fff" ' + st(3) + '/><ellipse cx="52" cy="38" rx="30" ry="14" fill="#fff" ' + st(4) + '/>' +
@@ -608,15 +526,13 @@
     c.sfx(0, function () { noise(1.6, 0, 0.1, 500, 'lowpass'); });
     c.sfx(300, c.snd.ding);
     c.burst(['✨'], x, cy - 24, 6, 60, 300, 800, 20);
-    c.say('I rule the seven seas!', x, top - 34, 200, 1450, 50);
+    c.say('I rule the seven seas.', x, top - 34, 200, 1450, 50);
     c.talk(mer, 200, 1400);
     var caw = function () { tone(1100, 0.22, 0, 'sawtooth', 0.04, 650); tone(1050, 0.25, 280, 'sawtooth', 0.04, 600); };
     c.sfx(2600, caw); c.sfx(3300, caw);
-    c.text('YOINK!', x + 90, cy - 40, 44, 3200, 4000, 10);
-    c.sfx(3200, c.snd.zap); c.buzz(3200, [80, 40, 80]);
-    c.say('MINE!', 140, 250, 3300, 3950, 50);
+    c.buzz(3200, [80, 40, 80]);
     c.scream(mer, 3250, 3850);
-    c.say('Give it back, you sky rat!', x, top - 6, 4000, 5150, 50);
+    c.say('Give it back, you sky rat.', x, top - 6, 4000, 5150, 50);
     c.talk(mer, 4000, 4900);
   } });
 })();

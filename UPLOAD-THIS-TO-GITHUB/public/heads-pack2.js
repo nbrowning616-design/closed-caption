@@ -1,6 +1,7 @@
 /* Closed Caption — BIG HEAD MODE, pack 2: eleven more crude cut-out-paper round-winner gags.
-   Registers with window.ccHeads (heads.js). Acts, in order: Bobblehead, Pop Out of the Cake, Hula,
-   Disco Inferno, The Mummy, Piñata, Snowman, Jack-in-the-Box, Magic Carpet, Bigfoot Footage, Parade Float. */
+   Registers with window.ccHeads (heads.js). Acts, in order: Bobblehead, Pop Out of the Cake, Nature Documentary,
+   The Crossword, The Coin, Piñata, Snowman, Jack-in-the-Box, Magic Carpet, Bigfoot Footage, Parade Float.
+   (Nature Documentary, The Crossword and The Coin replaced Hula, Disco Inferno and The Mummy, Oct 2026.) */
 (function () {
   'use strict';
   if (!window.ccHeads) return;
@@ -79,7 +80,7 @@
       c.anim(d, [{ transform: 'translate(' + (W / 2) + 'px,' + (hz + 4) + 'px) scale(.15)' }, { transform: 'translate(' + (W / 2) + 'px,' + (dashY + 40) + 'px) scale(3)' }], { dur: 800, at: i * 200, iterations: 6, ease: 'steps(5,end)' });
     }
     [-1, 1].forEach(function (side, k) {
-      var tr = c.add('<div style="position:absolute;left:0;top:0;font-size:40px;line-height:1;transform:translate(-50%,-100%)">🌲</div>', 3);
+      var tr = c.add('<div style="position:absolute;left:0;top:0;line-height:1;transform:translate(-50%,-100%)">' + window.ccHeads.icon('🌲', 40) + '</div>', 3);
       c.anim(tr, [{ transform: 'translate(' + (W / 2 + side * W * 0.1) + 'px,' + (hz + 8) + 'px) scale(.3)' }, { transform: 'translate(' + (W / 2 + side * W * 0.85) + 'px,' + (dashY + 30) + 'px) scale(3.2)' }], { dur: 1000, at: k * 500, iterations: 5, ease: 'steps(6,end)' });
     });
     // windshield frame + mirror
@@ -90,7 +91,7 @@
       '<path d="M' + (W / 2) + ' 44 V58" ' + ink(5) + '/>' +
       '<rect x="' + (W / 2 - 54) + '" y="56" width="108" height="28" rx="9" fill="#8f9aa3" ' + ink(3) + '/>' +
       '<rect x="' + (W / 2 - 46) + '" y="62" width="92" height="16" rx="5" fill="#cfe6f2"/>', 'tl'), 5);
-    var dice = c.add('<div style="position:absolute;left:0;top:0"><div style="position:absolute;left:-1px;top:0;width:3px;height:44px;background:' + INK + '"></div><div style="position:absolute;left:-24px;top:38px;font-size:24px;line-height:1;white-space:nowrap">🎲🎲</div></div>', 5);
+    var dice = c.add('<div style="position:absolute;left:0;top:0"><div style="position:absolute;left:-1px;top:0;width:3px;height:44px;background:' + INK + '"></div><div style="position:absolute;left:-24px;top:38px;line-height:1;white-space:nowrap;display:flex">' + window.ccHeads.icon('🎲', 22) + window.ccHeads.icon('🎲', 22) + '</div></div>', 5);
     // dashboard (z6), bobble body (z7) and head (z8)
     var dH = H - dashY + 30;
     var dash = c.add(svgA(W, '0 0 ' + W + ' ' + dH,
@@ -125,8 +126,7 @@
     c.path(dice, sample(c, function (t) { return { x: W / 2 - 34, y: 70, r: lerp(R, t < 3200 ? t : 3150) * 0.6 + (t > 3200 && t < 3900 ? Math.sin(t / 60) * 30 : 0) }; }, 80), { jerky: 1 });
     var topY = hy - 172;
     c.say('Road trip!', bx, topY, 250, 1350, 50); c.talk(hd, 250, 1350);
-    c.say('Yes. Yes. Yes!', bx, topY, 1700, 3000, 50); c.talk(hd, 1700, 3000);
-    c.text('BUMP!', W * 0.27, dashY - 120, 52, 3200, 3950, -10);
+    c.say('Yes. Yes. Yes.', bx, topY, 1700, 3000, 50); c.talk(hd, 1700, 3000);
     c.scream(hd, 3200, 3800);
     c.say('Ask me anything. …Yes.', bx, topY, 3950, 5150, 60); c.talk(hd, 3950, 4900);
     c.sfx(0, function () { noise(5, 0, 0.05, 180, 'lowpass'); tone(55, 5, 0, 'sawtooth', 0.02, 62); });
@@ -165,11 +165,9 @@
       c.path(sp, [{ t: 0, x: sx, y: sy, s: 0.1, o: 0 }, { t: 1700 + s * 40, x: sx, y: sy, s: 0.1, o: 0 }, { t: 1800 + s * 40, x: sx, y: sy, s: 1.15, o: 1 }, { t: 1880 + s * 40, x: sx, y: sy, s: 1 }, { t: 5200, x: sx, y: sy + 50, s: 1, sy: 1.15 }], { jerky: 3 });
     }
     c.say('(mmph) Is it time yet?', x, gy - 300, 300, 1450, 50);
-    c.text('SURPRIIISE!', W / 2, 150, 46, 1650, 2900, -6);
     c.scream(p, 1650, 2100);
     c.burst(['🍰', '🎉', '💥', '🍦'], x, gy - 250, 18, 210, 1620, 1200, 60);
     c.say('I’ve been in there since Tuesday.', x, gy - 128 - ph, 2150, 3150, 50); c.talk(p, 2150, 3150);
-    c.text('SPLAT!', W * 0.72, gy - ph - 160, 40, 3300, 4100, 10);
     c.burst(['🍰', '☁️'], x, gy - ph - 140, 10, 120, 3300, 800, 20);
     c.say('Happy whatever-this-is.', x, gy - ph - 290, 3750, 5150, 50); c.talk(p, 3750, 4800);
     c.shake(1620, 450); c.shake(3300, 250);
@@ -180,153 +178,94 @@
     c.buzz(1620, [80, 40, 160]);
   } });
 
-  /* ════════ 3. Hula ════════ */
-  add({ name: 'Hula', tag: 'On island time.', run: function (c) {
-    var W = c.W, H = c.H, gy = H - 125, x = Math.round(W * 0.4);
-    c.sky('linear-gradient(#5EC6E8,#BDEBF7 55%)');
-    c.add(svgA(W, '0 0 ' + W + ' ' + H, '<circle cx="' + (W * 0.2) + '" cy="130" r="36" fill="#FFE04A" ' + ink(3) + '/>' +
-      '<rect x="-4" y="' + (H * 0.52) + '" width="' + (W + 8) + '" height="' + (H * 0.5) + '" fill="#2F8FC9" ' + ink(3) + '/>' +
-      '<path d="M20 ' + (H * 0.56) + ' q20 -10 40 0 M140 ' + (H * 0.6) + ' q20 -10 40 0 M260 ' + (H * 0.55) + ' q20 -10 40 0" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>', 'tl'), 1);
-    c.ground('#F2D38A', 140);
-    var leaf = function (ang, len) { var a = ang * Math.PI / 180, ex = 70 + Math.cos(a) * len, ey = 40 + Math.sin(a) * len; return '<path d="M70 40 Q' + (70 + Math.cos(a - 0.5) * len * 0.6).toFixed(0) + ' ' + (40 + Math.sin(a - 0.5) * len * 0.6).toFixed(0) + ' ' + ex.toFixed(0) + ' ' + ey.toFixed(0) + ' Q' + (70 + Math.cos(a + 0.3) * len * 0.5).toFixed(0) + ' ' + (40 + Math.sin(a + 0.3) * len * 0.5).toFixed(0) + ' 70 40 Z" fill="#3BAA4A" ' + ink(3) + '/>'; };
-    c.add(svgA(160, '0 0 160 420', '<path d="M100 420 Q120 220 70 40 L88 40 Q140 220 124 420 Z" fill="#9C6B3A" ' + ink(4) + '/>' +
-      '<path d="M86 380 h28 M92 300 h26 M90 220 h22 M84 140 h20 M78 80 h16" ' + ink(3) + '/>' +
-      [200, 235, 270, 305, 340, 20, 160].map(function (a, i) { return leaf(a, 80 + (i % 3) * 14); }).join('') +
-      '<circle cx="62" cy="54" r="12" fill="#6B4423" ' + ink(3) + '/><circle cx="84" cy="56" r="12" fill="#6B4423" ' + ink(3) + '/>'), 8).style.transform = 'translate(' + (W - 52) + 'px,' + gy + 'px)';
-    var nut = c.add(svgA(30, '-15 -15 30 30', '<circle r="13" fill="#6B4423" ' + ink(3) + '/><circle cx="-4" cy="-3" r="2" fill="' + INK + '"/><circle cx="3" cy="-4" r="2" fill="' + INK + '"/><circle cx="0" cy="3" r="2" fill="' + INK + '"/>', 'c'), 26);
-    var skirt = '';
-    for (var k = 0; k < 13; k++) { var sx = 20 + k * 5; skirt += '<path d="M' + sx + ' 76 L' + (sx + (k - 6) * 1.4).toFixed(1) + ' 114" stroke="' + INK + '" stroke-width="6" stroke-linecap="round"/><path d="M' + sx + ' 76 L' + (sx + (k - 6) * 1.4).toFixed(1) + ' 114" stroke="' + (k % 2 ? '#7BC043' : '#4E9A3C') + '" stroke-width="3.5" stroke-linecap="round"/>'; }
-    var lei = ''; for (var l = 0; l < 7; l++) lei += '<circle cx="' + (28 + l * 7.3).toFixed(1) + '" cy="' + (12 + Math.sin(l / 6 * Math.PI) * 14).toFixed(1) + '" r="5" fill="' + ['#FF6FA8', '#FFD23F', '#fff'][l % 3] + '" ' + ink(2) + '/>';
-    var uke = '<g transform="rotate(-28 50 56)"><rect x="46" y="10" width="8" height="40" fill="#8B5A2B" ' + ink(2.5) + '/><ellipse cx="50" cy="58" rx="15" ry="13" fill="#D9A15B" ' + ink(3) + '/><ellipse cx="50" cy="70" rx="17" ry="13" fill="#D9A15B" ' + ink(3) + '/><circle cx="50" cy="62" r="4" fill="' + INK + '"/></g>';
-    var P = { px: 108, w: 120, arms: 'down', shirt: c.color, pants: '#F2C9A0', extra: skirt + lei + uke };
-    var p = pup(c, P), ph = heightOf(P);
-    var bd = p.querySelector('.bh-bd'), hdw = p.querySelector('.bh-hd');
-    bd.style.transformOrigin = '50% 35%';
-    c.anim(bd, [{ transform: 'skewX(11deg) translateX(-5px)' }, { transform: 'skewX(-11deg) translateX(5px)' }], { dur: 260, at: 150, iterations: 12, direction: 'alternate', ease: 'steps(1,end)', fill: 'none' });
-    c.anim(hdw, [{ transform: 'translateX(6px) rotate(4deg)' }, { transform: 'translateX(-6px) rotate(-4deg)' }], { dur: 260, at: 150, iterations: 12, direction: 'alternate', ease: 'steps(1,end)', fill: 'none' });
-    c.path(p, [{ t: 0, x: x, y: gy }, { t: 3300, x: x, y: gy }, { t: 3340, x: x, y: gy, sy: 0.84, sx: 1.06 }, { t: 3440, x: x, y: gy, r: -7 }, { t: 3700, x: x, y: gy, r: 7 }, { t: 3950, x: x, y: gy, r: -6 }, { t: 4200, x: x, y: gy, r: 6 }, { t: 4450, x: x, y: gy, r: -5 }, { t: 4700, x: x, y: gy, r: 5 }, { t: 4950, x: x, y: gy, r: -4 }], { jerky: 1 });
-    var tx = W - 60, ty = gy - 372, hx = x, hyT = gy - ph - 8;
-    c.path(nut, [{ t: 0, x: tx, y: ty }, { t: 2500, x: tx, y: ty }, { t: 2600, x: tx + 3, y: ty, r: 20 }, { t: 2700, x: tx - 3, y: ty, r: -20 }, { t: 2800, x: tx + 3, y: ty, r: 20 }, { t: 2950, x: tx, y: ty, r: 0, e: 'cubic-bezier(.55,0,1,.7)' },
-      { t: 3300, x: hx + 10, y: hyT, r: 200, e: 'cubic-bezier(.2,.6,.4,1)' }, { t: 3520, x: hx - 70, y: hyT - 70, r: 360, e: 'cubic-bezier(.6,0,1,.6)' }, { t: 3820, x: 34, y: gy - 16, r: 560 }, { t: 4200, x: 24, y: gy - 16, r: 600 }, { t: 5200, x: 24, y: gy - 16, r: 600 }], { jerky: 2 });
-    var star = c.add('<div style="position:absolute;left:0;top:0;font-size:24px;line-height:1;transform:translate(-50%,-50%);white-space:nowrap">💫 ⭐ 💫</div>', 30);
-    c.path(star, [{ t: 0, x: hx, y: hyT - 10, o: 0 }, { t: 3380, x: hx, y: hyT - 10, o: 0 }, { t: 3400, x: hx, y: hyT - 10, o: 1, r: 0 }, { t: 3700, x: hx + 10, y: hyT - 4, r: 10 }, { t: 4000, x: hx - 10, y: hyT - 12, r: -10 }, { t: 4300, x: hx + 10, y: hyT - 4, r: 10 }, { t: 4600, x: hx - 10, y: hyT - 12, r: -10 }, { t: 4900, x: hx + 10, y: hyT - 4, r: 10 }], { jerky: 2 });
-    c.say('Alohaaa!', hx, hyT - 6, 250, 1450, 40); c.talk(p, 250, 1450);
-    c.say('Check out these hips.', hx, hyT - 6, 1650, 2750, 40); c.talk(p, 1650, 2750);
-    c.text('BONK!', 80, hyT - 150, 50, 3300, 4100, -12);
-    c.scream(p, 3300, 3700);
-    c.say('Pretty sure aloha means “ow”.', hx, hyT - 30, 3850, 5150, 40); c.talk(p, 3850, 4900);
-    for (var st = 0; st < 6; st++) c.sfx(150 + st * 520, function () { [392, 494, 587].forEach(function (f, i) { tone(f, 0.32, i * 18, 'triangle', 0.05); }); });
-    c.sfx(2950, c.snd.fall);
-    c.sfx(3300, function () { tone(300, 0.08, 0, 'square', 0.16, 110); noise(0.12, 0, 0.5, 1500, 'bandpass'); [1800, 2200, 1900].forEach(function (f, i) { tone(f, 0.12, 300 + i * 160, 'sine', 0.05); }); });
-    c.shake(3300, 260); c.buzz(3300, [60, 30, 120]);
+  /* ════════ 16. Nature Documentary ════════
+     Tall grass. The winner's head comes up out of it, looks around, goes down. The subtitles narrate. */
+  add({ name: 'Nature Documentary', tag: 'Observed in its natural habitat.', run: function (c) {
+    var W = c.W, H = c.H, gy = H - 150;
+    c.sky('linear-gradient(#F6C77A,#F2E2B0 55%,#E9D08A)');
+    // an acacia on the horizon: a flat-topped silhouette
+    c.add(svgA(200, '0 0 200 160', '<path d="M100 160 V96 M100 118 L70 86 M100 108 L132 80" fill="none" stroke="#3A2F28" stroke-width="9" stroke-linecap="round"/><path d="M18 78 C40 58 160 56 184 76 C170 88 34 90 18 78 Z" fill="#3A2F28"/>', 'bl'), 2).style.transform = 'translate(' + (W - 190) + 'px,' + (gy - 30) + 'px)';
+    c.add('<div style="width:56px;height:56px;border-radius:50%;background:#FFE59A;border:3px solid ' + INK + '"></div>', 1).style.transform = 'translate(46px,110px)';
+    c.ground('#C9A24A', 150);
+    var grass = function (z, y, col) {
+      var d = ''; for (var i = 0; i < 26; i++) { var gx = i * (W + 40) / 25 - 20; d += '<path d="M' + gx + ' 60 L' + (gx + 6) + ' ' + (4 + (i * 37 % 20)) + ' L' + (gx + 14) + ' 60 Z" fill="' + col + '" ' + ink(2.5) + '/>'; }
+      return at(c.add('<svg viewBox="0 0 ' + (W + 40) + ' 60" width="' + (W + 40) + '" style="display:block;overflow:visible">' + d + '</svg>', z), -20, y);
+    };
+    grass(4, gy - 70, '#B8922E');
+    // the head: up, a look left, a look right, down; up again somewhere else; it stares at the camera
+    var hd = c.add('<div style="position:absolute;left:0;top:0;transform:translate(-50%,-50%)">' + c.head(96) + '</div>', 8);
+    var x1 = W * 0.34, x2 = W * 0.62, up = gy - 92, dn = gy + 10;
+    c.path(hd, [{ t: 0, x: x1, y: dn }, { t: 500, x: x1, y: dn }, { t: 800, x: x1, y: up }, { t: 1300, x: x1, y: up, r: -10 }, { t: 1800, x: x1, y: up, r: 10 }, { t: 2200, x: x1, y: up, r: 0 }, { t: 2500, x: x1, y: dn },
+      { t: 2800, x: x2, y: dn }, { t: 3100, x: x2, y: up }, { t: 5200, x: x2, y: up }], { jerky: 2 });
+    grass(12, gy - 40, '#D4AE48');
+    c.sfx(800, function () { noise(0.25, 0, 0.08, 1500, 'bandpass'); });
+    c.sfx(3100, function () { noise(0.25, 0, 0.08, 1500, 'bandpass'); });
+    // the subtitles: a closed caption, of course
+    var sub = function (txt, from, to) {
+      var s = c.add('<div style="width:' + (W - 40) + 'px;text-align:center"><span style="display:inline-block;background:rgba(20,15,12,.82);color:#FFF8EA;padding:5px 10px;font-family:var(--serif,Georgia,serif);font-style:italic;font-size:16px;line-height:1.3">' + txt + '</span></div>', 40);
+      c.path(s, [{ t: 0, x: 20, y: gy - 250, o: 0 }, { t: from - 1, x: 20, y: gy - 250, o: 0 }, { t: from, x: 20, y: gy - 250, o: 1 }, { t: to - 1, x: 20, y: gy - 250, o: 1 }, { t: to, x: 20, y: gy - 250, o: 0 }], { jerky: 1 });
+    };
+    sub('[Narrator] The round winner. Rarely seen this close.', 400, 2600);
+    sub('[Narrator] It has noticed us.', 3200, 4300);
+    c.sfx(400, function () { tone(196, 1.4, 0, 'sine', 0.025); tone(247, 1.4, 0, 'sine', 0.02); });
+    c.say('Are you narrating me?', x2, up - 56, 4300, 5150, 50); c.talk(hd, 4300, 5000);
   } });
 
-  /* ════════ 4. Disco Inferno ════════ */
-  add({ name: 'Disco Inferno', tag: 'Saturday night. Pants: fragile.', run: function (c) {
-    var W = c.W, H = c.H, gy = H - 150, x = W / 2;
-    c.sky('#160B2E');
-    var fy = H - 310, cols = 5, rows = 5, tw = W / cols, th = 66;
-    var pal = ['#FF3EA5', '#FFD23F', '#3FD0FF', '#7CFF4F', '#B65CFF'];
-    for (var r = 0; r < rows; r++) for (var q = 0; q < cols; q++) {
-      var tile = c.add('<div style="position:absolute;left:0;top:0;width:' + (tw + 1).toFixed(0) + 'px;height:' + th + 'px;background:#333;border:3px solid ' + INK + ';box-sizing:border-box"></div>', 2);
-      at(tile, (q * tw).toFixed(0), fy + r * th);
-      var kf = []; for (var k = 0; k < 4; k++) kf.push({ backgroundColor: pal[(r + q * 2 + k) % pal.length], offset: k / 4, easing: 'steps(1,end)' }); kf.push({ backgroundColor: pal[(r + q * 2) % pal.length], offset: 1 });
-      c.anim(tile.firstElementChild, kf, { dur: 1600, iterations: 3.3 });   // 400ms a colour: under 3 changes a second
+  /* ════════ 17. The Crossword ════════
+     The newspaper puzzle. A pen fills in 1 Across, one letter at a time. Their photo sits beside it. */
+  add({ name: 'The Crossword', tag: 'Finished it before you started.', run: function (c) {
+    var W = c.W, H = c.H;
+    c.sky('#D9D2C3');
+    var pw = W - 30, ph = H - 190;
+    var lines = ''; for (var i = 0; i < 26; i++) lines += '<i style="display:block;height:3px;margin:7px 0;background:#B9B0A2;width:' + (60 + (i * 37 % 40)) + '%"></i>';
+    at(c.add('<div style="width:' + pw + 'px;height:' + ph + 'px;box-sizing:border-box;background:#F4F0E6;border:3px solid ' + INK + ';padding:14px;font-family:var(--serif,Georgia,serif);color:' + INK + '"><div style="font-size:22px;font-weight:700;border-bottom:3px double ' + INK + ';padding-bottom:6px">The Puzzle Page</div><div style="width:44%;margin-top:270px">' + lines + '</div></div>', 2), 15, 60);
+    // the grid: 6 white squares across, black ones around them
+    var cell = Math.min(40, Math.floor((pw - 60) / 7)), gx = 30, gy = 120, word = 'WINNER', grid = '';
+    for (var r = 0; r < 3; r++) for (var k = 0; k < 7; k++) {
+      var white = r === 1 ? k < 6 : (k % 2 === 0 && k < 6);
+      grid += '<rect x="' + (k * cell) + '" y="' + (r * cell) + '" width="' + cell + '" height="' + cell + '" fill="' + (white ? '#fff' : INK) + '" stroke="' + INK + '" stroke-width="2"/>';
     }
-    // light beams + mirror ball
-    var beams = ''; for (var b = 0; b < 8; b++) { var a = b / 8 * Math.PI * 2; beams += '<path d="M0 0 L' + (Math.cos(a - 0.1) * 700).toFixed(0) + ' ' + (Math.sin(a - 0.1) * 700).toFixed(0) + ' L' + (Math.cos(a + 0.1) * 700).toFixed(0) + ' ' + (Math.sin(a + 0.1) * 700).toFixed(0) + ' Z" fill="' + pal[b % 5] + '" opacity=".22"/>'; }
-    var bm = c.add(svgA(10, '-5 -5 10 10', beams, 'c'), 1);
-    c.anim(bm, [{ transform: 'translate(' + x + 'px,152px) rotate(0deg)' }, { transform: 'translate(' + x + 'px,152px) rotate(180deg)' }], { dur: 3300, ease: 'steps(14,end)', fill: 'forwards' });
-    c.anim(bm.firstElementChild, [{ opacity: 1 }, { opacity: 0 }], { dur: 1, at: 3300 });
-    var grid = ''; for (var gx = -60; gx < 60; gx += 11) grid += '<path d="M' + gx + ' -50 V50" stroke="#6b7480" stroke-width="2"/>'; for (var gyy = -44; gyy < 50; gyy += 11) grid += '<path d="M-50 ' + gyy + ' H50" stroke="#6b7480" stroke-width="2"/>';
-    var ball = c.add(svgA(110, '-55 -70 110 125', '<path d="M0 -70 V-44" ' + ink(3) + '/><clipPath id="p2dball"><circle r="44"/></clipPath><circle r="44" fill="#C9D3DD"/><g clip-path="url(#p2dball)"><g class="p2grid">' + grid + '</g></g><circle r="44" fill="none" ' + ink(4) + '/><path d="M-22 -24 l6 -6 l6 6 l-6 6 Z" fill="#fff"/>', 'tc'), 4);
-    at(ball, x, 34);
-    c.anim(ball.querySelector('.p2grid'), [{ transform: 'translateX(0)' }, { transform: 'translateX(11px)' }], { dur: 300, iterations: 11, ease: 'steps(3,end)' });
-    var dim = c.add('<div style="position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;background:radial-gradient(circle at 50% 66%,rgba(0,0,0,0) 110px,rgba(0,0,0,.8) 200px)"></div>', 15);
-    vis(c, dim, [[3300]]);
-    var suit = '<path d="M36 10 L50 44 L64 10" fill="none" ' + ink(3) + '/><path d="M44 12 L50 30 L56 12" fill="#2a2a2a"/><circle cx="50" cy="52" r="3" fill="#FFD23F" ' + ink(1.5) + '/>';
-    var rip = '<path d="M36 82 L41 88 L45 82 L50 90 L55 82 L59 88 L64 82 L64 106 L36 106 Z" fill="#FF6FA8" ' + ink(2.5) + '/><text x="44" y="100" font-size="9" fill="#E8453A">♥</text><text x="53" y="98" font-size="9" fill="#E8453A">♥</text>';
-    var base = { px: 108, w: 120, shirt: '#FFFFFF', pants: '#FFFFFF', z: 20 };
-    var p1 = pup(c, Object.assign({}, base, { arms: 'out', extra: suit }));
-    var p2 = pup(c, Object.assign({}, base, { arms: 'wave', extra: suit }));
-    var p3 = pup(c, Object.assign({}, base, { arms: 'wave', extra: suit + rip }));
-    var ph = heightOf(base);
-    vis(c, p1, [[0, 2000]]); vis(c, p2, [[2000, 3300]]); vis(c, p3, [[3300]]);
-    var dance = sample(c, function (t) { var k = Math.floor(t / 240); return { x: x + (k % 2 ? 26 : -26), y: gy - (k % 4 === 1 ? 10 : 0), r: k % 2 ? 8 : -8 }; }, 240).filter(function (pt) { return pt.t < 2000; });
-    c.path(p1, dance, { jerky: 1 });
-    var pose = [{ t: 0, x: x, y: gy }, { t: 2000, x: x, y: gy, r: -10, s: 1.08 }, { t: 2240, x: x + 8, y: gy, r: -4, s: 1.08 }, { t: 2480, x: x, y: gy, r: -10, s: 1.08 }, { t: 2720, x: x + 8, y: gy, r: -4, s: 1.08 }, { t: 2960, x: x, y: gy, r: -10, s: 1.08 }, { t: 3300, x: x, y: gy, r: -10, s: 1.08 }, { t: 3340, x: x, y: gy + 6, r: -10, sx: 1.12, sy: 1.0 }, { t: 3600, x: x, y: gy, r: 0, s: 1.08 }];
-    c.path(p2, pose, { jerky: 1 }); c.path(p3, pose, { jerky: 1 });
-    var p2w = p2.querySelector('.bh-wave'), p3w = p3.querySelector('.bh-wave');
-    [p2w, p3w].forEach(function (g) { if (g) c.anim(g, [{ transform: 'rotate(-6deg)' }, { transform: 'rotate(8deg)' }], { dur: 240, at: 2000, iterations: 5, direction: 'alternate', ease: 'steps(1,end)' }); });
-    var top = gy - ph * 1.08 - 6;
-    c.text('GROOVY!', W / 2, 250, 44, 700, 1900, -8);
-    c.say('Feel the funk!', x, top, 250, 1700, 50); c.talk(p1, 250, 1700);
-    c.say('Point to the sky, baby!', x, top, 2050, 3250, 50); c.talk(p2, 2050, 3250);
-    c.text('RRRRIP!', W / 2, 300, 56, 3300, 4200, 6);
-    c.burst(['🩲', '🧵', '💥'], x, gy - 30, 10, 140, 3300, 900, 30);
-    c.scream(p3, 3300, 3800);
-    c.say('Disco’s not dead. My pants are.', x, top, 3950, 5150, 50); c.talk(p3, 3950, 4900);
-    c.sfx(0, function () { for (var k = 0; k < 14; k++) { var t0 = k * 240; tone(58, 0.14, t0, 'sine', 0.3, 40); noise(0.03, t0 + 120, 0.1, 7000, 'highpass'); tone([110, 110, 147, 131][Math.floor(k / 2) % 4], 0.11, t0, 'square', 0.035); } });
-    c.sfx(3300, function () { noise(0.35, 0, 0.5, 1800, 'bandpass'); tone(700, 0.35, 0, 'sawtooth', 0.06, 80); });
-    c.sfx(3900, function () { for (var k = 0; k < 4; k++) { tone(4200, 0.04, k * 260, 'sine', 0.04); tone(4200, 0.04, k * 260 + 70, 'sine', 0.04); } });
-    c.shake(3300, 300); c.buzz(3300, [150, 50, 60]);
+    grid += '<text x="3" y="' + (cell + 11) + '" font-size="9" font-family="Georgia,serif" fill="' + INK + '">1</text>';
+    at(c.add('<svg viewBox="0 0 ' + (7 * cell) + ' ' + (3 * cell) + '" width="' + (7 * cell) + '" style="display:block;overflow:visible">' + grid + '</svg>', 4), gx, gy);
+    var clue = c.add('<div style="width:' + (pw - 40) + 'px;font-family:var(--serif,Georgia,serif);font-size:16px;color:' + INK + '"><b>Across</b><br><i>1. Insufferable, tonight (6)</i></div>', 4);
+    at(clue, gx, gy + 3 * cell + 14);
+    // their photo, halftone-ish, captioned
+    var photo = c.add('<div style="position:absolute;left:-66px;top:0;width:132px;box-sizing:border-box;background:#fff;border:2px solid ' + INK + ';padding:6px;text-align:center"><div style="height:120px;display:flex;align-items:center;justify-content:center;overflow:hidden;filter:grayscale(1) contrast(1.25)">' + c.head(104) + '</div><div style="font-family:var(--serif,Georgia,serif);font-style:italic;font-size:12px;margin-top:4px;color:' + INK + '">Hint.</div></div>', 6);
+    at(photo, W - 98, gy + 3 * cell + 70);
+    // the pen writes the letters
+    var pen = c.add(svgA(70, '0 0 100 100', '<path d="M30 74 L74 20 L84 28 L40 82 Z" fill="#2A2522" ' + ink(3.5) + '/><path d="M30 74 L20 92 L40 82 Z" fill="#FFD23F" ' + ink(3.5) + '/>', 'bl', 'transform:translate(-14px,-92%)'), 14);
+    var pp = [{ t: 0, x: W + 80, y: gy - 60 }, { t: 600, x: W + 80, y: gy - 60 }, { t: 900, x: gx + cell * 0.5, y: gy + cell * 1.6 }];
+    for (var L = 0; L < 6; L++) (function (L) {
+      var t0 = 1000 + L * 380, lx = gx + L * cell + cell / 2, ly = gy + cell * 1.5;
+      pp.push({ t: t0, x: lx, y: ly + 4 }, { t: t0 + 150, x: lx + 5, y: ly - 4 }, { t: t0 + 300, x: lx - 3, y: ly + 6 });
+      var ch = c.add('<div style="position:absolute;left:0;top:0;transform:translate(-50%,-50%);font-family:var(--serif,Georgia,serif);font-size:' + Math.round(cell * 0.62) + 'px;color:#2E5EAA">' + word[L] + '</div>', 5);
+      c.path(ch, [{ t: 0, x: lx, y: ly, o: 0 }, { t: t0 + 199, x: lx, y: ly, o: 0 }, { t: t0 + 200, x: lx, y: ly, o: 1 }], { jerky: 1 });
+      c.sfx(t0, function () { noise(0.22, 0, 0.06, 4000, 'bandpass'); });
+    })(L);
+    pp.push({ t: 3500, x: W + 90, y: gy - 80 });
+    c.path(pen, pp, { jerky: 1 });
+    c.say('In pen.', W - 98, gy + 3 * cell + 70, 3900, 5150, 60); c.talk(photo, 3900, 4700);
   } });
 
-  /* ════════ 5. The Mummy ════════ */
-  add({ name: 'The Mummy', tag: 'Three thousand years for this.', run: function (c) {
-    var W = c.W, H = c.H, gy = H - 125, x = W / 2;
-    c.sky('linear-gradient(#2A1D12,#5A4024)');
-    var glyphs = ''; for (var g = 0; g < 18; g++) glyphs += '<text x="' + (20 + (g % 6) * (W - 40) / 6).toFixed(0) + '" y="' + (120 + Math.floor(g / 6) * 70) + '" font-size="26" opacity=".28">' + ['👁️', '🐍', '🪲', '🦅', '☥', '〰️'][(g * 5) % 6] + '</text>';
-    c.add(svgA(W, '0 0 ' + W + ' ' + H, glyphs, 'tl', 'filter:sepia(1)'), 1);
-    c.ground('#B38B4D', 125);
-    [36, W - 36].forEach(function (tx, i) {
-      var t = c.add('<div style="position:absolute;left:0;top:0;transform:translate(-50%,-100%);text-align:center"><div class="p2fl" style="font-size:34px;line-height:1">🔥</div><div style="width:12px;height:60px;margin:-4px auto 0;background:#6B4423;border:3px solid ' + INK + '"></div></div>', 3);
-      at(t, tx, 330);
-      c.anim(t.querySelector('.p2fl'), [{ transform: 'scale(1,1)' }, { transform: 'scale(.86,1.18)' }], { dur: 160, at: i * 80, iterations: 32, direction: 'alternate', ease: 'steps(1,end)' });
-    });
-    var outer = 'M20 380 L10 120 Q10 10 100 6 Q190 10 190 120 L180 380 Z';
-    c.add(svgA(200, '0 0 200 380', '<path d="' + outer + '" fill="#7A5A1E" ' + ink(5) + '/><path d="M36 372 L28 125 Q28 30 100 26 Q172 30 172 125 L164 372 Z" fill="#160E07"/>'), 10).style.transform = 'translate(' + x + 'px,' + gy + 'px)';
-    var lid = c.add(svgA(200, '0 0 200 380', '<path d="' + outer + '" fill="#D4A017" ' + ink(5) + '/>' +
-      '<path d="M46 60 Q100 20 154 60 L150 150 Q100 175 50 150 Z" fill="#2E5EAA" ' + ink(3) + '/><ellipse cx="100" cy="110" rx="34" ry="40" fill="#E9B44C" ' + ink(3) + '/>' +
-      '<path d="M78 100 h14 M108 100 h14" ' + ink(4) + '/><path d="M88 132 q12 6 24 0" fill="none" ' + ink(3) + '/>' +
-      '<path d="M30 200 H170 M28 240 H172 M26 280 H174 M24 320 H176" stroke="#2E5EAA" stroke-width="8"/><path d="M60 190 L140 260 M140 190 L60 260" ' + ink(6) + '/>', 'br'), 22);
-    c.path(lid, [{ t: 0, x: x + 100, y: gy }, { t: 400, x: x + 100, y: gy, r: -1.5 }, { t: 650, x: x + 104, y: gy, r: 1.5 }, { t: 900, x: x + 100, y: gy, r: -1 }, { t: 1150, x: x + 108, y: gy, r: 2.5 }, { t: 1350, x: x + 104, y: gy }, { t: 1500, x: x + 110, y: gy, r: 4 },
-      { t: 1650, x: x + 116, y: gy, r: 20 }, { t: 1820, x: x + 120, y: gy, r: 55 }, { t: 1980, x: x + 122, y: gy, r: 86 }, { t: 2040, x: x + 122, y: gy, r: 82 }, { t: 2100, x: x + 122, y: gy, r: 86 }], { jerky: 2 });
-    var wrapC = '#EEE8D5', wl = '#BDB59C';
-    var wraps = '';
-    [18, 30, 42, 54, 66, 78].forEach(function (yy, i) { wraps += '<path d="M24 ' + yy + ' L76 ' + (yy + (i % 2 ? -5 : 5)) + '" stroke="' + wl + '" stroke-width="3"/>'; });
-    wraps += '<path d="M31 96 L45 100 M31 106 L45 110 M55 96 L69 100 M55 106 L69 110" stroke="' + wl + '" stroke-width="3"/><path d="M-4 16 V28 M6 16 V28 M94 16 V28 M104 16 V28" stroke="' + wl + '" stroke-width="3"/>';
-    wraps += '<path d="M76 66 Q96 86 86 118" fill="none" stroke="' + INK + '" stroke-width="10" stroke-linecap="round"/><path d="M76 66 Q96 86 86 118" fill="none" stroke="' + wrapC + '" stroke-width="6" stroke-linecap="round"/>';
-    var band = function (top, h, rot, l, r) { return '<i style="position:absolute;left:' + l + '%;right:' + r + '%;top:' + top + '%;height:' + h + '%;background:' + wrapC + ';border:2.5px solid ' + INK + ';transform:rotate(' + rot + 'deg);box-sizing:border-box"></i>'; };
-    var M = { px: 104, w: 120, arms: 'out', shirt: wrapC, pants: wrapC, skin: wrapC, extra: wraps, over: band(2, 16, -7, -8, -8) + band(17, 9, 9, -6, -12) + band(66, 10, -10, -10, 50), z: 16 };
-    var mum = pup(c, M);
-    var hearts = '<text x="34" y="104" font-size="10" fill="#E8453A">♥</text><text x="58" y="100" font-size="10" fill="#E8453A">♥</text>';
-    var U = { px: 104, w: 120, arms: 'up', shirt: c.color, pants: '#FF8FC0', extra: hearts, z: 16 };
-    var un = pup(c, U), ph = heightOf(M);
-    vis(c, mum, [[0, 3200]]); vis(c, un, [[3200]]);
-    var walk = [{ t: 0, x: x, y: gy - 12 }, { t: 2000, x: x, y: gy - 12 }, { t: 2150, x: x - 6, y: gy - 6, r: -4, s: 1.04 }, { t: 2350, x: x + 6, y: gy, r: 4, s: 1.08 }, { t: 2550, x: x - 6, y: gy + 4, r: -4, s: 1.12 }, { t: 2750, x: x + 4, y: gy + 8, r: 3, s: 1.16 }];
-    var flip = [1.16, 0.4, -0.4, -1.16, -0.4, 0.4];
-    for (var f = 0; f <= 15; f++) walk.push({ t: 2800 + f * 60, x: x, y: gy + 8, sx: flip[f % 6], sy: 1.16, r: (f % 2 ? 3 : -3) });
-    walk.push({ t: 3760, x: x, y: gy + 8, s: 1.16 }, { t: 3860, x: x, y: gy - 4, s: 1.2 }, { t: 3960, x: x, y: gy + 8, s: 1.16 });
-    c.path(mum, walk, { jerky: 1 }); c.path(un, walk, { jerky: 1 });
-    for (var rb = 0; rb < 7; rb++) {
-      var ang = rb / 7 * Math.PI * 2 + 0.3, dx = Math.cos(ang) * 230, dy = Math.sin(ang) * 200 - 60;
-      var rib = c.add(svgA(120, '-60 -20 120 40', '<path d="M-56 0 Q-28 -18 0 0 T56 0" fill="none" stroke="' + INK + '" stroke-width="13" stroke-linecap="round"/><path d="M-56 0 Q-28 -18 0 0 T56 0" fill="none" stroke="' + wrapC + '" stroke-width="8" stroke-linecap="round"/>', 'c'), 30);
-      var ox = x, oy = gy - 120;
-      c.path(rib, [{ t: 0, x: ox, y: oy, o: 0, s: 0.3 }, { t: 2850 + rb * 70, x: ox, y: oy, o: 0, s: 0.3 }, { t: 2900 + rb * 70, x: ox, y: oy, o: 1, s: 0.6 }, { t: 3500 + rb * 70, x: ox + dx, y: oy + dy, o: 1, r: (rb % 2 ? 1 : -1) * 280, s: 1.2 }, { t: 3700 + rb * 70, x: ox + dx * 1.1, y: oy + dy + 80, o: 0, r: (rb % 2 ? 1 : -1) * 320 }], { jerky: 2 });
-    }
-    var top = gy - 12 - ph * 1.12 - 6;
-    c.text('CREEEAK…', W / 2, 150, 36, 350, 1500, -5);
-    c.text('THUD!', W * 0.74, gy - 250, 46, 2000, 2700, 10);
-    c.say('Uuuurrrgh…', x, top, 2100, 2850, 50); c.talk(mum, 2100, 2850);
-    c.burst(['🧻', '💨'], x, gy - 130, 12, 190, 2900, 1000, 40);
-    c.text('SPIN!', W / 2, 160, 42, 2900, 3700, -8);
-    c.say('I’ll need a minute.', x, gy - ph * 1.16 - 10, 3950, 5150, 50); c.talk(un, 3950, 4900);
-    [400, 900, 1300].forEach(function (t) { c.sfx(t, function () { tone(150, 0.4, 0, 'sawtooth', 0.05, 90); }); });
-    c.sfx(2000, c.snd.boom); c.shake(2000, 350); c.buzz(2000, [120]);
-    c.sfx(2120, function () { tone(170, 0.8, 0, 'triangle', 0.08, 110); });
-    c.sfx(2850, function () { c.snd.whoosh(); }); c.sfx(3200, c.snd.whoosh);
-    c.sfx(3800, c.snd.fanfare);
+  /* ════════ 18. The Coin ════════
+     Their face on a coin, flicked onto the felt. It spins, wobbles, and lands the obvious way up. */
+  add({ name: 'The Coin', tag: 'Legal tender at this table only.', run: function (c) {
+    var W = c.W, H = c.H, x = W / 2, y = Math.round(H * 0.44);
+    c.sky('radial-gradient(ellipse at 50% 45%,#2F7D5C,#174A36 75%)');
+    var D2 = 200;
+    var coin = c.add('<div style="position:absolute;left:' + (-D2 / 2) + 'px;top:' + (-D2 / 2) + 'px;width:' + D2 + 'px;height:' + D2 + 'px;border-radius:50%;box-sizing:border-box;background:radial-gradient(circle at 40% 35%,#FFE38A,#D4A017 70%);border:4px solid ' + INK + ';box-shadow:inset 0 0 0 9px #C99A08,inset 0 0 0 12px ' + INK + ';display:flex;align-items:center;justify-content:center;overflow:hidden">' +
+      '<div style="filter:sepia(1) saturate(2.6) hue-rotate(-12deg) brightness(1.05) contrast(1.1)">' + c.head(118) + '</div></div>', 10);
+    var shadow = c.add('<div style="position:absolute;left:-80px;top:-14px;width:160px;height:28px;border-radius:50%;background:rgba(0,0,0,.35)"></div>', 5);
+    at(shadow, x, y + D2 / 2 + 24);
+    // the spin: scaleX through edge-on, fast and then slower; a wobble; flat, face up
+    var pts = [{ t: 0, x: x, y: -200, sx: 0.2 }, { t: 400, x: x, y: y - 60, sx: -0.6 }], t = 400, k = 0, gap = 70;
+    while (t < 3000) { t += gap; k++; pts.push({ t: t, x: x + (k % 2 ? 4 : -4), y: y, sx: k % 2 ? 0.08 : (k % 4 === 0 ? 1 : -1) }); gap = Math.min(220, gap * 1.12); }
+    pts.push({ t: 3150, x: x, y: y, sx: 0.85, r: -6 }, { t: 3300, x: x, y: y, sx: 1, r: 4 }, { t: 3420, x: x, y: y, sx: 0.96, r: -2 }, { t: 3520, x: x, y: y, sx: 1, r: 0 });
+    c.path(coin, pts, { jerky: false });
+    c.sfx(400, function () { tone(2400, 0.15, 0, 'sine', 0.04); });
+    c.sfx(500, function () { for (var i = 0; i < 10; i++) noise(0.03, i * (60 + i * 18), 0.08, 3500, 'bandpass'); });
+    c.sfx(3300, function () { tone(1800, 0.7, 0, 'sine', 0.03, 1700); });
+    c.say('Heads. Obviously.', x, y - D2 / 2 + 6, 3800, 5150, 50); c.talk(coin, 3800, 4700);
   } });
 
   /* ════════ 6. Piñata ════════ */
@@ -362,15 +301,12 @@
       { t: 3300, x: -360, y: sy0 + 40, r: -30 }], { jerky: 2 });
     var hy = hc, topY = hc - hpx * 0.56;
     c.say('Don’t you dare.', x, topY - 4, 250, 1050, 50); c.talk(pin, 250, 1050);
-    c.text('WHACK!', W * 0.74, hy + 110, 40, 1150, 1700, 10);
-    c.text('OOF!', W * 0.26, hy + 120, 44, 1900, 2450, -10);
-    c.text('KA-BLAM!', W / 2, hy + 190, 54, 2800, 3700, -6);
     c.scream(pin, 1150, 1450); c.scream(pin, 1900, 2250); c.scream(pin, 2800, 3400);
     c.burst(['🍬', '🍭', '🍫', '🍬', '🎉', '🍬'], x, hy, 34, 230, 2800, 1500, -120);
     c.burst(['✨', '🎊'], x, hy, 10, 160, 2820, 900, 40);
     for (var k = 0; k < 16; k++) {
       var cy0 = H - 150 - (k % 3) * 8, cx0 = 24 + c.rnd() * (W - 48);
-      var cd = c.add('<div style="position:absolute;left:0;top:0;font-size:' + (22 + (k % 3) * 4) + 'px;line-height:1;transform:translate(-50%,-50%)">' + ['🍬', '🍭', '🍫'][k % 3] + '</div>', 12);
+      var cd = c.add('<div style="position:absolute;left:0;top:0;font-size:' + (22 + (k % 3) * 4) + 'px;line-height:1;transform:translate(-50%,-50%)">' + window.ccHeads.icon('🍬', 24) + '</div>', 12);
       c.path(cd, [{ t: 0, x: cx0, y: cy0 - 400, o: 0 }, { t: 3200 + k * 30, x: cx0, y: cy0 - 400, o: 0 }, { t: 3500 + k * 30, x: cx0, y: cy0, o: 1, r: (k % 2 ? 40 : -40) }, { t: 5200, x: cx0, y: cy0, r: (k % 2 ? 40 : -40) }], { jerky: 3 });
     }
     c.say('…worth it.', x, topY - 4, 3750, 5150, 50); c.talk(pin, 3750, 4600);
@@ -382,7 +318,7 @@
   } });
 
   /* ════════ 7. Snowman ════════ */
-  add({ name: 'Snowman', tag: 'Cool under pressure. Until noon.', run: function (c) {
+  add({ name: 'Snowman', tag: 'Won. Melted. In that order.', run: function (c) {
     var W = c.W, H = c.H, gy = H - 128, x = W / 2;
     c.sky('linear-gradient(#9DB8D6,#DDE8F3)');
     var warm = c.add('<div style="position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;background:linear-gradient(#FFB347,#FFE08A)"></div>', 1);
@@ -416,9 +352,7 @@
     c.burst(['💧'], x, gy - 150, 6, 110, 2400, 900, -40);
     c.burst(['💧'], x, gy - 80, 6, 120, 3200, 900, -40);
     var top0 = gy - 236 - hpx * 1.08 - 48;
-    c.say('Cool, cool, cool.', x, top0, 250, 1300, 50); c.talk(hd, 250, 1300);
     c.say('Uh… is that the sun?', x, top0, 1850, 2850, 40); c.talk(hd, 1850, 2850);
-    c.text('I’M MELTING!', W / 2, 230, 42, 2950, 3850, -6);
     c.scream(hd, 2950, 3850);
     c.say('Still counts.', x, gy - hpx * 1.08 - 40, 4000, 5150, 50); c.talk(hd, 4000, 4800);
     c.sfx(0, function () { [1318, 1318, 1318, 1318, 1318, 1568, 1046, 1175, 1318].forEach(function (f, i) { tone(f, 0.12, i * 130, 'triangle', 0.04); }); });
@@ -458,9 +392,8 @@
     var top = gy - 205 - 300;
     c.say('Hmm hmm hmmm…', x, gy - 250, 450, 1700, 50);
     c.say('Wait for it…', x, gy - 250, 1850, 2650, 50);
-    c.text('POP!', x + 100, gy - 330, 60, 2700, 3600, 12);
     c.burst(['🎉', '✨', '🎊'], x, gy - 220, 14, 170, 2700, 900, 60);
-    c.say('Ta-daaa!', x, top, 2950, 3850, 50); c.talk(jack, 2950, 3850);
+    c.say('Ta-da.', x, top, 2950, 3850, 50); c.talk(jack, 2950, 3850);
     c.say('Okay. How do I get back in?', x, top, 4000, 5150, 50); c.talk(jack, 4000, 4900);
     c.sfx(200, function () { [262, 262, 294, 294, 330, 392, 330, 262, 262, 262, 294, 294, 330, 262].forEach(function (f, i) { tone(f * 2, 0.14, i * 160, 'triangle', 0.07); tone(f * 4, 0.05, i * 160, 'sine', 0.025); }); });
     c.sfx(2700, function () { c.snd.pop(); noise(0.15, 0, 0.4, 2000, 'bandpass'); tone(160, 0.5, 40, 'sine', 0.16, 620); });
@@ -505,9 +438,8 @@
     c.path(hang, spin, { jerky: 1 });
     c.say('Look Ma, no seatbelt!', W * 0.42, 280, 300, 1700, 40); c.talk(fly, 300, 1700);
     c.say('Is that a flag—', W * 0.42, 300, 1900, 2650, 60); c.talk(fly, 1900, 2650);
-    c.text('CLANG!', pole - 90, ty - 120, 52, 2700, 3500, -10);
     c.scream(hang, 2700, 3700);
-    c.say('I meant to park here.', pole - 50, ty + uh * 0.35, 3850, 5150, 82); c.talk(hang, 3850, 4900);
+    c.say('I’ll walk from here.', pole - 50, ty + uh * 0.35, 3850, 5150, 82); c.talk(hang, 3850, 4900);
     c.sfx(0, c.snd.whoosh); c.sfx(1200, c.snd.whoosh); c.sfx(2200, c.snd.whoosh);
     c.sfx(2700, function () { tone(1200, 0.6, 0, 'square', 0.05, 1150); tone(1750, 0.5, 0, 'triangle', 0.06, 1700); noise(0.12, 0, 0.4, 3000, 'bandpass'); });
     for (var sp = 0; sp < 5; sp++) c.sfx(2800 + sp * 110, function () { tone(500, 0.1, 0, 'sine', 0.05, 900); });
@@ -564,7 +496,6 @@
     c.anim(c.stage, [{ transform: 'translate(0,0) rotate(0deg)' }, { transform: 'translate(-3px,2px) rotate(.4deg)' }, { transform: 'translate(2px,-2px) rotate(-.3deg)' }, { transform: 'translate(0,0) rotate(0deg)' }], { dur: 700, iterations: 7, ease: 'steps(3,end)', fill: 'none' });
     var stat = c.add('<div style="position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;background:#888 url(' + noiseUrl + ') repeat;background-size:48px 48px;image-rendering:pixelated"></div>', 44);
     vis(c, stat, [[4750]]);
-    c.text('IS IT REAL?!', W / 2, 150, 36, 500, 2200, -4);
     var top = gy + 10 - bh * 1.22 - 4;
     c.say('Oh hey! Don’t post this.', W / 2, top, 2450, 3550, 50); c.talk(wv, 2450, 3550);
     c.say('We were never here.', W * 0.72, top + 40, 3650, 4600, 30); c.talk(wA, 3650, 4600); c.talk(wB, 3650, 4600);
@@ -609,9 +540,7 @@
     c.path(wheel, [{ t: 0, x: -400, y: gy - 20, o: 0 }, { t: 2950, x: fx0 + 60, y: gy - 20, o: 0 }, { t: 2960, x: fx0 + 60, y: gy - 20, o: 1 }, { t: 3200, x: fx0 + 10, y: gy - 60, r: -200 }, { t: 3500, x: -30, y: gy - 20, r: -500 }, { t: 3800, x: -80, y: gy - 20, r: -700 }], { jerky: 2 });
     var top = deck - qh - 40;
     c.say('Thank you, my adoring public.', W / 2, top, 1300, 2500, 50); c.talk(q, 1300, 2500);
-    c.text('FREE CANDY!', W / 2, 150, 40, 2300, 3000, -5);
     [2400, 2650, 2900].forEach(function (t, i) { c.burst(['🍬', '🍭', '🌸'], W / 2 + 60, top + 30, 7, 170, t, 900, 120); });
-    c.text('CRASH!', W * 0.36, gy - 280, 56, 3420, 4200, -10);
     c.burst(['🌸', '🌼', '💥', '🌺'], W * 0.3, gy - 120, 18, 200, 3420, 1100, 60);
     c.scream(q, 3200, 3800);
     c.say('Still waving!', 130, gy - 130, 3950, 5150, 30); c.talk(q, 3950, 4800);

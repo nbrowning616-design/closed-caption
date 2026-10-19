@@ -1,63 +1,235 @@
 /* Closed Caption — THE HEISTS. Thirty ways for the dealer to steal a chip and make it their own.
    Act 0 is The Claw (steal.js). Acts 1..30 live here, in the same order as HEISTS in game.js
    (the server deals them like a deck, so a room sees every heist before any repeats).
+   A heist plays only on a 'full' steal (the first steal of a game, or a steal off the real caption);
+   every other steal is steal.js's short paperwork stamp.
    Every heist is a full show on the shared beat (state.steal.at), the same frame on every phone:
      0.0s  the table, the doomed chip trembles, the act's title card
      0.5s  the thief makes its entrance (its own way of moving)
-     2.3s  the grab (snatch, tongue, tentacle, tractor beam, lasso…)
-     3.4s  into the spotlight: the chip is made the dealer's own (stamped, dunked, licked, zapped…)
+     2.3s  the grab (snatch, tongue, tentacle, beam, lasso, an invisible rope…)
+     3.4s  into the spotlight: the chip is made the dealer's own (stamped, signed, tagged, covered…)
      5.2s  set back in its spot, now in the dealer's colour; the thief makes its exit
      6.2s  the gloat card
+   House style: every thief and prop is drawn in the house ink (no emoji); a few ink specks in the dealer's
+   colour at most; every sound is soft (sine/triangle ≤0.05, or filtered noise), short (≤0.8s).
    Built and wound up before the beat; the beat only shows it. Big sounds on the speaker phone only (big()).
    Reads the page's globals at call time: state, myPlayerId, esc, nameOf, chipHtml, big, buzz, tone, noise.
    CSS prefix: hz-. Reuses steal.js's stage, felt and gloat-card styles (st-*). */
 (function () {
   'use strict';
 
-  var L = 7600;   // the whole show, ms (index.html STEAL_SHOW_MS; server.js waits the same)
+  var L = 7600;   // the whole show, ms (index.html STEAL_SHOW_MS; server.js waits the same for a 'full' steal)
   var TM = { title: 0, enter0: 450, enter1: 2250, grab: 2450, atC: 3350, claim0: 3450, claim1: 5050, back0: 5150, pick: 5300, set: 5800, exit1: 6500, gloat: 6250 };
 
-  /* ── The cast. thief: the emoji; move: how it gets there; grab: how it takes the chip;
-        claim: how it makes the chip the dealer's; prop/fx: the claim's tools and confetti. ── */
+  /* ── The cast. move: how it gets there; grab: how it takes the chip; claim: how it makes the chip the
+        dealer's; prop: the claim's ink tool (PROP_SVG); snd/csnd: its entrance and claim sounds. ── */
   var ACTS = [
     null,   // 0: The Claw (steal.js)
-    { tag: 'Swoops in. Asks no questions.', thief: '🦅', size: 92, from: 'topright', move: 'swoop', grab: 'carry', claim: 'stamp', prop: '⭐', fx: ['⭐', '✨'], snd: 'screech', exit: 'top' },
-    { tag: 'Washes everything first.', thief: '🦝', size: 84, from: 'left', move: 'tiptoe', grab: 'carry', claim: 'dip', prop: '🪣', fx: ['💧', '🫧'], snd: 'creep' },
-    { tag: 'Tongue first. Questions later.', thief: '🐸', size: 84, from: 'right', move: 'hop', grab: 'line', line: 'tongue', claim: 'lick', prop: '👅', fx: ['💦', '💧'], snd: 'boing' },
-    { tag: 'Not of this table.', thief: '🛸', size: 100, from: 'top', move: 'drift', grab: 'beam', claim: 'zap', prop: '⚡', fx: ['✨', '⚡'], snd: 'ufo', exit: 'top' },
-    { tag: 'Nothing up the sleeve. Except your chip.', thief: '🎩', size: 88, from: 'bottom', move: 'rise', grab: 'levitate', claim: 'sparkle', prop: '🪄', fx: ['✨', '🐇', '⭐'], snd: 'magic', exit: 'bottom' },
-    { tag: 'Has a hand in everything.', thief: '🐙', size: 92, from: 'bottom', move: 'rise', grab: 'line', line: 'tentacle', claim: 'splat', prop: null, fx: ['💧', '🫧'], snd: 'blub', exit: 'bottom' },
-    { tag: 'Patience. Bait. Theft.', thief: '🎣', size: 84, from: 'top', move: 'drift', grab: 'line', line: 'fishing', claim: 'sticker', prop: '🏷️', fx: ['🐟', '💧'], snd: 'reel', exit: 'top' },
-    { tag: 'It’s just physics.', thief: '🧲', size: 84, from: 'right', move: 'glide', grab: 'line', line: 'magnet', claim: 'zap', prop: '⚡', fx: ['⚡', '✨'], snd: 'hum' },
-    { tag: 'Sweetie, that’s mine.', thief: '👵', size: 84, from: 'left', move: 'tiptoe', grab: 'carry', claim: 'smooch', prop: '💋', fx: ['💕', '💋'], snd: 'creep' },
-    { tag: 'Knocks things off tables. Professionally.', thief: '🐈', size: 88, from: 'right', move: 'tiptoe', grab: 'carry', claim: 'sit', prop: null, fx: ['🐾', '💤'], snd: 'creep' },
-    { tag: 'Repeats everything. Returns nothing.', thief: '🦜', size: 86, from: 'topleft', move: 'swoop', grab: 'carry', claim: 'stamp', prop: '☠️', fx: ['🪶', '✨'], snd: 'screech', exit: 'top' },
-    { tag: 'You will not see this.', thief: '🥷', size: 84, from: 'left', move: 'teleport', grab: 'carry', claim: 'swirl', prop: null, fx: ['💨', '✨'], snd: 'ninja', exit: 'poof' },
-    { tag: 'Act of God. Allegedly.', thief: '🌪️', size: 96, from: 'left', move: 'spin', grab: 'carry', claim: 'swirl', prop: null, fx: ['🍂', '💨'], snd: 'wind' },
-    { tag: 'Very good boy. Very bad manners.', thief: '🐕', size: 88, from: 'left', move: 'zigzag', grab: 'carry', claim: 'lick', prop: '👅', fx: ['💦', '🦴'], snd: 'yip' },
-    { tag: 'Was here the whole time.', thief: '👻', size: 88, from: 'right', move: 'drift', grab: 'levitate', claim: 'swirl', prop: null, fx: ['✨', '💀'], snd: 'spooky', exit: 'fade' },
-    { tag: 'Ten, nine, mine.', thief: '🚀', size: 88, from: 'left', move: 'zoom', grab: 'carry', claim: 'iron', prop: '🔥', fx: ['💨', '🔥'], snd: 'rocket', exit: 'top' },
-    { tag: 'Billable hours: one chip.', thief: '💼', size: 80, from: 'right', move: 'tiptoe', grab: 'carry', claim: 'stamp', prop: '⚖️', fx: ['📄', '✨'], snd: 'creep' },
-    { tag: 'Armored, and petty about it.', thief: '🦀', size: 84, from: 'right', move: 'crawl', grab: 'carry', claim: 'sticker', prop: null, fx: ['💥', '✨'], snd: 'clack', noFlip: true },
-    { tag: 'Sixty-six million years of grudges.', thief: '🦖', size: 104, from: 'left', move: 'stomp', grab: 'carry', claim: 'stamp', prop: '🦶', fx: ['💥', '🌿'], snd: 'stomp' },
-    { tag: 'He’s been on his way since round one.', thief: '🐌', size: 80, from: 'right', move: 'crawl', grab: 'carry', claim: 'trail', prop: null, fx: ['💚', '✨'], snd: 'slow' },
-    { tag: 'Has never once asked permission.', thief: '🐦', size: 82, from: 'topright', move: 'swoop', grab: 'carry', claim: 'splat', prop: null, splat: '#FFFFFF', fx: ['💦', '🪶'], snd: 'screech', exit: 'top' },
-    { tag: 'Just a small one. Every time.', thief: '🦟', size: 70, from: 'left', move: 'zigzag', grab: 'carry', claim: 'zap', prop: '⚡', fx: ['⚡', '✨'], snd: 'mosquito' },
-    { tag: 'Robes. Beard. No receipt.', thief: '🧙', size: 88, from: 'left', move: 'drift', grab: 'beam', beam: 'magic', claim: 'sparkle', prop: '🪄', fx: ['✨', '⭐', '🌟'], snd: 'magic' },
-    { tag: 'Runs on spite and AA batteries.', thief: '🤖', size: 86, from: 'right', move: 'march', grab: 'line', line: 'grabber', claim: 'laser', prop: null, fx: ['⚙️', '✨'], snd: 'robot' },
-    { tag: 'Busy. Very, very busy.', thief: '🐝', size: 74, from: 'right', move: 'zigzag', grab: 'carry', claim: 'dip', prop: '🍯', fx: ['💛', '✨'], snd: 'buzz' },
-    { tag: 'Swings by. Takes one.', thief: '🐒', size: 90, from: 'top', move: 'swing', grab: 'carry', claim: 'sticker', prop: '🍌', fx: ['🍌', '✨'], snd: 'monkey', exit: 'top' },
-    { tag: 'Rides in. Doesn’t tip.', thief: '🤠', size: 88, from: 'left', move: 'hop', grab: 'line', line: 'lasso', claim: 'iron', prop: '🔥', fx: ['💨', '⭐'], snd: 'yeehaw' },
-    { tag: 'Only comes out at game night.', thief: '🧛', size: 88, from: 'right', move: 'drift', grab: 'carry', claim: 'sparkle', prop: '🦇', fx: ['🦇', '🩸'], snd: 'spooky' },
-    { tag: 'Mythical. The theft is real.', thief: '🦄', size: 92, from: 'left', move: 'hop', grab: 'carry', claim: 'sparkle', prop: '🌈', fx: ['✨', '🌈', '💖'], snd: 'magic' },
-    { tag: 'Dressed for the occasion.', thief: '🐧', size: 86, from: 'right', move: 'slide', grab: 'carry', claim: 'dip', prop: '🧊', fx: ['❄️', '✨'], snd: 'slide' },
+    { tag: 'Swoops in. Asks no questions.', size: 92, from: 'topright', move: 'swoop', grab: 'carry', claim: 'sticker', snd: 'swoosh', exit: 'top' },
+    { tag: 'Washes everything first.', size: 84, from: 'left', move: 'tiptoe', grab: 'carry', claim: 'dip', prop: 'bucket', snd: 'creep' },
+    { tag: 'Tongue first. Questions later.', size: 84, from: 'right', move: 'hop', grab: 'line', line: 'tongue', claim: 'lick', snd: 'hop' },
+    { tag: 'Not of this table.', size: 100, from: 'top', move: 'drift', grab: 'beam', claim: 'swirl', snd: 'hum', exit: 'top' },
+    { tag: 'Nothing up the sleeve. Except your chip.', size: 88, from: 'bottom', move: 'rise', grab: 'levitate', claim: 'sparkle', prop: 'wand', snd: 'magic', exit: 'bottom' },
+    { tag: 'Has a hand in everything.', size: 92, from: 'bottom', move: 'rise', grab: 'line', line: 'tentacle', claim: 'splat', snd: 'blub', exit: 'bottom' },
+    { tag: 'Moves it to another column.', size: 86, from: 'left', move: 'tiptoe', grab: 'carry', claim: 'sign', prop: 'pen', snd: 'steps' },
+    { tag: 'Clears the table. Thoroughly.', size: 88, from: 'right', move: 'glide', grab: 'carry', claim: 'cloche', prop: 'cloche', snd: 'steps' },
+    { tag: 'Sweetie, that’s mine.', size: 84, from: 'left', move: 'tiptoe', grab: 'carry', claim: 'dip', prop: 'purse', snd: 'creep', csnd: 'snap' },
+    { tag: 'Knocks things off tables. Professionally.', size: 88, from: 'right', move: 'tiptoe', grab: 'carry', claim: 'sit', snd: 'creep' },
+    { tag: 'Says nothing. Takes everything.', size: 88, from: 'left', move: 'glide', grab: 'line', line: 'none', claim: 'wipe', snd: 'none', csnd: 'none' },
+    { tag: 'You will not see this.', size: 84, from: 'left', move: 'teleport', grab: 'carry', claim: 'swirl', snd: 'ninja', exit: 'poof' },
+    { tag: 'Act of God. Allegedly.', size: 96, from: 'left', move: 'spin', grab: 'carry', claim: 'swirl', snd: 'wind' },
+    { tag: 'Very good boy. Very bad manners.', size: 88, from: 'left', move: 'zigzag', grab: 'carry', claim: 'sit', snd: 'pat' },
+    { tag: 'Was here the whole time.', size: 88, from: 'right', move: 'drift', grab: 'levitate', claim: 'swirl', snd: 'spooky', exit: 'fade' },
+    { tag: 'Going once. Gone.', size: 86, from: 'right', move: 'march', grab: 'carry', claim: 'stamp', prop: 'gavel', snd: 'steps', csnd: 'gavel' },
+    { tag: 'Billable hours: one chip.', size: 84, from: 'right', move: 'tiptoe', grab: 'carry', claim: 'stamp', prop: 'rubber', snd: 'creep' },
+    { tag: 'Armored, and petty about it.', size: 84, from: 'right', move: 'crawl', grab: 'carry', claim: 'sticker', snd: 'clack', noFlip: true },
+    { tag: 'Sixty-six million years of grudges.', size: 104, from: 'left', move: 'stomp', grab: 'carry', claim: 'sit', snd: 'stomp' },
+    { tag: 'He’s been on his way since round one.', size: 80, from: 'right', move: 'crawl', grab: 'carry', claim: 'trail', snd: 'slow' },
+    { tag: 'Has never once asked permission.', size: 82, from: 'topright', move: 'swoop', grab: 'carry', claim: 'peck', snd: 'swoosh', exit: 'top' },
+    { tag: 'Works from under the table.', size: 86, from: 'bottom', move: 'rise', grab: 'carry', claim: 'dip', prop: 'molehill', snd: 'dig', exit: 'bottom' },
+    { tag: 'Asks nothing. Swallows everything.', size: 92, from: 'left', move: 'tiptoe', grab: 'carry', claim: 'sit', snd: 'waddle', csnd: 'gulp' },
+    { tag: 'Runs on spite and AA batteries.', size: 86, from: 'right', move: 'march', grab: 'line', line: 'grabber', claim: 'sticker', prop: 'barcode', snd: 'robot' },
+    { tag: 'Pollinates. Takes a cut.', size: 74, from: 'right', move: 'zigzag', grab: 'carry', claim: 'peck', snd: 'buzz' },
+    { tag: 'Prickly about returns.', size: 82, from: 'right', move: 'crawl', grab: 'carry', claim: 'trail', snd: 'pat' },
+    { tag: 'Rides in. Doesn’t tip.', size: 88, from: 'left', move: 'hop', grab: 'line', line: 'lasso', claim: 'iron', prop: 'flame', snd: 'hooves' },
+    { tag: 'Only comes out at game night.', size: 88, from: 'right', move: 'drift', grab: 'carry', claim: 'wipe', snd: 'spooky' },
+    { tag: 'Guarding it. From you.', size: 88, from: 'left', move: 'glide', grab: 'beam', beam: 'torch', claim: 'tag', prop: 'tag', snd: 'steps' },
+    { tag: 'Dressed for the occasion.', size: 86, from: 'right', move: 'slide', grab: 'carry', claim: 'dip', prop: 'icehole', snd: 'slide' },
   ];
 
-  /* ── #45 The eight most-seen thieves, drawn in the house ink (emoji look cheap and differ by phone brand).
-        viewBox 100×100, facing LEFT like the emoji they replace (flipOf mirrors them when they walk right).
-        Flat fills, a 4px ink line. Any act not listed here keeps its emoji. ── */
+  /* ── Every thief, drawn in the house ink (emoji look cheap and differ by phone brand).
+        viewBox 100×100, facing LEFT (flipOf mirrors them when they walk right). Flat fills, a 4px ink line. ── */
   var G0 = '<g stroke="#1F1A17" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">', G1 = '</g>';
+  var SKIN = '#F2C9A0', INKC = '#1F1A17';
+  var dot = function (x, y, r) { return '<circle cx="' + x + '" cy="' + y + '" r="' + (r || 2.4) + '" fill="' + INKC + '" stroke="none"/>'; };
+  // a plain torso for the people (shirt colour, optional lapel/vest detail drawn on top)
+  var torso = function (fill, extra) { return '<path d="M28 96 C28 74 38 62 51 62 C64 62 74 74 74 96 Z" fill="' + fill + '"/>' + (extra || ''); };
   var THIEF_SVG = {
+    1: G0 +   // The Bald Eagle
+      '<path d="M50 76 L47 92 L40 94 M60 76 L62 92 L56 95" fill="none" stroke-width="7"/><path d="M50 76 L47 92 L40 94 M60 76 L62 92 L56 95" fill="none" stroke="#FFC93C" stroke-width="3"/>' +
+      '<path d="M76 66 L96 76 L80 80 Z" fill="#fff"/>' +
+      '<path d="M36 52 C46 44 72 46 84 62 C76 76 60 82 46 78 C36 74 32 62 36 52 Z" fill="#6B4423"/>' +
+      '<path d="M54 54 C66 40 84 32 96 26 C94 44 82 58 66 64 Z" fill="#5A3A1E"/><path d="M66 50 L84 40 M70 56 L88 48" fill="none" stroke-width="2.5"/>' +
+      '<path d="M20 42 C18 28 30 22 42 24 C52 26 56 36 52 46 C48 54 38 56 30 54 C24 52 21 48 20 42 Z" fill="#fff"/>' +
+      '<path d="M22 38 C12 37 6 42 8 50 C10 47 15 46 20 47 L24 44 Z" fill="#FFC93C"/>' +
+      dot(30, 36, 2.6) + '<path d="M24 30 L36 33" stroke-width="3.5"/>' + G1,
+    5: G0 +   // The Magician: a top hat, and the eyes of whoever is under it
+      '<path d="M30 14 L70 14 L68 60 L32 60 Z" fill="#2A2522"/>' +
+      '<path d="M32 50 L68 50 L68 58 L32 58 Z" fill="#B3263A" stroke-width="3"/>' +
+      '<path d="M14 64 C14 58 86 58 86 64 C86 70 14 70 14 64 Z" fill="#2A2522"/>' +
+      '<path d="M36 22 L36 44" stroke="#fff" stroke-opacity=".35" stroke-width="4"/>' +
+      '<ellipse cx="38" cy="78" rx="7" ry="6" fill="#fff" stroke-width="3"/><ellipse cx="58" cy="78" rx="7" ry="6" fill="#fff" stroke-width="3"/>' +
+      dot(35, 78, 2.8) + dot(55, 78, 2.8) + G1,
+    6: G0 +   // The Octopus
+      '<path d="M28 62 C20 74 26 84 14 90 M40 64 C38 78 44 86 34 95 M56 64 C60 78 54 86 62 95 M70 62 C78 72 74 84 88 88" fill="none" stroke-width="11"/>' +
+      '<path d="M28 62 C20 74 26 84 14 90 M40 64 C38 78 44 86 34 95 M56 64 C60 78 54 86 62 95 M70 62 C78 72 74 84 88 88" fill="none" stroke="#C06AD6" stroke-width="5"/>' +
+      '<path d="M22 54 C18 28 34 10 52 10 C72 10 84 28 80 54 C78 64 68 68 51 68 C34 68 24 64 22 54 Z" fill="#C06AD6"/>' +
+      '<path d="M60 20 C68 22 74 30 74 38" fill="none" stroke="#E8B8F2" stroke-width="4"/>' +
+      '<circle cx="36" cy="42" r="6" fill="#fff" stroke-width="3"/><circle cx="54" cy="42" r="6" fill="#fff" stroke-width="3"/>' + dot(34, 43, 2.6) + dot(52, 43, 2.6) +
+      '<path d="M38 56 Q44 58 50 56" fill="none" stroke-width="3"/>' + G1,
+    7: G0 +   // The Accountant: green visor, round glasses, a ledger under the arm
+      torso('#F4F1EA', '<path d="M51 63 L47 76 L51 86 L55 76 Z" fill="#2E5EAA" stroke-width="2.5"/>') +
+      '<path d="M34 72 L18 80" stroke-width="9"/><path d="M34 72 L18 80" stroke="#F4F1EA" stroke-width="4"/>' +
+      '<rect x="10" y="70" width="22" height="26" rx="2" fill="#2E9E6B" transform="rotate(-10 21 83)"/>' +
+      '<circle cx="50" cy="40" r="17" fill="' + SKIN + '"/>' +
+      '<path d="M38 26 C44 20 58 20 64 26" fill="none" stroke-width="3"/>' +
+      '<path d="M30 30 C38 24 60 24 68 30 L66 34 C56 30 42 30 32 36 Z" fill="#3FA46A" fill-opacity=".9"/><path d="M32 34 L14 38 L32 39 Z" fill="#3FA46A"/>' +
+      '<circle cx="40" cy="42" r="5.5" fill="#fff" stroke-width="2.5"/><circle cx="54" cy="42" r="5.5" fill="#fff" stroke-width="2.5"/><path d="M45.5 42 L48.5 42" stroke-width="2.5"/>' +
+      dot(39, 42, 1.8) + dot(53, 42, 1.8) + '<path d="M40 52 L47 52" stroke-width="2.5"/>' + G1,
+    8: G0 +   // The Butler: tails, a bow tie, a towel over the arm, eyes closed in disapproval
+      torso('#2A2522', '<path d="M44 63 L51 82 L58 63 Z" fill="#fff" stroke-width="2.5"/><path d="M44 64 L51 67 L58 64 L58 70 L51 67 L44 70 Z" fill="' + INKC + '" stroke-width="2"/>') +
+      '<path d="M32 72 L20 74" stroke-width="9"/><path d="M14 70 L26 70 L28 90 L16 92 Z" fill="#fff" stroke-width="3"/>' +
+      '<ellipse cx="50" cy="38" rx="16" ry="18" fill="' + SKIN + '"/>' +
+      '<path d="M64 30 C68 34 68 42 64 46 M36 28 C33 31 33 35 34 38" fill="none" stroke="#9AA3AD" stroke-width="5"/>' +
+      '<path d="M38 36 Q41 34 44 36 M50 36 Q53 34 56 36" fill="none" stroke-width="2.5"/>' +
+      '<path d="M37 40 L31 45 L38 46" fill="none" stroke-width="2.5"/><path d="M40 51 L47 51" stroke-width="2.5"/>' + G1,
+    9: G0 +   // Grandma: a bun, glasses on a chain, a cardigan
+      torso('#E8A0B8', '<path d="M51 64 V96" fill="none" stroke-width="2.5"/>' + dot(55, 74, 2) + dot(55, 84, 2)) +
+      '<path d="M40 63 Q51 70 62 63" fill="none" stroke="#fff" stroke-width="3"/>' +
+      '<circle cx="62" cy="20" r="8" fill="#D9D9DE"/>' +
+      '<circle cx="50" cy="40" r="17" fill="' + SKIN + '"/>' +
+      '<path d="M33 40 C30 24 42 19 52 21 C64 22 69 31 67 41 C62 31 51 27 40 31 Z" fill="#D9D9DE"/>' +
+      '<circle cx="41" cy="43" r="5.5" fill="#fff" fill-opacity=".6" stroke-width="2.5"/><circle cx="55" cy="43" r="5.5" fill="#fff" fill-opacity=".6" stroke-width="2.5"/><path d="M46.5 43 L49.5 43" stroke-width="2.5"/>' +
+      dot(40, 43, 1.8) + dot(54, 43, 1.8) +
+      '<circle cx="36" cy="50" r="3.4" fill="#F49AAE" stroke="none"/><path d="M42 52 Q46 55 50 52" fill="none" stroke-width="2.5"/>' + G1,
+    11: G0 +   // The Mime: stripes, white face, beret, one gloved hand pulling an invisible rope
+      torso('#fff', '<path d="M31 72 H71 M29 80 H73 M28 88 H74" stroke-width="5"/>') +
+      '<path d="M36 68 L20 60" stroke-width="9"/><path d="M36 68 L20 60" stroke="#fff" stroke-width="4"/><circle cx="17" cy="58" r="6" fill="#fff" stroke-width="3"/>' +
+      '<ellipse cx="50" cy="38" rx="15" ry="18" fill="#fff"/>' +
+      '<path d="M33 26 C35 14 63 12 67 24 C58 21 44 21 33 26 Z" fill="' + INKC + '"/><path d="M52 14 L53 9" stroke-width="3"/>' +
+      '<path d="M39 30 Q42 27 45 30 M51 30 Q54 27 57 30" fill="none" stroke-width="2.5"/>' + dot(42, 36, 2) + dot(54, 36, 2) +
+      '<path d="M54 41 L55 45" stroke-width="2"/><path d="M45 48 Q48 46 51 48" fill="none" stroke="#E8453A" stroke-width="3"/>' + G1,
+    12: G0 +   // The Ninja
+      torso('#2A2522', '<path d="M30 82 H72" stroke="#B3263A" stroke-width="5"/>') +
+      '<path d="M66 34 L86 26 L82 34 L92 38" fill="none" stroke-width="8"/><path d="M66 34 L86 26 L82 34 L92 38" fill="none" stroke="#B3263A" stroke-width="4"/>' +
+      '<circle cx="50" cy="40" r="18" fill="#2A2522"/>' +
+      '<path d="M33 35 Q50 31 65 35 L65 45 Q50 48 33 45 Z" fill="' + SKIN + '" stroke-width="2.5"/>' +
+      '<path d="M37 40 L44 39 M50 39 L57 40" stroke-width="3"/>' + G1,
+    13: G0 +   // The Tornado
+      '<path d="M12 16 C28 6 74 6 90 16 C88 26 72 30 50 30 C30 30 14 26 12 16 Z" fill="#B9C2CC"/>' +
+      '<path d="M20 36 C34 30 68 30 80 36 C76 44 64 46 50 46 C36 46 24 44 20 36 Z" fill="#CDD3DA"/>' +
+      '<path d="M30 54 C40 50 62 50 70 54 C66 60 58 62 50 62 C42 62 34 60 30 54 Z" fill="#B9C2CC"/>' +
+      '<path d="M38 70 C44 67 58 67 62 70 C60 76 54 77 50 77 C46 77 40 75 38 70 Z" fill="#CDD3DA"/>' +
+      '<path d="M45 84 C48 82 54 82 56 85 C54 89 50 90 48 89 Z" fill="#B9C2CC"/>' +
+      '<path d="M82 46 L90 42 L88 52 Z M14 58 L20 52 L22 60 Z" fill="#6BBF59" stroke-width="2.5"/>' +
+      '<path d="M30 20 Q50 26 72 20" fill="none" stroke-width="2.5" stroke-opacity=".5"/>' + G1,
+    14: G0 +   // The Good Boy
+      '<path d="M78 58 C88 50 92 42 90 32" fill="none" stroke-width="9"/><path d="M78 58 C88 50 92 42 90 32" fill="none" stroke="#E3A857" stroke-width="4"/>' +
+      '<path d="M48 72 L46 92 M58 74 L58 92 M70 72 L72 92 M78 68 L82 90" fill="none" stroke-width="9"/><path d="M48 72 L46 92 M58 74 L58 92 M70 72 L72 92 M78 68 L82 90" fill="none" stroke="#E3A857" stroke-width="4"/>' +
+      '<ellipse cx="62" cy="64" rx="22" ry="14" fill="#E3A857"/>' +
+      '<circle cx="32" cy="46" r="15" fill="#E3A857"/>' +
+      '<ellipse cx="20" cy="53" rx="10" ry="7" fill="#F2CF95"/>' + dot(12, 51, 3.4) +
+      '<path d="M36 34 C46 32 49 48 43 57 C38 51 36 43 36 34 Z" fill="#B97A35"/>' + dot(28, 42, 2.4) +
+      '<path d="M18 59 C18 66 25 66 25 59" fill="#F49AAE" stroke-width="2.5"/>' +
+      '<path d="M42 56 C46 61 46 66 44 70" fill="none" stroke="#E8453A" stroke-width="5"/>' + G1,
+    16: G0 +   // The Auctioneer: waistcoat, slicked hair, a moustache, mid-sentence
+      torso('#B3263A', '<path d="M44 63 L51 80 L58 63 Z" fill="#fff" stroke-width="2.5"/><path d="M45 64 L51 67 L57 64 L57 69 L51 67 L45 69 Z" fill="' + INKC + '" stroke-width="2"/>') +
+      '<circle cx="50" cy="40" r="17" fill="' + SKIN + '"/>' +
+      '<path d="M33 36 C33 22 46 20 56 22 C64 24 69 30 67 38 C60 30 48 28 33 36 Z" fill="#3A2F28"/>' +
+      '<path d="M37 37 L43 34 M52 35 L57 36" stroke-width="2.5"/>' + dot(41, 41, 2.2) + dot(55, 41, 2.2) +
+      '<path d="M38 49 C42 45 46 47 49 49 C52 47 56 45 60 49 C56 51 52 51 49 50 C46 51 42 51 38 49 Z" fill="#3A2F28" stroke-width="2"/>' +
+      '<ellipse cx="48" cy="54" rx="3" ry="2.2" fill="' + INKC + '" stroke="none"/>' + G1,
+    17: G0 +   // The Lawyer: a grey suit, a briefcase, a small smile
+      torso('#4A5260', '<path d="M42 63 L51 82 L60 63 Z" fill="#fff" stroke-width="2.5"/><path d="M51 66 L48 76 L51 84 L54 76 Z" fill="#B3263A" stroke-width="2"/><path d="M42 63 L46 78 M60 63 L56 78" fill="none" stroke-width="2.5"/>') +
+      '<path d="M32 72 L24 80" stroke-width="9"/><path d="M32 72 L24 80" stroke="#4A5260" stroke-width="4"/>' +
+      '<rect x="8" y="78" width="28" height="18" rx="3" fill="#7A4A2A"/><path d="M17 78 V73 H27 V78" fill="none" stroke-width="3"/>' +
+      '<circle cx="50" cy="40" r="17" fill="' + SKIN + '"/>' +
+      '<path d="M33 36 C33 22 46 20 56 22 C64 24 69 30 67 40 C64 32 58 28 50 28 C44 30 38 32 33 36 Z" fill="#2A2522"/>' +
+      dot(41, 41, 2.2) + dot(55, 41, 2.2) + '<path d="M41 50 Q46 52 51 49" fill="none" stroke-width="2.5"/>' + G1,
+    18: G0 +   // The Crab (faces you; never flipped)
+      '<path d="M26 62 L10 70 M26 68 L12 80 M74 62 L90 70 M74 68 L88 80" fill="none" stroke-width="5"/>' +
+      '<path d="M26 52 C12 46 9 30 17 23 C21 29 25 29 28 25 C34 33 32 46 26 52 Z" fill="#E8603A"/>' +
+      '<path d="M74 52 C88 46 91 30 83 23 C79 29 75 29 72 25 C66 33 68 46 74 52 Z" fill="#E8603A"/>' +
+      '<ellipse cx="50" cy="64" rx="28" ry="17" fill="#E8603A"/>' +
+      '<path d="M42 50 L40 36 M58 50 L60 36" fill="none" stroke-width="3.5"/>' +
+      '<circle cx="40" cy="33" r="5.5" fill="#fff" stroke-width="3"/><circle cx="60" cy="33" r="5.5" fill="#fff" stroke-width="3"/>' + dot(40, 34, 2.4) + dot(60, 34, 2.4) +
+      '<path d="M36 28 L44 30 M56 30 L64 28" stroke-width="3"/><path d="M44 70 Q50 66 56 70" fill="none" stroke-width="3"/>' + G1,
+    20: G0 +   // The Snail
+      '<path d="M10 84 C10 76 18 72 28 72 L84 72 C91 72 95 78 93 84 Z" fill="#B8C9A0"/>' +
+      '<path d="M18 74 C16 62 20 52 27 52 C34 52 36 62 34 74 Z" fill="#B8C9A0"/>' +
+      '<path d="M23 54 L17 38 M30 54 L33 38" fill="none" stroke-width="3"/>' +
+      '<circle cx="17" cy="35" r="4.5" fill="#fff" stroke-width="2.5"/><circle cx="33" cy="35" r="4.5" fill="#fff" stroke-width="2.5"/>' + dot(16, 36, 1.8) + dot(32, 36, 1.8) +
+      '<circle cx="62" cy="52" r="22" fill="#D9A066"/>' +
+      '<path d="M62 52 C62 46 70 46 70 52 C70 60 58 62 54 54 C50 44 62 36 72 40 C82 46 82 62 72 70" fill="none" stroke-width="3"/>' + G1,
+    22: G0 +   // The Mole: a miner's helmet with a lamp
+      '<path d="M18 94 C14 66 28 46 52 46 C76 46 88 64 84 94 Z" fill="#5B4A42"/>' +
+      '<path d="M26 62 C14 58 8 64 12 70 C18 72 26 70 30 66 Z" fill="#5B4A42"/><circle cx="10" cy="66" r="4.5" fill="#F49AAE"/>' +
+      '<path d="M28 78 C16 78 12 86 18 90 C24 92 32 86 32 82 Z" fill="#F49AAE"/>' +
+      '<path d="M32 58 L37 58" stroke-width="3"/>' +
+      '<path d="M28 50 C28 30 70 28 74 48 Z" fill="#FFD23F"/><path d="M24 50 L78 48" stroke-width="4"/>' +
+      '<circle cx="34" cy="40" r="5" fill="#FFF8EA" stroke-width="3"/>' + G1,
+    23: G0 +   // The Pelican
+      '<path d="M58 80 L56 94 L50 96 M68 80 L70 94 L64 96" fill="none" stroke-width="7"/><path d="M58 80 L56 94 L50 96 M68 80 L70 94 L64 96" fill="none" stroke="#F2A33A" stroke-width="3"/>' +
+      '<ellipse cx="64" cy="64" rx="22" ry="19" fill="#fff"/>' +
+      '<path d="M58 58 C72 52 86 58 88 72 C78 76 66 74 58 68 Z" fill="#DDE3E8"/>' +
+      '<path d="M46 58 C42 46 42 32 48 26 C54 22 62 26 60 34 C58 42 56 50 58 60 Z" fill="#fff"/>' +
+      '<path d="M46 31 L6 40 L46 36 Z" fill="#F2A33A"/>' +
+      '<path d="M46 36 L8 41 C14 56 34 60 48 50 Z" fill="#F7C27A"/>' + dot(52, 30, 2.4) + G1,
+    24: G0 +   // The Robot
+      '<path d="M40 82 V94 M60 82 V94" stroke-width="7"/>' +
+      '<rect x="28" y="56" width="44" height="28" rx="4" fill="#AAB4BE"/><circle cx="40" cy="70" r="4" fill="#E8453A" stroke-width="2.5"/><path d="M50 64 H64 M50 70 H64 M50 76 H60" stroke-width="2.5"/>' +
+      '<path d="M50 20 V10" stroke-width="3"/><circle cx="50" cy="8" r="3.5" fill="#FFD23F" stroke-width="2.5"/>' +
+      '<rect x="26" y="20" width="48" height="32" rx="6" fill="#C9D0D8"/>' +
+      '<rect x="31" y="27" width="11" height="8" rx="2" fill="#7FD8FF" stroke-width="2.5"/><rect x="48" y="27" width="11" height="8" rx="2" fill="#7FD8FF" stroke-width="2.5"/>' +
+      '<path d="M34 44 H56" stroke-width="3" stroke-dasharray="3 3"/>' + G1,
+    26: G0 +   // The Hedgehog
+      '<path d="M24 72 L18 48 L30 54 L30 32 L40 44 L46 24 L52 40 L62 24 L64 42 L76 32 L74 50 L88 46 L82 62 L94 66 L84 76 Z" fill="#7A5A3A"/>' +
+      '<path d="M24 72 L84 76 C80 86 32 86 24 72 Z" fill="#E9C9A0"/>' +
+      '<path d="M30 72 C18 72 10 68 7 61 C14 55 22 53 31 55 Z" fill="#E9C9A0"/>' + dot(6, 61, 3) + dot(21, 59, 2.2) +
+      '<path d="M40 84 L38 92 M66 84 L68 92" stroke-width="5"/>' + G1,
+    27: G0 +   // The Cowboy
+      torso('#C46A3A', '<path d="M40 62 L51 74 L62 62 Z" fill="#E8453A" stroke-width="2.5"/><path d="M36 70 L40 96 M66 70 L62 96" fill="none" stroke-width="2.5"/>') +
+      '<circle cx="50" cy="42" r="16" fill="' + SKIN + '"/>' +
+      '<path d="M38 41 L44 41 M52 41 L58 41" stroke-width="2.5"/>' +
+      '<path d="M40 50 C44 47 48 48 50 50 C52 48 56 47 60 50" fill="none" stroke-width="3"/>' +
+      '<path d="M32 30 C32 12 40 10 50 15 C60 10 68 12 68 30 Z" fill="#8A5A2B"/>' +
+      '<path d="M14 30 C28 22 72 22 88 30 C74 36 28 36 14 30 Z" fill="#8A5A2B"/><path d="M33 26 H67" stroke-width="2.5"/>' + G1,
+    28: G0 +   // The Vampire
+      '<path d="M12 96 L30 56 L51 64 L72 56 L90 96 Z" fill="#2A2522"/>' +
+      '<path d="M30 56 L20 30 L40 48 Z M72 56 L82 30 L62 48 Z" fill="#B3263A"/>' +
+      '<ellipse cx="51" cy="40" rx="15" ry="18" fill="#E4E8EC"/>' +
+      '<path d="M36 34 C35 20 45 18 51 28 C57 18 67 20 66 34 C63 26 57 24 51 30 C45 24 39 26 36 34 Z" fill="' + INKC + '"/>' +
+      '<path d="M40 38 L46 40 M56 40 L62 38" stroke-width="2.5"/>' + dot(43, 43, 2) + dot(59, 43, 2) +
+      '<path d="M44 51 Q51 54 58 51" fill="none" stroke-width="2.5"/><path d="M47 52 L48 56 L49 52" fill="#fff" stroke-width="1.5"/>' + G1,
+    29: G0 +   // The Night Watchman: cap, uniform, a torch held out front
+      torso('#2E3F6E', '<circle cx="60" cy="74" r="3.5" fill="#FFD23F" stroke-width="2"/>') +
+      '<path d="M36 70 L20 66" stroke-width="9"/><path d="M36 70 L20 66" stroke="#2E3F6E" stroke-width="4"/>' +
+      '<rect x="4" y="60" width="18" height="9" rx="2" fill="#AAB4BE" transform="rotate(-8 13 64)"/>' +
+      '<circle cx="50" cy="42" r="16" fill="' + SKIN + '"/>' +
+      '<path d="M32 32 C34 18 64 18 68 32 Z" fill="#2E3F6E"/><path d="M33 32 L18 35 L34 36 Z" fill="' + INKC + '"/><circle cx="50" cy="24" r="2.6" fill="#FFD23F" stroke-width="2"/>' +
+      '<path d="M38 42 Q41 40 44 42 M52 42 Q55 40 58 42" fill="none" stroke-width="2.5"/>' +
+      '<path d="M40 50 C44 48 48 49 50 51 C52 49 56 48 60 50" fill="none" stroke-width="3"/>' + G1,
+    30: G0 +   // The Penguin, in a bow tie
+      '<ellipse cx="44" cy="92" rx="8" ry="4" fill="#F2A33A"/><ellipse cx="60" cy="92" rx="8" ry="4" fill="#F2A33A"/>' +
+      '<path d="M70 52 C82 62 82 74 74 80 C72 70 70 62 66 56 Z" fill="#2A2522"/>' +
+      '<ellipse cx="52" cy="58" rx="24" ry="32" fill="#2A2522"/>' +
+      '<ellipse cx="46" cy="66" rx="15" ry="22" fill="#fff" stroke-width="3"/>' +
+      '<ellipse cx="42" cy="38" rx="11" ry="9" fill="#fff" stroke-width="3"/>' + dot(39, 37, 2.3) +
+      '<path d="M32 39 L18 43 L32 47 Z" fill="#F2A33A"/>' +
+      '<path d="M40 52 L46 55 L52 52 L52 58 L46 55 L40 58 Z" fill="#E8453A" stroke-width="2"/>' + G1,
+  };
+  /* The eight drawn earlier (Raccoon, Frog, UFO, Cat, Ghost, T. rex, Seagull, Bee) */
+  Object.assign(THIEF_SVG, {
     2: G0 +   // The Raccoon
       '<path d="M66 60 C84 58 96 46 93 33 C91 25 83 27 83 35 C83 45 75 51 64 53 Z" fill="#8E949C"/>' +
       '<path d="M86 29 L80 37 M92 41 L83 45 M86 53 L78 53" stroke-width="5"/>' +
@@ -130,43 +302,63 @@
       '<circle cx="27" cy="54" r="14" fill="#3A2F28"/>' +
       '<circle cx="22" cy="50" r="4.2" fill="#fff" stroke="none"/><circle cx="21" cy="50.5" r="2" fill="#1F1A17" stroke="none"/><path d="M16 60 Q21 64 26 60" fill="none" stroke="#fff" stroke-width="2.5"/>' +
       '<ellipse cx="50" cy="30" rx="12" ry="19" transform="rotate(-22 50 30)" fill="#E2F4FF" fill-opacity=".9" stroke-width="3"/><ellipse cx="66" cy="32" rx="11" ry="17" transform="rotate(20 66 32)" fill="#E2F4FF" fill-opacity=".9" stroke-width="3"/>' + G1,
-  };
+  });
   function thiefHtml(i, act) {
     var s = THIEF_SVG[i], px = act.size || 84;
-    return s ? '<svg viewBox="0 0 100 100" width="' + px + '" height="' + px + '" aria-hidden="true" style="display:block;overflow:visible">' + s + '</svg>' : act.thief;
+    return '<svg viewBox="0 0 100 100" width="' + px + '" height="' + px + '" aria-hidden="true" style="display:block;overflow:visible">' + (s || '') + '</svg>';
   }
-  // ink flames for the hot-iron claims (Rocket, Cowboy) and their sparks — emoji 🔥 differs by phone
-  var FLAME = function (w) { return window.ccInk && window.ccInk.flame ? window.ccInk.flame(w) : '🔥'; };
-  ACTS.forEach(function (a) { if (!a) return; if (a.prop === '🔥') a.prop = 'flame'; if (a.fx) a.fx = a.fx.map(function (f) { return f === '🔥' ? 'flame' : f; }); });
+  /* ── The claims' tools, in the same ink. viewBox 100×100, centred; the business end at the bottom. ── */
+  var DC = 'style="fill:var(--dc)"';
+  var PROP_SVG = {
+    bucket: '<path d="M24 32 C24 6 76 6 76 32" fill="none" stroke-width="3"/><path d="M20 32 L80 32 L72 90 L28 90 Z" fill="#9AA3AD"/><ellipse cx="50" cy="32" rx="30" ry="7" fill="#5E8FB0"/><path d="M30 46 L34 82" stroke="#fff" stroke-opacity=".5" stroke-width="4"/>',
+    wand: '<path d="M22 82 L76 28" stroke-width="13"/><path d="M22 82 L76 28" stroke="#2A2522" stroke-width="7"/><path d="M66 38 L76 28" stroke="#fff" stroke-width="7"/>',
+    purse: '<path d="M32 46 C32 18 68 18 68 46" fill="none" stroke-width="5"/><path d="M16 46 L84 46 L78 90 L22 90 Z" fill="#B3263A"/><path d="M16 46 L84 46 L82 58 L18 58 Z" fill="#8E1E2E"/><circle cx="50" cy="52" r="5" fill="#FFD23F" stroke-width="2.5"/>',
+    rubber: '<circle cx="50" cy="14" r="10" fill="#7A4A2A"/><rect x="45" y="22" width="10" height="34" fill="#9A6A3A"/><rect x="22" y="56" width="56" height="18" rx="3" fill="#C99A5B"/><rect x="24" y="74" width="52" height="10" ' + DC + '/>',
+    gavel: '<path d="M50 6 L50 58" stroke-width="12"/><path d="M50 6 L50 58" stroke="#B07A44" stroke-width="6"/><rect x="22" y="56" width="56" height="24" rx="5" fill="#8A5A2B"/><rect x="16" y="54" width="9" height="28" rx="2" fill="#6B4423"/><rect x="75" y="54" width="9" height="28" rx="2" fill="#6B4423"/>',
+    pen: '<path d="M30 74 L74 20 L84 28 L40 82 Z" fill="#2A2522"/><path d="M62 36 L70 42" stroke="#FFD23F" stroke-width="3"/><path d="M30 74 L20 92 L40 82 Z" fill="#FFD23F"/>',
+    cloche: '<circle cx="50" cy="18" r="6" fill="#AAB4BE"/><path d="M10 80 C10 42 30 24 50 24 C70 24 90 42 90 80 Z" fill="#DCE2E8"/><path d="M26 68 C24 52 32 40 42 36" fill="none" stroke="#fff" stroke-width="5"/><rect x="4" y="78" width="92" height="8" rx="4" fill="#AAB4BE"/>',
+    molehill: '<path d="M2 92 C12 62 30 46 50 46 C70 46 88 62 98 92 Z" fill="#7A5A3A"/><ellipse cx="50" cy="52" rx="15" ry="5" fill="#2A1F18" stroke-width="3"/><path d="M28 72 L33 68 M62 64 L66 68 M72 82 L77 78 M40 84 L44 80" stroke-width="3"/>',
+    icehole: '<ellipse cx="50" cy="62" rx="46" ry="20" fill="#E2F4FF"/><ellipse cx="50" cy="60" rx="26" ry="10" fill="#2E5EAA"/><path d="M14 56 L6 50 M86 56 L95 52 M30 76 L26 84" stroke-width="2.5"/>',
+    barcode: '<rect x="12" y="26" width="76" height="50" rx="4" fill="#fff"/><path d="M22 34 V60 M27 34 V60 M34 34 V60 M38 34 V60 M45 34 V60 M52 34 V60 M56 34 V60 M63 34 V60 M70 34 V60 M74 34 V60 M79 34 V60" stroke-width="3" stroke-linecap="butt"/><path d="M22 68 H78" stroke-width="2" stroke-dasharray="3 3"/>',
+    tag: '<path d="M26 45 C14 40 8 30 4 18" fill="none" stroke-width="2"/><path d="M32 20 L86 20 L86 72 L32 72 L16 46 Z" fill="#F4E6C4"/><rect x="62" y="20" width="24" height="52" ' + DC + '/><circle cx="27" cy="46" r="4.5" fill="#fff" stroke-width="2.5"/><path d="M38 36 H56 M38 46 H54 M38 56 H50" stroke-width="2.5"/>',
+  };
+  function propHtml(name, px) {
+    if (!name) return '';
+    if (name === 'flame') return FLAME(Math.round(px * 0.75));
+    var s = PROP_SVG[name];
+    return s ? '<svg viewBox="0 0 100 100" width="' + px + '" height="' + px + '" aria-hidden="true" style="display:block;overflow:visible">' + G0 + s + G1 + '</svg>' : '';
+  }
+  // ink flames for the hot-iron claim (the Cowboy's brand)
+  var FLAME = function (w) { return window.ccInk && window.ccInk.flame ? window.ccInk.flame(w) : ''; };
 
   var CSS = [
     '.hz-layer{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none;will-change:transform,opacity;}',
     '.hz-thief{z-index:6;}',
-    '.hz-face{position:absolute;left:0;top:0;transform:translate(-50%,-55%);line-height:1;font-size:var(--sz,84px);filter:drop-shadow(0 8px 8px rgba(0,0,0,.55));user-select:none;}',
+    '.hz-face{position:absolute;left:0;top:0;transform:translate(-50%,-55%);line-height:1;filter:drop-shadow(0 8px 8px rgba(0,0,0,.55));user-select:none;}',
     '.hz-held{z-index:5;opacity:0;}',
     '.hz-chipw{position:absolute;left:-23px;top:-23px;width:46px;height:46px;}',
     '.hz-chipw .chip{position:absolute;left:0;top:0;margin:0;box-shadow:0 3px 0 rgba(0,0,0,.55);}',
     '.hz-coat{position:absolute;left:0;top:0;width:46px;height:46px;opacity:0;}',
     '.hz-coat .chip{box-shadow:0 3px 0 rgba(0,0,0,.55),inset 0 0 0 1.5px rgba(255,255,255,.35);}',
     '.hz-prop{z-index:7;opacity:0;}',
-    '.hz-prop span{position:absolute;left:0;top:0;transform:translate(-50%,-50%);line-height:1;font-size:var(--sz,64px);filter:drop-shadow(0 6px 6px rgba(0,0,0,.5));}',
+    '.hz-prop span{position:absolute;left:0;top:0;transform:translate(-50%,-50%);line-height:1;filter:drop-shadow(0 6px 6px rgba(0,0,0,.5));}',
     '.hz-line{position:absolute;left:0;top:0;height:8px;width:100px;margin-top:-4px;transform-origin:0 50%;z-index:5;opacity:0;border-radius:6px;will-change:transform,opacity;}',
     '.hz-line.tongue{height:12px;margin-top:-6px;background:linear-gradient(180deg,#ff8fb0,#e84a7a);border:2px solid #1F1A17;}',
     '.hz-line.tentacle{height:14px;margin-top:-7px;background:radial-gradient(circle at 50% 75%,#f7b3e0 0 2.2px,transparent 2.6px) 0 0/11px 14px,linear-gradient(180deg,#c06ad6,#8a3aa8);border:2px solid #1F1A17;}',
-    '.hz-line.fishing{height:2px;margin-top:-1px;background:#e8e2d4;border-radius:0;box-shadow:0 0 4px rgba(255,255,255,.4);}',
-    '.hz-line.magnet{height:10px;margin-top:-5px;background:repeating-linear-gradient(90deg,#7fd8ff 0 8px,transparent 8px 16px);border-radius:0;box-shadow:0 0 12px #39b8ff;}',
     '.hz-line.grabber{height:10px;margin-top:-5px;background:linear-gradient(180deg,#e9eef2,#7d8894);border:2px solid #1F1A17;border-radius:3px;}',
     '.hz-line.lasso{height:5px;margin-top:-2.5px;background:repeating-linear-gradient(60deg,#c99a5b 0 4px,#8a6331 4px 7px);border-radius:3px;}',
-    '.hz-line.laser{height:4px;margin-top:-2px;background:#ff3b30;box-shadow:0 0 10px 3px rgba(255,59,48,.8);border-radius:2px;}',
+    '.hz-line.none{visibility:hidden;}',   /* the Mime's rope: there is no rope */
     '.hz-loop{position:absolute;left:-30px;top:-30px;width:60px;height:60px;border-radius:50%;border:5px solid #b07f45;opacity:0;z-index:6;}',
     '.hz-beam{z-index:4;opacity:0;}',
-    '.hz-beam i{position:absolute;left:-75px;top:0;width:150px;height:var(--bh,160px);clip-path:polygon(38% 0,62% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(160,255,190,.75),rgba(160,255,190,.12));}',
-    '.hz-beam.magic i{background:linear-gradient(180deg,rgba(200,150,255,.8),rgba(200,150,255,.1));}',
+    '.hz-beam i{position:absolute;left:-75px;top:0;width:150px;height:var(--bh,160px);clip-path:polygon(38% 0,62% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(160,255,190,.55),rgba(160,255,190,.08));}',
+    '.hz-beam.torch i{background:linear-gradient(180deg,rgba(255,236,170,.6),rgba(255,236,170,.06));}',
     '.hz-fx{position:absolute;inset:0;z-index:8;pointer-events:none;overflow:hidden;}',
-    '.hz-fx span{position:absolute;left:0;top:0;font-size:24px;line-height:1;opacity:0;will-change:transform,opacity;}',
-    '.hz-ring{position:absolute;left:-40px;top:-40px;width:80px;height:80px;border-radius:50%;border:4px solid #FFF8EA;opacity:0;z-index:7;}',
-    '.hz-cloud{position:absolute;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#e8e2ef 70%);opacity:0;z-index:7;}',
+    /* specks: a few drops of ink in the dealer's colour (they replace the emoji confetti) */
+    '.hz-fx span{position:absolute;left:0;top:0;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--dc);border:1.5px solid #1F1A17;opacity:0;will-change:transform,opacity;}',
+    '.hz-ring{position:absolute;left:-40px;top:-40px;width:80px;height:80px;border-radius:50%;border:3px solid #FFF8EA;opacity:0;z-index:7;}',
+    '.hz-cloud{position:absolute;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#e8e2ef 70%);border:2px solid #1F1A17;opacity:0;z-index:7;}',
     '.hz-splat{position:absolute;left:-40px;top:-40px;width:80px;height:80px;opacity:0;z-index:7;}',
+    '.hz-sig{position:absolute;left:-46px;top:-46px;width:92px;height:92px;z-index:7;opacity:0;overflow:visible;}',
     /* #48: the spotlight is the size of the screen (it used to be a 2200px square); its hole is placed with background-position */
     '.hz-spot{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;}',
     '.hz-shadow{position:absolute;left:-40px;top:-12px;width:80px;height:24px;border-radius:50%;z-index:4;background:radial-gradient(ellipse,rgba(0,0,0,.6),transparent 70%);opacity:0;}',
@@ -181,45 +373,52 @@
   var kit = function () { return window.ccStealKit || {}; };
   function seeded(seed) { var a = (seed >>> 0) || 1; return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
-  /* ── Sounds (all inside big(): speaker phone only). tone(freq, sec, delayMs, type, vol, glideTo); noise(sec, delayMs, vol, freq, filter) ── */
+  /* ── Sounds (all inside big(): speaker phone only). tone(freq, sec, delayMs, type, vol, glideTo); noise(sec, delayMs, vol, freq, filter)
+        One rule: every heist sound is sine or triangle at ≤0.05, or filtered noise, and ≤0.8s. The foley that is
+        actually funny stays: the pizzicato tiptoe, the ninja's whoosh, the cat's sit, the stamp, the snail's long note. ── */
   var MOVE_SND = {
-    screech: function () { tone(2400, 0.5, 0, 'sawtooth', 0.03, 1300); noise(0.6, 0, 0.12, 3000, 'bandpass'); tone(2100, 0.35, 700, 'sawtooth', 0.025, 1500); },
-    creep: function () { [0, 1, 2, 3, 4, 5].forEach(function (i) { tone([196, 233, 196, 262, 196, 233][i], 0.12, i * 270, 'triangle', 0.07); }); },
-    boing: function () { [0, 1, 2, 3].forEach(function (i) { tone(180, 0.28, i * 430, 'sine', 0.12, 520); }); },
-    ufo: function () { for (var i = 0; i < 12; i++) tone(i % 2 ? 620 : 880, 0.14, i * 140, 'sine', 0.05, i % 2 ? 880 : 620); },
-    magic: function () { [523, 659, 784, 1047, 1319, 1568].forEach(function (f, i) { tone(f, 0.25, i * 90, 'triangle', 0.05); }); },
-    blub: function () { [0, 1, 2, 3, 4].forEach(function (i) { tone(300 + i * 40, 0.12, i * 300, 'sine', 0.1, 700); }); },
-    reel: function () { noise(1.1, 0, 0.08, 3500, 'bandpass'); tone(900, 1.0, 0, 'square', 0.012, 1300); },
-    hum: function () { tone(110, 1.6, 0, 'sawtooth', 0.04, 220); tone(55, 1.6, 0, 'sine', 0.08); },
-    ninja: function () { noise(0.15, 0, 0.3, 2500, 'highpass'); noise(0.15, 650, 0.3, 2500, 'highpass'); noise(0.15, 1300, 0.3, 2500, 'highpass'); },
-    wind: function () { noise(1.8, 0, 0.25, 600, 'bandpass'); tone(300, 1.8, 0, 'sine', 0.03, 900); },
-    yip: function () { [0, 1, 2].forEach(function (i) { tone(900, 0.08, i * 380, 'square', 0.05, 1400); tone(1100, 0.07, i * 380 + 90, 'square', 0.04, 1600); }); },
-    spooky: function () { tone(440, 1.6, 0, 'sine', 0.06, 330); tone(445, 1.6, 0, 'sine', 0.04, 600); },
-    rocket: function () { noise(0.9, 1300, 0.4, 900, 'lowpass'); tone(120, 0.9, 1300, 'sawtooth', 0.05, 900); },
-    clack: function () { for (var i = 0; i < 10; i++) noise(0.03, i * 170, 0.25, 3000, 'bandpass'); },
-    stomp: function () { [0, 1, 2, 3].forEach(function (i) { tone(60, 0.35, i * 450, 'sine', 0.4, 38); noise(0.2, i * 450, 0.3, 300, 'lowpass'); }); },
-    slow: function () { tone(220, 1.7, 0, 'triangle', 0.04, 210); },
-    mosquito: function () { tone(620, 1.8, 0, 'sawtooth', 0.03, 700); tone(640, 1.8, 0, 'sawtooth', 0.02, 610); },
-    robot: function () { [0, 1, 2, 3, 4, 5].forEach(function (i) { tone(i % 2 ? 330 : 440, 0.1, i * 300, 'square', 0.04); noise(0.05, i * 300, 0.2, 1800, 'bandpass'); }); },
-    buzz: function () { tone(210, 1.8, 0, 'sawtooth', 0.04, 240); },
-    monkey: function () { [0, 1, 2, 3].forEach(function (i) { tone(700, 0.12, i * 200, 'square', 0.04, 1100); }); },
-    yeehaw: function () { [0, 1, 2, 3].forEach(function (i) { tone(i % 2 ? 330 : 247, 0.1, i * 430, 'triangle', 0.08); noise(0.06, i * 430, 0.25, 900, 'lowpass'); }); },
-    slide: function () { noise(1.1, 300, 0.12, 2000, 'bandpass'); tone(700, 1.1, 300, 'sine', 0.03, 300); },
+    none: function () {},
+    swoosh: function () { noise(0.5, 0, 0.12, 1400, 'bandpass'); tone(500, 0.5, 0, 'sine', 0.03, 900); },
+    creep: function () { [196, 233, 196, 262].forEach(function (f, i) { tone(f, 0.12, i * 180, 'triangle', 0.05); }); },
+    steps: function () { [0, 1, 2, 3].forEach(function (i) { noise(0.04, i * 190, 0.1, 1200, 'bandpass'); }); },
+    hop: function () { [0, 1, 2].forEach(function (i) { tone(180, 0.18, i * 240, 'sine', 0.05, 420); }); },
+    hum: function () { tone(110, 0.8, 0, 'sine', 0.05, 140); tone(220, 0.8, 0, 'sine', 0.02); },
+    magic: function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.2, i * 90, 'triangle', 0.035); }); },
+    blub: function () { [0, 1, 2].forEach(function (i) { tone(300 + i * 60, 0.12, i * 220, 'sine', 0.05, 600); }); },
+    ninja: function () { noise(0.15, 0, 0.15, 2500, 'highpass'); noise(0.15, 600, 0.15, 2500, 'highpass'); },
+    wind: function () { noise(0.8, 0, 0.12, 600, 'bandpass'); tone(300, 0.8, 0, 'sine', 0.02, 700); },
+    pat: function () { [0, 1, 2, 3].forEach(function (i) { noise(0.04, i * 160, 0.12, 900, 'lowpass'); }); },
+    spooky: function () { tone(440, 0.8, 0, 'sine', 0.04, 330); },
+    clack: function () { [0, 1, 2, 3].forEach(function (i) { noise(0.03, i * 170, 0.12, 3000, 'bandpass'); }); },
+    stomp: function () { [0, 1, 2, 3].forEach(function (i) { tone(60, 0.3, i * 450, 'sine', 0.15, 38); noise(0.15, i * 450, 0.12, 300, 'lowpass'); }); },
+    slow: function () { tone(220, 0.8, 0, 'triangle', 0.04, 200); },
+    dig: function () { [0, 1, 2].forEach(function (i) { noise(0.12, i * 230, 0.12, 500, 'lowpass'); }); },
+    waddle: function () { [0, 1, 2, 3].forEach(function (i) { tone(i % 2 ? 150 : 170, 0.06, i * 190, 'sine', 0.04); }); },
+    robot: function () { [0, 1, 2, 3].forEach(function (i) { tone(i % 2 ? 330 : 440, 0.08, i * 200, 'sine', 0.035); }); },
+    buzz: function () { tone(210, 0.8, 0, 'triangle', 0.03, 240); },
+    hooves: function () { [0, 1, 2, 3].forEach(function (i) { noise(0.05, i * 190, 0.12, 700, 'lowpass'); }); },
+    slide: function () { noise(0.7, 200, 0.08, 2000, 'bandpass'); tone(700, 0.6, 200, 'sine', 0.025, 300); },
   };
   var CLAIM_SND = {
-    stamp: function () { noise(0.2, 0, 0.6, 400, 'lowpass'); tone(80, 0.35, 0, 'sine', 0.4, 45); },
-    dip: function () { noise(0.4, 0, 0.35, 900, 'bandpass'); tone(400, 0.2, 0, 'sine', 0.08, 180); tone(300, 0.25, 600, 'sine', 0.08, 900); },
-    lick: function () { noise(0.35, 0, 0.3, 1500, 'bandpass'); tone(600, 0.35, 0, 'sine', 0.06, 250); noise(0.35, 500, 0.3, 1500, 'bandpass'); tone(600, 0.35, 500, 'sine', 0.06, 250); },
-    zap: function () { for (var i = 0; i < 4; i++) { noise(0.12, i * 220, 0.4, 5000, 'highpass'); tone(1800, 0.1, i * 220, 'sawtooth', 0.05, 200); } },
-    sparkle: function () { [1047, 1319, 1568, 2093, 1568, 2093, 2637].forEach(function (f, i) { tone(f, 0.3, i * 80, 'sine', 0.05); }); noise(0.5, 650, 0.2, 2000, 'lowpass'); },
-    splat: function () { noise(0.25, 0, 0.5, 700, 'lowpass'); tone(200, 0.2, 0, 'sine', 0.2, 60); },
-    sticker: function () { noise(0.08, 0, 0.6, 2500, 'bandpass'); tone(150, 0.12, 0, 'sine', 0.3); },
-    smooch: function () { [0, 1, 2].forEach(function (i) { tone(900, 0.12, i * 300, 'sine', 0.08, 1500); noise(0.05, i * 300 + 100, 0.2, 3000, 'highpass'); }); },
-    sit: function () { tone(200, 0.4, 0, 'sine', 0.15, 90); noise(0.3, 0, 0.2, 500, 'lowpass'); tone(400, 0.15, 900, 'sine', 0.08, 800); },
-    swirl: function () { tone(300, 1.0, 0, 'sine', 0.06, 1800); noise(1.0, 0, 0.12, 1200, 'bandpass'); },
-    iron: function () { if (kit().hiss) kit().hiss(900); else noise(0.9, 0, 0.2, 6000, 'highpass'); tone(90, 0.2, 0, 'sine', 0.3, 50); },
-    trail: function () { tone(180, 1.0, 0, 'triangle', 0.05, 160); noise(1.0, 0, 0.08, 400, 'lowpass'); },
-    laser: function () { tone(2200, 0.9, 0, 'square', 0.03, 1900); noise(0.9, 0, 0.08, 6000, 'highpass'); },
+    none: function () {},
+    stamp: function () { noise(0.12, 0, 0.15, 500, 'lowpass'); tone(90, 0.25, 0, 'sine', 0.05, 55); },
+    gavel: function () { noise(0.05, 400, 0.15, 1500, 'bandpass'); tone(300, 0.12, 400, 'triangle', 0.05); },
+    dip: function () { noise(0.3, 0, 0.12, 900, 'bandpass'); tone(400, 0.2, 0, 'sine', 0.04, 180); },
+    snap: function () { [0, 600].forEach(function (d) { noise(0.04, d, 0.15, 3000, 'bandpass'); tone(900, 0.05, d, 'triangle', 0.04); }); },
+    lick: function () { noise(0.3, 0, 0.12, 1500, 'bandpass'); noise(0.3, 450, 0.12, 1500, 'bandpass'); },
+    sparkle: function () { [1047, 1319, 1568].forEach(function (f, i) { tone(f, 0.25, i * 90, 'sine', 0.03); }); noise(0.3, 450, 0.08, 2000, 'lowpass'); },
+    splat: function () { noise(0.2, 0, 0.15, 700, 'lowpass'); tone(200, 0.18, 0, 'sine', 0.05, 70); },
+    sticker: function () { noise(0.06, 0, 0.15, 2500, 'bandpass'); tone(150, 0.1, 0, 'sine', 0.05); },
+    sit: function () { tone(200, 0.3, 0, 'sine', 0.05, 90); noise(0.2, 0, 0.1, 500, 'lowpass'); },
+    gulp: function () { tone(220, 0.25, 0, 'sine', 0.05, 110); },
+    swirl: function () { tone(300, 0.7, 0, 'sine', 0.035, 900); noise(0.7, 0, 0.08, 1200, 'bandpass'); },
+    iron: function () { noise(0.7, 0, 0.1, 6000, 'highpass'); tone(90, 0.2, 0, 'sine', 0.05, 50); },
+    trail: function () { tone(180, 0.8, 0, 'triangle', 0.035, 160); },
+    sign: function () { noise(0.7, 0, 0.06, 4000, 'bandpass'); },
+    cloche: function () { noise(0.05, 50, 0.1, 2400, 'bandpass'); tone(1568, 0.6, 800, 'sine', 0.03); },
+    tag: function () { noise(0.05, 0, 0.1, 2500, 'bandpass'); tone(700, 0.08, 0, 'triangle', 0.03); },
+    peck: function () { [0, 1, 2].forEach(function (i) { noise(0.03, i * 350, 0.15, 2500, 'bandpass'); }); },
+    wipe: function () { noise(0.8, 0, 0.06, 1500, 'bandpass'); },
   };
 
   /* ── Paths: entrances ── */
@@ -283,11 +482,11 @@
     }).join('');
     var me = state.isDealer, dealer = me ? 'You' : esc(state.dealerName), isVictim = st.victimId === myPlayerId;
     var name = esc(st.actName || 'The Thief');
-    var head = isVictim ? 'That was YOUR chip.' : dealer + ' stole ' + esc(nameOf(st.victimId)) + '’s chip';
+    var head = isVictim ? 'Your chip.' : dealer + ' stole ' + esc(nameOf(st.victimId)) + '’s chip';
     var dc = K.colourOf && K.dealerId ? K.colourOf(K.dealerId()) : '#E8453A';
-    var fxN = 26, fx = ''; for (var i = 0; i < fxN; i++) fx += '<span></span>';
+    var fxN = 8, fx = ''; for (var i = 0; i < fxN; i++) fx += '<span></span>';
     o.innerHTML = '<div class="st-stage" id="st-stage" style="visibility:hidden;--dc:' + dc + '">' +
-      '<div class="st-head" id="st-head"><p class="st-eyebrow">' + (me ? 'You send in' : dealer + ' sends in') + '</p><p class="h2 st-title">' + name + '</p><p class="small" style="color:rgba(255,248,234,.7);font-weight:800;margin-top:4px;">' + esc(act.tag) + '</p></div>' +
+      '<div class="st-head" id="st-head"><p class="st-eyebrow">' + (me ? 'You send in' : dealer + ' sends in') + '</p><p class="h2 st-title">' + name + '</p><p class="st-tagline">' + esc(act.tag) + '</p></div>' +
       '<div class="st-rail"><div class="st-felt">' + rows + '</div></div>' +
       '<div class="hz-spot" id="hz-spot"></div>' +
       '<div class="hz-layer" id="hz-shadow-l"><div class="hz-shadow"></div></div>' +
@@ -296,15 +495,16 @@
       '<div class="hz-line laser" id="hz-laser"></div>' +
       '<div class="hz-layer hz-held" id="hz-held"><div class="hz-chipw" id="hz-chipw"></div></div>' +
       '<div class="hz-layer hz-thief" id="hz-thief"><div class="hz-face" style="--sz:' + (act.size || 84) + 'px">' + thiefHtml(st.act, act) + '</div></div>' +
-      '<div class="hz-layer hz-prop" id="hz-prop"><span style="--sz:' + (act.claim === 'lick' ? 80 : 60) + 'px">' + (act.prop === 'flame' ? FLAME(46) : (act.prop || '')) + '</span></div>' +
+      '<div class="hz-layer hz-prop" id="hz-prop"><span>' + propHtml(act.prop, 60) + '</span></div>' +
       '<div class="hz-layer" id="hz-fxl" style="z-index:7"><i class="hz-ring" id="hz-ring"></i><i class="hz-loop" id="hz-loop"></i>' +
-        '<svg class="hz-splat" id="hz-splat" viewBox="0 0 80 80" aria-hidden="true"><path d="M40 8 C46 20 52 10 56 22 C66 18 64 30 72 34 C64 40 74 48 64 52 C68 62 56 60 52 70 C46 62 40 74 34 66 C26 72 24 60 16 60 C20 50 8 46 16 38 C8 32 18 24 24 26 C24 14 34 18 40 8 Z" fill="' + (act.splat || dc) + '" stroke="#1F1A17" stroke-width="2.5"/></svg>' +
+        '<svg class="hz-splat" id="hz-splat" viewBox="0 0 80 80" aria-hidden="true"><path d="M40 8 C46 20 52 10 56 22 C66 18 64 30 72 34 C64 40 74 48 64 52 C68 62 56 60 52 70 C46 62 40 74 34 66 C26 72 24 60 16 60 C20 50 8 46 16 38 C8 32 18 24 24 26 C24 14 34 18 40 8 Z" fill="' + dc + '" stroke="#1F1A17" stroke-width="2.5"/></svg>' +
+        '<svg class="hz-sig" id="hz-sig" viewBox="-50 -50 100 100" aria-hidden="true"><path d="M-38 6 C-30 -14 -24 18 -16 -2 C-10 -16 -6 12 2 -4 C8 -14 12 10 18 0 C24 -8 28 4 38 -2" fill="none" stroke="#1F1A17" stroke-width="4" stroke-linecap="round" stroke-dasharray="200" stroke-dashoffset="200"/></svg>' +
         '<i class="hz-cloud" id="hz-c1"></i><i class="hz-cloud" id="hz-c2"></i><i class="hz-cloud" id="hz-c3"></i><i class="hz-cloud" id="hz-c4"></i></div>' +
       '<div class="hz-fx" id="hz-fx">' + fx + '</div>' +
       '<div class="st-veil" id="st-veil"></div>' +
-      '<div class="st-gloat" id="st-gloat"><i class="st-bulbs t"></i><i class="st-bulbs b"></i>' +
+      '<div class="st-gloat" id="st-gloat">' +
         '<p class="st-g-eye">' + name + ' strikes</p><p class="st-g-head">' + head + '</p>' +
-        '<p class="st-quote">“' + esc(st.gloat || 'Mine now.') + '”</p><p class="st-by">— ' + (me ? 'you' : esc(state.dealerName)) + '</p>' +
+        '<p class="st-quote">“' + esc(st.gloat || 'Mine now.') + '”</p>' +
       '</div>' +
       '</div>';
   }
@@ -365,25 +565,25 @@
       var fade = function (el, ms) { if (el) el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: ms || 400, fill: 'forwards', easing: 'ease-out' }); };
       T(function () { stage.style.visibility = ''; beat('steal:full'); if (victim) victim.classList.add('st-doomed'); }, 0);
       T(function () { beat('steal:snatch'); big(CLAIM_SND.stamp); buzz(isVictim ? [120, 40, 200] : 40); }, 700);
-      T(function () { beat('steal:paint'); paintInPlace(); if (victim) fade(victim.lastElementChild, 500); big(CLAIM_SND[act.claim] || CLAIM_SND.stamp); }, 900);
+      T(function () { beat('steal:paint'); paintInPlace(); if (victim) fade(victim.lastElementChild, 500); big(CLAIM_SND[act.csnd || act.claim] || CLAIM_SND.stamp); }, 900);
       T(function () { beat('steal:set'); if (victim) victim.classList.remove('st-doomed'); }, 1500);
       T(function () { beat('steal:gloat'); head.style.opacity = '0'; fade(veil, 400); fade(gl, 400); big(K.SND ? K.SND.gloat : function () {}); if (isVictim) buzz([300, 100, 300]); }, 1700);
       return;
     }
 
-    /* ── Particles: emoji confetti from a point ── */
+    /* ── Particles: a few specks of ink in the dealer's colour (no emoji confetti; the colour change is the payoff) ── */
     var fxPool = [].slice.call(o.querySelectorAll('#hz-fx span')), fxI = 0;
     function puff(x, y, list, n, spread, dur, rise) {
+      n = Math.min(n, 4);
       for (var i = 0; i < n; i++) {
         var el = fxPool[fxI++ % fxPool.length]; if (!el) return;
-        var item = list[i % list.length];
-        if (item === 'flame') el.innerHTML = FLAME(22); else el.textContent = item;
-        var a = rnd() * Math.PI * 2, d = spread * (0.5 + rnd()), dx = Math.cos(a) * d, dy = Math.sin(a) * d - (rise || 0), s = 0.6 + rnd() * 0.8;
+        var a = rnd() * Math.PI * 2, d = spread * 0.5 * (0.5 + rnd()), dx = Math.cos(a) * d, dy = Math.sin(a) * d - (rise || 0) * 0.4, s = 0.6 + rnd() * 0.6;
         try { el.getAnimations().forEach(function (q) { q.cancel(); }); } catch (e) {}
-        el.animate([{ transform: 'translate3d(' + x + 'px,' + y + 'px,0) scale(.3)', opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 0.9, offset: 0.7 },
-          { transform: 'translate3d(' + (x + dx).toFixed(1) + 'px,' + (y + dy).toFixed(1) + 'px,0) scale(' + s.toFixed(2) + ') rotate(' + ((rnd() - 0.5) * 120).toFixed(0) + 'deg)', opacity: 0 }], { duration: dur, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'both' });
+        el.animate([{ transform: 'translate3d(' + x + 'px,' + y + 'px,0) scale(.4)', opacity: 0 }, { opacity: 0.9, offset: 0.15 }, { opacity: 0.8, offset: 0.7 },
+          { transform: 'translate3d(' + (x + dx).toFixed(1) + 'px,' + (y + dy).toFixed(1) + 'px,0) scale(' + s.toFixed(2) + ')', opacity: 0 }], { duration: Math.min(dur, 700), easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'both' });
       }
     }
+    var fx0 = ['.'];
     var coatOn = function (at, ms) { anim(coat, [{ opacity: 0 }, { opacity: 1 }], ms || 1, at, 'ease-in-out'); };
     var propAt = function (pts, sz) {   // prop path {t, x, y, r, s, o}
       whole(prop, pts, function (p) { return { transform: 'translate3d(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px,0) rotate(' + (p.r || 0) + 'deg) scale(' + (p.s == null ? 1 : p.s) + ')', opacity: p.o == null ? 1 : p.o }; });
@@ -409,7 +609,7 @@
     else if (act.from === 'bottom') Gp = { x: clamp(V.x + side * 20, 60, W - 60), y: Math.min(H - 70, V.y + 190) };
     else { var sd = act.from === 'left' || act.from === 'topleft' ? -1 : 1; Gp = { x: clamp(V.x + sd * 135, 55, W - 55), y: V.y - 20 }; }
     var A = entry(act.from, Gp, W, H, rnd);
-    var flipOf = function (dx) { return act.noFlip || !dx ? 1 : (dx > 0 ? -1 : 1); };   // most emoji face left
+    var flipOf = function (dx) { return act.noFlip || !dx ? 1 : (dx > 0 ? -1 : 1); };   // every thief is drawn facing left
     var face = flipOf(Gp.x - A.x);
 
     /* ── The thief's path TP and the chip's path HP: {t, x, y, r, sx, sy, o} ── */
@@ -428,7 +628,7 @@
         tp(t0, p.x, p.y, { o: 0, sx: 0.1, sy: 0.1, e: 'cubic-bezier(.2,1.6,.4,1)' });
         tp(t0 + 180, p.x, p.y, { o: 1, sx: 1, sy: 1 });
         if (i < 2) { tp(t0 + 430, p.x, p.y, { o: 1, sx: 1, sy: 1, e: 'ease-in' }); tp(t0 + 560, p.x, p.y, { o: 0, sx: 0.1, sy: 1.6 }); }
-        T(function () { puff(p.x, p.y, ['💨'], 4, 40, 500, 0); }, t0);
+        T(function () { puff(p.x, p.y, fx0, 3, 40, 500, 0); }, t0);
       });
       tp(TM.enter1, Gp.x, Gp.y);
     } else {
@@ -494,7 +694,7 @@
       tp(TM.atC, C.x, C.y - 70, { f: flipOf(C.x - Gp.x) });
       hp(midB, lerp(Gp.x, C.x, 0.5), Math.min(Gp.y, C.y - 52) + 32, 1.4);
       hp(TM.atC, C.x, C.y, KC, { e: 'cubic-bezier(.3,0,.3,1.2)' });
-      for (var sp = 0; sp < 6; sp++) T((function (k) { return function () { puff(lerp(V.x, under.x, k / 6), lerp(V.y, under.y, k / 6), ['✨'], 2, 30, 600, 0); }; })(sp), TM.grab + sp * 110);
+      for (var sp = 0; sp < 6; sp++) T((function (k) { return function () { puff(lerp(V.x, under.x, k / 6), lerp(V.y, under.y, k / 6), fx0, 1, 30, 600, 0); }; })(sp), TM.grab + sp * 110);
     }
 
     // 3. The claim: the thief steps aside (or sits on it, or crawls across it); the chip becomes the dealer's
@@ -522,7 +722,7 @@
     if (ex === 'poof' || ex === 'fade') {
       tp(TM.exit1 - 300, V.x, V.y - 80, { f: xf, sx: 1, sy: 1 });
       tp(TM.exit1, V.x, V.y - 90, { f: xf, o: 0, sx: ex === 'poof' ? 0.1 : 1.2, sy: ex === 'poof' ? 0.1 : 1.2 });
-      if (ex === 'poof') T(function () { puff(V.x, V.y - 90, ['💨'], 6, 50, 600, 0); }, TM.exit1 - 250);
+      if (ex === 'poof') T(function () { puff(V.x, V.y - 90, fx0, 4, 50, 600, 0); }, TM.exit1 - 250);
     } else {
       tp(TM.set + 250, lerp(V.x, X.x, 0.12), lerp(V.y - 70, X.y, 0.12), { f: xf, e: 'cubic-bezier(.5,0,.8,.4)', r: act.move === 'slide' ? (X.x > V.x ? 80 : -80) : 0 });
       tp(TM.exit1, X.x, X.y, { f: xf, r: act.move === 'slide' ? (X.x > V.x ? 80 : -80) : 0 });
@@ -540,8 +740,8 @@
     T(function () { if (spot.parentNode) spot.parentNode.removeChild(spot); }, TM.claim1 + 460);   // #48: gone from the page once it has faded
 
     function claim(kind) {
-      var c0 = TM.claim0, R = 23 * KC, fx = act.fx || ['✨'];
-      S(c0 + 300, CLAIM_SND[kind] || CLAIM_SND.stamp);
+      var c0 = TM.claim0, R = 23 * KC, fx = ['.'];
+      S(c0 + 300, CLAIM_SND[act.csnd || kind] || CLAIM_SND.stamp);
       switch (kind) {
         case 'stamp': {   // the prop rises high, wobbles… SLAM
           var hit = c0 + 700;
@@ -687,10 +887,54 @@
           for (var lzI = 0; lzI < 5; lzI++) T((function (k) { return function () { puff(C.x, C.y - R + (2 * R) * (k / 4), fx, 2, 40, 600, 0); }; })(lzI), c0 + 300 + lzI * 250);
           break;
         }
+        case 'sign': {   // the Accountant initials it: a pen scribbles across, and the colour follows the pen
+          var s0 = c0 + 250, sig = $q('#hz-sig'), zz = [[-0.85, 0.1], [-0.5, -0.25], [-0.15, 0.2], [0.2, -0.2], [0.55, 0.15], [0.9, -0.05]];
+          var pp = [{ t: 0, x: C.x - R, y: C.y - R - 50, o: 0, s: 0.9 }, { t: s0 - 120, x: C.x - R, y: C.y - R - 50, o: 0, s: 0.9, e: 'ease-out' }, { t: s0, x: C.x - R * 0.85 + 16, y: C.y - 22, o: 1, s: 0.9 }];
+          zz.forEach(function (q, i) { pp.push({ t: s0 + 130 + i * 130, x: C.x + q[0] * R + 16, y: C.y + q[1] * R - 22, s: 0.9 }); });
+          pp.push({ t: s0 + 1000, x: C.x + R + 30, y: C.y - R - 40, s: 0.9, o: 0 });
+          propAt(pp);
+          if (sig) {
+            sig.style.transform = 'translate3d(' + C.x.toFixed(1) + 'px,' + C.y.toFixed(1) + 'px,0)';
+            anim(sig, [{ opacity: 0 }, { opacity: 1, offset: 0.01 }, { opacity: 1, offset: 0.85 }, { opacity: 0 }], TM.claim1 - s0, s0, 'linear');
+            anim(sig.firstChild, [{ strokeDashoffset: 200 }, { strokeDashoffset: 0 }], 800, s0 + 100, 'linear');
+          }
+          clipReveal(s0 + 100, 800, 'right');
+          break;
+        }
+        case 'cloche': {   // the Butler covers it with a silver dome, a pause, lifts it: it's the dealer's
+          var dn = c0 + 350, up = c0 + 1150;
+          propAt([{ t: 0, x: C.x, y: C.y - 220, o: 0, s: 2.2 }, { t: c0, x: C.x, y: C.y - 220, o: 0, s: 2.2 }, { t: c0 + 120, x: C.x, y: C.y - 180, o: 1, s: 2.2, e: 'cubic-bezier(.5,0,.8,.6)' },
+            { t: dn, x: C.x, y: C.y - 8, s: 2.2 }, { t: up, x: C.x, y: C.y - 8, s: 2.2, e: 'cubic-bezier(.4,0,.2,1)' }, { t: up + 300, x: C.x, y: C.y - 170, s: 2.2 }, { t: TM.claim1, x: C.x, y: C.y - 190, s: 2.2, o: 0 }]);
+          coatOn(dn + 300, 1);
+          break;
+        }
+        case 'tag': {   // a luggage tag, tied on, in the dealer's colour
+          var hang = c0 + 500, tx = C.x + R * 0.95 + 14, ty = C.y + R * 0.45;
+          propAt([{ t: 0, x: tx + 60, y: C.y - 120, o: 0, s: 0.9, r: -30 }, { t: c0 + 100, x: tx + 60, y: C.y - 120, o: 0, s: 0.9, r: -30 }, { t: hang, x: tx, y: ty, o: 1, s: 0.9, r: 14, e: 'cubic-bezier(.3,1.4,.5,1)' },
+            { t: hang + 260, x: tx, y: ty, s: 0.9, r: -8 }, { t: hang + 520, x: tx, y: ty, s: 0.9, r: 4 }, { t: TM.claim1 - 1, x: tx, y: ty, s: 0.9, r: 0 }, { t: TM.claim1 + 200, x: tx, y: ty, s: 0.9, o: 0 }]);
+          coatOn(hang, 300); glow(hang, 1.4);
+          break;
+        }
+        case 'peck': {   // three small pecks (or stings); each one a little more the dealer's
+          [c0 + 300, c0 + 650, c0 + 1000].forEach(function (k) {
+            tp(k - 140, claimPos.x, claimPos.y, { f: cf });
+            tp(k, C.x + side * 46, C.y - 18, { f: cf, r: -side * 22 });
+            tp(k + 140, claimPos.x, claimPos.y, { f: cf });
+            glow(k, 1.4);
+          });
+          anim(coat, [{ opacity: 0 }, { opacity: 0.35, offset: 0.05 }, { opacity: 0.35, offset: 0.48 }, { opacity: 0.7, offset: 0.52 }, { opacity: 0.7, offset: 0.95 }, { opacity: 1 }], 720, c0 + 300, 'linear');
+          break;
+        }
+        case 'wipe': {   // no tools: the Mime mimes painting it; the Vampire drains it. The colour runs down the chip.
+          for (var wi = 0; wi < 4; wi++) tp(c0 + 250 + wi * 230, claimPos.x + (wi % 2 ? -side * 12 : 0), claimPos.y + (wi % 2 ? 6 : 0), { f: cf, r: wi % 2 ? -side * 8 : 0 });
+          clipReveal(c0 + 250, 900, 'down');
+          break;
+        }
       }
     }
 
     // The thief's sound, under its entrance
+
     S(TM.enter0, MOVE_SND[act.snd] || MOVE_SND.creep);
 
     /* ── The beats ── */
@@ -701,7 +945,7 @@
       beat('steal:snatch');
       if (victim) { victim.style.visibility = 'hidden'; victim.classList.remove('st-doomed'); }
       if (window.ccImpact) window.ccImpact({ flash: isVictim ? 0.8 : 0.5, shake: isVictim ? stage : false });
-      big(function () { if (K.SND) K.SND.pop(); noise(0.12, 0, 0.4, 1200, 'bandpass'); tone(500, 0.18, 0, 'triangle', 0.12, 900); });
+      big(function () { if (K.SND) K.SND.pop(); noise(0.12, 0, 0.15, 1200, 'bandpass'); tone(500, 0.18, 0, 'triangle', 0.05, 900); });
       buzz(isVictim ? [140, 50, 260] : 45);
       head.style.opacity = '0';
     }, TM.grab);
@@ -713,14 +957,13 @@
       buzz(isVictim ? [80, 40, 80] : 25);
     }, TM.set);
     anim(veil, [{ opacity: 0 }, { opacity: 1 }], 320, TM.gloat - 60, 'ease-out');
-    anim(gl, [{ opacity: 0, transform: 'translateY(-50%) scale(.55) rotate(4deg)' }, { opacity: 1, transform: 'translateY(-50%) scale(1.06) rotate(-2.5deg)', offset: 0.55 }, { opacity: 1, transform: 'translateY(-50%) scale(1) rotate(-2deg)' }], 520, TM.gloat, 'cubic-bezier(.2,.8,.3,1)');
+    anim(gl, [{ opacity: 0, transform: 'translateY(-46%) rotate(-1deg)' }, { opacity: 1, transform: 'translateY(-50%) rotate(-1deg)' }], 380, TM.gloat, 'cubic-bezier(.2,.8,.3,1)');
     T(function () {
       beat('steal:gloat');
-      if (window.ccPunch) window.ccPunch(gl.querySelector('.st-quote'));
       big(function () { if (K.SND) K.SND.gloat(); });
-      if (isVictim) { document.body.classList.remove('quake'); void document.body.offsetWidth; document.body.classList.add('quake'); buzz([300, 100, 300, 100, 600]); setTimeout(function () { document.body.classList.remove('quake'); }, 1300); }
+      if (isVictim) buzz([200, 100, 300]);
     }, TM.gloat);
   }
 
-  window.ccHeist = { play: play, count: ACTS.length - 1 };
+  window.ccHeist = { play: play, count: ACTS.length - 1, acts: ACTS, thief: thiefHtml, prop: propHtml };
 })();
