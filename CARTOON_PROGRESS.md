@@ -125,3 +125,41 @@ Format: `date · queue item · result (redrawn card N / new card N / skipped: re
 - 234 · Cocktails · style unknown · easy · family · At a cocktail party, a giraffe in a bow tie holds a tiny cocktail glass. The other guests look up at him politely.
 - 235 · Retirement Plan · style unknown · hard · standard · Two skeletons sit side by side on a park bench, feeding pigeons.
 - 236 · Summer · style unknown · medium · family · On an iceberg, a line of polar bears waits patiently at an ice-cream truck.
+- 237 · Lost and Found · style 1 · easy · family · At a lost-and-found counter, a bored clerk slides a full-size grandfather clock across the counter to a man who has come to collect it.
+- 238 · Fitting · style 2 · medium · standard · A tailor with a tape measure carefully measures a customer who is shaped like a perfect sphere.
+- 239 · The Tasting · style 3 · medium · afterdark · At a wine tasting, a row of guests politely sip and spit into a silver bucket. At the end of the row, one man drinks straight from the bottle.
+- 240 · Kite · style 4 · hard · family · A man in a park flies a big kite. Holding the string of the kite, hanging below it, a smaller man is flying a smaller kite.
+- 241 · Self-Checkout · style 5 · medium · standard · At a supermarket self-checkout, a cow stands on its hind legs, scanning a carton of milk.
+- 242 · Settlement · style 1 · easy · afterdark · In a lawyer's office, a divorcing couple sits at opposite ends of a sofa that has been sawn neatly in half down the middle.
+- 243 · Night School · style 2 · medium · family · An owl in glasses stands at a chalkboard teaching. The class is a row of bats hanging upside down from their desks.
+- 244 · The Big One · style 3 · hard · standard · A man on a lakeshore proudly holds up a tiny fish for a photo. Behind him, unseen, a huge whale's tail rises out of the lake.
+- 245 · Escape Room · style 4 · hard · afterdark · A couple sits calmly on the floor of a bare room playing cards. The door behind them stands wide open.
+- 246 · Bird Watching · style 5 · easy · family · A small bird sits on a branch, watching through tiny binoculars a man in full camouflage hiding in a bush below.
+- 247 · Anniversary · style 1 · medium · standard · A husband walks up the path carrying an enormous bouquet of flowers. His wife waits in the doorway with a wall calendar in her hand, arms crossed.
+- 248 · Security · style 2 · medium · family · A tiny crab in a guard's cap stands at the gate of a big, elaborate sandcastle. A seagull waits to be let in.
+- 249 · Hot Tub · style 3 · medium · afterdark · A lobster lounges in a bubbling hot tub, very relaxed. A chef in a tall white hat sits on the edge, sipping a cocktail and smiling at it.
+- 250 · Office Party · style 4 · easy · standard · At an office party, people stand around with drinks. In the corner, a man in a tie is photocopying his own face on the copier.
+- 251 · Going Up · style 5 · hard · family · A very long escalator rises from a plain floor straight up into the clouds. A man in a suit stands on it, reading the newspaper.
+- 252 · Delivery · style 1 · medium · standard · On the window ledge of a tall office building, a pigeon in a tiny delivery cap holds out a pizza box to a surprised office worker leaning out of the window.
+- 253 · The Visit · style 2 · easy · afterdark · A man rows a rowboat away from shore as fast as he can. On the dock, an old woman with a suitcase waves to him.
+- 254 · Right of Way · style 3 · medium · family · High between two skyscrapers, two tightrope walkers coming from opposite ends meet in the middle of the same rope.
+- 255 · Your Move · style 4 · hard · standard · In a park, two old men sit at a stone chess table. One has fallen asleep mid-game. A pigeon stands on the board, studying the pieces.
+- 256 · The Prize · style 5 · medium · afterdark · At a county fair, a judge pins a blue ribbon on a huge prize pig. The farmer beside it looks exactly like the pig.
+- 257 · Just a Trim · style 1 · easy · family · At a hair salon, a porcupine sits in the styling chair wearing a cape. The hairdresser behind it holds a tiny pair of scissors, considering where to start.
+- 258 · Parallel Parking · style 2 · medium · standard · On an ordinary city street, a man carefully parallel-parks an enormous ocean liner between two small parked cars.
+- 259 · Last Call · style 3 · medium · afterdark · A sad clown in full makeup sits alone at a bar, head in hand. The bartender slides a single balloon across the counter to him.
+- 260 · Insomnia · style 4 · hard · family · At night, a sheep leaps over a fence. On the other side, another sheep sits on a stool with a clipboard, counting it.
+- 261 · Cash Machine · style 5 · medium · standard · A man stands at a bank cash machine in a wall. Through the slot, a tiny old bank clerk in a visor is handing out bills one at a time.
+- 262 · All You Can Eat · style 1 · easy · standard · At an all-you-can-eat buffet, a man pushes a wheelbarrow along the line of food trays. The staff watch.
+- 263 · Life Drawing · style 2 · medium · family · In an art class, a row of students at easels paint their model: a sloth hanging motionless from a branch on the stand.
+- 264 · Reading Club · style 3 · medium · standard · A man sits on a park bench reading a book. A large snake is coiled on the bench beside him, reading over his shoulder.
+- 266 · Mail · style 5 · hard · family · On the sea floor, a scuba diver has found an ordinary rural mailbox on a post, its little flag up.
+- 267 · Arrivals · style 1 · medium · standard · Up on a cloud, two newly arrived angels wait at a tiny reception desk. Beside it stands a take-a-number dispenser.
+- 268 · The Heist · style 2 · medium · afterdark · At night in a living room, a cat burglar in a striped shirt and mask sits in the armchair, petting the owner's cat on his lap. His sack of loot waits on the floor.
+- 269 · The Orchestra · style 3 · medium · family · A conductor in tails raises his baton. The entire orchestra is one nervous man surrounded by a violin, a cello, a drum, a tuba and a harp.
+- 270 · Sighting · style 4 · easy · family · In a forest clearing, a big hairy Bigfoot holds up a small camera and takes a photo of a startled hiker.
+- 271 · Bachelor Cooking · style 5 · easy · standard · In a small kitchen, a man in a tie is making a grilled cheese sandwich with a clothes iron on the ironing board.
+- 272 · Shadow · style 1 · hard · family · On a sunny sidewalk, a man walks to the right. His shadow on the ground is walking to the left.
+- 273 · Door to Door · style 2 · medium · standard · A door-to-door salesman in a suit stands at the entrance of an igloo, demonstrating a portable electric heater to a man in a fur-hooded parka.
+- 275 · Running Late · style 4 · medium · family · A centipede sits on a bench, slowly putting on a long row of tiny shoes. A man in a running outfit waits beside it, checking his watch.
+- 276 · The Reading · style 5 · hard · standard · A fortune teller in a headscarf peers into her crystal ball. Inside the ball, a tiny fortune teller peers back at her through a tiny crystal ball.
