@@ -1388,7 +1388,7 @@ function seatRefused() {
   if (!t || refusedN >= tries) return giveUpSeat(fresh && restarted ? 'restart' : fresh ? 'closed' : 'quiet');
   refusedN++; updateConnectionBanner();
   clearTimeout(refusedT);
-  refusedT = setTimeout(() => { if (ws && ws.readyState === 1) tryReconnect(t.pid, t.code, t.key); else { reconnectAttempts = 0; connect(); } }, RETRY_MS);
+  refusedT = setTimeout(() => { if (lastTry) return; if (ws && ws.readyState === 1) tryReconnect(t.pid, t.code, t.key); else { reconnectAttempts = 0; connect(); } }, RETRY_MS);   // (a try already on its way: let it answer)
 }
 function giveUpSeat(kind) {
   clearTimeout(refusedT); refusedN = 0; autoBack = null; lastTry = null; restoring = false; resendAll = false;
@@ -1606,7 +1606,7 @@ function leaveGame() {
   if (!confirm(mid ? 'Leave this game? Your seat and score are kept if you rejoin with the same name.' : 'Leave this game?')) return;
   if (window.Voice) Voice.leave();
   send({ action: 'leave' });
-  clearSession(); myPlayerId = null; gameCode = null; state = null; lastPhase = null; showScreen('screen-home');
+  dropOutbox(); clearSession(); myPlayerId = null; gameCode = null; state = null; lastPhase = null; showScreen('screen-home');
 }
 // Cartoons this phone has seen, so the next game it hosts deals fresh ones
 function getSeen() { try { const v = JSON.parse(localStorage.getItem('cc_seen') || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
