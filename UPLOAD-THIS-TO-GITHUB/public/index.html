@@ -771,6 +771,37 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .rules-pitch { margin: 0 0 14px; }
 .rules-pitch .rp1 { font-family: var(--serif); font-weight: 700; font-size: 19px; line-height: 1.2; }
 .rules-pitch .rp2 { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 15px; color: var(--ink-2); margin-top: 2px; }
+/* ── Oct 20 2026 (#4 #15): the stage pill, and the cartoon that stays big ── */
+.stage-pill { display: inline-flex; align-items: center; padding: 2px; border: 2px solid var(--ink); border-radius: 999px; background: #fff; box-shadow: 2px 2px 0 var(--ink); font-family: var(--sans); font-weight: 900; font-size: 12.5px; line-height: 1; white-space: nowrap; }
+.stage-pill span { padding: 5px 7px 6px; border-radius: 999px; color: var(--ink-2); }
+.stage-pill span.on { background: var(--ink); color: var(--yellow); }
+.hdr .hdr-sub { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.hdr .mid { gap: 5px; }
+.hdr .thumb { display: block; }
+.hdr button.thumb { font: inherit; color: inherit; }
+.code-pill { min-height: 44px; display: inline-flex; align-items: center; padding: 0; border: 0; background: none; box-shadow: none; }
+.code-pill > span { display: inline-block; padding: 3px 9px; border-radius: 8px; border: 2px solid var(--ink); background: #fff; box-shadow: 2px 2px 0 var(--ink); }
+.code-pill::after { display: none; }
+.hdr.ringed { gap: 10px; }
+.hdr.pin { flex-wrap: wrap; row-gap: 8px; padding-bottom: 10px; margin-bottom: 12px; }
+.pin-toon { flex: 0 0 100%; order: 10; display: flex; justify-content: center; padding: 4px; margin: 0; background: #fff; border: 2.5px solid var(--ink); border-radius: 10px; box-shadow: var(--shadow-sm); cursor: zoom-in; font: inherit; }
+.pin-toon img { display: block; height: calc(45dvh - 92px); min-height: 140px; max-height: 420px; width: 100%; object-fit: contain; border-radius: 6px; background: #fff; }
+@supports not (height: 1dvh) { .pin-toon img { height: calc(45vh - 92px); } }
+.toon-big { cursor: default; }
+.toon-hit { display: block; width: 100%; padding: 0; margin: 0; border: 0; background: none; cursor: zoom-in; border-radius: 6px; }
+.toon-big .toon-hit img { display: block; width: 100%; max-height: 52dvh; object-fit: contain; border-radius: 6px; background: #fff; transition: max-height .25s var(--ease-out); }
+.toon-big.compact .toon-hit img { max-height: 34dvh; }
+.w-box { margin-top: 16px; }
+body.typing .toon-big .toon-hit img { max-height: 160px; }
+body.typing .toon-big .zoom { display: none; }
+body.typing .w-box { margin-top: 10px; }
+body.typing .toon-big [data-live="mullpill"] { display: none; }
+.toon-big .mull-pill { min-height: 44px; margin-top: 6px; font-size: 15px; }
+.mull-pill.on { background: var(--ink); color: var(--paper); }
+.mull-pill.on .mp-count { background: var(--yellow); color: var(--ink); }
+.do { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.35; }
+/* the real caption, under the full-width cartoon, like a printed page */
+.hdr.pin ~ * .spot.is-real .spot-text, .hdr.pin ~ .spot.is-real .spot-text { text-align: center; }
 /* ── The rating (chess-style): lobby card + sheet, the opening card, the verdicts ── */
 .rt-tag { display: inline-block; font-family: var(--serif); font-size: 13px; font-weight: 700; color: var(--ink-2); margin-right: 6px; }
 .rt-card { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; padding: 12px 14px; margin-bottom: 16px; background: var(--card); border: var(--bw) solid var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); cursor: pointer; font: inherit; color: var(--ink); }
@@ -880,7 +911,7 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 
   <p class="eyebrow" style="margin-bottom: 10px;">Each round</p>
   <div class="stack" style="margin-bottom: 22px;">
-    <div class="panel flat rule-step"><div class="n">1</div><div><b>Everyone writes.</b> <span class="sub">The dealer too. Hate the cartoon? Tap Mulligan.</span></div></div>
+    <div class="panel flat rule-step"><div class="n">1</div><div><b>Everyone writes.</b> <span class="sub">The dealer too. Hate the cartoon? Vote to skip it.</span></div></div>
     <div class="panel flat yellow rule-step"><div class="n">2</div><div><b>One goes face-down.</b> <span class="sub">The game turns one caption over: the <b>Closed Caption</b>. Usually a player’s. Sometimes the real one.</span></div></div>
     <div class="panel flat blue rule-step"><div class="n">3</div><div><b>Blind bets.</b> <span class="sub">The dealer reads the open ones aloud. Then, in turn from the dealer’s <span class="dir-word">left</span>, put 1 or 2 chips on any caption — the face-down one too. <span id="rules-dealer-bets">The dealer doesn’t bet.</span></span></div></div>
     <div class="panel flat violet rule-step"><div class="n">4</div><div><b>The flip.</b> <span class="sub">The Closed Caption turns over. Anyone with a chip left puts it down.</span></div></div>
@@ -1633,18 +1664,53 @@ function setActionBar(html) {
 
 /* ── Shared pieces ── */
 function roundLabel() { return `Round ${state.round}${state.totalRounds ? ' of ' + state.totalRounds : ''}`; }
+/* #15: one round = four stage words, one colour: Write · Bet · Flip · Score. The pill says where the table is.
+   (The old per-screen stickers — "Blind bets", "The steal"… — become the first words of the line under it.) */
+const STAGES = ['Write', 'Bet', 'Flip', 'Score'];
+const STAGE_OF = { writing: 0, reading: 1, first_bets: 1, steal: 1, reveal: 2, second_bets: 2, answer: 3, framing: 3, scores: 3 };
+const stageNow = () => state && STAGE_OF[state.phase] !== undefined && !(state.phase === 'scores' && state.gameOver) ? STAGE_OF[state.phase] : -1;
+function stagePill() {
+  const i = stageNow(); if (i < 0) return '';
+  return `<span class="stage-pill" role="img" aria-label="Stage ${i + 1} of 4: ${STAGES[i]}">${STAGES.map((w, k) => `<span class="${k === i ? 'on' : ''}">${w}</span>`).join('')}</span>`;
+}
+// #4: while the table reads, bets, flips and reveals, the cartoon stays big — pinned at the top (~45% of the screen)
+const PIN_PHASES = ['reading', 'first_bets', 'reveal', 'second_bets', 'steal', 'answer'];
+const toonAlt = () => state.cartoon && state.cartoon.title ? `Cartoon: ${state.cartoon.title}` : 'The cartoon';
 function header({ sticker, sub = '', ring = false, thumb = true }) {
-  const t = thumb && state.cartoon ? `<div class="thumb" onclick="openViewer()" role="button" tabindex="0" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"></div>` : '';
-  return `<div class="hdr">${ring ? ringHtml() : t}<div class="mid"><div class="hdr-top">${sticker}<button class="code-pill" onclick="openInvite()" aria-label="Room code ${esc(state.code)} — show the invite">${esc(state.code)}</button></div><span class="small">${sub || roundLabel()}</span></div>${window.Voice && Voice.isOn && Voice.isOn() ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>`;
+  const stage = stageNow() >= 0, pin = thumb && !!state.cartoon && PIN_PHASES.includes(state.phase);
+  const label = stage ? String(sticker || '').replace(/<[^>]*>/g, '').trim() : '';
+  const line = [label && label.toLowerCase() !== STAGES[stageNow()].toLowerCase() ? label : '', sub || roundLabel()].filter(Boolean).join(' · ');
+  const t = thumb && !pin && state.cartoon ? `<button class="thumb" onclick="openViewer()" aria-label="${esc(toonAlt())}. See it full-screen"><img src="/images/${esc(state.cartoon.image)}" alt=""></button>` : '';
+  const code = `<button class="code-pill" onclick="openInvite()" aria-label="Room code ${esc(state.code)}. Show the invite"><span>${esc(state.code)}</span></button>`;
+  const big = pin ? `<button class="pin-toon" onclick="openViewer()" aria-label="${esc(toonAlt())}. See it full-screen"><img src="/images/${esc(state.cartoon.image)}" alt=""></button>` : '';
+  return `<div class="hdr${pin ? ' pin' : ''}${ring ? ' ringed' : ''}">${ring ? ringHtml() : t}<div class="mid"><div class="hdr-top">${stage ? stagePill() : sticker}${ring ? '' : code}</div><span class="hdr-sub">${line}</span></div>${window.Voice && Voice.isOn && Voice.isOn() ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu${ring ? '. Room code ' + esc(state.code) : ''}">☰</button>${big}</div>`;
 }
+// The writing screen's cartoon: big while you look at it, a small copy right above the caption box while you type
 function bigToon(compact = false, mull = false) {
-  return state.cartoon ? `<div class="toon-big ${compact ? 'compact' : ''}" onclick="openViewer()" role="button" tabindex="0" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"><span class="zoom">🔍 Tap to zoom</span>${mull ? mullPillHtml() : ''}</div>` : '';
+  return state.cartoon ? `<div class="toon-big ${compact ? 'compact' : ''}" id="w-toon"><button class="toon-hit" onclick="openViewer()" aria-label="${esc(toonAlt())}. See it full-screen"><img src="/images/${esc(state.cartoon.image)}" alt=""></button><span class="zoom" aria-hidden="true">Tap to zoom</span>${mull ? mullPillHtml() : ''}</div>` : '';
 }
+let typingOff = null;
+function onCaptionFocus() {
+  clearTimeout(typingOff); document.body.classList.add('typing');
+  [60, 380, 700].forEach(ms => setTimeout(keepToonInView, ms));   // again once the keyboard has finished opening
+}
+function onCaptionBlur() { clearTimeout(typingOff); typingOff = setTimeout(() => document.body.classList.remove('typing'), 150); }
+// Small cartoon at the top of what you can see, the caption box right under it (the phone's keyboard below)
+function keepToonInView() {
+  const t = $('w-toon'), i = $('caption-input');
+  if (!t || !i || document.activeElement !== i) return;
+  const hdr = document.querySelector('#game-content .hdr'), vv = window.visualViewport;
+  const top = (vv ? vv.offsetTop : 0) + (hdr ? hdr.getBoundingClientRect().height : 0) + 8;
+  const dy = t.getBoundingClientRect().top - top;
+  if (Math.abs(dy) > 4) window.scrollBy(0, dy);
+}
+try { if (window.visualViewport) window.visualViewport.addEventListener('resize', () => { if (document.body.classList.contains('typing')) keepToonInView(); }); } catch (e) {}
 // The mulligan, right on the picture: no scrolling to find it
 function mullPillHtml() {
   const votes = (state.mulliganVotes || []).length, need = state.mulliganNeeded || 2, mine = state.myMulligan;
-  return `<span data-live="mullpill"><button class="mull-pill ${mine ? 'on' : ''}" onclick="event.stopPropagation(); toggleMulligan()" aria-label="${mine ? 'Take back your mulligan vote' : 'Vote to swap this cartoon'}">
-    <span class="mp-word">${mine ? '✓ Mulligan' : 'Mulligan'}</span>${votes ? `<span class="mp-count">${votes}/${need}</span>` : ''}</button></span>`;
+  // #15: plain words, and one tap only asks (askSkip): a vote counts once you say yes
+  return `<span data-live="mullpill"><button class="mull-pill ${mine ? 'on' : ''}" onclick="event.stopPropagation(); askSkip()" aria-label="${mine ? `You voted to skip this cartoon (${votes} of ${need}). Take your vote back` : `Skip this cartoon?${votes ? ` ${votes} of ${need} votes so far.` : ''}`}">
+    <span class="mp-word">${mine ? '✓ You voted to skip' : 'Skip this cartoon?'}</span>${votes ? `<span class="mp-count">${votes} of ${need}</span>` : ''}</button></span>`;
 }
 function ringHtml() {
   if (noTimer()) return `<div class="ring" aria-label="No timer"><svg viewBox="0 0 58 58"><circle class="track" cx="29" cy="29" r="24"/></svg><div class="t" style="font-size:22px;">∞</div></div>`;   // [settings] no timer
@@ -1831,7 +1897,7 @@ function mulliganHtml() {
 }
 function renderWriting() {
   if (state.hasSubmitted) {
-    return `${header({ sticker: '<span class="sticker teal">Locked in</span>', sub: dealerLine(), ring: true })}
+    return `${header({ sticker: '<span class="sticker teal">Locked in</span>', sub: `${roundLabel()} · ${dealerLine()}`, ring: true })}
       ${bigToon(true, true)}
       <div class="center" style="margin:22px 0 16px;">
         <div class="stamp">Locked in</div>
@@ -1841,15 +1907,17 @@ function renderWriting() {
   }
   return `${header({ sticker: `<span class="sticker">${state.isDealer ? 'Your deal' : 'Write'}</span>`, sub: `${roundLabel()} · ${dealerLine()}`, ring: true })}
     ${bigToon(false, true)}
-    <div style="margin-top:18px;">
-      <textarea id="caption-input" class="caption-input" placeholder="Write a caption that could pass for the real one…" maxlength="200" oninput="onCaptionInput()" enterkeyhint="done" autocapitalize="sentences" autocorrect="off" autocomplete="off" spellcheck="false" data-gramm="false"></textarea>
+    <div class="w-box">
+      <label class="sr-only" for="caption-input">Your caption</label>
+      <textarea id="caption-input" class="caption-input" placeholder="Write a caption that could pass for the real one…" maxlength="200" oninput="onCaptionInput()" onfocus="onCaptionFocus()" onblur="onCaptionBlur()" enterkeyhint="done" autocapitalize="sentences" autocorrect="on" autocomplete="off" spellcheck="true"></textarea>
       <div class="lenmeter" id="len-meter" style="margin-top:8px;"><i id="len-fill"></i></div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin:2px 2px 12px; gap:8px;"><span class="small" id="len-note"></span><span class="small" id="cap-count" style="white-space:nowrap;">0 / 200</span></div>
-      ${state.isDealer ? `<p class="small" style="margin:-6px 2px 12px;">${dealerMode() === 'bet' ? 'You write too — and you bet 2 chips, last' : dealerMode() === 'both' ? 'You write too, bet 2 chips last — then steal one' : 'You write too — but you don’t bet'}</p>` : ''}
+      ${state.isDealer ? `<p class="do" style="margin:-6px 2px 12px;">${dealerMode() === 'bet' ? 'You deal: you write too, and you bet last.' : dealerMode() === 'both' ? 'You deal: you write too, bet last, then steal one chip.' : 'You deal: you write too, you don’t bet, and you steal one chip.'}</p>` : ''}
       <div id="nudge-box" class="nudge"></div>
       <button class="btn btn-yellow" id="submit-btn" onclick="submitCaption()">Lock it in ✓</button>
       <button class="btn-link" style="display:block; margin:6px auto 0;" onclick="nextNudge()">Need a nudge?</button>
     </div>
+    <div data-tip-slot style="margin-top:12px;"></div>
     <div style="margin-top:12px;">${writingStatusHtml()}</div>`;
 }
 function confirmEndWriting() {
@@ -1858,6 +1926,18 @@ function confirmEndWriting() {
   send({ action: 'end_writing' });
 }
 function toggleMulligan() { if (send({ action: 'mulligan' })) buzz(15); }
+// #15: "Skip this cartoon?" asks first; taking your vote back doesn't
+function askSkip() {
+  if (!state || state.phase !== 'writing') return;
+  if (state.myMulligan) { toggleMulligan(); return; }
+  const votes = (state.mulliganVotes || []).length, need = state.mulliganNeeded || 2, left = Math.max(1, need - votes);
+  $('sheet-body').innerHTML = `<div class="grip"></div>
+    <h2 class="h2" style="margin:4px 0 8px;">Skip this cartoon?</h2>
+    <p class="do" style="margin-bottom:16px;">${left === 1 ? 'Your vote skips it.' : `It takes ${need} votes${votes ? ` (${votes} so far)` : ''}.`} Everyone gets a new cartoon and starts a new caption.</p>
+    <div class="stack"><button class="btn btn-yellow" onclick="closeMenu(); toggleMulligan()">Vote to skip it</button><button class="btn" onclick="closeMenu()">Keep this cartoon</button></div>`;
+  $('sheet').classList.add('on');
+  sfx.tap();
+}
 let submitting = false;
 function submitCaption(auto = false) {
   const i = $('caption-input'); if (!i || submitting) return;
@@ -1944,7 +2024,7 @@ function playMulligan(ev, wait = 0) {
     if (window.Executions) { try { hit = window.Executions.play(ev.kind, ev.image ? '/images/' + ev.image : null, b) || 1500; } catch (e) { hit = 1500; } }
     else { b.innerHTML = ev.image ? `<div class="old"><img src="/images/${esc(ev.image)}" alt=""></div>` : ''; bsfx.swish(); }
     const s = hit / 1000;
-    b.insertAdjacentHTML('beforeend', `<div class="word" style="animation-delay:${s}s">Mulligan</div><div class="quip" style="animation-delay:${s + 0.45}s">${esc(ev.quip || 'Next.')}</div>`);
+    b.insertAdjacentHTML('beforeend', `<div class="word" style="animation-delay:${s}s">Skipped</div><div class="quip" style="animation-delay:${s + 0.45}s">${esc(ev.quip || 'Next.')}</div>`);
     window._boomGo = setTimeout(() => {
       if (window.ccBeat) window.ccBeat('mulligan:hit');
       bsfx.seal(); buzz(60);
