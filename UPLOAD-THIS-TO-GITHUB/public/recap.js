@@ -157,12 +157,13 @@
     ctx.lineWidth = Math.max(2, r * 0.045); ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.stroke();
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.lineWidth = Math.max(3, r * 0.08); ctx.strokeStyle = C.ink; ctx.stroke();
     if (label) {
-      ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = lightHex(col) ? C.ink : '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';   // light seats (#29) get ink letters
       ctx.font = font(700, Math.round(r * (label.length > 1 ? 0.62 : 0.78)), DISPLAY);
       ctx.fillText(label, cx, cy + r * 0.04);
     }
     ctx.restore();
   }
+  function lightHex(h) { var m = /^#?([0-9a-f]{6})$/i.exec(String(h || '')); if (!m) return false; var v = parseInt(m[1], 16), r = v >> 16 & 255, g = v >> 8 & 255, b = v & 255; return (0.299 * r + 0.587 * g + 0.114 * b) > 170; }
   function moonIcon(ctx, cx, cy, r) {
     ctx.save();
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fillStyle = C.yellow; ctx.fill();

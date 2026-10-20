@@ -871,6 +871,39 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .fn-deal { font-size: 19px; padding: 17px 18px; }
 .fn-again-n { text-align: center; font-family: var(--serif); font-size: 19px; font-weight: 700; color: var(--ink); margin: 2px 0 2px; }
 .fn-again-in { text-align: center; font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--ink); margin: 4px 0 0; }
+/* ── #29 accessibility ── */
+:root { --red-ink: #B3261E; --red-d: #C62828; --teal-d: #0B7A64; --teal-ink: #0B6E59; --blue-ink: #1F4FB8; }
+/* chips: the seat's colour plus a second cue (its own count of edge spots; seats 5–8 an inner ring); light seats get ink letters */
+.chip { color: var(--fg, #fff); text-shadow: var(--ts, 0 1px 0 rgba(0,0,0,.25)); font-size: max(12px, calc(var(--s) * .36)); --ring: transparent;
+  background: radial-gradient(circle, transparent 0 40%, var(--ring) 41% 46%, transparent 47%), radial-gradient(circle, var(--c) 0 58%, transparent 59%), repeating-conic-gradient(from 8deg, var(--c) 0deg calc(var(--p, 60deg) * .47), #fff calc(var(--p, 60deg) * .47) var(--p, 60deg)); }
+.chip.seat-ring { --ring: rgba(255,255,255,.85); }
+.chip.seat-ring[style*="--fg"] { --ring: rgba(31,26,23,.5); }
+.chip.xs { --s: 24px; }
+.chip .check { width: 18px; height: 18px; font-size: 12px; background: var(--teal-d); }
+.fm-chips.many .chip { font-size: 12px; }
+/* nothing under 12 px */
+.eyebrow, .tag, .ccard .lbl, .rc-eyebrow, .fm-real-lbl, .hof-sticker, .cc-badge, .bnone, .lob-gal-n, .delta, .pub-mark, .fn-eyebrow, .vc-n, .fm-card.on::after { font-size: 12px; }
+.rt-bdg i, .fm-chip.done::after { font-size: 12px; }
+/* contrast: the light labels and the white-on-colour stickers and buttons, darkened until they pass */
+.fm-real-lbl, .rc-eyebrow { color: var(--teal-ink); }
+.sticker.red, .btn-red, .delta.down, .vc-b.vc-muted, .steal-news { background: var(--red-d); }
+.steal-news .sub { color: #fff; }
+.sticker.teal, .btn-teal, .delta.up, .sb-plus, .vc-b.vc-join { background: var(--teal-d); }
+.bettor.me .bname { color: var(--blue-ink); }
+.bettor.turn .bname { color: var(--ink); }
+.fresh-line.low, .name-count.full, #create-error, .ring.urgent .t { color: var(--red-ink) !important; }
+.plus, .rc-pt b { color: var(--teal-ink); }
+/* every tap target at least 44 × 44 */
+.seg button, .lob-gal-all, .time-btn, .fm-move, .vc-b, .ra-x { min-height: 44px; }
+#rejoin-box .btn-link { min-width: 44px; min-height: 44px; }
+.chip.grab::before { content: ''; position: absolute; inset: -5px; border-radius: 50%; }
+.chip-tray.steal.busy .chip.grab::before { inset: -6px; }
+.chip-tray.steal.crowd .chip.grab::before { inset: -7px; }
+/* the lines that tell you what to do, or who you're waiting on: 15 px, full ink */
+#game-content p.center.small, #game-content .center.small, #away .small { font-size: 15px; color: var(--ink); }
+.turn-banner:not(.dealer) .sub, .steal-hero .sub, #reveal-continue.sub, #reveal-hint, .fm-sub, .fm-count { color: var(--ink); }
+.fm-sub, .fm-count { font-size: 15px; }
+#join-error, #create-error { font-size: 15px; }
 /* the real caption, under the full-width cartoon, like a printed page */
 .hdr.pin ~ * .spot.is-real .spot-text, .hdr.pin ~ .spot.is-real .spot-text { text-align: center; }
 /* ── The rating (chess-style): lobby card + sheet, the opening card, the verdicts ── */
@@ -952,7 +985,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 <div id="opening"></div>
 <div id="verdicts"></div>
 <div id="poobah"></div>
-<label class="ios-haptic" id="haptic-label"><input type="checkbox" switch id="haptic-input"></label>
+<label class="ios-haptic" id="haptic-label" aria-hidden="true"><input type="checkbox" switch id="haptic-input" tabindex="-1" aria-label="Haptic tap"></label>
 
 <!-- ═══════ HOME ═══════ -->
 <div id="screen-home" class="screen active">
@@ -1015,7 +1048,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
   <h2 class="h1" style="margin-bottom: 4px;">Host a game</h2>
   <p class="sub" style="margin-bottom: 22px;">You’ll get a 4-letter code for everyone to join with.</p>
   <div class="field"><div class="name-lbl"><label class="eyebrow" for="create-name">Your name</label><span class="name-count" id="create-name-count" aria-hidden="true"></span></div><input type="text" id="create-name" class="input" placeholder="What do they call you?" maxlength="12" autocomplete="off" enterkeyhint="go" oninput="nameCount(this)"></div>
-  <div id="create-error" class="small" role="alert" style="color:var(--red); text-align:center; margin-bottom:12px; display:none;"></div>
+  <div id="create-error" class="small" role="alert" style="color:var(--red-ink); text-align:center; margin-bottom:12px; display:none;"></div>
   <button class="btn btn-yellow" onclick="createGame()">Create the room →</button>
   <p class="small center" style="margin-top:12px;">Timer, game length and cartoons are in the lobby.</p>
 </div>
@@ -1032,7 +1065,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
   <div id="join-form">
   <div class="field" id="join-code-field"><label class="eyebrow" for="join-code">Room code</label><input type="text" id="join-code" class="input code" placeholder="ABCD" maxlength="4" autocapitalize="characters" autocomplete="off" enterkeyhint="next" oninput="clearJoinError()"></div>
   <div class="field"><div class="name-lbl"><label class="eyebrow" for="join-name">Your name</label><span class="name-count" id="join-name-count" aria-hidden="true"></span></div><input type="text" id="join-name" class="input" placeholder="Your name" maxlength="12" autocomplete="off" enterkeyhint="go" oninput="nameCount(this); joinLabel()"></div>
-  <div id="join-error" class="small" role="alert" style="color:var(--red); text-align:center; margin-bottom:12px; display:none;"></div>
+  <div id="join-error" class="small" role="alert" style="color:var(--red-ink); text-align:center; margin-bottom:12px; display:none;"></div>
   <button class="btn btn-yellow" id="join-btn" onclick="joinGame()">Join →</button>
   </div>
 </div>
@@ -1045,23 +1078,58 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 /* ═══════════════════════════════════════════════════════════
    Utilities
    ═══════════════════════════════════════════════════════════ */
-const COLORS = ['#E8453A','#2F6FE0','#12A587','#F28C0F','#6E4CF5','#E8559E','#0B93D1','#6BA312'];
+/* #29: seat colours picked by simulating the three colour blindnesses: no two seats closer than ΔE 15 for anyone
+   (the old green/pink/sky trio could fall to ΔE 0.3). The last three seats are a light sky, a light green (ink
+   letters) and charcoal. Every seat also has a second cue: its own count of edge spots, and seats 5–8 an inner ring. */
+const COLORS = ['#E8453A','#2F6FE0','#12A587','#F28C0F','#6E4CF5','#9FD3F0','#B7E07A','#2B2724'];
+const LIGHT_SEATS = new Set(['#9FD3F0', '#B7E07A']);
+const SEAT_SPOTS = [6, 4, 8, 5];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $ = (id) => document.getElementById(id);
-const initials = (name) => {
-  const parts = String(name || '?').trim().split(/\s+/);
-  if (parts.length > 1) return (parts[0][0] + parts[1][0]).toUpperCase();
-  const first = (parts[0][0] || '?').toUpperCase();
-  const clash = state && state.players.filter(p => (p.name.trim()[0] || '').toUpperCase() === first).length > 1;
-  return clash ? parts[0].slice(0, 2).toUpperCase() : first;
-};
+/* #29: chip letters from whole characters (an emoji, an accent), never half of one; two players never share letters
+   ("Chris" CH, "Christine" CE). One table-wide map, worked out once per line-up. */
+function graphemes(s) {
+  s = String(s || '');
+  try { if (window.Intl && Intl.Segmenter) return Array.from(new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(s), x => x.segment); } catch (e) {}
+  return Array.from(s);
+}
+const upG = (g) => String(g || '').toLocaleUpperCase();
+function baseInitials(name) {
+  const words = String(name || '?').trim().split(/\s+/).filter(Boolean);
+  const first = graphemes(words[0] || '?')[0] || '?';
+  return words.length > 1 ? upG(first) + upG(graphemes(words[words.length - 1])[0] || '') : upG(first);
+}
+let initialsMemo = { key: null, map: new Map() };
+function initialsMap() {
+  const players = (state && state.players) || [];
+  const key = players.map(p => p.id + ':' + p.name).join('|');
+  if (initialsMemo.key === key) return initialsMemo.map;
+  const map = new Map(), taken = new Set(), count = {};
+  players.forEach(p => { const b = baseInitials(p.name); count[b] = (count[b] || 0) + 1; });
+  players.forEach(p => { const b = baseInitials(p.name); if (count[b] === 1) { map.set(p.id, b); taken.add(b); } });
+  players.forEach((p, seat) => {
+    if (map.has(p.id)) return;
+    const g = graphemes(String(p.name).replace(/\s+/g, '')), f = upG(g[0] || '?');
+    const opts = [f + upG(g[1] || ''), f + upG(g[g.length - 1] || '')].concat(g.slice(2).map(x => f + upG(x)), [f + (seat + 1)]);
+    const pick = opts.find(o => o.length > f.length && !taken.has(o)) || (f + (seat + 1));
+    map.set(p.id, pick); taken.add(pick);
+  });
+  initialsMemo = { key, map };
+  return map;
+}
+const initials = (name) => { const p = state && state.players.find(x => x.name === name); return p ? (initialsMap().get(p.id) || baseInitials(name)) : baseInitials(name); };
 function playerColor(idx) { return COLORS[((idx % COLORS.length) + COLORS.length) % COLORS.length]; }
 function getPlayerIndex(id) { return state ? state.players.findIndex(p => p.id === id) : -1; }
 function playerById(id) { return state ? state.players.find(p => p.id === id) : null; }
 function nameOf(id) { const p = playerById(id); return p ? p.name : '?'; }
+function seatStyle(idx) {
+  const c = playerColor(idx), k = ((idx % 8) + 8) % 8;
+  return `--c:${c};--p:${360 / SEAT_SPOTS[k % 4]}deg;${LIGHT_SEATS.has(c) ? '--fg:#1F1A17;--ts:none;' : ''}`;
+}
 function chipHtml(pid, cls = '', extra = '', attrs = '') {
-  const p = playerById(pid);
-  return `<span class="chip ${cls}" style="--c:${playerColor(getPlayerIndex(pid))}" title="${esc(p ? p.name : '')}" data-voice-pid="${esc(pid)}" ${attrs}>${esc(initials(p ? p.name : '?'))}${extra}</span>`;
+  const p = playerById(pid), idx = getPlayerIndex(pid), k = ((idx % 8) + 8) % 8;
+  const label = /aria-label=/.test(attrs) ? '' : ` role="img" aria-label="${esc(p ? p.name : 'A player')}"`;
+  return `<span class="chip ${cls}${idx >= 0 && k >= 4 ? ' seat-ring' : ''}" style="${seatStyle(idx)}" title="${esc(p ? p.name : '')}" data-voice-pid="${esc(pid)}"${label} ${attrs}>${esc(p ? (initialsMap().get(pid) || baseInitials(p.name)) : '?')}${extra}</span>`;
 }
 // #59: one live region that screen readers always hear ("Your turn to bet")
 function srSay(text) { const el = $('sr-live'); if (!el) return; el.textContent = ''; setTimeout(() => { el.textContent = text; }, 60); }
@@ -1438,7 +1506,7 @@ function connect() {
       if (msg.message === 'Game not found' && pendingJoin && inviteCode && pendingJoin === inviteCode && $('screen-join').classList.contains('active')) { pendingJoin = null; pendingName = null; drawInvite(inviteCode, { open: false }); return; }   // #23: the invited room closed meanwhile
       if (msg.message === 'Game not found' && pendingJoin && $('screen-join').classList.contains('active')) {
         const je = $('join-error'), ci = $('join-code');
-        je.textContent = `There’s no room ${pendingJoin}. Check the code with the host.`; je.style.display = 'block'; je.style.color = 'var(--red)'; je.dataset.kind = 'code';
+        je.textContent = `There’s no room ${pendingJoin}. Check the code with the host.`; je.style.display = 'block'; je.style.color = 'var(--red-ink)'; je.dataset.kind = 'code';
         pendingJoin = null; pendingName = null; sfx.error();
         if (ci) { ci.classList.remove('shake'); void ci.offsetWidth; ci.classList.add('shake'); }
         return;
@@ -1460,7 +1528,7 @@ function connect() {
       }
       const ce = $('create-error'), je = $('join-error');
       if ($('screen-create').classList.contains('active')) { ce.textContent = msg.message; ce.style.display = 'block'; }
-      else if ($('screen-join').classList.contains('active')) { je.textContent = msg.message; je.style.display = 'block'; je.style.color = 'var(--red)'; }
+      else if ($('screen-join').classList.contains('active')) { je.textContent = msg.message; je.style.display = 'block'; je.style.color = 'var(--red-ink)'; }
       else if (msg.message !== 'Already submitted') showToast(msg.message);
       submitting = false; pendingJoin = null; pendingName = null;
       sfx.error();
@@ -1479,8 +1547,8 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 function updateConnectionBanner() {
   let b = $('conn-banner');
   if (!b) { b = document.createElement('div'); b.id = 'conn-banner'; document.body.appendChild(b); }
-  if (connectionStatus === 'disconnected' && (myPlayerId || reconnectAttempts > 1)) { b.style.background = 'var(--red)'; b.style.color = '#fff'; b.innerHTML = '<span class="dots">Reconnecting</span>'; b.style.transform = 'translateY(0)'; }
-  else if (connectionStatus === 'connected' && reconnectAttempts > 0) { b.style.background = 'var(--teal)'; b.style.color = '#fff'; b.textContent = '✓ Back online'; b.style.transform = 'translateY(0)'; setTimeout(() => { b.style.transform = 'translateY(-100%)'; }, 1500); }
+  if (connectionStatus === 'disconnected' && (myPlayerId || reconnectAttempts > 1)) { b.style.background = 'var(--red-d)'; b.style.color = '#fff'; b.innerHTML = '<span class="dots">Reconnecting</span>'; b.style.transform = 'translateY(0)'; }
+  else if (connectionStatus === 'connected' && reconnectAttempts > 0) { b.style.background = 'var(--teal-d)'; b.style.color = '#fff'; b.textContent = '✓ Back online'; b.style.transform = 'translateY(0)'; setTimeout(() => { b.style.transform = 'translateY(-100%)'; }, 1500); }
   else b.style.transform = 'translateY(-100%)';
 }
 // Dealer buttons: one tap per stage. A second tap (or a late tap from a slow screen) is dropped here,
@@ -1544,8 +1612,8 @@ function createGame() {
 }
 function joinGame() {
   const code = $('join-code').value.trim().toUpperCase(), name = $('join-name').value.trim().slice(0, NAME_MAX), e = $('join-error');
-  if (code.length !== 4) { e.textContent = 'The room code is 4 letters'; e.style.display = 'block'; e.style.color = 'var(--red)'; e.dataset.kind = 'code'; sfx.error(); return; }
-  if (!name) { e.textContent = 'Enter your name'; e.style.display = 'block'; e.style.color = 'var(--red)'; e.dataset.kind = ''; sfx.error(); return; }
+  if (code.length !== 4) { e.textContent = 'The room code is 4 letters'; e.style.display = 'block'; e.style.color = 'var(--red-ink)'; e.dataset.kind = 'code'; sfx.error(); return; }
+  if (!name) { e.textContent = 'Enter your name'; e.style.display = 'block'; e.style.color = 'var(--red-ink)'; e.dataset.kind = ''; sfx.error(); return; }
   pendingName = name; pendingJoin = code;
   wasKicked = false; send({ action: 'join', code, name });
 }
@@ -1582,7 +1650,7 @@ function openMenu() {
       <p class="small center">Plays from this phone only</p></div></details>
     <button class="menu-row" onclick="closeMenu(); showScreen('screen-rules')"><span class="ic">${inkIcon('book')}</span>How to play</button>
     ${state.history && state.history.length ? `<button class="menu-row" onclick="closeMenu(); openHistory()"><span class="ic">${inkIcon('clock')}</span>Past rounds</button>` : ''}
-    <button class="menu-row" onclick="leaveGame()" style="color:var(--red);"><span class="ic">${inkIcon('door')}</span>Leave game</button>
+    <button class="menu-row" onclick="leaveGame()" style="color:var(--red-ink);"><span class="ic">${inkIcon('door')}</span>Leave game</button>
     <button class="btn btn-ink" style="margin-top:6px;" onclick="closeMenu()">Close</button>`;
   $('sheet').classList.add('on');
 }
@@ -1682,6 +1750,7 @@ function render(force = false) {
   }
   html = (state.phase !== 'lobby' ? renderAwayBanner() : '') + html;
 
+  const focusMark = phaseChanged ? null : focusKey();   // #29: a redraw keeps your place (keyboard and screen reader)
   if (!force && key === lastKey && state.phase === 'writing' && el.querySelector('[data-live]')) {
     patchLive(el, html);
   } else {
@@ -1695,8 +1764,51 @@ function render(force = false) {
   if (state.phase === 'writing') startTimer();
   afterRender(phaseChanged);
   syncOpening(); syncVerdicts();
+  if (focusMark) focusRestore(focusMark);
+  if (phaseChanged || (state.phase === 'answer' && key !== lastKey && reelInfo().step > reelInfo().n)) stageSay();   // #29: every new stage, said out loud
   lastPhase = state.phase; lastRound = state.round; lastKey = key;
   window.Guide && Guide.onRender(state);   // first-game tips + the last writer's nudge (guide.js)
+}
+/* #29: keep focus across redraws. The focused control is remembered by its id, data-id, or what it does (its
+   onclick, label or text) plus its place among look-alikes, and focused again in the new screen. */
+function focusSig(e) {
+  if (e.id) return '#' + e.id;
+  if (e.dataset && e.dataset.id) return 'd:' + e.dataset.id;
+  return [e.tagName, e.getAttribute('onclick') || '', e.getAttribute('aria-label') || '', e.getAttribute('data-target') || '', e.getAttribute('data-k') || '', (e.textContent || '').trim().slice(0, 40)].join('|');
+}
+const FOCUS_ROOTS = '#game-content, #action-bar-root';
+function focusKey() {
+  const a = document.activeElement;
+  if (!a || a === document.body || !a.closest || !a.closest(FOCUS_ROOTS)) return null;
+  const sig = focusSig(a), same = [...document.querySelectorAll(FOCUS_ROOTS)].flatMap(r => [...r.querySelectorAll('*')]).filter(e => focusSig(e) === sig);
+  return { el: a, sig, i: Math.max(0, same.indexOf(a)) };
+}
+function focusRestore(m) {
+  if (!m || (m.el && m.el.isConnected && document.activeElement === m.el)) return;
+  const same = [...document.querySelectorAll(FOCUS_ROOTS)].flatMap(r => [...r.querySelectorAll('*')]).filter(e => focusSig(e) === m.sig);
+  const t = same[Math.min(m.i, same.length - 1)];
+  if (t && typeof t.focus === 'function') { try { t.focus({ preventScroll: true }); } catch (e) {} }
+}
+// #29: one line for a screen reader whenever the table moves to a new stage
+function stageSay() {
+  try {
+    const s = state, d = firstName(s.dealerName || ''), me = s.isDealer;
+    const t = s.timerDuration ? (s.timerDuration % 60 ? `${s.timerDuration} seconds` : plural(s.timerDuration / 60, 'minute')) : 'no timer';
+    let line = '';
+    switch (s.phase) {
+      case 'lobby': line = `Lobby. ${plural(s.players.filter(p => p.connected).length, 'player')} here.${s.isHost ? ' Start the game is at the bottom.' : ` ${fnameOf(s.hostId)} starts the game.`}`; break;
+      case 'writing': line = `Write. ${roundLabel()}. ${me ? 'You deal.' : `${d} deals.`} Write a caption that could pass for the real one. ${t === 'no timer' ? 'No timer.' : t + '.'}`; break;
+      case 'reading': line = `Bet. ${me ? 'Read the captions aloud.' : `${d} reads the captions aloud.`} ${plural((s.openCaptions || []).length, 'caption')} in the open, one face-down.`; break;
+      case 'first_bets': line = s.isMyTurn ? '' : `Bet. ${s.currentBetterName ? firstName(s.currentBetterName) + ' bets first.' : 'Betting.'}`; break;
+      case 'reveal': line = 'Flip. The face-down caption turns over.'; break;
+      case 'second_bets': line = s.isMyTurn ? '' : 'Flip. Last chips, same order as before.'; break;
+      case 'steal': line = me ? '' : `${d} is choosing a chip to steal.`; break;
+      case 'answer': { const { step, n } = reelInfo(); line = step > n ? 'Score. Round recap: the real caption and the points.' : 'Score. The reveal: who wrote each caption, and who fell for it.'; break; }
+      case 'framing': line = 'Frame It. Did anyone beat the real caption?'; break;
+      case 'scores': line = s.gameOver ? 'Final scores.' : `Scoreboard. Next dealer: ${firstName(s.nextDealerName || '')}.`; break;
+    }
+    if (line) srSay(line);
+  } catch (e) {}
 }
 function patchLive(el, html) {
   const tpl = document.createElement('template'); tpl.innerHTML = html;
@@ -1996,11 +2108,11 @@ function writingStatusHtml() {
   const n = here.filter(p => submitted.has(p.id)).length;
   const last = window.Guide ? Guide.lastWriter(state) : null;   // exactly one left: spotlight them (guide.js)
   return `<div data-live="status" class="panel flat center" style="padding:12px;">
-      ${last && last.id !== myPlayerId ? Guide.waitHtml(last) : ''}<p class="small">${n} of ${here.length} captions in</p>
+      ${last && last.id !== myPlayerId ? Guide.waitHtml(last) : ''}<p class="do">${n} of ${here.length} captions in</p>
       <div class="order" style="margin:8px 0 0;">${here.map(p => chipHtml(p.id, submitted.has(p.id) ? '' : last && p.id === last.id ? 'dim gd-spot' : 'dim', submitted.has(p.id) ? '<span class="check">✓</span>' : '')).join('')}</div>
       ${canRun() && n > 0 && n < here.length ? (noTimer() ? `<button class="btn btn-yellow" id="end-writing-btn" style="margin-top:10px;" onclick="confirmEndWriting()">End writing — play these ${n}</button>` : `<button class="btn-link" style="margin-top:4px;" onclick="confirmEndWriting()">Stop waiting and play these ${n} →</button>`) : ''}
       ${!noTimer() && canRun() && n < here.length && (state.timeAdds || 0) < 3 ? `<button class="time-btn" onclick="send({action:'add_time'})">⏱ +30 seconds</button>` : ''}
-      ${noTimer() && n === 0 ? `<p class="small" style="margin-top:6px;">No timer this game — ${canRun() ? 'you end writing when you’re ready' : 'the dealer ends writing'}.</p>` : ''}
+      ${noTimer() && n === 0 ? `<p class="do" style="margin-top:6px;">No timer this game — ${canRun() ? 'you end writing when you’re ready' : 'the dealer ends writing'}.</p>` : ''}
     </div>`;
 }
 function mulliganHtml() {
