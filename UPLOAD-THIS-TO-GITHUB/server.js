@@ -82,8 +82,10 @@ const clients = {};  // playerId -> { ws, gameCode }
 function broadcast(code) {
   const game = games[code];
   if (!game) return;
-  // #6: every phone keeps a sealed copy of the room, refreshed on each new stage (or every 20 s), to hand back after a restart
-  const tag = game.phase + '|' + game.round + '|' + (game.reel ? game.reel.step : '') + '|' + game.players.length + '|' + (game.frameResult ? 1 : 0) + '|' + (game.finale ? (game.finale.winner || 'v') : '');
+  // #6: every phone keeps a sealed copy of the room, refreshed on each new stage (or every 20 s), to hand back after a restart.
+  // #2: and whenever a caption, a bet, the steal or a frame pick lands, so a restart never loses the last one.
+  const tag = game.phase + '|' + game.round + '|' + (game.reel ? game.reel.step : '') + '|' + game.players.length + '|' + (game.frameResult ? 1 : 0) + '|' + (game.finale ? (game.finale.winner || 'v') + Object.keys(game.finale.votes || {}).length : '')
+    + '|' + (game.submissions || []).length + '|' + (game.bets || []).length + '|' + Object.keys(game.blind || {}).length + '|' + (game.dropAt || '') + '|' + (game.steal ? (game.steal.victimId ? 's' : 'p') : '') + '|' + Object.keys(game.framePicks || {}).length;
   let seal = null;
   if (tag !== game._sealTag || Date.now() - (game._sealAt || 0) > 20000) { try { seal = G.sealGame(game); game._sealTag = tag; game._sealAt = Date.now(); } catch (e) { console.error('seal failed', e); } }
   for (const p of game.players) {
@@ -185,12 +187,23 @@ function resolveFrames(code) {
   return true;
 }
 
-// #4 / #51: limits, per phone address. New rooms: 6 a minute. Wrong room codes: 12 per 5 minutes, then a 2-minute wait.
-const MAX_ROOMS = 1500;
+// #4 / #51: limits, per phone address. New rooms: 6 a minute. Wrong room codes typed on 'join': 40 per 5 minutes,
+// then a 2-minute wait. #2: a whole party shares one Wi-Fi address, so the bar is high, and a phone reconnecting to
+// its own seat (with its key) never counts and is never blocked.
+const MAX_ROOMS = 1500, MISSES_PER_5MIN = 40;
 const hits = new Map();   // ip -> { creates: [t], misses: [t], blockedUntil }
 function hitsOf(ip) { let h = hits.get(ip); if (!h) hits.set(ip, h = { creates: [], misses: [], blockedUntil: 0 }); return h; }
 const recent = (list, ms) => { const now = Date.now(); while (list.length && now - list[0] > ms) list.shift(); return list; };
-function wrongCode(ip) { const h = hitsOf(ip); recent(h.misses, 5 * 60000).push(Date.now()); if (h.misses.length >= 12) { h.blockedUntil = Date.now() + 2 * 60000; h.misses = []; } }
+function wrongCode(ip) { const h = hitsOf(ip); recent(h.misses, 5 * 60000).push(Date.now()); if (h.misses.length >= MISSES_PER_5MIN) { h.blockedUntil = Date.now() + 2 * 60000; h.misses = []; } }
+const TOO_MANY = 'Lots of people on this Wi-Fi. Try again in a minute.';
+// #2: the phone's address. Render puts the real client first in x-forwarded-for (and its own hops after it), so the
+// first public entry is the phone; the LAST entry can be the proxy's own address, which would lump every phone on the
+// site into one and block whole parties. (A faked header only dodges a limit; it can never block anyone else's seat.)
+const PRIVATE_IP = /^(10\.|127\.|0\.|169\.254\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.|::1$|::$|f[cd][0-9a-f]{0,2}:|fe80:|::ffff:(10|127|192\.168)\.)/i;
+function clientIp(req) {
+  const xff = String((req && req.headers && req.headers['x-forwarded-for']) || '').split(',').map(s => s.trim()).filter(Boolean);
+  return xff.find(a => !PRIVATE_IP.test(a)) || xff[0] || String((req && req.socket && req.socket.remoteAddress) || '');
+}
 const blocked = (ip) => hitsOf(ip).blockedUntil > Date.now();
 setInterval(() => { const now = Date.now(); for (const [ip, h] of hits) if (!h.creates.length && !h.misses.length && h.blockedUntil < now) hits.delete(ip); else { recent(h.creates, 60000); recent(h.misses, 5 * 60000); } }, 60000);
 /* #30 Same name at the door: "Are you the Chris who was playing, or a different Chris?"
@@ -238,12 +251,12 @@ function resumeTimers(code) {
 }
 
 const send = (ws, obj) => { if (ws.readyState === 1) ws.send(JSON.stringify(obj)); };
-const sendError = (ws, message) => send(ws, { type: 'error', message });
+const sendError = (ws, message) => send(ws, ws.curCid ? { type: 'error', message, cid: ws.curCid } : { type: 'error', message });   // (#2: tied to the message it answers)
 const cleanName = (s) => String(s || '').replace(/\s+/g, ' ').trim().slice(0, 12);
 
 wss.on('connection', (ws, req) => {
   let playerId = null;
-  const ip = String((req && req.headers['x-forwarded-for']) || (req && req.socket && req.socket.remoteAddress) || '').split(',')[0].trim();
+  const ip = clientIp(req);
   send(ws, { type: 'hello', boot: BOOT });
   ws.isAlive = true;
   ws.on('pong', () => { ws.isAlive = true; });
