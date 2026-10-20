@@ -7,6 +7,12 @@ The old prompt lists (CARTOON_REDRAW.md, CARTOON_NEW.md, CARTOON_PROMPTS.md) and
 The drawing is the setup, not the joke. A simple black-and-white drawing leaves room for the caption to work. The less
 sand in the box, the more room to be creative — and a very bad caption can be so bad it's good.
 
+## More than one joke (Nick, Oct 20 2026 — overrides "draw only what the joke needs")
+Players say the drawings are a little too plain. Keep the pencil, bare-bones look, but every cartoon carries 2–3 odd or
+interesting things (a strange prop, a second character's quiet reaction, a detail in the setting) so a table can take
+it in more than one direction. If the picture has only one possible joke line, it's out. Test before drawing: name
+three different captions that each use a different thing in the picture.
+
 ## Rules for every cartoon
 - Black ink on plain white paper. No color. (Soft pencil may use grey pencil tone; nothing else uses grey.)
 - Draw only what the joke needs: one to three characters, one or two props.

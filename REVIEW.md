@@ -148,3 +148,58 @@ Working rules: no winking (no LOL, exclamation-mark pileups, emoji doing the jok
 - Titles: Candidate 1,400 · Master 1,600 · Senior Master 1,800 · Grandmaster 2,000 (shown once the 3 provisional games are played).
 - Verdict lines: public/verdicts.js (shared by server + browser; PLACEHOLDER lines until the real pool lands — any count per key works). The server picks every line so all phones match: never one that phone has seen (phones send 6-char hashes of seen lines, max 1,500 ≈ 13 KB, under the 32 KB limit), never two the same at one table; all seen → least recently seen. Opener/favorite/underdog use the table's combined seen lists.
 - Where: an opening card (~3.5 s, round 1 only; the writing clock is given the time back); "The ratings" screen after the awards and the winner, before the Grand Poobah — the dealer/host taps on (verdicts_done; the Poobah is timed from that tap); the lobby "Your rating" card (sparkline, badges) → sheet (how it works, titles, every badge; also menu → My rating and badges); ratings next to names in the lobby; home + How to Play pitch "Think you’re clever? Prove it. / Ranked like chess, but judged by friends."
+
+## IMPROVEMENT REVIEW — Nick's decisions (Oct 20 2026) — read first in a new chat
+Six fresh reviewers (party-game designer, first-time player, comedy editor, growth, reliability/accessibility, awards
+juror) played it and proposed 41 changes; Nick answered each. Full list with sources: scratchpad review/consolidated.json.
+YES (build all): 1 steal show never hints at the answer (full heist on the night's first steal, then ~1 in 4 at
+random; never show the caption) · 2 dropped phones (straight back into the game, heartbeat + auto-reconnect, save on
+every caption/bet, reconnects never count against the Wi-Fi limit) · 4 cartoon pinned large while reading/betting/
+reveal, small copy above the text box while typing, real caption revealed under the full-size cartoon · 5 Frame It
+becomes a frame button on captions during the reveal (no separate screen; full show for the night's first frame,
+quick plaque after; still no limit) · 6 flip and reveal auto-advance (dealer can pause/back); cut the repeat 'You
+stole' banner · 7 blind bets placed simultaneously, chips drop together; late chip stays turn by turn · 8 steal moves
+to right after the blind bets, before the flip · 9 2 points per person fooled; first-place tie broken by most fooled
+· 10 face-down card pays 5 per blind chip (Shoot the Moon 10); rules say it's real ~1 round in 7 · 11 last trip around
+= 'The Late Edition', double points; ties broken by fooled, then framed · 12 trimmed finale: winner, one awards slide,
+Caption of the Night; the Grand Poobah is folded into the awards as 'Best Liar' (Nick's choice) · 13 END CREDITS (see
+below) · 14 verdicts shown one player at a time, read aloud by the dealer; thin overused props, refresh dated sports refs
+· 15 plain words (1 chip / Both chips — double; 'Skip this cartoon?' with confirm; four stage words Write · Bet · Flip ·
+Score in one colour) · 16 lobby = code/QR, names, pinned Start ('Start the game · 4 here'), rest behind 'Room options';
+guests get 'You're in, X'; rating card + round-1 rating intro only after a finished game · 17 one visual style
+everywhere (serif for moments/captions, one UI font, one paper colour, ink, one accent, gold only for the plaque;
+badges and big moments redrawn in ink) · 18 the flip is the hero beat (held silence, card turns on every phone at once,
+one sound, blind chips light up; first in the home demo) · 19 AUDIENCE ONLY for players 9–12 (no pairs): watch, bet one
+chip a round on a side scoreboard · 20 TV screen ('Show on TV', read-only big screen) · 21 Holiday Table deck (30–40
+family-safe) + home banner mid-Nov; next drawing batches steered there · 22 home page: 'Free. No app, no sign-up.' and
+a hook headline instead of 'Think you're clever? Prove it.'; demo cartoon redrawn in house style · 23 warm invite
+landing ('Join Nick's table — 3 here', pitch, code ticked, name focused; ended game → 'Host your own' / demo) · 24
+recap and Gallery pictures carry the address + small QR; share text includes the link · 25 CARTOON QUALITY (see below)
+· 26 'Ha' / 'Groan' reactions on captions during the reveal (no points) → 'Most Groans' award · 27 quoted awards 'Best
+Lie' and 'Nobody Bit' replace two stat awards · 28 recap gives the reason for every point · 29 accessibility pass (15 px
+min for instructions, 44 px targets, contrast, colour-blind-safe seat colours + second cue, emoji-safe chip letters,
+tips never cover content, screen-reader focus kept + stage announcements, automatic axe check) · 30 bug bundle (double
+Next skip, 'someone new joined' for returners, same-name seat takeover, host handoff notice/return, long-word overflow,
+'Most Framed' one-person tie wording, double period) · 31 REAL RECORDED SOUNDS (~12 effects + one brushed-jazz loop,
+royalty-free, <400 KB) · 32 press page + page title + new link-preview image; NO custom domain for now · 33 solo
+'Cartoon of the Day' with its own daily cartoons · 34 come-back hooks (new-cartoon count, 'Same table next week?'
+calendar invite, rating restore code) · 35 'I'm in for another' + host sees '3 of 4 want another' · 36 small tables
+(3–4): one house decoy caption per round, default twice around · 37 'first to N' finishes the trip around the table;
+round counts only whole trips · 38 short games move the rating less · 39 situation-aware round-end lines, 4–5 gloats per
+thief — and Nick: "do even more" (bigger pools everywhere) · 40 FaceTime/Zoom play stated up front; host picks 'Already
+on a call' vs the game's voice · 41 private stats tally (no names/captions) + privacy line.
+NO: 3 (keep-awake service or paid plan — leave as is).
+
+STEAL REDO (Nick, unprompted): "the steal doesn't work." Redo it in the cartoons' own language: a funny little loose,
+hand-drawn line-cartoon character (playful, wobbly pen, original) that interacts with another line drawing to steal the
+chip. The text/caption at the end of the steal goes by too fast to read: hold a real beat on a genuinely funny caption.
+
+END CREDITS (Nick: "the actual payoff"): the night ends like Animal House's closing credits — a freeze-frame per player
+and an epilogue earned from how they played. Rule from Nick's scoring of 10 samples: OPEN WITH WHAT THEY DID TONIGHT
+("After fooling Bob four times tonight, Dottie went on to sell Bob the Brooklyn Bridge. Twice. They still exchange
+Christmas cards."), then one simple picturable future, then a short concrete kicker as the last beat. Misses: multi-step
+logic, niche sports metaphors, no link to tonight. Approved samples are in scratchpad credits/scores.json.
+
+CARTOON QUALITY (Nick): players say the drawings are a little too plain. Keep the pencil, bare-bones look Nick prefers,
+but every cartoon needs 2–3 odd/interesting things so a table can go in more than one direction; a cartoon with only one
+possible joke line is out (audit the deck: redraw or cut). Queued premises get reworked to this bar before drawing.
