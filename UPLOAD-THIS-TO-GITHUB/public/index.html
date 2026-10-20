@@ -849,6 +849,24 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .ji-chg { font-size: 13px; padding: 0 4px; }
 .ji-btns { margin-top: 22px; text-align: left; }
 [hidden] { display: none !important; }
+/* ── #4 #28 the round recap: a printed page, then the points with their reasons ── */
+.rc-page { margin: 0 0 18px; }
+.rc-art { display: block; width: 100%; padding: 6px; margin: 0; background: #fff; border: 2.5px solid var(--ink); border-radius: 10px; box-shadow: var(--shadow-sm); cursor: zoom-in; }
+.rc-art img { display: block; width: 100%; max-height: 42dvh; object-fit: contain; background: #fff; }
+.rc-print { font-family: var(--serif); font-style: italic; font-size: 25px; line-height: 1.28; text-align: center; margin: 14px 6px 0; text-wrap: balance; overflow-wrap: anywhere; }
+.rc-under { text-align: center; font-size: 13px; font-weight: 800; letter-spacing: .3px; color: var(--ink-2); margin-top: 6px; }
+.rc-h { font-family: var(--sans); font-size: 13px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-2); margin: 0 0 6px; }
+.rc-rows { list-style: none; margin: 0 0 12px; padding: 0; }
+.rc-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-top: 1.5px dashed var(--line); }
+.rc-row:first-child { border-top: 0; }
+.rc-row.me { background: linear-gradient(90deg, var(--yellow-bg), transparent); margin: 0 -8px; padding-left: 8px; padding-right: 8px; border-radius: 8px; }
+.rc-row .chip { margin-top: 1px; }
+.rc-who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.rc-who b { font-size: 17px; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rc-why { display: flex; flex-direction: column; font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.35; margin-top: 1px; }
+.rc-plus { font-family: var(--display); font-weight: 700; font-size: 24px; color: #0B6E59; flex: none; }
+.rc-line.rc-dealer { color: #B3261E; font-size: 16px; }
+.rc-wait, .fm-wait { color: var(--ink); }
 /* the real caption, under the full-width cartoon, like a printed page */
 .hdr.pin ~ * .spot.is-real .spot-text, .hdr.pin ~ .spot.is-real .spot-text { text-align: center; }
 /* ── The rating (chess-style): lobby card + sheet, the opening card, the verdicts ── */
@@ -2723,27 +2741,71 @@ function renderAnswer() {
   if (state.reel && step <= n) return spotlightHtml();
   return renderRecap();
 }
-// The round recap: one glanceable screen. The real caption, who scored, the biggest bluff, the dealer's mischief. (Frame It is next.)
+// The round recap: one glanceable screen. The real caption under the full-width cartoon, like a printed page (#4);
+// every scorer with the reason for each point (#28); the biggest bluff; the dealer's steal in plain words. (Frame It is next.)
 function renderRecap() {
   const f = roundFacts();
   answerSeqRound = state.round + '|' + state.code;
   const real = f.real || {}, rc = state.realCredit;
-  const toon = state.cartoon ? `<div class="rc-toon" onclick="openViewer()" role="button" tabindex="0" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"></div>` : '';
+  const page = `<figure class="rc-page">${state.cartoon ? `<button class="rc-art" onclick="openViewer()" aria-label="${esc(toonAlt())}. See it full-screen"><img src="/images/${esc(state.cartoon.image)}" alt=""></button>` : ''}
+      <figcaption><p class="rc-print">“${esc(real.caption || '')}”</p><p class="rc-under">${state.closedIsCorrect ? 'The real caption. It was the face-down one.' : 'The real caption.'}${rc && rc.author ? ` From The Gallery: ${esc(rc.author)}.` : ''}</p></figcaption></figure>`;
   const scorers = Object.entries(state.roundScores || {}).filter(([pid, p]) => p > 0 && playerById(pid)).sort((a, b) => b[1] - a[1]);
-  const pts = scorers.map(([pid, p]) => `<span class="rc-pt ${pid === myPlayerId ? 'me' : ''}">${chipHtml(pid, 'sm')}<span class="nm">${esc(pid === myPlayerId ? 'You' : nameOf(pid))}</span><b>+${p}</b></span>`).join('');
+  const rows = scorers.map(([pid, p]) => {
+    const why = pointReasons(pid);
+    return `<li class="rc-row${pid === myPlayerId ? ' me' : ''}">${chipHtml(pid, 'sm')}<span class="rc-who"><b>${esc(pid === myPlayerId ? 'You' : nameOf(pid))}</b>${why.length ? `<span class="rc-why">${why.map(w => `<span>${esc(w)}</span>`).join('')}</span>` : ''}</span><span class="rc-plus">+${p}</span></li>`;
+  }).join('');
   const bluff = bluffShort(f);
-  const st = state.steal, dealer = state.isDealer ? 'You' : esc(firstName(state.dealerName));
-  const mischief = [
-    st && !st.skipped && st.victimId ? `${dealer} stole ${st.victimId === myPlayerId ? 'your' : esc(fnameOf(st.victimId)) + '’s'} chip${st.onCorrect ? '' : ` off a fake: +1 to ${st.victimId === myPlayerId ? 'you' : esc(fnameOf(st.victimId))}. Caught you.`}` : '',
-    state.dealerBonusAwarded ? (st && !st.skipped && st.victimId ? '🃏 Dealer’s revenge' : `🃏 ${state.isDealer ? 'Your' : esc(firstName(state.dealerName)) + '’s'} revenge: nobody ${dealerBetsNow() ? 'else ' : ''}found the real one`) : ''].filter(Boolean).join(' · ');
+  const steal = stealPlain();
   return `${header({ sticker: '<span class="sticker teal">Round recap</span>', thumb: false })}
     <div id="answer-root" class="done">
-    <div class="rc-real">${toon}<div class="rc-real-txt"><p class="rc-eyebrow">${state.closedIsCorrect ? 'The real one · face-down' : 'The real caption'}</p><p class="rc-cap">“${esc(real.caption || '')}”</p>${rc && rc.author ? `<p class="rc-credit">From The Gallery · ${esc(rc.author)}</p>` : ''}</div></div>
-    <div class="rc-pts ${scorers.length > 4 ? 'many' : ''}" id="answer-scores">${pts || '<p class="rc-none">Nobody scored. Not even the dealer.</p>'}</div>
+    ${page}
+    <h2 class="rc-h">Points this round</h2>
+    ${rows ? `<ul class="rc-rows" id="answer-scores">${rows}</ul>` : '<p class="rc-none" id="answer-scores">Nobody scored. Not even the dealer.</p>'}
     ${bluff ? `<p class="rc-line" id="bluff-shout">${bluff}</p>` : ''}
-    ${mischief ? `<p class="rc-line rc-dealer" id="rc-dealer">${mischief}</p>` : ''}
+    ${steal ? `<p class="rc-line rc-dealer" id="rc-dealer">${steal}</p>` : ''}
     <div id="answer-continue">${answerContinueHtml(isLastRound())}</div>
     </div>`;
+}
+/* #28: why each point was scored, in plain words, from the server's own list (state.roundScoreDetails):
+   "+2 found the real one", "+2 fooled Margaret", "+1 your chip was stolen off a fake". Same reasons add up. */
+function pointReasons(pid) {
+  const list = ((state.roundScoreDetails || {})[pid] || []).filter(d => d && d.pts);
+  const mine = pid === myPlayerId, out = [], fooled = [];
+  let fooledPts = 0;
+  const say = (reason) => {
+    const r = String(reason || '');
+    let m;
+    if ((m = r.match(/^Fooled (.+)$/i))) return { fooled: firstName(m[1]) };
+    if (/shot the moon/i.test(r)) return 'both chips on the face-down one, and it was real';
+    if (/half-?moon/i.test(r)) return 'both chips on the real one';
+    if (/stole/i.test(r) && /real/i.test(r)) return 'stole a chip off the real one';
+    if (/caught you|stolen off a fake/i.test(r)) return mine ? 'your chip was stolen off a fake' : 'had a chip stolen off a fake';
+    if (/revenge|no chip on the real/i.test(r)) return 'nobody found the real one';
+    if (/late chip/i.test(r)) return 'found the real one after the flip';
+    if (/closed caption|face-?down/i.test(r)) return 'found it face-down';
+    if (/real caption/i.test(r)) return 'found the real one';
+    return r.replace(/[.\s]+$/, '').replace(/^./, c => c.toLowerCase());
+  };
+  const sums = new Map();
+  for (const d of list) {
+    const w = say(d.reason);
+    if (w && typeof w === 'object') { if (!fooled.includes(w.fooled)) fooled.push(w.fooled); fooledPts += d.pts; continue; }
+    sums.set(w, (sums.get(w) || 0) + d.pts);
+  }
+  for (const [w, pts] of sums) out.push(`${pts > 0 ? '+' : '−'}${Math.abs(pts)} ${w}`);
+  if (fooled.length) out.push(`+${fooledPts} fooled ${listNames(fooled)}`);
+  return out;
+}
+// The steal, in plain words: who took whose chip, and who that paid
+function stealPlain() {
+  const st = state.steal, dealer = state.isDealer ? 'You' : firstName(state.dealerName || '');
+  if (!st) return '';
+  if (st.skipped) return state.settings && state.settings.stealEnabled !== false && dealerMode() !== 'bet' ? `${esc(dealer)} kept the peace. No steal.` : '';
+  if (!st.victimId) return '';
+  const me = st.victimId === myPlayerId, whose = me ? 'your' : esc(fnameOf(st.victimId)) + '’s';
+  if (st.onCorrect) return `${esc(dealer)} stole ${whose} chip off the real caption. Its points went to ${state.isDealer ? 'you' : esc(dealer)}.`;
+  const d = ((state.roundScoreDetails || {})[st.victimId] || []).find(x => /caught|stolen off a fake/i.test(String(x.reason || '')));
+  return `${esc(dealer)} stole ${whose} chip. It was on a fake, so ${me ? 'you get' : esc(fnameOf(st.victimId)) + ' gets'} +${d ? d.pts : 1}.`;
 }
 function isLastRound() {
   const t = state.settings && state.settings.targetScore;
