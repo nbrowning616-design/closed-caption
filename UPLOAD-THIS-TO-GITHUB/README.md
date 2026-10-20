@@ -25,6 +25,7 @@ A web-based multiplayer party game. One person creates a game, shares a 4-letter
 - Invite friends with the lobby QR code or the invite link (it fills in the room code)
 - Frame It: every round, each player can frame one caption (never their own, never the real one). No limit per game. When most of the other players (2 of 2, 2 of 3, 3 of 4…) frame the same caption, it's hung in The Gallery with a shareable print. Gallery games use framed captions as the real answers.
 - The Gallery lives on the phones: each phone saves every caption it sees framed and brings its collection to every game it joins, so it survives server restarts at no cost. Rooms never see each other's captions. (Optional: set DATA_DIR on a Render disk to also keep a server copy.) End-of-game awards play before the final scores
+- A phone that drops (Wi-Fi, a locked screen, a reload) goes straight back to its seat. Captions, bets, the steal and frame picks wait on the phone until the server confirms them, and go once, never twice
 - Every caption, including the real ones, is tidied the same way (capitals, punctuation, apostrophes, quotes) so style never gives anything away. Likely typos get a "Did you mean…?" before locking in
 
 ## Deploying Online
@@ -44,6 +45,11 @@ To make it accessible without being on the same WiFi:
 
 Both have free tiers that work fine for game nights.
 
+**Private stats (optional):** set an env var `STATS_KEY` to a long random string, then open `/stats?k=<that string>` for a
+tally: games started and finished, players per game, joins by QR code / invite link / typed code, recap and Gallery shares,
+by day. Counts only (no names, captions, room codes or addresses). Without the key the page doesn't exist (404). The tally
+is a small file (in `DATA_DIR` if set, else the temp folder), so on a free plan it starts over when the server is redeployed.
+
 ## Files
 
 - `server.js` — Express + WebSocket server
@@ -55,6 +61,7 @@ Both have free tiers that work fine for game nights.
 - `public/hof.js` — Draws the Gallery share print
 - `public/gallery.js` — The framing moment and the Gallery wall
 - `store.js` — Saves The Gallery
+- `stats.js` — The private tally behind `/stats` (counts only)
 - `public/badges.js` — Badge artwork, badge pops, badge case
 - `rating.js` — The chess-style rating: Elo over every pair at the table, the opening card and the verdict lines (server side)
 - `public/verdicts.js` — The pool of verdict lines (shared by the server and the phones)
