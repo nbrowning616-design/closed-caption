@@ -867,6 +867,10 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .rc-plus { font-family: var(--display); font-weight: 700; font-size: 24px; color: #0B6E59; flex: none; }
 .rc-line.rc-dealer { color: #B3261E; font-size: 16px; }
 .rc-wait, .fm-wait { color: var(--ink); }
+/* ── #35 the play-again moment ── */
+.fn-deal { font-size: 19px; padding: 17px 18px; }
+.fn-again-n { text-align: center; font-family: var(--serif); font-size: 19px; font-weight: 700; color: var(--ink); margin: 2px 0 2px; }
+.fn-again-in { text-align: center; font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--ink); margin: 4px 0 0; }
 /* the real caption, under the full-width cartoon, like a printed page */
 .hdr.pin ~ * .spot.is-real .spot-text, .hdr.pin ~ .spot.is-real .spot-text { text-align: center; }
 /* ── The rating (chess-style): lobby card + sheet, the opening card, the verdicts ── */
@@ -3346,7 +3350,7 @@ function renderFinal(sorted, animated, goal) {
     ${ccFinale.screenHtml()}
     <div class="fn-stand">${standings}</div>
     <div class="stack fn-btns">
-      ${state.finale.winner ? (state.isHost ? `<button class="btn btn-yellow" onclick="send({action:'play_again', seen:getSeen()})">Play again</button>` : `<p class="rc-wait">The host can start another game</p>`) : ''}
+      ${state.finale.winner ? againHtml(true) : ''}
       ${window.Recap && state.finale.winner ? `<button class="btn" onclick="Recap.open()">Night recap</button>` : ''}
     </div>`;
   return `${header({ sticker: '<span class="sticker">Final scores</span>', sub: goal, thumb: false })}
@@ -3354,10 +3358,25 @@ function renderFinal(sorted, animated, goal) {
     <div class="fn-stand">${standings}</div>
     <div class="stack fn-btns">
       ${galBtn}
+      ${againHtml(!galBtn)}
       ${window.Recap ? `<button class="btn" onclick="Recap.open()">Night recap</button>` : ''}
-      ${state.isHost ? `<button class="btn ${galBtn ? 'btn-sm' : 'btn-yellow'}" onclick="send({action:'play_again', seen:getSeen()})">${galBtn ? 'Skip the Gallery · play again' : 'Play again'}</button>` : galBtn ? '' : `<p class="rc-wait">The host can start another game</p>`}
       ${state.history && state.history.length ? `<button class="btn-link fn-link" onclick="openHistory()">Past rounds</button>` : ''}
     </div>`;
+}
+
+/* #35: the play-again moment. Every guest gets "I'm in for another"; the host sees "3 of 4 want another" and a big
+   "Deal again" (everyone goes back to the lobby, where Start is waiting). primary = the main button on this screen. */
+function againHtml(primary) {
+  const want = new Set(state.wantAgain || []);
+  const others = state.players.filter(p => p.connected && p.id !== state.hostId);
+  const n = others.filter(p => want.has(p.id)).length;
+  if (state.isHost) {
+    const count = n ? `<p class="fn-again-n" role="status">${n} of ${others.length} want another</p>` : '';
+    return `${count}<button class="btn ${primary ? 'btn-yellow fn-deal' : 'btn-sm'}" onclick="this.disabled=true; send({action:'play_again', seen:getSeen()})">${primary ? 'Deal again' : 'Skip the Gallery · deal again'}</button>`;
+  }
+  const host = esc(fnameOf(state.hostId));
+  if (want.has(myPlayerId)) return `<p class="fn-again-in" role="status">You’re in for another. ${host} deals.</p><button class="btn-link fn-link" onclick="send({action:'again', on:false})">Take it back</button>`;
+  return `<button class="btn ${primary ? 'btn-yellow fn-deal' : ''}" onclick="send({action:'again', on:true}); buzz(20)">I’m in for another</button>`;
 }
 
 /* ═══════════════════════════════════════════════════════════

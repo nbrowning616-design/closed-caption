@@ -106,6 +106,7 @@ function broadcast(code) {
       const view = G.getPlayerView(game, p.id);
       view.lanUrl = LAN_URL;
       view.build = BUILD;
+      if (game.phase === PHASES.SCORES) view.wantAgain = game.players.filter(x => x.again).map(x => x.id);   // #35: who's in for another
       c.ws.send(JSON.stringify({ type: 'state', data: view }));
       if (seal) c.ws.send(JSON.stringify({ type: 'seal', code, boot: BOOT, data: seal }));
     }
@@ -534,6 +535,14 @@ wss.on('connection', (ws, req) => {
         if (game.phase !== PHASES.SCORES || !G.isGameOver(game)) return sendError(ws, 'The game is still going');
         if (Array.isArray(msg.seen)) G.setSeen(game, msg.seen.slice(0, 200));
         G.resetForNewGame(game);
+        game.players.forEach(p => { delete p.again; });   // #35: a fresh show of hands next time
+        broadcast(code);
+        return;
+      }
+      case 'again': {
+        // #35: game over: a guest says "I'm in for another" (or takes it back); the host sees the count
+        if (game.phase !== PHASES.SCORES || !G.isGameOver(game)) return;
+        me.again = msg.on !== false;
         broadcast(code);
         return;
       }
