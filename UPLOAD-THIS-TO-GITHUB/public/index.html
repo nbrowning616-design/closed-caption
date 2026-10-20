@@ -1979,10 +1979,10 @@ function stageSay() {
       case 'lobby': line = `Lobby. ${plural(s.players.filter(p => p.connected).length, 'player')} here.${s.isHost ? ' Start the game is at the bottom.' : ` ${fnameOf(s.hostId)} starts the game.`}`; break;
       case 'writing': line = `Write. ${roundLabel()}. ${me ? 'You deal.' : `${d} deals.`} Write a caption that could pass for the real one. ${t === 'no timer' ? 'No timer.' : t + '.'}`; break;
       case 'reading': line = `Bet. ${me ? 'Read the captions aloud.' : `${d} reads the captions aloud.`} ${plural((s.openCaptions || []).length, 'caption')} in the open, one face-down.`; break;
-      case 'first_bets': line = s.isMyTurn ? '' : `Bet. ${s.currentBetterName ? firstName(s.currentBetterName) + ' bets first.' : 'Betting.'}`; break;
+      case 'first_bets': line = s.isMyTurn ? '' : s.dropAt ? '' : 'Bet. Everyone bets at once, in secret.'; break;   // (your own turn: afterRender says 'Bet now')
       case 'reveal': line = 'Flip. The face-down caption turns over.'; break;
-      case 'second_bets': line = s.isMyTurn ? '' : 'Flip. Last chips, same order as before.'; break;
-      case 'steal': line = me ? '' : `${d} is choosing a chip to steal.`; break;
+      case 'second_bets': line = s.isMyTurn ? '' : `Flip. Last chips, one at a time${s.currentBetterName ? ': ' + firstName(s.currentBetterName) + ' is up' : ''}.`; break;
+      case 'steal': line = me ? '' : `${d} is choosing a chip to steal, before the flip.`; break;
       case 'answer': { const { step, n } = reelInfo(); line = step > n ? 'Score. Round recap: the real caption and the points.' : 'Score. The reveal: who wrote each caption, and who fell for it.'; break; }
       case 'framing': line = 'Frame It. Did anyone beat the real caption?'; break;
       case 'scores': line = s.gameOver ? 'Final scores.' : `Scoreboard. Next dealer: ${firstName(s.nextDealerName || '')}.`; break;
@@ -2594,8 +2594,8 @@ function renderBetting(stage) {
   const myBlind = bets.find(b => b.playerId === myPlayerId && b.stage === 1 && b.target !== 'pass');
   const already = (t) => {
     if (!first || !myBlind || String(first.target) !== String(t)) return '';
-    if (!myBlind.count) return `<p class="note">Your blind chip was here. ${state.isDealer ? 'You' : esc(firstName(state.dealerName))} took it.</p>`;
-    return `<p class="note">Your blind chip is here${first.count === 1 ? ' — you can stack on it' : ''}</p>`;
+    if (!myBlind.count) return `<p class="note">Your first chip was here. ${state.isDealer ? 'You' : esc(firstName(state.dealerName))} took it.</p>`;
+    return `<p class="note">Your first chip is here${first.count === 1 ? ' — you can stack on it' : ''}</p>`;
   };
   const cards = (state.openCaptions || []).map((c, i) => `
     <div role="button" tabindex="0" class="${cls(i)}" data-target="${i}" onclick="selectBet(${i})"><span class="num">${i + 1}</span>${trayHtml(i, { showStolen: true })}
@@ -2641,7 +2641,7 @@ function renderBlind() {
       <p class="caption-text">“${esc(c)}”${capNote(i)}</p>${note(i)}</div>`).join('');
   const closedCard = `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')" style="text-align:center; padding:18px 16px;">${dropped ? trayHtml('closed') : ''}
       <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p>
-      <p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'Yours. Keep a straight face.' : `Bet blind that the real one is hiding here. ${plural(s.pointsClosedBet || 5, 'point')} a chip if it is.`}</p>${note('closed')}</div>`;
+      <p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'Yours. Keep a straight face.' : `Bet that the real one is hiding here. ${plural(s.pointsClosedBet || 5, 'point')} a chip if it is.`}</p>${note('closed')}</div>`;
   // The bettors: two chips each, and a tick once they're in (never where)
   const row = order.map((pid) => {
     const me = pid === myPlayerId, isIn = inSet.has(pid);
@@ -2658,7 +2658,7 @@ function renderBlind() {
   else if (state.isDealer && !dealerBetsNow()) banner = `<div class="turn-banner dealer"><div class="h2">You’re dealing. No bets for you.</div><p class="sub">${dealerSteals() ? 'When the chips drop, you steal one. Before the flip.' : 'If nobody finds the real one, you score.'} ${waitWords}</p>${clock}</div>`;
   else if (canPick) banner = `<div class="turn-banner you" role="status"><div class="h2">Your bet</div><p class="sub" style="color:var(--ink);">Everyone bets at once, in secret. Tap a caption, then 1 chip or both.</p>${clock}</div>`;
   else if (mine) banner = `<div class="turn-banner"><div class="h2">${esc(betLabel(mine.target, mine.count))} ✓</div><p class="sub">${waitWords} The chips drop together.</p>${clock}</div>`;
-  else banner = `<div class="turn-banner"><div class="h2">Blind bets</div><p class="sub">You sit this round out. ${waitWords}</p>${clock}</div>`;
+  else banner = `<div class="turn-banner"><div class="h2">First bets</div><p class="sub">You sit this round out. ${waitWords}</p>${clock}</div>`;
   const tools = !dropped && canRun() && waitOn.length ? `<div class="center" style="margin-top:18px;"><button class="btn-link" onclick="forceAdvance()">Drop the chips now</button></div>` : '';
   return `${header({ sticker: '<span class="sticker violet">Blind bets</span>' })}
     ${banner}
@@ -2695,7 +2695,7 @@ function undoBet() { undoUntil = 0; setActionBar(''); send({ action: 'undo_bet' 
 function skipBetter() { if (confirm(`Skip ${state.currentBetterName}’s turn? They sit this bet out.`)) send({ action: 'skip_better' }); }
 function forceAdvance() {
   const n = (state.pendingBetters || []).length;
-  if (state.phase === 'first_bets') { if (!n || confirm(`Drop the chips now? ${plural(n, 'player sits', 'players sit')} the blind bet out (and ${n === 1 ? 'keeps' : 'keep'} one chip for after the flip).`)) send({ action: 'advance' }); return; }
+  if (state.phase === 'first_bets') { if (!n || confirm(`Drop the chips now? ${plural(n, 'player sits', 'players sit')} the first bets out (and ${n === 1 ? 'keeps' : 'keep'} one chip for after the flip).`)) send({ action: 'advance' }); return; }
   if (confirm(`Move on without ${plural(n, 'more bet')}?`)) send({ action: 'advance' });
 }
 function selectBet(target) {
@@ -2798,7 +2798,7 @@ function flipTableHtml() {
     return `<div class="ft-row${t === 'closed' ? ' cc' : ''}"><span class="ft-lbl">${t === 'closed' ? '<span class="cc-badge" style="margin:0;">CC</span>' : t + 1}</span><span class="ft-chips">${chips}</span>${who}</div>`;
   }).join('');
   const noneOnCC = !bets.some(b => b.target === 'closed' && b.count > 0);
-  return `<div class="flip-table"><p class="eyebrow" style="margin-bottom:6px;">Blind chips on the table</p>${rows}${noneOnCC ? '<p class="small ft-none">Nobody is riding on the face-down one.</p>' : ''}</div>`;
+  return `<div class="flip-table"><p class="eyebrow" style="margin-bottom:6px;">First chips on the table</p>${rows}${noneOnCC ? '<p class="small ft-none">Nobody is riding on the face-down one.</p>' : ''}</div>`;
 }
 function renderReveal() {
   revealRunner = canRun();

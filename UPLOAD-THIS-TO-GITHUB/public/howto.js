@@ -189,7 +189,7 @@
         bet('you', '3', { x: W / 2, y: sr.height - 40 }, 0); bet('amy', '2', { x: -30, y: 300 }, 1);
         bet('bob', 'cc', { x: W + 10, y: 300 }, 2); bet('bob', 'cc', { x: W + 10, y: 320 }, 3); bet('cat', '3', { x: -30, y: 380 }, 4);
       });
-      at(5400, function () { head('Bet chips on the real one.', 'blind bets pay more. the face-down one pays most'); });
+      at(5400, function () { head('Bet chips on the real one.', 'first bets pay more. the face-down one pays most'); });
     } },
     { h: 'The dealer steals one chip.', note: 'before the flip. Dan, the dealer, is a menace', ms: 5000, go: function () {
       var sr = stage.getBoundingClientRect(), c3 = cap('3'), target = c3.querySelectorAll('.ht-chip')[1], claw = $('.ht-claw');
