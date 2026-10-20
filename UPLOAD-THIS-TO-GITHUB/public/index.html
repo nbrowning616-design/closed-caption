@@ -1410,7 +1410,7 @@ const ACKED = new Set(['submit_caption', 'place_bet', 'undo_bet', 'steal', 'fram
 let outbox = [];
 try { const o = JSON.parse(localStorage.getItem('cc_outbox') || '[]'); if (Array.isArray(o)) outbox = o.filter(x => x && x.cid && x.obj && Date.now() - x.at < 15 * 60000); } catch (e) {}
 const saveOutbox = () => { try { localStorage.setItem('cc_outbox', JSON.stringify(outbox)); } catch (e) {} };
-const newCid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+const newCid = () => (Math.random().toString(36).slice(2) + '00000000').slice(0, 8);   // (unique among this seat's recent messages; short, since the room's copy carries them)
 function pruneOutbox() { const now = Date.now(); outbox = outbox.filter(o => now - o.at < (o.acked ? 3 : 15) * 60000).slice(-40); }
 function settle(cid, keep) { const i = outbox.findIndex(o => o.cid === cid); if (i < 0) return; if (keep) outbox[i].acked = true; else outbox.splice(i, 1); pruneOutbox(); saveOutbox(); }
 function dropOutbox() { outbox = []; saveOutbox(); }

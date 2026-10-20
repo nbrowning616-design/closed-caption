@@ -349,7 +349,7 @@ wss.on('connection', (ws, req) => {
       const code = String(msg.code || '').toUpperCase().trim();
       const name = cleanName(msg.name);
       if (!name) return sendError(ws, 'Enter your name');
-      if (blocked(ip)) return sendError(ws, 'Too many tries. Wait a minute.');
+      if (blocked(ip)) return sendError(ws, TOO_MANY);
       const game = games[code];
       if (!game) { wrongCode(ip); return sendError(ws, 'Game not found'); }
       const existing = game.players.find(p => p.name.toLowerCase() === name.toLowerCase());
@@ -418,7 +418,7 @@ wss.on('connection', (ws, req) => {
     if (!cid) return handle();
     const done = ((game.acks = game.acks || {})[playerId] = game.acks[playerId] || []);
     if (done.includes(cid)) return send(ws, { type: 'ack', cid, dup: true });
-    done.push(cid); if (done.length > 40) done.splice(0, done.length - 40);
+    done.push(cid); if (done.length > 24) done.splice(0, done.length - 24);   // (a few rounds' worth; small enough for the sealed copy)
     game.actN = (game.actN || 0) + 1;
     ws.curCid = cid; ws.curFailed = false; ws.curHeld = false;
     let threw = null;
