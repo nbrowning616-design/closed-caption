@@ -59,6 +59,10 @@ drawings to keep it fresh but familiar."
 - Fresh drawings, same five styles: every premise also carries a "composition" (wide shot / close-up / from above /
   from below / cutaway / silhouette / line-up / rare crowd / ~1 in 8 a nice background), so the deck doesn't settle
   into one medium-shot look. The five styles stay exactly as approved.
+- Science (Nick, Oct 20 2026): "Don't forget science. A lot of the players will have science background." Keep a
+  steady share of science premises (labs, chemistry and chemical plants, hospitals, field research, observatories,
+  engineering, peer review, grants, conferences) — always funny to non-scientists too — and science-flavored nods in
+  verdicts, credits and stock lines.
 - Interleave voices in the queue so neighbours feel different; nods to news/sports/movies stay occasional.
 - Every card added also gets its variety tags: `python3 tools/card_meta.py --id N --style S --voice V --title "..." --scene "..."`
   (S = 1–5 style number, V = the premise-writer voice). The deal uses them so no two cards in a row share a creator,
