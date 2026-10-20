@@ -2632,7 +2632,8 @@ async function makeCardFrom(e) {
   $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin:10px 0;">Gallery card</p><div class="center" style="padding:30px 0;"><span class="spin"></span><p class="small" style="margin-top:8px;">Setting the type…</p></div>`;
   $('sheet').classList.add('on');
   try {
-    hofBlob = await window.HallCard.make({ imageSrc: '/images/' + e.image, caption: e.caption, credit, inducted: e.inducted || `Framed ${e.month || ''}`.trim(), flaggers: e.flaggers || [] });
+    const back = window.HallCard.siteUrl ? { url: window.HallCard.siteUrl('gallery'), label: window.HallCard.siteLabel() } : null;   // #24: the card leads back to the game
+    hofBlob = await window.HallCard.make({ imageSrc: '/images/' + e.image, caption: e.caption, credit, inducted: e.inducted || `Framed ${e.month || ''}`.trim(), flaggers: e.flaggers || [], qr: back });
     const url = URL.createObjectURL(hofBlob);
     window._hofName = window.HallCard.filenameFor ? window.HallCard.filenameFor(credit) : 'closed-caption-gallery.png';
     $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin-bottom:10px;">Gallery card</p>
@@ -2642,7 +2643,8 @@ async function makeCardFrom(e) {
 }
 async function shareHofCard() {
   if (!hofBlob) return;
-  const r = await window.HallCard.share(hofBlob, { title: 'The Closed Caption Gallery', text: 'Framed in The Closed Caption Gallery', filename: window._hofName });
+  const link = window.HallCard.siteUrl ? window.HallCard.siteUrl('gallery') : location.origin + '/?from=gallery';
+  const r = await window.HallCard.share(hofBlob, { title: 'The Closed Caption Gallery', text: `Framed in The Closed Caption Gallery. Play it: ${link}`, filename: window._hofName });
   if (r === 'downloaded') showToast('Saved to your downloads', 'ok');
 }
 function hofListHtml() {

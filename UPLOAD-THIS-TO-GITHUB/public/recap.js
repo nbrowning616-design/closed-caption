@@ -273,7 +273,7 @@
     }
 
     // Captions
-    var cy0 = 626, statsY = 1118, n = d.caps.length;
+    var cy0 = 626, statsY = 1054, n = d.caps.length;   // (#24: room under the stats for the address and the QR code)
     ctx.textAlign = 'left'; ctx.fillStyle = C.yellowD; ctx.font = font(900, 24);
     tracked(ctx, d.capsTitle.toUpperCase(), M, cy0 - 4, 3);
     var areaTop = cy0 + 24, areaH = statsY - 36 - areaTop;
@@ -326,13 +326,18 @@
       if (s.sub) { ctx.fillStyle = C.ink2; fitOne(ctx, s.sub, tmax, 800, 24, 18); ctx.fillText(clip(ctx, s.sub, tmax), tx, statsY + sh - 16); }
     });
 
-    // Footer
-    ctx.textAlign = 'center'; ctx.fillStyle = C.muted; ctx.font = font(800, 23);
-    var foot = 'Closed Caption · the caption-bluffing party game';
-    ctx.fillText(foot, W / 2, H - 46);
-    var fw = ctx.measureText(foot).width;
+    // Footer (#24): the way back in. The address on the left, a small QR code in the corner.
+    var qs = 100, qx = W - M - qs, qy = H - 26 - qs, HC = window.HallCard;
+    var hasQr = !!(HC && HC.drawQr && HC.drawQr(ctx, HC.siteUrl('recap'), qx, qy, qs, C.ink, '#FFFFFF'));
+    if (hasQr) { ctx.save(); ctx.lineWidth = 3; ctx.strokeStyle = C.ink; ctx.strokeRect(qx - 1.5, qy - 1.5, qs + 3, qs + 3); ctx.restore(); }
+    var fx = M, fmax = (hasQr ? qx - 30 : W - M) - fx;
     ctx.strokeStyle = C.line; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(M, H - 54); ctx.lineTo(W / 2 - fw / 2 - 22, H - 54); ctx.moveTo(W / 2 + fw / 2 + 22, H - 54); ctx.lineTo(W - M, H - 54); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(M, qy - 12); ctx.lineTo(hasQr ? qx - 18 : W - M, qy - 12); ctx.stroke();
+    ctx.textAlign = 'left'; ctx.fillStyle = C.ink;
+    var addr = 'Play it: ' + (HC && HC.siteLabel ? HC.siteLabel() : location.host);
+    fitOne(ctx, addr, fmax, 900, 32, 20); ctx.fillText(addr, fx, qy + 40);
+    ctx.fillStyle = C.muted; ctx.font = font(800, 23);
+    ctx.fillText(clip(ctx, 'Closed Caption · free, on any phone, no app', fmax), fx, qy + 78);
   }
 
   function toBlob(canvas) { return new Promise(function (res, rej) { try { canvas.toBlob(function (b) { b ? res(b) : rej(new Error('toBlob null')); }, 'image/png'); } catch (e) { rej(e); } }); }
@@ -371,7 +376,8 @@
   }
   function share() {
     if (!blob) return;
-    var opts = { title: 'Closed Caption — game night', text: 'Closed Caption, tonight.', filename: filename() };
+    var link = window.HallCard && window.HallCard.siteUrl ? window.HallCard.siteUrl('recap') : location.origin + '/?from=recap';
+    var opts = { title: 'Closed Caption — game night', text: 'Closed Caption, tonight. Play it: ' + link, filename: filename() };   // #24
     var p = window.HallCard && window.HallCard.share ? window.HallCard.share(blob, opts) : Promise.resolve('cancelled');
     p.then(function (r) { if (r === 'downloaded') { try { showToast('Saved to your downloads', 'ok'); } catch (e) {} } });
   }

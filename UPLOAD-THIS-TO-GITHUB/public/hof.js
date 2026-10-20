@@ -1,6 +1,8 @@
 /* Closed Caption — Gallery share card generator (a framed caption, magazine style).
  * Self-contained. Exposes window.HallCard = { make, share, filenameFor }.
- * make({ imageSrc, caption, credit, inducted (e.g. 'Framed October 2026'), flaggers }) -> Promise<Blob> (image/png, 1080x1350)
+ * make({ imageSrc, caption, credit, inducted (e.g. 'Framed October 2026'), flaggers, qr: { url, label } }) -> Promise<Blob> (image/png, 1080x1350)
+ *   qr (#24): prints "Play it: <label>" and a small QR code of url in the bottom corner, so a posted card leads back to the game
+ * siteUrl(from) -> 'https://<this site>/?from=<from>'   siteLabel() -> '<this site's host>'   drawQr(ctx, text, x, y, size, ink, paper)
  * share(blob, { title, text, filename }) -> Promise<'shared'|'downloaded'|'cancelled'>
  */
 (function () {
@@ -320,6 +322,32 @@
     ctx.fillRect(0, 0, W, H);
   }
 
+  // ---------- the way back in (#24): the site's address and a small QR code ----------
+
+  // https://host/?from=gallery — the link printed on (and texted with) a shared picture
+  function siteUrl(from) {
+    var o = ''; try { o = location.origin; } catch (e) {}
+    if (!/^https?:/.test(o)) o = 'https://closed-caption.onrender.com';
+    return o + '/' + (from ? '?from=' + encodeURIComponent(from) : '');
+  }
+  function siteLabel() { try { return location.host || 'closed-caption.onrender.com'; } catch (e) { return 'closed-caption.onrender.com'; } }
+  // Draw a QR code (qrcode.js, already on the page) as a square of ink on a white tile. Returns false if it can't.
+  function drawQr(ctx, text, x, y, size, ink, paper) {
+    try {
+      if (typeof window.qrcode !== 'function') return false;
+      var q = window.qrcode(0, 'M'); q.addData(String(text)); q.make();
+      var n = q.getModuleCount(), quiet = 2, cell = size / (n + quiet * 2);
+      ctx.save();
+      ctx.fillStyle = paper || '#FFFFFF'; ctx.fillRect(x, y, size, size);
+      ctx.fillStyle = ink || '#1C1A17';
+      for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) {
+        if (q.isDark(r, c)) ctx.fillRect(Math.floor(x + (c + quiet) * cell), Math.floor(y + (r + quiet) * cell), Math.ceil(cell), Math.ceil(cell));
+      }
+      ctx.restore();
+      return true;
+    } catch (e) { return false; }
+  }
+
   // ---------- main render ----------
 
   function render(canvas, opts, img) {
@@ -330,6 +358,7 @@
 
     var M = 76;                // outer margin for rules
     var L = M, R = W - M, CX = W / 2;
+    var foot = opts.qr ? 128 : 0;   // #24: a band under the bottom rule for the address and the QR code
 
     // --- masthead ---
     hrule(ctx, L, R, 64, 2.2);
@@ -343,7 +372,7 @@
     ctx.fillStyle = C.rule;
 
     var topY = 146;            // content starts below this
-    var bottomRuleY = H - 66;  // bottom double rule
+    var bottomRuleY = H - 66 - foot;  // bottom double rule
 
     // --- caption metrics ---
     var caption = smarten(opts.caption);
@@ -461,6 +490,25 @@
     hrule(ctx, L, R, bottomRuleY + 6, 2.2);
     ctx.fillStyle = C.gold;
     diamond(ctx, CX, bottomRuleY + 3.6, 5);
+
+    // --- #24: the way back in: the address (left) and a small QR code (right corner) ---
+    if (opts.qr) {
+      var qs = 112, qx = R - qs, qy = bottomRuleY + 22;
+      var hasQr = drawQr(ctx, opts.qr.url, qx, qy, qs, C.ink, '#FFFFFF');
+      if (hasQr) { ctx.save(); ctx.strokeStyle = 'rgba(28,26,23,0.35)'; ctx.lineWidth = 1.5; ctx.strokeRect(qx - 0.75, qy - 0.75, qs + 1.5, qs + 1.5); ctx.restore(); }
+      var tx = L, tw = (hasQr ? qx - 28 : R) - L;
+      ctx.textAlign = 'left'; ctx.fillStyle = C.ink;
+      var fs = 30; ctx.font = font('italic', 400, fs);
+      var l1 = 'Play it: ' + (opts.qr.label || siteLabel());
+      while (ctx.measureText(l1).width > tw && fs > 18) { fs -= 1; ctx.font = font('italic', 400, fs); }
+      ctx.fillText(l1, tx, qy + 46);
+      ctx.fillStyle = C.soft;
+      var l2 = 'Closed Caption · a bluffing game with cartoons';
+      var f2 = fitSmallCaps(ctx, l2, 21, 17, 2.2, tw);
+      ctx.textAlign = 'center';
+      drawSmallCaps(ctx, l2, tx + smallCapsWidth(ctx, l2, f2.big, f2.small, f2.track) / 2, qy + 88, f2.big, f2.small, f2.track);
+      ctx.textAlign = 'center';
+    }
   }
 
   function toBlob(canvas) {
@@ -536,7 +584,7 @@
     });
   }
 
-  window.HallCard = { make: make, share: share, filenameFor: filenameFor };
+  window.HallCard = { make: make, share: share, filenameFor: filenameFor, siteUrl: siteUrl, siteLabel: siteLabel, drawQr: drawQr };
   // warm the font early
   try { loadFonts(); } catch (e) {}
 })();
