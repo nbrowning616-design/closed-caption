@@ -352,8 +352,9 @@ body.has-bar .screen { padding-bottom: calc(160px + var(--sab)); }
 @keyframes bob { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-6px);} }
 .shake { animation: shake .4s ease-in-out; }
 @keyframes shake { 0%,100% { transform: translateX(0);} 25% { transform: translateX(-6px);} 75% { transform: translateX(6px);} }
-.dots::after { content: ''; animation: dots 1.4s steps(4, end) infinite; }
-@keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
+/* #30: one ellipsis that breathes (the old one stepped through '.', '..', '...', so a screenshot caught a double period) */
+.dots::after { content: '…'; animation: dots 1.4s ease-in-out infinite; }
+@keyframes dots { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
 details.box > summary { list-style: none; cursor: pointer; padding: 12px 14px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; font-weight: 900; font-size: 14px; display: flex; align-items: center; gap: 8px; user-select: none; }
 details.box > summary::-webkit-details-marker { display: none; }
 details.box > summary .arrow { margin-left: auto; transition: transform .2s; }
@@ -361,7 +362,17 @@ details.box[open] > summary .arrow { transform: rotate(180deg); }
 details.box .body { padding: 14px 4px 4px; }
 #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 800; }
 #app-toast { position: fixed; bottom: calc(24px + var(--sab)); left: 50%; transform: translateX(-50%) translateY(140px); z-index: 1001; max-width: 90%; padding: 12px 18px; border: var(--bw) solid var(--ink); border-radius: 14px; background: var(--ink); color: var(--paper); font-weight: 800; font-size: 14px; box-shadow: var(--shadow-sm); transition: transform .35s var(--spring); pointer-events: none; text-align: center; }
-#conn-banner { position: fixed; top: 0; left: 0; right: 0; padding: calc(8px + var(--sat)) 10px 8px; text-align: center; font-size: 13px; font-weight: 900; z-index: 1000; transform: translateY(-100%); transition: transform .3s var(--ease-out); border-bottom: var(--bw) solid var(--ink); }
+#conn-banner { position: fixed; top: 0; left: 0; right: 0; padding: calc(9px + var(--sat)) 12px 9px; text-align: center; font-size: 15px; font-weight: 800; z-index: 1000; transform: translateY(-100%); transition: transform .3s var(--ease-out); border-bottom: var(--bw) solid var(--ink); background: var(--paper-2); color: var(--ink); pointer-events: none; }
+/* #2: a calm 'Reconnecting…' (paper), a red 'Can't reach the table, retrying' (the server turned the seat down), a short 'Back' */
+#conn-banner.on { transform: translateY(0); }
+#conn-banner.calm { background: var(--paper-2); color: var(--ink); }
+#conn-banner.refused { background: var(--red-d); color: #fff; }
+#conn-banner.back { background: var(--teal-d); color: #fff; }
+.back-wait { min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px; padding: 24px 8px; }
+.back-wait .h2 { font-family: var(--serif); }
+.back-wait .btn-link { visibility: hidden; margin-top: 18px; min-height: 44px; }
+#rejoin-box .rejoin-sub { text-align: center; margin: 8px 0 4px; }
+#rejoin-box .rejoin-sub .btn-link { min-height: 44px; padding: 0 6px; }
 
 /* Home */
 .hero-title { font-family: var(--display); font-weight: 700; font-size: 58px; line-height: .9; letter-spacing: -2px; }
@@ -732,6 +743,8 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
    Caslon (italic for captions) is the voice of every caption and every moment headline; Fredoka/Nunito stay
    for buttons, chips and labels. Moments are a stamp, a line of serif and one soft sound. */
 .caption-text, .spot-text, .rc-cap, .fm-cap, .nb-cap, .ra-cap, .fm-real-cap, .hof-caption, .aw-quote { font-family: var(--serif); font-style: italic; font-weight: 400; }
+/* #30: a long unbroken word (a stretched 'Noooo…', a pasted link) wraps inside the card instead of running off it */
+.caption-text, .spot-text, .rc-cap, .fm-cap, .nb-cap, .fm-real-cap, .hof-caption, .aw-quote, .st-quote, .ra-cap { overflow-wrap: anywhere; hyphens: auto; min-width: 0; }
 .gp-name, .gp-tease, .aw-title, .aw-who, .fn-name, .pb-name { font-family: var(--serif); font-weight: 700; letter-spacing: 0; }
 .gp-name { -webkit-text-stroke: 0; text-shadow: 0 3px 0 #7A5A00; }
 .gp-tease { text-shadow: none; }
@@ -767,6 +780,33 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .ft-chips { display: inline-flex; gap: 4px; flex-wrap: wrap; }
 .ft-who { font-size: 13px; font-weight: 800; color: var(--ink-2); margin-left: auto; }
 .ft-none { margin-top: 6px; color: var(--muted); }
+/* ── Rules and flow (Oct 20 2026): blind bets at once, the Late Edition, the tie-break, the table's reliability ── */
+.blind-clock { margin: 6px 0 0; font-family: var(--serif); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.turn-banner.dealer .blind-clock { color: #D9CFC2; }
+.blind-clock.urgent { color: var(--red); }
+.turn-banner.dealer .blind-clock.urgent { color: #FFB3AC; }
+.bettors.blind { justify-content: center; }
+.bettor.waiting .bchips { opacity: .45; }
+.b-in { display: inline-block; margin-right: 3px; color: var(--teal); font-weight: 900; }
+#late-card { position: fixed; inset: 0; z-index: 770; display: none; align-items: center; justify-content: center; padding: calc(20px + var(--sat)) 16px calc(20px + var(--sab)); background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 18px 18px; cursor: pointer; }
+#late-card.on { display: flex; animation: fadeIn .35s ease-out; }
+.le-card { width: 100%; max-width: 360px; text-align: center; }
+.le-rule { border-top: 3px double var(--ink); margin: 0 auto; }
+.le-eye { font-family: var(--sans); font-size: 11px; font-weight: 900; letter-spacing: .26em; text-transform: uppercase; color: var(--ink-2); margin: 10px 0 2px; }
+.le-h { font-family: var(--serif); font-weight: 700; font-size: 40px; line-height: 1.05; color: var(--ink); margin: 0 0 10px; }
+.le-line { font-family: var(--serif); font-style: italic; font-size: 17px; line-height: 1.4; color: var(--ink); margin: 12px 0 0; }
+.le-x2 { display: inline-block; margin-top: 14px; padding: 3px 12px; border: 2.5px solid var(--ink); border-radius: 4px; font-family: var(--serif); font-weight: 700; font-size: 18px; transform: rotate(-2deg); box-shadow: 2px 2px 0 var(--ink); background: var(--card); }
+.sb-late { margin: 6px 0 12px; text-align: center; font-family: var(--serif); font-style: italic; font-size: 15.5px; line-height: 1.4; color: var(--ink); }
+.sb-late b { font-style: normal; }
+.fn-why { font-family: var(--serif); font-style: italic; font-size: 14.5px; line-height: 1.35; color: var(--ink-2); margin-top: 6px; }
+.vd-short { text-align: center; font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--muted); margin: -6px 0 12px; }
+#host-away { margin-bottom: 12px; padding: 10px 12px; text-align: center; }
+#host-away .btn { margin-top: 8px; }
+#claim-bar { position: fixed; left: 50%; top: calc(10px + var(--sat)); z-index: 960; width: min(calc(100vw - 32px), 420px); transform: translateX(-50%); padding: 12px 14px; background: var(--card); border: var(--bw) solid var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow); text-align: center; }
+#claim-bar .h2 { font-size: 18px; margin-bottom: 2px; }
+#claim-bar .btn-row { margin-top: 10px; }
+.seat-wait { text-align: center; padding: 28px 8px; }
+.seat-wait .h2 { margin: 10px 0 6px; }
 
 .rules-pitch { margin: 0 0 14px; }
 .rules-pitch .rp1 { font-family: var(--serif); font-weight: 700; font-size: 19px; line-height: 1.2; }
@@ -1018,10 +1058,10 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
   <p class="eyebrow" style="margin-bottom: 10px;">Each round</p>
   <div class="stack" style="margin-bottom: 22px;">
     <div class="panel flat rule-step"><div class="n">1</div><div><b>Everyone writes.</b> <span class="sub">The dealer too. Hate the cartoon? Vote to skip it.</span></div></div>
-    <div class="panel flat yellow rule-step"><div class="n">2</div><div><b>One goes face-down.</b> <span class="sub">The game turns one caption over: the <b>Closed Caption</b>. Usually a player’s. Sometimes the real one.</span></div></div>
-    <div class="panel flat blue rule-step"><div class="n">3</div><div><b>Blind bets.</b> <span class="sub">The dealer reads the open ones aloud. Then, in turn from the dealer’s <span class="dir-word">left</span>, put 1 or 2 chips on any caption — the face-down one too. <span id="rules-dealer-bets">The dealer doesn’t bet.</span></span></div></div>
-    <div class="panel flat violet rule-step"><div class="n">4</div><div><b>The flip.</b> <span class="sub">The Closed Caption turns over. Anyone with a chip left puts it down.</span></div></div>
-    <div class="panel flat red rule-step"><div class="n">5</div><div><b>The steal.</b> <span class="sub" id="rules-steal-pts">The dealer takes one chip off the table. Off the real one = its points go to the dealer. Off a fake, its owner gets +1: caught you.</span></div></div>
+    <div class="panel flat yellow rule-step"><div class="n">2</div><div><b>One goes face-down.</b> <span class="sub">The game turns one caption over: the <b>Closed Caption</b>. Usually a player’s. The real one <span class="odds-word">about one round in seven</span>.</span></div></div>
+    <div class="panel flat blue rule-step"><div class="n">3</div><div><b>Blind bets.</b> <span class="sub">The dealer reads the open ones aloud. Then everyone bets at once, in secret: 1 or 2 chips on any caption — the face-down one too. The chips drop together. <span id="rules-dealer-bets">The dealer doesn’t bet.</span></span></div></div>
+    <div class="panel flat red rule-step"><div class="n">4</div><div><b>The steal.</b> <span class="sub" id="rules-steal-pts">Before the flip, the dealer takes one chip off the table. Off the real one = its points go to the dealer. Off a fake, its owner gets +1: caught you.</span></div></div>
+    <div class="panel flat violet rule-step"><div class="n">5</div><div><b>The flip.</b> <span class="sub">The Closed Caption turns over. Anyone with a chip left puts it down, in turn from the dealer’s <span class="dir-word">left</span>.</span></div></div>
     <div class="panel flat teal rule-step"><div class="n">6</div><div><b>The reveal.</b> <span class="sub">One caption at a time: who wrote it, who fell for it. The real one comes last. Points are paid and the deal moves <span class="dir-word">left</span>.</span></div></div>
   </div>
 
@@ -1032,8 +1072,10 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
   <details class="box" id="rules-extras" style="margin-bottom: 22px;"><summary>The extras <span class="arrow">▾</span></summary><div class="body">
     <ul class="rules-extras">
       <li><b>Frame It.</b> After each round, pick a caption that beat the real one (never your own). Frame as many as deserve it, one a round. When <span class="frame-need">most of the other players</span> pick the same one, it hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
+      <li><b>The Late Edition.</b> In a game that goes around the table more than once, the last trip around pays double. First to 20: when someone gets there, the trip around the table is finished (everyone deals the same number of times), at double points. Then the leader wins.</li>
+      <li><b>A tie for first</b> goes to whoever fooled the most people. Still level: more captions framed. Still level: a tie.</li>
       <li><b>The Grand Poobah.</b> Points say who bet best. The hat goes to who wrote best: the most chips on their fakes, all night.</li>
-      <li><b>Your rating.</b> Ranked like chess, but judged by friends. Everyone starts at 1,200; after each game you gain points from everyone you finished above and lose them to everyone who finished above you. Beating higher-rated players moves it more. Titles: Candidate 1,400, Master 1,600, Senior Master 1,800, Grandmaster 2,000. Your phone keeps it.</li>
+      <li><b>Your rating.</b> Ranked like chess, but judged by friends. Everyone starts at 1,200; after each game you gain points from everyone you finished above and lose them to everyone who finished above you. Beating higher-rated players moves it more; a short game moves it less. Titles: Candidate 1,400, Master 1,600, Senior Master 1,800, Grandmaster 2,000. Your phone keeps it.</li>
       <li><b>Badges.</b> Rare moments earn badges: Moon Landing, Three Bagger, Clean Sweep, Great Minds, Pickpocket. Your phone keeps those too.</li>
       <li><b>Good to know.</b> Bet on your own caption to bluff — it scores nothing. Captions are tidied the same way, the real one too. The real one isn’t always the funniest. Tap the cartoon to zoom.</li>
     </ul>
@@ -1215,23 +1257,33 @@ function goBackFromRules() {
   else showScreen(rulesReturn === 'screen-game' ? 'screen-home' : rulesReturn);
 }
 
+// #10: how often the face-down card is the real one, in words (the planner deals the lobby's share of rounds:
+// measured over thousands of games, 15% comes out at 1 round in 6.8, 10% at 1 in 10, 20% at 1 in 5, 30% at 1 in 3.4)
+function faceDownOdds(p) {
+  p = typeof p === 'number' ? p : 0.15;
+  if (p <= 0) return 'never, this game';
+  const n = Math.round(1 / p);
+  return Math.abs(1 / p - n) < 0.05 ? `one round in ${n}` : `about one round in ${n}`;
+}
 function renderRulesScoring() {
-  const s = (state && state.settings) || { pointsOpenBet: 2, pointsClosedBet: 3, pointsOpenLate: 1, pointsPerFool: 1, dealerBonus: 4, pointsStealCorrect: 1, stealEnabled: true, direction: 'left', dealerMode: 'steal' };
+  const s = (state && state.settings) || { pointsOpenBet: 2, pointsClosedBet: 5, pointsOpenLate: 1, pointsPerFool: 2, dealerBonus: 4, stealEnabled: true, direction: 'left', dealerMode: 'steal', autoCloseProbability: 0.15 };
   // [settings] Dealer mode: what the dealer does this game
-  const dm = s.dealerMode || 'steal', dBets = dm === 'bet' || dm === 'both';
+  const dm = s.dealerMode || 'steal', dBets = dm === 'bet' || dm === 'both', steals = s.stealEnabled !== false && dm !== 'bet';
   const rdb = $('rules-dealer-bets');
-  if (rdb) rdb.textContent = dm === 'bet' ? 'This game the dealer bets 2 chips too, last in the order (no steal).' : dm === 'both' ? 'This game the dealer bets 2 chips too, last in the order — and then steals one.' : 'The dealer doesn’t bet.';
+  if (rdb) rdb.textContent = dm === 'bet' ? 'This game the dealer bets 2 chips too (no steal).' : dm === 'both' ? 'This game the dealer bets 2 chips too — and then steals one.' : 'The dealer doesn’t bet.';
   $('rules-scoring').innerHTML = `
     <div class="score-line"><span>Blind chip on the real caption</span><span class="v">+${s.pointsOpenBet}</span></div>
-    <div class="score-line"><span>Blind chip on the face-down one, and it’s real</span><span class="v">+${s.pointsClosedBet}</span></div>
+    <div class="score-line"><span>Blind chip on the face-down one, and it’s real (${faceDownOdds(s.autoCloseProbability)})</span><span class="v">+${s.pointsClosedBet}</span></div>
     <div class="score-line"><span>Late chip (after the flip) on the real caption</span><span class="v">+${s.pointsOpenLate}</span></div>
     <div class="score-line"><span>Each chip someone puts on <i>your</i> fake</span><span class="v">+${s.pointsPerFool}</span></div>
-    <div class="score-line"><span>🌗 <b>Half-Moon</b>: both chips blind on one open caption</span><span class="v">+${s.pointsOpenBet * 2}</span></div>
-    <div class="score-line"><span>🌕 <b>Shoot the Moon</b>: both chips blind on the face-down one</span><span class="v">+${s.pointsClosedBet * 2}</span></div>
-    ${s.stealEnabled === false || dm === 'bet' ? '' : '<div class="score-line"><span>Your chip stolen off a fake caption (caught you)</span><span class="v">+1</span></div>'}
-    <div class="score-line"><span>🃏 <b>Dealer’s revenge</b>: no chip ends up on the real caption</span><span class="v">+${s.dealerBonus}</span></div>${dBets ? '<div class="score-line"><span class="sub">The dealer’s own chips don’t count for the revenge — and a dealer chip on the real one still scores.</span></div>' : ''}`;
+    <div class="score-line"><span><b>Half-Moon</b>: both chips blind on one open caption</span><span class="v">+${s.pointsOpenBet * 2}</span></div>
+    <div class="score-line"><span><b>Shoot the Moon</b>: both chips blind on the face-down one</span><span class="v">+${s.pointsClosedBet * 2}</span></div>
+    ${steals ? '<div class="score-line"><span>Your chip stolen off a fake caption (caught you)</span><span class="v">+1</span></div>' : ''}
+    <div class="score-line"><span><b>Dealer’s revenge</b>: no chip ends up on the real caption</span><span class="v">+${s.dealerBonus}</span></div>${dBets ? '<div class="score-line"><span class="sub">The dealer’s own chips don’t count for the revenge — and a dealer chip on the real one still scores.</span></div>' : ''}
+    <div class="score-line"><span><b>The Late Edition</b>: the last trip around the table</span><span class="v">×2</span></div>`;
   $('rules-specials').innerHTML = '';
-  $('rules-steal-pts').innerHTML = s.stealEnabled === false || dm === 'bet' ? 'Off this game: the dealer bets 2 chips instead.' : (dm === 'both' ? 'After betting like everyone, the dealer takes one other player’s chip. Off the real one = its points go to the dealer. Off a fake, its owner gets +1: caught you.' : 'The dealer takes one chip off the table. Off the real one = its points go to the dealer. Off a fake, its owner gets +1: caught you.');
+  $('rules-steal-pts').innerHTML = !steals ? 'Off this game: the dealer bets 2 chips instead.' : `Before the flip, the dealer takes ${dm === 'both' ? 'one other player’s chip' : 'one chip off the table'}. Off the real one = its points go to the dealer. Off a fake, its owner gets +1: caught you.`;
+  document.querySelectorAll('.odds-word').forEach(e => { e.textContent = faceDownOdds(s.autoCloseProbability); });
   document.querySelectorAll('.dir-word').forEach(e => { e.textContent = s.direction === 'right' ? 'right' : 'left'; });
   document.querySelectorAll('.frame-need').forEach(e => { e.textContent = frameNeedWords(); });
 }
@@ -1449,43 +1501,145 @@ const confetti = (() => {
    Networking (auto-reconnect, session restore)
    ═══════════════════════════════════════════════════════════ */
 let reconnectAttempts = 0, connectionStatus = 'connecting', reconnectTimer = null;
+/* #2 Dropped phones. The server pings every 10 s; a phone that hears nothing for 20 s treats the connection as dead
+   and reconnects at once (calm 'Reconnecting…' banner). A seat the server turns down shows a red 'Can't reach the
+   table, retrying' and is tried again on a timer. On load, a phone with a seat goes straight back to the table. */
+let lastHeard = Date.now(), refusedN = 0, refusedT = null, autoBack = null, openT = null, downAt = 0, downT = null, seatedSock = null, resendAll = false;
+const DEAD_MS = 20000, RETRY_MS = 4000;
 function saveSession() { if (myPlayerId && gameCode) { const v = JSON.stringify({ playerId: myPlayerId, code: gameCode, key: myKey, boot: serverBoot, name: (playerById(myPlayerId) || {}).name || '', ts: Date.now() }); try { sessionStorage.setItem('cc_session', v); } catch (e) {} try { localStorage.setItem('cc_session', v); } catch (e) {} } }
 function readStore(store) { try { const s = JSON.parse(store.getItem('cc_session') || 'null'); if (!s || Date.now() - s.ts > 12 * 3600 * 1000) return null; return s; } catch { return null; } }
 // The game takes no photos any more: forget any headshot an older version left on this phone
 try { localStorage.removeItem('cc_face'); localStorage.removeItem('cc_face_no'); } catch (e) {}
 function clearSession() { try { sessionStorage.removeItem('cc_session'); } catch (e) {} try { localStorage.removeItem('cc_session'); } catch (e) {} }
+// #2: Home with a seat still open: 'Back to the game' is the big button (Host a game steps down)
 function offerRejoin() {
-  const s = readStore(localStorage), box = $('rejoin-box');
+  const s = readStore(localStorage), box = $('rejoin-box'), hostBtn = document.querySelector('.home-host');
   if (!box) return;
-  if (!s || myPlayerId) { box.innerHTML = ''; return; }
-  box.innerHTML = `<div class="panel yellow flat" style="text-align:left; display:flex; align-items:center; gap:12px;"><div style="flex:1;"><b>Still at the table?</b><br><span class="small">Game ${esc(s.code)}${s.name ? ' as ' + esc(s.name) : ''}</span></div><button class="btn btn-sm btn-ink" style="width:auto;" onclick="rejoinSaved()">Rejoin</button><button class="btn-link" style="padding:4px;" aria-label="Dismiss" onclick="clearSession(); offerRejoin();">✕</button></div>`;
+  const show = !!s && !myPlayerId;
+  if (hostBtn) hostBtn.classList.toggle('btn-yellow', !show);
+  if (!show) { box.innerHTML = ''; return; }
+  box.innerHTML = `<button class="btn btn-yellow" onclick="rejoinSaved()">Back to the game</button><p class="small rejoin-sub">Room ${esc(s.code)}${s.name ? ' · ' + esc(s.name) : ''} · <button class="btn-link small" onclick="forgetSeat()">Forget this table</button></p>`;
 }
-function rejoinSaved() { const s = readStore(localStorage); if (s) { myKey = s.key || null; try { sessionStorage.setItem('cc_session', JSON.stringify(s)); } catch (e) {} tryReconnect(s.playerId, s.code, s.key); } }
-// #2: the seat key proves this phone owns the seat; #6: if the room is gone after a restart, the sealed copy brings it back
-function tryReconnect(pid, code, key) { lastTry = { pid, code, key }; send({ action: 'reconnect', playerId: pid, code, key }); }
+function forgetSeat() { clearSession(); autoBack = null; dropOutbox(); offerRejoin(); }
+function rejoinSaved() {
+  const s = readStore(localStorage); if (!s) return offerRejoin();
+  myKey = s.key || null; autoBack = s; refusedN = 0;
+  try { sessionStorage.setItem('cc_session', JSON.stringify(s)); } catch (e) {}
+  showBackScreen(s);
+  if (ws && ws.readyState === 1) tryReconnect(s.playerId, s.code, s.key); else { reconnectAttempts = 0; connect(); }
+}
+// The few moments between load and the table: never Home
+function showBackScreen(s) {
+  lastPhase = null; lastKey = null;
+  showScreen('screen-game');
+  $('game-content').innerHTML = `<div class="back-wait" role="status"><p class="eyebrow">Room ${esc(s.code)}</p><div class="h2">Back to the table<span class="dots"></span></div>${s.name ? `<p class="sub">${esc(s.name)}’s seat is waiting.</p>` : ''}<button class="btn-link" id="back-home" onclick="leaveBackScreen()">Home</button></div>`;
+  setTimeout(() => { const h = $('back-home'); if (h) h.style.visibility = 'visible'; }, 6000);
+}
+function leaveBackScreen() { autoBack = null; lastTry = null; refusedN = 0; clearTimeout(refusedT); updateConnectionBanner(); showScreen('screen-home'); }
+// #2: the seat key proves this phone owns the seat; #6: after a restart the sealed copy brings the room back
+function tryReconnect(pid, code, key) {
+  lastTry = { pid, code, key };
+  const s = readStore(localStorage), seal = sealFor(code);
+  const restarted = !!(s && s.code === code && s.boot && serverBoot && s.boot !== serverBoot);
+  if (restarted) resendAll = true;   // everything from the last few minutes goes again (the room's acks drop repeats)
+  if (seal && restarted) { restoring = true; return _send({ action: 'restore', data: seal.data, code, playerId: pid, key }); }
+  _send({ action: 'reconnect', playerId: pid, code, key });
+}
 function sealFor(code) { try { const x = JSON.parse(localStorage.getItem('cc_seal') || 'null'); return x && x.code === code && Date.now() - x.ts < 6 * 3600 * 1000 ? x : null; } catch (e) { return null; } }
+// Who this phone is, once the server says hello
+function backToSeat() {
+  if (wasKicked) return;
+  if (myPlayerId && gameCode) return tryReconnect(myPlayerId, gameCode, myKey);
+  const s = autoBack || readStore(sessionStorage);
+  if (s && !window._linkCode) { myKey = s.key || null; return tryReconnect(s.playerId, s.code, s.key); }
+  offerRejoin();
+}
+// The server turned the seat down. A restarted server may get the room back from another phone in a moment, and a
+// room can be between hands: try again every few seconds (up to 3 minutes after a restart) before giving up.
+function seatRefused() {
+  const t = lastTry || (autoBack ? { pid: autoBack.playerId, code: autoBack.code, key: autoBack.key } : null);
+  lastTry = null; restoring = false;
+  const s = readStore(localStorage);
+  const restarted = !!(s && s.boot && serverBoot && s.boot !== serverBoot);
+  const fresh = !!(s && Date.now() - s.ts < 10 * 60000);
+  const tries = !fresh ? 0 : restarted ? 45 : 3;
+  if (!t || refusedN >= tries) return giveUpSeat(fresh && restarted ? 'restart' : fresh ? 'closed' : 'quiet');
+  refusedN++; updateConnectionBanner();
+  clearTimeout(refusedT);
+  refusedT = setTimeout(() => { if (lastTry) return; if (ws && ws.readyState === 1) tryReconnect(t.pid, t.code, t.key); else { reconnectAttempts = 0; connect(); } }, RETRY_MS);   // (a try already on its way: let it answer)
+}
+function giveUpSeat(kind) {
+  clearTimeout(refusedT); refusedN = 0; autoBack = null; lastTry = null; restoring = false; resendAll = false;
+  try { localStorage.removeItem('cc_seal'); } catch (e) {}
+  dropOutbox();
+  const atTable = $('screen-game').classList.contains('active');
+  clearSession(); myPlayerId = null; gameCode = null; state = null; lastPhase = null; myKey = null;
+  updateConnectionBanner();
+  if (atTable) showScreen('screen-home'); else offerRejoin();
+  if (kind === 'restart') showToast('The server restarted and the room couldn’t be saved. Sorry. Start a new one.');
+  else if (kind === 'closed' || atTable) showToast('That table has closed.');
+}
+
+/* #2 The outbox: captions, bets (and taking one back), the steal and frame picks each carry an id (cid) and stay
+   here until the server answers. Whatever wasn't answered goes again after a reconnect; after a server restart
+   everything from the last few minutes goes again, and the room's own list of ids keeps any from landing twice.
+   Kept on the phone, so a reload never loses a bet either. */
+const ACKED = new Set(['submit_caption', 'place_bet', 'undo_bet', 'steal', 'frame_pick']);
+let outbox = [];
+try { const o = JSON.parse(localStorage.getItem('cc_outbox') || '[]'); if (Array.isArray(o)) outbox = o.filter(x => x && x.cid && x.obj && Date.now() - x.at < 15 * 60000); } catch (e) {}
+const saveOutbox = () => { try { localStorage.setItem('cc_outbox', JSON.stringify(outbox)); } catch (e) {} };
+const newCid = () => (Math.random().toString(36).slice(2) + '00000000').slice(0, 8);   // (unique among this seat's recent messages; short, since the room's copy carries them)
+function pruneOutbox() { const now = Date.now(); outbox = outbox.filter(o => now - o.at < (o.acked ? 3 : 15) * 60000).slice(-40); }
+function settle(cid, keep) { const i = outbox.findIndex(o => o.cid === cid); if (i < 0) return; if (keep) outbox[i].acked = true; else outbox.splice(i, 1); pruneOutbox(); saveOutbox(); }
+function dropOutbox() { outbox = []; saveOutbox(); }
+function flushOutbox(all) {
+  pruneOutbox();
+  outbox = outbox.filter(o => o.code === gameCode && o.pid === myPlayerId);   // anything for another room or seat is dropped
+  saveOutbox();
+  for (const o of outbox) if ((all || !o.acked) && ws && ws.readyState === 1) ws.send(JSON.stringify(o.obj));
+}
+window.ccOutbox = () => outbox.map(o => ({ cid: o.cid, action: o.obj.action, acked: !!o.acked }));   // (for the tests)
+
+function dropSocket() { const old = ws; ws = null; seatedSock = null; clearTimeout(openT); if (old) { old.onopen = old.onmessage = old.onclose = old.onerror = null; try { old.close(); } catch (e) {} } }
+function goneDown() { if (connectionStatus === 'disconnected') return; connectionStatus = 'disconnected'; downAt = Date.now(); clearTimeout(downT); downT = setTimeout(updateConnectionBanner, 800); updateConnectionBanner(); }
+// Nothing heard for 20 s (the server pings every 10): this connection is dead. Start a fresh one now.
+function connectionLost() { dropSocket(); goneDown(); reconnectAttempts = 0; connect(); }
+setInterval(() => { if (ws && ws.readyState === 1 && Date.now() - lastHeard > DEAD_MS) connectionLost(); }, 2000);
 
 function connect() {
   clearTimeout(reconnectTimer);
   if (otherDevice) return;   // #27: reload to take the seat back
   if (ws && (ws.readyState === 0 || ws.readyState === 1)) return;
-  ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}`);
-  ws.onopen = () => {
-    connectionStatus = 'connected'; updateConnectionBanner();
-    if (!wasKicked) {
-      const s = readStore(sessionStorage);
-      if (myPlayerId && gameCode) tryReconnect(myPlayerId, gameCode, myKey);
-      else if (s && !window._linkCode) { myKey = s.key || null; tryReconnect(s.playerId, s.code, s.key); }
-      else offerRejoin();
-    }
-    reconnectAttempts = 0;
+  const sock = ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}`);
+  lastHeard = Date.now();
+  clearTimeout(openT); openT = setTimeout(() => { if (ws === sock && sock.readyState === 0) { dropSocket(); goneDown(); reconnectTimer = setTimeout(connect, 500); } }, 8000);   // no signal at all: try again rather than hang
+  sock.onopen = () => { clearTimeout(openT); lastHeard = Date.now(); connectionStatus = 'connected'; reconnectAttempts = 0; updateConnectionBanner(); };   // (who we are goes with the server's hello)
+  sock.onmessage = (e) => { if (ws !== sock) return; lastHeard = Date.now(); let msg; try { msg = JSON.parse(e.data); } catch (x) { return; } onServer(msg); };
+  sock.onclose = (ev) => {
+    if (ws !== sock) return;
+    seatedSock = null; clearTimeout(openT);
+    // #27: this seat opened on another phone or tab: stop fighting over it
+    if (ev && ev.code === 4000) { otherDevice = true; connectionStatus = 'disconnected'; updateConnectionBanner(); showToast('You’re playing on another device now. Reload this page to play here instead.'); return; }
+    goneDown();
+    const wait = reconnectAttempts === 0 ? 0 : Math.min(5000, 500 * Math.pow(2, reconnectAttempts - 1));   // the first try at once, then a little slower
+    reconnectAttempts++;
+    reconnectTimer = setTimeout(connect, wait);
   };
-  ws.onmessage = (e) => {
-    const msg = JSON.parse(e.data);
+  sock.onerror = () => {};
+}
+function onServer(msg) {
+    if (msg.type === 'ping') return;   // #2 heartbeat (lastHeard is already fresh)
+    if (msg.type === 'ack') { settle(msg.cid, true); return; }
     if (msg.type === 'rtc') { if (window.Voice) Voice.onSignal(msg); return; }
-    if (msg.type === 'hello') { serverBoot = msg.boot; return; }
+    if (msg.type === 'hello') { serverBoot = msg.boot; backToSeat(); return; }
     if (msg.type === 'seal') { try { localStorage.setItem('cc_seal', JSON.stringify({ code: msg.code, data: msg.data, ts: Date.now() })); } catch (e) {} return; }
-    if (msg.type === 'joined') { if (restoring) setTimeout(() => showToast('The server restarted. Your game is back where it was.', 'ok'), 600); restoring = false; lastTry = null; myKey = msg.key || null; if (msg.boot) serverBoot = msg.boot; if (demoWatched()) setTimeout(() => send({ action: 'demo_watched' }), 500); myPlayerId = msg.playerId; gameCode = msg.code; pendingJoin = null; if (pendingName) { rememberName(pendingName); pendingName = null; } saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); }, 300); }
+    if (msg.type === 'joined') {
+      clearTimeout(claimRetryT); if (restoring) setTimeout(() => showToast('The server restarted. Your game is back where it was.', 'ok'), 600); restoring = false; lastTry = null; myKey = msg.key || null; if (msg.boot) serverBoot = msg.boot; if (demoWatched()) setTimeout(() => send({ action: 'demo_watched' }), 500); myPlayerId = msg.playerId; gameCode = msg.code; pendingJoin = null; if (pendingName) { rememberName(pendingName); pendingName = null; }
+      seatedSock = ws; autoBack = null; refusedN = 0; clearTimeout(refusedT);
+      const all = resendAll; resendAll = false; flushOutbox(all);   // #2: what wasn't answered goes now
+      saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); }, 300);
+      backOnline();
+    }
     else if (msg.type === 'state') {
       state = msg.data;
       if (window.Voice) Voice.onState(state);
@@ -1499,9 +1653,11 @@ function connect() {
       if (state.notice && state.notice.at > lastNoticeAt) { if (state.serverNow - state.notice.at < 8000) setTimeout(() => showToast(state.notice.text, 'ok'), 300); lastNoticeAt = state.notice.at; }
       lobbyWatch();
       render();
+      syncClaim();   // #30: the host's "Let them in?" (outside render, which can skip a redraw)
     }
     else if (msg.type === 'gallery_purge') { galleryPurge(); if (state && state.phase === 'lobby') render(true); }   // the server refused retired frames: drop them here too
     else if (msg.type === 'error') {
+      if (msg.cid) settle(msg.cid, false);   // #2: answered (turned down): it isn't sent again
       // #35: a wrong room code keeps you on Join, with what you typed, and says so right there
       if (msg.message === 'Game not found' && pendingJoin && inviteCode && pendingJoin === inviteCode && $('screen-join').classList.contains('active')) { pendingJoin = null; pendingName = null; drawInvite(inviteCode, { open: false }); return; }   // #23: the invited room closed meanwhile
       if (msg.message === 'Game not found' && pendingJoin && $('screen-join').classList.contains('active')) {
@@ -1511,16 +1667,14 @@ function connect() {
         if (ci) { ci.classList.remove('shake'); void ci.offsetWidth; ci.classList.add('shake'); }
         return;
       }
-      if ((msg.message === 'Player not in game' || msg.message === 'Game not found') && !myPlayerId && $('screen-join').classList.contains('active')) { clearSession(); return; }   // an old seat, while they type a new one
+      const seatMsg = msg.message === 'Player not in game' || msg.message === 'Game not found';
+      if (seatMsg && !myPlayerId && $('screen-join').classList.contains('active')) { clearSession(); lastTry = null; autoBack = null; restoring = false; return; }   // an old seat, while they type a new one
       if (msg.message === 'Game not found' && lastTry && !restoring) {
         const seal = sealFor(lastTry.code);
-        if (seal) { restoring = true; send({ action: 'restore', data: seal.data, playerId: lastTry.pid, key: lastTry.key }); return; }
+        if (seal) { restoring = true; send({ action: 'restore', data: seal.data, code: lastTry.code, playerId: lastTry.pid, key: lastTry.key }); return; }
       }
-      if (msg.message === 'Player not in game' || msg.message === 'Game not found') {
-        const saved = readStore(localStorage), restarted = restoring || (saved && saved.boot && serverBoot && saved.boot !== serverBoot);
-        restoring = false; lastTry = null;
-        try { localStorage.removeItem('cc_seal'); } catch (e) {}
-        if (restarted && msg.message === 'Game not found') { clearSession(); myPlayerId = null; gameCode = null; state = null; showScreen('screen-home'); showToast('The server restarted and the room couldn’t be saved. Sorry. Start a new one.'); return; }
+      if (seatMsg && (lastTry || autoBack)) return seatRefused();   // #2: red banner, and another try in a few seconds
+      if (seatMsg) {
         const quiet = !$('screen-join').classList.contains('active') && msg.message !== 'Game not found';
         clearSession(); myPlayerId = null; gameCode = null; state = null; showScreen('screen-home');
         if (!quiet) showToast(msg.message === 'Game not found' ? 'That room doesn’t exist (or it ended)' : msg.message);
@@ -1533,23 +1687,40 @@ function connect() {
       submitting = false; pendingJoin = null; pendingName = null;
       sfx.error();
     }
-    else if (msg.type === 'caption_check') { submitting = false; showSpellCheck(msg); }
-    else if (msg.type === 'kicked') { clearSession(); wasKicked = true; myPlayerId = null; gameCode = null; state = null; showScreen('screen-home'); showToast(msg.message || 'The host has shown you out.'); }
-  };
-  ws.onclose = (ev) => {
-    // #27: this seat opened on another phone or tab: stop fighting over it
-    if (ev && ev.code === 4000) { otherDevice = true; connectionStatus = 'disconnected'; updateConnectionBanner(); showToast('You’re playing on another device now. Reload this page to play here instead.'); return; }
-    connectionStatus = 'disconnected'; updateConnectionBanner(); reconnectTimer = setTimeout(connect, Math.min(6000, 600 * Math.pow(2, reconnectAttempts++))); };
-  ws.onerror = () => {};
+    else if (msg.type === 'caption_check') { if (msg.cid) settle(msg.cid, false); submitting = false; showSpellCheck(msg); }
+    // #30: the same name at the door, a seat being handed back, a seat that moved to another phone
+    else if (msg.type === 'same_name') { if (!myPlayerId) askSameName(msg); }
+    else if (msg.type === 'claim_wait') { if (!myPlayerId) showClaimWait(msg); }
+    else if (msg.type === 'claim_no') { if (!myPlayerId) showClaimNo(msg); }
+    else if (msg.type === 'seat_moved') { dropOutbox(); autoBack = null; refusedN = 0; clearTimeout(refusedT); updateConnectionBanner(); showSeatMoved(); }
+    else if (msg.type === 'kicked') { dropOutbox(); autoBack = null; clearSession(); wasKicked = true; myPlayerId = null; gameCode = null; state = null; showScreen('screen-home'); showToast(msg.message || 'The host has shown you out.'); }
 }
 // Coming back to the tab (phone unlocked): reconnect right away instead of waiting
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { if (!ws || ws.readyState > 1) { reconnectAttempts = 0; connect(); } keepAwake(); } });
-function updateConnectionBanner() {
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  if (!ws || ws.readyState > 1) { reconnectAttempts = 0; connect(); }
+  else if (ws.readyState === 1 && Date.now() - lastHeard > DEAD_MS) connectionLost();   // asleep long enough that the old connection is gone
+  keepAwake();
+});
+addEventListener('online', () => { if (!ws || ws.readyState > 1) { reconnectAttempts = 0; connect(); } });
+function connBanner() {
   let b = $('conn-banner');
-  if (!b) { b = document.createElement('div'); b.id = 'conn-banner'; document.body.appendChild(b); }
-  if (connectionStatus === 'disconnected' && (myPlayerId || reconnectAttempts > 1)) { b.style.background = 'var(--red-d)'; b.style.color = '#fff'; b.innerHTML = '<span class="dots">Reconnecting</span>'; b.style.transform = 'translateY(0)'; }
-  else if (connectionStatus === 'connected' && reconnectAttempts > 0) { b.style.background = 'var(--teal-d)'; b.style.color = '#fff'; b.textContent = '✓ Back online'; b.style.transform = 'translateY(0)'; setTimeout(() => { b.style.transform = 'translateY(-100%)'; }, 1500); }
-  else b.style.transform = 'translateY(-100%)';
+  if (!b) { b = document.createElement('div'); b.id = 'conn-banner'; b.setAttribute('role', 'status'); b.setAttribute('aria-live', 'polite'); document.body.appendChild(b); }
+  return b;
+}
+function updateConnectionBanner() {
+  const b = connBanner(), seat = !!(myPlayerId || autoBack || lastTry);
+  if (refusedN > 0) { b.className = 'refused on'; b.innerHTML = 'Can’t reach the table, retrying<span class="dots"></span>'; return; }
+  if (connectionStatus === 'disconnected' && (seat || reconnectAttempts > 2) && Date.now() - downAt >= 700) { b.className = 'calm on'; b.innerHTML = 'Reconnecting<span class="dots"></span>'; return; }
+  if (connectionStatus === 'disconnected' || (seat && !seatedSock && b.classList.contains('on'))) return;   // (a blink: no banner; still finding the seat: keep what's up)
+  if (!b.classList.contains('back')) b.className = '';
+}
+// Back in the seat after a drop that showed a banner: a short 'Back at the table', then it goes
+function backOnline() {
+  const b = connBanner();
+  clearTimeout(downT);
+  if (b.classList.contains('on') && !b.classList.contains('back')) { b.className = 'back on'; b.textContent = 'Back at the table'; setTimeout(() => { if (b.classList.contains('back')) b.className = 'back'; }, 1400); }
+  else updateConnectionBanner();
 }
 // Dealer buttons: one tap per stage. A second tap (or a late tap from a slow screen) is dropped here,
 // and the server also checks the stage it was meant for, so a double tap can never skip a stage.
@@ -1560,6 +1731,14 @@ function send(obj) {
     const k = stageKey();
     if (k === _advKey && Date.now() - _advAt < 2500) return false;   // same stage: a retry is allowed after 2.5 s (e.g. if the server said "not yet")
     _advKey = k; _advAt = Date.now(); obj.phase = state.phase; obj.round = state.round; obj.framed = !!(state.framing && state.framing.resolved);
+  }
+  // #2: captions, bets, the steal and frame picks are kept until the server answers (sent now, or the moment we're back)
+  if (obj && ACKED.has(obj.action) && myPlayerId && gameCode) {
+    obj.cid = newCid();
+    pruneOutbox(); outbox.push({ cid: obj.cid, obj, code: gameCode, pid: myPlayerId, at: Date.now() }); saveOutbox();
+    if (ws && ws.readyState === 1 && ws === seatedSock) ws.send(JSON.stringify(obj));
+    else showToast('Saved. It goes in the moment you’re back.', 'ok');
+    return true;
   }
   return _send(obj);
 }
@@ -1589,7 +1768,7 @@ function leaveGame() {
   if (!confirm(mid ? 'Leave this game? Your seat and score are kept if you rejoin with the same name.' : 'Leave this game?')) return;
   if (window.Voice) Voice.leave();
   send({ action: 'leave' });
-  clearSession(); myPlayerId = null; gameCode = null; state = null; lastPhase = null; showScreen('screen-home');
+  dropOutbox(); clearSession(); myPlayerId = null; gameCode = null; state = null; lastPhase = null; showScreen('screen-home');
 }
 // Cartoons this phone has seen, so the next game it hosts deals fresh ones
 function getSeen() { try { const v = JSON.parse(localStorage.getItem('cc_seen') || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
@@ -1615,7 +1794,8 @@ function joinGame() {
   if (code.length !== 4) { e.textContent = 'The room code is 4 letters'; e.style.display = 'block'; e.style.color = 'var(--red-ink)'; e.dataset.kind = 'code'; sfx.error(); return; }
   if (!name) { e.textContent = 'Enter your name'; e.style.display = 'block'; e.style.color = 'var(--red-ink)'; e.dataset.kind = ''; sfx.error(); return; }
   pendingName = name; pendingJoin = code;
-  wasKicked = false; send({ action: 'join', code, name });
+  lastJoin = { code, name, via: window._linkCode === code && window._linkVia ? window._linkVia : 'code' };   // (#30 a same-name follow-up; #41 how they found the room)
+  wasKicked = false; send({ action: 'join', code, name, via: lastJoin.via });
 }
 document.addEventListener('keydown', (e) => {
   // #59: caption cards (and anything else drawn as role="button") work from a keyboard: Enter or Space
@@ -1659,7 +1839,7 @@ function toggleTrack(key) { if (!window.GameMusic) return; if (window.GameMusic.
 function joinAddress() { const local = ['localhost', '127.0.0.1'].includes(location.hostname); return local && state && state.lanUrl ? state.lanUrl.replace(/^https?:\/\//, '') : location.host; }
 function shareRoom() {
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
-  const url = joinUrl(), text = `Closed Caption tonight. ${INVITE_PITCH} Free, no app. Room ${state.code}:`;   // #23: the invite says what it is
+  const url = joinUrl('link'), text = `Closed Caption tonight. ${INVITE_PITCH} Free, no app. Room ${state.code}:`;   // #23: the invite says what it is; #41: counted as an invite link
   if (navigator.share) navigator.share({ title: 'Closed Caption', text, url }).catch(() => {});
   else if (navigator.clipboard) navigator.clipboard.writeText(`${text} ${url}`).then(() => showToast('Copied — paste it to your friends', 'ok')).catch(() => showToast(`Code: ${state.code}`, 'ok'));
   else showToast(`Code: ${state.code}`, 'ok');
@@ -1680,7 +1860,7 @@ const noTimer = () => !!state && !state.timerDuration;
 function screenKey() {
   const s = state;
   if (s.phase === 'writing') return ['writing', s.round, s.cartoon && s.cartoon.id, s.hasSubmitted ? 1 : 0].join('|');
-  if (s.phase === 'answer') return ['answer', s.round, s.reel ? s.reel.step : 0, canRun() ? 1 : 0].join('|');
+  if (s.phase === 'answer') return ['answer', s.round, s.reel ? s.reel.step : 0, canRun() ? 1 : 0, reelDriver() ? 1 : 0].join('|');
   if (s.phase === 'framing') return ['framing', s.round, s.framing && s.framing.resolved ? 1 : 0].join('|');
   if (s.phase === 'scores' && s.finale) return ['scores', s.round, 'fin', s.finale.at, s.finale.winner ? 1 : 0, (s.finale.decided || []).length, s.finale.myVote || '', canRun() ? 1 : 0].join('|');
   return s.phase + '|' + s.round;
@@ -1748,7 +1928,7 @@ function render(force = false) {
     case 'framing': if (!force) fmLocal = null; html = renderFraming(); break;
     case 'scores': html = renderScores(); break;
   }
-  html = (state.phase !== 'lobby' ? renderAwayBanner() : '') + html;
+  html = (state.phase !== 'lobby' ? renderAwayBanner() : hostAwayHtml()) + html;
 
   const focusMark = phaseChanged ? null : focusKey();   // #29: a redraw keeps your place (keyboard and screen reader)
   if (!force && key === lastKey && state.phase === 'writing' && el.querySelector('[data-live]')) {
@@ -1763,7 +1943,7 @@ function render(force = false) {
   }
   if (state.phase === 'writing') startTimer();
   afterRender(phaseChanged);
-  syncOpening(); syncVerdicts();
+  syncOpening(); syncVerdicts(); syncLate();
   if (focusMark) focusRestore(focusMark);
   if (phaseChanged || (state.phase === 'answer' && key !== lastKey && reelInfo().step > reelInfo().n)) stageSay();   // #29: every new stage, said out loud
   lastPhase = state.phase; lastRound = state.round; lastKey = key;
@@ -1819,8 +1999,19 @@ function patchLive(el, html) {
 
 function afterRender(phaseChanged) {
   if (state.phase === 'lobby') setActionBar(lobbyBarHtml());   // #16: Start, pinned to the bottom (host)
-  if (state.phase === 'first_bets' || state.phase === 'second_bets') {
+  if (state.phase === 'first_bets') {
+    // #7: everyone at once. Your phone nudges you once; the clock ticks; the chips drop together.
+    if (state.dropAt) { clearInterval(blindClockT); playDrop(); }
+    else {
+      if (state.isMyTurn && !wasMyTurn) { sfx.yourTurn(); buzz([60, 80, 60]); srSay('Bet now. Everyone bets at once.'); }
+      if (state.blindEnd) startBlindClock();
+    }
+    wasMyTurn = !!state.isMyTurn;
+    renderBetBar();
+  }
+  if (state.phase === 'second_bets') {
     const bets = state.bets || [];
+    if (phaseChanged) seenBets = bets.length;   // the blind chips are already on the table
     if (!phaseChanged && bets.length > seenBets) {
       const fresh = bets.slice(seenBets);
       if (fresh.some(b => b.playerId === myPlayerId && b.target !== 'pass')) undoUntil = Date.now() + 3500;
@@ -1830,7 +2021,7 @@ function afterRender(phaseChanged) {
     }
     if (bets.length < seenBets) undoUntil = 0;   // a chip was taken back
     seenBets = bets.length;
-    if (state.isMyTurn && !wasMyTurn) { sfx.yourTurn(); buzz([60, 80, 60]); srSay('Your turn to bet. Pick a caption.'); }
+    if (state.isMyTurn && !wasMyTurn) { sfx.yourTurn(); buzz([60, 80, 60]); srSay('Your last chip. Pick a caption.'); }
     const row = $('bettor-row'), up = row && row.querySelector('.bettor.turn');
     if (row && up && row.scrollWidth > row.clientWidth) row.scrollLeft = Math.max(0, up.offsetLeft - row.offsetLeft - (row.clientWidth - up.offsetWidth) / 2);
     wasMyTurn = !!state.isMyTurn;
@@ -1838,7 +2029,7 @@ function afterRender(phaseChanged) {
   }
   if (state.phase === 'steal' && phaseChanged) { if (state.isDealer) { sfx.evil(); buzz([50, 50, 50]); srSay('Your turn: steal a chip, or keep the peace.'); } else bsfx.drumroll(800); }
   if (state.phase === 'steal' && state.isDealer) renderStealBar();
-  if (state.phase === 'reveal') { phaseSeqPlayed = true; playRevealSequence(); }   // synced to the server; a fresh draw of the screen jumps to wherever the moment is
+  if (state.phase === 'reveal') { phaseSeqPlayed = true; playStealIfFresh(); playRevealSequence(); }   // synced to the server; a fresh draw of the screen jumps to wherever the moment is
   if (state.phase === 'answer') {
     const { step, n } = reelInfo();
     phaseSeqPlayed = true;
@@ -1859,7 +2050,9 @@ function setActionBar(html) {
 }
 
 /* ── Shared pieces ── */
-function roundLabel() { return `Round ${state.round}${state.totalRounds ? ' of ' + state.totalRounds : ''}`; }
+function roundLabel() { return `Round ${state.round}${state.totalRounds ? ' of ' + state.totalRounds : ''}${lateOn() ? ' · Late Edition' : ''}`; }
+// #11 The Late Edition: the last trip around the table, every point doubled
+const lateOn = () => !!(state && state.late && state.late.on);
 /* #15: one round = four stage words, one colour: Write · Bet · Flip · Score. The pill says where the table is.
    (The old per-screen stickers — "Blind bets", "The steal"… — become the first words of the line under it.) */
 const STAGES = ['Write', 'Bet', 'Flip', 'Score'];
@@ -1924,6 +2117,62 @@ function renderAwayBanner() {
   return `<div id="away" class="panel yellow flat center" style="margin-bottom:12px; padding:10px;"><p class="small">${esc(firstName(state.dealerName))} (dealer) dropped off — waiting ${Math.max(0, state.takeoverSecs - state.dealerAwaySecs)}s for them</p></div>`;
 }
 
+/* ── #30: the table's housekeeping, out loud ──
+   The host's phone went quiet in the lobby (after 20 s the next player can take over; the host gets it back on return).
+   Someone at the door has a name already at the table: are they that person, or someone new? The host decides. */
+function hostAwayHtml() {
+  const h = state.hostAway; if (!h || state.isHost) return '';
+  return `<div id="host-away" class="panel yellow flat"><p class="small"><b>Waiting for ${esc(firstName(h.name))}’s phone<span class="dots"></span></b> (the host)</p>${state.canTakeHost ? `<button class="btn btn-sm" onclick="send({action:'take_host'})">Take over as host</button>` : ''}</div>`;
+}
+function syncClaim() {
+  const c = state && state.seatClaim; let el = $('claim-bar');
+  if (!c) { if (el) el.remove(); return; }
+  if (el && el.dataset.id === c.id) return;
+  if (!el) { el = document.createElement('div'); el.id = 'claim-bar'; el.setAttribute('role', 'alertdialog'); document.body.appendChild(el); sfx.notify(); buzz([40, 60, 40]); }
+  const n = esc(firstName(c.name)), when = c.oldLive ? 'is still at the table' : c.awaySecs >= 60 ? `dropped ${Math.round(c.awaySecs / 60)} min ago` : `dropped ${Math.max(1, c.awaySecs)} seconds ago`;
+  el.dataset.id = c.id;
+  el.innerHTML = `<div class="h2">Someone’s asking for ${n}’s seat</div><p class="small">${n}’s phone ${when}. Is it ${n}, on another phone?</p>
+    <div class="btn-row"><button class="btn" onclick="claimAnswer('${esc(c.id)}', false)">No</button><button class="btn btn-yellow" onclick="claimAnswer('${esc(c.id)}', true)">Let them in</button></div>`;
+}
+function claimAnswer(id, ok) { send({ action: 'claim_answer', id, ok }); const el = $('claim-bar'); if (el) el.remove(); }
+let lastJoin = null, claimRetryT = null;
+function sheetOpen(html) { $('sheet-body').innerHTML = `<div class="grip"></div>${html}`; $('sheet').classList.add('on'); }
+function askSameName(m) {
+  const n = esc(m.name);
+  sheetOpen(`<p class="eyebrow center" style="margin-bottom:6px;">Room ${esc(m.code)}</p>
+    <h2 class="h2 center" style="margin-bottom:16px;">Are you the ${n} ${m.playing ? 'who was playing' : 'who’s already here'}, or a different ${n}?</h2>
+    <div class="stack"><button class="btn btn-yellow" onclick="sameNameAnswer('me')">I’m that ${n}</button><button class="btn" onclick="sameNameAnswer('new')">A different ${n}</button>
+    <button class="btn-link" style="display:block; margin:4px auto 0;" onclick="cancelClaim()">Cancel</button></div>`);
+}
+function sameNameAnswer(as) {
+  clearTimeout(claimRetryT); closeMenu();
+  if (!lastJoin) return;
+  pendingJoin = lastJoin.code; pendingName = lastJoin.name;
+  send({ action: 'join', code: lastJoin.code, name: lastJoin.name, via: lastJoin.via, as });
+}
+function cancelClaim() { clearTimeout(claimRetryT); closeMenu(); pendingJoin = null; pendingName = null; if (ws && ws.readyState === 1) { try { ws.close(); } catch (e) {} } }   // (a fresh connection drops any claim)
+function showClaimWait(m) {
+  clearTimeout(claimRetryT);
+  const n = esc(firstName(m.name));
+  let line, retry = 0;
+  if (m.host) line = `Asking ${esc(firstName(m.host))} to let you back in<span class="dots"></span>`;
+  else if (m.secs) { line = `${n}’s old phone left a moment ago. Your seat opens in ${m.secs > 60 ? Math.ceil(m.secs / 60) + ' minutes' : m.secs + ' seconds'}. Hang on.`; retry = m.secs * 1000 + 500; }
+  else line = m.oldLive ? `${n}’s phone is still at the table. Leave the game on that phone, then try again.` : 'The room is locked. Ask the host to let you in.';
+  sheetOpen(`<h2 class="h2 center" style="margin-bottom:10px;">Your seat, on this phone</h2><p class="sub center" style="margin-bottom:16px;">${line}</p>
+    <button class="btn" onclick="cancelClaim()">Cancel</button>`);
+  if (retry) claimRetryT = setTimeout(() => sameNameAnswer('me'), retry);
+}
+function showClaimNo(m) {
+  sheetOpen(`<h2 class="h2 center" style="margin-bottom:10px;">${m.lapsed ? 'Nobody answered' : esc(firstName(m.host || 'The host')) + ' said no'}</h2><p class="sub center" style="margin-bottom:16px;">${m.lapsed ? 'Try again, or join under another name.' : 'Join under another name?'}</p>
+    <div class="stack"><button class="btn btn-yellow" onclick="sameNameAnswer('new')">Join as a different ${esc(lastJoin ? lastJoin.name : 'player')}</button><button class="btn" onclick="cancelClaim()">Cancel</button></div>`);
+}
+function showSeatMoved() {
+  clearSession(); myPlayerId = null; gameCode = null; state = null; lastPhase = null; myKey = null; lastTry = null;
+  showScreen('screen-home');
+  sheetOpen(`<h2 class="h2 center" style="margin-bottom:10px;">Your seat moved to another phone</h2><p class="sub center" style="margin-bottom:16px;">Someone with your name took it, with the host’s OK or after this phone was gone a while. If that wasn’t you, tell the host.</p>
+    <button class="btn btn-ink" onclick="closeMenu()">OK</button>`);
+}
+
 /* ── LOBBY ── */
 function renderLobby() {
   const s = state.settings || {};
@@ -1984,7 +2233,7 @@ function renderLobby() {
         <details class="box" id="adv-details"><summary>Points <span class="arrow" aria-hidden="true">▾</span></summary><div class="body">
           ${[['pointsOpenBet', 'Blind chip · real caption in the open', [1, 2, 3, 4]], ['pointsClosedBet', 'Blind chip · face-down caption', [2, 3, 4, 5, 6]], ['pointsOpenLate', 'Late chip (after the flip)', [0, 1, 2, 3]], ['pointsPerFool', 'Each chip that lands on your caption', [0, 1, 2, 3]], ['dealerBonus', 'Dealer’s revenge', [0, 2, 3, 4, 5, 6]]]
             .map(([k, label, opts]) => `<div class="field"><label class="small">${label}</label><div class="seg">${opts.map(v => segBtn(s[k] === v, `setHostSettings({${k}:${v}${k === 'pointsOpenLate' ? ',pointsClosedLate:' + v : ''}})`, v)).join('')}</div></div>`).join('')}
-          <button class="btn-link" onclick="setHostSettings({pointsOpenBet:2,pointsClosedBet:3,pointsOpenLate:1,pointsClosedLate:1,pointsPerFool:1,dealerBonus:4,pointsStealCorrect:1,autoCloseProbability:0.15,stealEnabled:true,rounds:null,targetScore:null,dealerMode:'steal',laps:1})">Reset to defaults</button>
+          <button class="btn-link" onclick="setHostSettings({pointsOpenBet:2,pointsClosedBet:5,pointsOpenLate:1,pointsClosedLate:1,pointsPerFool:2,dealerBonus:4,pointsStealCorrect:1,autoCloseProbability:0.15,stealEnabled:true,rounds:null,targetScore:null,dealerMode:'steal',laps:1})">Reset to defaults</button>
         </div></details>` : '';
   const optionsBody = state.isHost ? `
       <h3 class="lb-h">Seats, in order around the table</h3>
@@ -2007,7 +2256,7 @@ function renderLobby() {
     ? `<div class="panel yellow center lb-code">
         <p class="eyebrow" style="color:var(--ink-2);">Room code</p>
         <div class="h-display lb-code-big" aria-label="Room code ${esc(state.code.split('').join(' '))}">${esc(state.code)}</div>
-        <div class="qr-wrap" style="margin:4px auto 8px;" role="img" aria-label="QR code that opens this room">${qrSvg(joinUrl(), 148)}</div>
+        <div class="qr-wrap" style="margin:4px auto 8px;" role="img" aria-label="QR code that opens this room">${qrSvg(joinUrl('qr'), 148)}</div>
         <p class="do" style="margin-bottom:12px;">Friends point their camera here, or send them the link.</p>
         <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">Send the invite link</button>
       </div>`
@@ -2062,7 +2311,8 @@ function lobbyWatch() {
   }
   if (state.phase !== 'lobby' && prev.phase !== 'lobby' && state.totalRounds && prev.total && state.totalRounds > prev.total) {
     const fresh = state.players.filter(p => !prev.ids.includes(p.id) && p.id !== myPlayerId);
-    const who = fresh.length ? listNames(fresh.map(p => firstName(p.name))) : 'Someone new';
+    if (!fresh.length) return;   // #30: someone coming back is not someone new (the server says "X's back."), and no round count
+    const who = listNames(fresh.map(p => firstName(p.name)));
     const more = state.totalRounds - prev.total;
     setTimeout(() => showToast(`${who} joined — ${more > 1 ? more + ' rounds' : 'one more round'} added. Now ${state.totalRounds}.`, 'ok'), 400);
   }
@@ -2297,10 +2547,14 @@ function renderReading(animate) {
       : `<p class="center small" style="margin-top:16px;">Betting starts when ${esc(firstName(state.dealerName))} is done reading</p>`}`;
 }
 
-/* ── BETTING ── */
+/* ── BETTING ──
+   #7 Blind bets: everyone at once, in secret, then every chip drops onto the table together (state.dropAt,
+   the same moment on every phone). #8 The dealer's steal comes next, before the face-down card flips.
+   The late chip still goes one at a time. */
+// #15 plain words: "1 chip on Caption 3" / "Both chips on the face-down one"
 function betLabel(target, count) {
-  if (count === 2) return target === 'closed' ? '🌕 Shoot the Moon' : '🌗 Half-Moon';
-  return target === 'closed' ? 'Chip on the Closed Caption' : 'Chip on Caption ' + (target + 1);
+  const where = target === 'closed' ? 'the face-down one' : 'Caption ' + (target + 1);
+  return `${count === 2 ? 'Both chips' : '1 chip'} on ${where}`;
 }
 function trayHtml(t, opts = {}) {
   const bets = (state.bets || []).map((b, i) => ({ ...b, i })).filter(b => String(b.target) === String(t));
@@ -2317,84 +2571,166 @@ function trayHtml(t, opts = {}) {
   const crowd = opts.grab && chips.length > 8 ? ' crowd' : opts.grab && chips.length > 5 ? ' busy' : '';   // 8 players: the chips on one caption still fit on the card
   return `<div class="chip-tray${opts.grab ? ' steal' : ''}${crowd}">${chips.join('')}</div>`;
 }
+// Chips a bettor still holds: 2 before the drop; after it, 2 minus what they put down (a stolen chip is gone too).
+// Sat the blind bet out while here: one chip for after the flip.
+function chipsLeft(pid) {
+  const bets = state.bets || [];
+  if (state.phase === 'first_bets' && !state.dropAt) return 2;
+  const b1 = bets.find(b => b.playerId === pid && b.stage === 1), b2 = bets.find(b => b.playerId === pid && b.stage === 2);
+  if (b1 && b1.target === 'pass') return b1.late && !b2 ? 1 : 0;
+  if (b2 && b2.target === 'pass') return 0;
+  return Math.max(0, 2 - bets.filter(b => b.playerId === pid && b.target !== 'pass').reduce((n, b) => n + b.count + (b.stolen || 0), 0));
+}
+const othersHaveChips = () => (state.bets || []).some(b => b.target !== 'pass' && b.count > 0 && b.playerId !== state.dealerId);
+const dealerSteals = () => !!state && state.settings && state.settings.stealEnabled !== false && dealerMode() !== 'bet';
 function renderBetting(stage) {
+  if (stage === 1) return renderBlind();
   const bets = state.bets || [], order = state.betOrder || [];
-  const myBet = stage === 1 ? state.myFirstBet : state.mySecondBet, first = state.myFirstBet;
+  const myBet = state.mySecondBet, first = state.myFirstBet;
   const eligible2 = new Set(state.eligibleSecondBetters || []);
   const passed = new Set(bets.filter(b => b.target === 'pass').map(b => b.playerId));
   const canPick = state.isMyTurn && !myBet;
   const cls = (t) => 'cap' + (t === 'closed' ? ' closed' : '') + (canPick ? '' : ' locked') + (selectedBetTarget !== null && String(selectedBetTarget) === String(t) ? ' picked' : '');
-  const already = (t) => stage === 2 && first && String(first.target) === String(t) ? `<p class="note">Your blind chip is here${first.count === 1 ? ' — you can stack on it' : ''}</p>` : '';
+  const myBlind = bets.find(b => b.playerId === myPlayerId && b.stage === 1 && b.target !== 'pass');
+  const already = (t) => {
+    if (!first || !myBlind || String(first.target) !== String(t)) return '';
+    if (!myBlind.count) return `<p class="note">Your blind chip was here. ${state.isDealer ? 'You' : esc(firstName(state.dealerName))} took it.</p>`;
+    return `<p class="note">Your blind chip is here${first.count === 1 ? ' — you can stack on it' : ''}</p>`;
+  };
   const cards = (state.openCaptions || []).map((c, i) => `
-    <div role="button" tabindex="0" class="${cls(i)}" data-target="${i}" onclick="selectBet(${i})"><span class="num">${i + 1}</span>${trayHtml(i)}
+    <div role="button" tabindex="0" class="${cls(i)}" data-target="${i}" onclick="selectBet(${i})"><span class="num">${i + 1}</span>${trayHtml(i, { showStolen: true })}
       <p class="caption-text">“${esc(c)}”${capNote(i)}</p>${already(i)}</div>`).join('');
-  const closedCard = stage === 1
-    ? `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')" style="text-align:center; padding:18px 16px;">${trayHtml('closed')}
-        <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p>
-        <p class="small" style="color:var(--ink-2);">Bet blind that the real one is hiding here. Pays the most.</p></div>`
-    : `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')"><span class="num"><span class="cc-badge" style="margin:0;">CC</span></span>${trayHtml('closed')}
+  const closedCard = `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')"><span class="num"><span class="cc-badge" style="margin:0;">CC</span></span>${trayHtml('closed', { showStolen: true })}
         <p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption · turned over</p><p class="caption-text">“${esc(state.closedCaption)}”${state.iWroteClosed ? ' <span class="tag mine">Yours</span>' : ''}</p>${already('closed')}</div>`;
 
-  // Every bettor shows the chips they still hold: 2, 1 or none. A chip leaves here and lands on a caption.
-  const left = (pid) => Math.max(0, 2 - bets.filter(b => b.playerId === pid && b.target !== 'pass').reduce((n, b) => n + b.count, 0));
+  // Every bettor shows the chips they still hold: 1 or none. A chip leaves here and lands on a caption.
   // #40: one row, in betting order, that scrolls sideways — your own chips sit in it (they fly from there)
   const orderRow = order.map((pid, i) => {
-    const n = left(pid), sat = passed.has(pid), turn = state.currentBetterId === pid, me = pid === myPlayerId;
+    const n = chipsLeft(pid), sat = passed.has(pid) && !n, turn = state.currentBetterId === pid, me = pid === myPlayerId;
     const stack = n ? Array.from({ length: n }, (_, k) => chipHtml(pid, me ? 'sm mine' : 'sm', '', me ? `data-rack="${k}"` : '')).join('') : `<span class="bnone">${sat ? 'sat out' : 'all in'}</span>`;
     return `${i ? '<span class="b-arrow" aria-hidden="true">›</span>' : ''}<div class="bettor${turn ? ' turn' : ''}${!n || sat ? ' spent' : ''}${me ? ' me' : ''}"${me ? ' id="my-rack"' : ''}><div class="bchips">${stack}</div><div class="bname">${esc(me ? 'You' : fnameOf(pid))}</div></div>`;
   }).join('');
 
-  const next = stage === 1 ? 'Turning the Closed Caption over…' : (state.settings.stealEnabled && dealerMode() !== 'bet' && (state.bets || []).some(b => b.target !== 'pass' && b.count > 0 && b.playerId !== state.dealerId) ? `Over to ${esc(firstName(state.dealerName))} for the steal…` : 'Here comes the answer…');
   const cur = state.currentBetterName ? esc(firstName(state.currentBetterName)) : '';
   let banner;
-  if (state.allBetsIn) banner = `<div class="turn-banner"><div class="h2">All chips are down</div><p class="sub">${next}</p></div>`;
-  else if (state.isDealer && !dealerBetsNow()) banner = `<div class="turn-banner dealer"><div class="h2">You’re dealing — no bets for you</div><p class="sub">${state.settings.stealEnabled ? 'Watch closely. When the chips are down, you get to steal one.' : 'Watch the table. If nobody finds the real one, you score.'}</p></div>`;
-  else if (state.isMyTurn && !myBet) banner = `<div class="turn-banner you" role="status"><div class="h2">Your turn to bet</div><p class="sub" style="color:var(--ink);">${stage === 1 ? 'Tap a caption, then put down 1 chip or both.' : 'Tap where your last chip goes — anywhere.'}</p></div>`;
-  else if (myBet) banner = `<div class="turn-banner"><div class="h2">${betLabel(myBet.target, myBet.count)} ✓</div><p class="sub">${stage === 1 && myBet.count === 1 ? `Your second chip waits for the flip.${cur ? ` ${cur} is up.` : ''}` : `${cur} is up.`}</p></div>`;
-  else if (stage === 2 && !eligible2.has(myPlayerId)) banner = `<div class="turn-banner"><div class="h2">${passed.has(myPlayerId) ? 'You sat this one out' : 'Both your chips are down'}</div><p class="sub">${cur} is betting…</p></div>`;
+  if (state.allBetsIn) banner = `<div class="turn-banner"><div class="h2">All chips are down</div><p class="sub">Here comes the answer…</p></div>`;
+  else if (state.isMyTurn && !myBet) banner = `<div class="turn-banner you" role="status"><div class="h2">Your last chip</div><p class="sub" style="color:var(--ink);">Tap where it goes — anywhere.</p></div>`;
+  else if (myBet) banner = `<div class="turn-banner"><div class="h2">${esc(betLabel(myBet.target, 1))} ✓</div><p class="sub">${cur} is up.</p></div>`;
+  else if (!eligible2.has(myPlayerId)) banner = `<div class="turn-banner"><div class="h2">${state.isDealer && !dealerBetsNow() ? 'You’re dealing' : passed.has(myPlayerId) ? 'You sat this one out' : 'Both your chips are down'}</div><p class="sub">${cur} is betting…</p></div>`;
   else { const away = order.indexOf(myPlayerId) - order.indexOf(state.currentBetterId); banner = `<div class="turn-banner"><div class="h2">${cur} is betting<span class="dots"></span></div><p class="sub">${away > 0 ? `You’re ${away === 1 ? 'next' : away + ' away'}.` : 'Watch the chips land.'}</p></div>`; }
 
   const curP = playerById(state.currentBetterId);
   const tools = !state.allBetsIn && (canRun() || (curP && !curP.connected)) ? `<div class="center" style="margin-top:18px;">
-      <button class="btn-link" onclick="skipBetter()">Skip ${cur}’s turn</button>${canRun() ? ` · <button class="btn-link" onclick="forceAdvance()">${stage === 1 ? 'Turn it over now' : 'End betting now'}</button>` : ''}</div>` : '';
+      <button class="btn-link" onclick="skipBetter()">Skip ${cur}’s turn</button>${canRun() ? ` · <button class="btn-link" onclick="forceAdvance()">End betting now</button>` : ''}</div>` : '';
 
-  return `${header({ sticker: stage === 1 ? '<span class="sticker violet">Blind bets</span>' : '<span class="sticker blue">Last chips</span>' })}
+  return `${header({ sticker: '<span class="sticker blue">Last chips</span>' })}
     ${banner}
     <div class="order bettors" id="bettor-row" role="group" aria-label="Betting order">${orderRow}</div>
     <div class="stack bet-caps">${cards}${closedCard}</div>${tools}`;
 }
+// Blind bets: every bettor at once. Nobody sees where anyone went until the chips drop.
+function renderBlind() {
+  const s = state.settings || {}, order = state.betOrder || [], dropped = !!state.dropAt;
+  const mine = state.myFirstBet, inSet = new Set(state.blindIn || []);
+  const canPick = !dropped && !!state.isMyTurn;
+  const isPicked = (t) => !dropped && ((canPick && selectedBetTarget !== null && String(selectedBetTarget) === String(t)) || (!!mine && String(mine.target) === String(t)));
+  const cls = (t) => 'cap' + (t === 'closed' ? ' closed' : '') + (canPick ? '' : ' locked') + (isPicked(t) ? ' picked' : '');
+  const note = (t) => !dropped && mine && String(mine.target) === String(t) ? `<p class="note">${mine.count === 2 ? 'Both your chips go here' : 'Your chip goes here'}. Nobody else can see it.</p>` : '';
+  const cards = (state.openCaptions || []).map((c, i) => `
+    <div role="button" tabindex="0" class="${cls(i)}" data-target="${i}" onclick="selectBet(${i})"><span class="num">${i + 1}</span>${dropped ? trayHtml(i) : ''}
+      <p class="caption-text">“${esc(c)}”${capNote(i)}</p>${note(i)}</div>`).join('');
+  const closedCard = `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')" style="text-align:center; padding:18px 16px;">${dropped ? trayHtml('closed') : ''}
+      <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p>
+      <p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'Yours. Keep a straight face.' : `Bet blind that the real one is hiding here. ${plural(s.pointsClosedBet || 5, 'point')} a chip if it is.`}</p>${note('closed')}</div>`;
+  // The bettors: two chips each, and a tick once they're in (never where)
+  const row = order.map((pid) => {
+    const me = pid === myPlayerId, isIn = inSet.has(pid);
+    const b1 = dropped ? (state.bets || []).find(b => b.playerId === pid && b.stage === 1) : null;
+    const sat = !!(b1 && b1.target === 'pass'), n = chipsLeft(pid);
+    const stack = n ? Array.from({ length: n }, (_, k) => chipHtml(pid, me ? 'sm mine' : 'sm', '', me ? `data-rack="${k}"` : '')).join('') : `<span class="bnone">${sat ? 'sat out' : 'all in'}</span>`;
+    return `<div class="bettor${!dropped && !isIn ? ' waiting' : ''}${dropped && (!n || sat) ? ' spent' : ''}${me ? ' me' : ''}"${me ? ' id="my-rack"' : ''}><div class="bchips">${stack}</div><div class="bname">${!dropped && isIn ? '<span class="b-in" aria-hidden="true">✓</span>' : ''}${esc(me ? 'You' : fnameOf(pid))}</div></div>`;
+  }).join('');
+  const waitOn = order.filter(pid => !inSet.has(pid));
+  const waitWords = waitOn.length ? `Waiting on ${esc(listNames(waitOn.map(pid => pid === myPlayerId ? 'you' : fnameOf(pid))))}.` : 'Everyone’s in.';
+  const clock = !dropped && state.blindEnd ? '<p class="blind-clock" id="blind-clock" aria-hidden="true"></p>' : '';
+  let banner;
+  if (dropped) banner = `<div class="turn-banner"><div class="h2">All chips are down</div><p class="sub">${dealerSteals() && othersHaveChips() ? `${state.isDealer ? 'Your' : esc(firstName(state.dealerName)) + '’s'} steal, before the flip…` : 'Turning the Closed Caption over…'}</p></div>`;
+  else if (state.isDealer && !dealerBetsNow()) banner = `<div class="turn-banner dealer"><div class="h2">You’re dealing. No bets for you.</div><p class="sub">${dealerSteals() ? 'When the chips drop, you steal one. Before the flip.' : 'If nobody finds the real one, you score.'} ${waitWords}</p>${clock}</div>`;
+  else if (canPick) banner = `<div class="turn-banner you" role="status"><div class="h2">Your bet</div><p class="sub" style="color:var(--ink);">Everyone bets at once, in secret. Tap a caption, then 1 chip or both.</p>${clock}</div>`;
+  else if (mine) banner = `<div class="turn-banner"><div class="h2">${esc(betLabel(mine.target, mine.count))} ✓</div><p class="sub">${waitWords} The chips drop together.</p>${clock}</div>`;
+  else banner = `<div class="turn-banner"><div class="h2">Blind bets</div><p class="sub">You sit this round out. ${waitWords}</p>${clock}</div>`;
+  const tools = !dropped && canRun() && waitOn.length ? `<div class="center" style="margin-top:18px;"><button class="btn-link" onclick="forceAdvance()">Drop the chips now</button></div>` : '';
+  return `${header({ sticker: '<span class="sticker violet">Blind bets</span>' })}
+    ${banner}
+    <div class="order bettors blind" id="bettor-row" role="group" aria-label="Who has bet">${row}</div>
+    <div class="stack bet-caps">${cards}${closedCard}</div>${tools}`;
+}
+// The blind-bet clock (a fallback for anyone idle): seconds left, quiet until the last ten
+let blindClockT = null;
+function blindClockTick() {
+  const el = $('blind-clock');
+  if (!el || !state || state.phase !== 'first_bets' || state.dropAt || !state.blindEnd) { clearInterval(blindClockT); blindClockT = null; return; }
+  const left = Math.max(0, Math.ceil((state.blindEnd - (Date.now() + clockOffset)) / 1000));
+  el.textContent = left > 0 ? `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')} to bet` : 'Time.';
+  el.classList.toggle('urgent', left <= 10);
+}
+function startBlindClock() { clearInterval(blindClockT); blindClockTick(); blindClockT = setInterval(blindClockTick, 250); }
+// The drop: every chip lands at once, on every phone (state.dropAt + the shared lead). Arrive late: they're just there.
+let dropPlayedFor = null;
+function playDrop() {
+  const key = state.code + '|' + state.round;
+  if (dropPlayedFor === key) return;
+  dropPlayedFor = key;
+  const sy = window.ccSync ? window.ccSync(state.dropAt) : { wait: 0, late: 0 };
+  if (sy.late > 1500) return;
+  const chips = [...document.querySelectorAll('#game-content .chip-tray .chip')];
+  chips.forEach((c, k) => { c.style.animationDelay = (sy.wait + k * 45) + 'ms'; c.classList.add('drop'); });
+  setTimeout(() => {
+    if (!state || state.phase !== 'first_bets') return;
+    if (window.ccBeat) window.ccBeat('blind:drop');
+    bsfx.chip(Math.min(4, Math.max(1, chips.length))); buzz([25, 40, 25]); srSay('The chips are down.');
+  }, sy.wait + 250);
+}
 function undoBet() { undoUntil = 0; setActionBar(''); send({ action: 'undo_bet' }); }
 function skipBetter() { if (confirm(`Skip ${state.currentBetterName}’s turn? They sit this bet out.`)) send({ action: 'skip_better' }); }
-function forceAdvance() { if (confirm(`Move on without ${plural((state.pendingBetters || []).length, 'more bet')}?`)) send({ action: 'advance' }); }
+function forceAdvance() {
+  const n = (state.pendingBetters || []).length;
+  if (state.phase === 'first_bets') { if (!n || confirm(`Drop the chips now? ${plural(n, 'player sits', 'players sit')} the blind bet out (and ${n === 1 ? 'keeps' : 'keep'} one chip for after the flip).`)) send({ action: 'advance' }); return; }
+  if (confirm(`Move on without ${plural(n, 'more bet')}?`)) send({ action: 'advance' });
+}
 function selectBet(target) {
   if (!state.isMyTurn) return;
   const stage = state.phase === 'first_bets' ? 1 : 2;
-  if ((stage === 1 && state.myFirstBet) || (stage === 2 && state.mySecondBet)) return;
+  if ((stage === 1 && (state.myFirstBet || state.dropAt)) || (stage === 2 && state.mySecondBet)) return;
   selectedBetTarget = target;
   document.querySelectorAll('.cap[data-target]').forEach(b => b.classList.toggle('picked', String(b.dataset.target) === String(target)));
   renderBetBar();
 }
 let undoUntil = 0, undoT = null;
 function renderBetBar() {
-  const bets = (state && state.bets) || [], last = bets[bets.length - 1];
-  if (state && Date.now() < undoUntil && last && last.playerId === myPlayerId && last.target !== 'pass') {
+  if (!state) { setActionBar(''); return; }
+  const stage = state.phase === 'first_bets' ? 1 : 2;
+  // A blind bet is secret: change it any time until the chips drop
+  if (stage === 1 && state.myFirstBet && !state.dropAt) { setActionBar(`<button class="btn" onclick="undoBet()">Change my bet</button>`); return; }
+  const bets = state.bets || [], last = bets[bets.length - 1];
+  if (stage === 2 && Date.now() < undoUntil && last && last.playerId === myPlayerId && last.target !== 'pass' && last.stage === 2) {
     clearTimeout(undoT); undoT = setTimeout(() => { if (state) renderBetBar(); }, undoUntil - Date.now() + 50);
-    setActionBar(`<button class="btn" onclick="undoBet()">↩ Undo — take ${last.count > 1 ? 'my chips' : 'my chip'} back</button>`); return;
+    setActionBar(`<button class="btn" onclick="undoBet()">↩ Undo — take my chip back</button>`); return;
   }
-  if (!state || !state.isMyTurn || selectedBetTarget === null) { setActionBar(''); return; }
-  const stage = state.phase === 'first_bets' ? 1 : 2, t = selectedBetTarget;
-  const where = t === 'closed' ? 'the Closed Caption' : `Caption ${t + 1}`;
-  const mine = (t !== 'closed' && state.myOpenIndex === t) || (t === 'closed' && state.iWroteClosed);
+  if (!state.isMyTurn || selectedBetTarget === null) { setActionBar(''); return; }
+  const t = selectedBetTarget;
+  const where = t === 'closed' ? (stage === 1 ? 'The face-down one' : 'The Closed Caption') : `Caption ${t + 1}`;
+  const mine = (t !== 'closed' && state.myOpenIndex === t) || (t === 'closed' && (state.iWroteClosed || (stage === 1 && state.iWrote && state.myOpenIndex === -1)));
   const warnMine = mine ? '<p class="center small" style="margin-bottom:6px; color:var(--red);">That’s your own caption — it can’t score for you</p>' : '';
   if (stage === 1) setActionBar(`${warnMine}<p class="center small" style="margin-bottom:8px;">${where} — how many chips?</p><div class="btn-row">
       <button class="btn btn-blue" onclick="placeBet(1)">1 chip</button>
-      <button class="btn ${t === 'closed' ? 'btn-yellow' : 'btn-violet'}" onclick="placeBet(2)">${t === 'closed' ? '🌕 Shoot the Moon' : '🌗 Half-Moon'}</button></div>`);
-  else setActionBar(`${warnMine}<button class="btn btn-blue" onclick="placeBet(1)">${state.myFirstBet && String(state.myFirstBet.target) === String(t) ? 'Stack my last chip on ' : 'Last chip on '}${where} →</button>`);
+      <button class="btn ${t === 'closed' ? 'btn-yellow' : 'btn-violet'}" onclick="placeBet(2)">Both chips — double</button></div>`);
+  else setActionBar(`${warnMine}<button class="btn btn-blue" onclick="placeBet(1)">${state.myFirstBet && String(state.myFirstBet.target) === String(t) ? 'Stack my last chip on ' : 'Last chip on '}${where.replace(/^The /, 'the ')} →</button>`);
 }
 function placeBet(count) {
   if (selectedBetTarget === null) return;
   const from = [...document.querySelectorAll('#my-rack .chip')].slice(-count).map(c => c.getBoundingClientRect());
-  if (send({ action: 'place_bet', target: selectedBetTarget, count })) { flyFrom = { rects: from, at: Date.now() }; selectedBetTarget = null; setActionBar(''); }
+  if (send({ action: 'place_bet', target: selectedBetTarget, count })) { if (state.phase === 'second_bets') flyFrom = { rects: from, at: Date.now() }; else { sfx.chip(count); buzz(20); } selectedBetTarget = null; setActionBar(''); }
 }
 // Your chips leave your rack and land on the caption you picked
 let flyFrom = null;
@@ -2413,20 +2749,55 @@ function flyMyChips(betIdx) {
   });
 }
 
-/* ── REVEAL ── */
+/* ── STEAL ── #8: before the flip. The face-down card is still face-down. */
+function renderSteal() {
+  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked"><span class="num">${i + 1}</span>${trayHtml(i, { grab: state.isDealer })}<p class="caption-text">“${esc(c)}”${capNote(i)}</p></div>`).join('')
+    + `<div class="cap closed locked" style="text-align:center; padding:18px 16px;">${trayHtml('closed', { grab: state.isDealer })}<div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · still face-down</p></div>`;
+  if (state.isDealer) {
+    return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
+      <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">Steal one chip</h2><p class="sub steal-line">Before the flip. Tap ${dealerMode() === 'both' ? 'another player’s' : 'a'} chip to steal it. Off the real one = their points become yours. Off a fake, they get +1.</p></div>
+      <div class="stack" style="margin-top:18px;">${cards}</div>`;
+  }
+  const canPass = state.canTakeover || state.isHost;   // #28: the host can pass for a dealer who's wandered off
+  return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
+    <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">${esc(firstName(state.dealerName))} is choosing a chip to steal<span class="dots"></span></h2><p class="sub">Before the flip. Any chip on the table could go. Plead your case.</p></div>
+    <div class="stack" style="margin-top:18px;">${cards}</div>
+    ${state.canTakeover ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'steal', betIndex:null})">Skip the steal and flip the card →</button>` : canPass ? `<button class="btn-link" style="display:block; margin:16px auto 0; font-size:14px;" onclick="send({action:'steal', betIndex:null})">Dealer stuck? Skip the steal</button>` : ''}`;
+}
+function grabChip(i) {
+  grabbedBet = grabbedBet === i ? null : i; sfx.tap();
+  document.querySelectorAll('.chip.grab').forEach(c => c.classList.toggle('grabbed', Number(c.dataset.bet) === grabbedBet));
+  renderStealBar();
+}
+function renderStealBar() {
+  if (!state.isDealer || state.phase !== 'steal') return;
+  if (grabbedBet === null) { setActionBar(`<button class="btn" onclick="doSteal(null)">Keep the peace — no steal</button>`); return; }
+  const b = (state.bets || [])[grabbedBet]; if (!b) { grabbedBet = null; return renderStealBar(); }
+  const where = b.target === 'closed' ? 'the face-down one' : `Caption ${b.target + 1}`;
+  setActionBar(`<p class="center small" style="margin-bottom:8px;">${esc(fnameOf(b.playerId))}’s chip on ${where}</p>
+    <div class="btn-row"><button class="btn" onclick="grabChip(${grabbedBet})">Cancel</button><button class="btn btn-red" onclick="doSteal(${grabbedBet})">Steal it</button></div>`);
+}
+function doSteal(i) {
+  send({ action: 'steal', betIndex: i });   // every phone, yours too, plays the steal show
+  setActionBar('');
+}
+
+/* ── REVEAL (the flip) ── */
 let revealRunner = null;
 // While the card turns: the table's blind chips, so you can see who is riding on the face-down one
+// (a stolen chip sits there in the dealer's colour)
 function flipTableHtml() {
   const bets = (state.bets || []).filter(b => b.target !== 'pass' && b.stage === 1 && b.count + (b.stolen || 0) > 0);
   if (!bets.length) return '';
   const targets = (state.openCaptions || []).map((_, i) => i).concat(['closed']);
   const rows = targets.map(t => {
     const on = bets.filter(b => String(b.target) === String(t)); if (!on.length) return '';
-    const chips = on.flatMap(b => Array.from({ length: b.count + (b.stolen || 0) }, () => chipHtml(b.playerId, 'sm'))).join('');
-    const who = t === 'closed' ? `<span class="ft-who">${esc(listNames([...new Set(on.map(b => b.playerId))].map(id => id === myPlayerId ? 'You' : fnameOf(id))))}</span>` : '';
+    const chips = on.flatMap(b => [...Array.from({ length: b.count }, () => chipHtml(b.playerId, 'sm')), ...Array.from({ length: b.stolen || 0 }, () => window.ccPaintedChip ? window.ccPaintedChip(state.dealerId, 'sm', b.playerId) : chipHtml(b.playerId, 'sm stolen'))]).join('');
+    const riders = [...new Set(on.filter(b => b.count > 0).map(b => b.playerId))];
+    const who = t === 'closed' && riders.length ? `<span class="ft-who">${esc(listNames(riders.map(id => id === myPlayerId ? 'You' : fnameOf(id))))}</span>` : '';
     return `<div class="ft-row${t === 'closed' ? ' cc' : ''}"><span class="ft-lbl">${t === 'closed' ? '<span class="cc-badge" style="margin:0;">CC</span>' : t + 1}</span><span class="ft-chips">${chips}</span>${who}</div>`;
   }).join('');
-  const noneOnCC = !bets.some(b => b.target === 'closed');
+  const noneOnCC = !bets.some(b => b.target === 'closed' && b.count > 0);
   return `<div class="flip-table"><p class="eyebrow" style="margin-bottom:6px;">Blind chips on the table</p>${rows}${noneOnCC ? '<p class="small ft-none">Nobody is riding on the face-down one.</p>' : ''}</div>`;
 }
 function renderReveal() {
@@ -2441,21 +2812,32 @@ function renderReveal() {
       </div></div>
       ${flipTableHtml()}
       <p class="sub" id="reveal-hint" style="opacity:0; transition:opacity .4s; margin-top:18px;"></p>
-      ${canRun() ? `<button id="reveal-continue" class="btn ${state.isDealer ? 'btn-yellow' : ''}" style="margin-top:18px; opacity:0; transition:opacity .4s; pointer-events:none;" onclick="send({action:'advance'})">${n ? 'Read it aloud, then — last chips →' : 'Next →'}</button>` : `<p class="sub" id="reveal-continue" style="margin-top:18px; opacity:0; transition:opacity .4s;">Waiting for ${esc(firstName(state.dealerName))} to read it out — then ${n ? 'the last chips' : 'the answer'}.</p>`}
+      ${canRun() ? `<button id="reveal-continue" class="btn ${state.isDealer ? 'btn-yellow' : ''}" style="margin-top:18px; opacity:0; transition:opacity .4s; pointer-events:none;" onclick="send({action:'advance'})">${n ? 'Read it out. Then the last chips →' : 'Next →'}</button>` : `<p class="sub" id="reveal-continue" style="margin-top:18px; opacity:0; transition:opacity .4s;">Waiting for ${esc(firstName(state.dealerName))} to read it out — then ${n ? 'the last chips' : 'the answer'}.</p>`}
     </div>`;
 }
 /* The Closed Caption turns over like a real card: it lifts (the shadow grows), trembles, then slaps
-   down face-up. Every phone does it on the same beat (server time + a short lead); the speaker phone
-   plays it, every phone flashes and jolts. Arrive after the slap and you just see it face-up. */
+   down face-up. Every phone does it on the same beat (state.flipAt + a short lead: after the steal show,
+   if there was one); the speaker phone plays it, every phone flashes and jolts. Arrive after the slap and
+   you just see it face-up. */
 const REVEAL_BEATS = { lift: 0, tremble: 450, slap: 1150, impact: 1320, settle: 1700, button: 2000 };
-let revealDone = new Set();
+let revealDone = new Set(), stealShown = new Set();
+// #8: the steal show plays as the flip screen opens (the card waits for it), on every phone at once
+function playStealIfFresh() {
+  const st = state.steal, key = state.code + '|' + state.round;
+  if (!st || !st.victimId || !st.at || stealShown.has(key)) return;
+  stealShown.add(key);
+  const sy = window.ccSync ? window.ccSync(st.at) : { wait: 0, stale: false };
+  if (sy.stale) return;   // walked in after the show: the card is all that's left to see
+  window._answerGo = null;
+  playStealShow(sy.wait);
+}
 function playRevealSequence() {
   if (window.GameMusic) window.GameMusic.stop();
   const flip = $('reveal-flip'), btn = $('reveal-continue'), hint = $('reveal-hint'), lead = $('reveal-lead');
   if (!flip) return;
   (window._revealT || []).forEach(clearTimeout); window._revealT = [];
   const key = state.code + '|' + state.round, B = REVEAL_BEATS;
-  const sy = window.ccSync ? window.ccSync(state.phaseAt) : { wait: 0, late: 0 };
+  const sy = window.ccSync ? window.ccSync(state.flipAt || state.phaseAt) : { wait: 0, late: 0 };
   const elapsed = sy.late - sy.wait;   // ms since the shared start (negative: not yet)
   const showHint = () => { const n = (state.eligibleSecondBetters || []).length; if (hint) { hint.textContent = n ? `${plural(n, 'player still has', 'players still have')} a chip — same order as before.` : 'Every chip is already down.'; hint.style.opacity = '1'; } };
   const showBtn = () => { if (btn) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; } };
@@ -2488,39 +2870,6 @@ function playRevealSequence() {
   });
   at(B.settle, () => { showHint(); if (window.ccBeat) window.ccBeat('reveal:settled'); });
   at(B.button, showBtn);
-}
-
-/* ── STEAL ── */
-function renderSteal() {
-  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked"><span class="num">${i + 1}</span>${trayHtml(i, { grab: state.isDealer })}<p class="caption-text">“${esc(c)}”${capNote(i)}</p></div>`).join('')
-    + `<div class="cap closed locked"><span class="num"><span class="cc-badge" style="margin:0;">CC</span></span>${trayHtml('closed', { grab: state.isDealer })}<p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption</p><p class="caption-text">“${esc(state.closedCaption)}”</p></div>`;
-  if (state.isDealer) {
-    return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
-      <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">Steal one chip</h2><p class="sub steal-line">Tap ${dealerMode() === 'both' ? 'another player’s' : 'a'} chip to steal it. Off the real one = their points become yours. Off a fake, they get +1.</p></div>
-      <div class="stack" style="margin-top:18px;">${cards}</div>`;
-  }
-  const canPass = state.canTakeover || state.isHost;   // #28: the host can pass for a dealer who's wandered off
-  return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
-    <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">${esc(firstName(state.dealerName))} is choosing a chip to steal<span class="dots"></span></h2><p class="sub">Any chip on the table could go. Plead your case.</p></div>
-    <div class="stack" style="margin-top:18px;">${cards}</div>
-    ${state.canTakeover ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'steal', betIndex:null})">Skip the steal and show the answer →</button>` : canPass ? `<button class="btn-link" style="display:block; margin:16px auto 0; font-size:14px;" onclick="send({action:'steal', betIndex:null})">Dealer stuck? Skip the steal</button>` : ''}`;
-}
-function grabChip(i) {
-  grabbedBet = grabbedBet === i ? null : i; sfx.tap();
-  document.querySelectorAll('.chip.grab').forEach(c => c.classList.toggle('grabbed', Number(c.dataset.bet) === grabbedBet));
-  renderStealBar();
-}
-function renderStealBar() {
-  if (!state.isDealer || state.phase !== 'steal') return;
-  if (grabbedBet === null) { setActionBar(`<button class="btn" onclick="doSteal(null)">Keep the peace — no steal</button>`); return; }
-  const b = (state.bets || [])[grabbedBet]; if (!b) { grabbedBet = null; return renderStealBar(); }
-  const where = b.target === 'closed' ? 'the Closed Caption' : `Caption ${b.target + 1}`;
-  setActionBar(`<p class="center small" style="margin-bottom:8px;">${esc(fnameOf(b.playerId))}’s ${b.stage === 1 ? 'blind' : 'late'} chip on ${where}</p>
-    <div class="btn-row"><button class="btn" onclick="grabChip(${grabbedBet})">Cancel</button><button class="btn btn-red" onclick="doSteal(${grabbedBet})">Steal it</button></div>`);
-}
-function doSteal(i) {
-  send({ action: 'steal', betIndex: i });   // every phone, yours too, plays the steal show
-  setActionBar('');
 }
 
 /* ── ANSWER ── */
@@ -2781,7 +3130,10 @@ async function shareHofCard() {
   const link = window.HallCard.siteUrl ? window.HallCard.siteUrl('gallery') : location.origin + '/?from=gallery';
   const r = await window.HallCard.share(hofBlob, { title: 'The Closed Caption Gallery', text: `Framed in The Closed Caption Gallery. Play it: ${link}`, filename: window._hofName });
   if (r === 'downloaded') showToast('Saved to your downloads', 'ok');
+  if (r !== 'cancelled') ccTally('gallery');
 }
+// #41: one count for the private tally (no names, no captions): a recap or a Gallery card left this phone
+function ccTally(what) { try { if (ws && ws.readyState === 1) ws.send(JSON.stringify({ action: 'tally', what })); } catch (e) {} }
 function hofListHtml() {
   const list = state.hallOfFame || [];
   if (!list.length) return '';
@@ -2839,11 +3191,12 @@ function stealNewsHtml() {
   return `<div class="steal-news"><div class="h2">${state.isDealer ? 'You' : esc(firstName(state.dealerName))} stole ${me ? 'your' : esc(fnameOf(st.victimId)) + '’s'} chip</div><p class="sub">${st.actName ? esc(st.actName) + ' took it off ' : 'Knocked off '}${where}.${st.gloat ? ` “${esc(st.gloat)}”` : ''}</p></div>`;
 }
 /* The steal show (steal.js, heists.js). The server picks it (state.steal.stealShow), so every phone agrees:
-   'full' — the first steal of a game, or a steal off the real caption: one of the heists (12.4s);
+   'full' — the night's first steal, then about one in four at random (never because of where the chip was):
+            one of the heists (12.4s);
    'short' — every other steal: a TRANSFERRED stamp in the dealer's colour, with the line (6s).
    No stealShow (an older server): the full show, as before.
-   Starts on the shared beat. Returns ms until the show is over. server.js holds the reveal for the same length. */
-const STEAL_SHOW_MS = 12400, STEAL_QUICK_MS = 6000;   // full heist 12.4s; the short stamp 6s (server.js 'reel_next' matches)
+   #8: it plays as the flip screen opens, on the shared beat; the server times the flip (state.flipAt) for after it. */
+const STEAL_SHOW_MS = 12400, STEAL_QUICK_MS = 6000;   // full heist 12.4s; the short stamp 6s (game.js STEAL_FULL_MS / STEAL_SHORT_MS match)
 // How long this round's steal show runs: 'short' -> 3.5s; 'full' or an older server (no stealShow) -> the full 9.6s
 const stealShowMs = (st) => window.ccClaw && window.ccClaw.lengthFor ? window.ccClaw.lengthFor(st, STEAL_SHOW_MS) : STEAL_SHOW_MS;
 function playStealShow(wait = 0) {
@@ -2880,6 +3233,7 @@ function renderRecap() {
     ${rows ? `<ul class="rc-rows" id="answer-scores">${rows}</ul>` : '<p class="rc-none" id="answer-scores">Nobody scored. Not even the dealer.</p>'}
     ${bluff ? `<p class="rc-line" id="bluff-shout">${bluff}</p>` : ''}
     ${steal ? `<p class="rc-line rc-dealer" id="rc-dealer">${steal}</p>` : ''}
+    ${lateOn() ? '<p class="rc-line">The Late Edition: every point doubled.</p>' : ''}
     <div id="answer-continue">${answerContinueHtml(isLastRound())}</div>
     </div>`;
 }
@@ -2925,14 +3279,21 @@ function stealPlain() {
   return `${esc(dealer)} stole ${whose} chip. It was on a fake, so ${me ? 'you get' : esc(fnameOf(st.victimId)) + ' gets'} +${d ? d.pts : 1}.`;
 }
 function isLastRound() {
-  const t = state.settings && state.settings.targetScore;
-  return t ? state.players.some(p => p.score >= t) : (state.totalRounds ? state.round >= state.totalRounds : false);
+  return state.totalRounds ? state.round >= state.totalRounds : false;   // (#37 first to N: once someone's there, the trip around the table is counted out)
 }
 function answerContinueHtml(lastRound) {
   const label = 'Frame It →';   // then the scoreboard (or the final scores)
-  if (canRun()) return `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" onclick="send({action:'reel_prev'})" aria-label="Back to the reveal">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'advance'})">${state.isDealer ? label : `${label.replace(' →', '')} for ${esc(firstName(state.dealerName))} →`}</button></div>`;
-  return `<p class="rc-wait">Waiting for ${esc(firstName(state.dealerName))}<span class="dots"></span></p>`;
+  if (reelDriver()) return `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" onclick="reelSend('reel_prev')" aria-label="Back to the reveal">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'advance'})">${state.isDealer ? label : `${label.replace(' →', '')} for ${esc(firstName(state.dealerName))} →`}</button></div>`;
+  return `<p class="rc-wait">Waiting for ${esc(firstName(state.dealerName))}<span class="dots"></span></p>${reelTakeOverHtml()}`;
 }
+/* #30: the answer reel has one driver. The dealer gets the big button (or anyone, once the dealer's phone has gone);
+   the host gets a small 'Take over' instead of a second button. Every tap says which step it was meant for, so two
+   taps at once never skip a caption (the server drops the stale one). */
+let reelTook = null;
+const reelDriver = () => !!state && (state.isDealer || state.canTakeover || (canRun() && reelTook === state.code + '|' + state.round));
+function reelTakeOverHtml() { return canRun() && !reelDriver() ? `<button class="btn-link" style="display:block; margin:8px auto 0; font-size:13px;" onclick="reelTake()">Take over</button>` : ''; }
+function reelTake() { reelTook = state.code + '|' + state.round; render(true); }
+function reelSend(action) { send({ action, step: state && state.reel ? state.reel.step : undefined }); }
 // Live updates while the answer is up (who can move on) without replaying the show
 function answerLive() {
   const el = $('game-content'), tpl = document.createElement('template'); tpl.innerHTML = renderAwayBanner();
@@ -2977,10 +3338,10 @@ function nobodyGroupHtml(k) {
     return `<div class="nb-row">${chipHtml(c.playerId, 'sm')}<div class="nb-txt"><p class="nb-cap">“${esc(c.caption)}”</p><p class="nb-who">${esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}${c.isClosed ? ' · the face-down one' : ''}</p>${badgeChipsHtml(badges)}</div></div>`;
   }).join('');
   const nextLabel = k === n - 1 ? 'And the real caption is…' : 'Next caption →';
-  const ctl = canRun()
-    ? `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" disabled aria-label="Previous caption">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'reel_next'})">${nextLabel}</button></div>
-       <button class="btn-link" style="display:block; margin:6px auto 0; font-size:13px;" onclick="send({action:'reel_skip'})">Skip to the recap</button>`
-    : `<p class="center small">Take your time — ${esc(firstName(state.dealerName))} moves to the next one.</p>`;
+  const ctl = reelDriver()
+    ? `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" disabled aria-label="Previous caption">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="reelSend('reel_next')">${nextLabel}</button></div>
+       <button class="btn-link" style="display:block; margin:6px auto 0; font-size:13px;" onclick="reelSend('reel_skip')">Skip to the recap</button>`
+    : `<p class="center small">Take your time — ${esc(firstName(state.dealerName))} moves to the next one.</p>${reelTakeOverHtml()}`;
   return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `${roundLabel()} · 1–${k} of ${n}` })}
     <div id="steal-slot">${stealNewsHtml()}</div>
     <div class="reel-dots">${order.map((_, i) => `<i class="${i < k ? 'on' : ''} ${i === n - 1 ? 'last' : ''}"></i>`).join('')}</div>
@@ -3001,7 +3362,7 @@ function spotlightHtml() {
   const chipsOf = (pid) => backers.filter(b => b.playerId === pid).reduce((s, b) => s + b.count + (b.stolen || 0), 0);
   const fell = people.length ? `<div class="fell"><p class="eyebrow" style="margin-bottom:8px;">${real ? 'Found the real one' : 'Fell for it'}</p><div class="fell-row">${people.map(pid => `<span class="fell-p">${chipHtml(pid, 'sm')}${esc(pid === myPlayerId ? 'You' : nameOf(pid))}${chipsOf(pid) > 1 ? ` <i>×${chipsOf(pid)}</i>` : ''}</span>`).join('')}</div></div>`
     : `<p class="nobody">${real ? (fc.allChips ? 'Found. Then stolen.' : '<i>The truth had no friends.</i>') : 'Nobody bit.'}</p>`;
-  const pts = !real && c.playerId ? backers.reduce((s, b) => s + b.count + (b.stolen || 0), 0) * (state.settings.pointsPerFool || 0) : 0;   // stolen chips still fooled them
+  const pts = !real && c.playerId ? backers.reduce((s, b) => s + b.count + (b.stolen || 0), 0) * (state.settings.pointsPerFool || 0) * (lateOn() ? 2 : 1) : 0;   // stolen chips still fooled them; The Late Edition doubles it
   const who = real ? `<div class="stamp real-stamp" id="spot-stamp">The real caption</div>`
     : `<div class="writer-stamp" id="spot-stamp">${chipHtml(c.playerId, 'lg')}<div><p class="eyebrow">Written by</p><div class="wname">${esc(c.playerId === myPlayerId ? 'You' : c.playerName || '?')}</div></div>${pts ? `<span class="plus" style="margin-left:auto; font-size:26px;">+${pts}</span>` : ''}</div>`;
   const realBadges = real ? (state.roundBadges || []).filter(b => ['moon', 'pickpocket'].includes(b.kind)) : [];
@@ -3009,10 +3370,10 @@ function spotlightHtml() {
   const noted = real ? notedHtml() : '';
   const badges = [...(state.roundBadges || []).filter(b => String(b.target) === String(key) && !['moon', 'pickpocket'].includes(b.kind)), ...realBadges];
   const nextLabel = step < n - 1 ? 'Next caption →' : step === n - 1 ? 'And the real caption is…' : 'Round recap →';
-  const ctl = canRun()
-    ? `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" ${step <= 1 ? 'disabled' : ''} onclick="send({action:'reel_prev'})" aria-label="Previous caption">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'reel_next'})">${nextLabel}</button></div>
-       ${step < n ? `<button class="btn-link" style="display:block; margin:6px auto 0; font-size:13px;" onclick="send({action:'reel_skip'})">Skip to the recap</button>` : ''}`
-    : `<p class="center small">Take your time — ${esc(firstName(state.dealerName))} moves to the next one.</p>`;
+  const ctl = reelDriver()
+    ? `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" ${step <= 1 ? 'disabled' : ''} onclick="reelSend('reel_prev')" aria-label="Previous caption">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="reelSend('reel_next')">${nextLabel}</button></div>
+       ${step < n ? `<button class="btn-link" style="display:block; margin:6px auto 0; font-size:13px;" onclick="reelSend('reel_skip')">Skip to the recap</button>` : ''}`
+    : `<p class="center small">Take your time — ${esc(firstName(state.dealerName))} moves to the next one.</p>${reelTakeOverHtml()}`;
   return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `${roundLabel()} · ${step} of ${n}` })}
     ${step === 1 ? `<div id="steal-slot">${stealNewsHtml()}</div>` : ''}
     <div class="reel-dots">${order.map((_, i) => `<i class="${i + 1 < step ? 'done' : i + 1 === step ? 'on' : ''} ${i === n - 1 ? 'last' : ''}"></i>`).join('')}</div>
@@ -3044,15 +3405,10 @@ function playReelStep(fromEntry) {
   const endState = () => { const s = $('spot'); if (s) { s.classList.remove('pending', 'tremble'); if (s.classList.contains('is-real')) s.classList.add('correct'); } };
   if (reelPlayed.has(tag)) { endState(); return; }
   reelPlayed.add(tag);
-  const st = state.steal;
   const sync = (at) => window.ccSync ? window.ccSync(at) : { wait: 0, late: 0, stale: false };
   const t0 = sync(state.stepAt || state.phaseAt);
-  const stealOn = fromEntry && step === 1 && st && st.victimId && st.at;
-  const showLen = stealOn ? stealShowMs(st) : 0;   // #12: the short show hands over sooner
-  const stealSy = stealOn ? sync(st.at) : null;
-  const lead = stealOn && !stealSy.stale ? playStealShow(stealSy.wait) : 0;
-  // ms from now until this caption's own beat (after the show, on the shared clock)
-  const startIn = (t0.wait - t0.late) + showLen;
+  // ms from now until this caption's own beat, on the shared clock (#8: the steal show played before the flip)
+  const startIn = t0.wait - t0.late, lead = 0;
   const c = capByKey(key), real = c && c.isCorrect;
   const beat = (b) => { if (window.ccBeat) window.ccBeat(b + ':' + step); };
   let timers = [];
@@ -3258,6 +3614,38 @@ function syncOpening() {
   openingT = setTimeout(closeOpening, left);
 }
 
+/* ── #11 The Late Edition: a masthead card as the last trip around the table begins (~3.5 s, every phone,
+   timed from the round's start; the server gives the writers the time back). Tap to skip. ── */
+let lateShown = null, lateT = null;
+function closeLate() { clearTimeout(lateT); const o = $('late-card'); if (o) { o.className = ''; o.innerHTML = ''; } }
+function lateWhyLine(L) {
+  const hit = L && L.hit, tgt = state.settings && state.settings.targetScore;
+  if (hit && hit.ids && hit.ids.length) {
+    const names = listNames(hit.ids.map(id => id === myPlayerId ? 'You' : fnameOf(id)));
+    const has = hit.ids.length > 1 || hit.ids[0] === myPlayerId ? 'have' : 'has';
+    return `${esc(names)} ${has} ${hit.score}${tgt ? ` (first to ${tgt})` : ''}. We finish the trip around the table first.`;
+  }
+  return 'The last trip around the table.';
+}
+function syncLate() {
+  const L = state && state.late;
+  const due = L && state.phase === 'writing' && state.round === L.from;
+  if (!due) { if ($('late-card') && $('late-card').className) closeLate(); return; }
+  const key = state.code + '|' + state.round + '|' + L.from + '|' + (state.history || []).length;
+  if (lateShown === key) return;
+  lateShown = key;
+  const left = (state.phaseAt || 0) + (L.ms || 3500) - (Date.now() + clockOffset);
+  if (left < 600) return;   // walked in late: straight to the cartoon
+  let o = $('late-card'); if (!o) { o = document.createElement('div'); o.id = 'late-card'; o.setAttribute('role', 'status'); document.body.appendChild(o); }
+  o.onclick = closeLate;
+  o.innerHTML = `<div class="le-card"><div class="le-rule"></div><p class="le-eye">Round ${state.round}${state.totalRounds ? ' of ' + state.totalRounds : ''}</p>
+    <h2 class="le-h">The Late Edition</h2><div class="le-rule"></div>
+    <p class="le-line">${lateWhyLine(L)} Every point counts double.</p><span class="le-x2" aria-hidden="true">×2</span></div>`;
+  o.className = 'on';
+  bsfx.seal(); buzz([40, 60, 40]); srSay('The Late Edition. Every point counts double.');
+  lateT = setTimeout(closeLate, left);
+}
+
 /* ── The verdicts: after the awards and the winner, before the Grand Poobah. A reading moment:
    everyone's new rating, the change, the title, and one line each (picked by the server: same on every
    phone, never one this phone has read before). The dealer or host taps on. ── */
@@ -3287,6 +3675,7 @@ function syncVerdicts() {
   }).join('');
   const nextWord = gamePoobah() && !poobahIsWinner() ? 'On to the Grand Poobah' : 'On to the final scores';
   $('verdicts').innerHTML = `<div class="vd-wrap"><p class="eyebrow center">After tonight</p><h2 class="vd-h">The ratings</h2>
+    ${R.short ? '<p class="vd-short">Short game: rating moves less.</p>' : ''}
     <div class="vd-list">${rows}</div>
     <div class="vd-foot">${canRun() ? `<button class="btn btn-yellow" onclick="this.disabled=true; send({action:'verdicts_done'})">${nextWord} →</button>` : `<p class="rc-wait">${esc(firstName(state.dealerName || nameOf(state.hostId)))} moves things along<span class="dots"></span></p>`}</div></div>`;
   $('verdicts').className = 'on';
@@ -3336,10 +3725,10 @@ function nextNudge() {
    Invites: a link that opens the game with the code filled in,
    a QR code to scan, and the code always one tap away
    ═══════════════════════════════════════════════════════════ */
-function joinUrl() {
+function joinUrl(via) {
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
   const base = local && state && state.lanUrl ? state.lanUrl : location.origin;
-  return `${base}/?join=${state ? state.code : ''}`;
+  return `${base}/?join=${state ? state.code : ''}${via ? '&via=' + via : ''}`;   // (#41: the tally counts joins by QR, link or typed code)
 }
 function qrSvg(text, px = 168) {
   try { const q = qrcode(0, 'M'); q.addData(text); q.make(); return q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }).replace('<svg ', `<svg width="${px}" height="${px}" `); } catch (e) { return ''; }
@@ -3349,7 +3738,7 @@ function openInvite() {
   $('sheet-body').innerHTML = `<div class="grip"></div>
     <div class="center"><p class="eyebrow">Room code</p>
       <div class="h-display" style="font-size:56px; letter-spacing:8px; padding-left:8px; margin:2px 0 10px;">${esc(state.code)}</div>
-      <div class="qr-wrap">${qrSvg(joinUrl(), 196)}</div>
+      <div class="qr-wrap">${qrSvg(joinUrl('qr'), 196)}</div>
       <p class="small" style="margin:10px 0 14px;">Point a phone camera here to join — or send the link</p></div>
     <div class="stack"><button class="btn btn-yellow" onclick="shareRoom()">Send the invite link</button><button class="btn btn-ink" onclick="closeMenu()">Close</button></div>`;
   $('sheet').classList.add('on');
@@ -3357,12 +3746,14 @@ function openInvite() {
 // Opened from an invite link: straight to "join" with the code filled in
 (function joinFromLink() {
   try {
-    const code = (new URLSearchParams(location.search).get('join') || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
+    const q = new URLSearchParams(location.search);
+    const code = (q.get('join') || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
     if (code.length !== 4) return;
     history.replaceState(null, '', location.pathname);
     const saved = readStore(localStorage);
-    if (saved && saved.code === code) return;   // their own game: the rejoin banner handles it
+    if (saved && saved.code === code) return;   // their own game: straight back to their seat (#2)
     window._linkCode = code;
+    window._linkVia = q.get('via') === 'qr' ? 'qr' : 'link';   // #41: scanned, or an invite link
   } catch (e) {}
 })();
 
@@ -3434,12 +3825,28 @@ function renderScores() {
   if (state.gameOver) return renderFinal(sorted, animated, goal);
   return `${header({ sticker: '<span class="sticker">Scoreboard</span>', sub: goal, thumb: false })}
     <div class="sb-list ${sorted.length > 6 ? 'tight' : ''}">${rows}</div>
+    ${state.nextLate ? `<p class="sb-late">Next: <b>The Late Edition.</b> ${state.late && state.late.hit ? lateWhyLine(state.late) : 'The last trip around the table.'} Every point counts double.</p>` : ''}
     <p class="sb-next">Next dealer: <b>${esc(firstName(state.nextDealerName))}</b></p>
     ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>`}`;
 }
 // Game over: two big moments (Winner, The Grand Poobah), a compact standings row, and the buttons
+// #9 / #11: a tie for first is broken by people fooled, then captions framed (the server decides: state.standing)
+function finalWinners(sorted) {
+  const stn = state.standing, won = stn && Array.isArray(stn.winners) ? stn.winners.map(playerById).filter(Boolean) : [];
+  return won.length ? won : sorted.filter(p => p.score === sorted[0].score);
+}
+function tieWhyLine(stn) {
+  if (!stn || !Array.isArray(stn.tied) || stn.tied.length < 2) return '';
+  const nm = (ids) => esc(listNames(ids.map(id => id === myPlayerId ? 'you' : fnameOf(id))));
+  const best = (o, ids) => Math.max(0, ...ids.map(id => (o || {})[id] || 0));
+  if (stn.by === 'fooled') { const o = stn.tied.filter(id => !stn.winners.includes(id)); return `Level on ${stn.top} with ${nm(o)}. Won on people fooled, ${best(stn.fooled, stn.winners)} to ${best(stn.fooled, o)}.`; }
+  if (stn.by === 'framed') { const o = Object.keys(stn.framed || {}).filter(id => !stn.winners.includes(id)); return `Level on points and people fooled with ${nm(o)}. Won on captions framed, ${best(stn.framed, stn.winners)} to ${best(stn.framed, o)}.`; }
+  if (stn.by === 'tie') return 'Level on points, people fooled and captions framed.';
+  return '';
+}
 function renderFinal(sorted, animated, goal) {
-  const winner = sorted[0], tops = sorted.filter(p => p.score === winner.score), tie = tops.length > 1;
+  const tops = finalWinners(sorted), winner = tops[0], tie = tops.length > 1, why = tieWhyLine(state.standing);
+  sorted = [...tops, ...sorted.filter(p => !tops.includes(p))];   // the winner first, even when a tie-break decided it
   const g = gamePoobah(), at = ceremonyAt();
   const folded = !!g && poobahIsWinner(g);
   const vPend = verdictsPending();
@@ -3448,7 +3855,7 @@ function renderFinal(sorted, animated, goal) {
   // #39: one name per line, and long names shrink — never split mid-word
   const fit = (list) => { const m = Math.max(...list.map(t => t.length)), k = list.length; return m > 12 ? 'font-size:19px;' : m > 8 || k > 2 ? 'font-size:23px;' : k > 1 ? 'font-size:27px;' : ''; };
   const nameLines = (list) => list.map(t => `<span class="fn-line">${esc(t)}</span>`).join('');
-  const win = `<div class="fn-card fn-win fade-in"><div class="fn-ic">${inkIcon('trophy', 50)}</div><p class="fn-eyebrow">${tie ? 'It’s a tie' : 'Winner'}</p><div class="fn-name" style="${fit(tops.map(p => p.name))}">${nameLines(tops.map(p => p.name))}</div><p class="fn-sub">${plural(winner.score, 'point')}</p>${also}</div>`;
+  const win = `<div class="fn-card fn-win fade-in"><div class="fn-ic">${inkIcon('trophy', 50)}</div><p class="fn-eyebrow">${tie ? 'It’s a tie' : 'Winner'}</p><div class="fn-name" style="${fit(tops.map(p => p.name))}">${nameLines(tops.map(p => p.name))}</div><p class="fn-sub">${plural(winner.score, 'point')}</p>${why ? `<p class="fn-why">${why}</p>` : ''}${also}</div>`;
   const hat = showHat ? `<div class="fn-card fn-hat poobah-panel fade-in"><div class="fn-ic bob">${poobahHat(54)}</div><p class="fn-eyebrow">The Grand Poobah</p><div class="fn-name" style="${fit(g.ids.map(nameOf))}">${nameLines(g.ids.map(nameOf))}</div><p class="fn-sub">${plural(g.n, 'chip')} on fakes</p></div>` : '';
   const standings = sorted.map(p => `<span class="fn-st">${chipHtml(p.id, 'xs')}${esc(p.name)} <b class="score-number" data-target="${p.score}" data-from="${p.score - ((state.roundScores || {})[p.id] || 0)}">${animated ? p.score : p.score - ((state.roundScores || {})[p.id] || 0)}</b></span>`).join('');
   const nFr = state.framedTonight || 0, fin = state.finale && window.ccFinale;
@@ -3528,6 +3935,8 @@ const POOBAH_SLOGANS = [
 // The points winner (or a co-winner) is also the Poobah: no separate ceremony that repeats them
 function poobahIsWinner(g) {
   g = g === undefined ? gamePoobah() : g; if (!g || !state.players || !state.players.length) return false;
+  const w = state.standing && state.standing.winners;   // (a tie-break may have decided the winner)
+  if (Array.isArray(w) && w.length) return g.ids.some(id => w.includes(id));
   const top = Math.max(...state.players.map(p => p.score));
   return g.ids.some(id => (playerById(id) || {}).score === top);
 }
@@ -3770,7 +4179,10 @@ function computeAwards() {
   if (m >= 2) {
     const best = Object.keys(groups).filter(k => groups[k] === m).sort().map(k => { const [rd, tg] = k.split('|'); const r = h.find(x => String(x.round) === rd); return r ? { ...capOf(r, tg), image: r.cartoon && r.cartoon.image } : null; }).filter(Boolean);
     if (best.length) { const n = best.length, tieWord = n === 2 ? 'A tie' : n === 3 ? 'Three-way tie' : `${n}-way tie`;
-      out.push({ icon: 'frame', title: 'Most Framed', who: best.map(c => c.playerId ? nameOf(c.playerId) : 'The real caption').filter((v, i, a) => a.indexOf(v) === i).join(' & '), quote: n === 1 ? best[0].caption : null, image: n === 1 ? best[0].image : null, line: n === 1 ? plural(m, 'frame') : `${tieWord}. ${plural(m, 'frame')} each.` }); }
+      const writers = best.map(c => c.playerId ? nameOf(c.playerId) : 'The real caption').filter((v, i, a) => a.indexOf(v) === i);
+      // #30: every tied caption by one writer is no tie between people: "Two captions, 3 frames each."
+      const line = n === 1 ? plural(m, 'frame') : writers.length === 1 ? `${n === 2 ? 'Two' : n === 3 ? 'Three' : n} captions, ${plural(m, 'frame')} each.` : `${tieWord}. ${plural(m, 'frame')} each.`;
+      out.push({ icon: 'frame', title: 'Most Framed', who: writers.join(' & '), quote: n === 1 ? best[0].caption : null, image: n === 1 ? best[0].image : null, line }); }
   }
   // Most Robbed only if there's room: highlights + awards are never more than three slides
   if ((t = top(robbed)) && t.ids.length) out.push({ icon: 'mask', title: 'Most Robbed', who: names(t), line: `Lost ${plural(t.n, 'chip')} to the dealer` });
@@ -3949,6 +4361,15 @@ function renderHistory(idx) {
 
 /* ── Init ── */
 startHeroLoop();
+// #2: a phone with a seat from tonight goes straight back to the table (never Home). An older seat waits on Home
+// behind 'Back to the game' while the phone checks whether that table is still going (if it is, straight in).
+(function straightBack() {
+  if (window._linkCode) return;
+  const s = readStore(localStorage);
+  if (!s) return;
+  autoBack = s; myKey = s.key || null;
+  if (Date.now() - s.ts < 2 * 3600 * 1000) showBackScreen(s); else offerRejoin();
+})();
 connect();
 if (window._linkCode) inviteLanding(window._linkCode);   // #23: whose table, the pitch, the code ticked, the name box ready
 </script>

@@ -21,6 +21,9 @@
   - The Gallery deck (store.js) is memory-only unless the host sets DATA_DIR; on the current Render free plan
     it isn't set. If it ever is, framed captions and the writer's name would be kept on the server — update
     this page then.
+  - stats.js (#41, Oct 20 2026): a tally for the owner at /stats?k=STATS_KEY. Counts only (games started and
+    finished, players per game, joins by QR/link/typed code, recap and Gallery shares, by day): no names,
+    captions, room codes or addresses. Written to DATA_DIR/stats.json, STATS_FILE, or the temp folder.
   - Voice: phone-to-phone (WebRTC). STUN from Google; if a direct path fails, audio may go through a TURN
     relay (voice.js: the server's /ice list, else Metered's free Open Relay). Relays pass encrypted audio along.
 -->
@@ -70,6 +73,7 @@
       <li><strong>Names</strong> you type to join, the <strong>captions</strong> you write, and your bets and scores.</li>
       <li>All of it sits in the server’s memory, <strong>only for that game room</strong>, seen only by the players in it. It’s never written to disk.</li>
       <li>A room is <strong>deleted 30 minutes after the last phone leaves</strong> — and every room vanishes whenever the server restarts.</li>
+      <li>It also keeps a running count for the game’s owner (games played, players per game, whether people joined by QR code, link or typed code, and recaps and Gallery cards shared): <strong>numbers only</strong>, no names, no captions, nothing that points to you.</li>
     </ul>
   </section>
 

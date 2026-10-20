@@ -37,6 +37,9 @@
     var players = (s.players || []).slice().sort(function (a, b) { return b.score - a.score; });
     var top = players.length ? players[0].score : 0;
     var winners = players.filter(function (p) { return p.score === top; });
+    // a tie for first broken by people fooled, then captions framed (the server's state.standing)
+    var won = s.standing && s.standing.winners ? players.filter(function (p) { return s.standing.winners.indexOf(p.id) >= 0; }) : [];
+    if (won.length) winners = won;
     var poobah = null; try { poobah = g('gamePoobah') ? gamePoobah() : null; } catch (e) {}
     var hist = s.history || [];
     // The night's framed captions (up to 3), else the night's best bluffs
@@ -380,7 +383,10 @@
     var link = window.HallCard && window.HallCard.siteUrl ? window.HallCard.siteUrl('recap') : location.origin + '/?from=recap';
     var opts = { title: 'Closed Caption — game night', text: 'Closed Caption, tonight. Play it: ' + link, filename: filename() };   // #24
     var p = window.HallCard && window.HallCard.share ? window.HallCard.share(blob, opts) : Promise.resolve('cancelled');
-    p.then(function (r) { if (r === 'downloaded') { try { showToast('Saved to your downloads', 'ok'); } catch (e) {} } });
+    p.then(function (r) {
+      if (r === 'downloaded') { try { showToast('Saved to your downloads', 'ok'); } catch (e) {} }
+      if (r !== 'cancelled' && typeof window.ccTally === 'function') window.ccTally('recap');   // #41: counted, nothing else
+    });
   }
 
   window.Recap = { open: open, make: make, data: data, share: share };

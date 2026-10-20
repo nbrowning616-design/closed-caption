@@ -203,3 +203,23 @@ logic, niche sports metaphors, no link to tonight. Approved samples are in scrat
 CARTOON QUALITY (Nick): players say the drawings are a little too plain. Keep the pencil, bare-bones look Nick prefers,
 but every cartoon needs 2–3 odd/interesting things so a table can go in more than one direction; a cartoon with only one
 possible joke line is out (audit the deck: redraw or cut). Queued premises get reworked to this bar before drawing.
+
+## STATUS (Oct 20 2026) — #2 dropped phones and #41 private stats: DONE (branch, not merged)
+- #2: a phone with a seat goes straight back to the table on load ("Back to the table…"; Home never shows for a seat from
+  the last 2 h; an older seat waits on Home behind a full-width "Back to the game" while the phone checks the table).
+  Heartbeat: server pings every 10 s (dead sockets dropped within ~20 s); a phone that hears nothing for 20 s reconnects
+  at once (calm paper "Reconnecting…" banner, then "Back at the table"). Captions, bets/undo, the steal and frame picks
+  carry a cid and wait in a phone outbox (kept across reloads) until the server acks; the room keeps its recent cids in
+  the sealed copy, so nothing lands twice, even across a restart (after a restart the phones re-send the last 3 minutes).
+  The sealed copy is refreshed on every caption/bet/steal/frame pick. Reconnect/restore never count toward or get
+  blocked by the per-address limits (only wrong codes typed on Join: 40 per 5 min). A refused seat: red "Can't reach
+  the table, retrying", a retry every 4 s (up to 3 min after a restart, while another phone brings the room back).
+  Address = first public x-forwarded-for entry (the last can be Render's own hop, which would lump every phone together).
+- #41: stats.js + /stats?k=STATS_KEY (404 otherwise). Set STATS_KEY on Render to use it. Resets on redeploy unless
+  DATA_DIR is a disk. QR codes carry via=qr, invite links via=link. One sentence on privacy.html.
+- Tested (Playwright, phone size, host + 3 phones, scratchpad drop/e2e.js + edges.js): full game with a steal; a phone
+  black-holed mid-round with a pending 2-chip bet (calm banner at ~20 s, server marks it offline, back 0.3 s after the
+  network returns, bet landed once); server restart mid-round with the host's copy gone (red banner, retried, everyone
+  back in ~3 s, the bet placed while the server was down landed once, re-sent bets answered as repeats); a reload with
+  a pending bet (never passed through Home, bet landed once); a lost ack on a late chip (re-sent, answered as a repeat,
+  one chip); stale/closed seats, invite to another room, limits vs reconnects; tally counts. 45 checks, all pass.

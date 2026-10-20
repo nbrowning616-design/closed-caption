@@ -7,6 +7,7 @@ const os = require('os');
 const path = require('path');
 const { WebSocketServer } = require('ws');
 const G = require('./game');
+const Stats = require('./stats');   // #41: a private tally (counts only)
 const { PHASES } = G;
 
 // Address friends on the same Wi-Fi should type in (only used when running on a home computer)
@@ -79,7 +80,7 @@ app.get('/status', (req, res) => {
 // Unknown codes count against the same wrong-code limit as joining (no guessing rooms through here).
 app.get('/room/:code', (req, res) => {
   res.set('Cache-Control', 'no-store');
-  const ip = String(req.headers['x-forwarded-for'] || (req.socket && req.socket.remoteAddress) || '').split(',')[0].trim();
+  const ip = clientIp(req);   // (#2: the first public x-forwarded-for entry, like everywhere else)
   const code = String(req.params.code || '').toUpperCase();
   if (blocked(ip)) return res.status(429).json({ open: false, wait: true });
   const g = /^[A-Z]{4}$/.test(code) ? games[code] : null;
@@ -88,16 +89,28 @@ app.get('/room/:code', (req, res) => {
   const here = g.players.filter(p => p.connected).length;
   res.json({ open: true, host: host ? (String(host.name).trim().split(/\s+/)[0] || '') : '', here, started: g.phase !== PHASES.LOBBY, full: g.players.length >= G.MAX_PLAYERS, locked: !!g.locked });
 });
+// #41: the private tally, for Nick only: /stats?k=<STATS_KEY>. Without the key (or with no STATS_KEY set) it doesn't
+// exist (404). Counts only: no names, captions, room codes or addresses.
+app.get('/stats', (req, res, next) => {
+  const want = process.env.STATS_KEY || '', k = typeof req.query.k === 'string' ? req.query.k : '';
+  const a = crypto.createHash('sha256').update(want).digest(), b = crypto.createHash('sha256').update(k).digest();
+  if (!want || !crypto.timingSafeEqual(a, b)) return next();   // (falls through to the plain 404)
+  res.set('Cache-Control', 'no-store').set('X-Robots-Tag', 'noindex').json(Stats.report());
+});
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
 
 const games = {};    // code -> game
 const clients = {};  // playerId -> { ws, gameCode }
 
-function broadcast(code) {
+function broadcast(code, sealTo = null) {
   const game = games[code];
   if (!game) return;
-  // #6: every phone keeps a sealed copy of the room, refreshed on each new stage (or every 20 s), to hand back after a restart
-  const tag = game.phase + '|' + game.round + '|' + (game.reel ? game.reel.step : '') + '|' + game.players.length + '|' + (game.frameResult ? 1 : 0) + '|' + (game.finale ? (game.finale.winner || 'v') : '');
+  // #6: every phone keeps a sealed copy of the room, refreshed on each new stage (or every 20 s), to hand back after a restart.
+  // #2: and whenever a caption, a bet, the steal or a frame pick lands, so a restart never loses the last one.
+  const tag = game.phase + '|' + game.round + '|' + (game.reel ? game.reel.step : '') + '|' + game.players.length + '|' + (game.frameResult ? 1 : 0) + '|' + (game.finale ? (game.finale.winner || 'v') + Object.keys(game.finale.votes || {}).length : '')
+    + '|' + (game.submissions || []).length + '|' + (game.bets || []).length + '|' + Object.keys(game.blind || {}).length + '|' + (game.dropAt || '') + '|' + (game.steal ? (game.steal.victimId ? 's' : 'p') : '') + '|' + Object.keys(game.framePicks || {}).length + '|' + (game.actN || 0);
+  // #41: a game reached its final scoreboard (counted once per game)
+  if (game.phase === PHASES.SCORES && game.gameNo && game._statDone !== game.gameNo && G.isGameOver(game)) { game._statDone = game.gameNo; Stats.finished(); }
   let seal = null;
   if (tag !== game._sealTag || Date.now() - (game._sealAt || 0) > 20000) { try { seal = G.sealGame(game); game._sealTag = tag; game._sealAt = Date.now(); } catch (e) { console.error('seal failed', e); } }
   for (const p of game.players) {
@@ -109,6 +122,7 @@ function broadcast(code) {
       if (game.phase === PHASES.SCORES) view.wantAgain = game.players.filter(x => x.again).map(x => x.id);   // #35: who's in for another
       c.ws.send(JSON.stringify({ type: 'state', data: view }));
       if (seal) c.ws.send(JSON.stringify({ type: 'seal', code, boot: BOOT, data: seal }));
+      else if (sealTo === p.id) { try { c.ws.send(JSON.stringify({ type: 'seal', code, boot: BOOT, data: G.sealGame(game) })); } catch (e) {} }   // #2: a phone back in its seat gets a fresh copy at once
     }
   }
 }
@@ -157,9 +171,37 @@ function endWriting(g) {
 function autoAdvanceBets(code) {
   const g = games[code];
   if (!g) return;
+  if (g.phase === PHASES.FIRST_BETS) return scheduleBlind(code);
   // 'All chips are down' gets a beat to land (and the last bettor a moment to undo) before the table moves on
-  if (g.phase === PHASES.FIRST_BETS && G.pendingBetters(g).length === 0) later(code, 3200, PHASES.FIRST_BETS, (x) => G.pendingBetters(x).length ? null : G.moveToReveal(x));
   if (g.phase === PHASES.SECOND_BETS && G.pendingBetters(g).length === 0) later(code, 3200, PHASES.SECOND_BETS, (x) => G.pendingBetters(x).length ? null : G.moveFromSecondBets(x));
+}
+/* #7 Blind bets, everyone at once: one timer per room. Everyone in -> a short beat (the last one can still take
+   theirs back) -> every chip drops onto the table together. Or the clock runs out first. */
+const blindT = new Map();   // code -> timeout
+function scheduleBlind(code) {
+  const g = games[code];
+  clearTimeout(blindT.get(code)); blindT.delete(code);
+  if (!g || g.phase !== PHASES.FIRST_BETS || g.dropAt) return;
+  const allIn = G.pendingBetters(g).length === 0;
+  const at = allIn ? Date.now() + G.ALL_IN_BEAT_MS : g.blindEnd;
+  if (!at) return;   // a no-timer room: the dealer or host drops the chips
+  const round = g.round;
+  blindT.set(code, setTimeout(() => {
+    blindT.delete(code);
+    const x = games[code];
+    if (!x || x.phase !== PHASES.FIRST_BETS || x.round !== round || x.dropAt) return;
+    if (allIn ? G.pendingBetters(x).length > 0 : Date.now() < (x.blindEnd || 0) - 50) return scheduleBlind(code);   // someone took theirs back / the clock moved
+    dropNow(code);
+  }, Math.max(0, at - Date.now())));
+}
+// The chips drop (every phone, one shared moment), the table gets a look, then the steal or the flip
+function dropNow(code) {
+  const g = games[code];
+  if (!g || g.phase !== PHASES.FIRST_BETS) return;
+  clearTimeout(blindT.get(code)); blindT.delete(code);
+  try { G.dropBlind(g); } catch (e) { console.error('drop failed', code, e); }
+  broadcast(code);
+  later(code, Math.max(0, g.dropAt + G.DROP_HOLD_MS - Date.now()), PHASES.FIRST_BETS, G.afterBlinds);
 }
 
 // Frame It: count the picks once, then the scoreboard comes by itself after the ceremony
@@ -172,32 +214,77 @@ function resolveFrames(code) {
   return true;
 }
 
-// #4 / #51: limits, per phone address. New rooms: 6 a minute. Wrong room codes: 12 per 5 minutes, then a 2-minute wait.
-const MAX_ROOMS = 1500;
+// #4 / #51: limits, per phone address. New rooms: 6 a minute. Wrong room codes typed on 'join': 40 per 5 minutes,
+// then a 2-minute wait. #2: a whole party shares one Wi-Fi address, so the bar is high, and a phone reconnecting to
+// its own seat (with its key) never counts and is never blocked.
+const MAX_ROOMS = 1500, MISSES_PER_5MIN = 40;
 const hits = new Map();   // ip -> { creates: [t], misses: [t], blockedUntil }
 function hitsOf(ip) { let h = hits.get(ip); if (!h) hits.set(ip, h = { creates: [], misses: [], blockedUntil: 0 }); return h; }
 const recent = (list, ms) => { const now = Date.now(); while (list.length && now - list[0] > ms) list.shift(); return list; };
-function wrongCode(ip) { const h = hitsOf(ip); recent(h.misses, 5 * 60000).push(Date.now()); if (h.misses.length >= 12) { h.blockedUntil = Date.now() + 2 * 60000; h.misses = []; } }
+function wrongCode(ip) { const h = hitsOf(ip); recent(h.misses, 5 * 60000).push(Date.now()); if (h.misses.length >= MISSES_PER_5MIN) { h.blockedUntil = Date.now() + 2 * 60000; h.misses = []; } }
+const TOO_MANY = 'Lots of people on this Wi-Fi. Try again in a minute.';
+// #2: the phone's address. Render puts the real client first in x-forwarded-for (and its own hops after it), so the
+// first public entry is the phone; the LAST entry can be the proxy's own address, which would lump every phone on the
+// site into one and block whole parties. (A faked header only dodges a limit; it can never block anyone else's seat.)
+const PRIVATE_IP = /^(10\.|127\.|0\.|169\.254\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.|::1$|::$|f[cd][0-9a-f]{0,2}:|fe80:|::ffff:(10|127|192\.168)\.)/i;
+function clientIp(req) {
+  const xff = String((req && req.headers && req.headers['x-forwarded-for']) || '').split(',').map(s => s.trim()).filter(Boolean);
+  return xff.find(a => !PRIVATE_IP.test(a)) || xff[0] || String((req && req.socket && req.socket.remoteAddress) || '');
+}
 const blocked = (ip) => hitsOf(ip).blockedUntil > Date.now();
+const ACKED = new Set(['submit_caption', 'place_bet', 'undo_bet', 'steal', 'frame_pick']);   // #2: answered by cid, never applied twice
 setInterval(() => { const now = Date.now(); for (const [ip, h] of hits) if (!h.creates.length && !h.misses.length && h.blockedUntil < now) hits.delete(ip); else { recent(h.creates, 60000); recent(h.misses, 5 * 60000); } }, 60000);
-const TAKE_SEAT_SECS = 30;   // #26: a seat can only be claimed by name once its phone has been gone this long
+/* #30 Same name at the door: "Are you the Chris who was playing, or a different Chris?"
+   A different Chris gets a seat of their own ("Chris 2"). 'It's me' takes the old seat only once its phone has
+   been gone 2 minutes, or with the host's OK; the old phone is told its seat moved. */
+const CLAIM_FREE_MS = 120000;
+const BACK_NOTICE_MS = 20000;   // away this long mid-game: the table hears "X's back."
+const HOST_TAKEOVER_MS = 20000; // lobby: the host's phone gone this long, the next player may take over
+const firstWord = (n) => String(n || '').trim().split(/\s+/)[0] || n;
+const claims = new Map();       // claim id -> { ws, code, pid, at } (a phone waiting for the host's OK)
+function freeName(game, name) {
+  const taken = new Set(game.players.map(p => p.name.toLowerCase()));
+  for (let k = 2; k < 10; k++) { const suf = ' ' + k, n = name.slice(0, 12 - suf.length).trim() + suf; if (!taken.has(n.toLowerCase())) return n; }
+  return null;
+}
+// Seat `claimWs` in an existing player's seat: the old phone (if it's still on) is told, and its key stops working
+function takeSeat(code, existing, claimWs) {
+  const game = games[code];
+  if (!game || !claimWs || claimWs.readyState !== 1 || typeof claimWs.seatFn !== 'function') return;
+  const old = clients[existing.id];
+  if (old && old.ws !== claimWs) { send(old.ws, { type: 'seat_moved' }); try { old.ws.close(4001, 'seat moved'); } catch (e) {} delete clients[existing.id]; }
+  if (existing.key) existing.movedKey = existing.key;   // that phone hears "Your seat moved" if it comes back
+  existing.key = null;
+  existing.connected = false;   // (seat() marks it here again, without a "back" notice of its own)
+  existing.disconnectedAt = null;
+  if (game.seatClaim && game.seatClaim.pid === existing.id) game.seatClaim = null;
+  game.notice = { text: `${firstWord(existing.name)}’s back, on a different phone.`, at: Date.now() };
+  claimWs.seatFn(existing.id, code);
+}
+function dropClaim(id) {
+  const c = claims.get(id); if (!c) return;
+  claims.delete(id);
+  const g = games[c.code];
+  if (g && g.seatClaim && g.seatClaim.id === id) { g.seatClaim = null; broadcast(c.code); }
+}
 
 // After a restart: a phone hands back its sealed copy and the room comes back as it was
 function resumeTimers(code) {
   const g = games[code];
   if (!g) return;
   if (g.phase === PHASES.WRITING) scheduleWritingEnd(code);
-  if (g.phase === PHASES.FIRST_BETS || g.phase === PHASES.SECOND_BETS) autoAdvanceBets(code);
+  if (g.phase === PHASES.FIRST_BETS && g.dropAt) later(code, 1500, PHASES.FIRST_BETS, G.afterBlinds);   // the drop already happened: on to the steal
+  else if (g.phase === PHASES.FIRST_BETS || g.phase === PHASES.SECOND_BETS) autoAdvanceBets(code);
   if (g.phase === PHASES.FRAMING && g.frameResult) later(code, Math.max(1500, g.frameResult.endsAt - Date.now()), PHASES.FRAMING, G.moveToScoreboard);
 }
 
 const send = (ws, obj) => { if (ws.readyState === 1) ws.send(JSON.stringify(obj)); };
-const sendError = (ws, message) => send(ws, { type: 'error', message });
+const sendError = (ws, message) => { if (ws.curCid) ws.curFailed = true; send(ws, ws.curCid ? { type: 'error', message, cid: ws.curCid } : { type: 'error', message }); };   // (#2: tied to the message it answers)
 const cleanName = (s) => String(s || '').replace(/\s+/g, ' ').trim().slice(0, 12);
 
 wss.on('connection', (ws, req) => {
   let playerId = null;
-  const ip = String((req && req.headers['x-forwarded-for']) || (req && req.socket && req.socket.remoteAddress) || '').split(',')[0].trim();
+  const ip = clientIp(req);
   send(ws, { type: 'hello', boot: BOOT });
   ws.isAlive = true;
   ws.on('pong', () => { ws.isAlive = true; });
@@ -214,14 +301,21 @@ wss.on('connection', (ws, req) => {
     const old = clients[id];
     if (old && old.ws !== ws) { try { old.ws.close(4000, 'replaced'); } catch (e) {} }
     playerId = id;
+    ws.claimId = null;
     clients[id] = { ws, gameCode: code };
-    const p = games[code].players.find(x => x.id === id);
+    const g = games[code], p = g.players.find(x => x.id === id);
+    const awayMs = p && !p.connected && p.disconnectedAt ? Date.now() - p.disconnectedAt : 0;
     if (p) { p.connected = true; p.disconnectedAt = null; }
+    // #30: a player coming back is announced as back (never as someone new), and only after a real absence
+    if (p && awayMs >= BACK_NOTICE_MS && g.phase !== PHASES.LOBBY) g.notice = { text: `${firstWord(p.name)}’s back.`, at: Date.now() };
+    // #30: the host who stepped away from the lobby gets the room back on return (until the game starts)
+    if (p && g.phase === PHASES.LOBBY && g.origHostId === id && g.hostId !== id) { g.hostId = id; g.origHostId = null; g.notice = { text: `${firstWord(p.name)}’s back, and hosting again.`, at: Date.now() }; }
     G.clearVoice(games[code], id);   // a fresh connection starts outside the voice call (the phone re-joins it)
     if (p && !p.key) p.key = crypto.randomBytes(16).toString('base64url');
     send(ws, { type: 'joined', playerId: id, code, key: p ? p.key : null, boot: BOOT });   // #2: the key never leaves this phone; everyone else only ever sees the public id
-    broadcast(code);
+    broadcast(code, id);
   };
+  ws.seatFn = seat;   // (a host letting someone back into their seat seats them from the host's connection)
 
   // One bad message must never take the whole server down
   ws.on('message', (raw) => { try { onMessage(raw); } catch (e) { console.error('message failed', e); try { sendError(ws, 'That didn’t take. Try again.'); } catch (e2) {} } });
@@ -243,50 +337,77 @@ wss.on('connection', (ws, req) => {
       games[game.code] = game;
       return seat(id, game.code);
     }
-    if (msg.action === 'reconnect') {
-      const code = String(msg.code || '').toUpperCase().trim();
-      if (blocked(ip)) return sendError(ws, 'Too many tries. Wait a minute.');
+    // #2: a phone coming back to its own seat (reconnect), or bringing the room back after a restart (restore), is
+    // never slowed or blocked by the per-address limits, and a refusal never counts against its Wi-Fi: only wrong
+    // codes typed on Join do. (A seat answers only to its own key, 16 random bytes: nothing to guess.)
+    const backToSeat = (code, pid, key) => {
       const game = games[code];
       if (!game) return sendError(ws, 'Game not found');
-      const p = game.players.find(x => x.id === msg.playerId);
+      const p = game.players.find(x => x.id === pid);
       if (!p) return sendError(ws, 'Player not in game');
-      if (p.key && msg.key !== p.key) { wrongCode(ip); return sendError(ws, 'Player not in game'); }   // #2: a seat answers only to its own phone
+      if (p.movedKey && key === p.movedKey && key !== p.key) return send(ws, { type: 'seat_moved' });   // #30: that seat went to another phone
+      if (p.key && key !== p.key) return sendError(ws, 'Player not in game');   // #2: a seat answers only to its own phone
       return seat(p.id, code);
-    }
+    };
+    if (msg.action === 'reconnect') return backToSeat(String(msg.code || '').toUpperCase().trim(), msg.playerId, msg.key);
     if (msg.action === 'restore') {
-      // #6: the server restarted; this phone brings the room back from its sealed copy
+      // #6: the server restarted; this phone brings the room back from its sealed copy (the first copy in wins; the
+      // phones re-send their recent captions and bets, and the acks in the copy keep any from landing twice)
+      const want = String(msg.code || '').toUpperCase().trim();
       const g = G.unsealGame(msg.data);
-      if (!g) return sendError(ws, 'Game not found');
-      const p = g.players.find(x => x.id === msg.playerId);
-      if (!p || (p.key && msg.key !== p.key)) return sendError(ws, 'Game not found');
+      const p = g && g.players.find(x => x.id === msg.playerId);
+      if (!g || !p || (p.key && msg.key !== p.key) || (want && g.code !== want)) return backToSeat(want, msg.playerId, msg.key);   // a copy that won't open: the room may be back already
       if (!games[g.code]) { games[g.code] = g; g._lastAct = Date.now(); console.log('room restored after restart', g.code, g.phase); resumeTimers(g.code); }
-      else if (!games[g.code].players.some(x => x.id === p.id && x.key === p.key)) return sendError(ws, 'Game not found');
-      return seat(p.id, g.code);
+      return backToSeat(g.code, p.id, msg.key);
     }
     if (msg.action === 'join') {
       const code = String(msg.code || '').toUpperCase().trim();
       const name = cleanName(msg.name);
       if (!name) return sendError(ws, 'Enter your name');
-      if (blocked(ip)) return sendError(ws, 'Too many tries. Wait a minute.');
+      if (blocked(ip)) return sendError(ws, TOO_MANY);
       const game = games[code];
       if (!game) { wrongCode(ip); return sendError(ws, 'Game not found'); }
       const existing = game.players.find(p => p.name.toLowerCase() === name.toLowerCase());
       if (existing) {
-        // Same name = same seat (lets someone whose phone died rejoin from a new phone).
-        // #26: only once that seat's phone has been gone a while, never in a locked room, and the table is told.
-        if (existing.connected && clients[existing.id] && clients[existing.id].ws.readyState === 1) return sendError(ws, existing.name + ' is already at the table');
-        if (game.locked) return sendError(ws, 'The host has locked this room');
-        const away = existing.disconnectedAt ? (Date.now() - existing.disconnectedAt) / 1000 : 0;
-        if (!existing.connected && away < TAKE_SEAT_SECS) return sendError(ws, `${existing.name}’s phone only just dropped. Try again in ${Math.ceil(TAKE_SEAT_SECS - away)} seconds.`);
-        existing.key = null;   // the old phone's key stops working
-        game.notice = { text: `${existing.name} is back, on a different phone.`, at: Date.now() };
-        return seat(existing.id, code);
+        // #30: the same name — ask first. A different person gets their own seat; the same person gets theirs
+        // back once the old phone has been gone 2 minutes, or with the host's OK (the table is told either way).
+        const live = !!(clients[existing.id] && clients[existing.id].ws.readyState === 1);
+        if (clients[existing.id] && clients[existing.id].ws === ws) return seat(existing.id, code);   // (this phone, tapping Join twice)
+        if (msg.as === 'new') {
+          if (game.locked) return sendError(ws, 'The host has locked this room');
+          const nm = freeName(game, name);
+          if (!nm) return sendError(ws, 'Pick a different name');
+          const id = crypto.randomUUID(), r = G.addPlayer(game, id, nm);
+          if (r.error) return sendError(ws, r.error);
+          Stats.joined(msg.via);   // #41
+          return seat(id, code);
+        }
+        if (msg.as === 'me') {
+          const away = !live && existing.disconnectedAt ? Date.now() - existing.disconnectedAt : 0;
+          if (!live && !game.locked && away >= CLAIM_FREE_MS) return takeSeat(code, existing, ws);
+          if (ws.claimId) dropClaim(ws.claimId);
+          const host = game.players.find(p => p.id === game.hostId);
+          const hostLive = !!host && host.id !== existing.id && !!clients[host.id] && clients[host.id].ws.readyState === 1;
+          const cid = crypto.randomBytes(6).toString('hex');
+          ws.claimId = cid;
+          claims.set(cid, { ws, code, pid: existing.id, at: Date.now() });
+          if (hostLive) { game.seatClaim = { id: cid, pid: existing.id, name: existing.name, oldLive: live, awaySecs: Math.round(away / 1000), at: Date.now() }; broadcast(code); }
+          return send(ws, { type: 'claim_wait', name: existing.name, host: hostLive ? host.name : null, oldLive: live, secs: !live && !game.locked ? Math.ceil((CLAIM_FREE_MS - away) / 1000) : null });
+        }
+        return send(ws, { type: 'same_name', name: existing.name, code, playing: game.phase !== PHASES.LOBBY });
       }
       if (game.locked) return sendError(ws, 'The host has locked this room');
       const id = crypto.randomUUID();
       const r = G.addPlayer(game, id, name);
       if (r.error) return sendError(ws, r.error);
+      Stats.joined(msg.via);   // #41: by QR, invite link or typed code
       return seat(id, code);
+    }
+    if (msg.action === 'tally') {
+      // #41: a recap picture or a Gallery card was shared from this phone (a handful per connection at most)
+      ws.tallyN = (ws.tallyN || 0) + 1;
+      if (ws.tallyN <= 20) Stats.shared(String(msg.what || ''));
+      return;
     }
 
     if (!playerId || !clients[playerId]) return;
@@ -303,6 +424,27 @@ wss.on('connection', (ws, req) => {
     const canRun = isDealer || isHost || dealerAway >= G.TAKEOVER_SECS;   // may move the table along
     const fail = (r) => { if (r && r.error) { sendError(ws, r.error); return true; } return false; };
 
+    /* #2: captions, bets, the steal and frame picks carry an id (cid). Each one is answered (an 'ack', or an error
+       tied to it), and one the room has already taken is never applied again: a phone that lost its connection
+       re-sends whatever wasn't answered. The room keeps its recent cids (they travel in the sealed copy, so this
+       holds across a restart too). The cid is noted before the action runs, so the copy sealed with it carries it. */
+    const handle = () => handleSeated(msg, game, code, me, isDealer, isHost, dealerAway, canRun, fail);
+    const cid = ACKED.has(msg.action) && typeof msg.cid === 'string' && /^[A-Za-z0-9_-]{4,40}$/.test(msg.cid) ? msg.cid : null;
+    if (!cid) return handle();
+    const done = ((game.acks = game.acks || {})[playerId] = game.acks[playerId] || []);
+    if (done.includes(cid)) return send(ws, { type: 'ack', cid, dup: true });
+    done.push(cid); if (done.length > 24) done.splice(0, done.length - 24);   // (a few rounds' worth; small enough for the sealed copy)
+    game.actN = (game.actN || 0) + 1;
+    ws.curCid = cid; ws.curFailed = false; ws.curHeld = false;
+    let threw = null;
+    try { handle(); } catch (e) { threw = e; }
+    const failed = !!threw || ws.curFailed, held = ws.curHeld;
+    ws.curCid = null; ws.curFailed = false; ws.curHeld = false;
+    if (failed || held) { const i = done.indexOf(cid); if (i >= 0) done.splice(i, 1); }   // refused, or only a spelling question: the same cid may come again
+    if (threw) { console.error('message failed', msg.action, threw); return send(ws, { type: 'error', message: 'That didn’t take. Try again.', cid }); }
+    if (!failed && !held) send(ws, { type: 'ack', cid });
+  };
+  const handleSeated = (msg, game, code, me, isDealer, isHost, dealerAway, canRun, fail) => {
     switch (msg.action) {
       case 'start': {
         if (!isHost) return sendError(ws, 'Only the host can start');
@@ -310,6 +452,8 @@ wss.on('connection', (ws, req) => {
         if (game.players.filter(p => p.connected).length < 3) return sendError(ws, 'Need at least 3 players');
         { const c = G.startCheck(game); if (c.error) return sendError(ws, c.error); }   // the new deck is still being drawn: never start a game that would run out
         if (fail(G.startRound(game))) return;
+        Stats.started(game.players.filter(G.isPresent).length);   // #41
+        game.origHostId = null;   // #30: whoever started it hosts it
         broadcast(code);
         scheduleWritingEnd(code);
         return;
@@ -327,6 +471,32 @@ wss.on('connection', (ws, req) => {
         // #51: no new names while locked (people already seated can always come back)
         if (!isHost) return sendError(ws, 'Only the host can lock the room');
         game.locked = !!msg.on;
+        broadcast(code);
+        return;
+      }
+      case 'claim_answer': {
+        // #30: the host lets someone back into a seat on a new phone (or not)
+        if (!isHost) return sendError(ws, 'Only the host can do that');
+        const id = String(msg.id || ''), c = claims.get(id);
+        if (game.seatClaim && game.seatClaim.id === id) game.seatClaim = null;
+        claims.delete(id);
+        const existing = c && c.code === code ? game.players.find(p => p.id === c.pid) : null;
+        if (existing && c.ws.readyState === 1) {
+          if (msg.ok) return takeSeat(code, existing, c.ws);
+          send(c.ws, { type: 'claim_no', name: existing.name, host: me.name });
+          c.ws.claimId = null;
+        }
+        broadcast(code);
+        return;
+      }
+      case 'take_host': {
+        // #30: the host's phone went quiet in the lobby: the next player can run the room until they're back
+        if (game.phase !== PHASES.LOBBY) return sendError(ws, 'Only in the lobby');
+        const h = game.players.find(p => p.id === game.hostId);
+        if (isHost || (h && (h.connected || !h.disconnectedAt || Date.now() - h.disconnectedAt < HOST_TAKEOVER_MS))) return;
+        if (!game.origHostId && h) game.origHostId = h.id;
+        game.hostId = playerId;
+        game.notice = { text: `${firstWord(me.name)} is hosting until ${h ? firstWord(h.name) + ' is' : 'the host is'} back.`, at: Date.now() };
         broadcast(code);
         return;
       }
@@ -374,9 +544,8 @@ wss.on('connection', (ws, req) => {
       case 'reel_next': case 'reel_prev': case 'reel_skip': {
         // The dealer paces the answer, one caption at a time
         if (!canRun) return sendError(ws, 'The dealer runs the reveal');
-        // Nobody skips ahead while the whole table is still watching the Claw
-        const st = game.steal, showMs = st && st.at && st.victimId ? (st.stealShow === 'short' ? 6000 + 400 : 12400 + 1200) : 0;   // the full heist (12.4s) or the short stamp (6s), + the phones' start lead and a margin
-        if (msg.action === 'reel_next' && game.reel && game.reel.step === 1 && showMs && Date.now() < st.at + showMs) return sendError(ws, 'Let the thief finish');
+        // #30: a tap meant for a step the table has already left (the dealer and the host both tapping) is dropped
+        if (game.phase === PHASES.ANSWER && game.reel && msg.step !== undefined && Number(msg.step) !== game.reel.step) return;
         if (fail(G.reelStep(game, msg.action.slice(5)))) return;
         broadcast(code);
         return;
@@ -414,7 +583,7 @@ wss.on('connection', (ws, req) => {
         const mode = ['check', 'fix', 'keep'].includes(msg.mode) ? msg.mode : 'check';
         const r = G.submitCaption(game, playerId, msg.caption, mode);
         if (fail(r)) return;
-        if (r.check) return send(ws, { type: 'caption_check', ...r.check });
+        if (r.check) { ws.curHeld = true; return send(ws, ws.curCid ? { type: 'caption_check', ...r.check, cid: ws.curCid } : { type: 'caption_check', ...r.check }); }   // (#2: answers that cid)
         broadcast(code);
         if (r.allIn) later(code, 900, PHASES.WRITING, endWriting);
         return;
@@ -445,6 +614,7 @@ wss.on('connection', (ws, req) => {
       case 'undo_bet': {
         if (fail(G.undoBet(game, playerId))) return;
         broadcast(code);
+        if (game.phase === PHASES.FIRST_BETS) scheduleBlind(code);   // the 'all in' beat waits for them again
         return;
       }
       case 'skip_better': {
@@ -475,12 +645,15 @@ wss.on('connection', (ws, req) => {
         switch (game.phase) {
           case PHASES.READING:
             if (!canRun) return sendError(ws, 'The dealer starts the betting');
-            G.moveToFirstBets(game); break;
+            G.moveToFirstBets(game); broadcast(code); scheduleBlind(code); return;
           case PHASES.FIRST_BETS:
+            // 'Drop the chips now' (anyone idle sits the blind bet out); during the table's look, straight on
             if (!canRun) return sendError(ws, 'Only the dealer or host can do that');
-            G.moveToReveal(game); break;
+            if (!game.dropAt) return dropNow(code);
+            G.afterBlinds(game); break;
           case PHASES.REVEAL:
             if (!canRun) return sendError(ws, 'The dealer moves things along');
+            if (game.flipAt && Date.now() < game.flipAt + 1500) { game._advAt = 0; return game.steal && game.steal.victimId && Date.now() < game.flipAt ? sendError(ws, 'Let the thief finish') : undefined; }   // the card hasn't turned yet
             G.moveFromReveal(game); break;
           case PHASES.SECOND_BETS:
             if (!canRun) return sendError(ws, 'Only the dealer or host can do that');
@@ -588,6 +761,7 @@ wss.on('connection', (ws, req) => {
   };
 
   ws.on('close', () => {
+    if (ws.claimId) dropClaim(ws.claimId);   // a phone that was waiting for the host's OK has gone
     if (!playerId || !clients[playerId] || clients[playerId].ws !== ws) return;
     const code = clients[playerId].gameCode;
     delete clients[playerId];
@@ -612,18 +786,29 @@ setInterval(() => {
     }
     if (now - (g._lastAct || g.phaseAt || now) > 8 * 3600 * 1000) { delete games[code]; continue; }
     let changed = false;
-    // Host gone for a minute: the next person here becomes host (so someone can start / play again)
+    // Host gone: mid-game, after a minute the next person here becomes host (so someone can play again). In the
+    // lobby (#30) the next player gets a 'Take over as host' button after 20 s; after 2 minutes it moves anyway.
+    // Either way the table is told, and in the lobby the host gets the room back on return.
     const host = g.players.find(p => p.id === g.hostId);
-    if ((!host || (!host.connected && host.disconnectedAt && now - host.disconnectedAt > 60000))) {
+    const hostAway = !host ? Infinity : !host.connected && host.disconnectedAt ? now - host.disconnectedAt : 0;
+    if (hostAway > (g.phase === PHASES.LOBBY ? 120000 : 60000)) {
       const nh = g.players.find(p => p.connected);
-      if (nh && nh.id !== g.hostId) { g.hostId = nh.id; changed = true; }
+      if (nh && nh.id !== g.hostId) {
+        if (g.phase === PHASES.LOBBY && host && !g.origHostId) g.origHostId = host.id;
+        g.hostId = nh.id; changed = true;
+        g.notice = { text: g.phase === PHASES.LOBBY && host ? `${firstWord(nh.name)} is hosting until ${firstWord(host.name)} is back.` : `${firstWord(nh.name)} is hosting now.`, at: now };
+      }
     }
+    // A phone waiting for the host's OK for a seat: the claim lapses after 3 minutes
+    for (const [cid, c] of claims) if (c.code === code && now - c.at > 180000) { dropClaim(cid); try { send(c.ws, { type: 'claim_no', lapsed: true }); } catch (e) {} }
     // Writing: everyone still here has written (a phone that went away no longer holds it up)
     if (g.phase === PHASES.WRITING && g.submissions.length >= 2 && G.allCaptionsIn(g)) { endWriting(g); changed = true; }
     // #28: a dealer who wanders off doesn't freeze the steal: it passes by itself after 45 s
     if (g.phase === PHASES.STEAL && g.phaseAt && now - g.phaseAt > 45000) { G.stealChip(g, null); changed = true; }
-    // Betting: skip a player whose phone has been gone 45+ seconds
-    if (g.phase === PHASES.FIRST_BETS || g.phase === PHASES.SECOND_BETS) {
+    // Blind bets: the only ones not in are phones gone past the grace — drop without them
+    if (g.phase === PHASES.FIRST_BETS && !g.dropAt && !blindT.has(code) && G.pendingBetters(g).length === 0) scheduleBlind(code);
+    // Late chips: skip a player whose phone has been gone 45+ seconds
+    if (g.phase === PHASES.SECOND_BETS) {
       const cur = g.players.find(p => p.id === G.currentBetterId(g));
       if (cur && !cur.connected && cur.disconnectedAt && now - cur.disconnectedAt > 45000) {   // 45 s: switching to Messages or a locked phone doesn't cost your turn
         G.skipCurrentBetter(g); changed = true; autoAdvanceBets(code);
@@ -636,14 +821,22 @@ setInterval(() => {
   } catch (e) { console.error('housekeeping failed', code, e); }   // one bad room never stops the rest
 }, 3000);
 
-// Drop dead connections so "offline" shows up quickly
+// #2 Heartbeat, every 10 s: a socket that didn't answer the last ping is dropped (so "offline" shows up within
+// ~20 s), and every phone hears a small 'ping' it can see: a phone that hears nothing for ~20 s knows its
+// connection is dead (Wi-Fi gone, phone asleep) and reconnects at once.
+const PING_MS = 10000;
 setInterval(() => {
+  const ping = JSON.stringify({ type: 'ping' });
   wss.clients.forEach(ws => {
     if (!ws.isAlive) { try { ws.terminate(); } catch (e) {} return; }
     ws.isAlive = false;
     try { ws.ping(); } catch (e) {}
+    try { if (ws.readyState === 1) ws.send(ping); } catch (e) {}
   });
-}, 15000);
+}, PING_MS);
+
+// #41: the tally is written a few seconds after a change; a deploy's stop signal writes it at once
+for (const sig of ['SIGTERM', 'SIGINT']) process.on(sig, () => { try { Stats.flush(); } catch (e) {} process.exit(0); });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

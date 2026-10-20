@@ -1,7 +1,7 @@
 /* Closed Caption — THE HEISTS. Eleven thieves, each drawn in the house ink (black line, soft grey wash,
    white paper; the chips are the only colour), each with the same comic beats on the shared clock.
-   Index = HEISTS in game.js (same order). A heist plays only on a 'full' steal (the first steal of a game,
-   or a steal off the real caption); every other steal is steal.js's short stamp.
+   Index = HEISTS in game.js (same order). A heist plays only on a 'full' steal (the night's first steal, then
+   about one in four at random — never because of where the chip was); every other steal is steal.js's short stamp.
    Reads the page's globals at call time: state, myPlayerId, esc, chipHtml, big, buzz, tone, noise; and
    window.ccStealKit (steal.js). CSS prefix: hz-. */
 
