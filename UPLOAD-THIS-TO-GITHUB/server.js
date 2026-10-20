@@ -7,6 +7,7 @@ const os = require('os');
 const path = require('path');
 const { WebSocketServer } = require('ws');
 const G = require('./game');
+const Stats = require('./stats');   // #41: a private tally (counts only)
 const { PHASES } = G;
 
 // Address friends on the same Wi-Fi should type in (only used when running on a home computer)
@@ -74,18 +75,28 @@ app.get('/status', (req, res) => {
   const inGame = [...codes].filter(c => games[c] && games[c].phase !== 'lobby').length;
   res.set('Cache-Control', 'no-store').json({ phones: live.length, rooms: codes.size, gamesInProgress: inGame });
 });
+// #41: the private tally, for Nick only: /stats?k=<STATS_KEY>. Without the key (or with no STATS_KEY set) it doesn't
+// exist (404). Counts only: no names, captions, room codes or addresses.
+app.get('/stats', (req, res, next) => {
+  const want = process.env.STATS_KEY || '', k = typeof req.query.k === 'string' ? req.query.k : '';
+  const a = crypto.createHash('sha256').update(want).digest(), b = crypto.createHash('sha256').update(k).digest();
+  if (!want || !crypto.timingSafeEqual(a, b)) return next();   // (falls through to the plain 404)
+  res.set('Cache-Control', 'no-store').set('X-Robots-Tag', 'noindex').json(Stats.report());
+});
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
 
 const games = {};    // code -> game
 const clients = {};  // playerId -> { ws, gameCode }
 
-function broadcast(code) {
+function broadcast(code, sealTo = null) {
   const game = games[code];
   if (!game) return;
   // #6: every phone keeps a sealed copy of the room, refreshed on each new stage (or every 20 s), to hand back after a restart.
   // #2: and whenever a caption, a bet, the steal or a frame pick lands, so a restart never loses the last one.
   const tag = game.phase + '|' + game.round + '|' + (game.reel ? game.reel.step : '') + '|' + game.players.length + '|' + (game.frameResult ? 1 : 0) + '|' + (game.finale ? (game.finale.winner || 'v') + Object.keys(game.finale.votes || {}).length : '')
-    + '|' + (game.submissions || []).length + '|' + (game.bets || []).length + '|' + Object.keys(game.blind || {}).length + '|' + (game.dropAt || '') + '|' + (game.steal ? (game.steal.victimId ? 's' : 'p') : '') + '|' + Object.keys(game.framePicks || {}).length;
+    + '|' + (game.submissions || []).length + '|' + (game.bets || []).length + '|' + Object.keys(game.blind || {}).length + '|' + (game.dropAt || '') + '|' + (game.steal ? (game.steal.victimId ? 's' : 'p') : '') + '|' + Object.keys(game.framePicks || {}).length + '|' + (game.actN || 0);
+  // #41: a game reached its final scoreboard (counted once per game)
+  if (game.phase === PHASES.SCORES && game.gameNo && game._statDone !== game.gameNo && G.isGameOver(game)) { game._statDone = game.gameNo; Stats.finished(); }
   let seal = null;
   if (tag !== game._sealTag || Date.now() - (game._sealAt || 0) > 20000) { try { seal = G.sealGame(game); game._sealTag = tag; game._sealAt = Date.now(); } catch (e) { console.error('seal failed', e); } }
   for (const p of game.players) {
@@ -96,6 +107,7 @@ function broadcast(code) {
       view.build = BUILD;
       c.ws.send(JSON.stringify({ type: 'state', data: view }));
       if (seal) c.ws.send(JSON.stringify({ type: 'seal', code, boot: BOOT, data: seal }));
+      else if (sealTo === p.id) { try { c.ws.send(JSON.stringify({ type: 'seal', code, boot: BOOT, data: G.sealGame(game) })); } catch (e) {} }   // #2: a phone back in its seat gets a fresh copy at once
     }
   }
 }
@@ -205,6 +217,7 @@ function clientIp(req) {
   return xff.find(a => !PRIVATE_IP.test(a)) || xff[0] || String((req && req.socket && req.socket.remoteAddress) || '');
 }
 const blocked = (ip) => hitsOf(ip).blockedUntil > Date.now();
+const ACKED = new Set(['submit_caption', 'place_bet', 'undo_bet', 'steal', 'frame_pick']);   // #2: answered by cid, never applied twice
 setInterval(() => { const now = Date.now(); for (const [ip, h] of hits) if (!h.creates.length && !h.misses.length && h.blockedUntil < now) hits.delete(ip); else { recent(h.creates, 60000); recent(h.misses, 5 * 60000); } }, 60000);
 /* #30 Same name at the door: "Are you the Chris who was playing, or a different Chris?"
    A different Chris gets a seat of their own ("Chris 2"). 'It's me' takes the old seat only once its phone has
@@ -251,7 +264,7 @@ function resumeTimers(code) {
 }
 
 const send = (ws, obj) => { if (ws.readyState === 1) ws.send(JSON.stringify(obj)); };
-const sendError = (ws, message) => send(ws, ws.curCid ? { type: 'error', message, cid: ws.curCid } : { type: 'error', message });   // (#2: tied to the message it answers)
+const sendError = (ws, message) => { if (ws.curCid) ws.curFailed = true; send(ws, ws.curCid ? { type: 'error', message, cid: ws.curCid } : { type: 'error', message }); };   // (#2: tied to the message it answers)
 const cleanName = (s) => String(s || '').replace(/\s+/g, ' ').trim().slice(0, 12);
 
 wss.on('connection', (ws, req) => {
@@ -285,7 +298,7 @@ wss.on('connection', (ws, req) => {
     G.clearVoice(games[code], id);   // a fresh connection starts outside the voice call (the phone re-joins it)
     if (p && !p.key) p.key = crypto.randomBytes(16).toString('base64url');
     send(ws, { type: 'joined', playerId: id, code, key: p ? p.key : null, boot: BOOT });   // #2: the key never leaves this phone; everyone else only ever sees the public id
-    broadcast(code);
+    broadcast(code, id);
   };
   ws.seatFn = seat;   // (a host letting someone back into their seat seats them from the host's connection)
 
@@ -309,26 +322,28 @@ wss.on('connection', (ws, req) => {
       games[game.code] = game;
       return seat(id, game.code);
     }
-    if (msg.action === 'reconnect') {
-      const code = String(msg.code || '').toUpperCase().trim();
-      if (blocked(ip)) return sendError(ws, 'Too many tries. Wait a minute.');
+    // #2: a phone coming back to its own seat (reconnect), or bringing the room back after a restart (restore), is
+    // never slowed or blocked by the per-address limits, and a refusal never counts against its Wi-Fi: only wrong
+    // codes typed on Join do. (A seat answers only to its own key, 16 random bytes: nothing to guess.)
+    const backToSeat = (code, pid, key) => {
       const game = games[code];
       if (!game) return sendError(ws, 'Game not found');
-      const p = game.players.find(x => x.id === msg.playerId);
+      const p = game.players.find(x => x.id === pid);
       if (!p) return sendError(ws, 'Player not in game');
-      if (p.movedKey && msg.key === p.movedKey && msg.key !== p.key) return send(ws, { type: 'seat_moved' });   // #30: that seat went to another phone
-      if (p.key && msg.key !== p.key) { wrongCode(ip); return sendError(ws, 'Player not in game'); }   // #2: a seat answers only to its own phone
+      if (p.movedKey && key === p.movedKey && key !== p.key) return send(ws, { type: 'seat_moved' });   // #30: that seat went to another phone
+      if (p.key && key !== p.key) return sendError(ws, 'Player not in game');   // #2: a seat answers only to its own phone
       return seat(p.id, code);
-    }
+    };
+    if (msg.action === 'reconnect') return backToSeat(String(msg.code || '').toUpperCase().trim(), msg.playerId, msg.key);
     if (msg.action === 'restore') {
-      // #6: the server restarted; this phone brings the room back from its sealed copy
+      // #6: the server restarted; this phone brings the room back from its sealed copy (the first copy in wins; the
+      // phones re-send their recent captions and bets, and the acks in the copy keep any from landing twice)
+      const want = String(msg.code || '').toUpperCase().trim();
       const g = G.unsealGame(msg.data);
-      if (!g) return sendError(ws, 'Game not found');
-      const p = g.players.find(x => x.id === msg.playerId);
-      if (!p || (p.key && msg.key !== p.key)) return sendError(ws, 'Game not found');
+      const p = g && g.players.find(x => x.id === msg.playerId);
+      if (!g || !p || (p.key && msg.key !== p.key) || (want && g.code !== want)) return backToSeat(want, msg.playerId, msg.key);   // a copy that won't open: the room may be back already
       if (!games[g.code]) { games[g.code] = g; g._lastAct = Date.now(); console.log('room restored after restart', g.code, g.phase); resumeTimers(g.code); }
-      else if (!games[g.code].players.some(x => x.id === p.id && x.key === p.key)) return sendError(ws, 'Game not found');
-      return seat(p.id, g.code);
+      return backToSeat(g.code, p.id, msg.key);
     }
     if (msg.action === 'join') {
       const code = String(msg.code || '').toUpperCase().trim();
@@ -349,6 +364,7 @@ wss.on('connection', (ws, req) => {
           if (!nm) return sendError(ws, 'Pick a different name');
           const id = crypto.randomUUID(), r = G.addPlayer(game, id, nm);
           if (r.error) return sendError(ws, r.error);
+          Stats.joined(msg.via);   // #41
           return seat(id, code);
         }
         if (msg.as === 'me') {
@@ -369,7 +385,14 @@ wss.on('connection', (ws, req) => {
       const id = crypto.randomUUID();
       const r = G.addPlayer(game, id, name);
       if (r.error) return sendError(ws, r.error);
+      Stats.joined(msg.via);   // #41: by QR, invite link or typed code
       return seat(id, code);
+    }
+    if (msg.action === 'tally') {
+      // #41: a recap picture or a Gallery card was shared from this phone (a handful per connection at most)
+      ws.tallyN = (ws.tallyN || 0) + 1;
+      if (ws.tallyN <= 20) Stats.shared(String(msg.what || ''));
+      return;
     }
 
     if (!playerId || !clients[playerId]) return;
@@ -386,6 +409,27 @@ wss.on('connection', (ws, req) => {
     const canRun = isDealer || isHost || dealerAway >= G.TAKEOVER_SECS;   // may move the table along
     const fail = (r) => { if (r && r.error) { sendError(ws, r.error); return true; } return false; };
 
+    /* #2: captions, bets, the steal and frame picks carry an id (cid). Each one is answered (an 'ack', or an error
+       tied to it), and one the room has already taken is never applied again: a phone that lost its connection
+       re-sends whatever wasn't answered. The room keeps its recent cids (they travel in the sealed copy, so this
+       holds across a restart too). The cid is noted before the action runs, so the copy sealed with it carries it. */
+    const handle = () => handleSeated(msg, game, code, me, isDealer, isHost, dealerAway, canRun, fail);
+    const cid = ACKED.has(msg.action) && typeof msg.cid === 'string' && /^[A-Za-z0-9_-]{4,40}$/.test(msg.cid) ? msg.cid : null;
+    if (!cid) return handle();
+    const done = ((game.acks = game.acks || {})[playerId] = game.acks[playerId] || []);
+    if (done.includes(cid)) return send(ws, { type: 'ack', cid, dup: true });
+    done.push(cid); if (done.length > 40) done.splice(0, done.length - 40);
+    game.actN = (game.actN || 0) + 1;
+    ws.curCid = cid; ws.curFailed = false; ws.curHeld = false;
+    let threw = null;
+    try { handle(); } catch (e) { threw = e; }
+    const failed = !!threw || ws.curFailed, held = ws.curHeld;
+    ws.curCid = null; ws.curFailed = false; ws.curHeld = false;
+    if (failed || held) { const i = done.indexOf(cid); if (i >= 0) done.splice(i, 1); }   // refused, or only a spelling question: the same cid may come again
+    if (threw) { console.error('message failed', msg.action, threw); return send(ws, { type: 'error', message: 'That didn’t take. Try again.', cid }); }
+    if (!failed && !held) send(ws, { type: 'ack', cid });
+  };
+  const handleSeated = (msg, game, code, me, isDealer, isHost, dealerAway, canRun, fail) => {
     switch (msg.action) {
       case 'start': {
         if (!isHost) return sendError(ws, 'Only the host can start');
@@ -393,6 +437,7 @@ wss.on('connection', (ws, req) => {
         if (game.players.filter(p => p.connected).length < 3) return sendError(ws, 'Need at least 3 players');
         { const c = G.startCheck(game); if (c.error) return sendError(ws, c.error); }   // the new deck is still being drawn: never start a game that would run out
         if (fail(G.startRound(game))) return;
+        Stats.started(game.players.filter(G.isPresent).length);   // #41
         game.origHostId = null;   // #30: whoever started it hosts it
         broadcast(code);
         scheduleWritingEnd(code);
@@ -523,7 +568,7 @@ wss.on('connection', (ws, req) => {
         const mode = ['check', 'fix', 'keep'].includes(msg.mode) ? msg.mode : 'check';
         const r = G.submitCaption(game, playerId, msg.caption, mode);
         if (fail(r)) return;
-        if (r.check) return send(ws, { type: 'caption_check', ...r.check });
+        if (r.check) { ws.curHeld = true; return send(ws, ws.curCid ? { type: 'caption_check', ...r.check, cid: ws.curCid } : { type: 'caption_check', ...r.check }); }   // (#2: answers that cid)
         broadcast(code);
         if (r.allIn) later(code, 900, PHASES.WRITING, endWriting);
         return;
@@ -743,14 +788,22 @@ setInterval(() => {
   } catch (e) { console.error('housekeeping failed', code, e); }   // one bad room never stops the rest
 }, 3000);
 
-// Drop dead connections so "offline" shows up quickly
+// #2 Heartbeat, every 10 s: a socket that didn't answer the last ping is dropped (so "offline" shows up within
+// ~20 s), and every phone hears a small 'ping' it can see: a phone that hears nothing for ~20 s knows its
+// connection is dead (Wi-Fi gone, phone asleep) and reconnects at once.
+const PING_MS = 10000;
 setInterval(() => {
+  const ping = JSON.stringify({ type: 'ping' });
   wss.clients.forEach(ws => {
     if (!ws.isAlive) { try { ws.terminate(); } catch (e) {} return; }
     ws.isAlive = false;
     try { ws.ping(); } catch (e) {}
+    try { if (ws.readyState === 1) ws.send(ping); } catch (e) {}
   });
-}, 15000);
+}, PING_MS);
+
+// #41: the tally is written a few seconds after a change; a deploy's stop signal writes it at once
+for (const sig of ['SIGTERM', 'SIGINT']) process.on(sig, () => { try { Stats.flush(); } catch (e) {} process.exit(0); });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
