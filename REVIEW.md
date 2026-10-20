@@ -222,4 +222,4 @@ possible joke line is out (audit the deck: redraw or cut). Queued premises get r
   network returns, bet landed once); server restart mid-round with the host's copy gone (red banner, retried, everyone
   back in ~3 s, the bet placed while the server was down landed once, re-sent bets answered as repeats); a reload with
   a pending bet (never passed through Home, bet landed once); a lost ack on a late chip (re-sent, answered as a repeat,
-  one chip); stale/closed seats, invite to another room, limits vs reconnects; tally counts. 44 checks, all pass.
+  one chip); stale/closed seats, invite to another room, limits vs reconnects; tally counts. 45 checks, all pass.
