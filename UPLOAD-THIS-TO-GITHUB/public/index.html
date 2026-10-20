@@ -720,8 +720,7 @@ button, .cap, [role="button"], a { touch-action: manipulation; }
 .gp-tie .gp-seat:nth-child(n+3) .gp-name-tie, .gp-tie:has(.gp-seat:nth-child(3)) .gp-name-tie { font-size: 22px; max-width: 30vw; }
 .chip.gp-chip.sm3 { --s: 64px; font-size: 22px; }
 .gp-tied { font-size: 14px; font-weight: 900; color: #E9E2FF; margin-top: 6px; animation: fadeIn .5s ease-out 1.2s both; }
-/* #38: a tip that would cover something you need just bows out; the last writer's nudge clears the timer */
-body .gd-tip.cc-hush { opacity: 0 !important; pointer-events: none !important; transition: opacity .2s; }
+/* #38: the last writer's nudge clears the timer (tips sit in their own slot in the page: guide.js) */
 body .gd-nudge { left: 82px; right: 10px; width: auto; max-width: none; transform: translateY(-180%) rotate(-1.5deg); }
 body .gd-nudge.on { transform: rotate(-1.5deg); }
 
@@ -772,6 +771,141 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .rules-pitch { margin: 0 0 14px; }
 .rules-pitch .rp1 { font-family: var(--serif); font-weight: 700; font-size: 19px; line-height: 1.2; }
 .rules-pitch .rp2 { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 15px; color: var(--ink-2); margin-top: 2px; }
+.rules-pitch .rp3 { font-size: 14px; font-weight: 800; color: var(--ink-2); margin-top: 8px; line-height: 1.4; }
+/* ── Oct 20 2026 (#4 #15): the stage pill, and the cartoon that stays big ── */
+.stage-pill { display: inline-flex; align-items: center; padding: 2px; border: 2px solid var(--ink); border-radius: 999px; background: #fff; box-shadow: 2px 2px 0 var(--ink); font-family: var(--sans); font-weight: 900; font-size: 12.5px; line-height: 1; white-space: nowrap; }
+.stage-pill span { padding: 5px 7px 6px; border-radius: 999px; color: var(--ink-2); }
+.stage-pill span.on { background: var(--ink); color: var(--yellow); }
+.hdr .hdr-sub { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.hdr .mid { gap: 5px; }
+.hdr .thumb { display: block; }
+.hdr button.thumb { font: inherit; color: inherit; }
+.code-pill { min-height: 44px; display: inline-flex; align-items: center; padding: 0; border: 0; background: none; box-shadow: none; }
+.code-pill > span { display: inline-block; padding: 3px 9px; border-radius: 8px; border: 2px solid var(--ink); background: #fff; box-shadow: 2px 2px 0 var(--ink); }
+.code-pill::after { display: none; }
+.hdr.ringed { gap: 10px; }
+.hdr.pin { flex-wrap: wrap; row-gap: 8px; padding-bottom: 10px; margin-bottom: 12px; }
+.pin-toon { flex: 0 0 100%; order: 10; display: flex; justify-content: center; padding: 4px; margin: 0; background: #fff; border: 2.5px solid var(--ink); border-radius: 10px; box-shadow: var(--shadow-sm); cursor: zoom-in; font: inherit; }
+.pin-toon img { display: block; height: calc(45dvh - 92px); min-height: 140px; max-height: 420px; width: 100%; object-fit: contain; border-radius: 6px; background: #fff; }
+@supports not (height: 1dvh) { .pin-toon img { height: calc(45vh - 92px); } }
+.toon-big { cursor: default; }
+.toon-hit { display: block; width: 100%; padding: 0; margin: 0; border: 0; background: none; cursor: zoom-in; border-radius: 6px; }
+.toon-big .toon-hit img { display: block; width: 100%; max-height: 52dvh; object-fit: contain; border-radius: 6px; background: #fff; transition: max-height .25s var(--ease-out); }
+.toon-big.compact .toon-hit img { max-height: 34dvh; }
+.w-box { margin-top: 16px; }
+body.typing .toon-big .toon-hit img { max-height: 160px; }
+body.typing .toon-big .zoom { display: none; }
+body.typing .w-box { margin-top: 10px; }
+body.typing .toon-big [data-live="mullpill"] { display: none; }
+.toon-big .mull-pill { min-height: 44px; margin-top: 6px; font-size: 15px; }
+.mull-pill.on { background: var(--ink); color: var(--paper); }
+.mull-pill.on .mp-count { background: var(--yellow); color: var(--ink); }
+.do { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.35; }
+/* ── #16 the lobby: the code, the names, Start (everything else under "Room options") ── */
+.lb-hello { margin: 2px 0 16px; }
+.lb-hello-1 { font-family: var(--serif); font-weight: 700; font-size: 26px; line-height: 1.15; }
+.lb-hello-2 { font-family: var(--serif); font-style: italic; font-size: 17px; line-height: 1.35; color: var(--ink); margin-top: 4px; }
+.lb-code { margin-bottom: 16px; transform: rotate(-1deg); }
+.lb-code-big { font-size: 56px; letter-spacing: 8px; padding-left: 8px; margin: 2px 0 6px; }
+.lb-invite { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 52px; margin: 0 0 16px; padding: 10px 14px; border: 2px solid var(--ink); border-radius: 14px; background: #fff; font: inherit; font-size: 15px; font-weight: 800; color: var(--ink); cursor: pointer; text-align: left; }
+.lb-invite b { font-family: var(--display); font-weight: 700; letter-spacing: 2px; }
+.lb-invite-r { text-decoration: underline; text-underline-offset: 3px; }
+.lb-at { font-family: var(--sans); font-size: 13px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-2); margin: 4px 0 6px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.lb-watch { text-transform: none; letter-spacing: 0; font-weight: 800; color: var(--ink-2); }
+.lb-names { list-style: none; margin: 0 0 14px; padding: 0; }
+.lb-p { display: flex; align-items: center; gap: 12px; padding: 7px 0; }
+.lb-p.off { opacity: .6; }
+.lb-nm { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 17px; line-height: 1.2; }
+.lb-l1 { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-l1 > b { font-weight: 900; }
+.lb-you { font-size: 14px; font-weight: 800; color: var(--ink-2); }
+.lb-sub { font-size: 13px; font-weight: 800; color: var(--ink-2); }
+.lb-opts { margin-bottom: 8px; }
+.lb-opts > summary { min-height: 56px; }
+.lb-opts-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.lb-opts-t b { font-size: 16px; }
+.lb-opts-s { font-size: 13px; font-weight: 800; color: var(--ink-2); line-height: 1.3; }
+.lb-h { font-family: var(--serif); font-weight: 700; font-size: 18px; margin: 18px 0 6px; }
+.lb-h:first-child { margin-top: 2px; }
+.lb-hint { font-size: 13px; font-weight: 800; color: var(--ink-2); line-height: 1.4; margin-top: 6px; }
+.lb-seats { display: flex; flex-direction: column; gap: 4px; }
+.lb-seat { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
+.lb-seat.off { opacity: .6; }
+.lb-seat-nm { flex: 1; min-width: 0; font-weight: 900; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-lock { width: 100%; margin: 4px 0 14px; }
+.lb-opts .lob-gal { margin-top: 4px; }
+.lb-opts .field:last-child { margin-bottom: 0; }
+/* ── #23 the invite landing ── */
+.ji { text-align: center; margin: 4px 0 18px; }
+.ji-mast { display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--display); font-weight: 700; font-size: 28px; line-height: 1; letter-spacing: -1px; margin-bottom: 18px; }
+.ji-w1 { display: inline-block; transform: rotate(-3deg); background: var(--yellow); padding: 4px 9px 5px; border: 3px solid var(--ink); border-radius: 10px; box-shadow: var(--shadow-sm); }
+.ji-h { font-family: var(--serif); font-weight: 700; font-size: 27px; line-height: 1.15; letter-spacing: -.2px; }
+.ji-n { font-weight: 400; font-style: italic; white-space: nowrap; }
+.ji-pitch { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.4; margin: 10px auto 0; max-width: 330px; text-wrap: balance; }
+.ji-sub { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--ink-2); margin-top: 8px; line-height: 1.35; text-wrap: balance; }
+.ji-code { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px 8px; margin-top: 14px; font-size: 16px; font-weight: 800; }
+.ji-code b { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: 4px; padding: 2px 10px; border: 2px solid var(--ink); border-radius: 8px; background: #fff; }
+.ji-tick { color: #0B6E59; font-size: 22px; font-weight: 900; }
+.ji-chg { font-size: 13px; padding: 0 4px; }
+.ji-btns { margin-top: 22px; text-align: left; }
+[hidden] { display: none !important; }
+/* ── #4 #28 the round recap: a printed page, then the points with their reasons ── */
+.rc-page { margin: 0 0 18px; }
+.rc-art { display: block; width: 100%; padding: 6px; margin: 0; background: #fff; border: 2.5px solid var(--ink); border-radius: 10px; box-shadow: var(--shadow-sm); cursor: zoom-in; }
+.rc-art img { display: block; width: 100%; max-height: 42dvh; object-fit: contain; background: #fff; }
+.rc-print { font-family: var(--serif); font-style: italic; font-size: 25px; line-height: 1.28; text-align: center; margin: 14px 6px 0; text-wrap: balance; overflow-wrap: anywhere; }
+.rc-under { text-align: center; font-size: 13px; font-weight: 800; letter-spacing: .3px; color: var(--ink-2); margin-top: 6px; }
+.rc-h { font-family: var(--sans); font-size: 13px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-2); margin: 0 0 6px; }
+.rc-rows { list-style: none; margin: 0 0 12px; padding: 0; }
+.rc-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-top: 1.5px dashed var(--line); }
+.rc-row:first-child { border-top: 0; }
+.rc-row.me { background: linear-gradient(90deg, var(--yellow-bg), transparent); margin: 0 -8px; padding-left: 8px; padding-right: 8px; border-radius: 8px; }
+.rc-row .chip { margin-top: 1px; }
+.rc-who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.rc-who b { font-size: 17px; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rc-why { display: flex; flex-direction: column; font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.35; margin-top: 1px; }
+.rc-plus { font-family: var(--display); font-weight: 700; font-size: 24px; color: #0B6E59; flex: none; }
+.rc-line.rc-dealer { color: #B3261E; font-size: 16px; }
+.rc-wait, .fm-wait { color: var(--ink); }
+/* ── #35 the play-again moment ── */
+.fn-deal { font-size: 19px; padding: 17px 18px; }
+.fn-again-n { text-align: center; font-family: var(--serif); font-size: 19px; font-weight: 700; color: var(--ink); margin: 2px 0 2px; }
+.fn-again-in { text-align: center; font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--ink); margin: 4px 0 0; }
+/* ── #29 accessibility ── */
+:root { --red-ink: #B3261E; --red-d: #C62828; --teal-d: #0B7A64; --teal-ink: #0B6E59; --blue-ink: #1F4FB8; }
+/* chips: the seat's colour plus a second cue (its own count of edge spots; seats 5–8 an inner ring); light seats get ink letters */
+.chip { color: var(--fg, #fff); text-shadow: var(--ts, 0 1px 0 rgba(0,0,0,.25)); font-size: max(12px, calc(var(--s) * .36)); --ring: transparent;
+  background: radial-gradient(circle, transparent 0 40%, var(--ring) 41% 46%, transparent 47%), radial-gradient(circle, var(--c) 0 58%, transparent 59%), repeating-conic-gradient(from 8deg, var(--c) 0deg calc(var(--p, 60deg) * .47), #fff calc(var(--p, 60deg) * .47) var(--p, 60deg)); }
+.chip.seat-ring { --ring: rgba(255,255,255,.85); }
+.chip.seat-ring[style*="--fg"] { --ring: rgba(31,26,23,.5); }
+.chip.xs { --s: 24px; }
+.chip .check { width: 18px; height: 18px; font-size: 12px; background: var(--teal-d); }
+.fm-chips.many .chip { font-size: 12px; }
+/* nothing under 12 px */
+.eyebrow, .tag, .ccard .lbl, .rc-eyebrow, .fm-real-lbl, .hof-sticker, .cc-badge, .bnone, .lob-gal-n, .delta, .pub-mark, .fn-eyebrow, .vc-n, .fm-card.on::after { font-size: 12px; }
+.rt-bdg i, .fm-chip.done::after { font-size: 12px; }
+/* contrast: the light labels and the white-on-colour stickers and buttons, darkened until they pass */
+.fm-real-lbl, .rc-eyebrow { color: var(--teal-ink); }
+.sticker.red, .btn-red, .delta.down, .vc-b.vc-muted, .steal-news { background: var(--red-d); }
+.steal-news .sub { color: #fff; }
+.sticker.teal, .btn-teal, .delta.up, .sb-plus, .vc-b.vc-join { background: var(--teal-d); }
+.bettor.me .bname { color: var(--blue-ink); }
+.bettor.turn .bname { color: var(--ink); }
+.fresh-line.low, .name-count.full, #create-error, .ring.urgent .t { color: var(--red-ink) !important; }
+.plus, .rc-pt b { color: var(--teal-ink); }
+/* every tap target at least 44 × 44 */
+.seg button, .lob-gal-all, .time-btn, .fm-move, .vc-b, .ra-x { min-height: 44px; }
+#rejoin-box .btn-link { min-width: 44px; min-height: 44px; }
+.chip.grab::before { content: ''; position: absolute; inset: -5px; border-radius: 50%; }
+.chip-tray.steal.busy .chip.grab::before { inset: -6px; }
+.chip-tray.steal.crowd .chip.grab::before { inset: -7px; }
+/* the lines that tell you what to do, or who you're waiting on: 15 px, full ink */
+#game-content p.center.small, #game-content .center.small, #away .small { font-size: 15px; color: var(--ink); }
+.turn-banner:not(.dealer) .sub, .steal-hero .sub, #reveal-continue.sub, #reveal-hint, .fm-sub, .fm-count { color: var(--ink); }
+.fm-sub, .fm-count { font-size: 15px; }
+#join-error, #create-error { font-size: 15px; }
+/* the real caption, under the full-width cartoon, like a printed page */
+.hdr.pin ~ * .spot.is-real .spot-text, .hdr.pin ~ .spot.is-real .spot-text { text-align: center; }
 /* ── The rating (chess-style): lobby card + sheet, the opening card, the verdicts ── */
 .rt-tag { display: inline-block; font-family: var(--serif); font-size: 13px; font-weight: 700; color: var(--ink-2); margin-right: 6px; }
 .rt-card { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; padding: 12px 14px; margin-bottom: 16px; background: var(--card); border: var(--bw) solid var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); cursor: pointer; font: inherit; color: var(--ink); }
@@ -851,7 +985,7 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 <div id="opening"></div>
 <div id="verdicts"></div>
 <div id="poobah"></div>
-<label class="ios-haptic" id="haptic-label"><input type="checkbox" switch id="haptic-input"></label>
+<label class="ios-haptic" id="haptic-label" aria-hidden="true"><input type="checkbox" switch id="haptic-input" tabindex="-1" aria-label="Haptic tap"></label>
 
 <!-- ═══════ HOME ═══════ -->
 <div id="screen-home" class="screen active">
@@ -861,7 +995,9 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
       <div id="rejoin-box"></div>
       <button class="btn btn-yellow home-host" onclick="showScreen('screen-create')">Host a game</button>
       <button class="btn" onclick="showScreen('screen-join')">Join a game</button>
+      <p class="home-free">Free. No app, no sign-up. 30 seconds to join.</p>
       <div class="home-foot"><button class="btn-link" onclick="showScreen('screen-rules')">How to play</button><span class="home-dot">·</span><span class="small">3–8 players · a phone each</span><span class="home-dot">·</span><a class="btn-link small" href="/privacy.html">Privacy</a><!-- #18: privacy page (public/privacy.html) --></div>
+      <p class="home-call">Playing over FaceTime or Zoom? Works great — everyone uses their own phone.</p>
     </div>
   </div>
 </div>
@@ -870,7 +1006,7 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 <div id="screen-rules" class="screen">
   <button class="btn-link back-link" onclick="goBackFromRules()">← Back</button>
   <h2 class="h1" style="margin-bottom: 6px;">How to play</h2>
-  <div class="rules-pitch"><p class="rp1">Think you’re clever? Prove it.</p><p class="rp2">Ranked like chess, but judged by friends.</p></div>
+  <div class="rules-pitch"><p class="rp1">One caption is real. Everyone else is lying.</p><p class="rp2">Ranked like chess, but judged by friends.</p><p class="rp3">Playing over FaceTime or Zoom? Works great — everyone uses their own phone.</p></div>
   <div id="howto-mount"></div>
   <div class="stack" style="margin:14px 0 8px;">
     <button class="btn btn-yellow" onclick="goBackFromRules()">Got it →</button>
@@ -881,7 +1017,7 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 
   <p class="eyebrow" style="margin-bottom: 10px;">Each round</p>
   <div class="stack" style="margin-bottom: 22px;">
-    <div class="panel flat rule-step"><div class="n">1</div><div><b>Everyone writes.</b> <span class="sub">The dealer too. Hate the cartoon? Tap Mulligan.</span></div></div>
+    <div class="panel flat rule-step"><div class="n">1</div><div><b>Everyone writes.</b> <span class="sub">The dealer too. Hate the cartoon? Vote to skip it.</span></div></div>
     <div class="panel flat yellow rule-step"><div class="n">2</div><div><b>One goes face-down.</b> <span class="sub">The game turns one caption over: the <b>Closed Caption</b>. Usually a player’s. Sometimes the real one.</span></div></div>
     <div class="panel flat blue rule-step"><div class="n">3</div><div><b>Blind bets.</b> <span class="sub">The dealer reads the open ones aloud. Then, in turn from the dealer’s <span class="dir-word">left</span>, put 1 or 2 chips on any caption — the face-down one too. <span id="rules-dealer-bets">The dealer doesn’t bet.</span></span></div></div>
     <div class="panel flat violet rule-step"><div class="n">4</div><div><b>The flip.</b> <span class="sub">The Closed Caption turns over. Anyone with a chip left puts it down.</span></div></div>
@@ -912,7 +1048,7 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
   <h2 class="h1" style="margin-bottom: 4px;">Host a game</h2>
   <p class="sub" style="margin-bottom: 22px;">You’ll get a 4-letter code for everyone to join with.</p>
   <div class="field"><div class="name-lbl"><label class="eyebrow" for="create-name">Your name</label><span class="name-count" id="create-name-count" aria-hidden="true"></span></div><input type="text" id="create-name" class="input" placeholder="What do they call you?" maxlength="12" autocomplete="off" enterkeyhint="go" oninput="nameCount(this)"></div>
-  <div id="create-error" class="small" role="alert" style="color:var(--red); text-align:center; margin-bottom:12px; display:none;"></div>
+  <div id="create-error" class="small" role="alert" style="color:var(--red-ink); text-align:center; margin-bottom:12px; display:none;"></div>
   <button class="btn btn-yellow" onclick="createGame()">Create the room →</button>
   <p class="small center" style="margin-top:12px;">Timer, game length and cartoons are in the lobby.</p>
 </div>
@@ -920,12 +1056,18 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 <!-- ═══════ JOIN ═══════ -->
 <div id="screen-join" class="screen">
   <button class="btn-link back-link" onclick="showScreen('screen-home')">← Back</button>
-  <h2 class="h1" style="margin-bottom: 4px;">Join a game</h2>
-  <p class="sub" style="margin-bottom: 22px;">Ask the host for the room code. You can join even if the game has started.</p>
-  <div class="field"><label class="eyebrow" for="join-code">Room code</label><input type="text" id="join-code" class="input code" placeholder="ABCD" maxlength="4" autocapitalize="characters" autocomplete="off" enterkeyhint="next" oninput="clearJoinError()"></div>
+  <!-- #23: opened from an invite link: whose table, a one-line pitch, the code already ticked -->
+  <div id="join-invite" class="ji" hidden></div>
+  <div id="join-plain">
+    <h2 class="h1" style="margin-bottom: 4px;">Join a game</h2>
+    <p class="sub" style="margin-bottom: 22px;">Ask the host for the room code. You can join even if the game has started.</p>
+  </div>
+  <div id="join-form">
+  <div class="field" id="join-code-field"><label class="eyebrow" for="join-code">Room code</label><input type="text" id="join-code" class="input code" placeholder="ABCD" maxlength="4" autocapitalize="characters" autocomplete="off" enterkeyhint="next" oninput="clearJoinError()"></div>
   <div class="field"><div class="name-lbl"><label class="eyebrow" for="join-name">Your name</label><span class="name-count" id="join-name-count" aria-hidden="true"></span></div><input type="text" id="join-name" class="input" placeholder="Your name" maxlength="12" autocomplete="off" enterkeyhint="go" oninput="nameCount(this); joinLabel()"></div>
-  <div id="join-error" class="small" role="alert" style="color:var(--red); text-align:center; margin-bottom:12px; display:none;"></div>
+  <div id="join-error" class="small" role="alert" style="color:var(--red-ink); text-align:center; margin-bottom:12px; display:none;"></div>
   <button class="btn btn-yellow" id="join-btn" onclick="joinGame()">Join →</button>
+  </div>
 </div>
 
 <!-- ═══════ GAME (drawn by script) ═══════ -->
@@ -936,23 +1078,58 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 /* ═══════════════════════════════════════════════════════════
    Utilities
    ═══════════════════════════════════════════════════════════ */
-const COLORS = ['#E8453A','#2F6FE0','#12A587','#F28C0F','#6E4CF5','#E8559E','#0B93D1','#6BA312'];
+/* #29: seat colours picked by simulating the three colour blindnesses: no two seats closer than ΔE 15 for anyone
+   (the old green/pink/sky trio could fall to ΔE 0.3). The last three seats are a light sky, a light green (ink
+   letters) and charcoal. Every seat also has a second cue: its own count of edge spots, and seats 5–8 an inner ring. */
+const COLORS = ['#E8453A','#2F6FE0','#12A587','#F28C0F','#6E4CF5','#9FD3F0','#B7E07A','#2B2724'];
+const LIGHT_SEATS = new Set(['#9FD3F0', '#B7E07A']);
+const SEAT_SPOTS = [6, 4, 8, 5];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $ = (id) => document.getElementById(id);
-const initials = (name) => {
-  const parts = String(name || '?').trim().split(/\s+/);
-  if (parts.length > 1) return (parts[0][0] + parts[1][0]).toUpperCase();
-  const first = (parts[0][0] || '?').toUpperCase();
-  const clash = state && state.players.filter(p => (p.name.trim()[0] || '').toUpperCase() === first).length > 1;
-  return clash ? parts[0].slice(0, 2).toUpperCase() : first;
-};
+/* #29: chip letters from whole characters (an emoji, an accent), never half of one; two players never share letters
+   ("Chris" CH, "Christine" CE). One table-wide map, worked out once per line-up. */
+function graphemes(s) {
+  s = String(s || '');
+  try { if (window.Intl && Intl.Segmenter) return Array.from(new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(s), x => x.segment); } catch (e) {}
+  return Array.from(s);
+}
+const upG = (g) => String(g || '').toLocaleUpperCase();
+function baseInitials(name) {
+  const words = String(name || '?').trim().split(/\s+/).filter(Boolean);
+  const first = graphemes(words[0] || '?')[0] || '?';
+  return words.length > 1 ? upG(first) + upG(graphemes(words[words.length - 1])[0] || '') : upG(first);
+}
+let initialsMemo = { key: null, map: new Map() };
+function initialsMap() {
+  const players = (state && state.players) || [];
+  const key = players.map(p => p.id + ':' + p.name).join('|');
+  if (initialsMemo.key === key) return initialsMemo.map;
+  const map = new Map(), taken = new Set(), count = {};
+  players.forEach(p => { const b = baseInitials(p.name); count[b] = (count[b] || 0) + 1; });
+  players.forEach(p => { const b = baseInitials(p.name); if (count[b] === 1) { map.set(p.id, b); taken.add(b); } });
+  players.forEach((p, seat) => {
+    if (map.has(p.id)) return;
+    const g = graphemes(String(p.name).replace(/\s+/g, '')), f = upG(g[0] || '?');
+    const opts = [f + upG(g[1] || ''), f + upG(g[g.length - 1] || '')].concat(g.slice(2).map(x => f + upG(x)), [f + (seat + 1)]);
+    const pick = opts.find(o => o.length > f.length && !taken.has(o)) || (f + (seat + 1));
+    map.set(p.id, pick); taken.add(pick);
+  });
+  initialsMemo = { key, map };
+  return map;
+}
+const initials = (name) => { const p = state && state.players.find(x => x.name === name); return p ? (initialsMap().get(p.id) || baseInitials(name)) : baseInitials(name); };
 function playerColor(idx) { return COLORS[((idx % COLORS.length) + COLORS.length) % COLORS.length]; }
 function getPlayerIndex(id) { return state ? state.players.findIndex(p => p.id === id) : -1; }
 function playerById(id) { return state ? state.players.find(p => p.id === id) : null; }
 function nameOf(id) { const p = playerById(id); return p ? p.name : '?'; }
+function seatStyle(idx) {
+  const c = playerColor(idx), k = ((idx % 8) + 8) % 8;
+  return `--c:${c};--p:${360 / SEAT_SPOTS[k % 4]}deg;${LIGHT_SEATS.has(c) ? '--fg:#1F1A17;--ts:none;' : ''}`;
+}
 function chipHtml(pid, cls = '', extra = '', attrs = '') {
-  const p = playerById(pid);
-  return `<span class="chip ${cls}" style="--c:${playerColor(getPlayerIndex(pid))}" title="${esc(p ? p.name : '')}" data-voice-pid="${esc(pid)}" ${attrs}>${esc(initials(p ? p.name : '?'))}${extra}</span>`;
+  const p = playerById(pid), idx = getPlayerIndex(pid), k = ((idx % 8) + 8) % 8;
+  const label = /aria-label=/.test(attrs) ? '' : ` role="img" aria-label="${esc(p ? p.name : 'A player')}"`;
+  return `<span class="chip ${cls}${idx >= 0 && k >= 4 ? ' seat-ring' : ''}" style="${seatStyle(idx)}" title="${esc(p ? p.name : '')}" data-voice-pid="${esc(pid)}"${label} ${attrs}>${esc(p ? (initialsMap().get(pid) || baseInitials(p.name)) : '?')}${extra}</span>`;
 }
 // #59: one live region that screen readers always hear ("Your turn to bet")
 function srSay(text) { const el = $('sr-live'); if (!el) return; el.textContent = ''; setTimeout(() => { el.textContent = text; }, 60); }
@@ -987,6 +1164,7 @@ function showScreen(id) {
   $(id).classList.add('active');
   window.scrollTo(0, 0);
   if (id !== 'screen-game') setActionBar('');
+  if ((id === 'screen-home' || id === 'screen-create') && inviteCode) plainJoin();   // #23: leaving the invite: Join is the plain form again
   if (id === 'screen-home') { startHeroLoop(); offerRejoin(); } else stopHeroLoop();
   if (id === 'screen-create' || id === 'screen-join') prefillName(id === 'screen-create' ? 'create-name' : 'join-name');
 }
@@ -1311,6 +1489,8 @@ function connect() {
     else if (msg.type === 'state') {
       state = msg.data;
       if (window.Voice) Voice.onState(state);
+      if (window.Voice && !voiceAllowed() && Voice.isOn && Voice.isOn()) { try { Voice.leave(); } catch (e) {} }   // #40: the table is on a call
+
       if (state.serverNow) clockOffset = window.ccClock ? window.ccClock(state.serverNow - Date.now()) : state.serverNow - Date.now();
       if (Array.isArray(state.gazette)) lastGazette = state.gazette;   // only sent between rounds: keep the last one
       if (state.build && BUILD !== '__BUILD__' && state.build !== BUILD && !window._reloading) { window._reloading = true; saveSession(); saveDraftNow(); setTimeout(() => location.reload(), 300); return; }
@@ -1323,9 +1503,10 @@ function connect() {
     else if (msg.type === 'gallery_purge') { galleryPurge(); if (state && state.phase === 'lobby') render(true); }   // the server refused retired frames: drop them here too
     else if (msg.type === 'error') {
       // #35: a wrong room code keeps you on Join, with what you typed, and says so right there
+      if (msg.message === 'Game not found' && pendingJoin && inviteCode && pendingJoin === inviteCode && $('screen-join').classList.contains('active')) { pendingJoin = null; pendingName = null; drawInvite(inviteCode, { open: false }); return; }   // #23: the invited room closed meanwhile
       if (msg.message === 'Game not found' && pendingJoin && $('screen-join').classList.contains('active')) {
         const je = $('join-error'), ci = $('join-code');
-        je.textContent = `There’s no room ${pendingJoin}. Check the code with the host.`; je.style.display = 'block'; je.style.color = 'var(--red)'; je.dataset.kind = 'code';
+        je.textContent = `There’s no room ${pendingJoin}. Check the code with the host.`; je.style.display = 'block'; je.style.color = 'var(--red-ink)'; je.dataset.kind = 'code';
         pendingJoin = null; pendingName = null; sfx.error();
         if (ci) { ci.classList.remove('shake'); void ci.offsetWidth; ci.classList.add('shake'); }
         return;
@@ -1347,7 +1528,7 @@ function connect() {
       }
       const ce = $('create-error'), je = $('join-error');
       if ($('screen-create').classList.contains('active')) { ce.textContent = msg.message; ce.style.display = 'block'; }
-      else if ($('screen-join').classList.contains('active')) { je.textContent = msg.message; je.style.display = 'block'; je.style.color = 'var(--red)'; }
+      else if ($('screen-join').classList.contains('active')) { je.textContent = msg.message; je.style.display = 'block'; je.style.color = 'var(--red-ink)'; }
       else if (msg.message !== 'Already submitted') showToast(msg.message);
       submitting = false; pendingJoin = null; pendingName = null;
       sfx.error();
@@ -1366,8 +1547,8 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 function updateConnectionBanner() {
   let b = $('conn-banner');
   if (!b) { b = document.createElement('div'); b.id = 'conn-banner'; document.body.appendChild(b); }
-  if (connectionStatus === 'disconnected' && (myPlayerId || reconnectAttempts > 1)) { b.style.background = 'var(--red)'; b.style.color = '#fff'; b.innerHTML = '<span class="dots">Reconnecting</span>'; b.style.transform = 'translateY(0)'; }
-  else if (connectionStatus === 'connected' && reconnectAttempts > 0) { b.style.background = 'var(--teal)'; b.style.color = '#fff'; b.textContent = '✓ Back online'; b.style.transform = 'translateY(0)'; setTimeout(() => { b.style.transform = 'translateY(-100%)'; }, 1500); }
+  if (connectionStatus === 'disconnected' && (myPlayerId || reconnectAttempts > 1)) { b.style.background = 'var(--red-d)'; b.style.color = '#fff'; b.innerHTML = '<span class="dots">Reconnecting</span>'; b.style.transform = 'translateY(0)'; }
+  else if (connectionStatus === 'connected' && reconnectAttempts > 0) { b.style.background = 'var(--teal-d)'; b.style.color = '#fff'; b.textContent = '✓ Back online'; b.style.transform = 'translateY(0)'; setTimeout(() => { b.style.transform = 'translateY(-100%)'; }, 1500); }
   else b.style.transform = 'translateY(-100%)';
 }
 // Dealer buttons: one tap per stage. A second tap (or a late tap from a slow screen) is dropped here,
@@ -1400,27 +1581,8 @@ function showToast(message, type = 'error') {
   const hide = hdr ? () => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(-14px)'; } : () => { t.style.transform = 'translateX(-50%) translateY(140px)'; };
   clearTimeout(window._toastTimer); window._toastTimer = setTimeout(hide, 2800);
 }
-/* #38: a first-game tip (guide.js) never sits on what you have to tap or watch: the action bar,
-   the betting cards on your turn, the steal line and chips, or the writer's timer. If it would,
-   it bows out (it fades on its own after a few seconds anyway). */
-(function tipGuard() {
-  const hits = (a, b) => b.width && b.height && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
-  const check = () => {
-    const tip = document.querySelector('.gd-tip');
-    if (!tip) return;
-    if (!tip.classList.contains('on')) { if (tip.classList.contains('cc-hush')) tip.classList.remove('cc-hush'); return; }   // (touch the class only when it changes: the observer below watches it)
-    if (tip.classList.contains('cc-hush')) return;
-    const sel = ['#action-bar-root .action-bar', '.steal-hero', '.chip.grab', '.turn-banner.you', '#timer-ring', '.bettor.turn'];
-    if (state && state.isMyTurn) sel.push('#game-content .cap[data-target]');
-    const r = tip.getBoundingClientRect();
-    if ([...document.querySelectorAll(sel.join(','))].some(e => hits(r, e.getBoundingClientRect()))) tip.classList.add('cc-hush');
-  };
-  setInterval(check, 300);   // the screen under it changes (an action bar slides up)…
-  // …and the moment a tip turns on, before it is ever painted
-  let watched = null;
-  const watchTip = () => { const t = document.querySelector('.gd-tip'); if (t && t !== watched) { watched = t; new MutationObserver(check).observe(t, { attributes: true, attributeFilter: ['class'] }); check(); } };
-  try { new MutationObserver(watchTip).observe(document.body, { childList: true }); } catch (e) {}
-})();
+/* #38 / #29: a first-game tip (guide.js) has its own slot in the page and pushes the screen down,
+   so it never sits on the cartoon, a caption, the action bar or the timer (it fades on its own). */
 function leaveGame() {
   closeMenu();
   const mid = state && state.phase !== 'lobby';
@@ -1450,8 +1612,8 @@ function createGame() {
 }
 function joinGame() {
   const code = $('join-code').value.trim().toUpperCase(), name = $('join-name').value.trim().slice(0, NAME_MAX), e = $('join-error');
-  if (code.length !== 4) { e.textContent = 'The room code is 4 letters'; e.style.display = 'block'; e.style.color = 'var(--red)'; e.dataset.kind = 'code'; sfx.error(); return; }
-  if (!name) { e.textContent = 'Enter your name'; e.style.display = 'block'; e.style.color = 'var(--red)'; e.dataset.kind = ''; sfx.error(); return; }
+  if (code.length !== 4) { e.textContent = 'The room code is 4 letters'; e.style.display = 'block'; e.style.color = 'var(--red-ink)'; e.dataset.kind = 'code'; sfx.error(); return; }
+  if (!name) { e.textContent = 'Enter your name'; e.style.display = 'block'; e.style.color = 'var(--red-ink)'; e.dataset.kind = ''; sfx.error(); return; }
   pendingName = name; pendingJoin = code;
   wasKicked = false; send({ action: 'join', code, name });
 }
@@ -1477,18 +1639,18 @@ function openMenu() {
       <div class="h-display" style="font-size:40px; letter-spacing:6px; padding-left:6px;">${esc(state.code)}</div>
       <p class="small" style="color:var(--ink-2);">Latecomers can join with this any time</p>
     </div>
-    ${window.Voice && !(Voice.isOn && Voice.isOn()) && state && state.phase !== 'lobby' ? `<button class="menu-row" onclick="closeMenu(); Voice.ask()"><span class="ic">${inkIcon('speaker')}</span>Playing apart?<span class="r">Voice call</span></button>` : ''}
+    ${window.Voice && voiceAllowed() && !(Voice.isOn && Voice.isOn()) && state && state.phase !== 'lobby' ? `<button class="menu-row" onclick="closeMenu(); Voice.ask()"><span class="ic">${inkIcon('speaker')}</span>Playing apart?<span class="r">Voice call</span></button>` : ''}
     <button class="menu-row" onclick="openInvite()"><span class="ic">${inkIcon('invite')}</span>Invite someone<span class="r">QR + link</span></button>
     <button class="menu-row" onclick="openGallery()"><span class="ic">${inkIcon('frame')}</span>The Gallery<span class="r">${galleryList().length ? plural(galleryList().length, 'caption') : ''}</span></button>
     <button class="menu-row" onclick="openRatingSheet()"><span class="ic">${inkIcon('trophy')}</span>My rating and badges<span class="r">${fmtRating(careerSummary().rating)}</span></button>
     <button class="menu-row" onclick="toggleSound()"><span class="ic">${inkIcon(soundEnabled() ? 'sound' : 'mute')}</span>Sound<span class="r">${soundEnabled() ? 'On' : 'Off'}</span></button>
-    <button class="menu-row" id="bigsound-row" onclick="toggleBigSound()"><span class="ic">${inkIcon('speaker')}</span>This phone plays the big sounds<span class="r">${bigSound() ? 'On' : 'Off'}</span></button>
+    <button class="menu-row" id="bigsound-row" onclick="toggleBigSound()"><span class="ic">${inkIcon('speaker')}</span>Use this phone as the speaker<span class="r">${bigSound() ? 'On' : 'Off'}</span></button>
     <details class="box" style="margin-bottom:8px;" ${cur ? 'open' : ''}><summary><span style="width:26px; text-align:center;">${inkIcon('music')}</span>Table music${cur ? ' · playing' : ''}<span class="arrow">▾</span></summary><div class="body stack">
       ${tracks.map(t => `<button class="btn btn-sm ${cur === t.key ? 'btn-yellow' : ''}" style="justify-content:flex-start;" onclick="toggleTrack('${t.key}')"><span style="flex:1; text-align:left;">${esc(t.name)}<br><span class="small">${esc(t.description)}</span></span><span>${cur === t.key ? '◼' : '▶'}</span></button>`).join('')}
       <p class="small center">Plays from this phone only</p></div></details>
     <button class="menu-row" onclick="closeMenu(); showScreen('screen-rules')"><span class="ic">${inkIcon('book')}</span>How to play</button>
     ${state.history && state.history.length ? `<button class="menu-row" onclick="closeMenu(); openHistory()"><span class="ic">${inkIcon('clock')}</span>Past rounds</button>` : ''}
-    <button class="menu-row" onclick="leaveGame()" style="color:var(--red);"><span class="ic">${inkIcon('door')}</span>Leave game</button>
+    <button class="menu-row" onclick="leaveGame()" style="color:var(--red-ink);"><span class="ic">${inkIcon('door')}</span>Leave game</button>
     <button class="btn btn-ink" style="margin-top:6px;" onclick="closeMenu()">Close</button>`;
   $('sheet').classList.add('on');
 }
@@ -1497,9 +1659,9 @@ function toggleTrack(key) { if (!window.GameMusic) return; if (window.GameMusic.
 function joinAddress() { const local = ['localhost', '127.0.0.1'].includes(location.hostname); return local && state && state.lanUrl ? state.lanUrl.replace(/^https?:\/\//, '') : location.host; }
 function shareRoom() {
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
-  const url = joinUrl(), text = `Closed Caption tonight. Room code: ${state.code}`;
+  const url = joinUrl(), text = `Closed Caption tonight. ${INVITE_PITCH} Free, no app. Room ${state.code}:`;   // #23: the invite says what it is
   if (navigator.share) navigator.share({ title: 'Closed Caption', text, url }).catch(() => {});
-  else if (navigator.clipboard) navigator.clipboard.writeText(`${text} — ${url}`).then(() => showToast('Copied — paste it to your friends', 'ok')).catch(() => showToast(`Code: ${state.code}`, 'ok'));
+  else if (navigator.clipboard) navigator.clipboard.writeText(`${text} ${url}`).then(() => showToast('Copied — paste it to your friends', 'ok')).catch(() => showToast(`Code: ${state.code}`, 'ok'));
   else showToast(`Code: ${state.code}`, 'ok');
 }
 
@@ -1588,6 +1750,7 @@ function render(force = false) {
   }
   html = (state.phase !== 'lobby' ? renderAwayBanner() : '') + html;
 
+  const focusMark = phaseChanged ? null : focusKey();   // #29: a redraw keeps your place (keyboard and screen reader)
   if (!force && key === lastKey && state.phase === 'writing' && el.querySelector('[data-live]')) {
     patchLive(el, html);
   } else {
@@ -1601,8 +1764,51 @@ function render(force = false) {
   if (state.phase === 'writing') startTimer();
   afterRender(phaseChanged);
   syncOpening(); syncVerdicts();
+  if (focusMark) focusRestore(focusMark);
+  if (phaseChanged || (state.phase === 'answer' && key !== lastKey && reelInfo().step > reelInfo().n)) stageSay();   // #29: every new stage, said out loud
   lastPhase = state.phase; lastRound = state.round; lastKey = key;
   window.Guide && Guide.onRender(state);   // first-game tips + the last writer's nudge (guide.js)
+}
+/* #29: keep focus across redraws. The focused control is remembered by its id, data-id, or what it does (its
+   onclick, label or text) plus its place among look-alikes, and focused again in the new screen. */
+function focusSig(e) {
+  if (e.id) return '#' + e.id;
+  if (e.dataset && e.dataset.id) return 'd:' + e.dataset.id;
+  return [e.tagName, e.getAttribute('onclick') || '', e.getAttribute('aria-label') || '', e.getAttribute('data-target') || '', e.getAttribute('data-k') || '', (e.textContent || '').trim().slice(0, 40)].join('|');
+}
+const FOCUS_ROOTS = '#game-content, #action-bar-root';
+function focusKey() {
+  const a = document.activeElement;
+  if (!a || a === document.body || !a.closest || !a.closest(FOCUS_ROOTS)) return null;
+  const sig = focusSig(a), same = [...document.querySelectorAll(FOCUS_ROOTS)].flatMap(r => [...r.querySelectorAll('*')]).filter(e => focusSig(e) === sig);
+  return { el: a, sig, i: Math.max(0, same.indexOf(a)) };
+}
+function focusRestore(m) {
+  if (!m || (m.el && m.el.isConnected && document.activeElement === m.el)) return;
+  const same = [...document.querySelectorAll(FOCUS_ROOTS)].flatMap(r => [...r.querySelectorAll('*')]).filter(e => focusSig(e) === m.sig);
+  const t = same[Math.min(m.i, same.length - 1)];
+  if (t && typeof t.focus === 'function') { try { t.focus({ preventScroll: true }); } catch (e) {} }
+}
+// #29: one line for a screen reader whenever the table moves to a new stage
+function stageSay() {
+  try {
+    const s = state, d = firstName(s.dealerName || ''), me = s.isDealer;
+    const t = s.timerDuration ? (s.timerDuration % 60 ? `${s.timerDuration} seconds` : plural(s.timerDuration / 60, 'minute')) : 'no timer';
+    let line = '';
+    switch (s.phase) {
+      case 'lobby': line = `Lobby. ${plural(s.players.filter(p => p.connected).length, 'player')} here.${s.isHost ? ' Start the game is at the bottom.' : ` ${fnameOf(s.hostId)} starts the game.`}`; break;
+      case 'writing': line = `Write. ${roundLabel()}. ${me ? 'You deal.' : `${d} deals.`} Write a caption that could pass for the real one. ${t === 'no timer' ? 'No timer.' : t + '.'}`; break;
+      case 'reading': line = `Bet. ${me ? 'Read the captions aloud.' : `${d} reads the captions aloud.`} ${plural((s.openCaptions || []).length, 'caption')} in the open, one face-down.`; break;
+      case 'first_bets': line = s.isMyTurn ? '' : `Bet. ${s.currentBetterName ? firstName(s.currentBetterName) + ' bets first.' : 'Betting.'}`; break;
+      case 'reveal': line = 'Flip. The face-down caption turns over.'; break;
+      case 'second_bets': line = s.isMyTurn ? '' : 'Flip. Last chips, same order as before.'; break;
+      case 'steal': line = me ? '' : `${d} is choosing a chip to steal.`; break;
+      case 'answer': { const { step, n } = reelInfo(); line = step > n ? 'Score. Round recap: the real caption and the points.' : 'Score. The reveal: who wrote each caption, and who fell for it.'; break; }
+      case 'framing': line = 'Frame It. Did anyone beat the real caption?'; break;
+      case 'scores': line = s.gameOver ? 'Final scores.' : `Scoreboard. Next dealer: ${firstName(s.nextDealerName || '')}.`; break;
+    }
+    if (line) srSay(line);
+  } catch (e) {}
 }
 function patchLive(el, html) {
   const tpl = document.createElement('template'); tpl.innerHTML = html;
@@ -1612,6 +1818,7 @@ function patchLive(el, html) {
 }
 
 function afterRender(phaseChanged) {
+  if (state.phase === 'lobby') setActionBar(lobbyBarHtml());   // #16: Start, pinned to the bottom (host)
   if (state.phase === 'first_bets' || state.phase === 'second_bets') {
     const bets = state.bets || [];
     if (!phaseChanged && bets.length > seenBets) {
@@ -1653,18 +1860,54 @@ function setActionBar(html) {
 
 /* ── Shared pieces ── */
 function roundLabel() { return `Round ${state.round}${state.totalRounds ? ' of ' + state.totalRounds : ''}`; }
+/* #15: one round = four stage words, one colour: Write · Bet · Flip · Score. The pill says where the table is.
+   (The old per-screen stickers — "Blind bets", "The steal"… — become the first words of the line under it.) */
+const STAGES = ['Write', 'Bet', 'Flip', 'Score'];
+const STAGE_OF = { writing: 0, reading: 1, first_bets: 1, steal: 1, reveal: 2, second_bets: 2, answer: 3, framing: 3, scores: 3 };
+const stageNow = () => state && STAGE_OF[state.phase] !== undefined && !(state.phase === 'scores' && state.gameOver) ? STAGE_OF[state.phase] : -1;
+function stagePill() {
+  const i = stageNow(); if (i < 0) return '';
+  return `<span class="stage-pill" role="img" aria-label="Stage ${i + 1} of 4: ${STAGES[i]}">${STAGES.map((w, k) => `<span class="${k === i ? 'on' : ''}">${w}</span>`).join('')}</span>`;
+}
+// #4: while the table reads, bets, flips and reveals, the cartoon stays big — pinned at the top (~45% of the screen)
+const PIN_PHASES = ['reading', 'first_bets', 'reveal', 'second_bets', 'steal', 'answer'];
+const toonAlt = () => state.cartoon && state.cartoon.title ? `Cartoon: ${state.cartoon.title}` : 'The cartoon';
 function header({ sticker, sub = '', ring = false, thumb = true }) {
-  const t = thumb && state.cartoon ? `<div class="thumb" onclick="openViewer()" role="button" tabindex="0" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"></div>` : '';
-  return `<div class="hdr">${ring ? ringHtml() : t}<div class="mid"><div class="hdr-top">${sticker}<button class="code-pill" onclick="openInvite()" aria-label="Room code ${esc(state.code)} — show the invite">${esc(state.code)}</button></div><span class="small">${sub || roundLabel()}</span></div>${window.Voice && Voice.isOn && Voice.isOn() ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>`;
+  const stage = stageNow() >= 0, pin = thumb && !!state.cartoon && PIN_PHASES.includes(state.phase);
+  const PLAIN = { 'blind bets': 'First bets', 'last chips': 'Last bets', 'the captions': 'Reading the captions', 'the reveal': 'Who wrote what' };   // #15: words a first-timer can decode
+  const raw = stage ? String(sticker || '').replace(/<[^>]*>/g, '').trim() : '', label = PLAIN[raw.toLowerCase()] || raw;
+  const line = [label && label.toLowerCase() !== STAGES[stageNow()].toLowerCase() ? label : '', sub || roundLabel()].filter(Boolean).join(' · ');
+  const t = thumb && !pin && state.cartoon ? `<button class="thumb" onclick="openViewer()" aria-label="${esc(toonAlt())}. See it full-screen"><img src="/images/${esc(state.cartoon.image)}" alt=""></button>` : '';
+  const code = `<button class="code-pill" onclick="openInvite()" aria-label="Room code ${esc(state.code)}. Show the invite"><span>${esc(state.code)}</span></button>`;
+  const big = pin ? `<button class="pin-toon" onclick="openViewer()" aria-label="${esc(toonAlt())}. See it full-screen"><img src="/images/${esc(state.cartoon.image)}" alt=""></button>` : '';
+  return `<div class="hdr${pin ? ' pin' : ''}${ring ? ' ringed' : ''}">${ring ? ringHtml() : t}<div class="mid"><div class="hdr-top">${stage ? stagePill() : sticker}${ring ? '' : code}</div><span class="hdr-sub">${line}</span></div>${window.Voice && Voice.isOn && Voice.isOn() && voiceAllowed() ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu${ring ? '. Room code ' + esc(state.code) : ''}">☰</button>${big}</div>`;
 }
+// The writing screen's cartoon: big while you look at it, a small copy right above the caption box while you type
 function bigToon(compact = false, mull = false) {
-  return state.cartoon ? `<div class="toon-big ${compact ? 'compact' : ''}" onclick="openViewer()" role="button" tabindex="0" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"><span class="zoom">🔍 Tap to zoom</span>${mull ? mullPillHtml() : ''}</div>` : '';
+  return state.cartoon ? `<div class="toon-big ${compact ? 'compact' : ''}" id="w-toon"><button class="toon-hit" onclick="openViewer()" aria-label="${esc(toonAlt())}. See it full-screen"><img src="/images/${esc(state.cartoon.image)}" alt=""></button><span class="zoom" aria-hidden="true">Tap to zoom</span>${mull ? mullPillHtml() : ''}</div>` : '';
 }
+let typingOff = null;
+function onCaptionFocus() {
+  clearTimeout(typingOff); document.body.classList.add('typing');
+  [60, 380, 700].forEach(ms => setTimeout(keepToonInView, ms));   // again once the keyboard has finished opening
+}
+function onCaptionBlur() { clearTimeout(typingOff); typingOff = setTimeout(() => document.body.classList.remove('typing'), 150); }
+// Small cartoon at the top of what you can see, the caption box right under it (the phone's keyboard below)
+function keepToonInView() {
+  const t = $('w-toon'), i = $('caption-input');
+  if (!t || !i || document.activeElement !== i) return;
+  const hdr = document.querySelector('#game-content .hdr'), vv = window.visualViewport;
+  const top = (vv ? vv.offsetTop : 0) + (hdr ? hdr.getBoundingClientRect().height : 0) + 8;
+  const dy = t.getBoundingClientRect().top - top;
+  if (Math.abs(dy) > 4) window.scrollBy(0, dy);
+}
+try { if (window.visualViewport) window.visualViewport.addEventListener('resize', () => { if (document.body.classList.contains('typing')) keepToonInView(); }); } catch (e) {}
 // The mulligan, right on the picture: no scrolling to find it
 function mullPillHtml() {
   const votes = (state.mulliganVotes || []).length, need = state.mulliganNeeded || 2, mine = state.myMulligan;
-  return `<span data-live="mullpill"><button class="mull-pill ${mine ? 'on' : ''}" onclick="event.stopPropagation(); toggleMulligan()" aria-label="${mine ? 'Take back your mulligan vote' : 'Vote to swap this cartoon'}">
-    <span class="mp-word">${mine ? '✓ Mulligan' : 'Mulligan'}</span>${votes ? `<span class="mp-count">${votes}/${need}</span>` : ''}</button></span>`;
+  // #15: plain words, and one tap only asks (askSkip): a vote counts once you say yes
+  return `<span data-live="mullpill"><button class="mull-pill ${mine ? 'on' : ''}" onclick="event.stopPropagation(); askSkip()" aria-label="${mine ? `You voted to skip this cartoon (${votes} of ${need}). Take your vote back` : `Skip this cartoon?${votes ? ` ${votes} of ${need} votes so far.` : ''}`}">
+    <span class="mp-word">${mine ? '✓ You voted to skip' : 'Skip this cartoon?'}</span>${votes ? `<span class="mp-count">${votes} of ${need}</span>` : ''}</button></span>`;
 }
 function ringHtml() {
   if (noTimer()) return `<div class="ring" aria-label="No timer"><svg viewBox="0 0 58 58"><circle class="track" cx="29" cy="29" r="24"/></svg><div class="t" style="font-size:22px;">∞</div></div>`;   // [settings] no timer
@@ -1686,19 +1929,22 @@ function renderLobby() {
   const s = state.settings || {};
   const connected = state.players.filter(p => p.connected).length;
   const n = state.players.length, right = s.direction === 'right';
-  const segBtn = (on, onclick, label) => `<button class="${on ? 'on' : ''}" onclick="${onclick}">${label}</button>`;
-  const players = state.players.map((p, i) => `
-    <div style="display:flex; align-items:center; gap:10px; padding:8px 0; ${!p.connected ? 'opacity:.5;' : ''}">
-      <span class="seat-n" title="Seat ${i + 1}">${i + 1}</span>
+  const segBtn = (on, onclick, label) => `<button class="${on ? 'on' : ''}" aria-pressed="${on ? 'true' : 'false'}" onclick="${onclick}">${label}</button>`;
+  const played = playedGame();
+  // #16: the names, nothing else (seat order, direction, lock, Gallery and settings live under "Room options")
+  const names = state.players.map((p, i) => `
+    <li class="lb-p${!p.connected ? ' off' : ''}">
       ${chipHtml(p.id, 'lg pop' + (!p.connected ? ' dim' : ''))}
-      <div style="flex:1; min-width:0;"><div style="font-weight:900; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(p.name)}${pubMark(p)}${p.id === myPlayerId ? ' <span class="small">(you)</span>' : ''}</div>${ratingTag(p)}${p.id === state.hostId ? '<span class="small" style="color:var(--yellow-d);">★ Host </span>' : ''}${i === 0 ? '<span class="small">deals first</span>' : ''}${!p.connected ? '<span class="small" style="color:var(--red);"> offline</span>' : ''}</div>
+      <span class="lb-nm"><span class="lb-l1"><b>${esc(p.name)}</b>${p.id === myPlayerId ? ' <span class="lb-you">(you)</span>' : ''}${pubMark(p)}</span>
+        <span class="lb-sub">${[p.id === state.hostId ? 'host' : '', i === 0 ? 'deals first' : '', !p.connected ? 'offline' : '', played ? ratingTag(p).replace(/<[^>]*>/g, '') : ''].filter(Boolean).join(' · ')}</span></span>
+    </li>`).join('');
+  const seats = state.players.map((p, i) => `
+    <div class="lb-seat${!p.connected ? ' off' : ''}">
+      <span class="seat-n" aria-hidden="true">${i + 1}</span>${chipHtml(p.id, 'sm')}
+      <span class="lb-seat-nm">${esc(p.name)}</span>
       ${state.isHost && n > 1 ? `<button class="seat-mv" aria-label="Move ${esc(p.name)} up" ${i === 0 ? 'disabled' : ''} onclick="moveSeat('${p.id}',-1)">↑</button><button class="seat-mv" aria-label="Move ${esc(p.name)} down" ${i === n - 1 ? 'disabled' : ''} onclick="moveSeat('${p.id}',1)">↓</button>` : ''}
       ${state.isHost && p.id !== myPlayerId ? `<button class="btn btn-sm seat-kick" onclick="confirmKick('${p.id}')" aria-label="Remove ${esc(p.name)}">✕</button>` : ''}
     </div>`).join('');
-  const seatHelp = state.isHost
-    ? `<p class="small" style="margin:-4px 0 10px;">Line everyone up in the order you’re sitting, going around the table. Seat 1 deals first.</p>
-       <div class="field" style="margin-bottom:14px;"><label class="eyebrow">The deal and the betting pass to the…</label><div class="seg">${segBtn(!right, "setHostSettings({direction:'left'})", '↓ Left (down the list)')}${segBtn(right, "setHostSettings({direction:'right'})", '↑ Right (up the list)')}</div></div>`
-    : `<p class="small" style="margin:-4px 0 14px;">Seating is in order around the table. The deal passes ${right ? 'right ↑' : 'left ↓'}.</p>`;
   // [settings] one-line summary everyone sees, e.g. "2-min timer · Dealer steals · Everyone deals twice · Everything deck"
   const td = state.timerDuration, laps = s.laps || 1, dm = s.dealerMode || 'steal';
   const timerWords = !td ? 'No timer' : td % 60 ? `${td}-second timer` : `${td / 60}-min timer`;
@@ -1716,53 +1962,83 @@ function renderLobby() {
     ? `<button class="gal-toggle ${s.expert ? 'on' : ''}" ${galleryOpen ? '' : 'disabled'} onclick="setHostSettings({expert:${!s.expert}})" aria-pressed="${!!s.expert}">
         <span>${inkIcon('frame', 24)}</span><span style="flex:1;">Play from The Gallery<br><span class="small">${galleryOpen ? `${plural(deck, 'cartoon has', 'cartoons have')} framed captions` : 'Unlocks when 3 cartoons have a framed caption'}</span></span><span class="sw"></span></button>`
     : s.expert ? `<div class="gal-toggle on" style="cursor:default;"><span>${inkIcon('frame', 24)}</span><span style="flex:1;">This game plays from The Gallery<br><span class="small">The table’s best captions are the real answers</span></span></div>` : '';
+  // #40: playing over FaceTime or Zoom? The host says so, and the game's own voice gets out of the way
+  const vm = s.voice || null;
+  const voiceField = state.isHost
+    ? `<div class="field"><label class="eyebrow" id="lb-voice-l">Playing apart?</label><div class="seg" role="group" aria-labelledby="lb-voice-l">${segBtn(vm === 'call', `setVoiceMode(${vm === 'call' ? 'null' : "'call'"})`, 'Already on a call')}${segBtn(vm === 'game', `setVoiceMode(${vm === 'game' ? 'null' : "'game'"})`, 'Use the game’s voice')}</div>
+        <p class="lb-hint">${vm === 'call' ? 'FaceTime or Zoom does the talking. The game’s own voice is off.' : vm === 'game' ? 'Everyone taps the microphone button at the top to join the call. Two phones in one room? Headphones, or they echo.' : 'Everyone in one room? Leave both off.'}</p></div>`
+    : vm ? `<p class="lb-hint">${vm === 'call' ? 'This table is on a call, so the game’s own voice is off.' : 'This table talks through the game’s voice. Tap the microphone button at the top to join.'}</p>` : '';
   const settings = state.isHost ? `
-    <details class="box" id="settings-details" style="margin-bottom:14px;">
-      <summary>Game settings <span class="arrow">▾</span></summary>
-      <div class="body">
-        <!-- [settings] Writing timer: 2 min / Custom (1–10 min) / No timer -->
         <div class="field"><label class="eyebrow">Writing timer</label><div class="seg">${segBtn(td === 120 && !lobbyCustomTimer, 'setHostTimer(120)', '2 min')}${segBtn(customOn, 'openCustomTimer()', 'Custom')}${segBtn(td === 0 && !lobbyCustomTimer, 'setHostTimer(0)', 'No timer')}</div>
           ${customOn ? `<div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:8px;"><button class="btn btn-sm" style="width:48px;" aria-label="One minute less" ${td && td <= 60 ? 'disabled' : ''} onclick="stepTimer(-1)">−</button><b style="font-size:18px;min-width:80px;text-align:center;">${td ? (td % 60 ? td + ' s' : tmin + ' min') : '—'}</b><button class="btn btn-sm" style="width:48px;" aria-label="One minute more" ${td >= 600 ? 'disabled' : ''} onclick="stepTimer(1)">+</button></div>` : ''}
-          ${td === 0 && !lobbyCustomTimer ? '<div style="color:var(--muted);font-size:13px;margin-top:6px">No countdown. Writing ends when everyone’s in — or the dealer taps “End writing”.</div>' : ''}</div>
-        <!-- [settings] Game length: once / twice / 3 times around / first to 20 -->
+          ${td === 0 && !lobbyCustomTimer ? '<p class="lb-hint">No countdown. Writing ends when everyone’s in, or the dealer taps “End writing”.</p>' : ''}</div>
         <div class="field"><label class="eyebrow">Game length</label><div class="seg">
           ${segBtn(!s.rounds && !s.targetScore && laps === 1, 'setHostSettings({rounds:null,targetScore:null,laps:1})', 'Everyone deals once')}
           ${segBtn(!s.rounds && !s.targetScore && laps === 2, 'setHostSettings({rounds:null,targetScore:null,laps:2})', '2 times around')}
           ${segBtn(!s.rounds && !s.targetScore && laps === 3, 'setHostSettings({rounds:null,targetScore:null,laps:3})', '3 times around')}
           ${segBtn(s.targetScore === 20, 'setHostSettings({rounds:null,targetScore:20,laps:1})', 'First to 20')}
         </div></div>
-        <div class="field"><label class="eyebrow">Cartoons</label><div class="seg">${segBtn(!!s.family, 'setHostSettings({family:true})', 'Family')}${segBtn(!s.family && !s.spicy, 'setHostSettings({family:false,spicy:false})', 'Standard')}${segBtn(!!s.spicy, 'setHostSettings({spicy:true})', 'Everything')}</div><div style="color:var(--muted);font-size:13px;margin-top:6px">${s.family ? 'Family cartoons only.' : s.spicy ? 'Every cartoon in the game: Family, Standard and the After Dark (PG-13) ones.' : 'Family and Standard cartoons. No PG-13.'}</div></div>
-        <!-- [settings] Dealer mode: Steal (default) / No steal (dealer bets 2 chips) / Kitchen sink (bets 2 chips, then steals) -->
-        <div class="field"><label class="eyebrow">The dealer</label><div class="seg">${segBtn(dm === 'steal', "setHostSettings({dealerMode:'steal'})", 'Steal')}${segBtn(dm === 'bet', "setHostSettings({dealerMode:'bet'})", 'No steal')}${segBtn(dm === 'both', "setHostSettings({dealerMode:'both'})", 'Kitchen sink')}</div><div style="color:var(--muted);font-size:13px;margin-top:6px">${dm === 'bet' ? 'No steal. The dealer bets 2 chips like everyone else (last in the order).' : dm === 'both' ? 'The dealer bets 2 chips like everyone else (last), then steals one of anyone else’s chips.' : 'The dealer doesn’t bet. Once the chips are down, the dealer steals one.'}</div></div>
+        <div class="field"><label class="eyebrow">Cartoons</label><div class="seg">${segBtn(!!s.family, 'setHostSettings({family:true})', 'Family')}${segBtn(!s.family && !s.spicy, 'setHostSettings({family:false,spicy:false})', 'Standard')}${segBtn(!!s.spicy, 'setHostSettings({spicy:true})', 'Everything')}</div><p class="lb-hint">${s.family ? 'Family cartoons only.' : s.spicy ? 'Every cartoon in the game: Family, Standard and the After Dark (PG-13) ones.' : 'Family and Standard cartoons. No PG-13.'}</p></div>
+        <div class="field"><label class="eyebrow">The dealer</label><div class="seg">${segBtn(dm === 'steal', "setHostSettings({dealerMode:'steal'})", 'Steals a chip')}${segBtn(dm === 'bet', "setHostSettings({dealerMode:'bet'})", 'Bets, no steal')}${segBtn(dm === 'both', "setHostSettings({dealerMode:'both'})", 'Bets and steals')}</div><p class="lb-hint">${dm === 'bet' ? 'No steal. The dealer bets 2 chips like everyone else (last in the order).' : dm === 'both' ? 'The dealer bets 2 chips like everyone else (last), then steals one of anyone else’s chips.' : 'The dealer doesn’t bet. Once the chips are down, the dealer steals one.'}</p></div>
         <div class="field"><label class="eyebrow">How often the real caption is the face-down one</label><div class="seg">${[0.1, 0.15, 0.2, 0.3].map(v => segBtn(Math.abs((s.autoCloseProbability ?? 0.15) - v) < 0.001, `setHostSettings({autoCloseProbability:${v}})`, Math.round(v * 100) + '%')).join('')}</div></div>
-        <details class="box" id="adv-details"><summary>Points <span class="arrow">▾</span></summary><div class="body">
-          ${[['pointsOpenBet', 'Blind chip · real caption in the open', [1, 2, 3, 4]], ['pointsClosedBet', 'Blind chip · face-down Closed Caption', [2, 3, 4, 5, 6]], ['pointsOpenLate', 'Late chip (after the flip)', [0, 1, 2, 3]], ['pointsPerFool', 'Each chip that lands on your caption', [0, 1, 2, 3]], ['dealerBonus', 'Dealer’s revenge', [0, 2, 3, 4, 5, 6]]]
-            .map(([k, label, opts]) => `<div class="field"><label class="small">${label}</label><div class="seg">${opts.map(n => segBtn(s[k] === n, `setHostSettings({${k}:${n}${k === 'pointsOpenLate' ? ',pointsClosedLate:' + n : ''}})`, n)).join('')}</div></div>`).join('')}
+        <details class="box" id="adv-details"><summary>Points <span class="arrow" aria-hidden="true">▾</span></summary><div class="body">
+          ${[['pointsOpenBet', 'Blind chip · real caption in the open', [1, 2, 3, 4]], ['pointsClosedBet', 'Blind chip · face-down caption', [2, 3, 4, 5, 6]], ['pointsOpenLate', 'Late chip (after the flip)', [0, 1, 2, 3]], ['pointsPerFool', 'Each chip that lands on your caption', [0, 1, 2, 3]], ['dealerBonus', 'Dealer’s revenge', [0, 2, 3, 4, 5, 6]]]
+            .map(([k, label, opts]) => `<div class="field"><label class="small">${label}</label><div class="seg">${opts.map(v => segBtn(s[k] === v, `setHostSettings({${k}:${v}${k === 'pointsOpenLate' ? ',pointsClosedLate:' + v : ''}})`, v)).join('')}</div></div>`).join('')}
           <button class="btn-link" onclick="setHostSettings({pointsOpenBet:2,pointsClosedBet:3,pointsOpenLate:1,pointsClosedLate:1,pointsPerFool:1,dealerBonus:4,pointsStealCorrect:1,autoCloseProbability:0.15,stealEnabled:true,rounds:null,targetScore:null,dealerMode:'steal',laps:1})">Reset to defaults</button>
-        </div></details>
-      </div>
-    </details>` : '';
+        </div></details>` : '';
+  const optionsBody = state.isHost ? `
+      <h3 class="lb-h">Seats, in order around the table</h3>
+      <p class="lb-hint" style="margin-top:0;">Line everyone up the way you’re sitting. Seat 1 deals first.</p>
+      <div class="lb-seats">${seats}</div>
+      <div class="field" style="margin-top:12px;"><label class="eyebrow">The deal and the betting pass to the…</label><div class="seg">${segBtn(!right, "setHostSettings({direction:'left'})", '↓ Left (down the list)')}${segBtn(right, "setHostSettings({direction:'right'})", '↑ Right (up the list)')}</div></div>
+      <button class="btn btn-sm lb-lock" onclick="send({action:'lock', on:${!state.locked}})" aria-pressed="${!!state.locked}">${state.locked ? 'Room locked · unlock it' : 'Everyone’s here? Lock the room'}</button>
+      ${voiceField}
+      <h3 class="lb-h">The game</h3>
+      ${settings}
+      ${freshLine}
+      ${lobbyGalleryHtml()}${galleryToggle}`
+    : `<p class="lb-hint" style="margin-top:0;">Seats go in order around the table. The deal passes ${right ? 'right ↑' : 'left ↓'}.${state.locked ? ' The host has locked the room.' : ''}</p>
+      ${voiceField}
+      ${lobbyGalleryHtml()}${galleryToggle}`;
+  const options = `<details class="box lb-opts" id="room-options"><summary><span class="lb-opts-t"><b>Room options</b><span class="lb-opts-s">${esc(summary)}</span></span><span class="arrow" aria-hidden="true">▾</span></summary><div class="body">${optionsBody}</div></details>`;
+  const me = playerById(myPlayerId), host = fnameOf(state.hostId);
+  const watched = state.isHost && n > 1 ? `<span class="lb-watch">${state.players.filter(p => p.watched).length} of ${n} watched the demo</span>` : '';
+  const codeCard = state.isHost
+    ? `<div class="panel yellow center lb-code">
+        <p class="eyebrow" style="color:var(--ink-2);">Room code</p>
+        <div class="h-display lb-code-big" aria-label="Room code ${esc(state.code.split('').join(' '))}">${esc(state.code)}</div>
+        <div class="qr-wrap" style="margin:4px auto 8px;" role="img" aria-label="QR code that opens this room">${qrSvg(joinUrl(), 148)}</div>
+        <p class="do" style="margin-bottom:12px;">Friends point their camera here, or send them the link.</p>
+        <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">Send the invite link</button>
+      </div>`
+    : `<button class="lb-invite" onclick="openInvite()"><span>Room <b>${esc(state.code)}</b></span><span class="lb-invite-r">Invite someone ›</span></button>`;
+  const hello = state.isHost ? '' : `<div class="lb-hello" role="status"><p class="lb-hello-1">You’re in, ${esc(me ? firstName(me.name) : '')}.</p><p class="lb-hello-2">${esc(host)} starts when everyone’s here.</p></div>`;
+  const voiceBtn = window.Voice && voiceAllowed() ? Voice.button() : '';
   return `
-    <div class="hdr"><div class="mid"><span class="sticker">Lobby</span><span class="small">${plural(connected, 'player')} here</span></div>${window.Voice ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
-    ${state.isHost ? '' : demoCardHtml()}
-    <div class="panel yellow center" style="margin-bottom:16px; transform: rotate(-1deg);">
-      <p class="eyebrow" style="color:var(--ink-2);">Room code</p>
-      <div class="h-display" style="font-size:56px; letter-spacing:8px; padding-left:8px; margin:2px 0 6px;">${esc(state.code)}</div>
-      <div class="qr-wrap" style="margin:4px auto 8px;">${qrSvg(joinUrl(), 148)}</div>
-      <p class="small" style="color:var(--ink-2); margin-bottom:12px;">Friends point their camera here — or send them the link. It fills in the code for them.</p>
-      <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">Send the invite link</button>
-    </div>
-    ${state.isHost ? demoCardHtml() : ''}
-    ${ratingCardHtml()}
-    <p class="eyebrow" style="margin-bottom:6px;">At the table · ${connected} of ${state.players.length}${state.players.length > 1 ? ` <span style="text-transform:none;letter-spacing:0;font-weight:400;">· ${state.players.filter(p => p.watched).length} of ${state.players.length} watched the demo</span>` : ''}</p>
-    <div style="margin-bottom:10px;">${players}</div>${seatHelp}
-    ${state.isHost ? `<button class="btn-link" style="display:block; margin:0 auto 10px; font-size:14px;" onclick="send({action:'lock', on:${!state.locked}})">${state.locked ? 'Room locked. Unlock it' : 'Everyone’s here? Lock the room'}</button>` : state.locked ? '<p class="center small" style="margin-bottom:10px;">The host has locked the room.</p>' : ''}
-    ${deckNote}${lobbyGalleryHtml()}${galleryToggle}${settings}${freshLine}<p class="center small" style="margin-bottom:14px;">${summary}</p>
-    ${state.isHost
-      ? `<button class="btn btn-yellow" onclick="send({action:'start'})" ${connected < 3 || deckShort ? 'disabled' : ''}>${deckShort ? 'Not enough cartoons yet' : connected < 3 ? `Need ${plural(3 - connected, 'more player')}` : 'Start the game →'}</button>`
-      : `<div class="panel flat center"><span class="spin" style="margin-bottom:8px;"></span><p class="sub">Waiting for ${esc(fnameOf(state.hostId))} to start<span class="dots"></span></p></div>`}
+    <div class="hdr"><div class="mid"><span class="stage-pill"><span class="on">Lobby</span></span><span class="hdr-sub">${plural(connected, 'player')} here</span></div>${voiceBtn}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
+    ${hello}
+    ${codeCard}
+    ${demoCardHtml()}
+    <h2 class="lb-at">At the table · ${connected}${watched}</h2>
+    <ul class="lb-names">${names}</ul>
+    ${played ? ratingCardHtml() : ''}
+    ${deckNote}
+    ${options}
     <button class="btn-link" style="display:block; margin:12px auto 0;" onclick="showScreen('screen-rules')">How to play</button>`;
 }
+// #16: the Start button sits at the bottom of the host's screen, always in reach
+function lobbyBarHtml() {
+  if (!state.isHost) return '';
+  const connected = state.players.filter(p => p.connected).length, dk = state.deck || null, deckShort = !!(dk && !dk.ok);
+  if (deckShort) return `<button class="btn btn-yellow" disabled>Not enough cartoons yet</button>`;
+  if (connected < 3) return `<button class="btn btn-yellow" disabled>Need ${plural(3 - connected, 'more player')} · ${connected} here</button>`;
+  return `<button class="btn btn-yellow" onclick="this.disabled=true; send({action:'start'})">Start the game · ${connected} here</button>`;
+}
+// #16: the rating (and the round-1 rating card) only for a phone that has finished a game
+function playedGame() { try { return careerGet().games > 0 || localStorage.getItem('cc_played_game') === '1'; } catch (e) { return false; } }
+// #40: 'call' = the table is on FaceTime/Zoom (the game's voice is off), 'game' = use the game's voice, null = one room
+const voiceAllowed = () => !(state && state.settings && state.settings.voice === 'call');
+function setVoiceMode(m) { send({ action: 'voice_mode', mode: m }); }
 /* #36: first-timers waiting in the lobby get pointed at the 1-minute demo (How to play).
    "Watched" lives on this phone; the game starting brings them straight back to the table. */
 let demoFrom = 0;
@@ -1833,11 +2109,11 @@ function writingStatusHtml() {
   const n = here.filter(p => submitted.has(p.id)).length;
   const last = window.Guide ? Guide.lastWriter(state) : null;   // exactly one left: spotlight them (guide.js)
   return `<div data-live="status" class="panel flat center" style="padding:12px;">
-      ${last && last.id !== myPlayerId ? Guide.waitHtml(last) : ''}<p class="small">${n} of ${here.length} captions in</p>
+      ${last && last.id !== myPlayerId ? Guide.waitHtml(last) : ''}<p class="do">${n} of ${here.length} captions in</p>
       <div class="order" style="margin:8px 0 0;">${here.map(p => chipHtml(p.id, submitted.has(p.id) ? '' : last && p.id === last.id ? 'dim gd-spot' : 'dim', submitted.has(p.id) ? '<span class="check">✓</span>' : '')).join('')}</div>
       ${canRun() && n > 0 && n < here.length ? (noTimer() ? `<button class="btn btn-yellow" id="end-writing-btn" style="margin-top:10px;" onclick="confirmEndWriting()">End writing — play these ${n}</button>` : `<button class="btn-link" style="margin-top:4px;" onclick="confirmEndWriting()">Stop waiting and play these ${n} →</button>`) : ''}
       ${!noTimer() && canRun() && n < here.length && (state.timeAdds || 0) < 3 ? `<button class="time-btn" onclick="send({action:'add_time'})">⏱ +30 seconds</button>` : ''}
-      ${noTimer() && n === 0 ? `<p class="small" style="margin-top:6px;">No timer this game — ${canRun() ? 'you end writing when you’re ready' : 'the dealer ends writing'}.</p>` : ''}
+      ${noTimer() && n === 0 ? `<p class="do" style="margin-top:6px;">No timer this game — ${canRun() ? 'you end writing when you’re ready' : 'the dealer ends writing'}.</p>` : ''}
     </div>`;
 }
 function mulliganHtml() {
@@ -1851,7 +2127,7 @@ function mulliganHtml() {
 }
 function renderWriting() {
   if (state.hasSubmitted) {
-    return `${header({ sticker: '<span class="sticker teal">Locked in</span>', sub: dealerLine(), ring: true })}
+    return `${header({ sticker: '<span class="sticker teal">Locked in</span>', sub: `${roundLabel()} · ${dealerLine()}`, ring: true })}
       ${bigToon(true, true)}
       <div class="center" style="margin:22px 0 16px;">
         <div class="stamp">Locked in</div>
@@ -1861,15 +2137,17 @@ function renderWriting() {
   }
   return `${header({ sticker: `<span class="sticker">${state.isDealer ? 'Your deal' : 'Write'}</span>`, sub: `${roundLabel()} · ${dealerLine()}`, ring: true })}
     ${bigToon(false, true)}
-    <div style="margin-top:18px;">
-      <textarea id="caption-input" class="caption-input" placeholder="Write a caption that could pass for the real one…" maxlength="200" oninput="onCaptionInput()" enterkeyhint="done" autocapitalize="sentences" autocorrect="off" autocomplete="off" spellcheck="false" data-gramm="false"></textarea>
+    <div class="w-box">
+      <label class="sr-only" for="caption-input">Your caption</label>
+      <textarea id="caption-input" class="caption-input" placeholder="Write a caption that could pass for the real one…" maxlength="200" oninput="onCaptionInput()" onfocus="onCaptionFocus()" onblur="onCaptionBlur()" enterkeyhint="done" autocapitalize="sentences" autocorrect="on" autocomplete="off" spellcheck="true"></textarea>
       <div class="lenmeter" id="len-meter" style="margin-top:8px;"><i id="len-fill"></i></div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin:2px 2px 12px; gap:8px;"><span class="small" id="len-note"></span><span class="small" id="cap-count" style="white-space:nowrap;">0 / 200</span></div>
-      ${state.isDealer ? `<p class="small" style="margin:-6px 2px 12px;">${dealerMode() === 'bet' ? 'You write too — and you bet 2 chips, last' : dealerMode() === 'both' ? 'You write too, bet 2 chips last — then steal one' : 'You write too — but you don’t bet'}</p>` : ''}
+      ${state.isDealer ? `<p class="do" style="margin:-6px 2px 12px;">${dealerMode() === 'bet' ? 'You deal: you write too, and you bet last.' : dealerMode() === 'both' ? 'You deal: you write too, bet last, then steal one chip.' : 'You deal: you write too, you don’t bet, and you steal one chip.'}</p>` : ''}
       <div id="nudge-box" class="nudge"></div>
       <button class="btn btn-yellow" id="submit-btn" onclick="submitCaption()">Lock it in ✓</button>
       <button class="btn-link" style="display:block; margin:6px auto 0;" onclick="nextNudge()">Need a nudge?</button>
     </div>
+    <div data-tip-slot style="margin-top:12px;"></div>
     <div style="margin-top:12px;">${writingStatusHtml()}</div>`;
 }
 function confirmEndWriting() {
@@ -1878,6 +2156,18 @@ function confirmEndWriting() {
   send({ action: 'end_writing' });
 }
 function toggleMulligan() { if (send({ action: 'mulligan' })) buzz(15); }
+// #15: "Skip this cartoon?" asks first; taking your vote back doesn't
+function askSkip() {
+  if (!state || state.phase !== 'writing') return;
+  if (state.myMulligan) { toggleMulligan(); return; }
+  const votes = (state.mulliganVotes || []).length, need = state.mulliganNeeded || 2, left = Math.max(1, need - votes);
+  $('sheet-body').innerHTML = `<div class="grip"></div>
+    <h2 class="h2" style="margin:4px 0 8px;">Skip this cartoon?</h2>
+    <p class="do" style="margin-bottom:16px;">${left === 1 ? 'Your vote skips it.' : `It takes ${need} votes${votes ? ` (${votes} so far)` : ''}.`} Everyone gets a new cartoon and starts a new caption.</p>
+    <div class="stack"><button class="btn btn-yellow" onclick="closeMenu(); toggleMulligan()">Vote to skip it</button><button class="btn" onclick="closeMenu()">Keep this cartoon</button></div>`;
+  $('sheet').classList.add('on');
+  sfx.tap();
+}
 let submitting = false;
 function submitCaption(auto = false) {
   const i = $('caption-input'); if (!i || submitting) return;
@@ -1964,7 +2254,7 @@ function playMulligan(ev, wait = 0) {
     if (window.Executions) { try { hit = window.Executions.play(ev.kind, ev.image ? '/images/' + ev.image : null, b) || 1500; } catch (e) { hit = 1500; } }
     else { b.innerHTML = ev.image ? `<div class="old"><img src="/images/${esc(ev.image)}" alt=""></div>` : ''; bsfx.swish(); }
     const s = hit / 1000;
-    b.insertAdjacentHTML('beforeend', `<div class="word" style="animation-delay:${s}s">Mulligan</div><div class="quip" style="animation-delay:${s + 0.45}s">${esc(ev.quip || 'Next.')}</div>`);
+    b.insertAdjacentHTML('beforeend', `<div class="word" style="animation-delay:${s}s">Skipped</div><div class="quip" style="animation-delay:${s + 0.45}s">${esc(ev.quip || 'Next.')}</div>`);
     window._boomGo = setTimeout(() => {
       if (window.ccBeat) window.ccBeat('mulligan:hit');
       bsfx.seal(); buzz(60);
@@ -2000,7 +2290,7 @@ function renderReading(animate) {
     </div>
     <div class="stack" style="margin-bottom:14px;">${cards}</div>
     <div class="cap closed locked ${animate ? 'deal-in' : ''}" style="animation-delay:${nOpen * 0.14}s; text-align:center; padding:18px; margin-top:16px;">
-      <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p><p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'It’s yours. Keep a straight face.' : 'Turned over after the blind bets'}</p>
+      <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p><p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'It’s yours. Keep a straight face.' : 'It turns over after the first bets.'}</p>
     </div>
     ${state.isDealer ? `<button class="btn" style="margin-top:18px;" onclick="openReadAloud()">Read them big</button><button class="btn btn-yellow" style="margin-top:12px;" onclick="send({action:'advance'})">Done reading — start the betting</button>`
       : canRun() ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'advance'})">Start the betting →</button>`
@@ -2477,7 +2767,8 @@ async function makeCardFrom(e) {
   $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin:10px 0;">Gallery card</p><div class="center" style="padding:30px 0;"><span class="spin"></span><p class="small" style="margin-top:8px;">Setting the type…</p></div>`;
   $('sheet').classList.add('on');
   try {
-    hofBlob = await window.HallCard.make({ imageSrc: '/images/' + e.image, caption: e.caption, credit, inducted: e.inducted || `Framed ${e.month || ''}`.trim(), flaggers: e.flaggers || [] });
+    const back = window.HallCard.siteUrl ? { url: window.HallCard.siteUrl('gallery'), label: window.HallCard.siteLabel() } : null;   // #24: the card leads back to the game
+    hofBlob = await window.HallCard.make({ imageSrc: '/images/' + e.image, caption: e.caption, credit, inducted: e.inducted || `Framed ${e.month || ''}`.trim(), flaggers: e.flaggers || [], qr: back });
     const url = URL.createObjectURL(hofBlob);
     window._hofName = window.HallCard.filenameFor ? window.HallCard.filenameFor(credit) : 'closed-caption-gallery.png';
     $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin-bottom:10px;">Gallery card</p>
@@ -2487,7 +2778,8 @@ async function makeCardFrom(e) {
 }
 async function shareHofCard() {
   if (!hofBlob) return;
-  const r = await window.HallCard.share(hofBlob, { title: 'The Closed Caption Gallery', text: 'Framed in The Closed Caption Gallery', filename: window._hofName });
+  const link = window.HallCard.siteUrl ? window.HallCard.siteUrl('gallery') : location.origin + '/?from=gallery';
+  const r = await window.HallCard.share(hofBlob, { title: 'The Closed Caption Gallery', text: `Framed in The Closed Caption Gallery. Play it: ${link}`, filename: window._hofName });
   if (r === 'downloaded') showToast('Saved to your downloads', 'ok');
 }
 function hofListHtml() {
@@ -2566,27 +2858,71 @@ function renderAnswer() {
   if (state.reel && step <= n) return spotlightHtml();
   return renderRecap();
 }
-// The round recap: one glanceable screen. The real caption, who scored, the biggest bluff, the dealer's mischief. (Frame It is next.)
+// The round recap: one glanceable screen. The real caption under the full-width cartoon, like a printed page (#4);
+// every scorer with the reason for each point (#28); the biggest bluff; the dealer's steal in plain words. (Frame It is next.)
 function renderRecap() {
   const f = roundFacts();
   answerSeqRound = state.round + '|' + state.code;
   const real = f.real || {}, rc = state.realCredit;
-  const toon = state.cartoon ? `<div class="rc-toon" onclick="openViewer()" role="button" tabindex="0" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"></div>` : '';
+  const page = `<figure class="rc-page">${state.cartoon ? `<button class="rc-art" onclick="openViewer()" aria-label="${esc(toonAlt())}. See it full-screen"><img src="/images/${esc(state.cartoon.image)}" alt=""></button>` : ''}
+      <figcaption><p class="rc-print">“${esc(real.caption || '')}”</p><p class="rc-under">${state.closedIsCorrect ? 'The real caption. It was the face-down one.' : 'The real caption.'}${rc && rc.author ? ` From The Gallery: ${esc(rc.author)}.` : ''}</p></figcaption></figure>`;
   const scorers = Object.entries(state.roundScores || {}).filter(([pid, p]) => p > 0 && playerById(pid)).sort((a, b) => b[1] - a[1]);
-  const pts = scorers.map(([pid, p]) => `<span class="rc-pt ${pid === myPlayerId ? 'me' : ''}">${chipHtml(pid, 'sm')}<span class="nm">${esc(pid === myPlayerId ? 'You' : nameOf(pid))}</span><b>+${p}</b></span>`).join('');
+  const rows = scorers.map(([pid, p]) => {
+    const why = pointReasons(pid);
+    return `<li class="rc-row${pid === myPlayerId ? ' me' : ''}">${chipHtml(pid, 'sm')}<span class="rc-who"><b>${esc(pid === myPlayerId ? 'You' : nameOf(pid))}</b>${why.length ? `<span class="rc-why">${why.map(w => `<span>${esc(w)}</span>`).join('')}</span>` : ''}</span><span class="rc-plus">+${p}</span></li>`;
+  }).join('');
   const bluff = bluffShort(f);
-  const st = state.steal, dealer = state.isDealer ? 'You' : esc(firstName(state.dealerName));
-  const mischief = [
-    st && !st.skipped && st.victimId ? `${dealer} stole ${st.victimId === myPlayerId ? 'your' : esc(fnameOf(st.victimId)) + '’s'} chip${st.onCorrect ? '' : ` off a fake: +1 to ${st.victimId === myPlayerId ? 'you' : esc(fnameOf(st.victimId))}. Caught you.`}` : '',
-    state.dealerBonusAwarded ? (st && !st.skipped && st.victimId ? '🃏 Dealer’s revenge' : `🃏 ${state.isDealer ? 'Your' : esc(firstName(state.dealerName)) + '’s'} revenge: nobody ${dealerBetsNow() ? 'else ' : ''}found the real one`) : ''].filter(Boolean).join(' · ');
+  const steal = stealPlain();
   return `${header({ sticker: '<span class="sticker teal">Round recap</span>', thumb: false })}
     <div id="answer-root" class="done">
-    <div class="rc-real">${toon}<div class="rc-real-txt"><p class="rc-eyebrow">${state.closedIsCorrect ? 'The real one · face-down' : 'The real caption'}</p><p class="rc-cap">“${esc(real.caption || '')}”</p>${rc && rc.author ? `<p class="rc-credit">From The Gallery · ${esc(rc.author)}</p>` : ''}</div></div>
-    <div class="rc-pts ${scorers.length > 4 ? 'many' : ''}" id="answer-scores">${pts || '<p class="rc-none">Nobody scored. Not even the dealer.</p>'}</div>
+    ${page}
+    <h2 class="rc-h">Points this round</h2>
+    ${rows ? `<ul class="rc-rows" id="answer-scores">${rows}</ul>` : '<p class="rc-none" id="answer-scores">Nobody scored. Not even the dealer.</p>'}
     ${bluff ? `<p class="rc-line" id="bluff-shout">${bluff}</p>` : ''}
-    ${mischief ? `<p class="rc-line rc-dealer" id="rc-dealer">${mischief}</p>` : ''}
+    ${steal ? `<p class="rc-line rc-dealer" id="rc-dealer">${steal}</p>` : ''}
     <div id="answer-continue">${answerContinueHtml(isLastRound())}</div>
     </div>`;
+}
+/* #28: why each point was scored, in plain words, from the server's own list (state.roundScoreDetails):
+   "+2 found the real one", "+2 fooled Margaret", "+1 your chip was stolen off a fake". Same reasons add up. */
+function pointReasons(pid) {
+  const list = ((state.roundScoreDetails || {})[pid] || []).filter(d => d && d.pts);
+  const mine = pid === myPlayerId, out = [], fooled = [];
+  let fooledPts = 0;
+  const say = (reason) => {
+    const r = String(reason || '');
+    let m;
+    if ((m = r.match(/^Fooled (.+)$/i))) return { fooled: firstName(m[1]) };
+    if (/shot the moon/i.test(r)) return 'both chips on the face-down one, and it was real';
+    if (/half-?moon/i.test(r)) return 'both chips on the real one';
+    if (/stole/i.test(r) && /real/i.test(r)) return 'stole a chip off the real one';
+    if (/caught you|stolen off a fake/i.test(r)) return mine ? 'your chip was stolen off a fake' : 'had a chip stolen off a fake';
+    if (/revenge|no chip on the real/i.test(r)) return 'nobody found the real one';
+    if (/late chip/i.test(r)) return 'found the real one after the flip';
+    if (/closed caption|face-?down/i.test(r)) return 'found it face-down';
+    if (/real caption/i.test(r)) return 'found the real one';
+    return r.replace(/[.\s]+$/, '').replace(/^./, c => c.toLowerCase());
+  };
+  const sums = new Map();
+  for (const d of list) {
+    const w = say(d.reason);
+    if (w && typeof w === 'object') { if (!fooled.includes(w.fooled)) fooled.push(w.fooled); fooledPts += d.pts; continue; }
+    sums.set(w, (sums.get(w) || 0) + d.pts);
+  }
+  for (const [w, pts] of sums) out.push(`${pts > 0 ? '+' : '−'}${Math.abs(pts)} ${w}`);
+  if (fooled.length) out.push(`+${fooledPts} fooled ${listNames(fooled)}`);
+  return out;
+}
+// The steal, in plain words: who took whose chip, and who that paid
+function stealPlain() {
+  const st = state.steal, dealer = state.isDealer ? 'You' : firstName(state.dealerName || '');
+  if (!st) return '';
+  if (st.skipped) return state.settings && state.settings.stealEnabled !== false && dealerMode() !== 'bet' ? `${esc(dealer)} kept the peace. No steal.` : '';
+  if (!st.victimId) return '';
+  const me = st.victimId === myPlayerId, whose = me ? 'your' : esc(fnameOf(st.victimId)) + '’s';
+  if (st.onCorrect) return `${esc(dealer)} stole ${whose} chip off the real caption. Its points went to ${state.isDealer ? 'you' : esc(dealer)}.`;
+  const d = ((state.roundScoreDetails || {})[st.victimId] || []).find(x => /caught|stolen off a fake/i.test(String(x.reason || '')));
+  return `${esc(dealer)} stole ${whose} chip. It was on a fake, so ${me ? 'you get' : esc(fnameOf(st.victimId)) + ' gets'} +${d ? d.pts : 1}.`;
 }
 function isLastRound() {
   const t = state.settings && state.settings.targetScore;
@@ -2857,7 +3193,7 @@ function sparkSvg(hist, w = 92, h = 30) {
   return `<svg class="rt-spark" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="Last ${v.length} ratings, from ${fmtRating(v[0])} to ${fmtRating(v[v.length - 1])}"><polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${x(v.length - 1).toFixed(1)}" cy="${y(v[v.length - 1]).toFixed(1)}" r="3" fill="currentColor"/></svg>`;
 }
 function ratingNote(s) {
-  if (s.provisional) return s.games ? `Provisional · ${s.games} of ${PROVISIONAL_GAMES} games` : 'New · the first three games are provisional';
+  if (s.provisional) return s.games ? `Still settling: ${s.games} of the first ${PROVISIONAL_GAMES} games` : `New: the first ${PROVISIONAL_GAMES} games settle it`;
   const nx = TITLES.find(t => t.at > s.rating);
   return nx ? `${fmtRating(nx.at - s.rating)} to ${nx.name}` : 'The top title';
 }
@@ -2905,6 +3241,7 @@ function syncOpening() {
   if (!o || !o.gameId) { if ($('opening').className) closeOpening(); return; }
   if (openingShown === o.gameId) return;
   openingShown = o.gameId;
+  if (!playedGame()) return;   // #16: a first game goes straight to the cartoon; the rating can wait until there is one
   const left = o.at + o.ms - (Date.now() + clockOffset);
   noteOpeningSeen(o);
   if (left < 600) return;   // walked in late: straight to the cartoon
@@ -3029,6 +3366,47 @@ function openInvite() {
   } catch (e) {}
 })();
 
+/* #23: the invite landing. A link (?join=CODE) opens Join with the logo, whose table it is ("Join Nick's table — 3 here",
+   from /room/CODE), the one-line pitch, the code shown as "Room QGCU ✓" and the name box ready. A closed or unknown room:
+   "That game's over", with Host your own and the 1-minute demo. */
+const INVITE_PITCH = 'A bluffing game with cartoons. Write a fake caption, then bet on the real one.';
+var inviteCode = null;   // (var: showScreen reads it, and may run before this line)
+function plainJoin() {
+  inviteCode = null;
+  const b = $('join-invite'); if (b) { b.hidden = true; b.innerHTML = ''; }
+  ['join-plain', 'join-form', 'join-code-field'].forEach(id => { const e = $(id); if (e) e.hidden = false; });
+}
+function drawInvite(code, r) {
+  const box = $('join-invite'); if (!box) return;
+  box.hidden = false; $('join-plain').hidden = true;
+  const mast = '<div class="ji-mast" aria-hidden="true"><span class="ji-w1">CLOSED</span><span>CAPTION</span></div>';
+  const host = r && r.host ? r.host : '';
+  if (r && (!r.open || r.full || r.locked)) {
+    $('join-form').hidden = true;
+    const head = !r.open ? 'That game’s over.' : r.full ? `${host || 'That'}’s table is full.` : `${host || 'The host'} has locked the room.`;
+    const sub = !r.open ? (r.wait ? 'Too many tries from this phone. Give it a minute.' : `Room ${code} has closed.`) : r.full ? 'Eight phones is the most one table takes.' : 'Ask them to unlock it, or start a table of your own.';
+    box.innerHTML = `${mast}<h1 class="ji-h">${esc(head)}</h1><p class="ji-sub">${esc(sub)}</p><p class="ji-pitch">${esc(INVITE_PITCH)} Free, no app.</p>
+      <div class="stack ji-btns"><button class="btn btn-yellow" onclick="showScreen('screen-create')">Host your own</button><button class="btn" onclick="watchDemo()">Watch the 1-minute demo</button></div>`;
+    srSay(head);
+    return;
+  }
+  $('join-form').hidden = false; $('join-code-field').hidden = true;
+  const head = host ? `Join ${host}’s table` : 'You’re invited to a game';
+  const n = r && r.here ? `${r.here} here` : '';
+  box.innerHTML = `${mast}<h1 class="ji-h">${esc(head)}${n ? `<span class="ji-n"> — ${esc(n)}</span>` : ''}</h1>
+    <p class="ji-pitch">${esc(INVITE_PITCH)} Free, no app.</p>${r && r.started ? '<p class="ji-sub">They’ve started. You can still join.</p>' : ''}
+    <p class="ji-code">Room <b>${esc(code)}</b>${r && r.open ? ' <span class="ji-tick" aria-label="room found">✓</span>' : ''}<button class="btn-link ji-chg" onclick="inviteEditCode()">Different code?</button></p>`;
+}
+function inviteEditCode() { const f = $('join-code-field'); if (f) f.hidden = false; const c = $('join-code'); if (c) { c.focus(); c.select(); } }
+function inviteLanding(code) {
+  inviteCode = code;
+  $('join-code').value = code;
+  showScreen('screen-join');   // fills in the name this phone used last
+  drawInvite(code, null);
+  setTimeout(() => { const n = $('join-name'); if (n && inviteCode) n.focus({ preventScroll: true }); }, 60);
+  fetch('/room/' + encodeURIComponent(code), { cache: 'no-store' }).then(r => r.json()).then(r => { if (inviteCode === code && r) drawInvite(code, r); }).catch(() => {});
+}
+
 /* ── SCORES ── */
 let scoresAnimated = null;
 function renderScores() {
@@ -3085,7 +3463,7 @@ function renderFinal(sorted, animated, goal) {
     ${ccFinale.screenHtml()}
     <div class="fn-stand">${standings}</div>
     <div class="stack fn-btns">
-      ${state.finale.winner ? (state.isHost ? `<button class="btn btn-yellow" onclick="send({action:'play_again', seen:getSeen()})">Play again</button>` : `<p class="rc-wait">The host can start another game</p>`) : ''}
+      ${state.finale.winner ? againHtml(true) : ''}
       ${window.Recap && state.finale.winner ? `<button class="btn" onclick="Recap.open()">Night recap</button>` : ''}
     </div>`;
   return `${header({ sticker: '<span class="sticker">Final scores</span>', sub: goal, thumb: false })}
@@ -3093,10 +3471,25 @@ function renderFinal(sorted, animated, goal) {
     <div class="fn-stand">${standings}</div>
     <div class="stack fn-btns">
       ${galBtn}
+      ${againHtml(!galBtn)}
       ${window.Recap ? `<button class="btn" onclick="Recap.open()">Night recap</button>` : ''}
-      ${state.isHost ? `<button class="btn ${galBtn ? 'btn-sm' : 'btn-yellow'}" onclick="send({action:'play_again', seen:getSeen()})">${galBtn ? 'Skip the Gallery · play again' : 'Play again'}</button>` : galBtn ? '' : `<p class="rc-wait">The host can start another game</p>`}
       ${state.history && state.history.length ? `<button class="btn-link fn-link" onclick="openHistory()">Past rounds</button>` : ''}
     </div>`;
+}
+
+/* #35: the play-again moment. Every guest gets "I'm in for another"; the host sees "3 of 4 want another" and a big
+   "Deal again" (everyone goes back to the lobby, where Start is waiting). primary = the main button on this screen. */
+function againHtml(primary) {
+  const want = new Set(state.wantAgain || []);
+  const others = state.players.filter(p => p.connected && p.id !== state.hostId);
+  const n = others.filter(p => want.has(p.id)).length;
+  if (state.isHost) {
+    const count = n ? `<p class="fn-again-n" role="status">${n} of ${others.length} want another</p>` : '';
+    return `${count}<button class="btn ${primary ? 'btn-yellow fn-deal' : 'btn-sm'}" onclick="this.disabled=true; send({action:'play_again', seen:getSeen()})">${primary ? 'Deal again' : 'Skip the Gallery · deal again'}</button>`;
+  }
+  const host = esc(fnameOf(state.hostId));
+  if (want.has(myPlayerId)) return `<p class="fn-again-in" role="status">You’re in for another. ${host} deals.</p><button class="btn-link fn-link" onclick="send({action:'again', on:false})">Take it back</button>`;
+  return `<button class="btn ${primary ? 'btn-yellow fn-deal' : ''}" onclick="send({action:'again', on:true}); buzz(20)">I’m in for another</button>`;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -3234,7 +3627,7 @@ function playGrandPoobah(g) {
   closeInduction();
   o.className = 'grand on';
   o.innerHTML = `<div class="gp-spot a"></div><div class="gp-spot b"></div><div class="gp-rays"></div>
-    <p class="gp-line" id="gp-l1">And now, the award that actually matters.</p>
+    <p class="gp-line" id="gp-l1">And now, the hat.</p>
     <div class="gp-tease" id="gp-tease">The Grand Poobah is…</div>
     <div class="gp-reveal" id="gp-reveal">
 ${gpWinnersHtml(g)}
@@ -3545,7 +3938,7 @@ function renderHistory(idx) {
   const st = r.steal && r.steal.victimId ? `<p class="center small" style="margin-bottom:12px; color:var(--red);">${esc(r.dealerName)} stole ${esc(nameOf(r.steal.victimId))}’s chip</p>` : '';
   const img = r.cartoon ? '/images/' + r.cartoon.image : '';
   $('game-content').innerHTML = `
-    <div class="hdr">${img ? `<div class="thumb" onclick="openViewer('${esc(img)}')"><img src="${esc(img)}" alt="cartoon"></div>` : ''}<div class="mid"><span class="sticker white">Round ${r.round} of ${h.length}</span><span class="small">Dealer: ${esc(r.dealerName)}${r.closedIsCorrect ? ' · the real one was face-down' : ''}</span></div>${window.Voice ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
+    <div class="hdr">${img ? `<div class="thumb" onclick="openViewer('${esc(img)}')"><img src="${esc(img)}" alt="cartoon"></div>` : ''}<div class="mid"><span class="sticker white">Round ${r.round} of ${h.length}</span><span class="small">Dealer: ${esc(r.dealerName)}${r.closedIsCorrect ? ' · the real one was face-down' : ''}</span></div>${window.Voice && voiceAllowed() ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
     ${st}<div class="stack" style="margin:16px 0;">${cards}</div>
     ${pts ? `<p class="eyebrow" style="margin-bottom:8px;">Points</p>${pts}` : '<p class="center sub">No points that round.</p>'}
     ${r.dealerBonusAwarded ? '<p class="center small" style="color:var(--red); margin-top:6px;">🃏 Dealer’s revenge — nobody found it</p>' : ''}
@@ -3557,10 +3950,7 @@ function renderHistory(idx) {
 /* ── Init ── */
 startHeroLoop();
 connect();
-if (window._linkCode) {
-  $('join-code').value = window._linkCode; showScreen('screen-join');   // showScreen fills in the name this phone used last
-  const e = $('join-error'); e.style.display = 'block'; e.style.color = 'var(--teal)'; e.textContent = $('join-name').value ? `Room ${window._linkCode} is filled in. Tap Join.` : `Room ${window._linkCode} is filled in — just add your name.`;
-}
+if (window._linkCode) inviteLanding(window._linkCode);   // #23: whose table, the pitch, the code ticked, the name box ready
 </script>
 </body>
 </html>

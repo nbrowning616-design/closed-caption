@@ -74,6 +74,20 @@ app.get('/status', (req, res) => {
   const inGame = [...codes].filter(c => games[c] && games[c].phase !== 'lobby').length;
   res.set('Cache-Control', 'no-store').json({ phones: live.length, rooms: codes.size, gamesInProgress: inGame });
 });
+// #23: an invite link (?join=CODE) asks whose table it is, so the page can say "Join Nick's table — 3 here".
+// Only the host's first name and a head count; a closed or unknown code is just { open: false }.
+// Unknown codes count against the same wrong-code limit as joining (no guessing rooms through here).
+app.get('/room/:code', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  const ip = String(req.headers['x-forwarded-for'] || (req.socket && req.socket.remoteAddress) || '').split(',')[0].trim();
+  const code = String(req.params.code || '').toUpperCase();
+  if (blocked(ip)) return res.status(429).json({ open: false, wait: true });
+  const g = /^[A-Z]{4}$/.test(code) ? games[code] : null;
+  if (!g) { wrongCode(ip); return res.json({ open: false }); }
+  const host = g.players.find(p => p.id === g.hostId) || g.players.find(p => p.connected) || g.players[0];
+  const here = g.players.filter(p => p.connected).length;
+  res.json({ open: true, host: host ? (String(host.name).trim().split(/\s+/)[0] || '') : '', here, started: g.phase !== PHASES.LOBBY, full: g.players.length >= G.MAX_PLAYERS, locked: !!g.locked });
+});
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
 
 const games = {};    // code -> game
@@ -92,6 +106,7 @@ function broadcast(code) {
       const view = G.getPlayerView(game, p.id);
       view.lanUrl = LAN_URL;
       view.build = BUILD;
+      if (game.phase === PHASES.SCORES) view.wantAgain = game.players.filter(x => x.again).map(x => x.id);   // #35: who's in for another
       c.ws.send(JSON.stringify({ type: 'state', data: view }));
       if (seal) c.ws.send(JSON.stringify({ type: 'seal', code, boot: BOOT, data: seal }));
     }
@@ -520,6 +535,24 @@ wss.on('connection', (ws, req) => {
         if (game.phase !== PHASES.SCORES || !G.isGameOver(game)) return sendError(ws, 'The game is still going');
         if (Array.isArray(msg.seen)) G.setSeen(game, msg.seen.slice(0, 200));
         G.resetForNewGame(game);
+        game.players.forEach(p => { delete p.again; });   // #35: a fresh show of hands next time
+        broadcast(code);
+        return;
+      }
+      case 'again': {
+        // #35: game over: a guest says "I'm in for another" (or takes it back); the host sees the count
+        if (game.phase !== PHASES.SCORES || !G.isGameOver(game)) return;
+        me.again = msg.on !== false;
+        broadcast(code);
+        return;
+      }
+      case 'voice_mode': {
+        // #40: the host says how the table talks — 'call' (already on FaceTime/Zoom: the game's voice is off),
+        // 'game' (use the game's voice) or null (everyone in one room). Phones read it from state.settings.voice.
+        if (!isHost) return sendError(ws, 'Only the host can change that');
+        if (game.phase !== PHASES.LOBBY) return sendError(ws, 'Settings can only be changed in the lobby');
+        const m = msg.mode === 'call' || msg.mode === 'game' ? msg.mode : null;
+        game.settings.voice = m;   // (a phone already in the game's call hangs up by itself when it sees 'call')
         broadcast(code);
         return;
       }

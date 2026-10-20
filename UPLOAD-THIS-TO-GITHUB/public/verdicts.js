@@ -701,7 +701,6 @@ const ccVerdicts = {
     "Nobody knows who's good. Everybody has already decided.",
     "No numbers yet, so {name} is the favorite on vibes alone.",
     "Welcome to the league. Lockers assigned alphabetically, egos at random.",
-    "Day one. Hall of Fame voting begins immediately.",
     "First game for most of you. The app is also nervous.",
     "Nobody has a reputation yet. {name} is drafting one.",
     "A clean slate, and {name} holding a marker.",

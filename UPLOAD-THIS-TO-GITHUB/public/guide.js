@@ -13,8 +13,8 @@
   var TIPS = {
     writing: { icon: '', text: 'Write a fake that could pass for the real caption.' },
     facedown: { icon: '', text: 'One caption is face-down. Sometimes it’s the real one.' },
-    first_bets: { icon: '', text: 'Bet on the one you think is real. Blind bets pay more; both chips is a Half-Moon.' },
-    steal: { icon: '', text: 'The dealer can steal one chip. Off the real one, it pays the dealer instead. Off a fake, its owner gets +1.' },
+    first_bets: { icon: '', text: 'Bet on the caption you think is real. Chips you put down now pay more than chips after the flip.' },
+    steal: { icon: '', text: 'The dealer can steal one chip. Off the real caption, its points go to the dealer. Off a fake, its owner gets +1 for the trouble.' },
     answer: { icon: '', text: 'Who wrote what. Who fell for it. No rush.' },
     frame: { icon: '', text: 'Beat the real caption? Frame it. If most of the table frames it, it hangs in The Gallery. No limit: if it’s good, it’s good.' }
   };
@@ -44,17 +44,20 @@
     '.gd-nudge b{display:block;font-family:var(--display,Fredoka,sans-serif);font-weight:700;font-size:21px;line-height:1.1;color:var(--ink,#1F1A17);}',
     '.gd-nudge span.gd-s{display:block;font-size:13px;font-weight:800;color:var(--ink-2,#4A433D);margin-top:2px;}',
     '@keyframes gdWave{0%,100%{transform:rotate(0);}25%{transform:rotate(-18deg);}75%{transform:rotate(14deg);}}',
-    /* ── Coach cards ── */
-    '.gd-tip{position:fixed;left:50%;z-index:96;width:min(calc(100vw - 32px),420px);padding:11px 13px 9px;border:2.5px solid var(--ink,#1F1A17);border-radius:16px;background:#fff;box-shadow:4px 4px 0 var(--ink,#1F1A17);font-family:var(--sans,Nunito,sans-serif);color:var(--ink,#1F1A17);opacity:0;transform:translate(-50%,16px) scale(.96);transition:opacity .28s ease,transform .38s cubic-bezier(.34,1.56,.64,1);pointer-events:none;overflow:hidden;}',
-    '.gd-tip.on{opacity:1;transform:translate(-50%,0) scale(1);pointer-events:auto;}',
+    /* ── Coach cards: in their own slot in the page (under the header and its cartoon, or under the caption box),
+          pushing what's below down — never floating over the cartoon, a caption or a button ── */
+    '.gd-tip{position:relative;display:block;box-sizing:border-box;width:auto;max-height:0;margin:0;padding:0 13px;border:0 solid var(--ink,#1F1A17);border-radius:16px;background:#fff;box-shadow:4px 4px 0 var(--ink,#1F1A17);font-family:var(--sans,Nunito,sans-serif);color:var(--ink,#1F1A17);opacity:0;transition:max-height .32s ease,opacity .25s ease,margin .32s ease,padding .32s ease;pointer-events:none;overflow:hidden;}',
+    '.gd-tip.on{max-height:260px;opacity:1;margin:0 0 14px;padding:11px 13px 9px;border-width:2.5px;pointer-events:auto;}',
+    '.gd-tip.gd-out{display:none;}',
     '.gd-tip .gd-row{display:flex;gap:11px;align-items:flex-start;}',
     '.gd-tip .gd-ic{flex-shrink:0;width:32px;height:32px;border-radius:50%;border:2px solid var(--ink,#1F1A17);background:var(--yellow-bg,#FFF4C7);display:flex;align-items:center;justify-content:center;font-size:16px;}',
-    '.gd-tip .gd-lab{display:inline-block;font-size:10.5px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;color:var(--yellow-d,#C99A08);margin-bottom:1px;}',
-    '.gd-tip p{margin:0;font-size:14px;line-height:1.35;font-weight:800;}',
-    '.gd-tip .gd-x{flex-shrink:0;width:28px;height:28px;margin:-4px -6px 0 0;border:0;background:none;font-size:16px;font-weight:900;color:var(--muted,#6E655C);cursor:pointer;}',
-    '.gd-tip .gd-foot{display:flex;justify-content:space-between;align-items:center;margin:6px 0 0 43px;}',
-    '.gd-tip .gd-off{border:0;background:none;padding:2px 0;font:inherit;font-size:12px;font-weight:800;color:var(--muted,#6E655C);text-decoration:underline;cursor:pointer;}',
-    '.gd-tip .gd-ok{border:2px solid var(--ink,#1F1A17);border-radius:999px;background:var(--yellow,#FFD23F);padding:3px 14px;font:inherit;font-size:12.5px;font-weight:900;color:var(--ink,#1F1A17);cursor:pointer;box-shadow:2px 2px 0 var(--ink,#1F1A17);}',
+    '.gd-tip .gd-lab{display:inline-block;font-size:12px;font-weight:900;letter-spacing:1.1px;text-transform:uppercase;color:#7A5A00;margin-bottom:2px;}',
+    '.gd-tip p{margin:0;font-size:15px;line-height:1.35;font-weight:800;color:var(--ink,#1F1A17);}',
+    '.gd-tip .gd-x{flex-shrink:0;width:44px;height:44px;margin:-10px -12px -6px 0;border:0;background:none;font-size:16px;font-weight:900;color:var(--ink-2,#4A433D);cursor:pointer;}',
+    '.gd-tip .gd-foot{display:flex;justify-content:space-between;align-items:center;margin:2px 0 0;}',
+    '.gd-tip .gd-off{min-height:44px;border:0;background:none;padding:0 4px 0 0;font:inherit;font-size:13px;font-weight:800;color:var(--ink-2,#4A433D);text-decoration:underline;cursor:pointer;}',
+    '.gd-tip .gd-ok{min-height:44px;min-width:88px;border:2px solid var(--ink,#1F1A17);border-radius:999px;background:var(--yellow,#FFD23F);padding:0 16px;font:inherit;font-size:14px;font-weight:900;color:var(--ink,#1F1A17);cursor:pointer;box-shadow:2px 2px 0 var(--ink,#1F1A17);}',
+    '@media (prefers-reduced-motion:reduce){.gd-tip{transition:none;}}',
     '.gd-tip .gd-bar{position:absolute;left:0;bottom:0;height:3px;background:var(--yellow,#FFD23F);width:100%;transform-origin:left;}',
     '.gd-tip.on .gd-bar{animation:gdBar linear forwards;}',
     '@keyframes gdBar{from{transform:scaleX(1);}to{transform:scaleX(0);}}',
@@ -165,34 +168,35 @@
     el.innerHTML = '<div class="gd-row">' + (t.icon ? '<span class="gd-ic" aria-hidden="true">' + t.icon + '</span>' : '') + '<div style="flex:1;min-width:0;"><span class="gd-lab">First-game tip</span><p>' + esc(t.text) + '</p></div><button class="gd-x" type="button" tabindex="-1" aria-label="Dismiss tip">✕</button></div>'
       + '<div class="gd-foot"><button class="gd-off" type="button" tabindex="-1">Don’t show tips</button><button class="gd-ok" type="button" tabindex="-1">Got it</button></div><i class="gd-bar" style="animation-duration:' + SHOW_MS + 'ms"></i>';
     el.classList.remove('on');
+    if (!place()) return false;   // no slot on this screen: wait for one
     tipId = id; tipShownAt = Date.now(); markSeen(id);
-    place();
     void el.offsetWidth;
     el.classList.add('on');
     clearTimeout(hideT); hideT = setTimeout(hideTip, SHOW_MS);
   }
   function hideTip() { clearTimeout(hideT); tipId = null; if (tipEl) tipEl.classList.remove('on'); }
 
-  // Bottom-centre, above the action bar; if that would cover a main button, tuck it under the header instead
-  function rectsHit(a, b) { return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top; }
+  /* #29: the tip has its own slot in the page: a screen's [data-tip-slot] (the writing screen keeps it under the
+     caption box), otherwise straight under the header (and the pinned cartoon). It pushes what's below down,
+     so it never covers the cartoon, a caption or a button. Screens are redrawn often: put it back each time. */
+  function slot() {
+    var s = document.querySelector('#game-content [data-tip-slot]');
+    if (s) return { parent: s, before: null };
+    var hdr = document.querySelector('#game-content .hdr');
+    return hdr && hdr.parentNode ? { parent: hdr.parentNode, before: hdr.nextSibling } : null;
+  }
   function place() {
-    if (!tipEl) return;
-    var bar = document.querySelector('#action-bar-root .action-bar');
-    var bottom = bar ? Math.round(bar.getBoundingClientRect().height) + 4 : 16;
-    tipEl.style.top = 'auto';
-    tipEl.style.bottom = 'calc(' + bottom + 'px + env(safe-area-inset-bottom, 0px))';
-    var r = tipEl.getBoundingClientRect(), h = r.height || 110;
-    var box = { left: r.left, right: r.right, top: innerHeight - bottom - h - 6, bottom: innerHeight - bottom + 6 };
-    var buttons = document.querySelectorAll('#game-content .btn:not(.btn-sm), #game-content textarea, #submit-btn');
-    var hit = false;
-    for (var i = 0; i < buttons.length; i++) {
-      var br = buttons[i].getBoundingClientRect();
-      if (br.width && br.height && br.bottom > 0 && br.top < innerHeight && rectsHit(box, br)) { hit = true; break; }
+    if (!tipEl) return false;
+    var sl = slot();
+    if (!sl) { tipEl.classList.add('gd-out'); return false; }
+    tipEl.classList.remove('gd-out');
+    var want = sl.before;
+    if (tipEl.parentNode !== sl.parent || (want && tipEl.nextSibling !== want && want !== tipEl)) {
+      if (want === tipEl) return true;
+      sl.parent.insertBefore(tipEl, want || null);
+      try { if (typeof fitFraming === 'function') fitFraming(); } catch (e) {}
     }
-    if (hit) {
-      var hdr = document.querySelector('#game-content .hdr'), top = hdr ? Math.max(8, Math.round(hdr.getBoundingClientRect().bottom) + 8) : 12;
-      tipEl.style.bottom = 'auto'; tipEl.style.top = top + 'px';
-    }
+    return true;
   }
 
   function tick() {
@@ -204,7 +208,7 @@
     }
     if (pending && Date.now() >= pending.at) {
       if (!enabled() || moment(st) !== pending.id) pending = null;
-      else if (!blocked() && !tipId) { var id = pending.id; pending = null; showTip(id); }
+      else if (!blocked() && !tipId) { var p = pending; pending = null; if (showTip(p.id) === false) pending = p; }
     }
     if (!pending && !tipId && ticker) { clearInterval(ticker); ticker = null; }
   }
@@ -223,6 +227,7 @@
         if (tipId && tipId !== m) hideTip();
         if (m && enabled() && seenList().indexOf(m) < 0 && (!pending || pending.id !== m)) pending = { id: m, at: Date.now() + (DELAY[m] || 1200) };
       }
+      if (tipId) place();   // the screen was just redrawn: the tip goes straight back into its slot
       if (pending || tipId) startTicker();
     } catch (e) { try { console.warn('Guide', e); } catch (e2) {} }
   }
