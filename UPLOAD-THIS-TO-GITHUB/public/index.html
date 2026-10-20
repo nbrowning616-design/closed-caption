@@ -720,8 +720,7 @@ button, .cap, [role="button"], a { touch-action: manipulation; }
 .gp-tie .gp-seat:nth-child(n+3) .gp-name-tie, .gp-tie:has(.gp-seat:nth-child(3)) .gp-name-tie { font-size: 22px; max-width: 30vw; }
 .chip.gp-chip.sm3 { --s: 64px; font-size: 22px; }
 .gp-tied { font-size: 14px; font-weight: 900; color: #E9E2FF; margin-top: 6px; animation: fadeIn .5s ease-out 1.2s both; }
-/* #38: a tip that would cover something you need just bows out; the last writer's nudge clears the timer */
-body .gd-tip.cc-hush { opacity: 0 !important; pointer-events: none !important; transition: opacity .2s; }
+/* #38: the last writer's nudge clears the timer (tips sit in their own slot in the page: guide.js) */
 body .gd-nudge { left: 82px; right: 10px; width: auto; max-width: none; transform: translateY(-180%) rotate(-1.5deg); }
 body .gd-nudge.on { transform: rotate(-1.5deg); }
 
@@ -1400,27 +1399,8 @@ function showToast(message, type = 'error') {
   const hide = hdr ? () => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(-14px)'; } : () => { t.style.transform = 'translateX(-50%) translateY(140px)'; };
   clearTimeout(window._toastTimer); window._toastTimer = setTimeout(hide, 2800);
 }
-/* #38: a first-game tip (guide.js) never sits on what you have to tap or watch: the action bar,
-   the betting cards on your turn, the steal line and chips, or the writer's timer. If it would,
-   it bows out (it fades on its own after a few seconds anyway). */
-(function tipGuard() {
-  const hits = (a, b) => b.width && b.height && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
-  const check = () => {
-    const tip = document.querySelector('.gd-tip');
-    if (!tip) return;
-    if (!tip.classList.contains('on')) { if (tip.classList.contains('cc-hush')) tip.classList.remove('cc-hush'); return; }   // (touch the class only when it changes: the observer below watches it)
-    if (tip.classList.contains('cc-hush')) return;
-    const sel = ['#action-bar-root .action-bar', '.steal-hero', '.chip.grab', '.turn-banner.you', '#timer-ring', '.bettor.turn'];
-    if (state && state.isMyTurn) sel.push('#game-content .cap[data-target]');
-    const r = tip.getBoundingClientRect();
-    if ([...document.querySelectorAll(sel.join(','))].some(e => hits(r, e.getBoundingClientRect()))) tip.classList.add('cc-hush');
-  };
-  setInterval(check, 300);   // the screen under it changes (an action bar slides up)…
-  // …and the moment a tip turns on, before it is ever painted
-  let watched = null;
-  const watchTip = () => { const t = document.querySelector('.gd-tip'); if (t && t !== watched) { watched = t; new MutationObserver(check).observe(t, { attributes: true, attributeFilter: ['class'] }); check(); } };
-  try { new MutationObserver(watchTip).observe(document.body, { childList: true }); } catch (e) {}
-})();
+/* #38 / #29: a first-game tip (guide.js) has its own slot in the page and pushes the screen down,
+   so it never sits on the cartoon, a caption, the action bar or the timer (it fades on its own). */
 function leaveGame() {
   closeMenu();
   const mid = state && state.phase !== 'lobby';
