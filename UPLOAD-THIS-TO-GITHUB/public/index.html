@@ -1644,7 +1644,7 @@ function openMenu() {
     <button class="menu-row" onclick="openGallery()"><span class="ic">${inkIcon('frame')}</span>The Gallery<span class="r">${galleryList().length ? plural(galleryList().length, 'caption') : ''}</span></button>
     <button class="menu-row" onclick="openRatingSheet()"><span class="ic">${inkIcon('trophy')}</span>My rating and badges<span class="r">${fmtRating(careerSummary().rating)}</span></button>
     <button class="menu-row" onclick="toggleSound()"><span class="ic">${inkIcon(soundEnabled() ? 'sound' : 'mute')}</span>Sound<span class="r">${soundEnabled() ? 'On' : 'Off'}</span></button>
-    <button class="menu-row" id="bigsound-row" onclick="toggleBigSound()"><span class="ic">${inkIcon('speaker')}</span>This phone plays the big sounds<span class="r">${bigSound() ? 'On' : 'Off'}</span></button>
+    <button class="menu-row" id="bigsound-row" onclick="toggleBigSound()"><span class="ic">${inkIcon('speaker')}</span>Use this phone as the speaker<span class="r">${bigSound() ? 'On' : 'Off'}</span></button>
     <details class="box" style="margin-bottom:8px;" ${cur ? 'open' : ''}><summary><span style="width:26px; text-align:center;">${inkIcon('music')}</span>Table music${cur ? ' · playing' : ''}<span class="arrow">▾</span></summary><div class="body stack">
       ${tracks.map(t => `<button class="btn btn-sm ${cur === t.key ? 'btn-yellow' : ''}" style="justify-content:flex-start;" onclick="toggleTrack('${t.key}')"><span style="flex:1; text-align:left;">${esc(t.name)}<br><span class="small">${esc(t.description)}</span></span><span>${cur === t.key ? '◼' : '▶'}</span></button>`).join('')}
       <p class="small center">Plays from this phone only</p></div></details>
@@ -1874,7 +1874,8 @@ const PIN_PHASES = ['reading', 'first_bets', 'reveal', 'second_bets', 'steal', '
 const toonAlt = () => state.cartoon && state.cartoon.title ? `Cartoon: ${state.cartoon.title}` : 'The cartoon';
 function header({ sticker, sub = '', ring = false, thumb = true }) {
   const stage = stageNow() >= 0, pin = thumb && !!state.cartoon && PIN_PHASES.includes(state.phase);
-  const label = stage ? String(sticker || '').replace(/<[^>]*>/g, '').trim() : '';
+  const PLAIN = { 'blind bets': 'First bets', 'last chips': 'Last bets', 'the captions': 'Reading the captions', 'the reveal': 'Who wrote what' };   // #15: words a first-timer can decode
+  const raw = stage ? String(sticker || '').replace(/<[^>]*>/g, '').trim() : '', label = PLAIN[raw.toLowerCase()] || raw;
   const line = [label && label.toLowerCase() !== STAGES[stageNow()].toLowerCase() ? label : '', sub || roundLabel()].filter(Boolean).join(' · ');
   const t = thumb && !pin && state.cartoon ? `<button class="thumb" onclick="openViewer()" aria-label="${esc(toonAlt())}. See it full-screen"><img src="/images/${esc(state.cartoon.image)}" alt=""></button>` : '';
   const code = `<button class="code-pill" onclick="openInvite()" aria-label="Room code ${esc(state.code)}. Show the invite"><span>${esc(state.code)}</span></button>`;
@@ -2289,7 +2290,7 @@ function renderReading(animate) {
     </div>
     <div class="stack" style="margin-bottom:14px;">${cards}</div>
     <div class="cap closed locked ${animate ? 'deal-in' : ''}" style="animation-delay:${nOpen * 0.14}s; text-align:center; padding:18px; margin-top:16px;">
-      <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p><p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'It’s yours. Keep a straight face.' : 'Turned over after the blind bets'}</p>
+      <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p><p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'It’s yours. Keep a straight face.' : 'It turns over after the first bets.'}</p>
     </div>
     ${state.isDealer ? `<button class="btn" style="margin-top:18px;" onclick="openReadAloud()">Read them big</button><button class="btn btn-yellow" style="margin-top:12px;" onclick="send({action:'advance'})">Done reading — start the betting</button>`
       : canRun() ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'advance'})">Start the betting →</button>`
@@ -3192,7 +3193,7 @@ function sparkSvg(hist, w = 92, h = 30) {
   return `<svg class="rt-spark" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="Last ${v.length} ratings, from ${fmtRating(v[0])} to ${fmtRating(v[v.length - 1])}"><polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${x(v.length - 1).toFixed(1)}" cy="${y(v[v.length - 1]).toFixed(1)}" r="3" fill="currentColor"/></svg>`;
 }
 function ratingNote(s) {
-  if (s.provisional) return s.games ? `Provisional · ${s.games} of ${PROVISIONAL_GAMES} games` : 'New · the first three games are provisional';
+  if (s.provisional) return s.games ? `Still settling: ${s.games} of the first ${PROVISIONAL_GAMES} games` : `New: the first ${PROVISIONAL_GAMES} games settle it`;
   const nx = TITLES.find(t => t.at > s.rating);
   return nx ? `${fmtRating(nx.at - s.rating)} to ${nx.name}` : 'The top title';
 }
