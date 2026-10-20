@@ -13,8 +13,8 @@
   var TIPS = {
     writing: { icon: '', text: 'Write a fake that could pass for the real caption.' },
     facedown: { icon: '', text: 'One caption is face-down. Sometimes it’s the real one.' },
-    first_bets: { icon: '', text: 'Bet on the one you think is real. Blind bets pay more; both chips is a Half-Moon.' },
-    steal: { icon: '', text: 'The dealer can steal one chip. Off the real one, it pays the dealer instead. Off a fake, its owner gets +1.' },
+    first_bets: { icon: '', text: 'Everyone bets at once, in secret. Pick the one you think is real: 1 chip, or both for double.' },
+    steal: { icon: '', text: 'Before the flip, the dealer can steal one chip. Off the real one, it pays the dealer instead. Off a fake, its owner gets +1.' },
     answer: { icon: '', text: 'Who wrote what. Who fell for it. No rush.' },
     frame: { icon: '', text: 'Beat the real caption? Frame it. If most of the table frames it, it hangs in The Gallery. No limit: if it’s good, it’s good.' }
   };

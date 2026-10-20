@@ -768,6 +768,33 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .ft-chips { display: inline-flex; gap: 4px; flex-wrap: wrap; }
 .ft-who { font-size: 13px; font-weight: 800; color: var(--ink-2); margin-left: auto; }
 .ft-none { margin-top: 6px; color: var(--muted); }
+/* ── Rules and flow (Oct 20 2026): blind bets at once, the Late Edition, the tie-break, the table's reliability ── */
+.blind-clock { margin: 6px 0 0; font-family: var(--serif); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.turn-banner.dealer .blind-clock { color: #D9CFC2; }
+.blind-clock.urgent { color: var(--red); }
+.turn-banner.dealer .blind-clock.urgent { color: #FFB3AC; }
+.bettors.blind { justify-content: center; }
+.bettor.waiting .bchips { opacity: .45; }
+.b-in { display: inline-block; margin-right: 3px; color: var(--teal); font-weight: 900; }
+#late-card { position: fixed; inset: 0; z-index: 770; display: none; align-items: center; justify-content: center; padding: calc(20px + var(--sat)) 16px calc(20px + var(--sab)); background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 18px 18px; cursor: pointer; }
+#late-card.on { display: flex; animation: fadeIn .35s ease-out; }
+.le-card { width: 100%; max-width: 360px; text-align: center; }
+.le-rule { border-top: 3px double var(--ink); margin: 0 auto; }
+.le-eye { font-family: var(--sans); font-size: 11px; font-weight: 900; letter-spacing: .26em; text-transform: uppercase; color: var(--ink-2); margin: 10px 0 2px; }
+.le-h { font-family: var(--serif); font-weight: 700; font-size: 40px; line-height: 1.05; color: var(--ink); margin: 0 0 10px; }
+.le-line { font-family: var(--serif); font-style: italic; font-size: 17px; line-height: 1.4; color: var(--ink); margin: 12px 0 0; }
+.le-x2 { display: inline-block; margin-top: 14px; padding: 3px 12px; border: 2.5px solid var(--ink); border-radius: 4px; font-family: var(--serif); font-weight: 700; font-size: 18px; transform: rotate(-2deg); box-shadow: 2px 2px 0 var(--ink); background: var(--card); }
+.sb-late { margin: 6px 0 12px; text-align: center; font-family: var(--serif); font-style: italic; font-size: 15.5px; line-height: 1.4; color: var(--ink); }
+.sb-late b { font-style: normal; }
+.fn-why { font-family: var(--serif); font-style: italic; font-size: 14.5px; line-height: 1.35; color: var(--ink-2); margin-top: 6px; }
+.vd-short { text-align: center; font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--muted); margin: -6px 0 12px; }
+#host-away { margin-bottom: 12px; padding: 10px 12px; text-align: center; }
+#host-away .btn { margin-top: 8px; }
+#claim-bar { position: fixed; left: 50%; top: calc(10px + var(--sat)); z-index: 960; width: min(calc(100vw - 32px), 420px); transform: translateX(-50%); padding: 12px 14px; background: var(--card); border: var(--bw) solid var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow); text-align: center; }
+#claim-bar .h2 { font-size: 18px; margin-bottom: 2px; }
+#claim-bar .btn-row { margin-top: 10px; }
+.seat-wait { text-align: center; padding: 28px 8px; }
+.seat-wait .h2 { margin: 10px 0 6px; }
 
 .rules-pitch { margin: 0 0 14px; }
 .rules-pitch .rp1 { font-family: var(--serif); font-weight: 700; font-size: 19px; line-height: 1.2; }
@@ -882,10 +909,10 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
   <p class="eyebrow" style="margin-bottom: 10px;">Each round</p>
   <div class="stack" style="margin-bottom: 22px;">
     <div class="panel flat rule-step"><div class="n">1</div><div><b>Everyone writes.</b> <span class="sub">The dealer too. Hate the cartoon? Tap Mulligan.</span></div></div>
-    <div class="panel flat yellow rule-step"><div class="n">2</div><div><b>One goes face-down.</b> <span class="sub">The game turns one caption over: the <b>Closed Caption</b>. Usually a player’s. Sometimes the real one.</span></div></div>
-    <div class="panel flat blue rule-step"><div class="n">3</div><div><b>Blind bets.</b> <span class="sub">The dealer reads the open ones aloud. Then, in turn from the dealer’s <span class="dir-word">left</span>, put 1 or 2 chips on any caption — the face-down one too. <span id="rules-dealer-bets">The dealer doesn’t bet.</span></span></div></div>
-    <div class="panel flat violet rule-step"><div class="n">4</div><div><b>The flip.</b> <span class="sub">The Closed Caption turns over. Anyone with a chip left puts it down.</span></div></div>
-    <div class="panel flat red rule-step"><div class="n">5</div><div><b>The steal.</b> <span class="sub" id="rules-steal-pts">The dealer takes one chip off the table. Off the real one = its points go to the dealer. Off a fake, its owner gets +1: caught you.</span></div></div>
+    <div class="panel flat yellow rule-step"><div class="n">2</div><div><b>One goes face-down.</b> <span class="sub">The game turns one caption over: the <b>Closed Caption</b>. Usually a player’s. The real one <span class="odds-word">about one round in seven</span>.</span></div></div>
+    <div class="panel flat blue rule-step"><div class="n">3</div><div><b>Blind bets.</b> <span class="sub">The dealer reads the open ones aloud. Then everyone bets at once, in secret: 1 or 2 chips on any caption — the face-down one too. The chips drop together. <span id="rules-dealer-bets">The dealer doesn’t bet.</span></span></div></div>
+    <div class="panel flat red rule-step"><div class="n">4</div><div><b>The steal.</b> <span class="sub" id="rules-steal-pts">Before the flip, the dealer takes one chip off the table. Off the real one = its points go to the dealer. Off a fake, its owner gets +1: caught you.</span></div></div>
+    <div class="panel flat violet rule-step"><div class="n">5</div><div><b>The flip.</b> <span class="sub">The Closed Caption turns over. Anyone with a chip left puts it down, in turn from the dealer’s <span class="dir-word">left</span>.</span></div></div>
     <div class="panel flat teal rule-step"><div class="n">6</div><div><b>The reveal.</b> <span class="sub">One caption at a time: who wrote it, who fell for it. The real one comes last. Points are paid and the deal moves <span class="dir-word">left</span>.</span></div></div>
   </div>
 
@@ -896,8 +923,10 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
   <details class="box" id="rules-extras" style="margin-bottom: 22px;"><summary>The extras <span class="arrow">▾</span></summary><div class="body">
     <ul class="rules-extras">
       <li><b>Frame It.</b> After each round, pick a caption that beat the real one (never your own). Frame as many as deserve it, one a round. When <span class="frame-need">most of the other players</span> pick the same one, it hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
+      <li><b>The Late Edition.</b> In a game that goes around the table more than once, the last trip around pays double. First to 20: when someone gets there, the trip around the table is finished (everyone deals the same number of times), at double points. Then the leader wins.</li>
+      <li><b>A tie for first</b> goes to whoever fooled the most people. Still level: more captions framed. Still level: a tie.</li>
       <li><b>The Grand Poobah.</b> Points say who bet best. The hat goes to who wrote best: the most chips on their fakes, all night.</li>
-      <li><b>Your rating.</b> Ranked like chess, but judged by friends. Everyone starts at 1,200; after each game you gain points from everyone you finished above and lose them to everyone who finished above you. Beating higher-rated players moves it more. Titles: Candidate 1,400, Master 1,600, Senior Master 1,800, Grandmaster 2,000. Your phone keeps it.</li>
+      <li><b>Your rating.</b> Ranked like chess, but judged by friends. Everyone starts at 1,200; after each game you gain points from everyone you finished above and lose them to everyone who finished above you. Beating higher-rated players moves it more; a short game moves it less. Titles: Candidate 1,400, Master 1,600, Senior Master 1,800, Grandmaster 2,000. Your phone keeps it.</li>
       <li><b>Badges.</b> Rare moments earn badges: Moon Landing, Three Bagger, Clean Sweep, Great Minds, Pickpocket. Your phone keeps those too.</li>
       <li><b>Good to know.</b> Bet on your own caption to bluff — it scores nothing. Captions are tidied the same way, the real one too. The real one isn’t always the funniest. Tap the cartoon to zoom.</li>
     </ul>
@@ -1037,23 +1066,33 @@ function goBackFromRules() {
   else showScreen(rulesReturn === 'screen-game' ? 'screen-home' : rulesReturn);
 }
 
+// #10: how often the face-down card is the real one, in words (the planner deals the lobby's share of rounds:
+// measured over thousands of games, 15% comes out at 1 round in 6.8, 10% at 1 in 10, 20% at 1 in 5, 30% at 1 in 3.4)
+function faceDownOdds(p) {
+  p = typeof p === 'number' ? p : 0.15;
+  if (p <= 0) return 'never, this game';
+  const n = Math.round(1 / p);
+  return Math.abs(1 / p - n) < 0.05 ? `one round in ${n}` : `about one round in ${n}`;
+}
 function renderRulesScoring() {
-  const s = (state && state.settings) || { pointsOpenBet: 2, pointsClosedBet: 3, pointsOpenLate: 1, pointsPerFool: 1, dealerBonus: 4, pointsStealCorrect: 1, stealEnabled: true, direction: 'left', dealerMode: 'steal' };
+  const s = (state && state.settings) || { pointsOpenBet: 2, pointsClosedBet: 5, pointsOpenLate: 1, pointsPerFool: 2, dealerBonus: 4, stealEnabled: true, direction: 'left', dealerMode: 'steal', autoCloseProbability: 0.15 };
   // [settings] Dealer mode: what the dealer does this game
-  const dm = s.dealerMode || 'steal', dBets = dm === 'bet' || dm === 'both';
+  const dm = s.dealerMode || 'steal', dBets = dm === 'bet' || dm === 'both', steals = s.stealEnabled !== false && dm !== 'bet';
   const rdb = $('rules-dealer-bets');
-  if (rdb) rdb.textContent = dm === 'bet' ? 'This game the dealer bets 2 chips too, last in the order (no steal).' : dm === 'both' ? 'This game the dealer bets 2 chips too, last in the order — and then steals one.' : 'The dealer doesn’t bet.';
+  if (rdb) rdb.textContent = dm === 'bet' ? 'This game the dealer bets 2 chips too (no steal).' : dm === 'both' ? 'This game the dealer bets 2 chips too — and then steals one.' : 'The dealer doesn’t bet.';
   $('rules-scoring').innerHTML = `
     <div class="score-line"><span>Blind chip on the real caption</span><span class="v">+${s.pointsOpenBet}</span></div>
-    <div class="score-line"><span>Blind chip on the face-down one, and it’s real</span><span class="v">+${s.pointsClosedBet}</span></div>
+    <div class="score-line"><span>Blind chip on the face-down one, and it’s real (${faceDownOdds(s.autoCloseProbability)})</span><span class="v">+${s.pointsClosedBet}</span></div>
     <div class="score-line"><span>Late chip (after the flip) on the real caption</span><span class="v">+${s.pointsOpenLate}</span></div>
     <div class="score-line"><span>Each chip someone puts on <i>your</i> fake</span><span class="v">+${s.pointsPerFool}</span></div>
-    <div class="score-line"><span>🌗 <b>Half-Moon</b>: both chips blind on one open caption</span><span class="v">+${s.pointsOpenBet * 2}</span></div>
-    <div class="score-line"><span>🌕 <b>Shoot the Moon</b>: both chips blind on the face-down one</span><span class="v">+${s.pointsClosedBet * 2}</span></div>
-    ${s.stealEnabled === false || dm === 'bet' ? '' : '<div class="score-line"><span>Your chip stolen off a fake caption (caught you)</span><span class="v">+1</span></div>'}
-    <div class="score-line"><span>🃏 <b>Dealer’s revenge</b>: no chip ends up on the real caption</span><span class="v">+${s.dealerBonus}</span></div>${dBets ? '<div class="score-line"><span class="sub">The dealer’s own chips don’t count for the revenge — and a dealer chip on the real one still scores.</span></div>' : ''}`;
+    <div class="score-line"><span><b>Half-Moon</b>: both chips blind on one open caption</span><span class="v">+${s.pointsOpenBet * 2}</span></div>
+    <div class="score-line"><span><b>Shoot the Moon</b>: both chips blind on the face-down one</span><span class="v">+${s.pointsClosedBet * 2}</span></div>
+    ${steals ? '<div class="score-line"><span>Your chip stolen off a fake caption (caught you)</span><span class="v">+1</span></div>' : ''}
+    <div class="score-line"><span><b>Dealer’s revenge</b>: no chip ends up on the real caption</span><span class="v">+${s.dealerBonus}</span></div>${dBets ? '<div class="score-line"><span class="sub">The dealer’s own chips don’t count for the revenge — and a dealer chip on the real one still scores.</span></div>' : ''}
+    <div class="score-line"><span><b>The Late Edition</b>: the last trip around the table</span><span class="v">×2</span></div>`;
   $('rules-specials').innerHTML = '';
-  $('rules-steal-pts').innerHTML = s.stealEnabled === false || dm === 'bet' ? 'Off this game: the dealer bets 2 chips instead.' : (dm === 'both' ? 'After betting like everyone, the dealer takes one other player’s chip. Off the real one = its points go to the dealer. Off a fake, its owner gets +1: caught you.' : 'The dealer takes one chip off the table. Off the real one = its points go to the dealer. Off a fake, its owner gets +1: caught you.');
+  $('rules-steal-pts').innerHTML = !steals ? 'Off this game: the dealer bets 2 chips instead.' : `Before the flip, the dealer takes ${dm === 'both' ? 'one other player’s chip' : 'one chip off the table'}. Off the real one = its points go to the dealer. Off a fake, its owner gets +1: caught you.`;
+  document.querySelectorAll('.odds-word').forEach(e => { e.textContent = faceDownOdds(s.autoCloseProbability); });
   document.querySelectorAll('.dir-word').forEach(e => { e.textContent = s.direction === 'right' ? 'right' : 'left'; });
   document.querySelectorAll('.frame-need').forEach(e => { e.textContent = frameNeedWords(); });
 }
@@ -1600,7 +1639,7 @@ function render(force = false) {
   }
   if (state.phase === 'writing') startTimer();
   afterRender(phaseChanged);
-  syncOpening(); syncVerdicts();
+  syncOpening(); syncVerdicts(); syncLate();
   lastPhase = state.phase; lastRound = state.round; lastKey = key;
   window.Guide && Guide.onRender(state);   // first-game tips + the last writer's nudge (guide.js)
 }
@@ -1612,8 +1651,19 @@ function patchLive(el, html) {
 }
 
 function afterRender(phaseChanged) {
-  if (state.phase === 'first_bets' || state.phase === 'second_bets') {
+  if (state.phase === 'first_bets') {
+    // #7: everyone at once. Your phone nudges you once; the clock ticks; the chips drop together.
+    if (state.dropAt) { clearInterval(blindClockT); playDrop(); }
+    else {
+      if (state.isMyTurn && !wasMyTurn) { sfx.yourTurn(); buzz([60, 80, 60]); srSay('Bet now. Everyone bets at once.'); }
+      if (state.blindEnd) startBlindClock();
+    }
+    wasMyTurn = !!state.isMyTurn;
+    renderBetBar();
+  }
+  if (state.phase === 'second_bets') {
     const bets = state.bets || [];
+    if (phaseChanged) seenBets = bets.length;   // the blind chips are already on the table
     if (!phaseChanged && bets.length > seenBets) {
       const fresh = bets.slice(seenBets);
       if (fresh.some(b => b.playerId === myPlayerId && b.target !== 'pass')) undoUntil = Date.now() + 3500;
@@ -1623,7 +1673,7 @@ function afterRender(phaseChanged) {
     }
     if (bets.length < seenBets) undoUntil = 0;   // a chip was taken back
     seenBets = bets.length;
-    if (state.isMyTurn && !wasMyTurn) { sfx.yourTurn(); buzz([60, 80, 60]); srSay('Your turn to bet. Pick a caption.'); }
+    if (state.isMyTurn && !wasMyTurn) { sfx.yourTurn(); buzz([60, 80, 60]); srSay('Your last chip. Pick a caption.'); }
     const row = $('bettor-row'), up = row && row.querySelector('.bettor.turn');
     if (row && up && row.scrollWidth > row.clientWidth) row.scrollLeft = Math.max(0, up.offsetLeft - row.offsetLeft - (row.clientWidth - up.offsetWidth) / 2);
     wasMyTurn = !!state.isMyTurn;
@@ -1631,7 +1681,7 @@ function afterRender(phaseChanged) {
   }
   if (state.phase === 'steal' && phaseChanged) { if (state.isDealer) { sfx.evil(); buzz([50, 50, 50]); srSay('Your turn: steal a chip, or keep the peace.'); } else bsfx.drumroll(800); }
   if (state.phase === 'steal' && state.isDealer) renderStealBar();
-  if (state.phase === 'reveal') { phaseSeqPlayed = true; playRevealSequence(); }   // synced to the server; a fresh draw of the screen jumps to wherever the moment is
+  if (state.phase === 'reveal') { phaseSeqPlayed = true; playStealIfFresh(); playRevealSequence(); }   // synced to the server; a fresh draw of the screen jumps to wherever the moment is
   if (state.phase === 'answer') {
     const { step, n } = reelInfo();
     phaseSeqPlayed = true;
@@ -1652,7 +1702,9 @@ function setActionBar(html) {
 }
 
 /* ── Shared pieces ── */
-function roundLabel() { return `Round ${state.round}${state.totalRounds ? ' of ' + state.totalRounds : ''}`; }
+function roundLabel() { return `Round ${state.round}${state.totalRounds ? ' of ' + state.totalRounds : ''}${lateOn() ? ' · Late Edition' : ''}`; }
+// #11 The Late Edition: the last trip around the table, every point doubled
+const lateOn = () => !!(state && state.late && state.late.on);
 function header({ sticker, sub = '', ring = false, thumb = true }) {
   const t = thumb && state.cartoon ? `<div class="thumb" onclick="openViewer()" role="button" tabindex="0" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"></div>` : '';
   return `<div class="hdr">${ring ? ringHtml() : t}<div class="mid"><div class="hdr-top">${sticker}<button class="code-pill" onclick="openInvite()" aria-label="Room code ${esc(state.code)} — show the invite">${esc(state.code)}</button></div><span class="small">${sub || roundLabel()}</span></div>${window.Voice && Voice.isOn && Voice.isOn() ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>`;
@@ -1738,7 +1790,7 @@ function renderLobby() {
         <details class="box" id="adv-details"><summary>Points <span class="arrow">▾</span></summary><div class="body">
           ${[['pointsOpenBet', 'Blind chip · real caption in the open', [1, 2, 3, 4]], ['pointsClosedBet', 'Blind chip · face-down Closed Caption', [2, 3, 4, 5, 6]], ['pointsOpenLate', 'Late chip (after the flip)', [0, 1, 2, 3]], ['pointsPerFool', 'Each chip that lands on your caption', [0, 1, 2, 3]], ['dealerBonus', 'Dealer’s revenge', [0, 2, 3, 4, 5, 6]]]
             .map(([k, label, opts]) => `<div class="field"><label class="small">${label}</label><div class="seg">${opts.map(n => segBtn(s[k] === n, `setHostSettings({${k}:${n}${k === 'pointsOpenLate' ? ',pointsClosedLate:' + n : ''}})`, n)).join('')}</div></div>`).join('')}
-          <button class="btn-link" onclick="setHostSettings({pointsOpenBet:2,pointsClosedBet:3,pointsOpenLate:1,pointsClosedLate:1,pointsPerFool:1,dealerBonus:4,pointsStealCorrect:1,autoCloseProbability:0.15,stealEnabled:true,rounds:null,targetScore:null,dealerMode:'steal',laps:1})">Reset to defaults</button>
+          <button class="btn-link" onclick="setHostSettings({pointsOpenBet:2,pointsClosedBet:5,pointsOpenLate:1,pointsClosedLate:1,pointsPerFool:2,dealerBonus:4,pointsStealCorrect:1,autoCloseProbability:0.15,stealEnabled:true,rounds:null,targetScore:null,dealerMode:'steal',laps:1})">Reset to defaults</button>
         </div></details>
       </div>
     </details>` : '';
@@ -2007,10 +2059,14 @@ function renderReading(animate) {
       : `<p class="center small" style="margin-top:16px;">Betting starts when ${esc(firstName(state.dealerName))} is done reading</p>`}`;
 }
 
-/* ── BETTING ── */
+/* ── BETTING ──
+   #7 Blind bets: everyone at once, in secret, then every chip drops onto the table together (state.dropAt,
+   the same moment on every phone). #8 The dealer's steal comes next, before the face-down card flips.
+   The late chip still goes one at a time. */
+// #15 plain words: "1 chip on Caption 3" / "Both chips on the face-down one"
 function betLabel(target, count) {
-  if (count === 2) return target === 'closed' ? '🌕 Shoot the Moon' : '🌗 Half-Moon';
-  return target === 'closed' ? 'Chip on the Closed Caption' : 'Chip on Caption ' + (target + 1);
+  const where = target === 'closed' ? 'the face-down one' : 'Caption ' + (target + 1);
+  return `${count === 2 ? 'Both chips' : '1 chip'} on ${where}`;
 }
 function trayHtml(t, opts = {}) {
   const bets = (state.bets || []).map((b, i) => ({ ...b, i })).filter(b => String(b.target) === String(t));
@@ -2027,84 +2083,166 @@ function trayHtml(t, opts = {}) {
   const crowd = opts.grab && chips.length > 8 ? ' crowd' : opts.grab && chips.length > 5 ? ' busy' : '';   // 8 players: the chips on one caption still fit on the card
   return `<div class="chip-tray${opts.grab ? ' steal' : ''}${crowd}">${chips.join('')}</div>`;
 }
+// Chips a bettor still holds: 2 before the drop; after it, 2 minus what they put down (a stolen chip is gone too).
+// Sat the blind bet out while here: one chip for after the flip.
+function chipsLeft(pid) {
+  const bets = state.bets || [];
+  if (state.phase === 'first_bets' && !state.dropAt) return 2;
+  const b1 = bets.find(b => b.playerId === pid && b.stage === 1), b2 = bets.find(b => b.playerId === pid && b.stage === 2);
+  if (b1 && b1.target === 'pass') return b1.late && !b2 ? 1 : 0;
+  if (b2 && b2.target === 'pass') return 0;
+  return Math.max(0, 2 - bets.filter(b => b.playerId === pid && b.target !== 'pass').reduce((n, b) => n + b.count + (b.stolen || 0), 0));
+}
+const othersHaveChips = () => (state.bets || []).some(b => b.target !== 'pass' && b.count > 0 && b.playerId !== state.dealerId);
+const dealerSteals = () => !!state && state.settings && state.settings.stealEnabled !== false && dealerMode() !== 'bet';
 function renderBetting(stage) {
+  if (stage === 1) return renderBlind();
   const bets = state.bets || [], order = state.betOrder || [];
-  const myBet = stage === 1 ? state.myFirstBet : state.mySecondBet, first = state.myFirstBet;
+  const myBet = state.mySecondBet, first = state.myFirstBet;
   const eligible2 = new Set(state.eligibleSecondBetters || []);
   const passed = new Set(bets.filter(b => b.target === 'pass').map(b => b.playerId));
   const canPick = state.isMyTurn && !myBet;
   const cls = (t) => 'cap' + (t === 'closed' ? ' closed' : '') + (canPick ? '' : ' locked') + (selectedBetTarget !== null && String(selectedBetTarget) === String(t) ? ' picked' : '');
-  const already = (t) => stage === 2 && first && String(first.target) === String(t) ? `<p class="note">Your blind chip is here${first.count === 1 ? ' — you can stack on it' : ''}</p>` : '';
+  const myBlind = bets.find(b => b.playerId === myPlayerId && b.stage === 1 && b.target !== 'pass');
+  const already = (t) => {
+    if (!first || !myBlind || String(first.target) !== String(t)) return '';
+    if (!myBlind.count) return `<p class="note">Your blind chip was here. ${state.isDealer ? 'You' : esc(firstName(state.dealerName))} took it.</p>`;
+    return `<p class="note">Your blind chip is here${first.count === 1 ? ' — you can stack on it' : ''}</p>`;
+  };
   const cards = (state.openCaptions || []).map((c, i) => `
-    <div role="button" tabindex="0" class="${cls(i)}" data-target="${i}" onclick="selectBet(${i})"><span class="num">${i + 1}</span>${trayHtml(i)}
+    <div role="button" tabindex="0" class="${cls(i)}" data-target="${i}" onclick="selectBet(${i})"><span class="num">${i + 1}</span>${trayHtml(i, { showStolen: true })}
       <p class="caption-text">“${esc(c)}”${capNote(i)}</p>${already(i)}</div>`).join('');
-  const closedCard = stage === 1
-    ? `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')" style="text-align:center; padding:18px 16px;">${trayHtml('closed')}
-        <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p>
-        <p class="small" style="color:var(--ink-2);">Bet blind that the real one is hiding here. Pays the most.</p></div>`
-    : `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')"><span class="num"><span class="cc-badge" style="margin:0;">CC</span></span>${trayHtml('closed')}
+  const closedCard = `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')"><span class="num"><span class="cc-badge" style="margin:0;">CC</span></span>${trayHtml('closed', { showStolen: true })}
         <p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption · turned over</p><p class="caption-text">“${esc(state.closedCaption)}”${state.iWroteClosed ? ' <span class="tag mine">Yours</span>' : ''}</p>${already('closed')}</div>`;
 
-  // Every bettor shows the chips they still hold: 2, 1 or none. A chip leaves here and lands on a caption.
-  const left = (pid) => Math.max(0, 2 - bets.filter(b => b.playerId === pid && b.target !== 'pass').reduce((n, b) => n + b.count, 0));
+  // Every bettor shows the chips they still hold: 1 or none. A chip leaves here and lands on a caption.
   // #40: one row, in betting order, that scrolls sideways — your own chips sit in it (they fly from there)
   const orderRow = order.map((pid, i) => {
-    const n = left(pid), sat = passed.has(pid), turn = state.currentBetterId === pid, me = pid === myPlayerId;
+    const n = chipsLeft(pid), sat = passed.has(pid) && !n, turn = state.currentBetterId === pid, me = pid === myPlayerId;
     const stack = n ? Array.from({ length: n }, (_, k) => chipHtml(pid, me ? 'sm mine' : 'sm', '', me ? `data-rack="${k}"` : '')).join('') : `<span class="bnone">${sat ? 'sat out' : 'all in'}</span>`;
     return `${i ? '<span class="b-arrow" aria-hidden="true">›</span>' : ''}<div class="bettor${turn ? ' turn' : ''}${!n || sat ? ' spent' : ''}${me ? ' me' : ''}"${me ? ' id="my-rack"' : ''}><div class="bchips">${stack}</div><div class="bname">${esc(me ? 'You' : fnameOf(pid))}</div></div>`;
   }).join('');
 
-  const next = stage === 1 ? 'Turning the Closed Caption over…' : (state.settings.stealEnabled && dealerMode() !== 'bet' && (state.bets || []).some(b => b.target !== 'pass' && b.count > 0 && b.playerId !== state.dealerId) ? `Over to ${esc(firstName(state.dealerName))} for the steal…` : 'Here comes the answer…');
   const cur = state.currentBetterName ? esc(firstName(state.currentBetterName)) : '';
   let banner;
-  if (state.allBetsIn) banner = `<div class="turn-banner"><div class="h2">All chips are down</div><p class="sub">${next}</p></div>`;
-  else if (state.isDealer && !dealerBetsNow()) banner = `<div class="turn-banner dealer"><div class="h2">You’re dealing — no bets for you</div><p class="sub">${state.settings.stealEnabled ? 'Watch closely. When the chips are down, you get to steal one.' : 'Watch the table. If nobody finds the real one, you score.'}</p></div>`;
-  else if (state.isMyTurn && !myBet) banner = `<div class="turn-banner you" role="status"><div class="h2">Your turn to bet</div><p class="sub" style="color:var(--ink);">${stage === 1 ? 'Tap a caption, then put down 1 chip or both.' : 'Tap where your last chip goes — anywhere.'}</p></div>`;
-  else if (myBet) banner = `<div class="turn-banner"><div class="h2">${betLabel(myBet.target, myBet.count)} ✓</div><p class="sub">${stage === 1 && myBet.count === 1 ? `Your second chip waits for the flip.${cur ? ` ${cur} is up.` : ''}` : `${cur} is up.`}</p></div>`;
-  else if (stage === 2 && !eligible2.has(myPlayerId)) banner = `<div class="turn-banner"><div class="h2">${passed.has(myPlayerId) ? 'You sat this one out' : 'Both your chips are down'}</div><p class="sub">${cur} is betting…</p></div>`;
+  if (state.allBetsIn) banner = `<div class="turn-banner"><div class="h2">All chips are down</div><p class="sub">Here comes the answer…</p></div>`;
+  else if (state.isMyTurn && !myBet) banner = `<div class="turn-banner you" role="status"><div class="h2">Your last chip</div><p class="sub" style="color:var(--ink);">Tap where it goes — anywhere.</p></div>`;
+  else if (myBet) banner = `<div class="turn-banner"><div class="h2">${esc(betLabel(myBet.target, 1))} ✓</div><p class="sub">${cur} is up.</p></div>`;
+  else if (!eligible2.has(myPlayerId)) banner = `<div class="turn-banner"><div class="h2">${state.isDealer && !dealerBetsNow() ? 'You’re dealing' : passed.has(myPlayerId) ? 'You sat this one out' : 'Both your chips are down'}</div><p class="sub">${cur} is betting…</p></div>`;
   else { const away = order.indexOf(myPlayerId) - order.indexOf(state.currentBetterId); banner = `<div class="turn-banner"><div class="h2">${cur} is betting<span class="dots"></span></div><p class="sub">${away > 0 ? `You’re ${away === 1 ? 'next' : away + ' away'}.` : 'Watch the chips land.'}</p></div>`; }
 
   const curP = playerById(state.currentBetterId);
   const tools = !state.allBetsIn && (canRun() || (curP && !curP.connected)) ? `<div class="center" style="margin-top:18px;">
-      <button class="btn-link" onclick="skipBetter()">Skip ${cur}’s turn</button>${canRun() ? ` · <button class="btn-link" onclick="forceAdvance()">${stage === 1 ? 'Turn it over now' : 'End betting now'}</button>` : ''}</div>` : '';
+      <button class="btn-link" onclick="skipBetter()">Skip ${cur}’s turn</button>${canRun() ? ` · <button class="btn-link" onclick="forceAdvance()">End betting now</button>` : ''}</div>` : '';
 
-  return `${header({ sticker: stage === 1 ? '<span class="sticker violet">Blind bets</span>' : '<span class="sticker blue">Last chips</span>' })}
+  return `${header({ sticker: '<span class="sticker blue">Last chips</span>' })}
     ${banner}
     <div class="order bettors" id="bettor-row" role="group" aria-label="Betting order">${orderRow}</div>
     <div class="stack bet-caps">${cards}${closedCard}</div>${tools}`;
 }
+// Blind bets: every bettor at once. Nobody sees where anyone went until the chips drop.
+function renderBlind() {
+  const s = state.settings || {}, order = state.betOrder || [], dropped = !!state.dropAt;
+  const mine = state.myFirstBet, inSet = new Set(state.blindIn || []);
+  const canPick = !dropped && !!state.isMyTurn;
+  const isPicked = (t) => !dropped && ((canPick && selectedBetTarget !== null && String(selectedBetTarget) === String(t)) || (!!mine && String(mine.target) === String(t)));
+  const cls = (t) => 'cap' + (t === 'closed' ? ' closed' : '') + (canPick ? '' : ' locked') + (isPicked(t) ? ' picked' : '');
+  const note = (t) => !dropped && mine && String(mine.target) === String(t) ? `<p class="note">${mine.count === 2 ? 'Both your chips go here' : 'Your chip goes here'}. Nobody else can see it.</p>` : '';
+  const cards = (state.openCaptions || []).map((c, i) => `
+    <div role="button" tabindex="0" class="${cls(i)}" data-target="${i}" onclick="selectBet(${i})"><span class="num">${i + 1}</span>${dropped ? trayHtml(i) : ''}
+      <p class="caption-text">“${esc(c)}”${capNote(i)}</p>${note(i)}</div>`).join('');
+  const closedCard = `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')" style="text-align:center; padding:18px 16px;">${dropped ? trayHtml('closed') : ''}
+      <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p>
+      <p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'Yours. Keep a straight face.' : `Bet blind that the real one is hiding here. ${plural(s.pointsClosedBet || 5, 'point')} a chip if it is.`}</p>${note('closed')}</div>`;
+  // The bettors: two chips each, and a tick once they're in (never where)
+  const row = order.map((pid) => {
+    const me = pid === myPlayerId, isIn = inSet.has(pid);
+    const b1 = dropped ? (state.bets || []).find(b => b.playerId === pid && b.stage === 1) : null;
+    const sat = !!(b1 && b1.target === 'pass'), n = chipsLeft(pid);
+    const stack = n ? Array.from({ length: n }, (_, k) => chipHtml(pid, me ? 'sm mine' : 'sm', '', me ? `data-rack="${k}"` : '')).join('') : `<span class="bnone">${sat ? 'sat out' : 'all in'}</span>`;
+    return `<div class="bettor${!dropped && !isIn ? ' waiting' : ''}${dropped && (!n || sat) ? ' spent' : ''}${me ? ' me' : ''}"${me ? ' id="my-rack"' : ''}><div class="bchips">${stack}</div><div class="bname">${!dropped && isIn ? '<span class="b-in" aria-hidden="true">✓</span>' : ''}${esc(me ? 'You' : fnameOf(pid))}</div></div>`;
+  }).join('');
+  const waitOn = order.filter(pid => !inSet.has(pid));
+  const waitWords = waitOn.length ? `Waiting on ${esc(listNames(waitOn.map(pid => pid === myPlayerId ? 'you' : fnameOf(pid))))}.` : 'Everyone’s in.';
+  const clock = !dropped && state.blindEnd ? '<p class="blind-clock" id="blind-clock" aria-hidden="true"></p>' : '';
+  let banner;
+  if (dropped) banner = `<div class="turn-banner"><div class="h2">All chips are down</div><p class="sub">${dealerSteals() && othersHaveChips() ? `${state.isDealer ? 'Your' : esc(firstName(state.dealerName)) + '’s'} steal, before the flip…` : 'Turning the Closed Caption over…'}</p></div>`;
+  else if (state.isDealer && !dealerBetsNow()) banner = `<div class="turn-banner dealer"><div class="h2">You’re dealing. No bets for you.</div><p class="sub">${dealerSteals() ? 'When the chips drop, you steal one. Before the flip.' : 'If nobody finds the real one, you score.'} ${waitWords}</p>${clock}</div>`;
+  else if (canPick) banner = `<div class="turn-banner you" role="status"><div class="h2">Your bet</div><p class="sub" style="color:var(--ink);">Everyone bets at once, in secret. Tap a caption, then 1 chip or both.</p>${clock}</div>`;
+  else if (mine) banner = `<div class="turn-banner"><div class="h2">${esc(betLabel(mine.target, mine.count))} ✓</div><p class="sub">${waitWords} The chips drop together.</p>${clock}</div>`;
+  else banner = `<div class="turn-banner"><div class="h2">Blind bets</div><p class="sub">You sit this round out. ${waitWords}</p>${clock}</div>`;
+  const tools = !dropped && canRun() && waitOn.length ? `<div class="center" style="margin-top:18px;"><button class="btn-link" onclick="forceAdvance()">Drop the chips now</button></div>` : '';
+  return `${header({ sticker: '<span class="sticker violet">Blind bets</span>' })}
+    ${banner}
+    <div class="order bettors blind" id="bettor-row" role="group" aria-label="Who has bet">${row}</div>
+    <div class="stack bet-caps">${cards}${closedCard}</div>${tools}`;
+}
+// The blind-bet clock (a fallback for anyone idle): seconds left, quiet until the last ten
+let blindClockT = null;
+function blindClockTick() {
+  const el = $('blind-clock');
+  if (!el || !state || state.phase !== 'first_bets' || state.dropAt || !state.blindEnd) { clearInterval(blindClockT); blindClockT = null; return; }
+  const left = Math.max(0, Math.ceil((state.blindEnd - (Date.now() + clockOffset)) / 1000));
+  el.textContent = left > 0 ? `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')} to bet` : 'Time.';
+  el.classList.toggle('urgent', left <= 10);
+}
+function startBlindClock() { clearInterval(blindClockT); blindClockTick(); blindClockT = setInterval(blindClockTick, 250); }
+// The drop: every chip lands at once, on every phone (state.dropAt + the shared lead). Arrive late: they're just there.
+let dropPlayedFor = null;
+function playDrop() {
+  const key = state.code + '|' + state.round;
+  if (dropPlayedFor === key) return;
+  dropPlayedFor = key;
+  const sy = window.ccSync ? window.ccSync(state.dropAt) : { wait: 0, late: 0 };
+  if (sy.late > 1500) return;
+  const chips = [...document.querySelectorAll('#game-content .chip-tray .chip')];
+  chips.forEach((c, k) => { c.style.animationDelay = (sy.wait + k * 45) + 'ms'; c.classList.add('drop'); });
+  setTimeout(() => {
+    if (!state || state.phase !== 'first_bets') return;
+    if (window.ccBeat) window.ccBeat('blind:drop');
+    bsfx.chip(Math.min(4, Math.max(1, chips.length))); buzz([25, 40, 25]); srSay('The chips are down.');
+  }, sy.wait + 250);
+}
 function undoBet() { undoUntil = 0; setActionBar(''); send({ action: 'undo_bet' }); }
 function skipBetter() { if (confirm(`Skip ${state.currentBetterName}’s turn? They sit this bet out.`)) send({ action: 'skip_better' }); }
-function forceAdvance() { if (confirm(`Move on without ${plural((state.pendingBetters || []).length, 'more bet')}?`)) send({ action: 'advance' }); }
+function forceAdvance() {
+  const n = (state.pendingBetters || []).length;
+  if (state.phase === 'first_bets') { if (!n || confirm(`Drop the chips now? ${plural(n, 'player sits', 'players sit')} the blind bet out (and ${n === 1 ? 'keeps' : 'keep'} one chip for after the flip).`)) send({ action: 'advance' }); return; }
+  if (confirm(`Move on without ${plural(n, 'more bet')}?`)) send({ action: 'advance' });
+}
 function selectBet(target) {
   if (!state.isMyTurn) return;
   const stage = state.phase === 'first_bets' ? 1 : 2;
-  if ((stage === 1 && state.myFirstBet) || (stage === 2 && state.mySecondBet)) return;
+  if ((stage === 1 && (state.myFirstBet || state.dropAt)) || (stage === 2 && state.mySecondBet)) return;
   selectedBetTarget = target;
   document.querySelectorAll('.cap[data-target]').forEach(b => b.classList.toggle('picked', String(b.dataset.target) === String(target)));
   renderBetBar();
 }
 let undoUntil = 0, undoT = null;
 function renderBetBar() {
-  const bets = (state && state.bets) || [], last = bets[bets.length - 1];
-  if (state && Date.now() < undoUntil && last && last.playerId === myPlayerId && last.target !== 'pass') {
+  if (!state) { setActionBar(''); return; }
+  const stage = state.phase === 'first_bets' ? 1 : 2;
+  // A blind bet is secret: change it any time until the chips drop
+  if (stage === 1 && state.myFirstBet && !state.dropAt) { setActionBar(`<button class="btn" onclick="undoBet()">Change my bet</button>`); return; }
+  const bets = state.bets || [], last = bets[bets.length - 1];
+  if (stage === 2 && Date.now() < undoUntil && last && last.playerId === myPlayerId && last.target !== 'pass' && last.stage === 2) {
     clearTimeout(undoT); undoT = setTimeout(() => { if (state) renderBetBar(); }, undoUntil - Date.now() + 50);
-    setActionBar(`<button class="btn" onclick="undoBet()">↩ Undo — take ${last.count > 1 ? 'my chips' : 'my chip'} back</button>`); return;
+    setActionBar(`<button class="btn" onclick="undoBet()">↩ Undo — take my chip back</button>`); return;
   }
-  if (!state || !state.isMyTurn || selectedBetTarget === null) { setActionBar(''); return; }
-  const stage = state.phase === 'first_bets' ? 1 : 2, t = selectedBetTarget;
-  const where = t === 'closed' ? 'the Closed Caption' : `Caption ${t + 1}`;
-  const mine = (t !== 'closed' && state.myOpenIndex === t) || (t === 'closed' && state.iWroteClosed);
+  if (!state.isMyTurn || selectedBetTarget === null) { setActionBar(''); return; }
+  const t = selectedBetTarget;
+  const where = t === 'closed' ? (stage === 1 ? 'The face-down one' : 'The Closed Caption') : `Caption ${t + 1}`;
+  const mine = (t !== 'closed' && state.myOpenIndex === t) || (t === 'closed' && (state.iWroteClosed || (stage === 1 && state.iWrote && state.myOpenIndex === -1)));
   const warnMine = mine ? '<p class="center small" style="margin-bottom:6px; color:var(--red);">That’s your own caption — it can’t score for you</p>' : '';
   if (stage === 1) setActionBar(`${warnMine}<p class="center small" style="margin-bottom:8px;">${where} — how many chips?</p><div class="btn-row">
       <button class="btn btn-blue" onclick="placeBet(1)">1 chip</button>
-      <button class="btn ${t === 'closed' ? 'btn-yellow' : 'btn-violet'}" onclick="placeBet(2)">${t === 'closed' ? '🌕 Shoot the Moon' : '🌗 Half-Moon'}</button></div>`);
-  else setActionBar(`${warnMine}<button class="btn btn-blue" onclick="placeBet(1)">${state.myFirstBet && String(state.myFirstBet.target) === String(t) ? 'Stack my last chip on ' : 'Last chip on '}${where} →</button>`);
+      <button class="btn ${t === 'closed' ? 'btn-yellow' : 'btn-violet'}" onclick="placeBet(2)">Both chips — double</button></div>`);
+  else setActionBar(`${warnMine}<button class="btn btn-blue" onclick="placeBet(1)">${state.myFirstBet && String(state.myFirstBet.target) === String(t) ? 'Stack my last chip on ' : 'Last chip on '}${where.replace(/^The /, 'the ')} →</button>`);
 }
 function placeBet(count) {
   if (selectedBetTarget === null) return;
   const from = [...document.querySelectorAll('#my-rack .chip')].slice(-count).map(c => c.getBoundingClientRect());
-  if (send({ action: 'place_bet', target: selectedBetTarget, count })) { flyFrom = { rects: from, at: Date.now() }; selectedBetTarget = null; setActionBar(''); }
+  if (send({ action: 'place_bet', target: selectedBetTarget, count })) { if (state.phase === 'second_bets') flyFrom = { rects: from, at: Date.now() }; else { sfx.chip(count); buzz(20); } selectedBetTarget = null; setActionBar(''); }
 }
 // Your chips leave your rack and land on the caption you picked
 let flyFrom = null;
@@ -2123,20 +2261,55 @@ function flyMyChips(betIdx) {
   });
 }
 
-/* ── REVEAL ── */
+/* ── STEAL ── #8: before the flip. The face-down card is still face-down. */
+function renderSteal() {
+  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked"><span class="num">${i + 1}</span>${trayHtml(i, { grab: state.isDealer })}<p class="caption-text">“${esc(c)}”${capNote(i)}</p></div>`).join('')
+    + `<div class="cap closed locked" style="text-align:center; padding:18px 16px;">${trayHtml('closed', { grab: state.isDealer })}<div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · still face-down</p></div>`;
+  if (state.isDealer) {
+    return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
+      <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">Steal one chip</h2><p class="sub steal-line">Before the flip. Tap ${dealerMode() === 'both' ? 'another player’s' : 'a'} chip to steal it. Off the real one = their points become yours. Off a fake, they get +1.</p></div>
+      <div class="stack" style="margin-top:18px;">${cards}</div>`;
+  }
+  const canPass = state.canTakeover || state.isHost;   // #28: the host can pass for a dealer who's wandered off
+  return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
+    <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">${esc(firstName(state.dealerName))} is choosing a chip to steal<span class="dots"></span></h2><p class="sub">Before the flip. Any chip on the table could go. Plead your case.</p></div>
+    <div class="stack" style="margin-top:18px;">${cards}</div>
+    ${state.canTakeover ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'steal', betIndex:null})">Skip the steal and flip the card →</button>` : canPass ? `<button class="btn-link" style="display:block; margin:16px auto 0; font-size:14px;" onclick="send({action:'steal', betIndex:null})">Dealer stuck? Skip the steal</button>` : ''}`;
+}
+function grabChip(i) {
+  grabbedBet = grabbedBet === i ? null : i; sfx.tap();
+  document.querySelectorAll('.chip.grab').forEach(c => c.classList.toggle('grabbed', Number(c.dataset.bet) === grabbedBet));
+  renderStealBar();
+}
+function renderStealBar() {
+  if (!state.isDealer || state.phase !== 'steal') return;
+  if (grabbedBet === null) { setActionBar(`<button class="btn" onclick="doSteal(null)">Keep the peace — no steal</button>`); return; }
+  const b = (state.bets || [])[grabbedBet]; if (!b) { grabbedBet = null; return renderStealBar(); }
+  const where = b.target === 'closed' ? 'the face-down one' : `Caption ${b.target + 1}`;
+  setActionBar(`<p class="center small" style="margin-bottom:8px;">${esc(fnameOf(b.playerId))}’s chip on ${where}</p>
+    <div class="btn-row"><button class="btn" onclick="grabChip(${grabbedBet})">Cancel</button><button class="btn btn-red" onclick="doSteal(${grabbedBet})">Steal it</button></div>`);
+}
+function doSteal(i) {
+  send({ action: 'steal', betIndex: i });   // every phone, yours too, plays the steal show
+  setActionBar('');
+}
+
+/* ── REVEAL (the flip) ── */
 let revealRunner = null;
 // While the card turns: the table's blind chips, so you can see who is riding on the face-down one
+// (a stolen chip sits there in the dealer's colour)
 function flipTableHtml() {
   const bets = (state.bets || []).filter(b => b.target !== 'pass' && b.stage === 1 && b.count + (b.stolen || 0) > 0);
   if (!bets.length) return '';
   const targets = (state.openCaptions || []).map((_, i) => i).concat(['closed']);
   const rows = targets.map(t => {
     const on = bets.filter(b => String(b.target) === String(t)); if (!on.length) return '';
-    const chips = on.flatMap(b => Array.from({ length: b.count + (b.stolen || 0) }, () => chipHtml(b.playerId, 'sm'))).join('');
-    const who = t === 'closed' ? `<span class="ft-who">${esc(listNames([...new Set(on.map(b => b.playerId))].map(id => id === myPlayerId ? 'You' : fnameOf(id))))}</span>` : '';
+    const chips = on.flatMap(b => [...Array.from({ length: b.count }, () => chipHtml(b.playerId, 'sm')), ...Array.from({ length: b.stolen || 0 }, () => window.ccPaintedChip ? window.ccPaintedChip(state.dealerId, 'sm', b.playerId) : chipHtml(b.playerId, 'sm stolen'))]).join('');
+    const riders = [...new Set(on.filter(b => b.count > 0).map(b => b.playerId))];
+    const who = t === 'closed' && riders.length ? `<span class="ft-who">${esc(listNames(riders.map(id => id === myPlayerId ? 'You' : fnameOf(id))))}</span>` : '';
     return `<div class="ft-row${t === 'closed' ? ' cc' : ''}"><span class="ft-lbl">${t === 'closed' ? '<span class="cc-badge" style="margin:0;">CC</span>' : t + 1}</span><span class="ft-chips">${chips}</span>${who}</div>`;
   }).join('');
-  const noneOnCC = !bets.some(b => b.target === 'closed');
+  const noneOnCC = !bets.some(b => b.target === 'closed' && b.count > 0);
   return `<div class="flip-table"><p class="eyebrow" style="margin-bottom:6px;">Blind chips on the table</p>${rows}${noneOnCC ? '<p class="small ft-none">Nobody is riding on the face-down one.</p>' : ''}</div>`;
 }
 function renderReveal() {
@@ -2151,21 +2324,32 @@ function renderReveal() {
       </div></div>
       ${flipTableHtml()}
       <p class="sub" id="reveal-hint" style="opacity:0; transition:opacity .4s; margin-top:18px;"></p>
-      ${canRun() ? `<button id="reveal-continue" class="btn ${state.isDealer ? 'btn-yellow' : ''}" style="margin-top:18px; opacity:0; transition:opacity .4s; pointer-events:none;" onclick="send({action:'advance'})">${n ? 'Read it aloud, then — last chips →' : 'Next →'}</button>` : `<p class="sub" id="reveal-continue" style="margin-top:18px; opacity:0; transition:opacity .4s;">Waiting for ${esc(firstName(state.dealerName))} to read it out — then ${n ? 'the last chips' : 'the answer'}.</p>`}
+      ${canRun() ? `<button id="reveal-continue" class="btn ${state.isDealer ? 'btn-yellow' : ''}" style="margin-top:18px; opacity:0; transition:opacity .4s; pointer-events:none;" onclick="send({action:'advance'})">${n ? 'Read it out. Then the last chips →' : 'Next →'}</button>` : `<p class="sub" id="reveal-continue" style="margin-top:18px; opacity:0; transition:opacity .4s;">Waiting for ${esc(firstName(state.dealerName))} to read it out — then ${n ? 'the last chips' : 'the answer'}.</p>`}
     </div>`;
 }
 /* The Closed Caption turns over like a real card: it lifts (the shadow grows), trembles, then slaps
-   down face-up. Every phone does it on the same beat (server time + a short lead); the speaker phone
-   plays it, every phone flashes and jolts. Arrive after the slap and you just see it face-up. */
+   down face-up. Every phone does it on the same beat (state.flipAt + a short lead: after the steal show,
+   if there was one); the speaker phone plays it, every phone flashes and jolts. Arrive after the slap and
+   you just see it face-up. */
 const REVEAL_BEATS = { lift: 0, tremble: 450, slap: 1150, impact: 1320, settle: 1700, button: 2000 };
-let revealDone = new Set();
+let revealDone = new Set(), stealShown = new Set();
+// #8: the steal show plays as the flip screen opens (the card waits for it), on every phone at once
+function playStealIfFresh() {
+  const st = state.steal, key = state.code + '|' + state.round;
+  if (!st || !st.victimId || !st.at || stealShown.has(key)) return;
+  stealShown.add(key);
+  const sy = window.ccSync ? window.ccSync(st.at) : { wait: 0, stale: false };
+  if (sy.stale) return;   // walked in after the show: the card is all that's left to see
+  window._answerGo = null;
+  playStealShow(sy.wait);
+}
 function playRevealSequence() {
   if (window.GameMusic) window.GameMusic.stop();
   const flip = $('reveal-flip'), btn = $('reveal-continue'), hint = $('reveal-hint'), lead = $('reveal-lead');
   if (!flip) return;
   (window._revealT || []).forEach(clearTimeout); window._revealT = [];
   const key = state.code + '|' + state.round, B = REVEAL_BEATS;
-  const sy = window.ccSync ? window.ccSync(state.phaseAt) : { wait: 0, late: 0 };
+  const sy = window.ccSync ? window.ccSync(state.flipAt || state.phaseAt) : { wait: 0, late: 0 };
   const elapsed = sy.late - sy.wait;   // ms since the shared start (negative: not yet)
   const showHint = () => { const n = (state.eligibleSecondBetters || []).length; if (hint) { hint.textContent = n ? `${plural(n, 'player still has', 'players still have')} a chip — same order as before.` : 'Every chip is already down.'; hint.style.opacity = '1'; } };
   const showBtn = () => { if (btn) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; } };
@@ -2198,39 +2382,6 @@ function playRevealSequence() {
   });
   at(B.settle, () => { showHint(); if (window.ccBeat) window.ccBeat('reveal:settled'); });
   at(B.button, showBtn);
-}
-
-/* ── STEAL ── */
-function renderSteal() {
-  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked"><span class="num">${i + 1}</span>${trayHtml(i, { grab: state.isDealer })}<p class="caption-text">“${esc(c)}”${capNote(i)}</p></div>`).join('')
-    + `<div class="cap closed locked"><span class="num"><span class="cc-badge" style="margin:0;">CC</span></span>${trayHtml('closed', { grab: state.isDealer })}<p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption</p><p class="caption-text">“${esc(state.closedCaption)}”</p></div>`;
-  if (state.isDealer) {
-    return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
-      <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">Steal one chip</h2><p class="sub steal-line">Tap ${dealerMode() === 'both' ? 'another player’s' : 'a'} chip to steal it. Off the real one = their points become yours. Off a fake, they get +1.</p></div>
-      <div class="stack" style="margin-top:18px;">${cards}</div>`;
-  }
-  const canPass = state.canTakeover || state.isHost;   // #28: the host can pass for a dealer who's wandered off
-  return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
-    <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">${esc(firstName(state.dealerName))} is choosing a chip to steal<span class="dots"></span></h2><p class="sub">Any chip on the table could go. Plead your case.</p></div>
-    <div class="stack" style="margin-top:18px;">${cards}</div>
-    ${state.canTakeover ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'steal', betIndex:null})">Skip the steal and show the answer →</button>` : canPass ? `<button class="btn-link" style="display:block; margin:16px auto 0; font-size:14px;" onclick="send({action:'steal', betIndex:null})">Dealer stuck? Skip the steal</button>` : ''}`;
-}
-function grabChip(i) {
-  grabbedBet = grabbedBet === i ? null : i; sfx.tap();
-  document.querySelectorAll('.chip.grab').forEach(c => c.classList.toggle('grabbed', Number(c.dataset.bet) === grabbedBet));
-  renderStealBar();
-}
-function renderStealBar() {
-  if (!state.isDealer || state.phase !== 'steal') return;
-  if (grabbedBet === null) { setActionBar(`<button class="btn" onclick="doSteal(null)">Keep the peace — no steal</button>`); return; }
-  const b = (state.bets || [])[grabbedBet]; if (!b) { grabbedBet = null; return renderStealBar(); }
-  const where = b.target === 'closed' ? 'the Closed Caption' : `Caption ${b.target + 1}`;
-  setActionBar(`<p class="center small" style="margin-bottom:8px;">${esc(fnameOf(b.playerId))}’s ${b.stage === 1 ? 'blind' : 'late'} chip on ${where}</p>
-    <div class="btn-row"><button class="btn" onclick="grabChip(${grabbedBet})">Cancel</button><button class="btn btn-red" onclick="doSteal(${grabbedBet})">Steal it</button></div>`);
-}
-function doSteal(i) {
-  send({ action: 'steal', betIndex: i });   // every phone, yours too, plays the steal show
-  setActionBar('');
 }
 
 /* ── ANSWER ── */
@@ -2547,11 +2698,12 @@ function stealNewsHtml() {
   return `<div class="steal-news"><div class="h2">${state.isDealer ? 'You' : esc(firstName(state.dealerName))} stole ${me ? 'your' : esc(fnameOf(st.victimId)) + '’s'} chip</div><p class="sub">${st.actName ? esc(st.actName) + ' took it off ' : 'Knocked off '}${where}.${st.gloat ? ` “${esc(st.gloat)}”` : ''}</p></div>`;
 }
 /* The steal show (steal.js, heists.js). The server picks it (state.steal.stealShow), so every phone agrees:
-   'full' — the first steal of a game, or a steal off the real caption: one of the heists (12.4s);
+   'full' — the night's first steal, then about one in four at random (never because of where the chip was):
+            one of the heists (12.4s);
    'short' — every other steal: a TRANSFERRED stamp in the dealer's colour, with the line (6s).
    No stealShow (an older server): the full show, as before.
-   Starts on the shared beat. Returns ms until the show is over. server.js holds the reveal for the same length. */
-const STEAL_SHOW_MS = 12400, STEAL_QUICK_MS = 6000;   // full heist 12.4s; the short stamp 6s (server.js 'reel_next' matches)
+   #8: it plays as the flip screen opens, on the shared beat; the server times the flip (state.flipAt) for after it. */
+const STEAL_SHOW_MS = 12400, STEAL_QUICK_MS = 6000;   // full heist 12.4s; the short stamp 6s (game.js STEAL_FULL_MS / STEAL_SHORT_MS match)
 // How long this round's steal show runs: 'short' -> 3.5s; 'full' or an older server (no stealShow) -> the full 9.6s
 const stealShowMs = (st) => window.ccClaw && window.ccClaw.lengthFor ? window.ccClaw.lengthFor(st, STEAL_SHOW_MS) : STEAL_SHOW_MS;
 function playStealShow(wait = 0) {
@@ -2585,12 +2737,12 @@ function renderRecap() {
     <div class="rc-pts ${scorers.length > 4 ? 'many' : ''}" id="answer-scores">${pts || '<p class="rc-none">Nobody scored. Not even the dealer.</p>'}</div>
     ${bluff ? `<p class="rc-line" id="bluff-shout">${bluff}</p>` : ''}
     ${mischief ? `<p class="rc-line rc-dealer" id="rc-dealer">${mischief}</p>` : ''}
+    ${lateOn() ? '<p class="rc-line">The Late Edition: every point doubled.</p>' : ''}
     <div id="answer-continue">${answerContinueHtml(isLastRound())}</div>
     </div>`;
 }
 function isLastRound() {
-  const t = state.settings && state.settings.targetScore;
-  return t ? state.players.some(p => p.score >= t) : (state.totalRounds ? state.round >= state.totalRounds : false);
+  return state.totalRounds ? state.round >= state.totalRounds : false;   // (#37 first to N: once someone's there, the trip around the table is counted out)
 }
 function answerContinueHtml(lastRound) {
   const label = 'Frame It →';   // then the scoreboard (or the final scores)
@@ -2665,7 +2817,7 @@ function spotlightHtml() {
   const chipsOf = (pid) => backers.filter(b => b.playerId === pid).reduce((s, b) => s + b.count + (b.stolen || 0), 0);
   const fell = people.length ? `<div class="fell"><p class="eyebrow" style="margin-bottom:8px;">${real ? 'Found the real one' : 'Fell for it'}</p><div class="fell-row">${people.map(pid => `<span class="fell-p">${chipHtml(pid, 'sm')}${esc(pid === myPlayerId ? 'You' : nameOf(pid))}${chipsOf(pid) > 1 ? ` <i>×${chipsOf(pid)}</i>` : ''}</span>`).join('')}</div></div>`
     : `<p class="nobody">${real ? (fc.allChips ? 'Found. Then stolen.' : '<i>The truth had no friends.</i>') : 'Nobody bit.'}</p>`;
-  const pts = !real && c.playerId ? backers.reduce((s, b) => s + b.count + (b.stolen || 0), 0) * (state.settings.pointsPerFool || 0) : 0;   // stolen chips still fooled them
+  const pts = !real && c.playerId ? backers.reduce((s, b) => s + b.count + (b.stolen || 0), 0) * (state.settings.pointsPerFool || 0) * (lateOn() ? 2 : 1) : 0;   // stolen chips still fooled them; The Late Edition doubles it
   const who = real ? `<div class="stamp real-stamp" id="spot-stamp">The real caption</div>`
     : `<div class="writer-stamp" id="spot-stamp">${chipHtml(c.playerId, 'lg')}<div><p class="eyebrow">Written by</p><div class="wname">${esc(c.playerId === myPlayerId ? 'You' : c.playerName || '?')}</div></div>${pts ? `<span class="plus" style="margin-left:auto; font-size:26px;">+${pts}</span>` : ''}</div>`;
   const realBadges = real ? (state.roundBadges || []).filter(b => ['moon', 'pickpocket'].includes(b.kind)) : [];
@@ -2708,15 +2860,10 @@ function playReelStep(fromEntry) {
   const endState = () => { const s = $('spot'); if (s) { s.classList.remove('pending', 'tremble'); if (s.classList.contains('is-real')) s.classList.add('correct'); } };
   if (reelPlayed.has(tag)) { endState(); return; }
   reelPlayed.add(tag);
-  const st = state.steal;
   const sync = (at) => window.ccSync ? window.ccSync(at) : { wait: 0, late: 0, stale: false };
   const t0 = sync(state.stepAt || state.phaseAt);
-  const stealOn = fromEntry && step === 1 && st && st.victimId && st.at;
-  const showLen = stealOn ? stealShowMs(st) : 0;   // #12: the short show hands over sooner
-  const stealSy = stealOn ? sync(st.at) : null;
-  const lead = stealOn && !stealSy.stale ? playStealShow(stealSy.wait) : 0;
-  // ms from now until this caption's own beat (after the show, on the shared clock)
-  const startIn = (t0.wait - t0.late) + showLen;
+  // ms from now until this caption's own beat, on the shared clock (#8: the steal show played before the flip)
+  const startIn = t0.wait - t0.late, lead = 0;
   const c = capByKey(key), real = c && c.isCorrect;
   const beat = (b) => { if (window.ccBeat) window.ccBeat(b + ':' + step); };
   let timers = [];
@@ -2921,6 +3068,38 @@ function syncOpening() {
   openingT = setTimeout(closeOpening, left);
 }
 
+/* ── #11 The Late Edition: a masthead card as the last trip around the table begins (~3.5 s, every phone,
+   timed from the round's start; the server gives the writers the time back). Tap to skip. ── */
+let lateShown = null, lateT = null;
+function closeLate() { clearTimeout(lateT); const o = $('late-card'); if (o) { o.className = ''; o.innerHTML = ''; } }
+function lateWhyLine(L) {
+  const hit = L && L.hit, tgt = state.settings && state.settings.targetScore;
+  if (hit && hit.ids && hit.ids.length) {
+    const names = listNames(hit.ids.map(id => id === myPlayerId ? 'You' : fnameOf(id)));
+    const has = hit.ids.length > 1 || hit.ids[0] === myPlayerId ? 'have' : 'has';
+    return `${esc(names)} ${has} ${hit.score}${tgt ? ` (first to ${tgt})` : ''}. We finish the trip around the table first.`;
+  }
+  return 'The last trip around the table.';
+}
+function syncLate() {
+  const L = state && state.late;
+  const due = L && state.phase === 'writing' && state.round === L.from;
+  if (!due) { if ($('late-card') && $('late-card').className) closeLate(); return; }
+  const key = state.code + '|' + state.round + '|' + L.from + '|' + (state.history || []).length;
+  if (lateShown === key) return;
+  lateShown = key;
+  const left = (state.phaseAt || 0) + (L.ms || 3500) - (Date.now() + clockOffset);
+  if (left < 600) return;   // walked in late: straight to the cartoon
+  let o = $('late-card'); if (!o) { o = document.createElement('div'); o.id = 'late-card'; o.setAttribute('role', 'status'); document.body.appendChild(o); }
+  o.onclick = closeLate;
+  o.innerHTML = `<div class="le-card"><div class="le-rule"></div><p class="le-eye">Round ${state.round}${state.totalRounds ? ' of ' + state.totalRounds : ''}</p>
+    <h2 class="le-h">The Late Edition</h2><div class="le-rule"></div>
+    <p class="le-line">${lateWhyLine(L)} Every point counts double.</p><span class="le-x2" aria-hidden="true">×2</span></div>`;
+  o.className = 'on';
+  bsfx.seal(); buzz([40, 60, 40]); srSay('The Late Edition. Every point counts double.');
+  lateT = setTimeout(closeLate, left);
+}
+
 /* ── The verdicts: after the awards and the winner, before the Grand Poobah. A reading moment:
    everyone's new rating, the change, the title, and one line each (picked by the server: same on every
    phone, never one this phone has read before). The dealer or host taps on. ── */
@@ -2950,6 +3129,7 @@ function syncVerdicts() {
   }).join('');
   const nextWord = gamePoobah() && !poobahIsWinner() ? 'On to the Grand Poobah' : 'On to the final scores';
   $('verdicts').innerHTML = `<div class="vd-wrap"><p class="eyebrow center">After tonight</p><h2 class="vd-h">The ratings</h2>
+    ${R.short ? '<p class="vd-short">Short game: rating moves less.</p>' : ''}
     <div class="vd-list">${rows}</div>
     <div class="vd-foot">${canRun() ? `<button class="btn btn-yellow" onclick="this.disabled=true; send({action:'verdicts_done'})">${nextWord} →</button>` : `<p class="rc-wait">${esc(firstName(state.dealerName || nameOf(state.hostId)))} moves things along<span class="dots"></span></p>`}</div></div>`;
   $('verdicts').className = 'on';
@@ -3056,12 +3236,28 @@ function renderScores() {
   if (state.gameOver) return renderFinal(sorted, animated, goal);
   return `${header({ sticker: '<span class="sticker">Scoreboard</span>', sub: goal, thumb: false })}
     <div class="sb-list ${sorted.length > 6 ? 'tight' : ''}">${rows}</div>
+    ${state.nextLate ? `<p class="sb-late">Next: <b>The Late Edition.</b> ${state.late && state.late.hit ? lateWhyLine(state.late) : 'The last trip around the table.'} Every point counts double.</p>` : ''}
     <p class="sb-next">Next dealer: <b>${esc(firstName(state.nextDealerName))}</b></p>
     ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>`}`;
 }
 // Game over: two big moments (Winner, The Grand Poobah), a compact standings row, and the buttons
+// #9 / #11: a tie for first is broken by people fooled, then captions framed (the server decides: state.standing)
+function finalWinners(sorted) {
+  const stn = state.standing, won = stn && Array.isArray(stn.winners) ? stn.winners.map(playerById).filter(Boolean) : [];
+  return won.length ? won : sorted.filter(p => p.score === sorted[0].score);
+}
+function tieWhyLine(stn) {
+  if (!stn || !Array.isArray(stn.tied) || stn.tied.length < 2) return '';
+  const nm = (ids) => esc(listNames(ids.map(id => id === myPlayerId ? 'you' : fnameOf(id))));
+  const best = (o, ids) => Math.max(0, ...ids.map(id => (o || {})[id] || 0));
+  if (stn.by === 'fooled') { const o = stn.tied.filter(id => !stn.winners.includes(id)); return `Level on ${stn.top} with ${nm(o)}. Won on people fooled, ${best(stn.fooled, stn.winners)} to ${best(stn.fooled, o)}.`; }
+  if (stn.by === 'framed') { const o = Object.keys(stn.framed || {}).filter(id => !stn.winners.includes(id)); return `Level on points and people fooled with ${nm(o)}. Won on captions framed, ${best(stn.framed, stn.winners)} to ${best(stn.framed, o)}.`; }
+  if (stn.by === 'tie') return 'Level on points, people fooled and captions framed.';
+  return '';
+}
 function renderFinal(sorted, animated, goal) {
-  const winner = sorted[0], tops = sorted.filter(p => p.score === winner.score), tie = tops.length > 1;
+  const tops = finalWinners(sorted), winner = tops[0], tie = tops.length > 1, why = tieWhyLine(state.standing);
+  sorted = [...tops, ...sorted.filter(p => !tops.includes(p))];   // the winner first, even when a tie-break decided it
   const g = gamePoobah(), at = ceremonyAt();
   const folded = !!g && poobahIsWinner(g);
   const vPend = verdictsPending();
@@ -3070,7 +3266,7 @@ function renderFinal(sorted, animated, goal) {
   // #39: one name per line, and long names shrink — never split mid-word
   const fit = (list) => { const m = Math.max(...list.map(t => t.length)), k = list.length; return m > 12 ? 'font-size:19px;' : m > 8 || k > 2 ? 'font-size:23px;' : k > 1 ? 'font-size:27px;' : ''; };
   const nameLines = (list) => list.map(t => `<span class="fn-line">${esc(t)}</span>`).join('');
-  const win = `<div class="fn-card fn-win fade-in"><div class="fn-ic">${inkIcon('trophy', 50)}</div><p class="fn-eyebrow">${tie ? 'It’s a tie' : 'Winner'}</p><div class="fn-name" style="${fit(tops.map(p => p.name))}">${nameLines(tops.map(p => p.name))}</div><p class="fn-sub">${plural(winner.score, 'point')}</p>${also}</div>`;
+  const win = `<div class="fn-card fn-win fade-in"><div class="fn-ic">${inkIcon('trophy', 50)}</div><p class="fn-eyebrow">${tie ? 'It’s a tie' : 'Winner'}</p><div class="fn-name" style="${fit(tops.map(p => p.name))}">${nameLines(tops.map(p => p.name))}</div><p class="fn-sub">${plural(winner.score, 'point')}</p>${why ? `<p class="fn-why">${why}</p>` : ''}${also}</div>`;
   const hat = showHat ? `<div class="fn-card fn-hat poobah-panel fade-in"><div class="fn-ic bob">${poobahHat(54)}</div><p class="fn-eyebrow">The Grand Poobah</p><div class="fn-name" style="${fit(g.ids.map(nameOf))}">${nameLines(g.ids.map(nameOf))}</div><p class="fn-sub">${plural(g.n, 'chip')} on fakes</p></div>` : '';
   const standings = sorted.map(p => `<span class="fn-st">${chipHtml(p.id, 'xs')}${esc(p.name)} <b class="score-number" data-target="${p.score}" data-from="${p.score - ((state.roundScores || {})[p.id] || 0)}">${animated ? p.score : p.score - ((state.roundScores || {})[p.id] || 0)}</b></span>`).join('');
   const nFr = state.framedTonight || 0, fin = state.finale && window.ccFinale;
@@ -3135,6 +3331,8 @@ const POOBAH_SLOGANS = [
 // The points winner (or a co-winner) is also the Poobah: no separate ceremony that repeats them
 function poobahIsWinner(g) {
   g = g === undefined ? gamePoobah() : g; if (!g || !state.players || !state.players.length) return false;
+  const w = state.standing && state.standing.winners;   // (a tie-break may have decided the winner)
+  if (Array.isArray(w) && w.length) return g.ids.some(id => w.includes(id));
   const top = Math.max(...state.players.map(p => p.score));
   return g.ids.some(id => (playerById(id) || {}).score === top);
 }

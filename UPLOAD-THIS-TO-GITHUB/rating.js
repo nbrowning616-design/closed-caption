@@ -8,6 +8,7 @@
 //   Expected score E = 1 / (1 + 10^((Rother − Rme) / 400)), from the two ratings the phones reported at the start.
 //   Change = round( K / (n − 1) × Σ (S − E) ) over the other n − 1 players. K = 48 for a player's first 3 games
 //   (provisional), 24 after. So the most anyone can move in one game is K, however big the table.
+//   A short game moves it less: K is scaled by the game's length (full from 8 rounds; 4 rounds = half).
 //   Ratings stay within 100..3500.
 //
 // Who is rated: everyone who was seated when the game started — including anyone who left before the end, on
@@ -121,12 +122,14 @@ function opening(players, snap, seed) {
 }
 
 // Game over: everyone's change, title, and line. scores: { id: finalScore }. players: the current seats (for seen lists).
-function settle(snap, scores, players, seed, favoriteId) {
+// scale (0..1): a short game moves the rating less (game.js: full amount from 8 rounds, in proportion below).
+function settle(snap, scores, players, seed, favoriteId, scale) {
   const ids = Object.keys(snap).filter(id => typeof scores[id] === 'number');
   const n = ids.length;
   const rows = {};
+  const sc = typeof scale === 'number' && scale > 0 && scale < 1 ? scale : 1;
   for (const id of ids) {
-    const me = snap[id], k = provisional(me) ? K_NEW : K;
+    const me = snap[id], k = (provisional(me) ? K_NEW : K) * sc;
     let sum = 0;
     for (const o of ids) {
       if (o === id) continue;

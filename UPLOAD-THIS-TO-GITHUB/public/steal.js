@@ -1,7 +1,8 @@
 /* Closed Caption — the steal show: the stage they share, and the short stamp.
    The dealer's steal plays on every phone at once, timed from the shared beat (ccSync(state.steal.at)).
    The server says which show (state.steal.stealShow):
-     'full'  — the first steal of a game, or a steal off the real caption: one of the heists in heists.js (12.4 s);
+     'full'  — the night's first steal, then about one in four at random (never decided by where the chip was,
+               so the show can't hint at the answer): one of the heists in heists.js (12.4 s);
      'short' — every other steal: paperwork. The chip is circled, an ink TRANSFERRED stamp lands on it in the
                dealer's colour, one typed line (6 s).
    Both have the same two held beats, so nobody misses WHOSE chip it was:

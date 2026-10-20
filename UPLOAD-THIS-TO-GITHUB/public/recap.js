@@ -37,6 +37,9 @@
     var players = (s.players || []).slice().sort(function (a, b) { return b.score - a.score; });
     var top = players.length ? players[0].score : 0;
     var winners = players.filter(function (p) { return p.score === top; });
+    // a tie for first broken by people fooled, then captions framed (the server's state.standing)
+    var won = s.standing && s.standing.winners ? players.filter(function (p) { return s.standing.winners.indexOf(p.id) >= 0; }) : [];
+    if (won.length) winners = won;
     var poobah = null; try { poobah = g('gamePoobah') ? gamePoobah() : null; } catch (e) {}
     var hist = s.history || [];
     // The night's framed captions (up to 3), else the night's best bluffs

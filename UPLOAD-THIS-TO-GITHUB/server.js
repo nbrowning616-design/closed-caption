@@ -142,9 +142,37 @@ function endWriting(g) {
 function autoAdvanceBets(code) {
   const g = games[code];
   if (!g) return;
+  if (g.phase === PHASES.FIRST_BETS) return scheduleBlind(code);
   // 'All chips are down' gets a beat to land (and the last bettor a moment to undo) before the table moves on
-  if (g.phase === PHASES.FIRST_BETS && G.pendingBetters(g).length === 0) later(code, 3200, PHASES.FIRST_BETS, (x) => G.pendingBetters(x).length ? null : G.moveToReveal(x));
   if (g.phase === PHASES.SECOND_BETS && G.pendingBetters(g).length === 0) later(code, 3200, PHASES.SECOND_BETS, (x) => G.pendingBetters(x).length ? null : G.moveFromSecondBets(x));
+}
+/* #7 Blind bets, everyone at once: one timer per room. Everyone in -> a short beat (the last one can still take
+   theirs back) -> every chip drops onto the table together. Or the clock runs out first. */
+const blindT = new Map();   // code -> timeout
+function scheduleBlind(code) {
+  const g = games[code];
+  clearTimeout(blindT.get(code)); blindT.delete(code);
+  if (!g || g.phase !== PHASES.FIRST_BETS || g.dropAt) return;
+  const allIn = G.pendingBetters(g).length === 0;
+  const at = allIn ? Date.now() + G.ALL_IN_BEAT_MS : g.blindEnd;
+  if (!at) return;   // a no-timer room: the dealer or host drops the chips
+  const round = g.round;
+  blindT.set(code, setTimeout(() => {
+    blindT.delete(code);
+    const x = games[code];
+    if (!x || x.phase !== PHASES.FIRST_BETS || x.round !== round || x.dropAt) return;
+    if (allIn ? G.pendingBetters(x).length > 0 : Date.now() < (x.blindEnd || 0) - 50) return scheduleBlind(code);   // someone took theirs back / the clock moved
+    dropNow(code);
+  }, Math.max(0, at - Date.now())));
+}
+// The chips drop (every phone, one shared moment), the table gets a look, then the steal or the flip
+function dropNow(code) {
+  const g = games[code];
+  if (!g || g.phase !== PHASES.FIRST_BETS) return;
+  clearTimeout(blindT.get(code)); blindT.delete(code);
+  try { G.dropBlind(g); } catch (e) { console.error('drop failed', code, e); }
+  broadcast(code);
+  later(code, Math.max(0, g.dropAt + G.DROP_HOLD_MS - Date.now()), PHASES.FIRST_BETS, G.afterBlinds);
 }
 
 // Frame It: count the picks once, then the scoreboard comes by itself after the ceremony
@@ -172,7 +200,8 @@ function resumeTimers(code) {
   const g = games[code];
   if (!g) return;
   if (g.phase === PHASES.WRITING) scheduleWritingEnd(code);
-  if (g.phase === PHASES.FIRST_BETS || g.phase === PHASES.SECOND_BETS) autoAdvanceBets(code);
+  if (g.phase === PHASES.FIRST_BETS && g.dropAt) later(code, 1500, PHASES.FIRST_BETS, G.afterBlinds);   // the drop already happened: on to the steal
+  else if (g.phase === PHASES.FIRST_BETS || g.phase === PHASES.SECOND_BETS) autoAdvanceBets(code);
   if (g.phase === PHASES.FRAMING && g.frameResult) later(code, Math.max(1500, g.frameResult.endsAt - Date.now()), PHASES.FRAMING, G.moveToScoreboard);
 }
 
@@ -430,6 +459,7 @@ wss.on('connection', (ws, req) => {
       case 'undo_bet': {
         if (fail(G.undoBet(game, playerId))) return;
         broadcast(code);
+        if (game.phase === PHASES.FIRST_BETS) scheduleBlind(code);   // the 'all in' beat waits for them again
         return;
       }
       case 'skip_better': {
@@ -460,12 +490,15 @@ wss.on('connection', (ws, req) => {
         switch (game.phase) {
           case PHASES.READING:
             if (!canRun) return sendError(ws, 'The dealer starts the betting');
-            G.moveToFirstBets(game); break;
+            G.moveToFirstBets(game); broadcast(code); scheduleBlind(code); return;
           case PHASES.FIRST_BETS:
+            // 'Drop the chips now' (anyone idle sits the blind bet out); during the table's look, straight on
             if (!canRun) return sendError(ws, 'Only the dealer or host can do that');
-            G.moveToReveal(game); break;
+            if (!game.dropAt) return dropNow(code);
+            G.afterBlinds(game); break;
           case PHASES.REVEAL:
             if (!canRun) return sendError(ws, 'The dealer moves things along');
+            if (game.flipAt && Date.now() < game.flipAt + 1500) { game._advAt = 0; return game.steal && game.steal.victimId && Date.now() < game.flipAt ? sendError(ws, 'Let the thief finish') : undefined; }   // the card hasn't turned yet
             G.moveFromReveal(game); break;
           case PHASES.SECOND_BETS:
             if (!canRun) return sendError(ws, 'Only the dealer or host can do that');
@@ -589,8 +622,10 @@ setInterval(() => {
     if (g.phase === PHASES.WRITING && g.submissions.length >= 2 && G.allCaptionsIn(g)) { endWriting(g); changed = true; }
     // #28: a dealer who wanders off doesn't freeze the steal: it passes by itself after 45 s
     if (g.phase === PHASES.STEAL && g.phaseAt && now - g.phaseAt > 45000) { G.stealChip(g, null); changed = true; }
-    // Betting: skip a player whose phone has been gone 45+ seconds
-    if (g.phase === PHASES.FIRST_BETS || g.phase === PHASES.SECOND_BETS) {
+    // Blind bets: the only ones not in are phones gone past the grace — drop without them
+    if (g.phase === PHASES.FIRST_BETS && !g.dropAt && !blindT.has(code) && G.pendingBetters(g).length === 0) scheduleBlind(code);
+    // Late chips: skip a player whose phone has been gone 45+ seconds
+    if (g.phase === PHASES.SECOND_BETS) {
       const cur = g.players.find(p => p.id === G.currentBetterId(g));
       if (cur && !cur.connected && cur.disconnectedAt && now - cur.disconnectedAt > 45000) {   // 45 s: switching to Messages or a locked phone doesn't cost your turn
         G.skipCurrentBetter(g); changed = true; autoAdvanceBets(code);

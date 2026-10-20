@@ -5,12 +5,13 @@
 //                   Anyone can vote to mulligan the cartoon; half the table swaps it.
 //   2. READING      The app secretly picks the Closed Caption (usually a random player's
 //                   caption; sometimes the real one). The rest are shown. The dealer reads aloud.
-//   3. FIRST_BETS   Blind bets, one player at a time, clockwise from the dealer's left.
+//   3. FIRST_BETS   Blind bets, everyone at once and in secret (a clock catches anyone idle).
 //                   The dealer does not bet. 1 chip, or both (Half-Moon / Shoot the Moon).
-//   4. REVEAL       The Closed Caption is turned face-up.
-//   5. SECOND_BETS  Anyone holding a chip places it — anywhere, even on the same caption.
-//   6. STEAL        The dealer may knock one chip off the table.
-//   7. ANSWER       The real caption is shown and points are paid.
+//                   When the last one is in, every chip drops onto the table together (dropAt).
+//   4. STEAL        The dealer may take one chip off the table, before the face-down card flips.
+//   5. REVEAL       The Closed Caption is turned face-up (flipAt: after the steal show).
+//   6. SECOND_BETS  Anyone holding a chip places it, one at a time — anywhere, even on the same caption.
+//   7. ANSWER       The real caption is shown and points are paid (double in The Late Edition).
 //   8. FRAMING      "Anything frame-worthy?" Everyone secretly picks one caption (not their own) or passes.
 //                   Enough picks on one caption and it's framed: it hangs in The Gallery.
 //   9. SCORES       Scoreboard; the deal moves left.
@@ -391,9 +392,10 @@ const MULLIGAN_QUIPS = [
 // How the rejected cartoon meets its end (every phone plays the same one)
 const EXECUTIONS = ['punch', 'tear', 'fire', 'flush', 'stomp', 'shred'];
 
-// The steal shows. 'full' (the first steal of a game, or a steal off the real caption): one of the heists below,
-// drawn in public/heists.js in this same order (index = act). A room deals them like a deck, so nobody sees a
-// repeat until all have played. Every other steal is 'short': a transfer-of-ownership stamp (RECEIPTS).
+// The steal shows. 'full': the night's first steal, then about one steal in four, at random — never decided by
+// where the chip was, so the show can't hint at the answer. One of the heists below, drawn in public/heists.js in
+// this same order (index = act). A room deals them like a deck, so nobody sees a repeat until all have played.
+// Every other steal is 'short': a transfer-of-ownership stamp (RECEIPTS).
 // House rule for every line here: a caption. Short, specific, deadpan, one beat. Every line is used once.
 const HEISTS = [
   { name: 'The Claw', gloats: ['Skill game.', 'First try, too.'] },
@@ -418,6 +420,13 @@ const RECEIPTS = [
 // Callbacks: the same player robbed twice in one game
 // A chip stolen off a fake caption pays its owner this much (the steal's cost)
 const STEAL_CAUGHT_PTS = 1;
+// How long each steal show runs on the phones (public/steal.js FULL_MS / SHORT_MS); the flip waits for it
+const STEAL_FULL_MS = 12400, STEAL_SHORT_MS = 6000, STEAL_FULL_SHARE = 0.25;
+// Blind bets: everyone at once. The clock catches anyone idle; the last chip in gets a beat (to take it back),
+// then every chip drops onto the table together and the table gets a look before the steal (or the flip).
+const BLIND_MS = 45000, ALL_IN_BEAT_MS = 1500, DROP_HOLD_MS = 3200;
+// The Late Edition card (the last trip around the table: double points); the writers get the time back
+const LATE_MS = 3500;
 const AGAIN_FULL = 'We meet again, {name}.';
 const AGAIN_SHORT = 'Received from {name}. Again.';
 const firstNameOf = (game, pid) => { const p = game.players.find(q => q.id === pid); return (String(p ? p.name : '').trim().split(/\s+/)[0]) || 'you'; };
@@ -456,10 +465,10 @@ const DEFAULT_SETTINGS = {
   rounds: null,                  // null = everyone deals once; else fixed number
   targetScore: null,             // null = play the rounds; else first to X points
   pointsOpenBet: 2,              // blind chip on the real caption, out in the open
-  pointsClosedBet: 3,            // blind chip on the Closed Caption when it's the real one
+  pointsClosedBet: 5,            // blind chip on the Closed Caption when it's the real one: the long shot (Shoot the Moon = 10)
   pointsOpenLate: 1,             // late chip (after the reveal) on the real caption, anywhere
   pointsClosedLate: 1,           // kept equal to pointsOpenLate
-  pointsPerFool: 1,              // to the writer, for each chip someone else puts on their caption
+  pointsPerFool: 2,              // to the writer, for each chip someone else puts on their caption (writing pays like spotting)
   dealerBonus: 4,                // dealer scores this if no chip ends up on the real caption
   pointsStealCorrect: 1,         // (retired: a stolen chip on the real caption now pays the dealer what it would have paid)
   autoCloseProbability: 0.15,    // share of rounds where the real caption is the Closed Caption
@@ -502,7 +511,15 @@ function createGame(hostId, hostName, timerDuration = DEFAULT_TIMER, seenIds = [
     phase: PHASES.LOBBY,
     phaseAt: Date.now(),  // server time of the latest phase change
     stepAt: null,         // server time of the latest reveal-reel step
-    stealShows: 0,        // steals this game: only the first gets the full show
+    stealShows: 0,        // steals this game
+    nightSteals: 0,       // steals in this room tonight (every game): the first gets the full show
+    blind: {},            // this round's blind bets while they're secret: { playerId: { target, count, at } }
+    blindEnd: null,       // when the blind-bet clock runs out (null: no clock, e.g. a no-timer room)
+    dropAt: null,         // when every blind chip dropped onto the table at once (server time)
+    flipAt: null,         // when the face-down card turns over (after the steal show, if there was one)
+    lateFrom: null,       // The Late Edition: the round the last trip around the table began (double points)
+    finalLaps: null,      // first to N: once someone gets there, how many deals finish the trip around the table
+    fixedLaps: null,      // a fixed round count, as whole trips around the table (frozen when the game starts)
     players: [{ id: hostId, name: hostName, score: 0, connected: true }],
     voice: {},            // voice call: { playerId: { on, muted } } (cleared when a phone drops)
     hostId,
@@ -669,15 +686,25 @@ const nameOfPlayer = (game, pid) => (game.players.find(p => p.id === pid) || {})
 const stepOf = (game) => (game.settings.direction === 'right' ? -1 : 1);
 const seatAt = (n, i) => ((i % n) + n) % n;
 
+/* #37: every game is whole trips around the table, so everyone deals the same number of times.
+   How many deals each player gets: 'everyone deals N times' (laps); a fixed round count rounded UP to whole trips
+   (frozen when the game starts); first to N: open-ended until someone gets there, then the trip being played is
+   finished (finalLaps) before anyone is crowned. null = no end in sight yet. */
+function lapsOf(game) {
+  const s = game.settings;
+  if (s.targetScore) return game.finalLaps || null;
+  if (s.rounds) return game.fixedLaps || Math.max(1, Math.ceil(s.rounds / Math.max(1, game.players.length)));
+  return [1, 2, 3].includes(s.laps) ? s.laps : 1;
+}
 // The next seat after `from`, going the table's direction, held by someone who is here.
 // The first deal of a game goes to seat 1. Falls back to the next seat.
 function nextDealerIndex(game, from) {
   const n = game.players.length, step = stepOf(game);
   if (!n) return -1;
   if (from < 0) { for (let k = 0; k < n; k++) if (game.players[k].connected) return k; return 0; }
-  // #29: in 'everyone deals N times' games, nobody deals more than their share while someone here still has a deal to come
-  const s = game.settings, laps = [1, 2, 3].includes(s.laps) ? s.laps : 1, counts = game.dealCount || {};
-  if (!s.rounds && !s.targetScore) for (let k = 1; k <= n; k++) {
+  // #29: nobody deals more than their share while someone here still has a deal to come
+  const laps = lapsOf(game), counts = game.dealCount || {};
+  if (laps) for (let k = 1; k <= n; k++) {
     const i = seatAt(n, from + k * step);
     if (game.players[i].connected && (counts[game.players[i].id] || 0) < laps) return i;
   }
@@ -852,7 +879,7 @@ function dealNormal(game, currentId) {
 // (Repeats for regulars are fine: the lobby says so. An empty deck never crashes: the lobby shows a calm note.) Needs one per round: players x laps, the fixed round count, or (first to X) at least 6.
 function deckStatus(game) {
   const s = game.settings, n = Math.max(3, connectedPlayers(game).length), laps = [1, 2, 3].includes(s.laps) ? s.laps : 1;
-  const need = s.targetScore ? Math.max(6, n) : s.rounds ? s.rounds : n * laps;
+  const need = s.targetScore ? Math.max(6, n) : s.rounds ? n * Math.ceil(s.rounds / n) : n * laps;   // #37: fixed rounds are whole trips
   const pool = allowed(game), seen = seenCounts(game), used = new Set(game.usedCartoonIds || []);
   const fresh = pool.filter(c => !(seen.get(c.id) > 0) && !used.has(c.id)).length;   // never one this room has already played
   return { live: CARTOONS.length, pool: pool.length, fresh, need, ok: pool.length >= need, drawing: CARTOONS.length < DECK_DRAWN };
@@ -874,10 +901,16 @@ function startRound(game, options = {}) {
   if (!options.sameRound && !canDeal(game) && !(game.settings.expert && dealExpert(game, game.cartoon && game.cartoon.id))) return { error: 'The deck is out of new cartoons' };
   if (!options.sameRound) {
     game.round++;
+    // #37: a fixed round count is played as whole trips around the table (frozen for this game)
+    if (game.round === 1 && game.settings.rounds && !game.settings.targetScore) game.fixedLaps = Math.max(1, Math.ceil(game.settings.rounds / Math.max(1, game.players.filter(isPresent).length || game.players.length)));
     game.dealerIndex = nextDealerIndex(game, game.dealerIndex);
     // [settings] count the deal (game length 'everyone deals N times' reads this)
     const d = game.players[game.dealerIndex];
     if (d) { game.dealCount = game.dealCount || {}; game.dealCount[d.id] = (game.dealCount[d.id] || 0) + 1; }
+    // #11: The Late Edition — the last trip around the table pays double. It starts with the first deal of the
+    // final lap (a game that goes around once has no 'last trip' to single out: all of it would double)
+    const laps = lapsOf(game);
+    if (!game.lateFrom && !game.settings.targetScore && laps >= 2 && d && game.dealCount[d.id] >= laps) game.lateFrom = game.round;
   }
   if (!dealCartoon(game)) {
     // Nobody wrote anything and the deck has nothing new: the same cartoon again, fresh clock
@@ -887,6 +920,11 @@ function startRound(game, options = {}) {
     game.notice = { text: 'Same cartoon. The deck has nothing new left.', at: Date.now() };
   }
   if (game.round === 1 && !options.sameRound && !game.ratingSnap) beginRated(game);
+  if (game.lateFrom === game.round && !options.sameRound && game.timerEnd) game.timerEnd += LATE_MS;   // the Late Edition card never eats writing time
+  game.blind = {};
+  game.blindEnd = null;
+  game.dropAt = null;
+  game.flipAt = null;
   game.closedCaption = '';
   game.closedIsCorrect = false;
   game.closedPlayerId = null;
@@ -1001,26 +1039,49 @@ function computeBetOrder(game) {
   return order;
 }
 
+/* ── Blind bets: everyone at once, in secret (#7) ──
+   Each bettor locks in a caption and 1 or 2 chips; nobody sees where until every chip drops onto the table at
+   the same moment (dropAt). The clock catches anyone idle (a no-timer room has none: the dealer or host drops
+   the chips). Then the dealer's steal (#8: before the face-down card flips), the flip, and the late chips,
+   which still go one at a time. */
 function moveToFirstBets(game) {
   if (game.phase !== PHASES.READING) return { error: 'Too late — the game moved on' };
   game.betOrder = computeBetOrder(game);
   game.bets = [];
+  game.firstBets = {};
+  game.secondBets = {};
+  game.blind = {};
+  game.dropAt = null;
+  game.flipAt = null;
+  game.blindEnd = game.timerDuration > 0 ? Date.now() + BLIND_MS : null;
   setPhase(game, PHASES.FIRST_BETS);
   return { ok: true };
 }
 
 const stageBet = (game, pid, stage) => game.bets.find(b => b.playerId === pid && b.stage === stage) || null;
+// A blind bet is in: still secret, or already on the table
+const hasBlind = (game, pid) => !!(game.blind && game.blind[pid]) || !!stageBet(game, pid, 1);
 
+// Holding one chip after the flip: one chip down blind (stolen or not), or sat the blind bet out while here
 function eligibleSecondBetters(game) {
-  return game.betOrder.filter(pid => { const b1 = stageBet(game, pid, 1); return b1 && b1.target !== 'pass' && b1.count === 1; });
+  return game.betOrder.filter(pid => {
+    const b1 = stageBet(game, pid, 1);
+    if (!b1) return false;
+    return b1.target === 'pass' ? !!b1.late : (b1.count + (b1.stolen || 0)) === 1;
+  });
 }
 
 function pendingBetters(game) {
-  if (game.phase === PHASES.FIRST_BETS) return game.betOrder.filter(pid => !stageBet(game, pid, 1));
+  if (game.phase === PHASES.FIRST_BETS) {
+    if (game.dropAt) return [];
+    // Whoever hasn't locked in (a phone gone past the grace no longer holds the table up)
+    return game.betOrder.filter(pid => { if (hasBlind(game, pid)) return false; const p = game.players.find(x => x.id === pid); return !!p && isPresent(p); });
+  }
   if (game.phase === PHASES.SECOND_BETS) return eligibleSecondBetters(game).filter(pid => !stageBet(game, pid, 2));
   return [];
 }
-function currentBetterId(game) { const p = pendingBetters(game); return p.length ? p[0] : null; }
+// Late chips go one at a time; blind bets have no turns
+function currentBetterId(game) { if (game.phase !== PHASES.SECOND_BETS) return null; const p = pendingBetters(game); return p.length ? p[0] : null; }
 
 function validateTarget(game, target) {
   if (target === 'closed') return { ok: true, target: 'closed' };
@@ -1035,104 +1096,150 @@ function placeBet(game, playerId, betTarget) {
   if (!stage) return { error: 'Too late — the game moved on' };
   const dealer = dealerOf(game);
   if (dealer && dealer.id === playerId && !dealerBets(game)) return { error: 'The dealer doesn’t bet' };   // [settings] 'bet'/'both': the dealer bets too
-  if (stageBet(game, playerId, stage)) return { error: 'You already bet' };
-  if (currentBetterId(game) !== playerId) return { error: 'Not your turn yet' };
   if (!betTarget || typeof betTarget !== 'object') return { error: 'That didn’t take. Try again.' };
   const count = Number(betTarget.count);
-  if (stage === 1 && count !== 1 && count !== 2) return { error: 'That didn’t take. Try again.' };
-  if (stage === 2 && count !== 1) return { error: 'You have one chip left' };
+  if (stage === 1) {
+    if (game.dropAt) return { error: 'The chips are down' };
+    if (hasBlind(game, playerId)) return { error: 'You already bet' };
+    if (!game.betOrder.includes(playerId)) return { error: 'You sit this round out' };   // joined after the betting began
+    if (count !== 1 && count !== 2) return { error: 'That didn’t take. Try again.' };
+    const v = validateTarget(game, betTarget.target);
+    if (v.error) return v;
+    game.blind[playerId] = { target: v.target, count, at: Date.now() };
+    return { ok: true, allIn: pendingBetters(game).length === 0 };
+  }
+  if (stageBet(game, playerId, 2)) return { error: 'You already bet' };
+  if (currentBetterId(game) !== playerId) return { error: 'Not your turn yet' };
+  if (count !== 1) return { error: 'You have one chip left' };
   const v = validateTarget(game, betTarget.target);
   if (v.error) return v;
-  // Second chip can go anywhere — including on top of your first one.
+  // The last chip can go anywhere — including on top of your first one.
   game.bets.push({ playerId, target: v.target, count, stage, at: Date.now() });
-  (stage === 1 ? game.firstBets : game.secondBets)[playerId] = { target: v.target, count };
+  game.secondBets[playerId] = { target: v.target, count };
   return { ok: true, allIn: pendingBetters(game).length === 0 };
 }
 
-// Mis-tap? Take your chip back within a few seconds, as long as nobody has bet after you
+// Changed your mind? A blind bet can be taken back until the chips drop. A late chip: within a few seconds,
+// as long as nobody has bet after you.
 const UNDO_MS = 4000;
 function undoBet(game, playerId) {
   const stage = game.phase === PHASES.FIRST_BETS ? 1 : game.phase === PHASES.SECOND_BETS ? 2 : 0;
+  if (stage === 1) {
+    if (game.dropAt || !game.blind || !game.blind[playerId]) return { error: 'Too late to take it back' };
+    delete game.blind[playerId];
+    return { ok: true };
+  }
   const last = game.bets[game.bets.length - 1];
   if (!stage || !last || last.playerId !== playerId || last.stage !== stage || last.target === 'pass') return { error: 'Too late to take it back' };
   if (Date.now() - (last.at || 0) > UNDO_MS) return { error: 'Too late to take it back' };
   game.bets.pop();
-  delete (stage === 1 ? game.firstBets : game.secondBets)[playerId];
+  delete game.secondBets[playerId];
   game.timerToken = (game.timerToken || 0) + 1;   // cancels the 'all chips are down' move
   return { ok: true };
 }
 
+// A late chip whose phone has gone quiet: they sit it out
 function skipCurrentBetter(game) {
-  if (game.phase !== PHASES.FIRST_BETS && game.phase !== PHASES.SECOND_BETS) return { error: 'Too late — the game moved on' };
+  if (game.phase === PHASES.FIRST_BETS) return { error: 'Everyone bets at once. Drop the chips instead.' };
+  if (game.phase !== PHASES.SECOND_BETS) return { error: 'Too late — the game moved on' };
   const pid = currentBetterId(game);
   if (!pid) return { error: 'Nobody is waiting to bet' };
-  game.bets.push({ playerId: pid, target: 'pass', count: 0, stage: game.phase === PHASES.FIRST_BETS ? 1 : 2 });
+  game.bets.push({ playerId: pid, target: 'pass', count: 0, stage: 2 });
   return { ok: true, skipped: pid, allIn: pendingBetters(game).length === 0 };
 }
 
-function moveToReveal(game) {
+// Every blind chip lands at once, in seat order. Anyone who didn't bet sits the blind bet out: still here, they
+// keep one chip for after the flip; phone gone, nothing.
+function dropBlind(game) {
   if (game.phase !== PHASES.FIRST_BETS) return { error: 'Too late — the game moved on' };
-  setPhase(game, PHASES.REVEAL);
+  if (game.dropAt) return { ok: true, noop: true };
+  const at = Date.now();
+  for (const pid of game.betOrder) {
+    if (stageBet(game, pid, 1)) continue;   // (a room restored from an older server: already on the table)
+    const b = game.blind && game.blind[pid];
+    if (b) {
+      game.bets.push({ playerId: pid, target: b.target, count: b.count, stage: 1, at });
+      game.firstBets[pid] = { target: b.target, count: b.count };
+    } else {
+      const p = game.players.find(x => x.id === pid);
+      game.bets.push({ playerId: pid, target: 'pass', count: 0, stage: 1, late: !!(p && p.connected), at });
+    }
+  }
+  game.blind = {};
+  game.blindEnd = null;
+  game.dropAt = at;
   return { ok: true };
 }
 
 const chipsOnTable = (game) => game.bets.reduce((n, b) => n + (b.target === 'pass' ? 0 : b.count), 0);
-
-// After the reveal: second bets if anyone has a chip left, else straight on
-function moveFromReveal(game) {
-  if (game.phase !== PHASES.REVEAL) return { error: 'Too late — the game moved on' };
-  if (eligibleSecondBetters(game).length) { setPhase(game, PHASES.SECOND_BETS); return { ok: true }; }
-  return afterAllBets(game);
-}
-
-// All chips are down: the dealer's steal, or straight to the answer
-// [settings] only when the dealer mode has a steal, and only other players' chips can be stolen
+// [settings] only other players' chips can be stolen
 const othersChipsOnTable = (game, dealer) => game.bets.reduce((n, b) => n + (b.target === 'pass' || (dealer && b.playerId === dealer.id) ? 0 : b.count), 0);
-function afterAllBets(game) {
+
+// The chips are down and the table has had its look: the dealer's steal, or straight to the flip
+function afterBlinds(game) {
+  if (game.phase !== PHASES.FIRST_BETS) return { error: 'Too late — the game moved on' };
+  if (!game.dropAt) dropBlind(game);
   const dealer = dealerOf(game);
   if (stealOn(game) && dealer && othersChipsOnTable(game, dealer) > 0) {
-    setPhase(game, PHASES.STEAL);
     game.steal = null;
+    setPhase(game, PHASES.STEAL);
     return { ok: true };
   }
+  return startFlip(game, Date.now());
+}
+// The face-down card turns over at `at` (server time): every phone flips it together
+function startFlip(game, at) {
+  game.flipAt = at;
+  setPhase(game, PHASES.REVEAL);
+  return { ok: true };
+}
+
+// After the flip: the late chips if anyone holds one, else the answer
+function moveFromReveal(game) {
+  if (game.phase !== PHASES.REVEAL) return { error: 'Too late — the game moved on' };
+  if (eligibleSecondBetters(game).some(pid => !stageBet(game, pid, 2))) { setPhase(game, PHASES.SECOND_BETS); return { ok: true }; }
   revealAnswer(game);
   return { ok: true };
 }
 
 function moveFromSecondBets(game) {
   if (game.phase !== PHASES.SECOND_BETS) return { error: 'Too late — the game moved on' };
-  return afterAllBets(game);
+  revealAnswer(game);
+  return { ok: true };
 }
 
-// The dealer knocks one chip off the table (betIndex = index in game.bets), or passes (null)
+// The dealer takes one chip off the table (betIndex = index in game.bets), or passes (null). Then the flip,
+// once the steal show is over.
 function stealChip(game, betIndex) {
   if (game.phase !== PHASES.STEAL) return { error: 'Too late — the game moved on' };
   if (betIndex === null || betIndex === undefined) {
     game.steal = { skipped: true };
-  } else {
-    const bet = game.bets[Number(betIndex)];
-    if (!bet || bet.target === 'pass' || bet.count < 1) return { error: 'No chip there' };
-    const dl = dealerOf(game);
-    if (dl && bet.playerId === dl.id) return { error: 'You can’t steal your own chip' };   // [settings] kitchen sink: the dealer's own chips stay put
-    bet.count -= 1;
-    bet.stolen = (bet.stolen || 0) + 1;
-    const onCorrect = isBetOnCorrect(game, bet);
-    game.stealShows = (game.stealShows || 0) + 1;
-    // 'full' for the first steal of the game or a steal off the real caption; every other steal is 'short'
-    const stealShow = game.stealShows === 1 || onCorrect ? 'full' : 'short';
-    const robbedBefore = game.history.some(h => h.steal && h.steal.victimId === bet.playerId);
-    const vname = firstNameOf(game, bet.playerId);
-    let act = null, actName = null, gloat;
-    if (stealShow === 'full') {   // only a full show deals a heist off the deck, so they stay a treat
-      act = nextHeist(game); actName = HEISTS[act].name;
-      gloat = robbedBefore ? AGAIN_FULL.replace('{name}', vname) : pick(HEISTS[act].gloats);
-    } else {
-      gloat = (robbedBefore ? AGAIN_SHORT : pick(RECEIPTS)).replace('{name}', vname);
-    }
-    game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect, act, actName, gloat, again: robbedBefore, stealShow, seed: Math.floor(Math.random() * 1e9), at: Date.now(), show: game.stealShows };
+    return startFlip(game, Date.now());
   }
-  revealAnswer(game);
-  return { ok: true };
+  const bet = game.bets[Number(betIndex)];
+  if (!bet || bet.target === 'pass' || bet.count < 1) return { error: 'No chip there' };
+  const dl = dealerOf(game);
+  if (dl && bet.playerId === dl.id) return { error: 'You can’t steal your own chip' };   // [settings] kitchen sink: the dealer's own chips stay put
+  bet.count -= 1;
+  bet.stolen = (bet.stolen || 0) + 1;
+  const onCorrect = isBetOnCorrect(game, bet);   // kept on the server until the answer: no phone sees it before
+  game.stealShows = (game.stealShows || 0) + 1;
+  game.nightSteals = (game.nightSteals || 0) + 1;
+  // #1: the night's first steal gets the full show; after that about one in four, at random. Never decided by
+  // where the chip was, so the show can't tip anyone off.
+  const stealShow = game.nightSteals === 1 || Math.random() < STEAL_FULL_SHARE ? 'full' : 'short';
+  const robbedBefore = game.history.some(h => h.steal && h.steal.victimId === bet.playerId);
+  const vname = firstNameOf(game, bet.playerId);
+  let act = null, actName = null, gloat;
+  if (stealShow === 'full') {   // only a full show deals a heist off the deck, so they stay a treat
+    act = nextHeist(game); actName = HEISTS[act].name;
+    gloat = robbedBefore ? AGAIN_FULL.replace('{name}', vname) : pick(HEISTS[act].gloats);
+  } else {
+    gloat = (robbedBefore ? AGAIN_SHORT : pick(RECEIPTS)).replace('{name}', vname);
+  }
+  const at = Date.now();
+  game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect, act, actName, gloat, again: robbedBefore, stealShow, seed: Math.floor(Math.random() * 1e9), at, show: game.stealShows };
+  return startFlip(game, at + (stealShow === 'full' ? STEAL_FULL_MS : STEAL_SHORT_MS) + 300);
 }
 
 function isBetOnCorrect(game, bet) {
@@ -1147,10 +1254,12 @@ function revealAnswer(game) {
   const s = game.settings;
   const scores = {}, details = {};
   game.players.forEach(p => { scores[p.id] = 0; details[p.id] = []; });
+  const mult = isLate(game) ? 2 : 1;   // #11 The Late Edition: every point this round counts double
   const add = (pid, pts, reason) => {
     if (!pts || !(pid in scores)) return;
+    pts *= mult;
     scores[pid] += pts;
-    details[pid].push({ pts, reason });
+    details[pid].push(mult > 1 ? { pts, reason, x2: true } : { pts, reason });
   };
 
   // [settings] 'anyoneRight' = another player (not the dealer) has a chip left on the real caption.
@@ -1220,6 +1329,7 @@ function revealAnswer(game) {
     correctCaption: game.correctCaption,
     realCredit: game.realCredit ? { ...game.realCredit } : null,
     dealerName: dealer ? dealer.name : '',
+    double: mult > 1,   // The Late Edition
     autoClose: game.autoClose,
     openCaptions: game.openCaptions.map(c => ({ caption: c.caption, isCorrect: c.isCorrect, playerId: c.playerId, playerName: c.playerId ? nameOfPlayer(game, c.playerId) : null })),
     closedCaption: game.closedCaption,
@@ -1252,6 +1362,16 @@ function moveToScoreboard(game) {
   if (game.phase === PHASES.ANSWER) return { error: 'Frame It comes first' };
   if (game.phase !== PHASES.FRAMING) return { error: 'Too late — the game moved on' };
   if (!game.frameResult) resolveFraming(game);
+  // #37 first to N: someone got there. The trip around the table is finished first (everyone deals the same
+  // number of times), and #11 the rest of that trip is The Late Edition.
+  const s = game.settings;
+  if (s.targetScore && !game.finalLaps && game.players.some(p => p.score >= s.targetScore)) {
+    const counts = game.dealCount || {}, here = game.players.filter(isPresent);
+    game.finalLaps = Math.max(1, ...(here.length ? here : game.players).map(p => counts[p.id] || 0));
+    const top = Math.max(...game.players.map(p => p.score));
+    game.targetHit = { round: game.round, ids: game.players.filter(p => p.score === top).map(p => p.id), score: top };
+    if (!isGameOver(game)) game.lateFrom = game.round + 1;
+  }
   if (!isGameOver(game) && !canDeal(game)) endForDeck(game);   // nothing left to deal: this is the final scoreboard
   setPhase(game, PHASES.SCORES);
   game.scoresAt = Date.now();   // phones time the Grand Poobah ceremony from this, so it plays together
@@ -1262,10 +1382,10 @@ function moveToScoreboard(game) {
 // [settings] 'Everyone deals N times' (laps): the rounds played so far, plus the deals still to come going around
 // the table from the current dealer, stopping at the first seat that has already dealt N times. With N = 1 and
 // nobody joining late this is exactly the old 'one round per player'; a late joiner adds the deals they will get.
+// (#37: a fixed round count and first-to-N are trips around the table too: see lapsOf. null = no end in sight yet.)
 function totalRounds(game) {
-  const s = game.settings;
-  if (s.rounds) return s.rounds;
-  const n = game.players.length, laps = [1, 2, 3].includes(s.laps) ? s.laps : 1;
+  const n = game.players.length, laps = lapsOf(game);
+  if (!laps) return null;
   if (!game.round || game.dealerIndex < 0 || !game.dealCount || !n) return n * laps;
   const c = { ...game.dealCount }, step = stepOf(game);
   let i = game.dealerIndex, more = 0;
@@ -1280,11 +1400,46 @@ function totalRounds(game) {
 }
 
 function isGameOver(game) {
-  const s = game.settings;
   if (game.deckOut) return true;
-  if (s.targetScore && s.targetScore > 0 && game.players.some(p => p.score >= s.targetScore)) return true;
-  if (s.targetScore && s.targetScore > 0) return false;
+  if (!lapsOf(game)) return false;   // first to N, and nobody's there yet
   return game.round >= totalRounds(game);
+}
+// #11 The Late Edition: this round (or `round`) pays double
+const isLate = (game, round = game.round) => !!game.lateFrom && round >= game.lateFrom;
+
+/* #9 / #11: the winner. Most points; a tie for first goes to whoever fooled the most (chips other players put on
+   their fakes, all game: a stolen chip still fooled them), then to more captions framed tonight. Still level: a tie. */
+function fooledTally(game) {
+  const t = {};
+  for (const h of game.history || []) for (const b of h.bets || []) {
+    if (!b || b.target === 'pass') continue;
+    const c = b.target === 'closed' ? { playerId: h.closedPlayerId, isCorrect: h.closedIsCorrect } : ((h.openCaptions || [])[b.target] || {});
+    const n = (b.count || 0) + (b.stolen || 0);
+    if (c.isCorrect || !c.playerId || c.playerId === b.playerId || n < 1) continue;
+    t[c.playerId] = (t[c.playerId] || 0) + n;
+  }
+  return t;
+}
+function framedTally(game) {
+  const t = {};
+  for (const e of hallOfFame(game)) if (!e.isReal && e.writerId) t[e.writerId] = (t[e.writerId] || 0) + 1;
+  return t;
+}
+function standing(game) {
+  const ps = game.players;
+  if (!ps.length) return null;
+  const top = Math.max(...ps.map(p => p.score));
+  let tied = ps.filter(p => p.score === top).map(p => p.id);
+  const out = { top, tied: [...tied], by: 'points', winners: tied };
+  if (tied.length < 2) return out;
+  const fooled = fooledTally(game), mf = Math.max(...tied.map(id => fooled[id] || 0));
+  out.fooled = Object.fromEntries(tied.map(id => [id, fooled[id] || 0]));
+  tied = tied.filter(id => (fooled[id] || 0) === mf);
+  if (tied.length === 1) return { ...out, by: 'fooled', winners: tied };
+  const framed = framedTally(game), mr = Math.max(...tied.map(id => framed[id] || 0));
+  out.framed = Object.fromEntries(tied.map(id => [id, framed[id] || 0]));
+  tied = tied.filter(id => (framed[id] || 0) === mr);
+  return { ...out, by: tied.length === 1 ? 'framed' : 'tie', winners: tied };
 }
 
 /* ── Frame It: after every answer, one secret pick per player per cartoon, every round (no limit per game) ──
@@ -1455,7 +1610,7 @@ function resolveFinale(game) {
 
 /* ── Emoji reactions: one per person per caption, counts only until the answer ── */
 const REACTION_KINDS = ['laugh', 'up', 'fire', 'huh', 'dead', 'roll'];
-const REACT_FACE_UP = [PHASES.READING, PHASES.FIRST_BETS];            // the Closed Caption is still face-down
+const REACT_FACE_UP = [PHASES.READING, PHASES.FIRST_BETS, PHASES.STEAL];   // the Closed Caption is still face-down (#8: the steal comes before the flip)
 const REACT_ALL = [PHASES.REVEAL, PHASES.SECOND_BETS];                 // open captions and the Closed Caption
 function react(game, playerId, target, kind) {
   const early = REACT_FACE_UP.includes(game.phase);
@@ -1593,6 +1748,7 @@ function awardBadges(game) {
    The 'career' message: { rating, games, total, lines } — this phone's rating and games played, its badge count,
    and the short keys of the verdict lines it has already been shown (so nobody reads the same line twice). */
 const OPEN_MS = 3500;   // the opening card before the first cartoon (round 1's writing clock starts after it)
+const FULL_RATING_ROUNDS = 8;   // #38: games this long (or longer) move the rating the full amount; shorter ones, in proportion
 function setCareer(game, playerId, msg) {
   const p = game.players.find(x => x.id === playerId);
   if (!p) return { error: 'Player not in game' };
@@ -1639,9 +1795,11 @@ function settleRating(game) {
     const scores = {};
     for (const p of game.players) if (game.ratingSnap[p.id]) scores[p.id] = p.score;
     const fav = game.opening && game.opening.favorite ? game.opening.favorite.id : null;
-    const r = Rating.settle(game.ratingSnap, scores, game.players, game.gameId, fav);
+    // #38: a short game is mostly luck, so it moves the rating less: the full amount from FULL_RATING_ROUNDS rounds
+    const scale = Math.min(1, Math.max(1, game.round || 1) / FULL_RATING_ROUNDS);
+    const r = Rating.settle(game.ratingSnap, scores, game.players, game.gameId, fav, scale);
     if (r.order.length < 2) { game.ratingResult = { gameId: game.gameId, rows: {}, order: [], none: true }; return; }
-    game.ratingResult = { gameId: game.gameId, rows: r.rows, order: r.order, at: Date.now() };
+    game.ratingResult = { gameId: game.gameId, rows: r.rows, order: r.order, at: Date.now(), scale, short: scale < 1, rounds: game.round };
   } catch (e) { console.error('rating failed', e); game.ratingResult = { gameId: game.gameId, rows: {}, order: [], none: true }; }
 }
 // The dealer/host moves on from the verdicts to the Grand Poobah
@@ -1687,7 +1845,15 @@ function resetForNewGame(game) {
   game.roundBadges = [];
   game.gameBadges = [];
   game.crowns = {};
-  game.stealShows = 0;
+  game.stealShows = 0;   // (nightSteals keeps counting: the full show is for the night's first steal)
+  game.blind = {};
+  game.blindEnd = null;
+  game.dropAt = null;
+  game.flipAt = null;
+  game.lateFrom = null;
+  game.finalLaps = null;
+  game.fixedLaps = null;
+  game.targetHit = null;
   game.stepAt = null;
   game.ratingSnap = null;
   game.opening = null;
@@ -1697,7 +1863,7 @@ function resetForNewGame(game) {
 
 const AFTER_WRITING = [PHASES.READING, PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
 const BETTING_ON = [PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
-const REVEALED = [PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
+const REVEALED = [PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];   // (not STEAL: it comes before the flip)
 const ANSWERED = [PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
 
 const TAKEOVER_SECS = 30;
@@ -1726,7 +1892,11 @@ function getPlayerView(game, playerId) {
     notice: game.notice || null,     // #26: a table announcement { text, at }
     players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: p.connected, watched: !!p.watched, rating: Rating.validRating(p.rating) ? p.rating : null, provisional: !Rating.validRating(p.rating) || (p.games || 0) < Rating.PROVISIONAL_GAMES, title: ratingTitle(p), published: published.get(p.name.toLowerCase()) || 0 })),
     round: game.round,
-    totalRounds: s.targetScore ? null : totalRounds(game),
+    totalRounds: lapsOf(game) ? totalRounds(game) : null,
+    // #11 The Late Edition: when it began, whether this round pays double, and (first to N) who got there
+    late: game.lateFrom ? { from: game.lateFrom, on: isLate(game), hit: game.targetHit ? { ...game.targetHit, ids: [...game.targetHit.ids] } : null, ms: LATE_MS } : null,
+    flipAt: game.flipAt || null,     // when the face-down card turns over (server time)
+    dropAt: game.dropAt || null,     // when the blind chips dropped onto the table (server time)
     settings: { ...s },
     deckSize: CARTOONS.length,
     hostId: game.hostId,
@@ -1789,17 +1959,25 @@ function getPlayerView(game, playerId) {
   }
 
   if (BETTING_ON.includes(game.phase)) {
-    base.bets = game.bets.map(b => ({ ...b }));
+    base.bets = game.bets.map(b => ({ ...b }));   // (blind bets only reach here once they've dropped)
     base.betOrder = [...game.betOrder];
-    base.myFirstBet = game.firstBets[playerId] || null;
+    const myBlind = game.blind && game.blind[playerId];
+    base.myFirstBet = game.firstBets[playerId] || (myBlind ? { target: myBlind.target, count: myBlind.count } : null);
     base.mySecondBet = game.secondBets[playerId] || null;
     base.currentBetterId = currentBetterId(game);
     base.currentBetterName = base.currentBetterId ? nameOfPlayer(game, base.currentBetterId) : null;
-    base.isMyTurn = base.currentBetterId === playerId;
     base.pendingBetters = pendingBetters(game);
     base.allBetsIn = base.pendingBetters.length === 0;
     base.eligibleSecondBetters = eligibleSecondBetters(game);
-    base.steal = game.steal ? { ...game.steal } : null;
+    if (game.phase === PHASES.FIRST_BETS) {
+      // #7: who has locked in (never where) until every chip drops at once
+      base.blindIn = game.dropAt ? [...game.betOrder] : game.betOrder.filter(pid => hasBlind(game, pid));
+      base.blindEnd = game.blindEnd || null;
+      base.isMyTurn = !game.dropAt && game.betOrder.includes(playerId) && !hasBlind(game, playerId);
+    } else base.isMyTurn = base.currentBetterId === playerId;
+    // #1: whether the stolen chip was on the real caption stays on the server until the answer
+    if (game.steal) { const { onCorrect, ...st } = game.steal; base.steal = ANSWERED.includes(game.phase) ? { ...game.steal } : st; }
+    else base.steal = null;
   }
 
   // Before the answer: how many of each reaction, never who; after: the full picture
@@ -1856,8 +2034,12 @@ function getPlayerView(game, playerId) {
       base.nextDealerName = nd ? nd.name : '';
       base.nextDealerId = nd ? nd.id : null;
       base.isNextDealer = !!nd && nd.id === playerId;
+      // #11: the next deal opens The Late Edition (the scoreboard says so)
+      const laps = lapsOf(game);
+      base.nextLate = game.lateFrom === game.round + 1 || (!game.lateFrom && !s.targetScore && laps >= 2 && !!nd && ((game.dealCount || {})[nd.id] || 0) + 1 >= laps);
     }
     if (base.gameOver) {
+      base.standing = standing(game);   // the winner(s), with the tie-break that decided it
       base.framedTonight = finaleEntries(game).length;
       settleRating(game);   // (a room restored from before the rating: worked out now, once)
       if (game.ratingResult && !game.ratingResult.none) base.rating = JSON.parse(JSON.stringify(game.ratingResult));
@@ -1907,6 +2089,8 @@ function unsealGame(blob) {
     const g = JSON.parse(require('zlib').inflateSync(Buffer.concat([d.update(b.subarray(28)), d.final()])).toString());
     if (!g || !g.code || !Array.isArray(g.players) || Date.now() - g.sealedAt > 6 * 3600 * 1000) return null;   // a copy older than 6 h is a different night
     g.deck = newRoomDeck(); g.voice = {};
+    if (!g.blind || typeof g.blind !== 'object') g.blind = {};   // (a room sealed by an older server)
+    if (g.phase === PHASES.FIRST_BETS && !g.dropAt && g.blindEnd) g.blindEnd = Math.max(g.blindEnd, Date.now() + 20000);   // bettors get a fair 20 s back
     g.usedCartoonIds = (g.usedCartoonIds || []).filter(id => !isRetiredId(id));
     if (g.cartoon && isRetiredId(g.cartoon.id)) resetForNewGame(g);   // a room from before the retirement: back to the lobby
     g.players.forEach(p => { p.connected = false; p.disconnectedAt = Date.now(); });
@@ -1923,7 +2107,8 @@ module.exports = {
   addTime, undoBet, freshest, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, pickFrame, allFramesIn, resolveFraming, hallOfFame, planBlock, ensurePlan,
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
-  moveToFirstBets, placeBet, skipCurrentBetter, moveToReveal, moveFromReveal, moveFromSecondBets,
+  moveToFirstBets, placeBet, skipCurrentBetter, dropBlind, afterBlinds, moveFromReveal, moveFromSecondBets, eligibleSecondBetters,
+  standing, fooledTally, isLate, lapsOf, BLIND_MS, ALL_IN_BEAT_MS, DROP_HOLD_MS, STEAL_FULL_MS, STEAL_SHORT_MS, LATE_MS,
   openFinale, voteFinale, resolveFinale, finaleAllIn,
   setVoice, clearVoice,
   stealChip, revealAnswer, moveToFraming, moveToScoreboard, isGameOver, resetForNewGame, isPresent,
