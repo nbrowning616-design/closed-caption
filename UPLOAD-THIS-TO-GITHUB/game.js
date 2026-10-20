@@ -1890,6 +1890,8 @@ function getPlayerView(game, playerId) {
     phase: game.phase,
     locked: !!game.locked,           // #51: the host locked the room (no new names)
     notice: game.notice || null,     // #26: a table announcement { text, at }
+    // #30: someone at the door says they're a player whose seat is on another phone: the host decides
+    seatClaim: game.seatClaim && game.hostId === playerId ? { ...game.seatClaim } : null,
     players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: p.connected, watched: !!p.watched, rating: Rating.validRating(p.rating) ? p.rating : null, provisional: !Rating.validRating(p.rating) || (p.games || 0) < Rating.PROVISIONAL_GAMES, title: ratingTitle(p), published: published.get(p.name.toLowerCase()) || 0 })),
     round: game.round,
     totalRounds: lapsOf(game) ? totalRounds(game) : null,
@@ -1931,6 +1933,14 @@ function getPlayerView(game, playerId) {
     base.gazette = hide ? deckOf(game).recent(GAZETTE_SIZE * 4).filter(e => !hide.has(e.cartoonId)).slice(0, GAZETTE_SIZE) : deckOf(game).recent(GAZETTE_SIZE);
   }
   if (game.phase === PHASES.LOBBY) {
+    // #30: the host's phone went quiet in the lobby: after 20 s, the next player here may take over
+    const host = game.players.find(p => p.id === game.hostId);
+    const hostAwayMs = host && !host.connected && host.disconnectedAt ? Date.now() - host.disconnectedAt : 0;
+    if (hostAwayMs >= 20000) {
+      const next = game.players.find(p => p.connected && p.id !== game.hostId);
+      base.hostAway = { name: host.name, secs: Math.floor(hostAwayMs / 1000) };
+      base.canTakeHost = !!next && next.id === playerId;
+    }
     const d = deckStatus(game);   // only the live deck counts (retired ids a phone has seen are ignored)
     base.freshCount = d.fresh; base.poolCount = d.pool;
     base.deck = { ...d, line: deckLine(d) };
@@ -2090,6 +2100,7 @@ function unsealGame(blob) {
     if (!g || !g.code || !Array.isArray(g.players) || Date.now() - g.sealedAt > 6 * 3600 * 1000) return null;   // a copy older than 6 h is a different night
     g.deck = newRoomDeck(); g.voice = {};
     if (!g.blind || typeof g.blind !== 'object') g.blind = {};   // (a room sealed by an older server)
+    g.seatClaim = null;   // the phone that was waiting at the door has to ask again
     if (g.phase === PHASES.FIRST_BETS && !g.dropAt && g.blindEnd) g.blindEnd = Math.max(g.blindEnd, Date.now() + 20000);   // bettors get a fair 20 s back
     g.usedCartoonIds = (g.usedCartoonIds || []).filter(id => !isRetiredId(id));
     if (g.cartoon && isRetiredId(g.cartoon.id)) resetForNewGame(g);   // a room from before the retirement: back to the lobby

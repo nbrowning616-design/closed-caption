@@ -28,7 +28,7 @@
     '.gd-wait .gd-ic{font-size:26px;line-height:1;animation:gdTilt 1.4s ease-in-out infinite;transform-origin:50% 60%;}',
     '.gd-wait .gd-h{font-family:var(--display,Fredoka,sans-serif);font-weight:700;font-size:20px;line-height:1.15;color:var(--ink,#1F1A17);}',
     '.gd-wait .gd-s{display:block;font-size:13px;font-weight:800;color:var(--ink-2,#4A433D);margin-top:1px;}',
-    '.gd-wait .gd-dots::after{content:"";display:inline-block;width:1.1em;text-align:left;animation:gdDots 1.4s steps(4,end) infinite;}',
+    '.gd-wait .gd-dots::after{content:"…";display:inline-block;width:1.1em;text-align:left;animation:gdDots 1.4s ease-in-out infinite;}',
     '.chip.gd-spot{filter:none!important;opacity:1!important;z-index:1;animation:gdSpot 1.5s ease-in-out infinite;}',
     '.chip.gd-spot::before{content:"";position:absolute;left:50%;top:50%;width:250%;height:250%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,210,63,.75) 0 30%,rgba(255,210,63,.28) 48%,rgba(255,210,63,0) 70%);z-index:-1;pointer-events:none;animation:gdGlow 1.5s ease-in-out infinite;}',
     '@keyframes gdSpot{0%,100%{transform:translateY(0) scale(1);box-shadow:0 0 0 3px var(--yellow,#FFD23F),0 2px 0 rgba(31,26,23,.9);}50%{transform:translateY(-4px) scale(1.12);box-shadow:0 0 0 5px var(--yellow,#FFD23F),0 6px 0 rgba(31,26,23,.25);}}',
@@ -36,7 +36,7 @@
     '@keyframes gdWaitIn{from{opacity:0;transform:rotate(-1.2deg) scale(.85);}to{opacity:1;transform:rotate(-1.2deg) scale(1);}}',
     '@keyframes gdSheen{0%{transform:translateX(-100%);}60%,100%{transform:translateX(100%);}}',
     '@keyframes gdTilt{0%,100%{transform:rotate(-12deg);}50%{transform:rotate(12deg);}}',
-    '@keyframes gdDots{0%{content:"";}25%{content:".";}50%{content:"..";}75%,100%{content:"...";}}',
+    '@keyframes gdDots{0%,100%{opacity:.25;}50%{opacity:1;}}',   /* one breathing ellipsis: never a stray '..' */
     /* The last writer's nudge: a friendly card at the top (never over the text box or the button) */
     '.gd-nudge{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));z-index:940;width:max-content;max-width:min(92vw,420px);display:flex;align-items:center;gap:12px;padding:12px 18px 12px 14px;border:2.5px solid var(--ink,#1F1A17);border-radius:18px;background:var(--yellow,#FFD23F);box-shadow:5px 5px 0 var(--ink,#1F1A17);transform:translate(-50%,-180%) rotate(-1.5deg);transition:transform .5s cubic-bezier(.34,1.56,.64,1);cursor:pointer;-webkit-user-select:none;user-select:none;}',
     '.gd-nudge.on{transform:translate(-50%,0) rotate(-1.5deg);}',

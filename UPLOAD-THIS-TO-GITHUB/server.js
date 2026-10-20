@@ -193,7 +193,39 @@ const recent = (list, ms) => { const now = Date.now(); while (list.length && now
 function wrongCode(ip) { const h = hitsOf(ip); recent(h.misses, 5 * 60000).push(Date.now()); if (h.misses.length >= 12) { h.blockedUntil = Date.now() + 2 * 60000; h.misses = []; } }
 const blocked = (ip) => hitsOf(ip).blockedUntil > Date.now();
 setInterval(() => { const now = Date.now(); for (const [ip, h] of hits) if (!h.creates.length && !h.misses.length && h.blockedUntil < now) hits.delete(ip); else { recent(h.creates, 60000); recent(h.misses, 5 * 60000); } }, 60000);
-const TAKE_SEAT_SECS = 30;   // #26: a seat can only be claimed by name once its phone has been gone this long
+/* #30 Same name at the door: "Are you the Chris who was playing, or a different Chris?"
+   A different Chris gets a seat of their own ("Chris 2"). 'It's me' takes the old seat only once its phone has
+   been gone 2 minutes, or with the host's OK; the old phone is told its seat moved. */
+const CLAIM_FREE_MS = 120000;
+const BACK_NOTICE_MS = 20000;   // away this long mid-game: the table hears "X's back."
+const HOST_TAKEOVER_MS = 20000; // lobby: the host's phone gone this long, the next player may take over
+const firstWord = (n) => String(n || '').trim().split(/\s+/)[0] || n;
+const claims = new Map();       // claim id -> { ws, code, pid, at } (a phone waiting for the host's OK)
+function freeName(game, name) {
+  const taken = new Set(game.players.map(p => p.name.toLowerCase()));
+  for (let k = 2; k < 10; k++) { const suf = ' ' + k, n = name.slice(0, 12 - suf.length).trim() + suf; if (!taken.has(n.toLowerCase())) return n; }
+  return null;
+}
+// Seat `claimWs` in an existing player's seat: the old phone (if it's still on) is told, and its key stops working
+function takeSeat(code, existing, claimWs) {
+  const game = games[code];
+  if (!game || !claimWs || claimWs.readyState !== 1 || typeof claimWs.seatFn !== 'function') return;
+  const old = clients[existing.id];
+  if (old && old.ws !== claimWs) { send(old.ws, { type: 'seat_moved' }); try { old.ws.close(4001, 'seat moved'); } catch (e) {} delete clients[existing.id]; }
+  if (existing.key) existing.movedKey = existing.key;   // that phone hears "Your seat moved" if it comes back
+  existing.key = null;
+  existing.connected = false;   // (seat() marks it here again, without a "back" notice of its own)
+  existing.disconnectedAt = null;
+  if (game.seatClaim && game.seatClaim.pid === existing.id) game.seatClaim = null;
+  game.notice = { text: `${firstWord(existing.name)}’s back, on a different phone.`, at: Date.now() };
+  claimWs.seatFn(existing.id, code);
+}
+function dropClaim(id) {
+  const c = claims.get(id); if (!c) return;
+  claims.delete(id);
+  const g = games[c.code];
+  if (g && g.seatClaim && g.seatClaim.id === id) { g.seatClaim = null; broadcast(c.code); }
+}
 
 // After a restart: a phone hands back its sealed copy and the room comes back as it was
 function resumeTimers(code) {
@@ -228,14 +260,21 @@ wss.on('connection', (ws, req) => {
     const old = clients[id];
     if (old && old.ws !== ws) { try { old.ws.close(4000, 'replaced'); } catch (e) {} }
     playerId = id;
+    ws.claimId = null;
     clients[id] = { ws, gameCode: code };
-    const p = games[code].players.find(x => x.id === id);
+    const g = games[code], p = g.players.find(x => x.id === id);
+    const awayMs = p && !p.connected && p.disconnectedAt ? Date.now() - p.disconnectedAt : 0;
     if (p) { p.connected = true; p.disconnectedAt = null; }
+    // #30: a player coming back is announced as back (never as someone new), and only after a real absence
+    if (p && awayMs >= BACK_NOTICE_MS && g.phase !== PHASES.LOBBY) g.notice = { text: `${firstWord(p.name)}’s back.`, at: Date.now() };
+    // #30: the host who stepped away from the lobby gets the room back on return (until the game starts)
+    if (p && g.phase === PHASES.LOBBY && g.origHostId === id && g.hostId !== id) { g.hostId = id; g.origHostId = null; g.notice = { text: `${firstWord(p.name)}’s back, and hosting again.`, at: Date.now() }; }
     G.clearVoice(games[code], id);   // a fresh connection starts outside the voice call (the phone re-joins it)
     if (p && !p.key) p.key = crypto.randomBytes(16).toString('base64url');
     send(ws, { type: 'joined', playerId: id, code, key: p ? p.key : null, boot: BOOT });   // #2: the key never leaves this phone; everyone else only ever sees the public id
     broadcast(code);
   };
+  ws.seatFn = seat;   // (a host letting someone back into their seat seats them from the host's connection)
 
   // One bad message must never take the whole server down
   ws.on('message', (raw) => { try { onMessage(raw); } catch (e) { console.error('message failed', e); try { sendError(ws, 'That didn’t take. Try again.'); } catch (e2) {} } });
@@ -264,6 +303,7 @@ wss.on('connection', (ws, req) => {
       if (!game) return sendError(ws, 'Game not found');
       const p = game.players.find(x => x.id === msg.playerId);
       if (!p) return sendError(ws, 'Player not in game');
+      if (p.movedKey && msg.key === p.movedKey && msg.key !== p.key) return send(ws, { type: 'seat_moved' });   // #30: that seat went to another phone
       if (p.key && msg.key !== p.key) { wrongCode(ip); return sendError(ws, 'Player not in game'); }   // #2: a seat answers only to its own phone
       return seat(p.id, code);
     }
@@ -286,15 +326,31 @@ wss.on('connection', (ws, req) => {
       if (!game) { wrongCode(ip); return sendError(ws, 'Game not found'); }
       const existing = game.players.find(p => p.name.toLowerCase() === name.toLowerCase());
       if (existing) {
-        // Same name = same seat (lets someone whose phone died rejoin from a new phone).
-        // #26: only once that seat's phone has been gone a while, never in a locked room, and the table is told.
-        if (existing.connected && clients[existing.id] && clients[existing.id].ws.readyState === 1) return sendError(ws, existing.name + ' is already at the table');
-        if (game.locked) return sendError(ws, 'The host has locked this room');
-        const away = existing.disconnectedAt ? (Date.now() - existing.disconnectedAt) / 1000 : 0;
-        if (!existing.connected && away < TAKE_SEAT_SECS) return sendError(ws, `${existing.name}’s phone only just dropped. Try again in ${Math.ceil(TAKE_SEAT_SECS - away)} seconds.`);
-        existing.key = null;   // the old phone's key stops working
-        game.notice = { text: `${existing.name} is back, on a different phone.`, at: Date.now() };
-        return seat(existing.id, code);
+        // #30: the same name — ask first. A different person gets their own seat; the same person gets theirs
+        // back once the old phone has been gone 2 minutes, or with the host's OK (the table is told either way).
+        const live = !!(clients[existing.id] && clients[existing.id].ws.readyState === 1);
+        if (clients[existing.id] && clients[existing.id].ws === ws) return seat(existing.id, code);   // (this phone, tapping Join twice)
+        if (msg.as === 'new') {
+          if (game.locked) return sendError(ws, 'The host has locked this room');
+          const nm = freeName(game, name);
+          if (!nm) return sendError(ws, 'Pick a different name');
+          const id = crypto.randomUUID(), r = G.addPlayer(game, id, nm);
+          if (r.error) return sendError(ws, r.error);
+          return seat(id, code);
+        }
+        if (msg.as === 'me') {
+          const away = !live && existing.disconnectedAt ? Date.now() - existing.disconnectedAt : 0;
+          if (!live && !game.locked && away >= CLAIM_FREE_MS) return takeSeat(code, existing, ws);
+          if (ws.claimId) dropClaim(ws.claimId);
+          const host = game.players.find(p => p.id === game.hostId);
+          const hostLive = !!host && host.id !== existing.id && !!clients[host.id] && clients[host.id].ws.readyState === 1;
+          const cid = crypto.randomBytes(6).toString('hex');
+          ws.claimId = cid;
+          claims.set(cid, { ws, code, pid: existing.id, at: Date.now() });
+          if (hostLive) { game.seatClaim = { id: cid, pid: existing.id, name: existing.name, oldLive: live, awaySecs: Math.round(away / 1000), at: Date.now() }; broadcast(code); }
+          return send(ws, { type: 'claim_wait', name: existing.name, host: hostLive ? host.name : null, oldLive: live, secs: !live && !game.locked ? Math.ceil((CLAIM_FREE_MS - away) / 1000) : null });
+        }
+        return send(ws, { type: 'same_name', name: existing.name, code, playing: game.phase !== PHASES.LOBBY });
       }
       if (game.locked) return sendError(ws, 'The host has locked this room');
       const id = crypto.randomUUID();
@@ -324,6 +380,7 @@ wss.on('connection', (ws, req) => {
         if (game.players.filter(p => p.connected).length < 3) return sendError(ws, 'Need at least 3 players');
         { const c = G.startCheck(game); if (c.error) return sendError(ws, c.error); }   // the new deck is still being drawn: never start a game that would run out
         if (fail(G.startRound(game))) return;
+        game.origHostId = null;   // #30: whoever started it hosts it
         broadcast(code);
         scheduleWritingEnd(code);
         return;
@@ -341,6 +398,32 @@ wss.on('connection', (ws, req) => {
         // #51: no new names while locked (people already seated can always come back)
         if (!isHost) return sendError(ws, 'Only the host can lock the room');
         game.locked = !!msg.on;
+        broadcast(code);
+        return;
+      }
+      case 'claim_answer': {
+        // #30: the host lets someone back into a seat on a new phone (or not)
+        if (!isHost) return sendError(ws, 'Only the host can do that');
+        const id = String(msg.id || ''), c = claims.get(id);
+        if (game.seatClaim && game.seatClaim.id === id) game.seatClaim = null;
+        claims.delete(id);
+        const existing = c && c.code === code ? game.players.find(p => p.id === c.pid) : null;
+        if (existing && c.ws.readyState === 1) {
+          if (msg.ok) return takeSeat(code, existing, c.ws);
+          send(c.ws, { type: 'claim_no', name: existing.name, host: me.name });
+          c.ws.claimId = null;
+        }
+        broadcast(code);
+        return;
+      }
+      case 'take_host': {
+        // #30: the host's phone went quiet in the lobby: the next player can run the room until they're back
+        if (game.phase !== PHASES.LOBBY) return sendError(ws, 'Only in the lobby');
+        const h = game.players.find(p => p.id === game.hostId);
+        if (isHost || (h && (h.connected || !h.disconnectedAt || Date.now() - h.disconnectedAt < HOST_TAKEOVER_MS))) return;
+        if (!game.origHostId && h) game.origHostId = h.id;
+        game.hostId = playerId;
+        game.notice = { text: `${firstWord(me.name)} is hosting until ${h ? firstWord(h.name) + ' is' : 'the host is'} back.`, at: Date.now() };
         broadcast(code);
         return;
       }
@@ -388,9 +471,8 @@ wss.on('connection', (ws, req) => {
       case 'reel_next': case 'reel_prev': case 'reel_skip': {
         // The dealer paces the answer, one caption at a time
         if (!canRun) return sendError(ws, 'The dealer runs the reveal');
-        // Nobody skips ahead while the whole table is still watching the Claw
-        const st = game.steal, showMs = st && st.at && st.victimId ? (st.stealShow === 'short' ? 6000 + 400 : 12400 + 1200) : 0;   // the full heist (12.4s) or the short stamp (6s), + the phones' start lead and a margin
-        if (msg.action === 'reel_next' && game.reel && game.reel.step === 1 && showMs && Date.now() < st.at + showMs) return sendError(ws, 'Let the thief finish');
+        // #30: a tap meant for a step the table has already left (the dealer and the host both tapping) is dropped
+        if (game.phase === PHASES.ANSWER && game.reel && msg.step !== undefined && Number(msg.step) !== game.reel.step) return;
         if (fail(G.reelStep(game, msg.action.slice(5)))) return;
         broadcast(code);
         return;
@@ -588,6 +670,7 @@ wss.on('connection', (ws, req) => {
   };
 
   ws.on('close', () => {
+    if (ws.claimId) dropClaim(ws.claimId);   // a phone that was waiting for the host's OK has gone
     if (!playerId || !clients[playerId] || clients[playerId].ws !== ws) return;
     const code = clients[playerId].gameCode;
     delete clients[playerId];
@@ -612,12 +695,21 @@ setInterval(() => {
     }
     if (now - (g._lastAct || g.phaseAt || now) > 8 * 3600 * 1000) { delete games[code]; continue; }
     let changed = false;
-    // Host gone for a minute: the next person here becomes host (so someone can start / play again)
+    // Host gone: mid-game, after a minute the next person here becomes host (so someone can play again). In the
+    // lobby (#30) the next player gets a 'Take over as host' button after 20 s; after 2 minutes it moves anyway.
+    // Either way the table is told, and in the lobby the host gets the room back on return.
     const host = g.players.find(p => p.id === g.hostId);
-    if ((!host || (!host.connected && host.disconnectedAt && now - host.disconnectedAt > 60000))) {
+    const hostAway = !host ? Infinity : !host.connected && host.disconnectedAt ? now - host.disconnectedAt : 0;
+    if (hostAway > (g.phase === PHASES.LOBBY ? 120000 : 60000)) {
       const nh = g.players.find(p => p.connected);
-      if (nh && nh.id !== g.hostId) { g.hostId = nh.id; changed = true; }
+      if (nh && nh.id !== g.hostId) {
+        if (g.phase === PHASES.LOBBY && host && !g.origHostId) g.origHostId = host.id;
+        g.hostId = nh.id; changed = true;
+        g.notice = { text: g.phase === PHASES.LOBBY && host ? `${firstWord(nh.name)} is hosting until ${firstWord(host.name)} is back.` : `${firstWord(nh.name)} is hosting now.`, at: now };
+      }
     }
+    // A phone waiting for the host's OK for a seat: the claim lapses after 3 minutes
+    for (const [cid, c] of claims) if (c.code === code && now - c.at > 180000) { dropClaim(cid); try { send(c.ws, { type: 'claim_no', lapsed: true }); } catch (e) {} }
     // Writing: everyone still here has written (a phone that went away no longer holds it up)
     if (g.phase === PHASES.WRITING && g.submissions.length >= 2 && G.allCaptionsIn(g)) { endWriting(g); changed = true; }
     // #28: a dealer who wanders off doesn't freeze the steal: it passes by itself after 45 s
