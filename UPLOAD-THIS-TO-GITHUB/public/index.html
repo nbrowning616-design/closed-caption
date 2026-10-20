@@ -835,6 +835,20 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .lb-lock { width: 100%; margin: 4px 0 14px; }
 .lb-opts .lob-gal { margin-top: 4px; }
 .lb-opts .field:last-child { margin-bottom: 0; }
+/* ── #23 the invite landing ── */
+.ji { text-align: center; margin: 4px 0 18px; }
+.ji-mast { display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--display); font-weight: 700; font-size: 28px; line-height: 1; letter-spacing: -1px; margin-bottom: 18px; }
+.ji-w1 { display: inline-block; transform: rotate(-3deg); background: var(--yellow); padding: 4px 9px 5px; border: 3px solid var(--ink); border-radius: 10px; box-shadow: var(--shadow-sm); }
+.ji-h { font-family: var(--serif); font-weight: 700; font-size: 27px; line-height: 1.15; letter-spacing: -.2px; }
+.ji-n { font-weight: 400; font-style: italic; white-space: nowrap; }
+.ji-pitch { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.4; margin: 10px auto 0; max-width: 330px; text-wrap: balance; }
+.ji-sub { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--ink-2); margin-top: 8px; line-height: 1.35; text-wrap: balance; }
+.ji-code { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px 8px; margin-top: 14px; font-size: 16px; font-weight: 800; }
+.ji-code b { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: 4px; padding: 2px 10px; border: 2px solid var(--ink); border-radius: 8px; background: #fff; }
+.ji-tick { color: #0B6E59; font-size: 22px; font-weight: 900; }
+.ji-chg { font-size: 13px; padding: 0 4px; }
+.ji-btns { margin-top: 22px; text-align: left; }
+[hidden] { display: none !important; }
 /* the real caption, under the full-width cartoon, like a printed page */
 .hdr.pin ~ * .spot.is-real .spot-text, .hdr.pin ~ .spot.is-real .spot-text { text-align: center; }
 /* ── The rating (chess-style): lobby card + sheet, the opening card, the verdicts ── */
@@ -987,12 +1001,18 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 <!-- ═══════ JOIN ═══════ -->
 <div id="screen-join" class="screen">
   <button class="btn-link back-link" onclick="showScreen('screen-home')">← Back</button>
-  <h2 class="h1" style="margin-bottom: 4px;">Join a game</h2>
-  <p class="sub" style="margin-bottom: 22px;">Ask the host for the room code. You can join even if the game has started.</p>
-  <div class="field"><label class="eyebrow" for="join-code">Room code</label><input type="text" id="join-code" class="input code" placeholder="ABCD" maxlength="4" autocapitalize="characters" autocomplete="off" enterkeyhint="next" oninput="clearJoinError()"></div>
+  <!-- #23: opened from an invite link: whose table, a one-line pitch, the code already ticked -->
+  <div id="join-invite" class="ji" hidden></div>
+  <div id="join-plain">
+    <h2 class="h1" style="margin-bottom: 4px;">Join a game</h2>
+    <p class="sub" style="margin-bottom: 22px;">Ask the host for the room code. You can join even if the game has started.</p>
+  </div>
+  <div id="join-form">
+  <div class="field" id="join-code-field"><label class="eyebrow" for="join-code">Room code</label><input type="text" id="join-code" class="input code" placeholder="ABCD" maxlength="4" autocapitalize="characters" autocomplete="off" enterkeyhint="next" oninput="clearJoinError()"></div>
   <div class="field"><div class="name-lbl"><label class="eyebrow" for="join-name">Your name</label><span class="name-count" id="join-name-count" aria-hidden="true"></span></div><input type="text" id="join-name" class="input" placeholder="Your name" maxlength="12" autocomplete="off" enterkeyhint="go" oninput="nameCount(this); joinLabel()"></div>
   <div id="join-error" class="small" role="alert" style="color:var(--red); text-align:center; margin-bottom:12px; display:none;"></div>
   <button class="btn btn-yellow" id="join-btn" onclick="joinGame()">Join →</button>
+  </div>
 </div>
 
 <!-- ═══════ GAME (drawn by script) ═══════ -->
@@ -1054,6 +1074,7 @@ function showScreen(id) {
   $(id).classList.add('active');
   window.scrollTo(0, 0);
   if (id !== 'screen-game') setActionBar('');
+  if ((id === 'screen-home' || id === 'screen-create') && inviteCode) plainJoin();   // #23: leaving the invite: Join is the plain form again
   if (id === 'screen-home') { startHeroLoop(); offerRejoin(); } else stopHeroLoop();
   if (id === 'screen-create' || id === 'screen-join') prefillName(id === 'screen-create' ? 'create-name' : 'join-name');
 }
@@ -1392,6 +1413,7 @@ function connect() {
     else if (msg.type === 'gallery_purge') { galleryPurge(); if (state && state.phase === 'lobby') render(true); }   // the server refused retired frames: drop them here too
     else if (msg.type === 'error') {
       // #35: a wrong room code keeps you on Join, with what you typed, and says so right there
+      if (msg.message === 'Game not found' && pendingJoin && inviteCode && pendingJoin === inviteCode && $('screen-join').classList.contains('active')) { pendingJoin = null; pendingName = null; drawInvite(inviteCode, { open: false }); return; }   // #23: the invited room closed meanwhile
       if (msg.message === 'Game not found' && pendingJoin && $('screen-join').classList.contains('active')) {
         const je = $('join-error'), ci = $('join-code');
         je.textContent = `There’s no room ${pendingJoin}. Check the code with the host.`; je.style.display = 'block'; je.style.color = 'var(--red)'; je.dataset.kind = 'code';
@@ -1547,9 +1569,9 @@ function toggleTrack(key) { if (!window.GameMusic) return; if (window.GameMusic.
 function joinAddress() { const local = ['localhost', '127.0.0.1'].includes(location.hostname); return local && state && state.lanUrl ? state.lanUrl.replace(/^https?:\/\//, '') : location.host; }
 function shareRoom() {
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
-  const url = joinUrl(), text = `Closed Caption tonight. Room code: ${state.code}`;
+  const url = joinUrl(), text = `Closed Caption tonight. ${INVITE_PITCH} Free, no app. Room ${state.code}:`;   // #23: the invite says what it is
   if (navigator.share) navigator.share({ title: 'Closed Caption', text, url }).catch(() => {});
-  else if (navigator.clipboard) navigator.clipboard.writeText(`${text} — ${url}`).then(() => showToast('Copied — paste it to your friends', 'ok')).catch(() => showToast(`Code: ${state.code}`, 'ok'));
+  else if (navigator.clipboard) navigator.clipboard.writeText(`${text} ${url}`).then(() => showToast('Copied — paste it to your friends', 'ok')).catch(() => showToast(`Code: ${state.code}`, 'ok'));
   else showToast(`Code: ${state.code}`, 'ok');
 }
 
@@ -3163,6 +3185,47 @@ function openInvite() {
   } catch (e) {}
 })();
 
+/* #23: the invite landing. A link (?join=CODE) opens Join with the logo, whose table it is ("Join Nick's table — 3 here",
+   from /room/CODE), the one-line pitch, the code shown as "Room QGCU ✓" and the name box ready. A closed or unknown room:
+   "That game's over", with Host your own and the 1-minute demo. */
+const INVITE_PITCH = 'A bluffing game with cartoons. Write a fake caption, then bet on the real one.';
+var inviteCode = null;   // (var: showScreen reads it, and may run before this line)
+function plainJoin() {
+  inviteCode = null;
+  const b = $('join-invite'); if (b) { b.hidden = true; b.innerHTML = ''; }
+  ['join-plain', 'join-form', 'join-code-field'].forEach(id => { const e = $(id); if (e) e.hidden = false; });
+}
+function drawInvite(code, r) {
+  const box = $('join-invite'); if (!box) return;
+  box.hidden = false; $('join-plain').hidden = true;
+  const mast = '<div class="ji-mast" aria-hidden="true"><span class="ji-w1">CLOSED</span><span>CAPTION</span></div>';
+  const host = r && r.host ? r.host : '';
+  if (r && (!r.open || r.full || r.locked)) {
+    $('join-form').hidden = true;
+    const head = !r.open ? 'That game’s over.' : r.full ? `${host || 'That'}’s table is full.` : `${host || 'The host'} has locked the room.`;
+    const sub = !r.open ? (r.wait ? 'Too many tries from this phone. Give it a minute.' : `Room ${code} has closed.`) : r.full ? 'Eight phones is the most one table takes.' : 'Ask them to unlock it, or start a table of your own.';
+    box.innerHTML = `${mast}<h1 class="ji-h">${esc(head)}</h1><p class="ji-sub">${esc(sub)}</p><p class="ji-pitch">${esc(INVITE_PITCH)} Free, no app.</p>
+      <div class="stack ji-btns"><button class="btn btn-yellow" onclick="showScreen('screen-create')">Host your own</button><button class="btn" onclick="watchDemo()">Watch the 1-minute demo</button></div>`;
+    srSay(head);
+    return;
+  }
+  $('join-form').hidden = false; $('join-code-field').hidden = true;
+  const head = host ? `Join ${host}’s table` : 'You’re invited to a game';
+  const n = r && r.here ? `${r.here} here` : '';
+  box.innerHTML = `${mast}<h1 class="ji-h">${esc(head)}${n ? `<span class="ji-n"> — ${esc(n)}</span>` : ''}</h1>
+    <p class="ji-pitch">${esc(INVITE_PITCH)} Free, no app.</p>${r && r.started ? '<p class="ji-sub">They’ve started. You can still join.</p>' : ''}
+    <p class="ji-code">Room <b>${esc(code)}</b>${r && r.open ? ' <span class="ji-tick" aria-label="room found">✓</span>' : ''}<button class="btn-link ji-chg" onclick="inviteEditCode()">Different code?</button></p>`;
+}
+function inviteEditCode() { const f = $('join-code-field'); if (f) f.hidden = false; const c = $('join-code'); if (c) { c.focus(); c.select(); } }
+function inviteLanding(code) {
+  inviteCode = code;
+  $('join-code').value = code;
+  showScreen('screen-join');   // fills in the name this phone used last
+  drawInvite(code, null);
+  setTimeout(() => { const n = $('join-name'); if (n && inviteCode) n.focus({ preventScroll: true }); }, 60);
+  fetch('/room/' + encodeURIComponent(code), { cache: 'no-store' }).then(r => r.json()).then(r => { if (inviteCode === code && r) drawInvite(code, r); }).catch(() => {});
+}
+
 /* ── SCORES ── */
 let scoresAnimated = null;
 function renderScores() {
@@ -3691,10 +3754,7 @@ function renderHistory(idx) {
 /* ── Init ── */
 startHeroLoop();
 connect();
-if (window._linkCode) {
-  $('join-code').value = window._linkCode; showScreen('screen-join');   // showScreen fills in the name this phone used last
-  const e = $('join-error'); e.style.display = 'block'; e.style.color = 'var(--teal)'; e.textContent = $('join-name').value ? `Room ${window._linkCode} is filled in. Tap Join.` : `Room ${window._linkCode} is filled in — just add your name.`;
-}
+if (window._linkCode) inviteLanding(window._linkCode);   // #23: whose table, the pitch, the code ticked, the name box ready
 </script>
 </body>
 </html>

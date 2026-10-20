@@ -74,6 +74,20 @@ app.get('/status', (req, res) => {
   const inGame = [...codes].filter(c => games[c] && games[c].phase !== 'lobby').length;
   res.set('Cache-Control', 'no-store').json({ phones: live.length, rooms: codes.size, gamesInProgress: inGame });
 });
+// #23: an invite link (?join=CODE) asks whose table it is, so the page can say "Join Nick's table — 3 here".
+// Only the host's first name and a head count; a closed or unknown code is just { open: false }.
+// Unknown codes count against the same wrong-code limit as joining (no guessing rooms through here).
+app.get('/room/:code', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  const ip = String(req.headers['x-forwarded-for'] || (req.socket && req.socket.remoteAddress) || '').split(',')[0].trim();
+  const code = String(req.params.code || '').toUpperCase();
+  if (blocked(ip)) return res.status(429).json({ open: false, wait: true });
+  const g = /^[A-Z]{4}$/.test(code) ? games[code] : null;
+  if (!g) { wrongCode(ip); return res.json({ open: false }); }
+  const host = g.players.find(p => p.id === g.hostId) || g.players.find(p => p.connected) || g.players[0];
+  const here = g.players.filter(p => p.connected).length;
+  res.json({ open: true, host: host ? (String(host.name).trim().split(/\s+/)[0] || '') : '', here, started: g.phase !== PHASES.LOBBY, full: g.players.length >= G.MAX_PLAYERS, locked: !!g.locked });
+});
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
 
 const games = {};    // code -> game
