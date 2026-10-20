@@ -124,12 +124,26 @@ async function check(page, label, report) {
     await until(() => state.phase === 'first_bets'); await sleep(800);
     await check(guest, 'bets', report);
     const bet = async (phase) => { for (let k = 0; k < 16; k++) { let any = false; for (const p of pages) { const s = await S(p); if (!s || s.phase !== phase) return; if (s.isMyTurn) { const t = [...Array(s.open).keys()].find(x => x !== s.mine); await p.evaluate((t) => send({ action: 'place_bet', target: t ?? 'closed', count: 1 }), t); any = true; await sleep(250); } } if (!any) await sleep(300); } };
+    // First bets go in all at once, in secret: the guest bets first and waits on the others (the locked-in screen)
+    { const s = await S(guest); if (s.isMyTurn) { await guest.evaluate((t) => send({ action: 'place_bet', target: t, count: 1 }), [...Array(s.open).keys()].find(x => x !== s.mine) ?? 'closed'); await sleep(700); await check(guest, 'bets (in, waiting on the rest)', report); } }
     await bet('first_bets');
-    await until(() => state.phase !== 'first_bets'); await sleep(2400);
-    if ((await S(guest)).phase === 'reveal') { await check(guest, 'flip', report); await dealer.evaluate(() => send({ action: 'advance' })); await sleep(700); }
-    if ((await S(guest)).phase === 'second_bets') { await bet('second_bets'); await until(() => state.phase !== 'second_bets'); }
-    if ((await S(guest)).phase === 'steal') { await sleep(400); await check(guest, 'steal (guest)', report); await check(dealer, 'steal (dealer)', report);
-      await dealer.evaluate(() => { const i = state.bets.findIndex(b => b.target !== 'pass' && b.count > 0 && b.playerId !== myPlayerId); send({ action: 'steal', betIndex: i < 0 ? null : i }); }); }
+    await until(() => state.phase !== 'first_bets'); await sleep(1200);
+    // Then the steal (before the flip), the flip, the last chips, in whatever order the table goes
+    const done = new Set();
+    for (let k = 0; k < 120; k++) {
+      const ph = (await S(guest)).phase;
+      if (ph === 'answer') break;
+      if (ph === 'steal' && !done.has('steal')) {
+        done.add('steal'); await sleep(400); await check(guest, 'steal (guest)', report); await check(dealer, 'steal (dealer)', report);
+        await dealer.evaluate(() => { const i = state.bets.findIndex(b => b.target !== 'pass' && b.count > 0 && b.playerId !== myPlayerId); send({ action: 'steal', betIndex: i < 0 ? null : i }); });
+      } else if (ph === 'reveal') {
+        const at = await guest.evaluate(() => (state.flipAt || 0) - (Date.now() + (typeof clockOffset === 'number' ? clockOffset : 0)));
+        if (at > 0) { await sleep(Math.min(at, 14000) + 400); continue; }
+        if (!done.has('reveal')) { done.add('reveal'); await sleep(2400); await check(guest, 'flip', report); }
+        await dealer.evaluate(() => send({ action: 'advance' })); await sleep(1600);
+      } else if (ph === 'second_bets') await bet('second_bets');
+      await sleep(300);
+    }
     await until(() => state.phase === 'answer'); await sleep(14000);
     await check(guest, 'reveal', report);
     await dealer.evaluate(() => send({ action: 'reel_skip' }));
