@@ -523,6 +523,16 @@ wss.on('connection', (ws, req) => {
         broadcast(code);
         return;
       }
+      case 'voice_mode': {
+        // #40: the host says how the table talks — 'call' (already on FaceTime/Zoom: the game's voice is off),
+        // 'game' (use the game's voice) or null (everyone in one room). Phones read it from state.settings.voice.
+        if (!isHost) return sendError(ws, 'Only the host can change that');
+        if (game.phase !== PHASES.LOBBY) return sendError(ws, 'Settings can only be changed in the lobby');
+        const m = msg.mode === 'call' || msg.mode === 'game' ? msg.mode : null;
+        game.settings.voice = m;   // (a phone already in the game's call hangs up by itself when it sees 'call')
+        broadcast(code);
+        return;
+      }
       case 'rtc': {
         // Voice call signalling: pass one small message to one other player in this room (never broadcast)
         const now = Date.now();

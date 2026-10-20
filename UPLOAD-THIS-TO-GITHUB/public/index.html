@@ -800,6 +800,40 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .mull-pill.on { background: var(--ink); color: var(--paper); }
 .mull-pill.on .mp-count { background: var(--yellow); color: var(--ink); }
 .do { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.35; }
+/* ── #16 the lobby: the code, the names, Start (everything else under "Room options") ── */
+.lb-hello { margin: 2px 0 16px; }
+.lb-hello-1 { font-family: var(--serif); font-weight: 700; font-size: 26px; line-height: 1.15; }
+.lb-hello-2 { font-family: var(--serif); font-style: italic; font-size: 17px; line-height: 1.35; color: var(--ink); margin-top: 4px; }
+.lb-code { margin-bottom: 16px; transform: rotate(-1deg); }
+.lb-code-big { font-size: 56px; letter-spacing: 8px; padding-left: 8px; margin: 2px 0 6px; }
+.lb-invite { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 52px; margin: 0 0 16px; padding: 10px 14px; border: 2px solid var(--ink); border-radius: 14px; background: #fff; font: inherit; font-size: 15px; font-weight: 800; color: var(--ink); cursor: pointer; text-align: left; }
+.lb-invite b { font-family: var(--display); font-weight: 700; letter-spacing: 2px; }
+.lb-invite-r { text-decoration: underline; text-underline-offset: 3px; }
+.lb-at { font-family: var(--sans); font-size: 13px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-2); margin: 4px 0 6px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.lb-watch { text-transform: none; letter-spacing: 0; font-weight: 800; color: var(--ink-2); }
+.lb-names { list-style: none; margin: 0 0 14px; padding: 0; }
+.lb-p { display: flex; align-items: center; gap: 12px; padding: 7px 0; }
+.lb-p.off { opacity: .6; }
+.lb-nm { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 17px; line-height: 1.2; }
+.lb-l1 { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-l1 > b { font-weight: 900; }
+.lb-you { font-size: 14px; font-weight: 800; color: var(--ink-2); }
+.lb-sub { font-size: 13px; font-weight: 800; color: var(--ink-2); }
+.lb-opts { margin-bottom: 8px; }
+.lb-opts > summary { min-height: 56px; }
+.lb-opts-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.lb-opts-t b { font-size: 16px; }
+.lb-opts-s { font-size: 13px; font-weight: 800; color: var(--ink-2); line-height: 1.3; }
+.lb-h { font-family: var(--serif); font-weight: 700; font-size: 18px; margin: 18px 0 6px; }
+.lb-h:first-child { margin-top: 2px; }
+.lb-hint { font-size: 13px; font-weight: 800; color: var(--ink-2); line-height: 1.4; margin-top: 6px; }
+.lb-seats { display: flex; flex-direction: column; gap: 4px; }
+.lb-seat { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
+.lb-seat.off { opacity: .6; }
+.lb-seat-nm { flex: 1; min-width: 0; font-weight: 900; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-lock { width: 100%; margin: 4px 0 14px; }
+.lb-opts .lob-gal { margin-top: 4px; }
+.lb-opts .field:last-child { margin-bottom: 0; }
 /* the real caption, under the full-width cartoon, like a printed page */
 .hdr.pin ~ * .spot.is-real .spot-text, .hdr.pin ~ .spot.is-real .spot-text { text-align: center; }
 /* ── The rating (chess-style): lobby card + sheet, the opening card, the verdicts ── */
@@ -1341,6 +1375,8 @@ function connect() {
     else if (msg.type === 'state') {
       state = msg.data;
       if (window.Voice) Voice.onState(state);
+      if (window.Voice && !voiceAllowed() && Voice.isOn && Voice.isOn()) { try { Voice.leave(); } catch (e) {} }   // #40: the table is on a call
+
       if (state.serverNow) clockOffset = window.ccClock ? window.ccClock(state.serverNow - Date.now()) : state.serverNow - Date.now();
       if (Array.isArray(state.gazette)) lastGazette = state.gazette;   // only sent between rounds: keep the last one
       if (state.build && BUILD !== '__BUILD__' && state.build !== BUILD && !window._reloading) { window._reloading = true; saveSession(); saveDraftNow(); setTimeout(() => location.reload(), 300); return; }
@@ -1488,7 +1524,7 @@ function openMenu() {
       <div class="h-display" style="font-size:40px; letter-spacing:6px; padding-left:6px;">${esc(state.code)}</div>
       <p class="small" style="color:var(--ink-2);">Latecomers can join with this any time</p>
     </div>
-    ${window.Voice && !(Voice.isOn && Voice.isOn()) && state && state.phase !== 'lobby' ? `<button class="menu-row" onclick="closeMenu(); Voice.ask()"><span class="ic">${inkIcon('speaker')}</span>Playing apart?<span class="r">Voice call</span></button>` : ''}
+    ${window.Voice && voiceAllowed() && !(Voice.isOn && Voice.isOn()) && state && state.phase !== 'lobby' ? `<button class="menu-row" onclick="closeMenu(); Voice.ask()"><span class="ic">${inkIcon('speaker')}</span>Playing apart?<span class="r">Voice call</span></button>` : ''}
     <button class="menu-row" onclick="openInvite()"><span class="ic">${inkIcon('invite')}</span>Invite someone<span class="r">QR + link</span></button>
     <button class="menu-row" onclick="openGallery()"><span class="ic">${inkIcon('frame')}</span>The Gallery<span class="r">${galleryList().length ? plural(galleryList().length, 'caption') : ''}</span></button>
     <button class="menu-row" onclick="openRatingSheet()"><span class="ic">${inkIcon('trophy')}</span>My rating and badges<span class="r">${fmtRating(careerSummary().rating)}</span></button>
@@ -1623,6 +1659,7 @@ function patchLive(el, html) {
 }
 
 function afterRender(phaseChanged) {
+  if (state.phase === 'lobby') setActionBar(lobbyBarHtml());   // #16: Start, pinned to the bottom (host)
   if (state.phase === 'first_bets' || state.phase === 'second_bets') {
     const bets = state.bets || [];
     if (!phaseChanged && bets.length > seenBets) {
@@ -1683,7 +1720,7 @@ function header({ sticker, sub = '', ring = false, thumb = true }) {
   const t = thumb && !pin && state.cartoon ? `<button class="thumb" onclick="openViewer()" aria-label="${esc(toonAlt())}. See it full-screen"><img src="/images/${esc(state.cartoon.image)}" alt=""></button>` : '';
   const code = `<button class="code-pill" onclick="openInvite()" aria-label="Room code ${esc(state.code)}. Show the invite"><span>${esc(state.code)}</span></button>`;
   const big = pin ? `<button class="pin-toon" onclick="openViewer()" aria-label="${esc(toonAlt())}. See it full-screen"><img src="/images/${esc(state.cartoon.image)}" alt=""></button>` : '';
-  return `<div class="hdr${pin ? ' pin' : ''}${ring ? ' ringed' : ''}">${ring ? ringHtml() : t}<div class="mid"><div class="hdr-top">${stage ? stagePill() : sticker}${ring ? '' : code}</div><span class="hdr-sub">${line}</span></div>${window.Voice && Voice.isOn && Voice.isOn() ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu${ring ? '. Room code ' + esc(state.code) : ''}">☰</button>${big}</div>`;
+  return `<div class="hdr${pin ? ' pin' : ''}${ring ? ' ringed' : ''}">${ring ? ringHtml() : t}<div class="mid"><div class="hdr-top">${stage ? stagePill() : sticker}${ring ? '' : code}</div><span class="hdr-sub">${line}</span></div>${window.Voice && Voice.isOn && Voice.isOn() && voiceAllowed() ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu${ring ? '. Room code ' + esc(state.code) : ''}">☰</button>${big}</div>`;
 }
 // The writing screen's cartoon: big while you look at it, a small copy right above the caption box while you type
 function bigToon(compact = false, mull = false) {
@@ -1732,19 +1769,22 @@ function renderLobby() {
   const s = state.settings || {};
   const connected = state.players.filter(p => p.connected).length;
   const n = state.players.length, right = s.direction === 'right';
-  const segBtn = (on, onclick, label) => `<button class="${on ? 'on' : ''}" onclick="${onclick}">${label}</button>`;
-  const players = state.players.map((p, i) => `
-    <div style="display:flex; align-items:center; gap:10px; padding:8px 0; ${!p.connected ? 'opacity:.5;' : ''}">
-      <span class="seat-n" title="Seat ${i + 1}">${i + 1}</span>
+  const segBtn = (on, onclick, label) => `<button class="${on ? 'on' : ''}" aria-pressed="${on ? 'true' : 'false'}" onclick="${onclick}">${label}</button>`;
+  const played = playedGame();
+  // #16: the names, nothing else (seat order, direction, lock, Gallery and settings live under "Room options")
+  const names = state.players.map((p, i) => `
+    <li class="lb-p${!p.connected ? ' off' : ''}">
       ${chipHtml(p.id, 'lg pop' + (!p.connected ? ' dim' : ''))}
-      <div style="flex:1; min-width:0;"><div style="font-weight:900; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(p.name)}${pubMark(p)}${p.id === myPlayerId ? ' <span class="small">(you)</span>' : ''}</div>${ratingTag(p)}${p.id === state.hostId ? '<span class="small" style="color:var(--yellow-d);">★ Host </span>' : ''}${i === 0 ? '<span class="small">deals first</span>' : ''}${!p.connected ? '<span class="small" style="color:var(--red);"> offline</span>' : ''}</div>
+      <span class="lb-nm"><span class="lb-l1"><b>${esc(p.name)}</b>${p.id === myPlayerId ? ' <span class="lb-you">(you)</span>' : ''}${pubMark(p)}</span>
+        <span class="lb-sub">${[p.id === state.hostId ? 'host' : '', i === 0 ? 'deals first' : '', !p.connected ? 'offline' : '', played ? ratingTag(p).replace(/<[^>]*>/g, '') : ''].filter(Boolean).join(' · ')}</span></span>
+    </li>`).join('');
+  const seats = state.players.map((p, i) => `
+    <div class="lb-seat${!p.connected ? ' off' : ''}">
+      <span class="seat-n" aria-hidden="true">${i + 1}</span>${chipHtml(p.id, 'sm')}
+      <span class="lb-seat-nm">${esc(p.name)}</span>
       ${state.isHost && n > 1 ? `<button class="seat-mv" aria-label="Move ${esc(p.name)} up" ${i === 0 ? 'disabled' : ''} onclick="moveSeat('${p.id}',-1)">↑</button><button class="seat-mv" aria-label="Move ${esc(p.name)} down" ${i === n - 1 ? 'disabled' : ''} onclick="moveSeat('${p.id}',1)">↓</button>` : ''}
       ${state.isHost && p.id !== myPlayerId ? `<button class="btn btn-sm seat-kick" onclick="confirmKick('${p.id}')" aria-label="Remove ${esc(p.name)}">✕</button>` : ''}
     </div>`).join('');
-  const seatHelp = state.isHost
-    ? `<p class="small" style="margin:-4px 0 10px;">Line everyone up in the order you’re sitting, going around the table. Seat 1 deals first.</p>
-       <div class="field" style="margin-bottom:14px;"><label class="eyebrow">The deal and the betting pass to the…</label><div class="seg">${segBtn(!right, "setHostSettings({direction:'left'})", '↓ Left (down the list)')}${segBtn(right, "setHostSettings({direction:'right'})", '↑ Right (up the list)')}</div></div>`
-    : `<p class="small" style="margin:-4px 0 14px;">Seating is in order around the table. The deal passes ${right ? 'right ↑' : 'left ↓'}.</p>`;
   // [settings] one-line summary everyone sees, e.g. "2-min timer · Dealer steals · Everyone deals twice · Everything deck"
   const td = state.timerDuration, laps = s.laps || 1, dm = s.dealerMode || 'steal';
   const timerWords = !td ? 'No timer' : td % 60 ? `${td}-second timer` : `${td / 60}-min timer`;
@@ -1762,53 +1802,83 @@ function renderLobby() {
     ? `<button class="gal-toggle ${s.expert ? 'on' : ''}" ${galleryOpen ? '' : 'disabled'} onclick="setHostSettings({expert:${!s.expert}})" aria-pressed="${!!s.expert}">
         <span>${inkIcon('frame', 24)}</span><span style="flex:1;">Play from The Gallery<br><span class="small">${galleryOpen ? `${plural(deck, 'cartoon has', 'cartoons have')} framed captions` : 'Unlocks when 3 cartoons have a framed caption'}</span></span><span class="sw"></span></button>`
     : s.expert ? `<div class="gal-toggle on" style="cursor:default;"><span>${inkIcon('frame', 24)}</span><span style="flex:1;">This game plays from The Gallery<br><span class="small">The table’s best captions are the real answers</span></span></div>` : '';
+  // #40: playing over FaceTime or Zoom? The host says so, and the game's own voice gets out of the way
+  const vm = s.voice || null;
+  const voiceField = state.isHost
+    ? `<div class="field"><label class="eyebrow" id="lb-voice-l">Playing apart?</label><div class="seg" role="group" aria-labelledby="lb-voice-l">${segBtn(vm === 'call', `setVoiceMode(${vm === 'call' ? 'null' : "'call'"})`, 'Already on a call')}${segBtn(vm === 'game', `setVoiceMode(${vm === 'game' ? 'null' : "'game'"})`, 'Use the game’s voice')}</div>
+        <p class="lb-hint">${vm === 'call' ? 'FaceTime or Zoom does the talking. The game’s own voice is off.' : vm === 'game' ? 'Everyone taps the microphone button at the top to join the call. Two phones in one room? Headphones, or they echo.' : 'Everyone in one room? Leave both off.'}</p></div>`
+    : vm ? `<p class="lb-hint">${vm === 'call' ? 'This table is on a call, so the game’s own voice is off.' : 'This table talks through the game’s voice. Tap the microphone button at the top to join.'}</p>` : '';
   const settings = state.isHost ? `
-    <details class="box" id="settings-details" style="margin-bottom:14px;">
-      <summary>Game settings <span class="arrow">▾</span></summary>
-      <div class="body">
-        <!-- [settings] Writing timer: 2 min / Custom (1–10 min) / No timer -->
         <div class="field"><label class="eyebrow">Writing timer</label><div class="seg">${segBtn(td === 120 && !lobbyCustomTimer, 'setHostTimer(120)', '2 min')}${segBtn(customOn, 'openCustomTimer()', 'Custom')}${segBtn(td === 0 && !lobbyCustomTimer, 'setHostTimer(0)', 'No timer')}</div>
           ${customOn ? `<div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:8px;"><button class="btn btn-sm" style="width:48px;" aria-label="One minute less" ${td && td <= 60 ? 'disabled' : ''} onclick="stepTimer(-1)">−</button><b style="font-size:18px;min-width:80px;text-align:center;">${td ? (td % 60 ? td + ' s' : tmin + ' min') : '—'}</b><button class="btn btn-sm" style="width:48px;" aria-label="One minute more" ${td >= 600 ? 'disabled' : ''} onclick="stepTimer(1)">+</button></div>` : ''}
-          ${td === 0 && !lobbyCustomTimer ? '<div style="color:var(--muted);font-size:13px;margin-top:6px">No countdown. Writing ends when everyone’s in — or the dealer taps “End writing”.</div>' : ''}</div>
-        <!-- [settings] Game length: once / twice / 3 times around / first to 20 -->
+          ${td === 0 && !lobbyCustomTimer ? '<p class="lb-hint">No countdown. Writing ends when everyone’s in, or the dealer taps “End writing”.</p>' : ''}</div>
         <div class="field"><label class="eyebrow">Game length</label><div class="seg">
           ${segBtn(!s.rounds && !s.targetScore && laps === 1, 'setHostSettings({rounds:null,targetScore:null,laps:1})', 'Everyone deals once')}
           ${segBtn(!s.rounds && !s.targetScore && laps === 2, 'setHostSettings({rounds:null,targetScore:null,laps:2})', '2 times around')}
           ${segBtn(!s.rounds && !s.targetScore && laps === 3, 'setHostSettings({rounds:null,targetScore:null,laps:3})', '3 times around')}
           ${segBtn(s.targetScore === 20, 'setHostSettings({rounds:null,targetScore:20,laps:1})', 'First to 20')}
         </div></div>
-        <div class="field"><label class="eyebrow">Cartoons</label><div class="seg">${segBtn(!!s.family, 'setHostSettings({family:true})', 'Family')}${segBtn(!s.family && !s.spicy, 'setHostSettings({family:false,spicy:false})', 'Standard')}${segBtn(!!s.spicy, 'setHostSettings({spicy:true})', 'Everything')}</div><div style="color:var(--muted);font-size:13px;margin-top:6px">${s.family ? 'Family cartoons only.' : s.spicy ? 'Every cartoon in the game: Family, Standard and the After Dark (PG-13) ones.' : 'Family and Standard cartoons. No PG-13.'}</div></div>
-        <!-- [settings] Dealer mode: Steal (default) / No steal (dealer bets 2 chips) / Kitchen sink (bets 2 chips, then steals) -->
-        <div class="field"><label class="eyebrow">The dealer</label><div class="seg">${segBtn(dm === 'steal', "setHostSettings({dealerMode:'steal'})", 'Steal')}${segBtn(dm === 'bet', "setHostSettings({dealerMode:'bet'})", 'No steal')}${segBtn(dm === 'both', "setHostSettings({dealerMode:'both'})", 'Kitchen sink')}</div><div style="color:var(--muted);font-size:13px;margin-top:6px">${dm === 'bet' ? 'No steal. The dealer bets 2 chips like everyone else (last in the order).' : dm === 'both' ? 'The dealer bets 2 chips like everyone else (last), then steals one of anyone else’s chips.' : 'The dealer doesn’t bet. Once the chips are down, the dealer steals one.'}</div></div>
+        <div class="field"><label class="eyebrow">Cartoons</label><div class="seg">${segBtn(!!s.family, 'setHostSettings({family:true})', 'Family')}${segBtn(!s.family && !s.spicy, 'setHostSettings({family:false,spicy:false})', 'Standard')}${segBtn(!!s.spicy, 'setHostSettings({spicy:true})', 'Everything')}</div><p class="lb-hint">${s.family ? 'Family cartoons only.' : s.spicy ? 'Every cartoon in the game: Family, Standard and the After Dark (PG-13) ones.' : 'Family and Standard cartoons. No PG-13.'}</p></div>
+        <div class="field"><label class="eyebrow">The dealer</label><div class="seg">${segBtn(dm === 'steal', "setHostSettings({dealerMode:'steal'})", 'Steals a chip')}${segBtn(dm === 'bet', "setHostSettings({dealerMode:'bet'})", 'Bets, no steal')}${segBtn(dm === 'both', "setHostSettings({dealerMode:'both'})", 'Bets and steals')}</div><p class="lb-hint">${dm === 'bet' ? 'No steal. The dealer bets 2 chips like everyone else (last in the order).' : dm === 'both' ? 'The dealer bets 2 chips like everyone else (last), then steals one of anyone else’s chips.' : 'The dealer doesn’t bet. Once the chips are down, the dealer steals one.'}</p></div>
         <div class="field"><label class="eyebrow">How often the real caption is the face-down one</label><div class="seg">${[0.1, 0.15, 0.2, 0.3].map(v => segBtn(Math.abs((s.autoCloseProbability ?? 0.15) - v) < 0.001, `setHostSettings({autoCloseProbability:${v}})`, Math.round(v * 100) + '%')).join('')}</div></div>
-        <details class="box" id="adv-details"><summary>Points <span class="arrow">▾</span></summary><div class="body">
-          ${[['pointsOpenBet', 'Blind chip · real caption in the open', [1, 2, 3, 4]], ['pointsClosedBet', 'Blind chip · face-down Closed Caption', [2, 3, 4, 5, 6]], ['pointsOpenLate', 'Late chip (after the flip)', [0, 1, 2, 3]], ['pointsPerFool', 'Each chip that lands on your caption', [0, 1, 2, 3]], ['dealerBonus', 'Dealer’s revenge', [0, 2, 3, 4, 5, 6]]]
-            .map(([k, label, opts]) => `<div class="field"><label class="small">${label}</label><div class="seg">${opts.map(n => segBtn(s[k] === n, `setHostSettings({${k}:${n}${k === 'pointsOpenLate' ? ',pointsClosedLate:' + n : ''}})`, n)).join('')}</div></div>`).join('')}
+        <details class="box" id="adv-details"><summary>Points <span class="arrow" aria-hidden="true">▾</span></summary><div class="body">
+          ${[['pointsOpenBet', 'Blind chip · real caption in the open', [1, 2, 3, 4]], ['pointsClosedBet', 'Blind chip · face-down caption', [2, 3, 4, 5, 6]], ['pointsOpenLate', 'Late chip (after the flip)', [0, 1, 2, 3]], ['pointsPerFool', 'Each chip that lands on your caption', [0, 1, 2, 3]], ['dealerBonus', 'Dealer’s revenge', [0, 2, 3, 4, 5, 6]]]
+            .map(([k, label, opts]) => `<div class="field"><label class="small">${label}</label><div class="seg">${opts.map(v => segBtn(s[k] === v, `setHostSettings({${k}:${v}${k === 'pointsOpenLate' ? ',pointsClosedLate:' + v : ''}})`, v)).join('')}</div></div>`).join('')}
           <button class="btn-link" onclick="setHostSettings({pointsOpenBet:2,pointsClosedBet:3,pointsOpenLate:1,pointsClosedLate:1,pointsPerFool:1,dealerBonus:4,pointsStealCorrect:1,autoCloseProbability:0.15,stealEnabled:true,rounds:null,targetScore:null,dealerMode:'steal',laps:1})">Reset to defaults</button>
-        </div></details>
-      </div>
-    </details>` : '';
+        </div></details>` : '';
+  const optionsBody = state.isHost ? `
+      <h3 class="lb-h">Seats, in order around the table</h3>
+      <p class="lb-hint" style="margin-top:0;">Line everyone up the way you’re sitting. Seat 1 deals first.</p>
+      <div class="lb-seats">${seats}</div>
+      <div class="field" style="margin-top:12px;"><label class="eyebrow">The deal and the betting pass to the…</label><div class="seg">${segBtn(!right, "setHostSettings({direction:'left'})", '↓ Left (down the list)')}${segBtn(right, "setHostSettings({direction:'right'})", '↑ Right (up the list)')}</div></div>
+      <button class="btn btn-sm lb-lock" onclick="send({action:'lock', on:${!state.locked}})" aria-pressed="${!!state.locked}">${state.locked ? 'Room locked · unlock it' : 'Everyone’s here? Lock the room'}</button>
+      ${voiceField}
+      <h3 class="lb-h">The game</h3>
+      ${settings}
+      ${freshLine}
+      ${lobbyGalleryHtml()}${galleryToggle}`
+    : `<p class="lb-hint" style="margin-top:0;">Seats go in order around the table. The deal passes ${right ? 'right ↑' : 'left ↓'}.${state.locked ? ' The host has locked the room.' : ''}</p>
+      ${voiceField}
+      ${lobbyGalleryHtml()}${galleryToggle}`;
+  const options = `<details class="box lb-opts" id="room-options"><summary><span class="lb-opts-t"><b>Room options</b><span class="lb-opts-s">${esc(summary)}</span></span><span class="arrow" aria-hidden="true">▾</span></summary><div class="body">${optionsBody}</div></details>`;
+  const me = playerById(myPlayerId), host = fnameOf(state.hostId);
+  const watched = state.isHost && n > 1 ? `<span class="lb-watch">${state.players.filter(p => p.watched).length} of ${n} watched the demo</span>` : '';
+  const codeCard = state.isHost
+    ? `<div class="panel yellow center lb-code">
+        <p class="eyebrow" style="color:var(--ink-2);">Room code</p>
+        <div class="h-display lb-code-big" aria-label="Room code ${esc(state.code.split('').join(' '))}">${esc(state.code)}</div>
+        <div class="qr-wrap" style="margin:4px auto 8px;" role="img" aria-label="QR code that opens this room">${qrSvg(joinUrl(), 148)}</div>
+        <p class="do" style="margin-bottom:12px;">Friends point their camera here, or send them the link.</p>
+        <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">Send the invite link</button>
+      </div>`
+    : `<button class="lb-invite" onclick="openInvite()"><span>Room <b>${esc(state.code)}</b></span><span class="lb-invite-r">Invite someone ›</span></button>`;
+  const hello = state.isHost ? '' : `<div class="lb-hello" role="status"><p class="lb-hello-1">You’re in, ${esc(me ? firstName(me.name) : '')}.</p><p class="lb-hello-2">${esc(host)} starts when everyone’s here.</p></div>`;
+  const voiceBtn = window.Voice && voiceAllowed() ? Voice.button() : '';
   return `
-    <div class="hdr"><div class="mid"><span class="sticker">Lobby</span><span class="small">${plural(connected, 'player')} here</span></div>${window.Voice ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
-    ${state.isHost ? '' : demoCardHtml()}
-    <div class="panel yellow center" style="margin-bottom:16px; transform: rotate(-1deg);">
-      <p class="eyebrow" style="color:var(--ink-2);">Room code</p>
-      <div class="h-display" style="font-size:56px; letter-spacing:8px; padding-left:8px; margin:2px 0 6px;">${esc(state.code)}</div>
-      <div class="qr-wrap" style="margin:4px auto 8px;">${qrSvg(joinUrl(), 148)}</div>
-      <p class="small" style="color:var(--ink-2); margin-bottom:12px;">Friends point their camera here — or send them the link. It fills in the code for them.</p>
-      <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">Send the invite link</button>
-    </div>
-    ${state.isHost ? demoCardHtml() : ''}
-    ${ratingCardHtml()}
-    <p class="eyebrow" style="margin-bottom:6px;">At the table · ${connected} of ${state.players.length}${state.players.length > 1 ? ` <span style="text-transform:none;letter-spacing:0;font-weight:400;">· ${state.players.filter(p => p.watched).length} of ${state.players.length} watched the demo</span>` : ''}</p>
-    <div style="margin-bottom:10px;">${players}</div>${seatHelp}
-    ${state.isHost ? `<button class="btn-link" style="display:block; margin:0 auto 10px; font-size:14px;" onclick="send({action:'lock', on:${!state.locked}})">${state.locked ? 'Room locked. Unlock it' : 'Everyone’s here? Lock the room'}</button>` : state.locked ? '<p class="center small" style="margin-bottom:10px;">The host has locked the room.</p>' : ''}
-    ${deckNote}${lobbyGalleryHtml()}${galleryToggle}${settings}${freshLine}<p class="center small" style="margin-bottom:14px;">${summary}</p>
-    ${state.isHost
-      ? `<button class="btn btn-yellow" onclick="send({action:'start'})" ${connected < 3 || deckShort ? 'disabled' : ''}>${deckShort ? 'Not enough cartoons yet' : connected < 3 ? `Need ${plural(3 - connected, 'more player')}` : 'Start the game →'}</button>`
-      : `<div class="panel flat center"><span class="spin" style="margin-bottom:8px;"></span><p class="sub">Waiting for ${esc(fnameOf(state.hostId))} to start<span class="dots"></span></p></div>`}
+    <div class="hdr"><div class="mid"><span class="stage-pill"><span class="on">Lobby</span></span><span class="hdr-sub">${plural(connected, 'player')} here</span></div>${voiceBtn}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
+    ${hello}
+    ${codeCard}
+    ${demoCardHtml()}
+    <h2 class="lb-at">At the table · ${connected}${watched}</h2>
+    <ul class="lb-names">${names}</ul>
+    ${played ? ratingCardHtml() : ''}
+    ${deckNote}
+    ${options}
     <button class="btn-link" style="display:block; margin:12px auto 0;" onclick="showScreen('screen-rules')">How to play</button>`;
 }
+// #16: the Start button sits at the bottom of the host's screen, always in reach
+function lobbyBarHtml() {
+  if (!state.isHost) return '';
+  const connected = state.players.filter(p => p.connected).length, dk = state.deck || null, deckShort = !!(dk && !dk.ok);
+  if (deckShort) return `<button class="btn btn-yellow" disabled>Not enough cartoons yet</button>`;
+  if (connected < 3) return `<button class="btn btn-yellow" disabled>Need ${plural(3 - connected, 'more player')} · ${connected} here</button>`;
+  return `<button class="btn btn-yellow" onclick="this.disabled=true; send({action:'start'})">Start the game · ${connected} here</button>`;
+}
+// #16: the rating (and the round-1 rating card) only for a phone that has finished a game
+function playedGame() { try { return careerGet().games > 0 || localStorage.getItem('cc_played_game') === '1'; } catch (e) { return false; } }
+// #40: 'call' = the table is on FaceTime/Zoom (the game's voice is off), 'game' = use the game's voice, null = one room
+const voiceAllowed = () => !(state && state.settings && state.settings.voice === 'call');
+function setVoiceMode(m) { send({ action: 'voice_mode', mode: m }); }
 /* #36: first-timers waiting in the lobby get pointed at the 1-minute demo (How to play).
    "Watched" lives on this phone; the game starting brings them straight back to the table. */
 let demoFrom = 0;
@@ -2965,6 +3035,7 @@ function syncOpening() {
   if (!o || !o.gameId) { if ($('opening').className) closeOpening(); return; }
   if (openingShown === o.gameId) return;
   openingShown = o.gameId;
+  if (!playedGame()) return;   // #16: a first game goes straight to the cartoon; the rating can wait until there is one
   const left = o.at + o.ms - (Date.now() + clockOffset);
   noteOpeningSeen(o);
   if (left < 600) return;   // walked in late: straight to the cartoon
@@ -3605,7 +3676,7 @@ function renderHistory(idx) {
   const st = r.steal && r.steal.victimId ? `<p class="center small" style="margin-bottom:12px; color:var(--red);">${esc(r.dealerName)} stole ${esc(nameOf(r.steal.victimId))}’s chip</p>` : '';
   const img = r.cartoon ? '/images/' + r.cartoon.image : '';
   $('game-content').innerHTML = `
-    <div class="hdr">${img ? `<div class="thumb" onclick="openViewer('${esc(img)}')"><img src="${esc(img)}" alt="cartoon"></div>` : ''}<div class="mid"><span class="sticker white">Round ${r.round} of ${h.length}</span><span class="small">Dealer: ${esc(r.dealerName)}${r.closedIsCorrect ? ' · the real one was face-down' : ''}</span></div>${window.Voice ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
+    <div class="hdr">${img ? `<div class="thumb" onclick="openViewer('${esc(img)}')"><img src="${esc(img)}" alt="cartoon"></div>` : ''}<div class="mid"><span class="sticker white">Round ${r.round} of ${h.length}</span><span class="small">Dealer: ${esc(r.dealerName)}${r.closedIsCorrect ? ' · the real one was face-down' : ''}</span></div>${window.Voice && voiceAllowed() ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
     ${st}<div class="stack" style="margin:16px 0;">${cards}</div>
     ${pts ? `<p class="eyebrow" style="margin-bottom:8px;">Points</p>${pts}` : '<p class="center sub">No points that round.</p>'}
     ${r.dealerBonusAwarded ? '<p class="center small" style="color:var(--red); margin-top:6px;">🃏 Dealer’s revenge — nobody found it</p>' : ''}
