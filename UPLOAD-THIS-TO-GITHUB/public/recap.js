@@ -376,7 +376,10 @@
     if (!blob) return;
     var opts = { title: 'Closed Caption — game night', text: 'Closed Caption, tonight.', filename: filename() };
     var p = window.HallCard && window.HallCard.share ? window.HallCard.share(blob, opts) : Promise.resolve('cancelled');
-    p.then(function (r) { if (r === 'downloaded') { try { showToast('Saved to your downloads', 'ok'); } catch (e) {} } });
+    p.then(function (r) {
+      if (r === 'downloaded') { try { showToast('Saved to your downloads', 'ok'); } catch (e) {} }
+      if (r !== 'cancelled' && typeof window.ccTally === 'function') window.ccTally('recap');   // #41: counted, nothing else
+    });
   }
 
   window.Recap = { open: open, make: make, data: data, share: share };

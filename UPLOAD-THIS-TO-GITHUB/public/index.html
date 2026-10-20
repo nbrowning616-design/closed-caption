@@ -362,7 +362,17 @@ details.box[open] > summary .arrow { transform: rotate(180deg); }
 details.box .body { padding: 14px 4px 4px; }
 #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 800; }
 #app-toast { position: fixed; bottom: calc(24px + var(--sab)); left: 50%; transform: translateX(-50%) translateY(140px); z-index: 1001; max-width: 90%; padding: 12px 18px; border: var(--bw) solid var(--ink); border-radius: 14px; background: var(--ink); color: var(--paper); font-weight: 800; font-size: 14px; box-shadow: var(--shadow-sm); transition: transform .35s var(--spring); pointer-events: none; text-align: center; }
-#conn-banner { position: fixed; top: 0; left: 0; right: 0; padding: calc(8px + var(--sat)) 10px 8px; text-align: center; font-size: 13px; font-weight: 900; z-index: 1000; transform: translateY(-100%); transition: transform .3s var(--ease-out); border-bottom: var(--bw) solid var(--ink); }
+#conn-banner { position: fixed; top: 0; left: 0; right: 0; padding: calc(9px + var(--sat)) 12px 9px; text-align: center; font-size: 15px; font-weight: 800; z-index: 1000; transform: translateY(-100%); transition: transform .3s var(--ease-out); border-bottom: var(--bw) solid var(--ink); background: var(--paper-2); color: var(--ink); pointer-events: none; }
+/* #2: a calm 'Reconnecting…' (paper), a red 'Can't reach the table, retrying' (the server turned the seat down), a short 'Back' */
+#conn-banner.on { transform: translateY(0); }
+#conn-banner.calm { background: var(--paper-2); color: var(--ink); }
+#conn-banner.refused { background: var(--red); color: #fff; }
+#conn-banner.back { background: var(--teal); color: #fff; }
+.back-wait { min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px; padding: 24px 8px; }
+.back-wait .h2 { font-family: var(--serif); }
+.back-wait .btn-link { visibility: hidden; margin-top: 18px; min-height: 44px; }
+#rejoin-box .rejoin-sub { text-align: center; margin: 8px 0 4px; }
+#rejoin-box .rejoin-sub .btn-link { min-height: 44px; padding: 0 6px; }
 
 /* Home */
 .hero-title { font-family: var(--display); font-weight: 700; font-size: 58px; line-height: .9; letter-spacing: -2px; }
@@ -1313,43 +1323,145 @@ const confetti = (() => {
    Networking (auto-reconnect, session restore)
    ═══════════════════════════════════════════════════════════ */
 let reconnectAttempts = 0, connectionStatus = 'connecting', reconnectTimer = null;
+/* #2 Dropped phones. The server pings every 10 s; a phone that hears nothing for 20 s treats the connection as dead
+   and reconnects at once (calm 'Reconnecting…' banner). A seat the server turns down shows a red 'Can't reach the
+   table, retrying' and is tried again on a timer. On load, a phone with a seat goes straight back to the table. */
+let lastHeard = Date.now(), refusedN = 0, refusedT = null, autoBack = null, openT = null, downAt = 0, downT = null, seatedSock = null, resendAll = false;
+const DEAD_MS = 20000, RETRY_MS = 4000;
 function saveSession() { if (myPlayerId && gameCode) { const v = JSON.stringify({ playerId: myPlayerId, code: gameCode, key: myKey, boot: serverBoot, name: (playerById(myPlayerId) || {}).name || '', ts: Date.now() }); try { sessionStorage.setItem('cc_session', v); } catch (e) {} try { localStorage.setItem('cc_session', v); } catch (e) {} } }
 function readStore(store) { try { const s = JSON.parse(store.getItem('cc_session') || 'null'); if (!s || Date.now() - s.ts > 12 * 3600 * 1000) return null; return s; } catch { return null; } }
 // The game takes no photos any more: forget any headshot an older version left on this phone
 try { localStorage.removeItem('cc_face'); localStorage.removeItem('cc_face_no'); } catch (e) {}
 function clearSession() { try { sessionStorage.removeItem('cc_session'); } catch (e) {} try { localStorage.removeItem('cc_session'); } catch (e) {} }
+// #2: Home with a seat still open: 'Back to the game' is the big button (Host a game steps down)
 function offerRejoin() {
-  const s = readStore(localStorage), box = $('rejoin-box');
+  const s = readStore(localStorage), box = $('rejoin-box'), hostBtn = document.querySelector('.home-host');
   if (!box) return;
-  if (!s || myPlayerId) { box.innerHTML = ''; return; }
-  box.innerHTML = `<div class="panel yellow flat" style="text-align:left; display:flex; align-items:center; gap:12px;"><div style="flex:1;"><b>Still at the table?</b><br><span class="small">Game ${esc(s.code)}${s.name ? ' as ' + esc(s.name) : ''}</span></div><button class="btn btn-sm btn-ink" style="width:auto;" onclick="rejoinSaved()">Rejoin</button><button class="btn-link" style="padding:4px;" aria-label="Dismiss" onclick="clearSession(); offerRejoin();">✕</button></div>`;
+  const show = !!s && !myPlayerId;
+  if (hostBtn) hostBtn.classList.toggle('btn-yellow', !show);
+  if (!show) { box.innerHTML = ''; return; }
+  box.innerHTML = `<button class="btn btn-yellow" onclick="rejoinSaved()">Back to the game</button><p class="small rejoin-sub">Room ${esc(s.code)}${s.name ? ' · ' + esc(s.name) : ''} · <button class="btn-link small" onclick="forgetSeat()">Forget this table</button></p>`;
 }
-function rejoinSaved() { const s = readStore(localStorage); if (s) { myKey = s.key || null; try { sessionStorage.setItem('cc_session', JSON.stringify(s)); } catch (e) {} tryReconnect(s.playerId, s.code, s.key); } }
-// #2: the seat key proves this phone owns the seat; #6: if the room is gone after a restart, the sealed copy brings it back
-function tryReconnect(pid, code, key) { lastTry = { pid, code, key }; send({ action: 'reconnect', playerId: pid, code, key }); }
+function forgetSeat() { clearSession(); autoBack = null; dropOutbox(); offerRejoin(); }
+function rejoinSaved() {
+  const s = readStore(localStorage); if (!s) return offerRejoin();
+  myKey = s.key || null; autoBack = s; refusedN = 0;
+  try { sessionStorage.setItem('cc_session', JSON.stringify(s)); } catch (e) {}
+  showBackScreen(s);
+  if (ws && ws.readyState === 1) tryReconnect(s.playerId, s.code, s.key); else { reconnectAttempts = 0; connect(); }
+}
+// The few moments between load and the table: never Home
+function showBackScreen(s) {
+  lastPhase = null; lastKey = null;
+  showScreen('screen-game');
+  $('game-content').innerHTML = `<div class="back-wait" role="status"><p class="eyebrow">Room ${esc(s.code)}</p><div class="h2">Back to the table<span class="dots"></span></div>${s.name ? `<p class="sub">${esc(s.name)}’s seat is waiting.</p>` : ''}<button class="btn-link" id="back-home" onclick="leaveBackScreen()">Home</button></div>`;
+  setTimeout(() => { const h = $('back-home'); if (h) h.style.visibility = 'visible'; }, 6000);
+}
+function leaveBackScreen() { autoBack = null; lastTry = null; refusedN = 0; clearTimeout(refusedT); updateConnectionBanner(); showScreen('screen-home'); }
+// #2: the seat key proves this phone owns the seat; #6: after a restart the sealed copy brings the room back
+function tryReconnect(pid, code, key) {
+  lastTry = { pid, code, key };
+  const s = readStore(localStorage), seal = sealFor(code);
+  const restarted = !!(s && s.code === code && s.boot && serverBoot && s.boot !== serverBoot);
+  if (restarted) resendAll = true;   // everything from the last few minutes goes again (the room's acks drop repeats)
+  if (seal && restarted) { restoring = true; return _send({ action: 'restore', data: seal.data, code, playerId: pid, key }); }
+  _send({ action: 'reconnect', playerId: pid, code, key });
+}
 function sealFor(code) { try { const x = JSON.parse(localStorage.getItem('cc_seal') || 'null'); return x && x.code === code && Date.now() - x.ts < 6 * 3600 * 1000 ? x : null; } catch (e) { return null; } }
+// Who this phone is, once the server says hello
+function backToSeat() {
+  if (wasKicked) return;
+  if (myPlayerId && gameCode) return tryReconnect(myPlayerId, gameCode, myKey);
+  const s = autoBack || readStore(sessionStorage);
+  if (s && !window._linkCode) { myKey = s.key || null; return tryReconnect(s.playerId, s.code, s.key); }
+  offerRejoin();
+}
+// The server turned the seat down. A restarted server may get the room back from another phone in a moment, and a
+// room can be between hands: try again every few seconds (up to 3 minutes after a restart) before giving up.
+function seatRefused() {
+  const t = lastTry || (autoBack ? { pid: autoBack.playerId, code: autoBack.code, key: autoBack.key } : null);
+  lastTry = null; restoring = false;
+  const s = readStore(localStorage);
+  const restarted = !!(s && s.boot && serverBoot && s.boot !== serverBoot);
+  const fresh = !!(s && Date.now() - s.ts < 10 * 60000);
+  const tries = !fresh ? 0 : restarted ? 45 : 3;
+  if (!t || refusedN >= tries) return giveUpSeat(fresh && restarted ? 'restart' : fresh ? 'closed' : 'quiet');
+  refusedN++; updateConnectionBanner();
+  clearTimeout(refusedT);
+  refusedT = setTimeout(() => { if (ws && ws.readyState === 1) tryReconnect(t.pid, t.code, t.key); else { reconnectAttempts = 0; connect(); } }, RETRY_MS);
+}
+function giveUpSeat(kind) {
+  clearTimeout(refusedT); refusedN = 0; autoBack = null; lastTry = null; restoring = false; resendAll = false;
+  try { localStorage.removeItem('cc_seal'); } catch (e) {}
+  dropOutbox();
+  const atTable = $('screen-game').classList.contains('active');
+  clearSession(); myPlayerId = null; gameCode = null; state = null; lastPhase = null; myKey = null;
+  updateConnectionBanner();
+  if (atTable) showScreen('screen-home'); else offerRejoin();
+  if (kind === 'restart') showToast('The server restarted and the room couldn’t be saved. Sorry. Start a new one.');
+  else if (kind === 'closed' || atTable) showToast('That table has closed.');
+}
+
+/* #2 The outbox: captions, bets (and taking one back), the steal and frame picks each carry an id (cid) and stay
+   here until the server answers. Whatever wasn't answered goes again after a reconnect; after a server restart
+   everything from the last few minutes goes again, and the room's own list of ids keeps any from landing twice.
+   Kept on the phone, so a reload never loses a bet either. */
+const ACKED = new Set(['submit_caption', 'place_bet', 'undo_bet', 'steal', 'frame_pick']);
+let outbox = [];
+try { const o = JSON.parse(localStorage.getItem('cc_outbox') || '[]'); if (Array.isArray(o)) outbox = o.filter(x => x && x.cid && x.obj && Date.now() - x.at < 15 * 60000); } catch (e) {}
+const saveOutbox = () => { try { localStorage.setItem('cc_outbox', JSON.stringify(outbox)); } catch (e) {} };
+const newCid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+function pruneOutbox() { const now = Date.now(); outbox = outbox.filter(o => now - o.at < (o.acked ? 3 : 15) * 60000).slice(-40); }
+function settle(cid, keep) { const i = outbox.findIndex(o => o.cid === cid); if (i < 0) return; if (keep) outbox[i].acked = true; else outbox.splice(i, 1); pruneOutbox(); saveOutbox(); }
+function dropOutbox() { outbox = []; saveOutbox(); }
+function flushOutbox(all) {
+  pruneOutbox();
+  outbox = outbox.filter(o => o.code === gameCode && o.pid === myPlayerId);   // anything for another room or seat is dropped
+  saveOutbox();
+  for (const o of outbox) if ((all || !o.acked) && ws && ws.readyState === 1) ws.send(JSON.stringify(o.obj));
+}
+window.ccOutbox = () => outbox.map(o => ({ cid: o.cid, action: o.obj.action, acked: !!o.acked }));   // (for the tests)
+
+function dropSocket() { const old = ws; ws = null; seatedSock = null; clearTimeout(openT); if (old) { old.onopen = old.onmessage = old.onclose = old.onerror = null; try { old.close(); } catch (e) {} } }
+function goneDown() { if (connectionStatus === 'disconnected') return; connectionStatus = 'disconnected'; downAt = Date.now(); clearTimeout(downT); downT = setTimeout(updateConnectionBanner, 800); updateConnectionBanner(); }
+// Nothing heard for 20 s (the server pings every 10): this connection is dead. Start a fresh one now.
+function connectionLost() { dropSocket(); goneDown(); reconnectAttempts = 0; connect(); }
+setInterval(() => { if (ws && ws.readyState === 1 && Date.now() - lastHeard > DEAD_MS) connectionLost(); }, 2000);
 
 function connect() {
   clearTimeout(reconnectTimer);
   if (otherDevice) return;   // #27: reload to take the seat back
   if (ws && (ws.readyState === 0 || ws.readyState === 1)) return;
-  ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}`);
-  ws.onopen = () => {
-    connectionStatus = 'connected'; updateConnectionBanner();
-    if (!wasKicked) {
-      const s = readStore(sessionStorage);
-      if (myPlayerId && gameCode) tryReconnect(myPlayerId, gameCode, myKey);
-      else if (s && !window._linkCode) { myKey = s.key || null; tryReconnect(s.playerId, s.code, s.key); }
-      else offerRejoin();
-    }
-    reconnectAttempts = 0;
+  const sock = ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}`);
+  lastHeard = Date.now();
+  clearTimeout(openT); openT = setTimeout(() => { if (ws === sock && sock.readyState === 0) { dropSocket(); goneDown(); reconnectTimer = setTimeout(connect, 500); } }, 8000);   // no signal at all: try again rather than hang
+  sock.onopen = () => { clearTimeout(openT); lastHeard = Date.now(); connectionStatus = 'connected'; reconnectAttempts = 0; updateConnectionBanner(); };   // (who we are goes with the server's hello)
+  sock.onmessage = (e) => { if (ws !== sock) return; lastHeard = Date.now(); let msg; try { msg = JSON.parse(e.data); } catch (x) { return; } onServer(msg); };
+  sock.onclose = (ev) => {
+    if (ws !== sock) return;
+    seatedSock = null; clearTimeout(openT);
+    // #27: this seat opened on another phone or tab: stop fighting over it
+    if (ev && ev.code === 4000) { otherDevice = true; connectionStatus = 'disconnected'; updateConnectionBanner(); showToast('You’re playing on another device now. Reload this page to play here instead.'); return; }
+    goneDown();
+    const wait = reconnectAttempts === 0 ? 0 : Math.min(5000, 500 * Math.pow(2, reconnectAttempts - 1));   // the first try at once, then a little slower
+    reconnectAttempts++;
+    reconnectTimer = setTimeout(connect, wait);
   };
-  ws.onmessage = (e) => {
-    const msg = JSON.parse(e.data);
+  sock.onerror = () => {};
+}
+function onServer(msg) {
+    if (msg.type === 'ping') return;   // #2 heartbeat (lastHeard is already fresh)
+    if (msg.type === 'ack') { settle(msg.cid, true); return; }
     if (msg.type === 'rtc') { if (window.Voice) Voice.onSignal(msg); return; }
-    if (msg.type === 'hello') { serverBoot = msg.boot; return; }
+    if (msg.type === 'hello') { serverBoot = msg.boot; backToSeat(); return; }
     if (msg.type === 'seal') { try { localStorage.setItem('cc_seal', JSON.stringify({ code: msg.code, data: msg.data, ts: Date.now() })); } catch (e) {} return; }
-    if (msg.type === 'joined') { clearTimeout(claimRetryT); if (restoring) setTimeout(() => showToast('The server restarted. Your game is back where it was.', 'ok'), 600); restoring = false; lastTry = null; myKey = msg.key || null; if (msg.boot) serverBoot = msg.boot; if (demoWatched()) setTimeout(() => send({ action: 'demo_watched' }), 500); myPlayerId = msg.playerId; gameCode = msg.code; pendingJoin = null; if (pendingName) { rememberName(pendingName); pendingName = null; } saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); }, 300); }
+    if (msg.type === 'joined') {
+      clearTimeout(claimRetryT); if (restoring) setTimeout(() => showToast('The server restarted. Your game is back where it was.', 'ok'), 600); restoring = false; lastTry = null; myKey = msg.key || null; if (msg.boot) serverBoot = msg.boot; if (demoWatched()) setTimeout(() => send({ action: 'demo_watched' }), 500); myPlayerId = msg.playerId; gameCode = msg.code; pendingJoin = null; if (pendingName) { rememberName(pendingName); pendingName = null; }
+      seatedSock = ws; autoBack = null; refusedN = 0; clearTimeout(refusedT);
+      const all = resendAll; resendAll = false; flushOutbox(all);   // #2: what wasn't answered goes now
+      saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); }, 300);
+      backOnline();
+    }
     else if (msg.type === 'state') {
       state = msg.data;
       if (window.Voice) Voice.onState(state);
@@ -1365,6 +1477,7 @@ function connect() {
     }
     else if (msg.type === 'gallery_purge') { galleryPurge(); if (state && state.phase === 'lobby') render(true); }   // the server refused retired frames: drop them here too
     else if (msg.type === 'error') {
+      if (msg.cid) settle(msg.cid, false);   // #2: answered (turned down): it isn't sent again
       // #35: a wrong room code keeps you on Join, with what you typed, and says so right there
       if (msg.message === 'Game not found' && pendingJoin && $('screen-join').classList.contains('active')) {
         const je = $('join-error'), ci = $('join-code');
@@ -1373,16 +1486,14 @@ function connect() {
         if (ci) { ci.classList.remove('shake'); void ci.offsetWidth; ci.classList.add('shake'); }
         return;
       }
-      if ((msg.message === 'Player not in game' || msg.message === 'Game not found') && !myPlayerId && $('screen-join').classList.contains('active')) { clearSession(); return; }   // an old seat, while they type a new one
+      const seatMsg = msg.message === 'Player not in game' || msg.message === 'Game not found';
+      if (seatMsg && !myPlayerId && $('screen-join').classList.contains('active')) { clearSession(); lastTry = null; autoBack = null; restoring = false; return; }   // an old seat, while they type a new one
       if (msg.message === 'Game not found' && lastTry && !restoring) {
         const seal = sealFor(lastTry.code);
-        if (seal) { restoring = true; send({ action: 'restore', data: seal.data, playerId: lastTry.pid, key: lastTry.key }); return; }
+        if (seal) { restoring = true; send({ action: 'restore', data: seal.data, code: lastTry.code, playerId: lastTry.pid, key: lastTry.key }); return; }
       }
-      if (msg.message === 'Player not in game' || msg.message === 'Game not found') {
-        const saved = readStore(localStorage), restarted = restoring || (saved && saved.boot && serverBoot && saved.boot !== serverBoot);
-        restoring = false; lastTry = null;
-        try { localStorage.removeItem('cc_seal'); } catch (e) {}
-        if (restarted && msg.message === 'Game not found') { clearSession(); myPlayerId = null; gameCode = null; state = null; showScreen('screen-home'); showToast('The server restarted and the room couldn’t be saved. Sorry. Start a new one.'); return; }
+      if (seatMsg && (lastTry || autoBack)) return seatRefused();   // #2: red banner, and another try in a few seconds
+      if (seatMsg) {
         const quiet = !$('screen-join').classList.contains('active') && msg.message !== 'Game not found';
         clearSession(); myPlayerId = null; gameCode = null; state = null; showScreen('screen-home');
         if (!quiet) showToast(msg.message === 'Game not found' ? 'That room doesn’t exist (or it ended)' : msg.message);
@@ -1395,28 +1506,40 @@ function connect() {
       submitting = false; pendingJoin = null; pendingName = null;
       sfx.error();
     }
-    else if (msg.type === 'caption_check') { submitting = false; showSpellCheck(msg); }
+    else if (msg.type === 'caption_check') { if (msg.cid) settle(msg.cid, false); submitting = false; showSpellCheck(msg); }
     // #30: the same name at the door, a seat being handed back, a seat that moved to another phone
     else if (msg.type === 'same_name') { if (!myPlayerId) askSameName(msg); }
     else if (msg.type === 'claim_wait') { if (!myPlayerId) showClaimWait(msg); }
     else if (msg.type === 'claim_no') { if (!myPlayerId) showClaimNo(msg); }
-    else if (msg.type === 'seat_moved') { showSeatMoved(); }
-    else if (msg.type === 'kicked') { clearSession(); wasKicked = true; myPlayerId = null; gameCode = null; state = null; showScreen('screen-home'); showToast(msg.message || 'The host has shown you out.'); }
-  };
-  ws.onclose = (ev) => {
-    // #27: this seat opened on another phone or tab: stop fighting over it
-    if (ev && ev.code === 4000) { otherDevice = true; connectionStatus = 'disconnected'; updateConnectionBanner(); showToast('You’re playing on another device now. Reload this page to play here instead.'); return; }
-    connectionStatus = 'disconnected'; updateConnectionBanner(); reconnectTimer = setTimeout(connect, Math.min(6000, 600 * Math.pow(2, reconnectAttempts++))); };
-  ws.onerror = () => {};
+    else if (msg.type === 'seat_moved') { dropOutbox(); autoBack = null; refusedN = 0; clearTimeout(refusedT); updateConnectionBanner(); showSeatMoved(); }
+    else if (msg.type === 'kicked') { dropOutbox(); autoBack = null; clearSession(); wasKicked = true; myPlayerId = null; gameCode = null; state = null; showScreen('screen-home'); showToast(msg.message || 'The host has shown you out.'); }
 }
 // Coming back to the tab (phone unlocked): reconnect right away instead of waiting
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { if (!ws || ws.readyState > 1) { reconnectAttempts = 0; connect(); } keepAwake(); } });
-function updateConnectionBanner() {
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  if (!ws || ws.readyState > 1) { reconnectAttempts = 0; connect(); }
+  else if (ws.readyState === 1 && Date.now() - lastHeard > DEAD_MS) connectionLost();   // asleep long enough that the old connection is gone
+  keepAwake();
+});
+addEventListener('online', () => { if (!ws || ws.readyState > 1) { reconnectAttempts = 0; connect(); } });
+function connBanner() {
   let b = $('conn-banner');
-  if (!b) { b = document.createElement('div'); b.id = 'conn-banner'; document.body.appendChild(b); }
-  if (connectionStatus === 'disconnected' && (myPlayerId || reconnectAttempts > 1)) { b.style.background = 'var(--red)'; b.style.color = '#fff'; b.innerHTML = '<span class="dots">Reconnecting</span>'; b.style.transform = 'translateY(0)'; }
-  else if (connectionStatus === 'connected' && reconnectAttempts > 0) { b.style.background = 'var(--teal)'; b.style.color = '#fff'; b.textContent = '✓ Back online'; b.style.transform = 'translateY(0)'; setTimeout(() => { b.style.transform = 'translateY(-100%)'; }, 1500); }
-  else b.style.transform = 'translateY(-100%)';
+  if (!b) { b = document.createElement('div'); b.id = 'conn-banner'; b.setAttribute('role', 'status'); b.setAttribute('aria-live', 'polite'); document.body.appendChild(b); }
+  return b;
+}
+function updateConnectionBanner() {
+  const b = connBanner(), seat = !!(myPlayerId || autoBack || lastTry);
+  if (refusedN > 0) { b.className = 'refused on'; b.innerHTML = 'Can’t reach the table, retrying<span class="dots"></span>'; return; }
+  if (connectionStatus === 'disconnected' && (seat || reconnectAttempts > 2) && Date.now() - downAt >= 700) { b.className = 'calm on'; b.innerHTML = 'Reconnecting<span class="dots"></span>'; return; }
+  if (connectionStatus === 'disconnected' || (seat && !seatedSock && b.classList.contains('on'))) return;   // (a blink: no banner; still finding the seat: keep what's up)
+  if (!b.classList.contains('back')) b.className = '';
+}
+// Back in the seat after a drop that showed a banner: a short 'Back at the table', then it goes
+function backOnline() {
+  const b = connBanner();
+  clearTimeout(downT);
+  if (b.classList.contains('on') && !b.classList.contains('back')) { b.className = 'back on'; b.textContent = 'Back at the table'; setTimeout(() => { if (b.classList.contains('back')) b.className = 'back'; }, 1400); }
+  else updateConnectionBanner();
 }
 // Dealer buttons: one tap per stage. A second tap (or a late tap from a slow screen) is dropped here,
 // and the server also checks the stage it was meant for, so a double tap can never skip a stage.
@@ -1427,6 +1550,14 @@ function send(obj) {
     const k = stageKey();
     if (k === _advKey && Date.now() - _advAt < 2500) return false;   // same stage: a retry is allowed after 2.5 s (e.g. if the server said "not yet")
     _advKey = k; _advAt = Date.now(); obj.phase = state.phase; obj.round = state.round; obj.framed = !!(state.framing && state.framing.resolved);
+  }
+  // #2: captions, bets, the steal and frame picks are kept until the server answers (sent now, or the moment we're back)
+  if (obj && ACKED.has(obj.action) && myPlayerId && gameCode) {
+    obj.cid = newCid();
+    pruneOutbox(); outbox.push({ cid: obj.cid, obj, code: gameCode, pid: myPlayerId, at: Date.now() }); saveOutbox();
+    if (ws && ws.readyState === 1 && ws === seatedSock) ws.send(JSON.stringify(obj));
+    else showToast('Saved. It goes in the moment you’re back.', 'ok');
+    return true;
   }
   return _send(obj);
 }
@@ -1546,7 +1677,7 @@ function toggleTrack(key) { if (!window.GameMusic) return; if (window.GameMusic.
 function joinAddress() { const local = ['localhost', '127.0.0.1'].includes(location.hostname); return local && state && state.lanUrl ? state.lanUrl.replace(/^https?:\/\//, '') : location.host; }
 function shareRoom() {
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
-  const url = joinUrl(), text = `Closed Caption tonight. Room code: ${state.code}`;
+  const url = joinUrl('link'), text = `Closed Caption tonight. Room code: ${state.code}`;
   if (navigator.share) navigator.share({ title: 'Closed Caption', text, url }).catch(() => {});
   else if (navigator.clipboard) navigator.clipboard.writeText(`${text} — ${url}`).then(() => showToast('Copied — paste it to your friends', 'ok')).catch(() => showToast(`Code: ${state.code}`, 'ok'));
   else showToast(`Code: ${state.code}`, 'ok');
@@ -1866,7 +1997,7 @@ function renderLobby() {
     <div class="panel yellow center" style="margin-bottom:16px; transform: rotate(-1deg);">
       <p class="eyebrow" style="color:var(--ink-2);">Room code</p>
       <div class="h-display" style="font-size:56px; letter-spacing:8px; padding-left:8px; margin:2px 0 6px;">${esc(state.code)}</div>
-      <div class="qr-wrap" style="margin:4px auto 8px;">${qrSvg(joinUrl(), 148)}</div>
+      <div class="qr-wrap" style="margin:4px auto 8px;">${qrSvg(joinUrl('qr'), 148)}</div>
       <p class="small" style="color:var(--ink-2); margin-bottom:12px;">Friends point their camera here — or send them the link. It fills in the code for them.</p>
       <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">Send the invite link</button>
     </div>
@@ -2707,7 +2838,10 @@ async function shareHofCard() {
   if (!hofBlob) return;
   const r = await window.HallCard.share(hofBlob, { title: 'The Closed Caption Gallery', text: 'Framed in The Closed Caption Gallery', filename: window._hofName });
   if (r === 'downloaded') showToast('Saved to your downloads', 'ok');
+  if (r !== 'cancelled') ccTally('gallery');
 }
+// #41: one count for the private tally (no names, no captions): a recap or a Gallery card left this phone
+function ccTally(what) { try { if (ws && ws.readyState === 1) ws.send(JSON.stringify({ action: 'tally', what })); } catch (e) {} }
 function hofListHtml() {
   const list = state.hallOfFame || [];
   if (!list.length) return '';
@@ -3254,10 +3388,10 @@ function nextNudge() {
    Invites: a link that opens the game with the code filled in,
    a QR code to scan, and the code always one tap away
    ═══════════════════════════════════════════════════════════ */
-function joinUrl() {
+function joinUrl(via) {
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
   const base = local && state && state.lanUrl ? state.lanUrl : location.origin;
-  return `${base}/?join=${state ? state.code : ''}`;
+  return `${base}/?join=${state ? state.code : ''}${via ? '&via=' + via : ''}`;   // (#41: the tally counts joins by QR, link or typed code)
 }
 function qrSvg(text, px = 168) {
   try { const q = qrcode(0, 'M'); q.addData(text); q.make(); return q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }).replace('<svg ', `<svg width="${px}" height="${px}" `); } catch (e) { return ''; }
@@ -3267,7 +3401,7 @@ function openInvite() {
   $('sheet-body').innerHTML = `<div class="grip"></div>
     <div class="center"><p class="eyebrow">Room code</p>
       <div class="h-display" style="font-size:56px; letter-spacing:8px; padding-left:8px; margin:2px 0 10px;">${esc(state.code)}</div>
-      <div class="qr-wrap">${qrSvg(joinUrl(), 196)}</div>
+      <div class="qr-wrap">${qrSvg(joinUrl('qr'), 196)}</div>
       <p class="small" style="margin:10px 0 14px;">Point a phone camera here to join — or send the link</p></div>
     <div class="stack"><button class="btn btn-yellow" onclick="shareRoom()">Send the invite link</button><button class="btn btn-ink" onclick="closeMenu()">Close</button></div>`;
   $('sheet').classList.add('on');
@@ -3275,12 +3409,14 @@ function openInvite() {
 // Opened from an invite link: straight to "join" with the code filled in
 (function joinFromLink() {
   try {
-    const code = (new URLSearchParams(location.search).get('join') || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
+    const q = new URLSearchParams(location.search);
+    const code = (q.get('join') || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
     if (code.length !== 4) return;
     history.replaceState(null, '', location.pathname);
     const saved = readStore(localStorage);
-    if (saved && saved.code === code) return;   // their own game: the rejoin banner handles it
+    if (saved && saved.code === code) return;   // their own game: straight back to their seat (#2)
     window._linkCode = code;
+    window._linkVia = q.get('via') === 'qr' ? 'qr' : 'link';   // #41: scanned, or an invite link
   } catch (e) {}
 })();
 
@@ -3832,6 +3968,15 @@ function renderHistory(idx) {
 
 /* ── Init ── */
 startHeroLoop();
+// #2: a phone with a seat from tonight goes straight back to the table (never Home). An older seat waits on Home
+// behind 'Back to the game' while the phone checks whether that table is still going (if it is, straight in).
+(function straightBack() {
+  if (window._linkCode) return;
+  const s = readStore(localStorage);
+  if (!s) return;
+  autoBack = s; myKey = s.key || null;
+  if (Date.now() - s.ts < 2 * 3600 * 1000) showBackScreen(s); else offerRejoin();
+})();
 connect();
 if (window._linkCode) {
   $('join-code').value = window._linkCode; showScreen('screen-join');   // showScreen fills in the name this phone used last
