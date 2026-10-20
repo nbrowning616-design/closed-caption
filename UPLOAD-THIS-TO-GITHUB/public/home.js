@@ -54,7 +54,7 @@
     '.home-hello .home-wb{font-size:15px;font-weight:800;color:var(--ink);overflow:hidden;text-overflow:ellipsis;}',
     '.home-hello .home-wb b{font-weight:900;}',
     '.home-line{flex:0 0 auto;margin:6px auto 0;max-width:330px;padding:0 4px;font-size:13.5px;font-weight:800;line-height:1.35;color:var(--ink-2);}',
-    '.home-hello .home-fr{flex:0 0 auto;font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:#8E1B22;border:1.5px solid #C9A24A;background:#FFF7DD;border-radius:999px;padding:3px 8px;}',
+    '.home-hello .home-fr{flex:0 0 auto;font-size:12px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:#8E1B22;border:1.5px solid #C9A24A;background:#FFF7DD;border-radius:999px;padding:3px 8px;}',
 
     /* stage: the card */
     '.home-stage{position:relative;flex:1 1 0;min-height:170px;margin-top:12px;perspective:1100px;}',
@@ -67,7 +67,7 @@
     '.home-face{position:absolute;inset:0;border-radius:14px;border:3px solid var(--ink);box-shadow:var(--shadow-lg);backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;}',
     '.home-back{background:var(--ink);background-image:radial-gradient(rgba(255,255,255,.09) 1.5px,transparent 1.5px);background-size:12px 12px;color:var(--yellow);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;}',
     '.home-back .home-cc{font-family:var(--display);font-weight:700;font-size:54px;letter-spacing:2px;border:3.5px solid var(--yellow);border-radius:10px;padding:0 12px;line-height:1.2;}',
-    '.home-back .home-lbl{font-size:10.5px;font-weight:900;letter-spacing:1.8px;text-transform:uppercase;opacity:.92;}',
+    '.home-back .home-lbl{font-size:12px;font-weight:900;letter-spacing:1.8px;text-transform:uppercase;opacity:.92;}',
     '.home-back::after{content:"";position:absolute;inset:9px;border:1.5px solid rgba(255,210,63,.28);border-radius:8px;pointer-events:none;}',
     '.home-front{transform:rotateY(180deg);background:#fff;padding:6px;}',
     '.home-front img{display:block;width:100%;height:100%;object-fit:contain;border-radius:7px;background:#fff;}',
@@ -88,7 +88,7 @@
     '.home-slip-back{background:var(--ink);color:var(--yellow);font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.12em;}',
     '.home-slip-front{background:#fff;transform:rotateX(180deg);flex-direction:column;align-items:flex-start;text-align:left;}',
     '.home-slip-t{font-family:' + SERIF + ';font-style:italic;font-size:14px;line-height:1.25;color:var(--ink);}',
-    '.home-slip-by{font-size:10.5px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-top:2px;}',
+    '.home-slip-by{font-size:12px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-top:2px;}',
     '.home-chips{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;z-index:2;}',
     '.home-chip{display:block;width:22px;height:22px;margin-left:-7px;border-radius:50%;border:2px solid var(--ink);background:radial-gradient(circle,var(--c) 0 56%,transparent 57%),repeating-conic-gradient(from 8deg,var(--c) 0deg 28deg,#fff 28deg 60deg);box-shadow:0 2px 0 rgba(31,26,23,.9);animation:homeChip .42s cubic-bezier(.3,1.5,.5,1) both;}',
     '@keyframes homeChip{0%{opacity:0;transform:translate(26px,-70px) scale(1.5) rotate(-40deg);}70%{opacity:1;}100%{opacity:1;transform:none;}}',
@@ -118,9 +118,9 @@
     '.home-gilt{flex:0 0 auto;width:58px;height:70px;padding:5px;border-radius:2px;background:linear-gradient(135deg,#6b4b10 0%,#f7e19a 18%,#c9973a 38%,#6e4d10 52%,#e9c86e 70%,#a07422 86%,#3f2a06 100%);box-shadow:0 5px 9px -3px rgba(0,0,0,.55),0 1px 2px rgba(0,0,0,.35);}',
     '.home-gilt i{display:block;width:100%;height:100%;padding:3px;background:#FBF8F0;box-shadow:inset 0 0 0 1px rgba(80,55,10,.45),inset 0 2px 4px rgba(60,40,10,.3);}',
     '.home-gilt img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 30%;}',
-    '.home-plaque .home-eb{font-size:10px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;color:#8E1B22;}',
+    '.home-plaque .home-eb{font-size:12px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;color:#8E1B22;}',
     '.home-plaque .home-gc{margin-top:3px;font-family:' + SERIF + ';font-style:italic;font-size:14.5px;line-height:1.28;color:var(--ink);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;}',
-    '.home-plaque .home-gw{margin-top:3px;font-size:11px;font-weight:800;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
+    '.home-plaque .home-gw{margin-top:3px;font-size:12px;font-weight:800;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
     '.home-plaque .home-gt{flex:1;min-width:0;}',
 
     /* actions (static markup in index.html) */
@@ -131,8 +131,13 @@
     '.home-foot{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;}',
     '.home-foot .btn-link{padding:8px 4px;}',
     '.home-foot .home-dot{color:var(--line);font-weight:900;}',
-    '.home-foot .small{font-size:12.5px;}',
-    '@media (max-height:700px){.home-capbox{height:70px;}.home-wall{height:66px;}.home-gilt{width:52px;height:62px;}.home-mast{font-size:30px;}}'
+    '.home-foot .small{font-size:13px;color:var(--ink-2);}',
+    /* #22 / #40: the quiet reassurances under the buttons */
+    '.home-free{margin:10px 0 0;font-size:13.5px;font-weight:800;color:var(--ink-2);}',
+    '.home-call{margin:2px auto 0;max-width:330px;font-size:13px;font-weight:800;line-height:1.35;color:var(--ink-2);}',
+    '.home-foot a.btn-link{display:inline-flex;align-items:center;}',
+    '@media (max-height:700px){.home-capbox{height:62px;margin-top:6px;}.home-wall{height:66px;}.home-gilt{width:52px;height:62px;}.home-mast{font-size:30px;}.home-pitch .home-p2{display:none;}.home-stage{min-height:120px;margin-top:8px;}.home-actions{margin-top:8px;}.home-free{margin-top:6px;}.home-foot{margin-top:0;}}',
+    '@media (max-height:620px){.home-line{display:none;}}'
   ].join('\n');
 
   /* grit for the stamp: fractal noise as a mask */
@@ -222,9 +227,9 @@
     mount.innerHTML =
       '<div class="home-mast" role="heading" aria-level="1"><span class="home-w1">CLOSED</span><span>CAPTION</span></div>' +
       (helloHtml() ? '<div class="home-hello">' + helloHtml() + '</div>' : '') +
-      // the pitch, on screen
-      '<div class="home-pitch"><p class="home-p1">Think you’re clever? Prove it.</p><p class="home-p2">Ranked like chess, but judged by friends.</p></div>' +
-      '<p class="home-line">A bluffing game, not a joke contest. Everyone gets the same cartoon. Write a fake caption that passes for the real one, then bet on which one is.</p>' +
+      // the pitch, on screen: a dry hook (#22), then what the game is
+      '<div class="home-pitch"><p class="home-p1">One caption is real. Everyone else is lying.</p><p class="home-p2">Ranked like chess, but judged by friends.</p></div>' +
+      '<p class="home-line">A bluffing game, not a joke contest. Everyone gets the same cartoon: write a fake caption that passes for the real one, then bet on which one is.</p>' +
       '<div class="home-stage" aria-hidden="true">' +
         '<div class="home-card"><div class="home-inner">' +
           '<div class="home-face home-back"><span class="home-cc">CC</span><span class="home-lbl">Closed Caption</span></div>' +
