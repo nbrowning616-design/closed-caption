@@ -712,7 +712,7 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .le-x2 { display: inline-block; margin-top: 14px; padding: 3px 12px; border: 2.5px solid var(--ink); border-radius: 4px; font-family: var(--serif); font-weight: 700; font-size: 18px; transform: rotate(-2deg); box-shadow: 2px 2px 0 var(--ink); background: var(--card); }
 .sb-late { margin: 6px 0 12px; text-align: center; font-family: var(--serif); font-style: italic; font-size: 15.5px; line-height: 1.4; color: var(--ink); }
 .sb-late b { font-style: normal; }
-.fn-note { font-size: 13.5px; line-height: 1.35; color: var(--ink-2); text-align: center; margin: -2px 0 2px; }
+.fn-note { font-size: 13.5px; line-height: 1.35; color: var(--ink-2); text-align: center; margin: 4px 0 2px; }
 .fn-why { font-family: var(--serif); font-style: italic; font-size: 14.5px; line-height: 1.35; color: var(--ink-2); margin-top: 6px; }
 .vd-short { text-align: center; font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--muted); margin: -6px 0 12px; }
 #host-away { margin-bottom: 12px; padding: 10px 12px; text-align: center; }
@@ -2822,7 +2822,7 @@ function renderBetting(stage) {
     const n = chipsLeft(pid);   // (the last chips aren't on the table until the drop)
     const sat = passed.has(pid) && !n, me = pid === myPlayerId, isIn = !dropped && inSet.has(pid);
     const stack = n ? Array.from({ length: n }, (_, k) => chipHtml(pid, me ? 'sm mine' : 'sm', '', me ? `data-rack="${k}"` : '')).join('') : `<span class="bnone">${sat ? 'sat out' : 'all in'}</span>`;
-    return `${i ? '<span class="b-arrow" aria-hidden="true">›</span>' : ''}<div class="bettor${!dropped && eligible2.has(pid) && !isIn ? ' waiting' : ''}${!n || sat ? ' spent' : ''}${me ? ' me' : ''}"${me ? ' id="my-rack"' : ''}><div class="bchips">${stack}</div><div class="bname">${isIn ? '<span class="b-in" aria-hidden="true">✓</span>' : ''}${esc(me ? 'You' : fnameOf(pid))}</div></div>`;
+    return `<div class="bettor${!dropped && eligible2.has(pid) && !isIn ? ' waiting' : ''}${!n || sat ? ' spent' : ''}${me ? ' me' : ''}"${me ? ' id="my-rack"' : ''}><div class="bchips">${stack}</div><div class="bname">${isIn ? '<span class="b-in" aria-hidden="true">✓</span>' : ''}${esc(me ? 'You' : fnameOf(pid))}</div></div>`;
   }).join('');
   const waitOn = dropped ? [] : [...eligible2].filter(pid => !inSet.has(pid));
   const waitWords = waitOn.length ? `Waiting on ${esc(listNames(waitOn.map(pid => pid === myPlayerId ? 'you' : fnameOf(pid))))}.` : 'Everyone’s in.';
@@ -2837,7 +2837,7 @@ function renderBetting(stage) {
 
   return `${header({ sticker: '<span class="sticker blue">Last chips</span>' })}
     ${banner}
-    <div class="order bettors" id="bettor-row" role="group" aria-label="Betting order">${orderRow}</div>
+    <div class="order bettors" id="bettor-row" role="group" aria-label="Who bets the last chips">${orderRow}</div>
     <div class="stack bet-caps">${cards}${closedCard}</div>${tools}`;
 }
 // Blind bets: every bettor at once. Nobody sees where anyone went until the chips drop.

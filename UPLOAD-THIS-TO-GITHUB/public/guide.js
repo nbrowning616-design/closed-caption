@@ -105,6 +105,7 @@
   }
   var nudged = {};
   function checkNudge(st) {
+    if (!st || st.phase !== 'writing') { clearTimeout(nudgeQ); if (nudgeEl && nudgeEl.classList.contains('on')) hideNudge(); return; }   // only while writing (a queued one never lands on a later screen)
     var p = lastWriter(st);
     if (!p || p.id !== me() || st.hasSubmitted) return;
     var k = st.code + '#' + (st.gameNo || 0) + '|' + st.round + '|' + (st.cartoon && st.cartoon.id);
