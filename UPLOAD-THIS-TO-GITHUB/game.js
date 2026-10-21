@@ -532,7 +532,7 @@ const HEISTS = [['cat', 'The Cat'], ['fisherman', 'The Fisherman'], ['bellhop', 
 // A chip stolen off a fake caption pays its owner this much (the steal's cost)
 const STEAL_CAUGHT_PTS = 1;
 // How long each steal show runs on the phones (public/steal.js FULL_MS / SHORT_MS); the flip waits for it
-const STEAL_FULL_MS = 6500, STEAL_SHORT_MS = 2000, STEAL_FULL_SHARE = 0.25;
+const STEAL_FULL_MS = 7500, STEAL_SHORT_MS = 2000, STEAL_FULL_SHARE = 0.25;
 // Blind bets: everyone at once. The clock catches anyone idle; the last chip in gets a beat (to take it back),
 // then every chip drops onto the table together and the table gets a look before the steal (or the flip).
 const BLIND_MS = 45000, ALL_IN_BEAT_MS = 1500, DROP_HOLD_MS = 3200;
@@ -541,7 +541,7 @@ const LATE_MS = 3500;
 // #6: the flip and the reveal reel move on by themselves (the dealer can hold them, or go back). The flip: a held
 // second of silence, the card turns on every phone at once (#18), then time to read it out.
 const FLIP_AUTO_MS = 6500;
-const REEL_LEAD_MS = 400;
+const REEL_LEAD_MS = 400, REEL_TAP_MS = 10000;   // (the dealer's tap, or this long)
 // #5 Frame It on the reveal: the night's first frame gets the whole ceremony (the reel waits for it); after that a
 // quick plaque (3 s) that doesn't stop anything.
 const FRAME_FULL_MS = 9000, FRAME_PLAQUE_MS = 3200, FRAME_LEAD_MS = 600;
@@ -1869,20 +1869,14 @@ function reelStepMs(game, step) {
   const r = game.reel; if (!r) return 0;
   const n = r.order.length; if (step > n) return 0;
   const k = r.nobody || 0;
-  if (k && step <= k) return 2300 + 450 * k;
-  const key = r.order[step - 1], o = ((game.lines || {}).reel || {})[key] || {};
-  const badges = (game.roundBadges || []).filter(b => String(b.target) === key || (key === realKey(game) && ['moon', 'pickpocket'].includes(b.kind))).length;
-  if (key === realKey(game)) {   // the drumroll, the stamp (1.2 s), a line or two to read
-    let ms = 5000 + (badges ? 600 : 0);
-    if (game.odds && game.odds.round === game.round) ms += 1000;
-    if (game.tvcRound && game.tvcRound.line && game.tvcRound.show) ms += 800;
-    return ms;
-  }
-  let ms = votesOn(game, key) ? (n >= 7 ? 2700 : n >= 5 ? 2950 : 3200) : 2400;   // read aloud already: who wrote it, who fell for it (a big table, a brisker reel)
-  if (badges) ms += 600;
-  if (o.call) ms += 900;
-  if (o.gloat) ms += 800;
-  return ms;
+  // Payoff beats (Nick, Oct 21): the real caption is the dealer's to turn over and to move on from. The card before it
+  // waits for the dealer's tap ("The real one →"), and so does the real one ("Round recap →"); 10 s fallbacks.
+  // A fake: who wrote it and who fell for it (the caption was read aloud already) plus a held beat. Called shots,
+  // badges and gloats moved to the recap, so they no longer add time here.
+  if (step === n || step === n - 1 || (k && step <= k && k === n - 1)) return REEL_TAP_MS;   // (the real one is always last)
+  if (k && step <= k) return 2300 + 900 * k;   // the captions nobody bit on, together: a beat each
+  const key = r.order[step - 1];
+  return votesOn(game, key) ? (n >= 7 ? 3300 : n >= 5 ? 3500 : 3800) : 3000;
 }
 function reelDue(game, fromNow) {
   const r = game.reel; if (!r || r.paused) return null;

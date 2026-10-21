@@ -22,14 +22,15 @@ A web-based multiplayer party game. One person creates a game, shares a 4-letter
 - The host lines up the seats in the lobby and picks which way the deal passes (left or right)
 - Stealing a chip that was on the real caption scores the dealer +1; the real caption is face-down in about 15% of rounds, never two in a row
 - The flip: every phone turns the face-down card at the same moment, then the round moves on by itself after a few seconds (the dealer can hold it)
-- The answer is a reveal reel, one caption at a time, that moves on by itself every few seconds (the dealer can hold it, go back, or skip to the recap; if the dealer is away the host can take over), with a few badges for great moments
-- Ha and Groan: two small buttons on every caption while it's read and revealed. No points; the counts appear only once the answer is out. Ha taps made before the answer are "blind", and they decide each round of the table vs. the cartoonist ("The table 6, the cartoonist 3"); each phone keeps the table's best game
+- The answer is a reveal reel, one caption at a time, that moves on by itself every few seconds (the dealer can hold it, go back, or skip to the recap; if the dealer is away the host can take over). Each card is just the caption, who wrote it and who fell for it; at most one line under the real one. The dealer turns over the real one and moves on from it (10 s if nobody taps). Called shots, badges and the table vs. the cartoonist are on the round recap
+- Ha and Groan: two small buttons on every caption on the reveal. No points; the counts appear only once the answer is out. Ha taps made before the answer are "blind", and they decide each round of the table vs. the cartoonist ("The table 6, the cartoonist 3"); each phone keeps the table's best game
 - Call your shot: after locking in a caption you may secretly name one person. If they put a chip on your caption, +3
-- A caption with no chips and three or more Groans gets a rejection slip from The Editors, on its writer's phone only (their drawer of slips is in the menu: Rejections)
+- A caption with no chips and three or more Groans gets a rejection slip from The Editors, on its writer's phone only, under their own scoreboard (their drawer of slips is in the menu: Rejections)
 - Editor's notes: now and then (never in the first two cards) a round comes with a rule for the captions: "Exactly N words." or "Must use the word: X." The caption box shows whether yours fits; one that doesn't can't be locked in
 - Need a nudge? The first taps circle an odd detail of the cartoon in pencil, with a question beside it (card_meta.json "odd"); then general tips
 - The kids are in bed (host menu, family games only): the full deck from the next deal. One came back down: family cards again at once
-- The dealer's steal plays as a hand-drawn caper with one of six thieves (the night's first steal in full, then mostly short), the same frame on every phone; a skip vote plays one of 50 hand-drawn gags
+- The dealer's steal plays as a hand-drawn caper with one of six thieves (the server says full or short: `stealShow`; the full show ends on the thief's one closing caption, the 2-second short one on no line at all), the same frame on every phone; a skip vote plays one of 50 hand-drawn gags
+- Full-screen moments take turns: the skip gag, the steal, the opening / Late Edition / kids cards wait for each other, and the last writer's nudge, a game-over slip or a badge wait until the screen (and the menu) is clear
 - Most lines the game says (warnings, waits, reveal lines, gloats after the reveal) come from public/lines.js, picked by the server so a night never repeats one
 - Each phone keeps a chess-style rating (starts at 1,200; titles from Candidate to Grandmaster) and its badges across game nights
 - Invite friends with the lobby QR code or the invite link (it fills in the room code)

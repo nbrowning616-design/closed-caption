@@ -128,7 +128,11 @@
     '.home-actions #rejoin-box:not(:empty){margin-bottom:12px;}',
     '.home-actions .btn + .btn{margin-top:10px;}',
     '.home-actions .home-host{font-size:18px;padding:16px 18px;}',
-    '.home-foot{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;}',
+    '.home-foot{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 10px;margin-top:6px;}',
+    '.home-foot > *{white-space:nowrap;}',
+    '@media (max-width:380px){.home-foot{gap:0 12px;}.home-foot .home-dot{display:none;}.home-foot .small{font-size:12.5px;}}',
+    '@media (max-height:700px){.home-call{display:none;}}',
+    '#home-mount{pointer-events:none;}.home-actions{position:relative;z-index:2;}',   /* (the hero is a picture: a tap always reaches the buttons) */
     '.home-foot .btn-link{padding:8px 4px;}',
     '.home-foot .home-dot{color:var(--line);font-weight:900;}',
     '.home-foot .small{font-size:13px;color:var(--ink-2);}',

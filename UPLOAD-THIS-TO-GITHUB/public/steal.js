@@ -13,17 +13,19 @@
 (function () {
   'use strict';
   var INK = '#1F1A17';
-  var FULL_MS = 6500, SHORT_MS = 2000;   // thieves.js full.T / short.T; game.js STEAL_FULL_MS / STEAL_SHORT_MS (the flip waits for these)
+  var FULL_MS = 7500, SHORT_MS = 2000;   // (payoff beats: the closing caption is held a full second longer than the drawing needs)   // thieves.js full.T / short.T; game.js STEAL_FULL_MS / STEAL_SHORT_MS (the flip waits for these)
 
   var CSS = [
     /* the stage: paper, the steal screen drawn on it (thieves.js .ccs), the line under it */
     '#stealshow.ccs-on{background:var(--paper,#FFF8EA);background-image:none;color:var(--ink,#1F1A17);padding:calc(14px + var(--sat,0px)) 12px calc(14px + var(--sab,0px));}',
-    '#stealshow .st-wrap{width:100%;max-width:430px;margin:0 auto;}',
+    '#stealshow .st-wrap{width:100%;max-width:min(430px, 56dvh);margin:0 auto;}',   /* (a landscape phone: the whole show fits, line and all) */
     '#stealshow .ccs-scr{box-shadow:0 1px 0 rgba(31,26,23,.05);}',
     '#stealshow .st-plain{max-width:340px;margin:0 auto;text-align:center;font-family:var(--serif,Georgia,serif);}',
     '#stealshow .st-plain p{margin:0;}',
     '#stealshow .st-plain .a{font-weight:700;font-size:26px;line-height:1.2;}',
     '#stealshow .st-plain .b{font-style:italic;font-size:19px;line-height:1.35;margin-top:14px;}',
+    /* cut 7: the short show (2 s) has no line to read: the thief, the chip, whose it is now */
+    '#stealshow.st-short .ccs-cap{display:none;}',
     /* After the show: a stolen chip is the dealer's now — their colour, their initials, still wet */
     '.chip.painted{overflow:visible;}',
     '.chip.painted .pd{position:absolute;left:50%;bottom:-7px;width:18px;height:11px;margin-left:-9px;pointer-events:none;}',
@@ -90,11 +92,12 @@
     return { cards: cards, target: { card: ci, chip: ch } };
   }
 
-  function showKind(st) { var k = st && st.stealShow; return k === 'short' ? 'short' : 'full'; }
+  // Cut 7: the server says which (state.steal.stealShow, or the view's stealShow); missing = the full show
+  function showKind(st) { var k = (st && st.stealShow) || (typeof state !== 'undefined' && state && state.stealShow); return k === 'short' ? 'short' : 'full'; }
   // How long this steal's show runs (index.html paces the flip after it)
   function lengthFor(st) { return showKind(st) === 'short' ? SHORT_MS : FULL_MS; }
 
-  function close(o) { (window._ssT || []).forEach(clearTimeout); window._ssT = []; o.classList.remove('on', 'out', 'quick', 'ccs-on'); o.innerHTML = ''; o.onclick = null; }
+  function close(o) { (window._ssT || []).forEach(clearTimeout); window._ssT = []; o.classList.remove('on', 'out', 'quick', 'ccs-on', 'st-short'); o.innerHTML = ''; o.onclick = null; }
   /* The show, `wait` ms from now (the shared beat; negative: it started that long ago). Returns ms until it's over. */
   function play(wait) {
     wait = +wait || 0;
@@ -104,13 +107,13 @@
     var mode = showKind(st), len = lengthFor(st), me = myPlayerId, dId = dealerId();
     var startAt = performance.now() + wait;
     o.innerHTML = '<div class="st-wrap" id="st-wrap"></div>';
-    o.classList.remove('out', 'quick'); o.classList.add('on', 'ccs-on');
+    o.classList.remove('out', 'quick', 'st-short'); o.classList.add('on', 'ccs-on'); if (mode === 'short') o.classList.add('st-short');
     o.onclick = function () { close(o); if (window._answerGo) window._answerGo(); };   // a tap skips it (on this phone)
     window._ssT.push(setTimeout(function () { o.classList.add('out'); }, Math.max(0, wait + len - 300)));
     window._ssT.push(setTimeout(function () { close(o); }, Math.max(0, wait + len + 200)));
     var wrap = o.querySelector('#st-wrap'), beat = function (n) { if (window.ccBeat) window.ccBeat(n); };
     if (!window.CCSteal) {   // thieves.js still on its way: the result, in words, for the same length
-      wrap.innerHTML = '<div class="st-plain"><p class="a">' + (st.victimId === me ? 'Your chip.' : esc(first(st.victimId)) + '’s chip.') + '<br>' + (dId === me ? 'Yours now.' : esc(first(dId)) + '’s now.') + '</p>' + (st.gloat ? '<p class="b">' + esc(st.gloat) + '</p>' : '') + '</div>';
+      wrap.innerHTML = '<div class="st-plain"><p class="a">' + (st.victimId === me ? 'Your chip.' : esc(first(st.victimId)) + '’s chip.') + '<br>' + (dId === me ? 'Yours now.' : esc(first(dId)) + '’s now.') + '</p>' + (st.gloat && mode === 'full' ? '<p class="b">' + esc(st.gloat) + '</p>' : '') + '</div>';
       beat('steal:plain');
       return Math.max(0, wait + len);
     }
@@ -119,7 +122,7 @@
       var opts = {
         heist: st.thief && window.CCSteal.HEISTS[st.thief] ? st.thief : 'cat', mode: mode, cards: T.cards, target: T.target,
         victim: first(st.victimId), victimYou: st.victimId === me, dealer: first(dId), dealerYou: dId === me || !!state.isDealer,
-        dealerColor: colourOf(dId), dealerInitial: dId ? ini(dId) : '', round: state.round, caption: st.gloat || undefined,
+        dealerColor: colourOf(dId), dealerInitial: dId ? ini(dId) : '', round: state.round, caption: mode === 'full' ? (st.gloat || undefined) : undefined,
         seed: (st.seed || 7) % 997, startAt: startAt,
         onCue: function (name) { try { if (window.ccCueSound) window.ccCueSound(name); } catch (e) {} if (name === 'clink' || name === 'tink' || name === 'catch') { try { if (st.victimId === me) buzz([60, 40, 60]); } catch (e) {} } }
       };

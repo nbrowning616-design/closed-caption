@@ -102,6 +102,7 @@
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html { -webkit-text-size-adjust: 100%; }
+#screen-game, .screen { overflow-x: clip; }   /* (a stamp landing, a wide name: never a sideways scroll) */
 body { font-family: var(--sans); font-weight: 700; background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 18px 18px; color: var(--ink); min-height: 100dvh; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 button { font-family: inherit; color: inherit; }
 input, textarea { font-family: inherit; color: var(--ink); font-size: 16px; }
@@ -249,7 +250,7 @@ textarea.caption-input::placeholder { color: #A99F93; }
 
 /* ── Stamp ── */
 .stamp { display: inline-block; padding: 8px 16px; border: 4px solid var(--teal); color: var(--teal); border-radius: 10px; font-family: var(--display); font-weight: 700; font-size: 26px; letter-spacing: 2px; text-transform: uppercase; transform: rotate(-6deg); animation: stampIn .5s var(--spring) both; }
-@keyframes stampIn { 0% { transform: rotate(-6deg) scale(3); opacity: 0; } 60% { opacity: 1; } 100% { transform: rotate(-6deg) scale(1); opacity: 1; } }
+@keyframes stampIn { 0% { transform: rotate(-6deg) scale(1.6); opacity: 0; } 60% { opacity: 1; } 100% { transform: rotate(-6deg) scale(1); opacity: 1; } }
 
 /* ── The Closed Caption: a face-down card ── */
 .ccard { width: 210px; height: 140px; margin: 0 auto; border-radius: 14px; background: var(--ink); background-image: radial-gradient(rgba(255,255,255,.09) 1.5px, transparent 1.5px); background-size: 12px 12px; border: 3px solid var(--ink); box-shadow: var(--shadow); color: var(--yellow); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
@@ -565,6 +566,7 @@ body.quake { animation: quake .12s linear 10; }
 .code-pill { font-family: var(--display); font-weight: 700; font-size: 14px; letter-spacing: 2px; padding: 3px 9px; border-radius: 8px; border: 2px solid var(--ink); background: #fff; cursor: pointer; color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
 .qr-wrap { display: inline-block; background: #fff; padding: 8px; border: 3px solid var(--ink); border-radius: 14px; box-shadow: var(--shadow-sm); line-height: 0; }
 .qr-wrap svg { display: block; }
+@media (max-height: 700px) { .lb-code .qr-wrap svg { width: 116px; height: 116px; } .lb-code .do { margin-bottom: 8px !important; } }
 .gallery-credit { margin-top: 12px; padding: 8px 12px; border: 2px solid #B8860B; border-radius: 12px; background: linear-gradient(135deg, #FFF3C4, #F6D77A 55%, #FFF0B8); color: #4A3500; font-family: Georgia, serif; font-style: italic; font-size: 15px; line-height: 1.35; box-shadow: inset 0 0 0 2px rgba(255,255,255,.55); }
 .pub-mark { display: inline-block; font-size: 11px; font-weight: 900; padding: 1px 6px; border-radius: 999px; border: 1.5px solid #B8860B; background: #FFF3C4; color: #4A3500; vertical-align: 2px; margin-left: 4px; white-space: nowrap; }
 .gal-toggle { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border: 2px solid var(--ink); border-radius: 14px; background: #fff; cursor: pointer; text-align: left; font-weight: 900; font-size: 15px; margin-bottom: 14px; }
@@ -728,7 +730,7 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .stage-pill { display: inline-flex; align-items: center; padding: 2px; border: 2px solid var(--ink); border-radius: 999px; background: #fff; box-shadow: 2px 2px 0 var(--ink); font-family: var(--sans); font-weight: 900; font-size: 12.5px; line-height: 1; white-space: nowrap; }
 .stage-pill span { padding: 5px 7px 6px; border-radius: 999px; color: var(--ink-2); }
 .stage-pill span.on { background: var(--ink); color: var(--yellow); }
-.hdr .hdr-sub { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.hdr .hdr-sub { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.25; max-width: 100%; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }   /* (two lines rather than a clipped one) */
 .hdr .mid { gap: 5px; }
 .hdr .thumb { display: block; }
 .hdr button.thumb { font: inherit; color: inherit; }
@@ -740,6 +742,12 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .pin-toon { flex: 0 0 100%; order: 10; display: flex; justify-content: center; padding: 4px; margin: 0; background: #fff; border: 2.5px solid var(--ink); border-radius: 10px; box-shadow: var(--shadow-sm); cursor: zoom-in; font: inherit; }
 .pin-toon img { display: block; height: calc(45dvh - 92px); min-height: 140px; max-height: 420px; width: 100%; object-fit: contain; border-radius: 6px; background: #fff; }
 @supports not (height: 1dvh) { .pin-toon img { height: calc(45vh - 92px); } }
+/* The pinned cartoon never crowds out the captions: about a third of a tall phone, less on a short one; in landscape
+   (or a very short window) the header scrolls away with the page instead of staying pinned. */
+.pin-toon img { height: clamp(92px, calc(38dvh - 84px), 380px); min-height: 0; }
+@media (max-height: 700px) { .pin-toon img { height: clamp(80px, calc(30dvh - 72px), 260px); } .hdr.pin { row-gap: 6px; padding-bottom: 8px; } }
+@media (max-height: 700px) { .toon-big .toon-hit img { max-height: 40dvh; } }
+@media (max-height: 520px) { .hdr.pin { position: relative; } .pin-toon img { height: clamp(84px, 42dvh, 220px); } }
 .toon-big { cursor: default; }
 .toon-hit { display: block; width: 100%; padding: 0; margin: 0; border: 0; background: none; cursor: zoom-in; border-radius: 6px; }
 .toon-big .toon-hit img { display: block; width: 100%; max-height: 52dvh; object-fit: contain; border-radius: 6px; background: #fff; transition: max-height .25s var(--ease-out); }
@@ -805,6 +813,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .rc-page { margin: 0 0 18px; }
 .rc-art { display: block; width: 100%; padding: 6px; margin: 0; background: #fff; border: 2.5px solid var(--ink); border-radius: 10px; box-shadow: var(--shadow-sm); cursor: zoom-in; }
 .rc-art img { display: block; width: 100%; max-height: 42dvh; object-fit: contain; background: #fff; }
+@media (max-height: 700px) { .rc-art img { max-height: 34dvh; } }
 .rc-print { font-family: var(--serif); font-style: italic; font-size: 25px; line-height: 1.28; text-align: center; margin: 14px 6px 0; text-wrap: balance; overflow-wrap: anywhere; }
 .rc-under { text-align: center; font-size: 13px; font-weight: 800; letter-spacing: .3px; color: var(--ink-2); margin-top: 6px; }
 .rc-h { font-family: var(--sans); font-size: 13px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-2); margin: 0 0 6px; }
@@ -992,6 +1001,16 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .slip-st { position: absolute; right: 12px; bottom: 14px; padding: 3px 8px; border: 2.5px double #B3261E; color: #B3261E; font-family: var(--sans); font-weight: 900; font-size: 12px; letter-spacing: .16em; transform: rotate(-8deg); opacity: .85; }
 .slip-btns { display: flex; justify-content: flex-end; margin-top: 8px; }
 .slip-btns .btn { width: auto; padding: 0 18px; }
+.rc-extras { margin: 6px 0 14px; }
+.rc-calls { list-style: none; margin: 0 0 10px; padding: 0; }
+.rc-calls li { font-size: 15px; font-weight: 700; line-height: 1.4; padding: 6px 0; border-bottom: 1px dashed rgba(31,26,23,.2); }
+.rc-calls li:last-child { border-bottom: 0; }
+.rc-extras .badge-strip { margin-top: 4px; }
+.sb-slip { margin: 18px auto 6px; max-width: 380px; animation: sbSlipIn .55s var(--ease-out) 1.6s both; }
+.sb-slip .slip { transform: rotate(-1deg); box-shadow: 0 4px 10px rgba(31,26,23,.15); }
+.sb-slip-lbl { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); text-align: center; margin: 0 0 8px; }
+@keyframes sbSlipIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .sb-slip { animation: none; } }
 .sb-slip-note { text-align: center; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 14.5px; color: var(--ink-2); margin: 4px 0 10px; }
 .sb-wait-line { text-align: center; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 14.5px; color: var(--ink-2); margin-top: -6px; }
 .slip-list { display: flex; flex-direction: column; gap: 14px; }
@@ -1079,7 +1098,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
   <details class="box" id="rules-extras" style="margin-bottom: 22px;"><summary>The extras <span class="arrow">▾</span></summary><div class="body">
     <ul class="rules-extras">
       <li><b>Frame It.</b> On the reveal, tap Frame on any caption that beat the real one (never your own). Frame as many as deserve it. When <span class="frame-need">most of the other players</span> frame the same one, it hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
-      <li><b>Ha and Groan.</b> Two quiet buttons on every caption, from the reading on. No points. Nobody sees a count until the answer. A caption with no chips and three or more Groans gets a rejection slip from The Editors (menu ☰, Rejections).</li>
+      <li><b>Ha and Groan.</b> Two quiet buttons on every caption as it's revealed. No points. Nobody sees a count until the answer. A caption with no chips and three or more Groans gets a rejection slip from The Editors (menu ☰, Rejections).</li>
       <li><b>Call your shot.</b> Once your caption is in, name the one person you think will fall for it. If they put a chip on it, +3. The reveal says how it went either way.</li>
       <li><b>The table vs. the cartoonist.</b> Ha’s tapped before anyone knows which caption is real are a blind test: the table’s best fake against the real one, one point a round.</li>
       <li><b>The Late Edition.</b> In a game that goes around the table more than once, the last trip around pays double. First to 20: when someone gets there, the trip around the table is finished (everyone deals the same number of times), at double points. Then the leader wins.</li>
@@ -1833,6 +1852,7 @@ document.addEventListener('keydown', (e) => {
    Menu (room code, sound, music, rules, leave)
    ═══════════════════════════════════════════════════════════ */
 function openMenu() {
+  document.querySelectorAll('.gd-nudge.on, #rd-slip.on').forEach(e => e.classList.remove('on'));   // (the menu never sits under a nudge or a slip)
   if (!state) return;
   const tracks = window.GameMusic ? window.GameMusic.tracks() : [], cur = window.GameMusic ? window.GameMusic.currentTrack() : null;
   $('sheet-body').innerHTML = `<div class="grip"></div>
@@ -2155,7 +2175,7 @@ function syncClaim() {
 }
 function claimAnswer(id, ok) { send({ action: 'claim_answer', id, ok }); const el = $('claim-bar'); if (el) el.remove(); }
 let lastJoin = null, claimRetryT = null;
-function sheetOpen(html) { $('sheet-body').innerHTML = `<div class="grip"></div>${html}`; $('sheet').classList.add('on'); }
+function sheetOpen(html) { document.querySelectorAll('.gd-nudge.on').forEach(e => e.classList.remove('on')); $('sheet-body').innerHTML = `<div class="grip"></div>${html}`; $('sheet').classList.add('on'); }
 function askSameName(m) {
   const n = esc(m.name);
   sheetOpen(`<p class="eyebrow center" style="margin-bottom:6px;">Room ${esc(m.code)}</p>
@@ -2217,7 +2237,7 @@ function renderLobby() {
   const td = state.timerDuration, laps = s.laps || 1, dm = s.dealerMode || 'steal';
   const timerWords = !td ? 'No timer' : td % 60 ? `${td}-second timer` : `${td / 60}-min timer`;
   const dealerWords = dm === 'bet' ? 'Dealer bets, no steal' : dm === 'both' ? 'Dealer bets + steals' : (s.stealEnabled === false ? 'No steal' : 'Dealer steals');
-  const endCondition = s.targetScore ? `First to ${s.targetScore}` : s.rounds ? `${s.rounds} rounds` : laps === 2 ? 'Everyone deals twice' : laps === 3 ? 'Everyone deals 3 times' : 'Everyone deals once';
+  const endCondition = s.targetScore ? `First to ${s.targetScore}` : s.rounds ? plural(s.rounds, 'round') : laps === 2 ? 'Everyone deals twice' : laps === 3 ? 'Everyone deals 3 times' : 'Everyone deals once';
   const summary = `${timerWords} · ${dealerWords} · ${endCondition} · ${s.family ? 'Family deck' : s.spicy ? 'Everything deck' : 'Standard deck'}`;
   const customOn = lobbyCustomTimer || (td !== 120 && td !== 0);
   const tmin = Math.max(1, Math.round((td || 120) / 60));
@@ -2420,18 +2440,17 @@ function mulliganHtml() {
 }
 function renderWriting() {
   if (state.hasSubmitted) {
-    return `${header({ sticker: '<span class="sticker teal">Locked in</span>', sub: `${roundLabel()} · ${dealerLine()}`, ring: true })}
+    return `${header({ sticker: '<span class="sticker teal">Locked in</span>', sub: state.isDealer ? roundLabel() : `${roundLabel()} · ${dealerLine()}`, ring: true })}
       ${bigToon(true, true)}
       <div class="center" style="margin:22px 0 16px;">
         <div class="stamp">Locked in</div>
-        ${(state.lines || {}).lockedIn ? `<p class="rd-note" style="margin-top:10px;">${esc(state.lines.lockedIn)}</p>` : ''}
         <div class="panel flat" style="margin-top:16px; text-align:left;"><p class="eyebrow">Your caption, as everyone sees it</p><p class="caption-text" style="margin-top:4px;">“${esc(state.myCaption || '')}”</p></div>
         ${noteHtml(true)}
         ${callHtml(false)}
       </div>
       ${writingStatusHtml()}`;
   }
-  return `${header({ sticker: `<span class="sticker">${state.isDealer ? 'Your deal' : 'Write'}</span>`, sub: `${roundLabel()} · ${dealerLine()}`, ring: true })}
+  return `${header({ sticker: `<span class="sticker">${state.isDealer ? 'Your deal' : 'Write'}</span>`, sub: state.isDealer ? roundLabel() : `${roundLabel()} · ${dealerLine()}`, ring: true })}
     ${bigToon(false, true)}
     <div class="w-box">
       ${noteHtml(false)}
@@ -2481,7 +2500,7 @@ function submitCaption(auto = false) {
   submitting = true; setTimeout(() => { submitting = false; }, 3000);
   // Auto-send at the buzzer takes the spelling fixes; otherwise the server may ask "did you mean…?" first
   const mode = auto ? 'fix' : 'check';
-  if (send({ action: 'submit_caption', caption, mode })) { if (auto) { closeMenu(); sfx.submitSelf(); buzz(30); showToast((state.lines || {}).timesUp || 'Time’s up — your caption was sent', 'ok'); } }
+  if (send({ action: 'submit_caption', caption, mode })) { if (auto) { closeMenu(); sfx.submitSelf(); buzz(30); showToast('Time’s up. Your caption was sent.', 'ok'); } }
 }
 function sendCaption(mode) {
   const i = $('caption-input'); closeMenu();
@@ -2533,12 +2552,12 @@ function startTimer() {
   tick(); timerInterval = setInterval(tick, 250);
 }
 function warnAt(n) {
-  const L = state.lines || {}, w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `${n} seconds.<span>${esc(n <= 10 ? (L.warn10 || 'Send it now') : (L.warn20 || 'Lock in your caption'))}</span>`;
+  const L = state.lines || {}, w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `${n} seconds.<span>${n <= 10 ? 'Send it now.' : 'Lock in your caption.'}</span>`;
   w.classList.remove('on'); void w.offsetWidth; w.classList.add('on');
   sfx.warn(); buzz(40);
 }
 function warn20() {
-  const w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `20 seconds.<span>${esc((state.lines || {}).warn20 || 'Lock in your caption')}</span>`;
+  const w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `20 seconds.<span>Lock in your caption.</span>`;
   w.classList.remove('on'); void w.offsetWidth; w.classList.add('on');
   sfx.warn(); buzz(60);
 }
@@ -2558,7 +2577,17 @@ function loadSkips() {
   return skipsLoading;
 }
 function imgAspect(src) { try { const im = new Image(); im.src = src; return im.complete && im.naturalWidth ? im.naturalWidth / im.naturalHeight : null; } catch (e) { return null; } }
+/* Overlays take turns (polish audit): one full-screen moment at a time. The shared shows (the skip gag, the steal) and
+   the cards (the opening, the Late Edition, the kids, Previously on, Last Call) wait for each other; the private ones
+   (the last writer's nudge, a slip at game over, a badge) wait until the screen is clear, the menu included. */
+const OV_FULL = ['boom', 'stealshow', 'opening', 'late-card', 'kids-card', 'prev', 'lastcall', 'ending', 'mycredit', 'fp-show', 'induct', 'readaloud', 'sheet', 'viewer'];
+const OV_SHOWS = ['boom', 'stealshow', 'opening', 'late-card', 'kids-card', 'prev', 'lastcall', 'ending', 'mycredit', 'fp-show', 'induct'];
+const ovOn = (id) => { const e = document.getElementById(id); return !!(e && e.classList.contains('on')); };
+function ccBusy(except, list) { return (list || OV_FULL).some(id => id !== except && ovOn(id)) || (!list && !!document.querySelector('.gal-ov')); }
+function ccWhenClear(fn, except, maxMs = 20000) { const t0 = Date.now(); const go = () => { if (!ccBusy(except) || Date.now() - t0 > maxMs) fn(); else setTimeout(go, 350); }; go(); }
+window.ccBusy = ccBusy; window.ccWhenClear = ccWhenClear;
 function playMulligan(ev, wait = 0) {
+  if (ccBusy('boom', OV_SHOWS) && (ev._held || 0) < 8000) { ev._held = (ev._held || 0) + 300; setTimeout(() => playMulligan(ev, wait - 300), 300); return; }   // a card is up: the gag goes next
   const b = $('boom');
   b.innerHTML = ''; b.className = 'on ccm';   // cover the new cartoon right away; the gag starts on the shared beat
   clearTimeout(window._boomT); clearTimeout(window._boomGo); clearTimeout(window._boomQ);
@@ -2577,7 +2606,7 @@ function playMulligan(ev, wait = 0) {
         CCMulligan.play(b, { kind: ev.kind, src, rect, line: 'Mulligan.', seed: ev.n || 7, onCue: (n) => { if (window.ccCueSound) ccCueSound(n); } });
       } catch (e) { console.error('skip', e); }
       window._boomQ = setTimeout(() => { quip(); if (window.ccBeat) window.ccBeat('mulligan:hit'); buzz(40); }, dur);
-      window._boomT = setTimeout(close, dur + 2300);
+      window._boomT = setTimeout(close, dur + 3300);   // (payoff beats: the line gets its reading time and a held beat)
     } else {   // skips.js isn't here yet: the old cartoon fades out, the word, the line
       loadSkips(); b.classList.remove('ccm');
       b.innerHTML = src ? `<div class="old"><img src="${esc(src)}" alt=""></div>` : '';
@@ -2616,7 +2645,7 @@ function openReadAloud(i = 0) {
   o.innerHTML = `<div class="ra-top"><span class="ra-n">${raIdx + 1} of ${list.length}</span><button class="ra-x" onclick="closeReadAloud()" aria-label="Close">✕</button></div>
     <p class="ra-cap">“${esc(list[raIdx])}”</p>
     <div class="ra-nav"><button class="btn" ${raIdx === 0 ? 'disabled' : ''} onclick="openReadAloud(${raIdx - 1})">◀</button>${raIdx < list.length - 1 ? `<button class="btn btn-yellow" onclick="openReadAloud(${raIdx + 1})">Next caption →</button>` : `<button class="btn btn-yellow" onclick="closeReadAloud()">Done ✓</button>`}</div>
-    <p class="ra-hint">${esc((state.lines || {}).readHint || 'The face-down one stays a mystery.')}</p>`;
+    <p class="ra-hint">The face-down one stays a mystery.</p>`;
   o.classList.add('on'); sfx.tap();
 }
 function closeReadAloud() { const o = $('readaloud'); if (o) o.classList.remove('on'); }
@@ -2712,18 +2741,17 @@ function clockHtml(start, due, held) {
 function sendHold(on) { send({ action: 'hold', on: !!on, phase: state.phase, round: state.round }); }
 function renderReading(animate) {
   const L = state.lines || {};
-  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked ${animate ? 'deal-in' : ''}" style="animation-delay:${i * 0.14}s;"><span class="num">${i + 1}</span><p class="caption-text">“${esc(c)}”${capNote(i)}</p>${rxHtml(i)}</div>`).join('');
+  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked ${animate ? 'deal-in' : ''}" style="animation-delay:${i * 0.14}s;"><span class="num">${i + 1}</span><p class="caption-text">“${esc(c)}”${capNote(i)}</p></div>`).join('');   // (cut 8: Ha / Groan on the reveal only)
   const nOpen = (state.openCaptions || []).length;
   return `${header({ sticker: '<span class="sticker white">The captions</span>' })}
     <div class="center" style="margin-bottom:16px;">
       <h2 class="h2">${state.isDealer ? 'Read them aloud' : `${esc(firstName(state.dealerName))} reads them aloud`}</h2>
-      <p class="sub">${L.readSub ? esc(L.readSub) : `${plural(nOpen, 'caption')} out in the open, one face-down. One of them is real.`}</p>
-      ${state.round === 1 ? '<p class="small" style="margin-top:6px;">Ha or Groan as they’re read. Nobody sees the counts until the answer.</p>' : ''}
+      <p class="sub">${plural(nOpen, 'caption')} out in the open, one face-down. One of them is real.</p>
       ${noteHtml(true)}
     </div>
     <div class="stack" style="margin-bottom:14px;">${cards}</div>
     <div class="cap closed locked ${animate ? 'deal-in' : ''}" style="animation-delay:${nOpen * 0.14}s; text-align:center; padding:18px; margin-top:16px;">
-      <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p><p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? esc(L.yoursRead || 'It’s yours. Keep a straight face.') : 'It turns over after the first bets.'}</p>
+      <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p><p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'It’s yours. Keep a straight face.' : 'It turns over after the first bets.'}</p>
     </div>
     ${callHtml(true)}
     ${state.isDealer ? `<button class="btn" style="margin-top:18px;" onclick="openReadAloud()">Read them big</button><button class="btn btn-yellow" style="margin-top:12px;" onclick="send({action:'advance'})">Done reading — start the betting</button>`
@@ -2838,8 +2866,8 @@ function renderBlind() {
   const clock = !dropped && state.blindEnd ? '<p class="blind-clock" id="blind-clock" aria-hidden="true"></p>' : '';
   let banner;
   const BL = state.lines || {};
-  if (dropped) banner = `<div class="turn-banner"><div class="h2">${esc(BL.betDown || 'All chips are down')}</div><p class="sub">${dealerSteals() && othersHaveChips() ? `${state.isDealer ? 'Your' : esc(firstName(state.dealerName)) + '’s'} steal, before the flip…` : 'Turning the Closed Caption over…'}</p></div>`;
-  else if (state.isDealer && !dealerBetsNow()) banner = `<div class="turn-banner dealer"><div class="h2">You’re dealing. No bets for you.</div><p class="sub">${dealerSteals() ? 'When the chips drop, you steal one. Before the flip.' : 'If nobody finds the real one, you score.'} ${BL.betDealer ? esc(BL.betDealer) + ' ' : ''}${waitWords}</p>${clock}</div>`;
+  if (dropped) banner = `<div class="turn-banner"><div class="h2">Bets are closed.</div><p class="sub">${dealerSteals() && othersHaveChips() ? `${state.isDealer ? 'Your' : esc(firstName(state.dealerName)) + '’s'} steal, before the flip…` : 'Turning the Closed Caption over…'}</p></div>`;
+  else if (state.isDealer && !dealerBetsNow()) banner = `<div class="turn-banner dealer"><div class="h2">You’re dealing. No bets for you.</div><p class="sub">${dealerSteals() ? 'When the chips drop, you steal one. Before the flip.' : 'If nobody finds the real one, you score.'} ${waitWords}</p>${clock}</div>`;
   else if (canPick) banner = `<div class="turn-banner you" role="status"><div class="h2">Your bet</div><p class="sub" style="color:var(--ink);">Everyone bets at once, in secret. Tap a caption, then 1 chip or both.</p>${clock}</div>`;
   else if (mine) banner = `<div class="turn-banner"><div class="h2">${esc(betLabel(mine.target, mine.count))} ✓</div><p class="sub">${waitWords} The chips drop together.</p>${clock}</div>`;
   else banner = `<div class="turn-banner"><div class="h2">First bets</div><p class="sub">You sit this round out. ${waitWords}</p>${clock}</div>`;
@@ -2942,7 +2970,7 @@ function renderSteal() {
   }
   const canPass = state.canTakeover || state.isHost;   // #28: the host can pass for a dealer who's wandered off
   return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
-    <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">${esc(firstName(state.dealerName))} is choosing a chip to steal<span class="dots"></span></h2><p class="sub">Before the flip. ${esc((state.lines || {}).stealWait || 'Any chip on the table could go. Plead your case.')}</p></div>
+    <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">${esc(firstName(state.dealerName))} is choosing a chip to steal<span class="dots"></span></h2><p class="sub">Before the flip. Any chip on the table could go.</p></div>
     <div class="stack" style="margin-top:18px;">${cards}</div>
     ${state.canTakeover ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'steal', betIndex:null})">Skip the steal and flip the card →</button>` : canPass ? `<button class="btn-link" style="display:block; margin:16px auto 0; font-size:14px;" onclick="send({action:'steal', betIndex:null})">Dealer stuck? Skip the steal</button>` : ''}`;
 }
@@ -2989,13 +3017,13 @@ function renderReveal() {
   const chips = on.flatMap(b => [...Array.from({ length: b.count }, () => chipHtml(b.playerId, 'sm')), ...Array.from({ length: b.stolen || 0 }, () => window.ccPaintedChip ? window.ccPaintedChip(state.dealerId, 'sm', b.playerId) : chipHtml(b.playerId, 'sm stolen'))]).join('');
   return `${header({ sticker: '<span class="sticker">The flip</span>' })}
     <div class="center" style="padding-top:2vh;">
-      <p class="sub" style="margin-bottom:22px;" id="reveal-lead">${esc(L.flipLead || 'Turning the Closed Caption over…')}</p>
+      <p class="sub" style="margin-bottom:22px;" id="reveal-lead">Turning it over…</p>
       <div class="flip hero still" id="reveal-flip" style="position:relative;"><div class="inner">
         <div class="face front"><div class="ccard" id="reveal-ccard"><div class="cc">CC</div><div class="lbl">Closed Caption</div></div></div>
-        <div class="face back"><div class="panel yellow" style="transform:rotate(-1deg);"><p class="eyebrow" style="color:var(--ink-2);">The Closed Caption</p><p class="caption-text" style="font-size:22px; margin-top:6px;">“${esc(state.closedCaption)}”</p>${state.iWroteClosed ? `<p class="small" style="margin-top:6px;">${esc(L.yoursFlip || '(Yours. Poker face.)')}</p>` : ''}${chips ? `<div class="cc-chips" id="cc-chips" aria-label="Blind chips on it">${chips}</div>` : ''}${rxHtml('closed')}</div></div>
+        <div class="face back"><div class="panel yellow" style="transform:rotate(-1deg);"><p class="eyebrow" style="color:var(--ink-2);">The Closed Caption</p><p class="caption-text" style="font-size:22px; margin-top:6px;">“${esc(state.closedCaption)}”</p>${state.iWroteClosed ? `<p class="small" style="margin-top:6px;">Yours. Poker face.</p>` : ''}${chips ? `<div class="cc-chips" id="cc-chips" aria-label="Blind chips on it">${chips}</div>` : ''}</div></div>
       </div></div>
       ${flipTableHtml()}
-      <p class="flip-riders" id="flip-riders">${esc(L.flipRiders || L.flipNone || '')}</p>
+      <p class="flip-riders" id="flip-riders"></p>
       <p class="sub" id="reveal-hint" style="opacity:0; transition:opacity .4s; margin-top:10px;"></p>
       <div id="flip-ctl">${flipCtlHtml()}</div>
     </div>`;
@@ -3044,7 +3072,7 @@ function playRevealSequence() {
   const elapsed = sy.late - sy.wait;   // ms since the shared start (negative: not yet)
   const once = (k) => { if (revealDone.has(key + k)) return false; revealDone.add(key + k); return true; };
   const light = () => document.querySelectorAll('#cc-chips .chip, .ft-row.cc .ft-chips .chip').forEach(c => c.classList.add('lit'));
-  const faceUp = () => { if (lead) lead.textContent = (state.lines || {}).flipUp || 'The Closed Caption is…'; };
+  const faceUp = () => { if (lead) lead.textContent = 'The Closed Caption is…'; };
   const rest = () => {
     const n = (state.eligibleSecondBetters || []).length;
     if (hint) { hint.textContent = n ? `${plural(n, 'player still has', 'players still have')} a chip. One at a time, from the dealer’s ${(state.settings || {}).direction === 'right' ? 'right' : 'left'}.` : 'Every chip is already down.'; hint.style.opacity = '1'; }
@@ -3308,14 +3336,22 @@ function renderRecap() {
     <div id="answer-root" class="done">
     ${page}
     <h2 class="rc-h">Points this round</h2>
-    ${rows ? `<ul class="rc-rows" id="answer-scores">${rows}</ul>` : `<p class="rc-none" id="answer-scores">${esc(L.noScore || 'Nobody scored. Not even the dealer.')}</p>`}
+    ${rows ? `<ul class="rc-rows" id="answer-scores">${rows}</ul>` : `<p class="rc-none" id="answer-scores">Nobody scored.</p>`}
     ${L.endHead ? `<p class="rc-line" id="bluff-shout">${esc(L.endHead)}</p>` : ''}
-    ${L.endSteal ? `<p class="rc-line rc-dealer" id="rc-dealer">${esc(L.endSteal)}</p>` : ''}
     ${lateOn() ? '<p class="rc-line">The Late Edition: every point doubled.</p>' : ''}
+    ${recapExtrasHtml()}
     ${tvc}
     <div id="rc-frames">${recapFramesHtml()}</div>
     <div id="answer-continue">${answerContinueHtml(isLastRound())}</div>
     </div>`;
+}
+// Cut 1: what used to crowd the reveal cards lands here, plainly: called shots, then the round's badges
+function recapExtrasHtml() {
+  const R = (state.lines || {}).reel || {}, order = (state.reel && state.reel.order) || Object.keys(R);
+  const calls = order.map(k => (R[String(k)] || {}).call).filter(Boolean);
+  const badges = badgeChipsHtml(state.roundBadges || []);
+  if (!calls.length && !badges) return '';
+  return `<div class="rc-extras">${calls.length ? `<ul class="rc-calls">${calls.map(c => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}${badges}</div>`;
 }
 // #5: every caption the table wrote, each with its frame (and its Ha / Groan count)
 function recapFramesHtml() {
@@ -3326,7 +3362,7 @@ function recapFramesHtml() {
     const k = String(c.idx), counts = (state.reactionCounts || {})[k], framed = ((state.framing || {}).framed || []).includes(k);
     return `<li class="rc-fi${framed ? ' framed' : ''}">${chipHtml(c.playerId, 'sm')}<div class="rc-ft"><p class="rc-fc">“${esc(c.caption)}”</p><p class="rc-fw">${esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}${counts ? ' · ' + rxWords(counts) : ''}</p></div>${frHtml(k)}</li>`;
   }).join('');
-  return `<section class="rc-frames" aria-label="Frame It"><p class="rc-fh">${esc(L.framePrompt || 'Did anyone beat the real one?')}</p><p class="rc-fs">${esc(L.frameSub || 'Frame it. When most of the table does, it hangs in The Gallery.')}</p><ul class="rc-fl">${items}</ul></section>`;
+  return `<section class="rc-frames" aria-label="Frame It"><p class="rc-fh">Did anyone beat the real one?</p><p class="rc-fs">Frame it. When most of the table does, it hangs in The Gallery.</p><ul class="rc-fl">${items}</ul></section>`;
 }
 /* #28: why each point was scored, in plain words, from the server's own list (state.roundScoreDetails):
    "+2 found the real one", "+2 fooled Margaret", "+1 your chip was stolen off a fake". Same reasons add up. */
@@ -3447,8 +3483,8 @@ function reelCtlHtml() {
   const at = kNo && step <= kNo ? kNo : step, atFirst = step <= 1 || (kNo && step <= kNo);
   const nextLabel = at >= n ? 'Round recap →' : at === n - 1 ? 'The real one →' : 'Next →';
   if (reelDriver()) return `<div class="rd-ctl"><button class="btn btn-sm" ${atFirst ? 'disabled' : ''} onclick="reelSend('reel_prev')" aria-label="Back one caption">◀</button><button class="btn btn-sm" onclick="sendHold(${held ? 'false' : 'true'})" aria-label="${held ? 'Let it run' : 'Hold it here'}">${held ? '▶' : '❚❚'}</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="reelSend('reel_next')">${nextLabel}</button></div>
-     ${held ? '<p class="rd-note">Held. Talk it over, then go on.</p>' : ''}<button class="btn-link" style="display:block; margin:6px auto 0; font-size:13px;" onclick="reelSend('reel_skip')">Skip to the recap</button>`;
-  return `${held ? `<p class="rd-note">${esc((state.lines || {}).reelHold || `${firstName(state.dealerName)} is holding it here.`)}</p>` : ''}${reelTakeOverHtml()}`;
+     ${held ? '<p class="rd-note">Held. Talk it over, then go on.</p>' : at === n - 1 ? '<p class="rd-note">Your tap: turn over the real one when the table is ready.</p>' : ''}<button class="btn-link" style="display:block; margin:6px auto 0; font-size:13px;" onclick="reelSend('reel_skip')">Skip to the recap</button>`;
+  return `${held ? `<p class="rd-note">${esc(firstName(state.dealerName))} is holding it here.</p>` : at === n - 1 ? `<p class="rd-note">${esc(firstName(state.dealerName))} turns over the real one.</p>` : ''}${reelTakeOverHtml()}`;
 }
 /* #24: the captions nobody bit on come first in the reel; with a server that groups them
    (state.reel.nobody = how many lead the order, 2 or more) they share one step. Older server: one at a time. */
@@ -3456,15 +3492,13 @@ const reelNobody = () => { const r = state.reel, k = r && Number.isInteger(r.nob
 function nobodyGroupHtml(k) {
   const { order, n } = reelInfo(), L = state.lines || {};
   const rows = order.slice(0, k).map(capByKey).filter(Boolean).map(c => {
-    const badges = (state.roundBadges || []).filter(b => String(b.target) === String(c.idx) && !['moon', 'pickpocket'].includes(b.kind));
-    const RL = (L.reel || {})[String(c.idx)] || {};
-    return `<div class="nb-row">${chipHtml(c.playerId, 'sm')}<div class="nb-txt"><p class="nb-cap">“${esc(c.caption)}”</p><p class="nb-who">${esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}${c.isClosed ? ' · the face-down one' : ''}</p>${RL.call ? `<p class="call-line">${esc(RL.call)}</p>` : ''}${badgeChipsHtml(badges)}${rxHtml(c.idx, { frame: true })}</div></div>`;
+    return `<div class="nb-row">${chipHtml(c.playerId, 'sm')}<div class="nb-txt"><p class="nb-cap">“${esc(c.caption)}”</p><p class="nb-who">${esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}${c.isClosed ? ' · the face-down one' : ''}</p>${rxHtml(c.idx, { frame: true })}</div></div>`;
   }).join('');
-  return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `${roundLabel()} · 1–${k} of ${n}` })}
+  return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `1–${k} of ${n}` })}
     <div class="reel-dots">${order.map((_, i) => `<i class="${i < k ? 'on' : ''} ${i === n - 1 ? 'last' : ''}"></i>`).join('')}</div>
     <div id="reel-clock">${reelClockHtml()}</div>
     <div class="spot pending" id="spot">
-      <p class="eyebrow">${esc(L.reelGroup || `${plural(k, 'caption')}, not one chip`)}</p>
+      <p class="eyebrow">${plural(k, 'caption')} nobody bet on</p>
       <div class="spot-reveal"><div class="stamp nb-stamp" id="spot-stamp">Nobody bit</div><div class="nb-list">${rows}</div></div>
     </div>
     <div style="margin-top:18px;" id="reel-ctl">${reelCtlHtml()}</div>`;
@@ -3481,27 +3515,22 @@ function spotlightHtml() {
   const backers = real ? bets : bets.filter(b => b.playerId !== c.playerId);
   const people = [...new Set(backers.map(b => b.playerId))];
   const chipsOf = (pid) => backers.filter(b => b.playerId === pid).reduce((s, b) => s + b.count + (b.stolen || 0), 0);
-  const fell = people.length ? `<div class="fell"><p class="eyebrow" style="margin-bottom:8px;">${real ? 'Found the real one' : esc(RL.fell || 'Fell for it')}</p><div class="fell-row">${people.map(pid => `<span class="fell-p">${chipHtml(pid, 'sm')}${esc(pid === myPlayerId ? 'You' : nameOf(pid))}${chipsOf(pid) > 1 ? ` <i>×${chipsOf(pid)}</i>` : ''}</span>`).join('')}</div></div>`
-    : `<p class="nobody">${real ? `<i>${esc(RL.line || (fc.allChips ? 'Found. Then stolen.' : 'The truth had no friends.'))}</i>` : esc(RL.nobody || 'Nobody bit.')}</p>`;
+  const fell = people.length ? `<div class="fell"><p class="eyebrow" style="margin-bottom:8px;">${real ? 'Found the real one' : 'Fell for it'}</p><div class="fell-row">${people.map(pid => `<span class="fell-p">${chipHtml(pid, 'sm')}${esc(pid === myPlayerId ? 'You' : nameOf(pid))}${chipsOf(pid) > 1 ? ` <i>×${chipsOf(pid)}</i>` : ''}</span>`).join('')}</div></div>`
+    : `<p class="nobody">${real ? 'Nobody found it.' : 'Nobody bit.'}</p>`;
   const pts = !real && c.playerId ? backers.reduce((s, b) => s + b.count + (b.stolen || 0), 0) * (state.settings.pointsPerFool || 0) * (lateOn() ? 2 : 1) : 0;   // stolen chips still fooled them; The Late Edition doubles it
   const who = real ? `<div class="stamp real-stamp" id="spot-stamp">The real caption</div>`
     : `<div class="writer-stamp" id="spot-stamp">${chipHtml(c.playerId, 'lg')}<div><p class="eyebrow">Written by</p><div class="wname">${esc(c.playerId === myPlayerId ? 'You' : c.playerName || '?')}</div></div>${pts ? `<span class="plus" style="margin-left:auto; font-size:26px;">+${pts}</span>` : ''}</div>`;
-  const realBadges = real ? (state.roundBadges || []).filter(b => ['moon', 'pickpocket'].includes(b.kind)) : [];
-  const realLine = real && people.length ? `<p class="real-line">${esc(RL.line || 'As printed.')}</p>` : '';
-  const extras = real ? `${state.tvcRound && state.tvcRound.line ? `<p class="tvc-line">${esc(state.tvcRound.line)}</p>` : ''}${state.odds && state.odds.line ? `<p class="odds-line">${esc(state.odds.line)}</p>` : ''}` : '';
-  const call = RL.call ? `<p class="call-line">${esc(RL.call)}</p>` : '';
-  const gloat = RL.gloat && RL.gloat.text ? `<p class="gloat-line"><b>${esc(RL.gloat.who || 'The thief')}:</b> ${gloatText(RL.gloat.text)}</p>` : '';
-  const noted = real ? notedHtml() : '';
-  const badges = [...(state.roundBadges || []).filter(b => String(b.target) === String(key) && !['moon', 'pickpocket'].includes(b.kind)), ...realBadges];
-  return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `${roundLabel()} · ${step} of ${n}` })}
+  // the real one's single line: the odds when something rare happened (kept), otherwise the server's one line
+  const realLine = real ? (state.odds && state.odds.line ? `<p class="odds-line">${esc(state.odds.line)}</p>` : RL.line ? `<p class="real-line">${esc(RL.line)}</p>` : '') : '';
+  return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `${step} of ${n}` })}
     <div class="reel-dots">${order.map((_, i) => `<i class="${i + 1 < step ? 'done' : i + 1 === step ? 'on' : ''} ${i === n - 1 ? 'last' : ''}"></i>`).join('')}</div>
     <div id="reel-clock">${reelClockHtml()}</div>
     <div class="spot ${real ? 'is-real pending' : 'pending'}" id="spot">
       <span class="num">${c.isClosed ? '<span class="cc-badge" style="margin:0;">CC</span>' : (Number(c.idx) + 1)}</span>${trayHtml(c.idx, { showStolen: true })}
-      ${real ? `<p class="spot-lead">${esc(RL.lead || 'And the real caption is…')}</p>` : ''}
+      ${real ? `<p class="spot-lead">And the real caption is…</p>` : ''}
       ${c.isClosed ? '<p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption</p>' : ''}
       <p class="spot-text">“${esc(c.caption)}”</p>
-      <div class="spot-reveal">${who}${realLine}${extras}${real ? galleryCreditHtml() : ''}${fell}${call}${gloat}${noted}${badgeChipsHtml(badges)}${rxHtml(key, { frame: true })}</div>
+      <div class="spot-reveal">${who}${real && !people.length && realLine ? '' : fell}${realLine}${rxHtml(key, { frame: true })}</div>
     </div>
     <div style="margin-top:18px;" id="reel-ctl">${reelCtlHtml()}</div>`;
 }
@@ -3557,7 +3586,7 @@ function playReelStep(fromEntry) {
 // #14: the badge pop covers the top of the card, so it waits until the caption has had its moment (2.7s)
 const BADGE_AFTER_MS = 2700;
 function popBadgesFor(key, real, wait) {
-  if (!window.Badges) return;
+  if (!window.Badges || !window.ccPopOnReel) return;   // cut 1: badges are on the round recap now
   const RANK = ['moon', 'three_bagger', 'clean_sweep', 'great_minds', 'pickpocket'];
   const tag = gTag() + '|' + state.round + '|' + (state.reel && state.reel.step);
   // At most two pops per caption — yours first, then the rarest. The rest sit on the card as chips.
@@ -3571,6 +3600,10 @@ function onReelRecap() {
   if (recapPlayed === tag) return;
   recapPlayed = tag;
   big(() => [523, 659, 784].forEach((f, i) => tone(f, 0.2, i * 70, 'triangle', 0.05)));
+  // Cut 1: badges moved off the reveal cards. Here, your own one gets its pop, once the recap has landed (the rest
+  // sit on the recap as chips).
+  const mine = (state.roundBadges || []).filter(b => window.Badges && Badges.KINDS[b.kind] && (b.playerIds || []).includes(myPlayerId)).slice(0, 1);
+  if (mine.length) setTimeout(() => ccWhenClear(() => { if (state && state.phase === 'answer' && recapPlayed === tag) mine.forEach(b => Badges.pop({ kind: b.kind, who: b.playerIds.map(nameOf), line: badgeLine(b), mine: true })); }), 2200);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -3712,16 +3745,18 @@ function syncOpening() {
   const o = state && state.phase === 'writing' && state.round === 1 ? state.opening : null;
   if (!o || !o.gameId) { if ($('opening').className) closeOpening(); return; }
   if (openingShown === o.gameId) return;
+  if (ccBusy('opening', ['boom', 'stealshow'])) { clearTimeout(window._opQ); window._opQ = setTimeout(syncOpening, 400); return; }
   openingShown = o.gameId;
   if (!playedGame()) return;   // #16: a first game goes straight to the cartoon; the rating can wait until there is one
-  const left = o.at + o.ms - (Date.now() + clockOffset);
+  const left = Math.max(o.at + o.ms - (Date.now() + clockOffset), window._opQ ? 3000 : 0);
+  window._opQ = null;
   noteOpeningSeen(o);
   if (left < 600) return;   // walked in late: straight to the cartoon
   const row = (t) => `<div class="op-row"><span class="op-name">${chipHtml(t.id, 'xs')}${esc(t.name)}</span><span class="op-r">${t.provisional ? 'new' : fmtRating(t.rating)}</span></div>`;
   const line = (x) => x ? `<p class="op-line">${esc(x.text)}</p>` : '';
-  const pick = o.favorite ? `<div class="op-pick"><p class="op-who">Favorite: <b>${esc(o.favorite.name)}</b> (${fmtRating(o.favorite.rating)}).</p>${line(o.favorite.line)}</div>
-      <div class="op-pick"><p class="op-who">Long shot: <b>${esc(o.underdog.name)}</b>.</p>${line(o.underdog.line)}</div>`
-    : `<div class="op-pick">${line(o.evenTable || o.newTable)}</div>`;
+  // (cut 2: the favorite and the long shot by name, without a line each)
+  const pick = o.favorite ? `<div class="op-pick"><p class="op-who">Favorite: <b>${esc(o.favorite.name)}</b> (${fmtRating(o.favorite.rating)}). Long shot: <b>${esc(o.underdog.name)}</b>.</p></div>`
+    : '';
   const el = $('opening');
   el.innerHTML = `<div class="op-card" onclick="closeOpening()">
     <p class="op-head">Ranked like chess, but judged by friends.</p>${line(o.opener)}
@@ -3750,8 +3785,10 @@ function syncLate() {
   if (!due) { if ($('late-card') && $('late-card').className) closeLate(); return; }
   const key = gTag() + '|' + state.round + '|' + L.from + '|' + (state.history || []).length;
   if (lateShown === key) return;
+  if (ccBusy('late-card', ['boom', 'stealshow', 'opening', 'prev', 'kids-card'])) { clearTimeout(window._leQ); window._leQ = setTimeout(syncLate, 400); return; }
   lateShown = key;
-  const left = (state.phaseAt || 0) + (L.ms || 3500) - (Date.now() + clockOffset);
+  const left = Math.max((state.phaseAt || 0) + (L.ms || 3500) - (Date.now() + clockOffset), window._leQ ? 3000 : 0);
+  window._leQ = null;
   if (left < 600) return;   // walked in late: straight to the cartoon
   let o = $('late-card'); if (!o) { o = document.createElement('div'); o.id = 'late-card'; o.setAttribute('role', 'status'); document.body.appendChild(o); }
   o.onclick = closeLate;
@@ -3769,8 +3806,10 @@ function closeKids() { const o = $('kids-card'); if (o) { clearTimeout(o._t); o.
 function syncKids() {
   const c = state && state.kids && state.kids.card;
   if (!c || !c.at || kidsShown === state.code + '|' + c.at) return;
+  if (Date.now() + clockOffset - c.at > 6000 && !window._kdQ) { kidsShown = state.code + '|' + c.at; return; }   // walked in later: no card
+  if (ccBusy('kids-card', ['boom', 'stealshow', 'opening', 'late-card', 'prev'])) { clearTimeout(window._kdQ); window._kdQ = setTimeout(syncKids, 400); return; }
+  window._kdQ = null;
   kidsShown = state.code + '|' + c.at;
-  if (Date.now() + clockOffset - c.at > 6000) return;   // walked in later: no card
   let o = $('kids-card'); if (!o) { o = document.createElement('div'); o.id = 'kids-card'; o.setAttribute('role', 'status'); document.body.appendChild(o); }
   const bed = c.kind === 'bed';
   o.innerHTML = `<div class="le-card kd-card"><div class="le-rule"></div><h2 class="le-h kd-h">${bed ? 'The kids have gone to bed.' : 'One came back down.'}</h2><div class="le-rule"></div><p class="le-line">${bed ? 'Every cartoon is in play from the next deal.' : c.swapped ? 'Family cartoons again, starting with this one.' : 'Family cartoons again from the next deal.'}</p></div>`;
@@ -3971,15 +4010,15 @@ function renderScores() {
   // R18 the Late Edition: the scoreboard is sealed until the end (only your own points for the round)
   if (state.sealed && window.Ending) return `${header({ sticker: '<span class="sticker">Scoreboard</span>', sub: goal, thumb: false })}
     ${Ending.sealedHtml()}
-    ${(state.slips || []).slice(0, 2).map(x => `<p class="sb-slip-note">${esc(x.note || '')}</p>`).join('')}
+    ${mySlipHtml()}
     <p class="sb-next">Next dealer: <b>${esc(firstName(state.nextDealerName))}</b></p>
-    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>${(state.lines || {}).nextDealer ? `<p class="sb-wait-line">${esc(state.lines.nextDealer)}</p>` : ''}`}`;
+    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>`}`;
   return `${header({ sticker: '<span class="sticker">Scoreboard</span>', sub: goal, thumb: false })}
     <div class="sb-list ${sorted.length > 6 ? 'tight' : ''}">${rows}</div>
     ${state.nextLate ? `<p class="sb-late">Next: <b>The Late Edition.</b> ${state.late && state.late.hit ? lateWhyLine(state.late) : 'The last trip around the table.'} Every point counts double.</p>` : ''}
-    ${(state.slips || []).slice(0, 2).map(x => `<p class="sb-slip-note">${esc(x.note || '')}</p>`).join('')}
+    ${mySlipHtml()}
     <p class="sb-next">Next dealer: <b>${esc(firstName(state.nextDealerName))}</b></p>
-    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>${(state.lines || {}).nextDealer ? `<p class="sb-wait-line">${esc(state.lines.nextDealer)}</p>` : ''}`}`;
+    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>`}`;
 }
 // Game over: the winner (and who has the Remote now), a compact standings row, and the buttons. The ending plays over
 // this page first (ending.js: the winner, the awards, the credits, the cast), then Caption of the Night (finale.js).
@@ -4106,7 +4145,7 @@ function playScoreboardCount(key) {
   const pts = state.roundScores || {}, best = Math.max(0, ...Object.values(pts));
   const winners = best > 0 ? state.players.filter(p => pts[p.id] === best).map(p => p.id) : [];
   // the callback, picked by the server (#39): a repeat winner, a habit, a new leader, at last, or a shared round
-  const again = (state.lines || {}).stamp || '';
+  const again = '';   // (cut 2: the stamp alone, no callback line)
   if (winners.length) {
     const stampAt = total + 500;
     if (elapsed < stampAt + 600) seq.timers.push(setTimeout(() => {
@@ -4179,6 +4218,13 @@ function slipSave(x) {
   try { localStorage.setItem('cc_rejections', JSON.stringify(list.slice(-200))); } catch (e) {}
   return true;
 }
+// Cut 8: a slip is private. Mid-game it sits in its writer's own scoreboard, under the board (never over it, never a
+// line on anyone else's); the last round's slip still waits for the end of the night (syncSlip).
+function mySlipHtml() {
+  const mine = state && !state.gameOver ? (state.slips || []).find(x => x.writerId === myPlayerId) : null;
+  if (!mine) return '';
+  return `<div class="sb-slip" role="status"><p class="sb-slip-lbl">Only you can see this</p>${slipHtml(mine, slipsGet().length)}</div>`;
+}
 function slipHtml(x, n) {
   return `<div class="slip"><p class="slip-h">The Editors</p><p class="slip-re">Re: <i>“${esc(x.caption || '')}”</i></p><p class="slip-f">${esc(x.line || '')}</p><p class="slip-g">Groans received: ${x.groans || 0}. Chips: none.${n ? ` · No. ${n}` : ''}</p><span class="slip-st" aria-hidden="true">Returned</span></div>`;
 }
@@ -4198,6 +4244,8 @@ function syncSlip() {
     clearTimeout(slipWaitT); slipWaitT = setTimeout(() => { if (state && state.phase === 'scores' && state.gameOver) syncSlip(); }, 1500);
     return;
   }
+  if (!over) { slipShown.add(k); if (fresh) { sfx.tap(); buzz([30, 60, 30]); srSay(`A rejection slip from The Editors. ${mine.line || ''}`); } return; }
+  if (window.ccBusy && ccBusy()) { clearTimeout(slipWaitT); slipWaitT = setTimeout(() => { if (state && state.phase === 'scores' && state.gameOver) syncSlip(); }, 900); return; }
   slipShown.add(k);
   const due = over ? 1200 : (state.scoresAt || 0) + 2600 - (Date.now() + clockOffset);
   if (due < -6000) return;
