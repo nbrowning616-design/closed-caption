@@ -279,7 +279,7 @@ Everything from writing to the scoreboard. The END OF NIGHT (finale, awards, cre
   ("The table 6, the cartoonist 3.") on the recap and in the record. Each phone keeps the table's best game
   (localStorage cc_table_best).
 - R11 call your shot: after locking in, secretly name one person. +3 (doubled in the Late Edition) if they bet on your
-  caption; 10 hit and 10 miss lines.
+  caption; 16 hit and 16 miss lines (sharper set, Oct 21).
 - R15 nudges: the first taps on "Need a nudge?" circle an odd detail in pencil, with its question (card_meta "odd",
   shuffled per phone). Then the general tips. Cards without "odd" go straight to the tips.
 - R22 Editor's notes: "Exactly N words." (N = the real caption's length) every 6-8 turns; "Must use the word: X." about
