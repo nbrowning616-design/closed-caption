@@ -212,7 +212,7 @@ function autoAdvanceBets(code) {
   if (g.phase === PHASES.SECOND_BETS) return scheduleLate(code);
 }
 /* Cut 3 The last chips, everyone at once: the same shape as the blind bets. Everyone in -> a short beat -> one
-   shared drop; or the 15 s clock runs out first. Then the table has a look and the answer comes. */
+   shared drop; or the 30 s clock runs out first. Then the table has a look and the answer comes. */
 const lateT = new Map();   // code -> timeout
 function scheduleLate(code) {
   const g = games[code];
@@ -672,6 +672,14 @@ wss.on('connection', (ws, req) => {
         if (game.phase !== PHASES.LOBBY) return;
         if (fail(Night.setTables(game, playerId, msg.list))) return;
         broadcast(code);
+        return;
+      }
+      case 'more_bet_time': {
+        // anyone at the table, once per betting stage: +20 s
+        const r = G.moreBetTime(game, playerId);
+        if (fail(r)) return;
+        broadcast(code);
+        if (r.stage === 1) scheduleBlind(code); else scheduleLate(code);
         return;
       }
       case 'add_time': {

@@ -1351,9 +1351,22 @@ function computeBetOrder(game) {
    Each bettor locks in a caption and 1 or 2 chips; nobody sees where until every chip drops onto the table at
    the same moment (dropAt). The clock catches anyone idle (a no-timer room has none: the dealer or host drops
    the chips). Then the dealer's steal (#8: before the face-down card flips), the flip, and the last chips:
-   cut 3, the same way: everyone holding one places it at once, in secret, on a 15 s clock, and they all drop
-   together (lateDropAt). */
-const LATE_BET_MS = 15000;
+   cut 3, the same way: everyone holding one places it at once, in secret, on a 30 s clock, and they all drop
+   together (lateDropAt). Nick, Oct 21: betting is when the table laughs and argues, so the clocks are generous, and
+   anyone at the table can tap "+20 seconds" once per betting stage (blind bets, last chips). */
+const LATE_BET_MS = 30000, BET_MORE_MS = 20000;
+function moreBetTime(game, pid) {
+  const who = firstNameOf(game, pid);
+  if (game.phase === PHASES.FIRST_BETS && !game.dropAt && game.blindEnd) {
+    if (game.betMore) return { error: 'Already stretched once this round' };
+    game.blindEnd += BET_MORE_MS; game.betMore = who; return { ok: true, stage: 1 };
+  }
+  if (game.phase === PHASES.SECOND_BETS && !game.lateDropAt && game.lateEnd) {
+    if (game.betMore) return { error: 'Already stretched once' };
+    game.lateEnd += BET_MORE_MS; game.betMore = who; return { ok: true, stage: 2 };
+  }
+  return { error: 'No clock to stretch right now' };
+}
 function moveToFirstBets(game) {
   if (game.phase !== PHASES.READING) return { error: 'Too late — the game moved on' };
   game.betOrder = computeBetOrder(game);
@@ -1364,6 +1377,7 @@ function moveToFirstBets(game) {
   game.dropAt = null;
   game.flipAt = null;
   game.blindEnd = game.timerDuration > 0 ? Date.now() + BLIND_MS : null;
+  game.betMore = null;
   setPhase(game, PHASES.FIRST_BETS);
   return { ok: true };
 }
@@ -1544,7 +1558,7 @@ function setHold(game, on) {
 function moveFromReveal(game) {
   if (game.phase !== PHASES.REVEAL) return { error: 'Too late — the game moved on' };
   if (eligibleSecondBetters(game).some(pid => !stageBet(game, pid, 2))) {
-    game.lateBlind = {}; game.lateDropAt = null; game.lateEnd = Date.now() + LATE_BET_MS;
+    game.lateBlind = {}; game.lateDropAt = null; game.lateEnd = Date.now() + LATE_BET_MS; game.betMore = null;
     setPhase(game, PHASES.SECOND_BETS); return { ok: true };
   }
   revealAnswer(game);
@@ -2628,6 +2642,7 @@ function getPlayerView(game, playerId) {
       // #7: who has locked in (never where) until every chip drops at once
       base.blindIn = game.dropAt ? [...game.betOrder] : game.betOrder.filter(pid => hasBlind(game, pid));
       base.blindEnd = game.blindEnd || null;
+      base.betMore = game.betMore || null;
       base.isMyTurn = !game.dropAt && game.betOrder.includes(playerId) && !hasBlind(game, playerId);
     } else if (game.phase === PHASES.SECOND_BETS) {
       // cut 3: the last chips, everyone at once and in secret: who's in (never where), the clock, the shared drop
@@ -2635,6 +2650,7 @@ function getPlayerView(game, playerId) {
       if (!base.mySecondBet && myLate) base.mySecondBet = { target: myLate.target, count: 1 };
       base.lateIn = game.lateDropAt ? [...base.eligibleSecondBetters] : base.eligibleSecondBetters.filter(pid => hasLate(game, pid));
       base.lateEnd = game.lateEnd || null;
+      base.betMore = game.betMore || null;
       base.lateDropAt = game.lateDropAt || null;
       base.isMyTurn = !game.lateDropAt && base.eligibleSecondBetters.includes(playerId) && !hasLate(game, playerId);
     } else base.isMyTurn = false;
@@ -2805,7 +2821,7 @@ module.exports = {
   wordCount, usesWord, applyNote, kidsToggle,
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn, connectedAllIn, onlyAwayPending, awayWriters, AWAY_WRITER_MS, isNewbie,
-  moveToFirstBets, placeBet, skipCurrentBetter, dropBlind, dropLate, LATE_BET_MS, afterBlinds, moveFromReveal, moveFromSecondBets, eligibleSecondBetters,
+  moveToFirstBets, placeBet, skipCurrentBetter, dropBlind, dropLate, LATE_BET_MS, moreBetTime, BET_MORE_MS, afterBlinds, moveFromReveal, moveFromSecondBets, eligibleSecondBetters,
   standing, fooledTally, isLate, lapsOf, BLIND_MS, ALL_IN_BEAT_MS, DROP_HOLD_MS, STEAL_FULL_MS, STEAL_SHORT_MS, LATE_MS,
   openFinale, voteFinale, resolveFinale, finaleAllIn,
   setVoice, clearVoice,

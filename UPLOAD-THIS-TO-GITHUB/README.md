@@ -16,7 +16,7 @@ A web-based multiplayer party game. One person creates a game, shares a 4-letter
 - One person taps "Host a game" and shares the 4-letter room code; everyone else taps "Join with a code" (late arrivals can join mid-game)
 - Each round everyone — the dealer too — writes a caption for the same cartoon. Half the table can vote to mulligan a bad cartoon
 - The game secretly turns one caption face-down (the Closed Caption). Usually it's a player's; sometimes it's the real one
-- Blind bets go down everyone at once, in secret (the dealer doesn't bet), then the dealer may steal one chip, the Closed Caption is revealed, and the last chips go down the same way: everyone at once, in secret, on a 15-second clock, one shared drop (anywhere, even on the same caption)
+- Blind bets go down everyone at once, in secret (the dealer doesn't bet), then the dealer may steal one chip, the Closed Caption is revealed, and the last chips go down the same way: everyone at once, in secret, on a 30-second clock, one shared drop. Anyone can tap "+20 seconds" once on each betting clock (blind bets 45 s, last chips 30 s), because betting is when the table talks (anywhere, even on the same caption)
 - The writing clock is 90 seconds by default; the dealer (or host) can add 30 seconds, up to three times a cartoon
 - The real caption is revealed and points are paid. Full rules are on the app's "How to play" screen
 - The host lines up the seats in the lobby and picks which way the deal passes (left or right)

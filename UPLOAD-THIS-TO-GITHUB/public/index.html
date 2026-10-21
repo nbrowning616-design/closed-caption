@@ -609,6 +609,9 @@ button, .cap, [role="button"], a { touch-action: manipulation; }
 .hdr .menu-btn { width: 44px; height: 44px; }
 .seat-mv { width: 44px; height: 44px; font-size: 17px; }
 .seat-kick { width: 44px !important; height: 44px; padding: 0 !important; font-size: 14px !important; flex-shrink: 0; }
+.time-btn.bet-more { display: block; margin: 10px auto 0; font-size: 17px; padding: 12px 26px; min-height: 48px; }
+.bet-more-note { margin-top: 8px; color: var(--ink-2); }
+.turn-banner.dealer .bet-more-note { color: inherit; opacity: .85; }
 .code-pill, .mull-pill, .time-btn, .flagbtn { position: relative; }
 .code-pill::after, .time-btn::after, .flagbtn::after { content: ''; position: absolute; inset: -9px -4px; }
 .mull-pill { min-height: 40px; }
@@ -2828,7 +2831,7 @@ function renderBetting(stage) {
   }).join('');
   const waitOn = dropped ? [] : [...eligible2].filter(pid => !inSet.has(pid));
   const waitWords = waitOn.length ? `Waiting on ${esc(listNames(waitOn.map(pid => pid === myPlayerId ? 'you' : fnameOf(pid))))}.` : 'Everyone’s in.';
-  const clock = !dropped && state.lateEnd ? '<p class="blind-clock" id="blind-clock" aria-hidden="true"></p>' : '';
+  const clock = !dropped && state.lateEnd ? '<p class="blind-clock" id="blind-clock" aria-hidden="true"></p>' + betMoreHtml() : '';
   let banner;
   const BL = state.lines || {};
   if (dropped) banner = `<div class="turn-banner"><div class="h2">${esc(BL.betDown || 'All chips are down')}</div><p class="sub">Here comes the answer…</p></div>`;
@@ -2866,7 +2869,7 @@ function renderBlind() {
   }).join('');
   const waitOn = order.filter(pid => !inSet.has(pid));
   const waitWords = waitOn.length ? `Waiting on ${esc(listNames(waitOn.map(pid => pid === myPlayerId ? 'you' : fnameOf(pid))))}.` : 'Everyone’s in.';
-  const clock = !dropped && state.blindEnd ? '<p class="blind-clock" id="blind-clock" aria-hidden="true"></p>' : '';
+  const clock = !dropped && state.blindEnd ? '<p class="blind-clock" id="blind-clock" aria-hidden="true"></p>' + betMoreHtml() : '';
   let banner;
   const BL = state.lines || {};
   if (dropped) banner = `<div class="turn-banner"><div class="h2">Bets are closed.</div><p class="sub">${dealerSteals() && othersHaveChips() ? `${state.isDealer ? 'Your' : esc(firstName(state.dealerName)) + '’s'} steal, before the flip…` : 'Turning the Closed Caption over…'}</p></div>`;
@@ -2882,6 +2885,11 @@ function renderBlind() {
 }
 // The blind-bet clock (a fallback for anyone idle): seconds left, quiet until the last ten
 let blindClockT = null;
+// +20 s: anyone can stretch the betting clock once per stage (the table is talking)
+function betMoreHtml() {
+  if (state.betMore) return `<p class="small bet-more-note">${esc(state.betMore)} added 20 seconds.</p>`;
+  return `<button class="time-btn bet-more" onclick="send({action:'more_bet_time'})">⏱ +20 seconds</button>`;
+}
 function blindClockTick() {
   const el = $('blind-clock');
   const end = state && state.phase === 'second_bets' ? (!state.lateDropAt && state.lateEnd) : state && state.phase === 'first_bets' && !state.dropAt && state.blindEnd;
