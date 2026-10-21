@@ -731,7 +731,7 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .stage-pill { display: inline-flex; align-items: center; padding: 2px; border: 2px solid var(--ink); border-radius: 999px; background: #fff; box-shadow: 2px 2px 0 var(--ink); font-family: var(--sans); font-weight: 900; font-size: 12.5px; line-height: 1; white-space: nowrap; }
 .stage-pill span { padding: 5px 7px 6px; border-radius: 999px; color: var(--ink-2); }
 .stage-pill span.on { background: var(--ink); color: var(--yellow); }
-.hdr .hdr-sub { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.hdr .hdr-sub { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.25; max-width: 100%; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }   /* (two lines rather than a clipped one) */
 .hdr .mid { gap: 5px; }
 .hdr .thumb { display: block; }
 .hdr button.thumb { font: inherit; color: inherit; }
@@ -2434,7 +2434,7 @@ function mulliganHtml() {
 }
 function renderWriting() {
   if (state.hasSubmitted) {
-    return `${header({ sticker: '<span class="sticker teal">Locked in</span>', sub: `${roundLabel()} · ${dealerLine()}`, ring: true })}
+    return `${header({ sticker: '<span class="sticker teal">Locked in</span>', sub: state.isDealer ? roundLabel() : `${roundLabel()} · ${dealerLine()}`, ring: true })}
       ${bigToon(true, true)}
       <div class="center" style="margin:22px 0 16px;">
         <div class="stamp">Locked in</div>
@@ -2444,7 +2444,7 @@ function renderWriting() {
       </div>
       ${writingStatusHtml()}`;
   }
-  return `${header({ sticker: `<span class="sticker">${state.isDealer ? 'Your deal' : 'Write'}</span>`, sub: `${roundLabel()} · ${dealerLine()}`, ring: true })}
+  return `${header({ sticker: `<span class="sticker">${state.isDealer ? 'Your deal' : 'Write'}</span>`, sub: state.isDealer ? roundLabel() : `${roundLabel()} · ${dealerLine()}`, ring: true })}
     ${bigToon(false, true)}
     <div class="w-box">
       ${noteHtml(false)}
@@ -3491,7 +3491,7 @@ function nobodyGroupHtml(k) {
   const rows = order.slice(0, k).map(capByKey).filter(Boolean).map(c => {
     return `<div class="nb-row">${chipHtml(c.playerId, 'sm')}<div class="nb-txt"><p class="nb-cap">“${esc(c.caption)}”</p><p class="nb-who">${esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}${c.isClosed ? ' · the face-down one' : ''}</p>${rxHtml(c.idx, { frame: true })}</div></div>`;
   }).join('');
-  return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `${roundLabel()} · 1–${k} of ${n}` })}
+  return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `1–${k} of ${n}` })}
     <div class="reel-dots">${order.map((_, i) => `<i class="${i < k ? 'on' : ''} ${i === n - 1 ? 'last' : ''}"></i>`).join('')}</div>
     <div id="reel-clock">${reelClockHtml()}</div>
     <div class="spot pending" id="spot">
@@ -3519,7 +3519,7 @@ function spotlightHtml() {
     : `<div class="writer-stamp" id="spot-stamp">${chipHtml(c.playerId, 'lg')}<div><p class="eyebrow">Written by</p><div class="wname">${esc(c.playerId === myPlayerId ? 'You' : c.playerName || '?')}</div></div>${pts ? `<span class="plus" style="margin-left:auto; font-size:26px;">+${pts}</span>` : ''}</div>`;
   // the real one's single line: the odds when something rare happened (kept), otherwise the server's one line
   const realLine = real ? (state.odds && state.odds.line ? `<p class="odds-line">${esc(state.odds.line)}</p>` : RL.line ? `<p class="real-line">${esc(RL.line)}</p>` : '') : '';
-  return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `${roundLabel()} · ${step} of ${n}` })}
+  return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `${step} of ${n}` })}
     <div class="reel-dots">${order.map((_, i) => `<i class="${i + 1 < step ? 'done' : i + 1 === step ? 'on' : ''} ${i === n - 1 ? 'last' : ''}"></i>`).join('')}</div>
     <div id="reel-clock">${reelClockHtml()}</div>
     <div class="spot ${real ? 'is-real pending' : 'pending'}" id="spot">
