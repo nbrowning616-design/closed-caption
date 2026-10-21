@@ -49,13 +49,13 @@
 <script src="/guide.js?v=__V__"></script>
 <script src="/verdicts.js?v=__V__"></script>
 <script>
-/* The show scripts (Gallery + share card, steal + heists, recap, finale) aren't needed until the middle
+/* The show scripts (Gallery + share card, the steal and its thieves, recap, finale) aren't needed until the middle
    of a round, so they no longer hold up the first screen. Once the page has loaded (or 4 s after the app is up,
    whichever comes first) they're all fetched at once and run one by one in their old order. A failed fetch is retried. Every use in the app checks window.X first, so a phone
    that is still fetching them skips that moment's animation instead of breaking. window.ccShowReady() -> Promise. */
 (function () {
   var V = '__V__';
-  var SHOW = ['hof', 'gallery', 'steal', 'heists', 'recap', 'finale'];
+  var SHOW = ['hof', 'gallery', 'steal', 'thieves', 'recap', 'finale'];   // (thieves.js: the hand-drawn steal; skips.js, the 50 skip gags, is fetched once you have a seat: loadSkips)
   var started = false, done = false, waiters = [];
   window.ccShowReady = function () { return new Promise(function (res) { if (done) res(); else waiters.push(res); }); };
   function src(n) { return '/' + n + '.js?v=' + V; }
@@ -1009,7 +1009,107 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .vd-foot { margin-top: 18px; }
 @keyframes vdIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .vd-row, .op-table, .op-pick { animation: none !important; } }
-</style>
+
+/* ═══ The round (Oct 21 2026): #26 Ha/Groan, #5 frames on the reveal, #6 the reel's clock, #18 the flip,
+       R11 called shots, R1 rejection slips, R10 the table vs. the cartoonist, R8 the odds ═══ */
+/* Ha / Groan: two quiet pills; the hit area is 44 px even though the pill is small */
+.rx { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+.rx-b, .fr-b { position: relative; display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 12px; border: 2px solid var(--ink); border-radius: 999px; background: var(--card); font-family: var(--sans); font-weight: 900; font-size: 13px; line-height: 1; color: var(--ink-2); cursor: pointer; white-space: nowrap; }
+.rx-b::after, .fr-b::after { content: ''; position: absolute; inset: -7px -3px; }
+.rx-b[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.rx-b .rx-n { font-variant-numeric: tabular-nums; color: inherit; opacity: .85; }
+.rx-b:disabled { cursor: default; opacity: 1; }
+.rx-quiet { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 13px; color: var(--muted); }
+/* Frame It on the reveal: a small frame, then "Framed" in brass */
+.fr-b .ink-ic { margin-left: -2px; }
+.fr-b[aria-pressed="true"] { background: var(--yellow); color: var(--ink); }
+.fr-b.done { background: linear-gradient(180deg,#F2DC98,#D7B25E 55%,#BF953F); color: #2E2108; border-color: #5a3f0c; cursor: default; }
+.fr-b .fr-n { font-weight: 800; opacity: .8; }
+.rx .rx-sp { flex: 1; }
+/* The reel's clock: it moves on by itself; held, it says so */
+.rd-clock { position: relative; height: 4px; margin: -8px auto 14px; max-width: 220px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.rd-clock i { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: var(--ink-2); transform-origin: left; transform: scaleX(0); }
+.rd-clock.run i { animation: rdClock linear forwards; }
+@keyframes rdClock { from { transform: scaleX(var(--from, 0)); } to { transform: scaleX(1); } }
+.rd-held { text-align: center; margin: -8px 0 12px; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 14px; color: var(--ink-2); }
+.rd-ctl { display: flex; gap: 8px; align-items: stretch; }
+.rd-ctl .btn { width: auto; flex: 1; }
+.rd-ctl .btn.btn-sm { flex: 0 0 64px; }
+.rd-note { text-align: center; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 14.5px; color: var(--ink-2); margin-top: 6px; }
+/* The reel's extra lines: the call, the thief's gloat, the blind laughs, the odds */
+.call-line, .gloat-line, .tvc-line { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 15px; line-height: 1.4; color: var(--ink); margin-top: 10px; }
+.gloat-line b { font-style: normal; font-weight: 700; }
+.call-line::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--ink); margin-right: 7px; vertical-align: 1px; }
+.odds-line { font-family: var(--serif); font-weight: 400; font-size: 14.5px; line-height: 1.4; color: var(--ink-2); margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--line); }
+.spot-lead { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 15px; color: var(--ink-2); margin: 2px 0 0; }
+.spot:not(.pending) .spot-lead { display: none; }
+/* R11 call your shot */
+.call { margin-top: 16px; text-align: left; }
+.call-h { font-family: var(--serif); font-weight: 700; font-size: 18px; margin: 0; }
+.call-s { font-size: 13.5px; color: var(--ink-2); font-weight: 800; margin: 2px 0 10px; line-height: 1.35; }
+.call-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.call-p { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 4px 14px 4px 6px; border: 2px solid var(--ink); border-radius: 999px; background: var(--card); font-weight: 900; font-size: 15px; cursor: pointer; }
+.call-p[aria-pressed="true"] { background: var(--yellow); box-shadow: var(--shadow-sm); }
+.call-mini { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 4px 0 14px; font-size: 14px; color: var(--ink-2); font-weight: 800; }
+.call-mini .btn-link { padding: 12px 4px; font-size: 14px; }
+/* #18 the flip: a held second of silence, then the card turns on every phone at once; the blind chips on it light up */
+.flip.hero { perspective: 1100px; }
+.flip.hero .inner { transition: transform .46s cubic-bezier(.3,.7,.2,1); }
+.flip.hero.turned .inner { transform: rotateY(180deg); }
+.flip.hero.instant .inner { transition: none; }
+.flip.hero.still .front .ccard { box-shadow: 0 0 0 3px var(--ink), 0 18px 26px -14px rgba(31,26,23,.6); }
+.flip.hero.rm .inner { transition: none; }
+.flip.hero.rm .back { transition: opacity .3s; }
+.cc-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; min-height: 0; }
+.chip.lit { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--c), 0 2px 0 rgba(31,26,23,.9); animation: litPop .5s var(--spring) both; }
+@keyframes litPop { 0% { transform: scale(.7); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.ft-row .chip.lit { animation-delay: .05s; }
+.flip-riders { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 15px; color: var(--ink-2); margin-top: 12px; opacity: 0; transition: opacity .4s; }
+.flip-riders.on { opacity: 1; }
+#flip-ctl { margin-top: 16px; opacity: 0; transition: opacity .4s; }
+#flip-ctl.on { opacity: 1; }
+/* #5 the quick plaque (every framing after the night's first) */
+#rd-plaque { position: fixed; left: 50%; top: calc(10px + var(--sat)); z-index: 950; width: min(92vw, 380px); transform: translate(-50%, -140%); transition: transform .45s var(--ease-out); padding: 12px 16px 11px; border-radius: 4px; color: #2E2108; text-align: center; background: linear-gradient(180deg,#F2DC98 0%,#D7B25E 38%,#BF953F 62%,#D9BA6C 100%); box-shadow: 0 10px 22px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,250,220,.75), inset 0 -1px 0 rgba(70,45,5,.45); cursor: pointer; }
+#rd-plaque.on { transform: translate(-50%, 0); }
+#rd-plaque .pq-e { font-size: 11px; font-weight: 900; letter-spacing: .2em; text-transform: uppercase; margin: 0; }
+#rd-plaque .pq-c { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 16px; line-height: 1.3; margin: 4px 0 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+#rd-plaque .pq-w { font-family: var(--serif); font-weight: 700; font-size: 13px; margin: 0; }
+#rd-plaque .pq-l { font-family: var(--serif); font-style: italic; font-size: 13px; margin: 4px 0 0; }
+@media (prefers-reduced-motion: reduce) { #rd-plaque { transition: opacity .3s; transform: translate(-50%, 0); opacity: 0; } #rd-plaque.on { opacity: 1; } }
+/* The recap's Frame It list */
+.rc-frames { margin: 18px 0 6px; }
+.rc-fh { font-family: var(--serif); font-weight: 700; font-size: 18px; margin: 0; }
+.rc-fs { font-size: 13.5px; font-weight: 800; color: var(--ink-2); margin: 2px 0 10px; }
+.rc-fl { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.rc-fi { display: flex; align-items: center; gap: 10px; padding: 9px 10px 9px 9px; border: 2px solid var(--ink); border-radius: 12px; background: var(--card); }
+.rc-fi.framed { border-color: #5a3f0c; box-shadow: 0 0 0 3px #E9C46A; }
+.rc-fi .chip { flex: none; }
+.rc-ft { flex: 1; min-width: 0; }
+.rc-fc { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 15px; line-height: 1.3; overflow-wrap: anywhere; }
+.rc-fw { font-size: 12.5px; font-weight: 800; color: var(--muted); margin-top: 2px; }
+.rc-tvc { text-align: center; font-family: var(--serif); font-weight: 400; font-size: 14.5px; color: var(--ink-2); margin: 4px 0 10px; }
+/* R1 the rejection slip: typed, from The Editors */
+#rd-slip { position: fixed; left: 50%; top: calc(12px + var(--sat)); z-index: 930; width: min(92vw, 380px); transform: translate(-50%, -130%) rotate(-1.5deg); transition: transform .55s var(--ease-out); cursor: pointer; }
+#rd-slip.on { transform: translate(-50%, 0) rotate(-1.5deg); }
+@media (prefers-reduced-motion: reduce) { #rd-slip { transition: opacity .3s; transform: translate(-50%, 0) rotate(-1.5deg); opacity: 0; } #rd-slip.on { opacity: 1; } }
+.slip { position: relative; padding: 14px 16px 12px; background: #FDFBF5; background-image: repeating-linear-gradient(180deg, transparent 0 25px, rgba(47,111,224,.10) 25px 26px); border: 1px solid #CFC6B4; box-shadow: 0 10px 24px rgba(31,26,23,.25); font-family: 'Courier New', Courier, monospace; color: #2B2724; text-align: left; }
+.slip-h { font-weight: 700; font-size: 13px; letter-spacing: .22em; text-transform: uppercase; margin: 0 0 8px; text-align: center; border-bottom: 1px solid #2B2724; padding-bottom: 6px; }
+.slip-re { font-size: 13px; line-height: 1.4; margin: 0 0 8px; }
+.slip-re i { font-style: italic; }
+.slip-f { font-size: 14.5px; line-height: 1.45; margin: 0 0 10px; }
+.slip-g { font-size: 12.5px; margin: 0; color: #4A433D; }
+.slip-st { position: absolute; right: 12px; bottom: 30px; padding: 3px 8px; border: 2.5px double #B3261E; color: #B3261E; font-family: var(--sans); font-weight: 900; font-size: 12px; letter-spacing: .16em; transform: rotate(-8deg); opacity: .85; }
+.slip-btns { display: flex; justify-content: flex-end; margin-top: 8px; }
+.slip-btns .btn { width: auto; padding: 0 18px; }
+.sb-slip-note { text-align: center; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 14.5px; color: var(--ink-2); margin: 4px 0 10px; }
+.sb-wait-line { text-align: center; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 14.5px; color: var(--ink-2); margin-top: -6px; }
+.slip-list { display: flex; flex-direction: column; gap: 14px; }
+.slip-list .slip { box-shadow: 0 4px 10px rgba(31,26,23,.15); }
+.slip-meta { font-size: 12px; color: #6E655C; margin: 6px 0 0; }
+#flip-ctl:not(.on) { pointer-events: none; }
+/* The skip gags (skips.js) play on paper, like the cartoons */
+#boom.ccm { display: block; padding: 0; background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 18px 18px; }
+#boom .skip-quip { position: absolute; left: 24px; right: 24px; margin: 0; text-align: center; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 18px; line-height: 1.35; color: var(--ink-2); animation: fadeIn .4s ease-out both; }</style>
 </head>
 <body>
 
@@ -1062,7 +1162,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
     <div class="panel flat blue rule-step"><div class="n">3</div><div><b>Blind bets.</b> <span class="sub">The dealer reads the open ones aloud. Then everyone bets at once, in secret: 1 or 2 chips on any caption — the face-down one too. The chips drop together. <span id="rules-dealer-bets">The dealer doesn’t bet.</span></span></div></div>
     <div class="panel flat red rule-step"><div class="n">4</div><div><b>The steal.</b> <span class="sub" id="rules-steal-pts">Before the flip, the dealer takes one chip off the table. Off the real one = its points go to the dealer. Off a fake, its owner gets +1: caught you.</span></div></div>
     <div class="panel flat violet rule-step"><div class="n">5</div><div><b>The flip.</b> <span class="sub">The Closed Caption turns over. Anyone with a chip left puts it down, in turn from the dealer’s <span class="dir-word">left</span>.</span></div></div>
-    <div class="panel flat teal rule-step"><div class="n">6</div><div><b>The reveal.</b> <span class="sub">One caption at a time: who wrote it, who fell for it. The real one comes last. Points are paid and the deal moves <span class="dir-word">left</span>.</span></div></div>
+    <div class="panel flat teal rule-step"><div class="n">6</div><div><b>The reveal.</b> <span class="sub">One caption at a time, every few seconds (the dealer can hold it): who wrote it, who fell for it. The real one comes last. Points are paid and the deal moves <span class="dir-word">left</span>.</span></div></div>
   </div>
 
   <p class="eyebrow" style="margin-bottom: 10px;">Scoring</p>
@@ -1071,7 +1171,10 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 
   <details class="box" id="rules-extras" style="margin-bottom: 22px;"><summary>The extras <span class="arrow">▾</span></summary><div class="body">
     <ul class="rules-extras">
-      <li><b>Frame It.</b> After each round, pick a caption that beat the real one (never your own). Frame as many as deserve it, one a round. When <span class="frame-need">most of the other players</span> pick the same one, it hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
+      <li><b>Frame It.</b> On the reveal, tap Frame on any caption that beat the real one (never your own). Frame as many as deserve it. When <span class="frame-need">most of the other players</span> frame the same one, it hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
+      <li><b>Ha and Groan.</b> Two quiet buttons on every caption, from the reading on. No points. Nobody sees a count until the answer. A caption with no chips and three or more Groans gets a rejection slip from The Editors (menu ☰, Rejections).</li>
+      <li><b>Call your shot.</b> Once your caption is in, name the one person you think will fall for it. If they put a chip on it, +3. The reveal says how it went either way.</li>
+      <li><b>The table vs. the cartoonist.</b> Ha’s tapped before anyone knows which caption is real are a blind test: the table’s best fake against the real one, one point a round.</li>
       <li><b>The Late Edition.</b> In a game that goes around the table more than once, the last trip around pays double. First to 20: when someone gets there, the trip around the table is finished (everyone deals the same number of times), at double points. Then the leader wins.</li>
       <li><b>A tie for first</b> goes to whoever fooled the most people. Still level: more captions framed. Still level: a tie.</li>
       <li><b>The Grand Poobah.</b> Points say who bet best. The hat goes to who wrote best: the most chips on their fakes, all night.</li>
@@ -1584,7 +1687,7 @@ function giveUpSeat(kind) {
    here until the server answers. Whatever wasn't answered goes again after a reconnect; after a server restart
    everything from the last few minutes goes again, and the room's own list of ids keeps any from landing twice.
    Kept on the phone, so a reload never loses a bet either. */
-const ACKED = new Set(['submit_caption', 'place_bet', 'undo_bet', 'steal', 'frame_pick']);
+const ACKED = new Set(['submit_caption', 'place_bet', 'undo_bet', 'steal', 'frame_pick', 'react', 'call_shot']);
 let outbox = [];
 try { const o = JSON.parse(localStorage.getItem('cc_outbox') || '[]'); if (Array.isArray(o)) outbox = o.filter(x => x && x.cid && x.obj && Date.now() - x.at < 15 * 60000); } catch (e) {}
 const saveOutbox = () => { try { localStorage.setItem('cc_outbox', JSON.stringify(outbox)); } catch (e) {} };
@@ -1638,10 +1741,12 @@ function onServer(msg) {
       seatedSock = ws; autoBack = null; refusedN = 0; clearTimeout(refusedT);
       const all = resendAll; resendAll = false; flushOutbox(all);   // #2: what wasn't answered goes now
       saveSession(); showScreen('screen-game'); keepAwake(); careerSent = null; lastPromoN = null; lastIndN = null; setTimeout(() => { sendCareer(true); syncGallery(); sendSeen(); }, 300);
+      setTimeout(loadSkips, 2500);   // the 50 skip gags (~440 KB): only for phones with a seat, after the table is up
       backOnline();
     }
     else if (msg.type === 'state') {
       state = msg.data;
+      rxLocal = {}; frLocal = {}; callLocal = null;   // the server has spoken: its view of your taps wins
       if (window.Voice) Voice.onState(state);
       if (window.Voice && !voiceAllowed() && Voice.isOn && Voice.isOn()) { try { Voice.leave(); } catch (e) {} }   // #40: the table is on a call
 
@@ -1725,12 +1830,12 @@ function backOnline() {
 // Dealer buttons: one tap per stage. A second tap (or a late tap from a slow screen) is dropped here,
 // and the server also checks the stage it was meant for, so a double tap can never skip a stage.
 let _advKey = null, _advAt = 0;
-function stageKey() { return state ? [state.phase, state.round, state.framing && state.framing.resolved ? 1 : 0].join(':') : ''; }
+function stageKey() { return state ? [state.phase, state.round].join(':') : ''; }
 function send(obj) {
   if (obj && obj.action === 'advance' && state) {
     const k = stageKey();
     if (k === _advKey && Date.now() - _advAt < 2500) return false;   // same stage: a retry is allowed after 2.5 s (e.g. if the server said "not yet")
-    _advKey = k; _advAt = Date.now(); obj.phase = state.phase; obj.round = state.round; obj.framed = !!(state.framing && state.framing.resolved);
+    _advKey = k; _advAt = Date.now(); obj.phase = state.phase; obj.round = state.round;
   }
   // #2: captions, bets, the steal and frame picks are kept until the server answers (sent now, or the moment we're back)
   if (obj && ACKED.has(obj.action) && myPlayerId && gameCode) {
@@ -1823,6 +1928,7 @@ function openMenu() {
     <button class="menu-row" onclick="openInvite()"><span class="ic">${inkIcon('invite')}</span>Invite someone<span class="r">QR + link</span></button>
     <button class="menu-row" onclick="openGallery()"><span class="ic">${inkIcon('frame')}</span>The Gallery<span class="r">${galleryList().length ? plural(galleryList().length, 'caption') : ''}</span></button>
     <button class="menu-row" onclick="openRatingSheet()"><span class="ic">${inkIcon('trophy')}</span>My rating and badges<span class="r">${fmtRating(careerSummary().rating)}</span></button>
+    ${slipsGet().length ? `<button class="menu-row" onclick="openRejections()"><span class="ic">${inkIcon('invite')}</span>Rejections<span class="r">${slipsGet().length}</span></button>` : ''}
     <button class="menu-row" onclick="toggleSound()"><span class="ic">${inkIcon(soundEnabled() ? 'sound' : 'mute')}</span>Sound<span class="r">${soundEnabled() ? 'On' : 'Off'}</span></button>
     <button class="menu-row" id="bigsound-row" onclick="toggleBigSound()"><span class="ic">${inkIcon('speaker')}</span>Use this phone as the speaker<span class="r">${bigSound() ? 'On' : 'Off'}</span></button>
     <details class="box" style="margin-bottom:8px;" ${cur ? 'open' : ''}><summary><span style="width:26px; text-align:center;">${inkIcon('music')}</span>Table music${cur ? ' · playing' : ''}<span class="arrow">▾</span></summary><div class="body stack">
@@ -1861,7 +1967,6 @@ function screenKey() {
   const s = state;
   if (s.phase === 'writing') return ['writing', s.round, s.cartoon && s.cartoon.id, s.hasSubmitted ? 1 : 0].join('|');
   if (s.phase === 'answer') return ['answer', s.round, s.reel ? s.reel.step : 0, canRun() ? 1 : 0, reelDriver() ? 1 : 0].join('|');
-  if (s.phase === 'framing') return ['framing', s.round, s.framing && s.framing.resolved ? 1 : 0].join('|');
   if (s.phase === 'scores' && s.finale) return ['scores', s.round, 'fin', s.finale.at, s.finale.winner ? 1 : 0, (s.finale.decided || []).length, s.finale.myVote || '', canRun() ? 1 : 0].join('|');
   return s.phase + '|' + s.round;
 }
@@ -1889,21 +1994,18 @@ function render(force = false) {
     if (lastPhase === 'scores' || state.phase === 'lobby') closeInduction();
     if (state.phase === 'lobby' && lastPhase) sendSeen();   // back in the lobby: refresh before the next game
     if (state.phase === 'lobby') { answerSeqRound = null; scoresAnimated = null; }
-    if (lastPhase === 'framing') { clearFrameGos(); closeInduction(); }   // the scoreboard (and its hat) takes over
-    if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); closeRoundStamp(); closeVerdicts(); if (window.ccFinale) ccFinale.close(); }
+    if (state.phase === 'writing' || state.phase === 'lobby') { clearFrameGos(); closeInduction(); closePlaque(); }   // a new round: no frame left over
+    if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); closeRoundStamp(); closeVerdicts(); closeSlip(); if (window.ccFinale) ccFinale.close(); }
     if (state.phase !== 'writing') closeOpening();
     if (lastPhase && !['reveal', 'answer', 'framing', 'scores'].includes(state.phase)) bsfx.advance();
-    document.body.classList.toggle('fm-on', state.phase === 'framing');
     if (state.phase !== 'writing') { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
     setActionBar('');
   } else if (state.phase === 'answer' && !force && key === lastKey) {
     recordSeen(); recordCareer(); answerLive(); return;   // same step: only buttons update
-  } else if (state.phase === 'framing' && !force && key === lastKey && $('fm-root')) {
-    recordSeen(); recordCareer(); framingLive(); window.Guide && Guide.onRender(state); return;   // picks tick in without redrawing the list
   } else if (state.phase === 'scores' && !force && key === lastKey && scoreSeq && scoreSeq.key === state.round + '|' + state.code) {
     return;   // the round's points are still landing: don't jump them to the end
   } else if (state.phase === 'reveal' && !force && revealRunner === canRun()) {
-    return; // choreographed screen — don't interrupt (unless the button changes hands: the dealer dropped)
+    revealLive(); return; // choreographed screen — don't interrupt; only the controls and the clock update (unless the button changes hands)
   }
   recordSeen();
   recordCareer();
@@ -1925,7 +2027,6 @@ function render(force = false) {
     case 'second_bets': html = renderBetting(2); break;
     case 'steal': html = renderSteal(); break;
     case 'answer': html = renderAnswer(); break;
-    case 'framing': if (!force) fmLocal = null; html = renderFraming(); break;
     case 'scores': html = renderScores(); break;
   }
   html = (state.phase !== 'lobby' ? renderAwayBanner() : hostAwayHtml()) + html;
@@ -1980,11 +2081,10 @@ function stageSay() {
       case 'writing': line = `Write. ${roundLabel()}. ${me ? 'You deal.' : `${d} deals.`} Write a caption that could pass for the real one. ${t === 'no timer' ? 'No timer.' : t + '.'}`; break;
       case 'reading': line = `Bet. ${me ? 'Read the captions aloud.' : `${d} reads the captions aloud.`} ${plural((s.openCaptions || []).length, 'caption')} in the open, one face-down.`; break;
       case 'first_bets': line = s.isMyTurn ? '' : s.dropAt ? '' : 'Bet. Everyone bets at once, in secret.'; break;   // (your own turn: afterRender says 'Bet now')
-      case 'reveal': line = 'Flip. The face-down caption turns over.'; break;
+      case 'reveal': line = 'Flip. The face-down caption turns over. Then it moves on by itself.'; break;
       case 'second_bets': line = s.isMyTurn ? '' : `Flip. Last chips, one at a time${s.currentBetterName ? ': ' + firstName(s.currentBetterName) + ' is up' : ''}.`; break;
       case 'steal': line = me ? '' : `${d} is choosing a chip to steal, before the flip.`; break;
-      case 'answer': { const { step, n } = reelInfo(); line = step > n ? 'Score. Round recap: the real caption and the points.' : 'Score. The reveal: who wrote each caption, and who fell for it.'; break; }
-      case 'framing': line = 'Frame It. Did anyone beat the real caption?'; break;
+      case 'answer': { const { step, n } = reelInfo(); line = step > n ? 'Score. Round recap: the real caption, the points, and a frame for any caption that beat it.' : 'Score. The reveal: who wrote each caption, and who fell for it. It moves on by itself.'; break; }
       case 'scores': line = s.gameOver ? 'Final scores.' : `Scoreboard. Next dealer: ${firstName(s.nextDealerName || '')}.`; break;
     }
     if (line) srSay(line);
@@ -2036,8 +2136,8 @@ function afterRender(phaseChanged) {
     if (step <= n) playReelStep(phaseChanged);
     else if (!phaseChanged) onReelRecap();
   }
-  if (state.phase === 'framing') { fitFraming(); framingSounds(phaseChanged); fmShowFramed(); }
   if (state.phase === 'scores' && phaseChanged) playScoresSequence();
+  if (state.phase === 'scores') syncSlip();   // R1: a rejection slip for this phone's writer
   if (state.phase === 'scores' && state.gameOver && window.ccFinale) { if (state.finale && $('poobah').className) closeGrand(); ccFinale.sync(); markBestLocally(); }
   if (state.phase === 'reading' && phaseChanged) { (state.openCaptions || []).forEach((_, i) => setTimeout(() => bsfx.deal(i), 120 + i * 140)); buzz(30); }
   if (state.phase === 'writing' && phaseChanged) buzz(30);
@@ -2381,7 +2481,9 @@ function renderWriting() {
       ${bigToon(true, true)}
       <div class="center" style="margin:22px 0 16px;">
         <div class="stamp">Locked in</div>
+        ${(state.lines || {}).lockedIn ? `<p class="rd-note" style="margin-top:10px;">${esc(state.lines.lockedIn)}</p>` : ''}
         <div class="panel flat" style="margin-top:16px; text-align:left;"><p class="eyebrow">Your caption, as everyone sees it</p><p class="caption-text" style="margin-top:4px;">“${esc(state.myCaption || '')}”</p></div>
+        ${callHtml(false)}
       </div>
       ${writingStatusHtml()}`;
   }
@@ -2426,7 +2528,7 @@ function submitCaption(auto = false) {
   submitting = true; setTimeout(() => { submitting = false; }, 3000);
   // Auto-send at the buzzer takes the spelling fixes; otherwise the server may ask "did you mean…?" first
   const mode = auto ? 'fix' : 'check';
-  if (send({ action: 'submit_caption', caption, mode })) { if (auto) { closeMenu(); sfx.submitSelf(); buzz(30); showToast('Time’s up — your caption was sent', 'ok'); } }
+  if (send({ action: 'submit_caption', caption, mode })) { if (auto) { closeMenu(); sfx.submitSelf(); buzz(30); showToast((state.lines || {}).timesUp || 'Time’s up — your caption was sent', 'ok'); } }
 }
 function sendCaption(mode) {
   const i = $('caption-input'); closeMenu();
@@ -2478,40 +2580,77 @@ function startTimer() {
   tick(); timerInterval = setInterval(tick, 250);
 }
 function warnAt(n) {
-  const w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `${n} seconds.<span>${n <= 10 ? 'Send it now' : 'Lock in your caption'}</span>`;
+  const L = state.lines || {}, w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `${n} seconds.<span>${esc(n <= 10 ? (L.warn10 || 'Send it now') : (L.warn20 || 'Lock in your caption'))}</span>`;
   w.classList.remove('on'); void w.offsetWidth; w.classList.add('on');
   sfx.warn(); buzz(40);
 }
 function warn20() {
-  const w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = '20 seconds.<span>Lock in your caption</span>';
+  const w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `20 seconds.<span>${esc((state.lines || {}).warn20 || 'Lock in your caption')}</span>`;
   w.classList.remove('on'); void w.offsetWidth; w.classList.add('on');
   sfx.warn(); buzz(60);
 }
 
-/* ── Mulligan: blow everyone's screen up ── */
+/* ── The skip (Mulligan): one of 50 hand-drawn gags (skips.js, CCMulligan; Nick, Oct 21 2026), the same one on every
+   phone, on the shared beat. The server deals the gag (ev.kind, no repeats in a night). skips.js is ~440 KB, so a phone
+   only fetches it once it has a seat at a table (loadSkips); until then the skip gets a plain fade and the word. ── */
+let skipsLoading = null;
+function loadSkips() {
+  if (window.CCMulligan) return Promise.resolve(true);
+  if (skipsLoading) return skipsLoading;
+  skipsLoading = new Promise(res => {
+    const sc = document.createElement('script'); sc.src = '/skips.js?v=' + BUILD; sc.async = true;
+    sc.onload = () => res(true); sc.onerror = () => { sc.remove(); skipsLoading = null; res(false); };
+    document.head.appendChild(sc);
+  });
+  return skipsLoading;
+}
+function imgAspect(src) { try { const im = new Image(); im.src = src; return im.complete && im.naturalWidth ? im.naturalWidth / im.naturalHeight : null; } catch (e) { return null; } }
 function playMulligan(ev, wait = 0) {
   const b = $('boom');
-  b.innerHTML = '';
-  b.classList.add('on');   // cover the new cartoon right away; the execution starts on the shared beat
-  clearTimeout(window._boomT); clearTimeout(window._boomGo);
-  const close = () => { clearTimeout(window._boomGo); b.classList.remove('on'); b.innerHTML = ''; try { navigator.vibrate && navigator.vibrate(0); } catch (e) {} };
+  b.innerHTML = ''; b.className = 'on ccm';   // cover the new cartoon right away; the gag starts on the shared beat
+  clearTimeout(window._boomT); clearTimeout(window._boomGo); clearTimeout(window._boomQ);
+  const close = () => { clearTimeout(window._boomGo); clearTimeout(window._boomT); clearTimeout(window._boomQ); b.className = ''; b.innerHTML = ''; try { navigator.vibrate && navigator.vibrate(0); } catch (e) {} };
   b.onclick = close;
+  const src = ev.image ? '/images/' + ev.image : null;
   window._boomGo = setTimeout(() => {
     if (!b.classList.contains('on')) return;
     if (window.ccBeat) window.ccBeat('mulligan:start');
-    // The rejected cartoon meets a cartoon end (same one on every phone), then the word lands
-    let hit = 1250;
-    if (window.Executions) { try { hit = window.Executions.play(ev.kind, ev.image ? '/images/' + ev.image : null, b) || 1500; } catch (e) { hit = 1500; } }
-    else { b.innerHTML = ev.image ? `<div class="old"><img src="/images/${esc(ev.image)}" alt=""></div>` : ''; bsfx.swish(); }
-    const s = hit / 1000;
-    b.insertAdjacentHTML('beforeend', `<div class="word" style="animation-delay:${s}s">Skipped</div><div class="quip" style="animation-delay:${s + 0.45}s">${esc(ev.quip || 'Next.')}</div>`);
-    window._boomGo = setTimeout(() => {
-      if (window.ccBeat) window.ccBeat('mulligan:hit');
-      bsfx.seal(); buzz(60);
-      if (window.ccImpact) window.ccImpact({ flash: 0.3, shake: b });
-    }, hit);
-    window._boomT = setTimeout(close, hit + 2400);
+    const W = b.clientWidth || innerWidth, H = b.clientHeight || innerHeight, w = Math.min(W * 0.8, 340), h = Math.min(H * 0.44, w / (imgAspect(src) || 1.15));
+    const rect = { x: (W - w) / 2, y: Math.max(40, H * 0.2), w, h };
+    const quip = () => { if (!ev.quip || !b.classList.contains('on')) return; const q = document.createElement('p'); q.className = 'skip-quip'; q.style.top = Math.round(rect.y + rect.h + 56) + 'px'; q.textContent = ev.quip; b.appendChild(q); };
+    if (window.CCMulligan) {
+      const info = CCMulligan.info(ev.kind) || {}, dur = (info.dur || 3.9) * 1000;
+      try {
+        CCMulligan.play(b, { kind: ev.kind, src, rect, line: 'Mulligan.', seed: ev.n || 7, onCue: (n) => { if (window.ccCueSound) ccCueSound(n); } });
+      } catch (e) { console.error('skip', e); }
+      window._boomQ = setTimeout(() => { quip(); if (window.ccBeat) window.ccBeat('mulligan:hit'); buzz(40); }, dur);
+      window._boomT = setTimeout(close, dur + 2300);
+    } else {   // skips.js isn't here yet: the old cartoon fades out, the word, the line
+      loadSkips(); b.classList.remove('ccm');
+      b.innerHTML = src ? `<div class="old"><img src="${esc(src)}" alt=""></div>` : '';
+      b.insertAdjacentHTML('beforeend', `<div class="word" style="animation-delay:1.2s">Skipped</div><div class="quip" style="animation-delay:1.65s">${esc(ev.quip || 'Next.')}</div>`);
+      window._boomQ = setTimeout(() => { if (window.ccBeat) window.ccBeat('mulligan:hit'); bsfx.seal(); buzz(60); }, 1250);
+      window._boomT = setTimeout(close, 3700);
+    }
   }, Math.max(0, wait));
+}
+/* The hand-drawn shows' sound cues (the thieves, the skip gags): a few hundred names, a handful of sounds. Only the
+   speaker phone plays them (big()), and never more than one every 90 ms. */
+let cueAt = 0;
+function ccCueSound(name) {
+  const now = performance.now(); if (now - cueAt < 90) return; cueAt = now;
+  const n = String(name || '').toLowerCase();
+  big(() => {
+    if (/kaboom|boom|blast|crash|smash|explo|wreck|cannon/.test(n)) { noise(0.5, 0, 0.32, 380, 'lowpass'); tone(70, 0.4, 0, 'sine', 0.22, 40); }
+    else if (/clang|anvil|gong|bell|ting|ding/.test(n)) { tone(880, 0.35, 0, 'triangle', 0.05); tone(1320, 0.25, 20, 'sine', 0.03); }
+    else if (/thud|thump|whump|bonk|clunk|clonk|thunk|stomp|slam|wham|bop|punch|smack|flop|drop|land|catch|set|plap/.test(n)) { noise(0.09, 0, 0.22, 500, 'lowpass'); tone(120, 0.12, 0, 'sine', 0.14, 70); }
+    else if (/whoosh|swish|zip|whee|whir|fly|swoosh|gust|flap|flutter/.test(n)) noise(0.18, 0, 0.1, 1900, 'bandpass');
+    else if (/whistle/.test(n)) tone(1200, 0.35, 0, 'sine', 0.035, 1500);
+    else if (/boing|spring|hop/.test(n)) tone(220, 0.25, 0, 'sine', 0.07, 520);
+    else if (/pop|plink|tink|click|clink|snap|flick|tik|tap|pip|plunk|shutter/.test(n)) { tone(1400, 0.05, 0, 'sine', 0.05, 900); noise(0.03, 0, 0.06, 3200, 'bandpass'); }
+    else if (/splash|sploosh|splish|squelch|shloop|glug|drip|slurp|gulp/.test(n)) { noise(0.22, 0, 0.12, 900, 'bandpass'); tone(300, 0.12, 30, 'sine', 0.04, 160); }
+    else if (/scrape|scrub|squeak|creak|strain|crunch|chew|gnaw|munch|crumple|rip/.test(n)) noise(0.14, 0, 0.06, 2600, 'highpass');
+  });
 }
 
 /* ── READING ── */
@@ -2524,24 +2663,110 @@ function openReadAloud(i = 0) {
   o.innerHTML = `<div class="ra-top"><span class="ra-n">${raIdx + 1} of ${list.length}</span><button class="ra-x" onclick="closeReadAloud()" aria-label="Close">✕</button></div>
     <p class="ra-cap">“${esc(list[raIdx])}”</p>
     <div class="ra-nav"><button class="btn" ${raIdx === 0 ? 'disabled' : ''} onclick="openReadAloud(${raIdx - 1})">◀</button>${raIdx < list.length - 1 ? `<button class="btn btn-yellow" onclick="openReadAloud(${raIdx + 1})">Next caption →</button>` : `<button class="btn btn-yellow" onclick="closeReadAloud()">Done ✓</button>`}</div>
-    <p class="ra-hint">The face-down one stays a mystery.</p>`;
+    <p class="ra-hint">${esc((state.lines || {}).readHint || 'The face-down one stays a mystery.')}</p>`;
   o.classList.add('on'); sfx.tap();
 }
 function closeReadAloud() { const o = $('readaloud'); if (o) o.classList.remove('on'); }
 
 function capNote(i) { return state.myOpenIndex === i ? ' <span class="tag mine">Yours</span>' : ''; }
+
+/* ── #26 Ha / Groan: two quiet buttons on every caption (never your own), from the reading through the reveal.
+   No points. Before the answer nobody sees a count (a laugh count would hint at what's real): only your own taps.
+   From the answer on, the counts. A tap shows at once here; the server's next state confirms it. ── */
+let rxLocal = {}, frLocal = {}, callLocal = null;
+const rTag = () => state.code + '|' + state.round;
+function isMineKey(key) {
+  key = String(key);
+  if (key === 'closed') return !!state.iWroteClosed || (state.phase === 'reading' && !!state.iWrote && state.myOpenIndex === -1);
+  return Number(key) === state.myOpenIndex;
+}
+function rxMine(key) {
+  const m = { ...(((state.myReactions || {})[String(key)]) || {}) }, l = rxLocal[rTag() + '|' + key];
+  return l ? Object.assign(m, l) : m;
+}
+const rxWords = (c) => [c.ha ? `Ha ${c.ha}` : '', c.groan ? `Groan ${c.groan}` : ''].filter(Boolean).join(' · ');
+function rxHtml(key, o = {}) {
+  key = String(key);
+  const counts = (state.reactionCounts || {})[key] || null, fr = o.frame ? frHtml(key) : '';
+  if (isMineKey(key)) return counts || fr ? `<div class="rx" data-rx="${key}" data-rxf="${o.frame ? 1 : 0}">${counts ? `<span class="rx-quiet">${rxWords(counts)}</span>` : ''}${fr ? `<span class="rx-sp"></span>${fr}` : ''}</div>` : '';
+  const mine = rxMine(key);
+  const b = (kind, label) => { const n = counts ? counts[kind] || 0 : 0; return `<button class="rx-b" aria-pressed="${mine[kind] ? 'true' : 'false'}" onclick="event.stopPropagation(); tapReact('${key}','${kind}')" aria-label="${label}${counts ? `. ${n} so far` : ''}">${label}${n ? ` <span class="rx-n">${n}</span>` : ''}</button>`; };
+  return `<div class="rx" data-rx="${key}" data-rxf="${o.frame ? 1 : 0}">${b('ha', 'Ha')}${b('groan', 'Groan')}${fr ? `<span class="rx-sp"></span>${fr}` : ''}</div>`;
+}
+function refreshRx() {
+  document.querySelectorAll('#game-content [data-rx]').forEach(el => { const h = rxHtml(el.dataset.rx, { frame: el.dataset.rxf === '1' }); if (el.outerHTML !== h) el.outerHTML = h || '<span hidden></span>'; });
+}
+function tapReact(key, kind) {
+  if (!state || isMineKey(key)) return;
+  const on = !rxMine(key)[kind];
+  rxLocal[rTag() + '|' + key] = { ...(rxLocal[rTag() + '|' + key] || {}), [kind]: on };
+  if (send({ action: 'react', target: key === 'closed' ? 'closed' : Number(key), kind, on })) { buzz(12); sfx.tap(); }
+  refreshRx();
+}
+/* ── #5 Frame It, on the reveal: a small frame on each fake once its writer is out (and on the recap). Frame as
+   many as beat the real one; when most of the other players frame the same one, it's framed on the spot. ── */
+function frMine(key) {
+  const l = frLocal[rTag() + '|' + key];
+  return l !== undefined ? l : ((state.framing || {}).mine || []).includes(String(key));
+}
+function frHtml(key) {
+  key = String(key);
+  const f = state.framing; if (state.phase !== 'answer' || !f) return '';
+  const c = capByKey(key); if (!c || c.isCorrect || !c.playerId) return '';
+  const done = (f.framed || []).includes(key);
+  if (done) return `<span class="fr-b done" role="img" aria-label="Framed">${inkIcon('frame', 14)}Framed</span>`;
+  if (c.playerId === myPlayerId || !(f.revealed || []).includes(key)) return '';
+  const mine = frMine(key), n = (f.counts || {})[key] || 0, need = frameNeed();
+  return `<button class="fr-b" aria-pressed="${mine ? 'true' : 'false'}" onclick="event.stopPropagation(); tapFrame('${key}')" aria-label="${mine ? 'You framed it. Tap to take it back' : 'Frame it'}${n ? `. ${n} of ${need} so far` : ''}">${inkIcon('frame', 14)}${mine ? 'Frame ✓' : 'Frame'}${n ? ` <span class="fr-n">${n}/${need}</span>` : ''}</button>`;
+}
+function tapFrame(key) {
+  if (!state || state.phase !== 'answer') return;
+  const on = !frMine(key);
+  frLocal[rTag() + '|' + key] = on;
+  if (send({ action: 'frame_pick', target: key === 'closed' ? 'closed' : Number(key), on })) { buzz(20); sfx.tap(); }
+  refreshRx(); const rf = $('rc-frames'); if (rf) rf.innerHTML = recapFramesHtml();
+}
+/* ── R11 Call your shot: once your caption is in, name the one person you expect to fall for it. +3 if they put a
+   chip on it; the reveal says so either way. Secret until then. ── */
+function callMine() { return callLocal && callLocal.tag === rTag() ? callLocal.id : (state.myCall || null); }
+function callableIds() { return state.players.filter(p => p.id !== myPlayerId && p.connected && !(p.id === state.dealerId && !dealerBetsNow())).map(p => p.id); }
+function callHtml(compact) {
+  if (!(state.phase === 'writing' ? state.hasSubmitted : state.iWrote)) return '';
+  const ids = callableIds(); if (!ids.length) return '';
+  const mine = callMine();
+  const row = ids.map(id => `<button class="call-p" aria-pressed="${mine === id ? 'true' : 'false'}" onclick="tapCall('${esc(id)}')">${chipHtml(id, 'sm')}${esc(fnameOf(id))}</button>`).join('');
+  if (compact) return `<div data-live="call" class="call"><p class="call-s" style="margin-bottom:8px;">${mine ? `Your call: <b>${esc(fnameOf(mine))}</b>. Tap again to take it back.` : 'Call your shot: who falls for yours? +3 if they do.'}</p><div class="call-row">${row}</div></div>`;
+  return `<div data-live="call" class="panel flat call"><p class="call-h">Call your shot</p><p class="call-s">Who falls for yours? If they bet on it, +3. Nobody sees your call until the reveal.</p><div class="call-row">${row}</div></div>`;
+}
+function tapCall(id) {
+  const target = callMine() === id ? null : id;
+  callLocal = { tag: rTag(), id: target };
+  if (send({ action: 'call_shot', target })) { buzz(15); sfx.tap(); }
+  const el = document.querySelector('[data-live="call"]'); if (el) el.outerHTML = callHtml(state.phase === 'reading');
+}
+/* ── #6 The clock: a thin bar that fills until the screen moves on by itself (server time); held, it's gone ── */
+function clockHtml(start, due, held) {
+  if (held || !due) return '';
+  const now = Date.now() + clockOffset, total = Math.max(1, due - (start || now)), left = Math.max(0, due - now);
+  const from = Math.min(1, Math.max(0, 1 - left / total));
+  return `<div class="rd-clock run" aria-hidden="true"><i style="--from:${from.toFixed(3)}; animation-duration:${left}ms;"></i></div>`;
+}
+function sendHold(on) { send({ action: 'hold', on: !!on, phase: state.phase, round: state.round }); }
 function renderReading(animate) {
-  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked ${animate ? 'deal-in' : ''}" style="animation-delay:${i * 0.14}s;"><span class="num">${i + 1}</span><p class="caption-text">“${esc(c)}”${capNote(i)}</p></div>`).join('');
+  const L = state.lines || {};
+  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked ${animate ? 'deal-in' : ''}" style="animation-delay:${i * 0.14}s;"><span class="num">${i + 1}</span><p class="caption-text">“${esc(c)}”${capNote(i)}</p>${rxHtml(i)}</div>`).join('');
   const nOpen = (state.openCaptions || []).length;
   return `${header({ sticker: '<span class="sticker white">The captions</span>' })}
     <div class="center" style="margin-bottom:16px;">
       <h2 class="h2">${state.isDealer ? 'Read them aloud' : `${esc(firstName(state.dealerName))} reads them aloud`}</h2>
-      <p class="sub">${plural(nOpen, 'caption')} out in the open, one face-down. One of them is real.</p>
+      <p class="sub">${L.readSub ? esc(L.readSub) : `${plural(nOpen, 'caption')} out in the open, one face-down. One of them is real.`}</p>
+      ${state.round === 1 ? '<p class="small" style="margin-top:6px;">Ha or Groan as they’re read. Nobody sees the counts until the answer.</p>' : ''}
     </div>
     <div class="stack" style="margin-bottom:14px;">${cards}</div>
     <div class="cap closed locked ${animate ? 'deal-in' : ''}" style="animation-delay:${nOpen * 0.14}s; text-align:center; padding:18px; margin-top:16px;">
-      <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p><p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'It’s yours. Keep a straight face.' : 'It turns over after the first bets.'}</p>
+      <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p><p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? esc(L.yoursRead || 'It’s yours. Keep a straight face.') : 'It turns over after the first bets.'}</p>
     </div>
+    ${callHtml(true)}
     ${state.isDealer ? `<button class="btn" style="margin-top:18px;" onclick="openReadAloud()">Read them big</button><button class="btn btn-yellow" style="margin-top:12px;" onclick="send({action:'advance'})">Done reading — start the betting</button>`
       : canRun() ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'advance'})">Start the betting →</button>`
       : `<p class="center small" style="margin-top:16px;">Betting starts when ${esc(firstName(state.dealerName))} is done reading</p>`}`;
@@ -2613,11 +2838,12 @@ function renderBetting(stage) {
 
   const cur = state.currentBetterName ? esc(firstName(state.currentBetterName)) : '';
   let banner;
-  if (state.allBetsIn) banner = `<div class="turn-banner"><div class="h2">All chips are down</div><p class="sub">Here comes the answer…</p></div>`;
+  const BL = state.lines || {};
+  if (state.allBetsIn) banner = `<div class="turn-banner"><div class="h2">${esc(BL.betDown || 'All chips are down')}</div><p class="sub">Here comes the answer…</p></div>`;
   else if (state.isMyTurn && !myBet) banner = `<div class="turn-banner you" role="status"><div class="h2">Your last chip</div><p class="sub" style="color:var(--ink);">Tap where it goes — anywhere.</p></div>`;
   else if (myBet) banner = `<div class="turn-banner"><div class="h2">${esc(betLabel(myBet.target, 1))} ✓</div><p class="sub">${cur} is up.</p></div>`;
   else if (!eligible2.has(myPlayerId)) banner = `<div class="turn-banner"><div class="h2">${state.isDealer && !dealerBetsNow() ? 'You’re dealing' : passed.has(myPlayerId) ? 'You sat this one out' : 'Both your chips are down'}</div><p class="sub">${cur} is betting…</p></div>`;
-  else { const away = order.indexOf(myPlayerId) - order.indexOf(state.currentBetterId); banner = `<div class="turn-banner"><div class="h2">${cur} is betting<span class="dots"></span></div><p class="sub">${away > 0 ? `You’re ${away === 1 ? 'next' : away + ' away'}.` : 'Watch the chips land.'}</p></div>`; }
+  else { const away = order.indexOf(myPlayerId) - order.indexOf(state.currentBetterId); banner = `<div class="turn-banner"><div class="h2">${cur} is betting<span class="dots"></span></div><p class="sub">${away > 0 ? `You’re ${away === 1 ? 'next' : away + ' away'}.` : esc(BL.betWatch || 'Watch the chips land.')}</p></div>`; }
 
   const curP = playerById(state.currentBetterId);
   const tools = !state.allBetsIn && (canRun() || (curP && !curP.connected)) ? `<div class="center" style="margin-top:18px;">
@@ -2654,8 +2880,9 @@ function renderBlind() {
   const waitWords = waitOn.length ? `Waiting on ${esc(listNames(waitOn.map(pid => pid === myPlayerId ? 'you' : fnameOf(pid))))}.` : 'Everyone’s in.';
   const clock = !dropped && state.blindEnd ? '<p class="blind-clock" id="blind-clock" aria-hidden="true"></p>' : '';
   let banner;
-  if (dropped) banner = `<div class="turn-banner"><div class="h2">All chips are down</div><p class="sub">${dealerSteals() && othersHaveChips() ? `${state.isDealer ? 'Your' : esc(firstName(state.dealerName)) + '’s'} steal, before the flip…` : 'Turning the Closed Caption over…'}</p></div>`;
-  else if (state.isDealer && !dealerBetsNow()) banner = `<div class="turn-banner dealer"><div class="h2">You’re dealing. No bets for you.</div><p class="sub">${dealerSteals() ? 'When the chips drop, you steal one. Before the flip.' : 'If nobody finds the real one, you score.'} ${waitWords}</p>${clock}</div>`;
+  const BL = state.lines || {};
+  if (dropped) banner = `<div class="turn-banner"><div class="h2">${esc(BL.betDown || 'All chips are down')}</div><p class="sub">${dealerSteals() && othersHaveChips() ? `${state.isDealer ? 'Your' : esc(firstName(state.dealerName)) + '’s'} steal, before the flip…` : 'Turning the Closed Caption over…'}</p></div>`;
+  else if (state.isDealer && !dealerBetsNow()) banner = `<div class="turn-banner dealer"><div class="h2">You’re dealing. No bets for you.</div><p class="sub">${dealerSteals() ? 'When the chips drop, you steal one. Before the flip.' : 'If nobody finds the real one, you score.'} ${BL.betDealer ? esc(BL.betDealer) + ' ' : ''}${waitWords}</p>${clock}</div>`;
   else if (canPick) banner = `<div class="turn-banner you" role="status"><div class="h2">Your bet</div><p class="sub" style="color:var(--ink);">Everyone bets at once, in secret. Tap a caption, then 1 chip or both.</p>${clock}</div>`;
   else if (mine) banner = `<div class="turn-banner"><div class="h2">${esc(betLabel(mine.target, mine.count))} ✓</div><p class="sub">${waitWords} The chips drop together.</p>${clock}</div>`;
   else banner = `<div class="turn-banner"><div class="h2">First bets</div><p class="sub">You sit this round out. ${waitWords}</p>${clock}</div>`;
@@ -2760,7 +2987,7 @@ function renderSteal() {
   }
   const canPass = state.canTakeover || state.isHost;   // #28: the host can pass for a dealer who's wandered off
   return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
-    <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">${esc(firstName(state.dealerName))} is choosing a chip to steal<span class="dots"></span></h2><p class="sub">Before the flip. Any chip on the table could go. Plead your case.</p></div>
+    <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">${esc(firstName(state.dealerName))} is choosing a chip to steal<span class="dots"></span></h2><p class="sub">Before the flip. ${esc((state.lines || {}).stealWait || 'Any chip on the table could go. Plead your case.')}</p></div>
     <div class="stack" style="margin-top:18px;">${cards}</div>
     ${state.canTakeover ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'steal', betIndex:null})">Skip the steal and flip the card →</button>` : canPass ? `<button class="btn-link" style="display:block; margin:16px auto 0; font-size:14px;" onclick="send({action:'steal', betIndex:null})">Dealer stuck? Skip the steal</button>` : ''}`;
 }
@@ -2797,79 +3024,97 @@ function flipTableHtml() {
     const who = t === 'closed' && riders.length ? `<span class="ft-who">${esc(listNames(riders.map(id => id === myPlayerId ? 'You' : fnameOf(id))))}</span>` : '';
     return `<div class="ft-row${t === 'closed' ? ' cc' : ''}"><span class="ft-lbl">${t === 'closed' ? '<span class="cc-badge" style="margin:0;">CC</span>' : t + 1}</span><span class="ft-chips">${chips}</span>${who}</div>`;
   }).join('');
-  const noneOnCC = !bets.some(b => b.target === 'closed' && b.count > 0);
-  return `<div class="flip-table"><p class="eyebrow" style="margin-bottom:6px;">First chips on the table</p>${rows}${noneOnCC ? '<p class="small ft-none">Nobody is riding on the face-down one.</p>' : ''}</div>`;
+  return `<div class="flip-table"><p class="eyebrow" style="margin-bottom:6px;">First chips on the table</p>${rows}</div>`;
 }
 function renderReveal() {
   revealRunner = canRun();
-  const n = (state.eligibleSecondBetters || []).length;
+  const L = state.lines || {};
+  // the blind chips riding on the face-down card sit on it; they light up as it lands (#18)
+  const on = (state.bets || []).filter(b => b.stage === 1 && b.target === 'closed' && b.count + (b.stolen || 0) > 0);
+  const chips = on.flatMap(b => [...Array.from({ length: b.count }, () => chipHtml(b.playerId, 'sm')), ...Array.from({ length: b.stolen || 0 }, () => window.ccPaintedChip ? window.ccPaintedChip(state.dealerId, 'sm', b.playerId) : chipHtml(b.playerId, 'sm stolen'))]).join('');
   return `${header({ sticker: '<span class="sticker">The flip</span>' })}
     <div class="center" style="padding-top:2vh;">
-      <p class="sub" style="margin-bottom:22px;" id="reveal-lead">Turning the Closed Caption over…</p>
-      <div class="flip phys" id="reveal-flip" style="position:relative;"><div class="flip-dust" id="reveal-dust"></div><div class="inner">
+      <p class="sub" style="margin-bottom:22px;" id="reveal-lead">${esc(L.flipLead || 'Turning the Closed Caption over…')}</p>
+      <div class="flip hero still" id="reveal-flip" style="position:relative;"><div class="inner">
         <div class="face front"><div class="ccard" id="reveal-ccard"><div class="cc">CC</div><div class="lbl">Closed Caption</div></div></div>
-        <div class="face back"><div class="panel yellow" style="transform:rotate(-1deg);"><p class="eyebrow" style="color:var(--ink-2);">The Closed Caption</p><p class="caption-text" style="font-size:22px; margin-top:6px;">“${esc(state.closedCaption)}”</p>${state.iWroteClosed ? '<p class="small" style="margin-top:6px;">(Yours. Poker face.)</p>' : ''}</div></div>
+        <div class="face back"><div class="panel yellow" style="transform:rotate(-1deg);"><p class="eyebrow" style="color:var(--ink-2);">The Closed Caption</p><p class="caption-text" style="font-size:22px; margin-top:6px;">“${esc(state.closedCaption)}”</p>${state.iWroteClosed ? `<p class="small" style="margin-top:6px;">${esc(L.yoursFlip || '(Yours. Poker face.)')}</p>` : ''}${chips ? `<div class="cc-chips" id="cc-chips" aria-label="Blind chips on it">${chips}</div>` : ''}${rxHtml('closed')}</div></div>
       </div></div>
       ${flipTableHtml()}
-      <p class="sub" id="reveal-hint" style="opacity:0; transition:opacity .4s; margin-top:18px;"></p>
-      ${canRun() ? `<button id="reveal-continue" class="btn ${state.isDealer ? 'btn-yellow' : ''}" style="margin-top:18px; opacity:0; transition:opacity .4s; pointer-events:none;" onclick="send({action:'advance'})">${n ? 'Read it out. Then the last chips →' : 'Next →'}</button>` : `<p class="sub" id="reveal-continue" style="margin-top:18px; opacity:0; transition:opacity .4s;">Waiting for ${esc(firstName(state.dealerName))} to read it out — then ${n ? 'the last chips' : 'the answer'}.</p>`}
+      <p class="flip-riders" id="flip-riders">${esc(L.flipRiders || L.flipNone || '')}</p>
+      <p class="sub" id="reveal-hint" style="opacity:0; transition:opacity .4s; margin-top:10px;"></p>
+      <div id="flip-ctl">${flipCtlHtml()}</div>
     </div>`;
 }
-/* The Closed Caption turns over like a real card: it lifts (the shadow grows), trembles, then slaps
-   down face-up. Every phone does it on the same beat (state.flipAt + a short lead: after the steal show,
-   if there was one); the speaker phone plays it, every phone flashes and jolts. Arrive after the slap and
-   you just see it face-up. */
-const REVEAL_BEATS = { lift: 0, tremble: 450, slap: 1150, impact: 1320, settle: 1700, button: 2000 };
+// #6: the flip moves on by itself; the dealer (or whoever took over) can hold it, or go on now
+const flipDriver = () => reelDriver();
+function flipCtlHtml() {
+  const n = (state.eligibleSecondBetters || []).length, held = !!state.flipHold;
+  const clock = clockHtml(state.flipAt, state.flipDue, held);
+  if (flipDriver()) {
+    return `${clock}<div class="rd-ctl">${held ? '' : `<button class="btn btn-sm" onclick="sendHold(true)" aria-label="Hold it here">❚❚</button>`}<button id="reveal-continue" class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'advance'})">${n ? 'Last chips →' : 'The answer →'}</button></div>
+      <p class="rd-note">${held ? 'Held. Read it out, then go on.' : 'Read it out. It moves on by itself.'}</p>`;
+  }
+  const d = esc(firstName(state.dealerName || ''));
+  return `${clock}<p class="rd-note" id="reveal-continue">${held ? `${d} is holding it here.` : `${d} reads it out. Then ${n ? 'the last chips' : 'the answer'}, by itself.`}</p>${reelTakeOverHtml()}`;
+}
+// A new state while the card is up: only the controls, the clock and your own taps change
+function revealLive() {
+  const c = $('flip-ctl'); if (c) { const h = flipCtlHtml(); if (c.dataset.h !== h) { c.innerHTML = h; c.dataset.h = h; } }
+  refreshRx();
+}
+/* #18 The flip is the hero beat. A held second of silence (no music, no drumroll), then the face-down card turns
+   over on every phone at once (state.flipAt + the shared lead, after the steal show if there was one), with one
+   card-flip sound from the speaker phone, and the blind chips riding on it light up. Arrive after it landed: you
+   just see it face-up. Reduce Motion: it fades over instead of turning. */
+const FLIP_BEATS = { turn: 1000, land: 1460, settle: 2100 };
 let revealDone = new Set(), stealShown = new Set();
 // #8: the steal show plays as the flip screen opens (the card waits for it), on every phone at once
 function playStealIfFresh() {
   const st = state.steal, key = state.code + '|' + state.round;
   if (!st || !st.victimId || !st.at || stealShown.has(key)) return;
   stealShown.add(key);
-  const sy = window.ccSync ? window.ccSync(st.at) : { wait: 0, stale: false };
+  const sy = window.ccSync ? window.ccSync(st.at) : { wait: 0, late: 0, stale: false };
   if (sy.stale) return;   // walked in after the show: the card is all that's left to see
   window._answerGo = null;
-  playStealShow(sy.wait);
+  playStealShow(sy.wait - sy.late);   // a phone a moment late joins the show where it is
 }
+function cardFlipSound() { noise(0.1, 0, 0.16, 3400, 'bandpass'); noise(0.05, 60, 0.12, 1800, 'bandpass'); tone(150, 0.12, 90, 'sine', 0.14, 85); }
 function playRevealSequence() {
-  if (window.GameMusic) window.GameMusic.stop();
-  const flip = $('reveal-flip'), btn = $('reveal-continue'), hint = $('reveal-hint'), lead = $('reveal-lead');
+  if (window.GameMusic) window.GameMusic.stop();   // the held second is silent
+  const flip = $('reveal-flip'), ctl = $('flip-ctl'), hint = $('reveal-hint'), lead = $('reveal-lead'), riders = $('flip-riders');
   if (!flip) return;
   (window._revealT || []).forEach(clearTimeout); window._revealT = [];
-  const key = state.code + '|' + state.round, B = REVEAL_BEATS;
+  const key = state.code + '|' + state.round, B = FLIP_BEATS, RM = !!(window.ccReducedMotion && window.ccReducedMotion());
   const sy = window.ccSync ? window.ccSync(state.flipAt || state.phaseAt) : { wait: 0, late: 0 };
   const elapsed = sy.late - sy.wait;   // ms since the shared start (negative: not yet)
-  const showHint = () => { const n = (state.eligibleSecondBetters || []).length; if (hint) { hint.textContent = n ? `${plural(n, 'player still has', 'players still have')} a chip. One at a time, from the dealer’s ${(state.settings || {}).direction === 'right' ? 'right' : 'left'}.` : 'Every chip is already down.'; hint.style.opacity = '1'; } };
-  const showBtn = () => { if (btn) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; } };
-  const faceUp = () => { if (lead) lead.textContent = 'The Closed Caption is…'; };
-  if (elapsed >= B.impact) {   // late (or a fresh draw after the slap): the end state, no replay
-    flip.classList.remove('lift', 'trem'); flip.classList.add('instant', 'slap'); faceUp(); showHint(); showBtn();
+  const once = (k) => { if (revealDone.has(key + k)) return false; revealDone.add(key + k); return true; };
+  const light = () => document.querySelectorAll('#cc-chips .chip, .ft-row.cc .ft-chips .chip').forEach(c => c.classList.add('lit'));
+  const faceUp = () => { if (lead) lead.textContent = (state.lines || {}).flipUp || 'The Closed Caption is…'; };
+  const rest = () => {
+    const n = (state.eligibleSecondBetters || []).length;
+    if (hint) { hint.textContent = n ? `${plural(n, 'player still has', 'players still have')} a chip. One at a time, from the dealer’s ${(state.settings || {}).direction === 'right' ? 'right' : 'left'}.` : 'Every chip is already down.'; hint.style.opacity = '1'; }
+    if (riders) riders.classList.add('on');
+    if (ctl) ctl.classList.add('on');
+  };
+  if (elapsed >= B.land) {   // late (or a fresh draw after it landed): the end state, no replay
+    flip.classList.remove('still'); flip.classList.add('instant', 'turned'); faceUp(); light(); rest();
     if (window.ccBeat && !revealDone.has(key + 'end')) { revealDone.add(key + 'end'); window.ccBeat('reveal:end'); }
     return;
   }
+  if (RM) flip.classList.add('rm');
+  if (ctl) ctl.classList.remove('on');
   const at = (t, fn) => window._revealT.push(setTimeout(() => { if (state && state.phase === 'reveal' && flip.isConnected) fn(); }, Math.max(0, t - elapsed)));
-  const once = (k) => { if (revealDone.has(key + k)) return false; revealDone.add(key + k); return true; };
-  at(B.lift, () => {
-    flip.classList.add('lift'); if (window.ccBeat) window.ccBeat('reveal:lift');
-    if (once('lift')) { big(() => { tone(70, 1.25, 0, 'sine', 0.16, 140); noise(1.1, 0, 0.06, 500, 'lowpass'); }); bsfx.drumroll(1100); buzz(20); }
+  if (window.ccBeat && elapsed < B.turn) window.ccBeat('reveal:hold');
+  at(B.turn, () => {
+    flip.classList.remove('still'); flip.classList.add('turned'); if (window.ccBeat) window.ccBeat('reveal:turn');
+    if (RM) { try { flip.querySelector('.inner').animate([{ opacity: 0.2 }, { opacity: 1 }], { duration: 300, easing: 'ease-out' }); } catch (e) {} }
+    if (once('flip')) { big(cardFlipSound); buzz(30); }
   });
-  at(B.tremble, () => { flip.classList.add('trem'); if (window.ccBeat) window.ccBeat('reveal:tremble'); if (once('trem')) buzz([15, 40, 15, 40, 15]); });
-  at(B.slap, () => {
-    flip.classList.remove('lift', 'trem'); flip.classList.add('slap'); if (window.ccBeat) window.ccBeat('reveal:slap');
-    if (once('whoosh')) big(() => noise(0.16, 0, 0.22, 1600, 'bandpass'));
+  at(B.land, () => {
+    faceUp(); light(); if (window.ccBeat) window.ccBeat('reveal:impact');
+    if (once('lit') && document.querySelector('#cc-chips .chip')) buzz([15, 40, 15]);
   });
-  at(B.impact, () => {
-    flip.classList.add('landed'); faceUp(); if (window.ccBeat) window.ccBeat('reveal:impact');
-    if (window.ccImpact) window.ccImpact({ flash: 0.9 });
-    const dust = $('reveal-dust');
-    if (dust) dust.innerHTML = [[-120, -10], [-80, -34], [-40, -12], [40, -12], [80, -34], [120, -10]].map(([dx, dy]) => `<i style="--dx:${dx}px; --dy:${dy}px;"></i>`).join('');
-    if (once('thwack')) {
-      buzz([60, 30, 120]);
-      big(() => { noise(0.14, 0, 0.7, 600, 'lowpass'); tone(110, 0.22, 0, 'sine', 0.5, 40); noise(0.04, 0, 0.4, 4200, 'highpass'); [523, 784].forEach((f, i) => tone(f, 0.22, 160 + i * 110, 'triangle', 0.08)); tone(1047, 0.5, 380, 'sine', 0.05); });
-    }
-  });
-  at(B.settle, () => { showHint(); if (window.ccBeat) window.ccBeat('reveal:settled'); });
-  at(B.button, showBtn);
+  at(B.settle, () => { rest(); if (window.ccBeat) window.ccBeat('reveal:settled'); });
 }
 
 /* ── ANSWER ── */
@@ -2894,137 +3139,11 @@ function roundFacts() {
   const bluffs = max > 0 ? fakes.filter(c => c.chips === max) : [];
   return { caps, fakes, bluffs, real: caps.find(c => c.isCorrect) };
 }
-// The round's one banter line: the biggest bluff, in broad strokes
-// #43: a shout-out only for a real bluff — 2+ chips — and never a crowd (at most two names)
-function bluffShort(f) {
-  if (!f.bluffs.length) return f.real && f.real.people.length ? 'Nobody fooled anybody.' : '';
-  if (f.bluffs[0].chips < 2 || new Set(f.bluffs.map(c => c.playerId)).size > 2) return '';
-  const writers = [...new Set(f.bluffs.map(c => c.playerId))].map(fnameOf);
-  const n = f.bluffs[0].people.length, same = f.bluffs.every(c => c.people.length === n);
-  if (writers.length === 1) return `<b>${esc(writers[0])}</b> fooled ${plural(n, 'person', 'people')}`;
-  return same ? `<b>${esc(listNames(writers))}</b> each fooled ${plural(n, 'person', 'people')}` : `<b>${esc(listNames(writers))}</b> tie for biggest bluff`;
-}
-
-/* Frame It — after every answer, one secret pick per player per cartoon, every round, no limit per game (internally 'flags').
+/* Frame It (#5: on the reveal): a frame on any fake once its writer is out, as many as deserve it (internally 'flags').
    A majority of the other players (everyone but the writer; state.inductNeed) and it's FRAMED: it hangs in The Gallery. */
 const frameNeed = () => (state && state.inductNeed) || 2;
 const frameNeedWords = () => { const n = state && state.players ? state.players.length : 0; return n > 1 ? `most of the other players (${frameNeed()} of ${n - 1})` : 'most of the other players'; };
 const pubMark = (p) => p && p.published > 0 ? `<span class="pub-mark" title="${plural(p.published, 'caption')} in The Gallery">${inkIcon('frame', 11)}×${p.published}</span>` : '';
-/* ── FRAME IT: "Anything frame-worthy?" One screen between the answer and the scoreboard.
-   Pick one caption (never your own) or pass; picks stay secret until everyone has decided
-   (or the dealer moves on). Enough picks and it's framed: the ceremony plays on every phone. ── */
-let fmLocal = null, fmSeen = null;   // fmLocal: a tap the server hasn't echoed yet; fmSeen: who had decided at the last draw
-const fmTag = () => state.code + '|' + state.round;
-function fmMyPick() {
-  const f = state.framing || {};
-  return fmLocal && fmLocal.tag === fmTag() && !f.resolved ? fmLocal.pick : f.myPick;
-}
-function fmCaptions() {
-  const all = answerCaptions(), order = (state.reel && state.reel.order) || [];
-  const byKey = (k) => all.find(c => String(c.idx) === String(k));
-  const out = order.map(byKey).filter(Boolean);
-  for (const c of all) if (!out.includes(c)) out.push(c);   // anything the reel skipped
-  return out.filter(c => c.caption && !c.isCorrect);   // the real caption is never up for framing
-}
-function pickFrame(t) {
-  const f = state.framing || {};
-  if (state.phase !== 'framing' || f.resolved) return;
-  if (send({ action: 'frame_pick', target: t })) { fmLocal = { tag: fmTag(), pick: t }; buzz(20); sfx.tap(); framingLive(true); }
-}
-function fmListHtml() {
-  const f = state.framing || {}, r = f.result, mine = fmMyPick(), need = frameNeed();
-  return fmCaptions().map(c => {
-    const k = String(c.idx), own = !!c.playerId && c.playerId === myPlayerId, on = mine !== null && mine !== undefined && String(mine) === k;
-    const framed = r && r.framed.map(String).includes(k), n = r ? (r.counts[k] || 0) : 0;
-    const who = own ? 'Yours' : c.isCorrect ? 'The real one' : esc(c.playerName || '');
-    const t = c.idx === 'closed' ? "'closed'" : c.idx;
-    const tag = framed ? `<span class="fm-n done">Framed · ${n}</span>` : r && n ? `<span class="fm-n">${n} of ${need}</span>` : '';
-    const cls = ['fm-card', own ? 'own' : '', on ? 'on' : '', framed ? 'framed' : '', r && !framed ? 'dim' : ''].filter(Boolean).join(' ');
-    return `<button class="${cls}" data-k="${k}" ${own || r ? 'disabled' : `onclick="pickFrame(${t})"`} aria-pressed="${on ? 'true' : 'false'}"><span class="fm-cap">“${esc(c.caption)}”</span><span class="fm-meta"><span class="fm-who">${who}</span>${tag}</span></button>`;
-  }).join('');
-}
-function fmFootHtml() {
-  const f = state.framing || {}, r = f.result, mine = fmMyPick();
-  if (r) {
-    const next = isLastRound() ? 'Final scores' : 'Scoreboard';
-    const late = (Date.now() + clockOffset) > (r.endsAt || 0) + 2500;
-    if (!late && canRun()) { clearTimeout(window._fmLateT); window._fmLateT = setTimeout(() => { if (state && state.phase === 'framing') framingLive(true); }, Math.max(0, (r.endsAt || 0) + 2600 - (Date.now() + clockOffset))); }
-    return canRun() && late ? `<button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'advance'})">${next} →</button>` : `<p class="fm-wait">${next} in a moment — it comes up by itself<span class="dots"></span></p>`;
-  }
-  const voters = f.voters || [], decided = new Set(f.decided || []);
-  const ids = voters.concat((f.decided || []).filter(id => !voters.includes(id))).filter(id => playerById(id));
-  const here = ids.filter(id => (playerById(id) || {}).connected || decided.has(id));
-  const chips = ids.map(id => `<span class="fm-chip ${decided.has(id) ? 'done' : ''}">${chipHtml(id)}</span>`).join('');
-  const passed = mine === 'pass';
-  return `<button class="btn fm-pass ${passed ? 'on' : ''}" onclick="pickFrame('pass')" aria-pressed="${passed ? 'true' : 'false'}">${passed ? '✓ The real one wins · tap a caption to change' : 'Nothing beat the real one'}</button>
-    <div class="fm-row"><div class="fm-chips ${ids.length > 6 ? 'many' : ''}">${chips}</div><span class="fm-count">${(() => { const wait = here.filter(id => !decided.has(id)); return wait.length && wait.length <= 2 && here.length > 2 ? 'Waiting on ' + wait.map(id => id === myPlayerId ? 'you' : esc(fnameOf(id))).join(' & ') + '…' : `${here.length - wait.length} of ${here.length} decided`; })()}</span></div>
-    ${canRun() ? `<div class="center" style="margin-top:-6px;"><button class="btn-link fm-move" onclick="send({action:'advance'})">Move on</button></div>` : ''}`;
-}
-function fmHeadHtml() {
-  const r = (state.framing || {}).result;
-  const toon = state.cartoon ? `<div class="fm-toon" onclick="openViewer()" role="button" tabindex="0" aria-label="See the cartoon full-screen"><img src="/images/${esc(state.cartoon.image)}" alt="cartoon"></div>` : '';
-  let title = 'Did anyone beat the real one?', sub = 'Frame the one that did. It hangs in The Gallery for good.';
-  if (r && r.framed.length) { title = r.framed.length > 1 ? `Framed ×${r.framed.length}` : 'Framed.'; sub = 'Going up in The Gallery.'; }
-  else if (r) { title = 'Nothing framed this round.'; sub = 'Tough room.'; }
-  return `${toon}<div style="min-width:0;"><div class="h-display fm-title ${r ? 'fm-stamp' : ''}" style="${r && !r.framed.length ? 'font-size:23px;' : ''}">${title}</div><p class="fm-sub">${sub}</p></div>`;
-}
-// #44: the caption to beat, on its own bold card above the list
-function fmRealHtml() {
-  const real = (answerCaptions().find(c => c.isCorrect) || {}).caption;
-  return real ? `<div class="fm-real"><p class="fm-real-lbl">The one to beat · the real caption</p><p class="fm-real-cap">“${esc(real)}”</p></div>` : '';
-}
-// The list fades at the bottom while there's more below
-function fmFade() { const l = $('fm-list'); if (l) l.classList.toggle('more', l.scrollHeight - l.clientHeight - l.scrollTop > 6); }
-function renderFraming() {
-  return `${header({ sticker: '<span class="sticker">Frame It</span>', thumb: false })}
-    <div class="fm-root" id="fm-root">
-      <div class="fm-head" id="fm-head">${fmHeadHtml()}</div>
-      ${fmRealHtml()}
-      <div class="fm-list" id="fm-list" onscroll="fmFade()">${fmListHtml()}</div>
-      <div class="fm-foot" id="fm-foot">${fmFootHtml()}</div>
-    </div>`;
-}
-// A new state while the screen is up: only what changed, and the list keeps its scroll
-function framingLive(local) {
-  if (!local) fmLocal = null;   // the server has spoken
-  const el = $('game-content'), tpl = document.createElement('template'); tpl.innerHTML = renderAwayBanner();
-  const oldAway = el.querySelector('#away'), newAway = tpl.content.querySelector('#away');
-  if (oldAway && newAway) oldAway.replaceWith(newAway); else if (oldAway) oldAway.remove(); else if (newAway) el.prepend(newAway);
-  const list = $('fm-list'), foot = $('fm-foot');
-  if (list) { const h = fmListHtml(); if (list.dataset.h !== h) { const st = list.scrollTop; list.innerHTML = h; list.dataset.h = h; list.scrollTop = st; } }
-  if (foot) { const h = fmFootHtml(); if (foot.dataset.h !== h) { foot.innerHTML = h; foot.dataset.h = h; } }
-  fitFraming();
-  if (!local) framingSounds(false);
-}
-// Resolved: the framed caption scrolls into view inside the list
-function fmShowFramed() {
-  const l = $('fm-list'), c = l && l.querySelector('.fm-card.framed'); if (!c) return;
-  l.scrollTop = Math.max(0, c.offsetTop - l.offsetTop - 12); fmFade();
-}
-// The screen fills the phone exactly: the caption list scrolls inside its box, never the page
-function fitFraming() {
-  const root = $('fm-root'); if (!root) return;
-  const scr = $('screen-game'), pad = scr ? parseFloat(getComputedStyle(scr).paddingBottom) || 0 : 0;
-  const top = root.getBoundingClientRect().top + window.scrollY;
-  root.style.height = Math.max(260, Math.floor(window.innerHeight - top - pad)) + 'px';
-  fmFade();
-}
-window.addEventListener('resize', () => { if (state && state.phase === 'framing') fitFraming(); });
-// Someone decides: a soft tick; everyone in: a chord; nothing framed: a shrug
-function framingSounds(fresh) {
-  const f = state.framing || {}, tag = fmTag(), n = (f.decided || []).length;
-  if (fresh || !fmSeen || fmSeen.tag !== tag) { fmSeen = { tag, n, resolved: !!f.resolved }; if (f.resolved && fresh) fmOutcomeFx(f.result); return; }
-  if (!fmSeen.resolved && f.resolved) fmOutcomeFx(f.result);
-  else if (n > fmSeen.n && !f.resolved) bsfx.submitOther();
-  fmSeen = { tag, n, resolved: !!f.resolved };
-}
-function fmOutcomeFx(r) {
-  if (!r) return;
-  if (window.ccBeat) window.ccBeat(r.framed.length ? 'framing:framed' : 'framing:none');
-  if (!r.framed.length) { big(() => { tone(392, 0.18, 0, 'triangle', 0.06); tone(330, 0.32, 170, 'triangle', 0.06); }); buzz(30); }
-  else { bsfx.allIn(); buzz(40); }
-}
-
 /* The framing moment: the server's lastInduction, played once on every phone while it's fresh.
    The first state only sets the baseline, so a reconnect never replays an old one. */
 /* The Gallery lives on the phones: every phone saves each caption it sees framed,
@@ -3055,38 +3174,55 @@ function collectGallery() {
   if (Array.isArray(state.gazette) && state.gazette.length) gallerySave(state.gazette);
   if (state.lastInduction) gallerySave([state.lastInduction.entry, ...(state.lastInduction.list || []).map(x => x.entry)].filter(Boolean));
 }
-// Several captions can be framed at once: each has its own beat (li.list[i].at), one after another
+// #5: a caption is framed the moment most of the table frames it, on the reveal. Every framing this round is in
+// lastInduction.list, each with its own n (counting up all night) and its own beat (at); one plays after another.
 function clearFrameGos() { (window._frameGos || []).forEach(clearTimeout); window._frameGos = []; }
 function checkInduction() {
   collectGallery();
-  const li = state.lastInduction, n = li ? li.n : 0;
-  // Framing is on screen right now: even a phone that just (re)loaded gets the moment
-  const live = !!li && state.phase === 'framing' && li.round === state.round;
-  if (lastIndN === null && !live) { lastIndN = n; return; }
-  if (!li || n <= (lastIndN || 0)) { if (n > lastIndN) lastIndN = n; return; }
-  lastIndN = n;
-  const items = Array.isArray(li.list) && li.list.length ? li.list : [li];
-  clearFrameGos();
-  items.forEach((it, i) => {
-    const sy = window.ccSync ? window.ccSync(it.at) : { wait: 0, late: Math.max(0, Date.now() + clockOffset - it.at), stale: Date.now() + clockOffset - it.at > 2500 };
-    const next = items[i + 1], nextDue = next && window.ccSync && window.ccSync(next.at).wait === 0;
-    if (nextDue) return;                                  // its slot is over; the next one is already up
-    if (sy.stale && !(live && sy.late < 4500)) return;   // a late phone still gets the whole moment while framing is up
-    window._frameGos.push(setTimeout(() => { if (window.ccBeat) window.ccBeat('frame:start'); playFraming(it); }, sy.wait));   // every phone on the same beat
-  });
+  const li = state.lastInduction, items = li ? (Array.isArray(li.list) && li.list.length ? li.list : [li]) : [];
+  const maxN = Math.max(0, li ? (li.n || 0) : 0, ...items.map(x => x.n || 0));
+  // the reveal is on screen right now: even a phone that just (re)loaded gets a moment that's still playing
+  const live = !!li && state.phase === 'answer' && li.round === state.round;
+  if (lastIndN === null && !live) { lastIndN = maxN; return; }
+  const fresh = items.filter(x => (x.n || 0) > (lastIndN || 0));
+  lastIndN = Math.max(lastIndN || 0, maxN);
+  window._frameGos = window._frameGos || [];
+  for (const it of fresh) {
+    const sy = window.ccSync ? window.ccSync(it.at) : { wait: 0, late: 0 };
+    if (sy.late > (it.ms || 3200) - 600) continue;   // its moment is over
+    window._frameGos.push(setTimeout(() => { if (window.ccBeat) window.ccBeat(it.kind === 'plaque' ? 'frame:plaque' : 'frame:start'); if (it.kind === 'plaque') playPlaque(it); else playFraming(it); }, sy.wait));
+  }
 }
 function hofEntryFor(li) { return (state.hallOfFame || []).find(h => h.round === li.round && String(h.target) === String(li.target)) || null; }
 function playFraming(li) {
   const me = playerById(myPlayerId), mine = !!li.author && !!me && li.author.toLowerCase() === me.name.toLowerCase();
   const card = () => { const e = hofEntryFor(li); return { image: li.image, caption: li.caption, writerName: li.isReal ? null : li.author, isReal: li.isReal, month: li.month, flaggers: li.flaggers, ...(e ? { image: e.image, caption: e.caption, writerName: e.isReal ? null : e.writerName } : {}) }; };
   const onPrint = () => makeCardFrom(card());
+  // the night's first frame: the whole ceremony; the reel waits for it (state.framing.hold), then it closes itself
+  clearTimeout(window._hangT); if (li.ms) window._hangT = setTimeout(() => { if (state && state.phase === 'answer' && !$('sheet').classList.contains('on')) closeInduction(); }, li.ms + 600);
   if (window.Gallery && typeof window.Gallery.hang === 'function') {
     try {
-      window.Gallery.hang({ caption: li.caption, author: li.author, isReal: !!li.isReal, image: li.image, framers: li.flaggers || [], frames: li.flags, month: li.month, mine, onPrint });
+      window.Gallery.hang({ caption: li.caption, author: li.author, isReal: !!li.isReal, image: li.image, framers: li.flaggers || [], frames: li.flags, month: li.month, mine, onPrint, now: mine ? li.lineMine : li.line });
       return;
     } catch (e) { console.warn('Gallery.hang failed — using the plain overlay', e); }
   }
   playInduction(card(), onPrint);
+}
+// Every framing after the night's first: a brass plaque drops in at the top for 3 s. Nothing stops for it.
+function closePlaque() { const o = $('rd-plaque'); if (o) { clearTimeout(o._t); o.classList.remove('on'); } }
+function playPlaque(it) {
+  let o = $('rd-plaque');
+  if (!o) { o = document.createElement('div'); o.id = 'rd-plaque'; o.setAttribute('role', 'status'); o.setAttribute('aria-live', 'polite'); document.body.appendChild(o); }
+  const me = playerById(myPlayerId), mine = !!it.author && !!me && it.author.toLowerCase() === me.name.toLowerCase();
+  const by = (it.flaggers || []).map(firstName);
+  o.innerHTML = `<p class="pq-e">${mine ? 'You’ve been framed' : 'Framed'}</p><p class="pq-c">“${esc(it.caption || '')}”</p><p class="pq-w">${esc(it.author || '')}${by.length ? ` · framed by ${esc(listNames(by))}` : ''}</p>${(mine ? it.lineMine : it.line) ? `<p class="pq-l">${esc(mine ? it.lineMine : it.line)}</p>` : ''}`;
+  o.onclick = closePlaque;
+  void o.offsetWidth; o.classList.add('on');
+  big(() => { tone(1318, 0.18, 0, 'sine', 0.04); tone(1976, 0.32, 110, 'sine', 0.03); noise(0.05, 0, 0.05, 5200, 'highpass'); });
+  buzz(mine ? [50, 40, 90] : 25);
+  srSay(`Framed: ${it.author || 'a caption'}.`);
+  clearTimeout(o._t); o._t = setTimeout(closePlaque, it.ms || 3200);
+  refreshRx(); const rf = $('rc-frames'); if (rf) rf.innerHTML = recapFramesHtml();
 }
 // Fallback when gallery.js isn't loaded: a plain framed card
 function playInduction(e, onPrint) {
@@ -3182,26 +3318,13 @@ function galleryCreditHtml() {
   return rc && rc.author ? `<p class="gallery-credit">From The Gallery — caption by ${esc(rc.author)}, framed ${esc(rc.month || '')}</p>` : '';
 }
 
-/* The steal, as a show: dim, drum roll, a hand that can't make up its mind… then it does */
-function stealNewsHtml() {
-  const st = state.steal;
-  if (!st || st.skipped || !st.victimId) return st && st.skipped && state.settings.stealEnabled ? `<p class="center small" style="margin-bottom:12px;">${esc(firstName(state.dealerName))} kept the peace — no steal</p>` : '';
-  const where = st.target === 'closed' ? 'the Closed Caption' : `Caption ${st.target + 1}`;
-  const me = st.victimId === myPlayerId;
-  return `<div class="steal-news"><div class="h2">${state.isDealer ? 'You' : esc(firstName(state.dealerName))} stole ${me ? 'your' : esc(fnameOf(st.victimId)) + '’s'} chip</div><p class="sub">${st.actName ? esc(st.actName) + ' took it off ' : 'Knocked off '}${where}.${st.gloat ? ` “${esc(st.gloat)}”` : ''}</p></div>`;
-}
-/* The steal show (steal.js, heists.js). The server picks it (state.steal.stealShow), so every phone agrees:
-   'full' — the night's first steal, then about one in four at random (never because of where the chip was):
-            one of the heists (12.4s);
-   'short' — every other steal: a TRANSFERRED stamp in the dealer's colour, with the line (6s).
-   No stealShow (an older server): the full show, as before.
-   #8: it plays as the flip screen opens, on the shared beat; the server times the flip (state.flipAt) for after it. */
-const STEAL_SHOW_MS = 12400, STEAL_QUICK_MS = 6000;   // full heist 12.4s; the short stamp 6s (game.js STEAL_FULL_MS / STEAL_SHORT_MS match)
-// How long this round's steal show runs: 'short' -> 3.5s; 'full' or an older server (no stealShow) -> the full 9.6s
-const stealShowMs = (st) => window.ccClaw && window.ccClaw.lengthFor ? window.ccClaw.lengthFor(st, STEAL_SHOW_MS) : STEAL_SHOW_MS;
+/* The steal show (steal.js drives thieves.js, the hand-drawn thieves). The server picks it (state.steal), so every
+   phone agrees: the thief, 'full' (~6.5 s: the night's first steal, then about one in four at random, never because
+   of where the chip was) or 'short' (~2 s), and the neutral line under it. It plays as the flip screen opens, on the
+   shared beat; the server times the flip (state.flipAt) for after it. */
 function playStealShow(wait = 0) {
   if (!window.ccClaw) return 0;
-  return window.ccClaw.play(wait, { fullMs: STEAL_SHOW_MS, quickMs: STEAL_QUICK_MS });
+  return window.ccClaw.play(wait);
 }
 
 let answerSeqRound = null;
@@ -3212,9 +3335,10 @@ function renderAnswer() {
   return renderRecap();
 }
 // The round recap: one glanceable screen. The real caption under the full-width cartoon, like a printed page (#4);
-// every scorer with the reason for each point (#28); the biggest bluff; the dealer's steal in plain words. (Frame It is next.)
+// every scorer with the reason for each point (#28); the round's one headline and the steal in a sentence (#39, picked by
+// the server); the blind-laugh score (R10); and #5 Frame It: a frame on any caption that beat the real one.
 function renderRecap() {
-  const f = roundFacts();
+  const f = roundFacts(), L = state.lines || {};
   answerSeqRound = state.round + '|' + state.code;
   const real = f.real || {}, rc = state.realCredit;
   const page = `<figure class="rc-page">${state.cartoon ? `<button class="rc-art" onclick="openViewer()" aria-label="${esc(toonAlt())}. See it full-screen"><img src="/images/${esc(state.cartoon.image)}" alt=""></button>` : ''}
@@ -3224,18 +3348,30 @@ function renderRecap() {
     const why = pointReasons(pid);
     return `<li class="rc-row${pid === myPlayerId ? ' me' : ''}">${chipHtml(pid, 'sm')}<span class="rc-who"><b>${esc(pid === myPlayerId ? 'You' : nameOf(pid))}</b>${why.length ? `<span class="rc-why">${why.map(w => `<span>${esc(w)}</span>`).join('')}</span>` : ''}</span><span class="rc-plus">+${p}</span></li>`;
   }).join('');
-  const bluff = bluffShort(f);
-  const steal = stealPlain();
+  const t = state.tvc || {}, tvc = state.tvcRound ? `<p class="rc-tvc">The table ${t.table || 0}, the cartoonist ${t.cartoonist || 0}.</p>` : '';
   return `${header({ sticker: '<span class="sticker teal">Round recap</span>', thumb: false })}
     <div id="answer-root" class="done">
     ${page}
     <h2 class="rc-h">Points this round</h2>
-    ${rows ? `<ul class="rc-rows" id="answer-scores">${rows}</ul>` : '<p class="rc-none" id="answer-scores">Nobody scored. Not even the dealer.</p>'}
-    ${bluff ? `<p class="rc-line" id="bluff-shout">${bluff}</p>` : ''}
-    ${steal ? `<p class="rc-line rc-dealer" id="rc-dealer">${steal}</p>` : ''}
+    ${rows ? `<ul class="rc-rows" id="answer-scores">${rows}</ul>` : `<p class="rc-none" id="answer-scores">${esc(L.noScore || 'Nobody scored. Not even the dealer.')}</p>`}
+    ${L.endHead ? `<p class="rc-line" id="bluff-shout">${esc(L.endHead)}</p>` : ''}
+    ${L.endSteal ? `<p class="rc-line rc-dealer" id="rc-dealer">${esc(L.endSteal)}</p>` : ''}
     ${lateOn() ? '<p class="rc-line">The Late Edition: every point doubled.</p>' : ''}
+    ${tvc}
+    <div id="rc-frames">${recapFramesHtml()}</div>
     <div id="answer-continue">${answerContinueHtml(isLastRound())}</div>
     </div>`;
+}
+// #5: every caption the table wrote, each with its frame (and its Ha / Groan count)
+function recapFramesHtml() {
+  const L = state.lines || {}, order = (state.reel && state.reel.order) || [];
+  const caps = order.map(capByKey).filter(c => c && !c.isCorrect && c.playerId);
+  if (!caps.length) return '';
+  const items = caps.map(c => {
+    const k = String(c.idx), counts = (state.reactionCounts || {})[k], framed = ((state.framing || {}).framed || []).includes(k);
+    return `<li class="rc-fi${framed ? ' framed' : ''}">${chipHtml(c.playerId, 'sm')}<div class="rc-ft"><p class="rc-fc">“${esc(c.caption)}”</p><p class="rc-fw">${esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}${counts ? ' · ' + rxWords(counts) : ''}</p></div>${frHtml(k)}</li>`;
+  }).join('');
+  return `<section class="rc-frames" aria-label="Frame It"><p class="rc-fh">${esc(L.framePrompt || 'Did anyone beat the real one?')}</p><p class="rc-fs">${esc(L.frameSub || 'Frame it. When most of the table does, it hangs in The Gallery.')}</p><ul class="rc-fl">${items}</ul></section>`;
 }
 /* #28: why each point was scored, in plain words, from the server's own list (state.roundScoreDetails):
    "+2 found the real one", "+2 fooled Margaret", "+1 your chip was stolen off a fake". Same reasons add up. */
@@ -3247,6 +3383,7 @@ function pointReasons(pid) {
     const r = String(reason || '');
     let m;
     if ((m = r.match(/^Fooled (.+)$/i))) return { fooled: firstName(m[1]) };
+    if ((m = r.match(/^Called shot: (.+) bit$/i))) return `called it: ${firstName(m[1])} bit`;
     if (/shot the moon/i.test(r)) return 'both chips on the face-down one, and it was real';
     if (/half-?moon/i.test(r)) return 'both chips on the real one';
     if (/stole/i.test(r) && /real/i.test(r)) return 'stole a chip off the real one';
@@ -3267,23 +3404,14 @@ function pointReasons(pid) {
   if (fooled.length) out.push(`+${fooledPts} fooled ${listNames(fooled)}`);
   return out;
 }
-// The steal, in plain words: who took whose chip, and who that paid
-function stealPlain() {
-  const st = state.steal, dealer = state.isDealer ? 'You' : firstName(state.dealerName || '');
-  if (!st) return '';
-  if (st.skipped) return state.settings && state.settings.stealEnabled !== false && dealerMode() !== 'bet' ? `${esc(dealer)} kept the peace. No steal.` : '';
-  if (!st.victimId) return '';
-  const me = st.victimId === myPlayerId, whose = me ? 'your' : esc(fnameOf(st.victimId)) + '’s';
-  if (st.onCorrect) return `${esc(dealer)} stole ${whose} chip off the real caption. Its points went to ${state.isDealer ? 'you' : esc(dealer)}.`;
-  const d = ((state.roundScoreDetails || {})[st.victimId] || []).find(x => /caught|stolen off a fake/i.test(String(x.reason || '')));
-  return `${esc(dealer)} stole ${whose} chip. It was on a fake, so ${me ? 'you get' : esc(fnameOf(st.victimId)) + ' gets'} +${d ? d.pts : 1}.`;
-}
 function isLastRound() {
   return state.totalRounds ? state.round >= state.totalRounds : false;   // (#37 first to N: once someone's there, the trip around the table is counted out)
 }
 function answerContinueHtml(lastRound) {
-  const label = 'Frame It →';   // then the scoreboard (or the final scores)
-  if (reelDriver()) return `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" onclick="reelSend('reel_prev')" aria-label="Back to the reveal">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="send({action:'advance'})">${state.isDealer ? label : `${label.replace(' →', '')} for ${esc(firstName(state.dealerName))} →`}</button></div>`;
+  const label = lastRound ? 'Final scores →' : 'Scoreboard →';
+  const hold = Math.max(0, ((state.framing || {}).hold || 0) - (Date.now() + clockOffset));   // the night's first frame is being hung
+  if (hold > 0) { clearTimeout(window._holdT); window._holdT = setTimeout(() => { if (state && state.phase === 'answer') answerLive(); }, hold + 100); }
+  if (reelDriver()) return `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" onclick="reelSend('reel_prev')" aria-label="Back to the reveal">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" ${hold > 0 ? 'disabled' : ''} onclick="send({action:'advance'})">${state.isDealer ? label : `${label.replace(' →', '')} for ${esc(firstName(state.dealerName))} →`}</button></div>`;
   return `<p class="rc-wait">Waiting for ${esc(firstName(state.dealerName))}<span class="dots"></span></p>${reelTakeOverHtml()}`;
 }
 /* #30: the answer reel has one driver. The dealer gets the big button (or anyone, once the dealer's phone has gone);
@@ -3294,26 +3422,33 @@ const reelDriver = () => !!state && (state.isDealer || state.canTakeover || (can
 function reelTakeOverHtml() { return canRun() && !reelDriver() ? `<button class="btn-link" style="display:block; margin:8px auto 0; font-size:13px;" onclick="reelTake()">Take over</button>` : ''; }
 function reelTake() { reelTook = state.code + '|' + state.round; render(true); }
 function reelSend(action) { send({ action, step: state && state.reel ? state.reel.step : undefined }); }
-// Live updates while the answer is up (who can move on) without replaying the show
+// Live updates while the answer is up (who drives, held or running, frames and taps) without replaying the show
 function answerLive() {
   const el = $('game-content'), tpl = document.createElement('template'); tpl.innerHTML = renderAwayBanner();
   const oldAway = el.querySelector('#away'), newAway = tpl.content.querySelector('#away');
   if (oldAway && newAway) oldAway.replaceWith(newAway); else if (oldAway) oldAway.remove(); else if (newAway) el.prepend(newAway);
-  const c = $('answer-continue');
-  if (c) { const h = answerContinueHtml(isLastRound()); if (c.innerHTML !== h) c.innerHTML = h; }
+  const put = (id, h) => { const c = $(id); if (c && c.dataset.h !== h) { c.innerHTML = h; c.dataset.h = h; } };
+  put('answer-continue', answerContinueHtml(isLastRound()));
+  put('reel-ctl', reelCtlHtml());
+  put('reel-clock', reelClockHtml());
+  put('rc-frames', recapFramesHtml());
+  refreshRx();
 }
 function playAnswerSequence() { playReelStep(true); }
 
 
 /* ═══════════════════════════════════════════════════════════
-   The reveal reel — the dealer spotlights one caption at a time.
-   Whose was whose and who fell for it. This is where the
-   banter happens, so nothing moves until the dealer taps.
+   The reveal reel — one caption at a time: whose was whose, and
+   who fell for it. #6: it moves on by itself every few seconds
+   (the server's clock: state.reel.dueAt); the dealer can hold it,
+   go back, or go on. Ha / Groan and a frame on every caption.
    ═══════════════════════════════════════════════════════════ */
 const reelInfo = () => { const r = state.reel || { order: [], step: 1 }; return { order: r.order || [], step: r.step || 1, n: (r.order || []).length }; };
 function capByKey(key) { return answerCaptions().find(c => String(c.idx) === String(key)) || null; }
+// The server picks each badge's line (#39); an older server: the house lines
 function badgeLine(b) {
   const d = b.detail || {};
+  if (d.line) return d.line;
   switch (b.kind) {
     case 'moon': return d.shot === 'moon' ? 'Shot the moon — both chips, face-down, dead on.' : 'Half-Moon — both chips blind on the real one.';
     case 'three_bagger': return `${listNames((d.by || []).map(nameOf))} all went both chips.`;
@@ -3328,73 +3463,78 @@ function badgeChipsHtml(list) {
   if (!list.length) return '';
   return `<div class="badge-strip">${list.map(b => `<span class="badge-chip">${window.Badges.icon(b.kind, 26)}<span><b>${esc(window.Badges.KINDS[b.kind] ? window.Badges.KINDS[b.kind].name : b.kind)}</b> · ${esc(listNames(b.playerIds.map(nameOf)))}</span></span>`).join('')}</div>`;
 }
+// #6: the bar that fills until the next caption; held, the bar goes
+function reelClockHtml() { const r = state.reel || {}; return reelInfo().step > reelInfo().n ? '' : clockHtml(state.stepAt || state.phaseAt, r.dueAt, !!r.paused); }
+// The driver's controls: back, hold / let it run, on. Everyone else: a line while it's held.
+function reelCtlHtml() {
+  const { step, n } = reelInfo(), r = state.reel || {}, held = !!r.paused, kNo = reelNobody();
+  if (step > n) return '';
+  const at = kNo && step <= kNo ? kNo : step, atFirst = step <= 1 || (kNo && step <= kNo);
+  const nextLabel = at >= n ? 'Round recap →' : at === n - 1 ? 'The real one →' : 'Next →';
+  if (reelDriver()) return `<div class="rd-ctl"><button class="btn btn-sm" ${atFirst ? 'disabled' : ''} onclick="reelSend('reel_prev')" aria-label="Back one caption">◀</button><button class="btn btn-sm" onclick="sendHold(${held ? 'false' : 'true'})" aria-label="${held ? 'Let it run' : 'Hold it here'}">${held ? '▶' : '❚❚'}</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="reelSend('reel_next')">${nextLabel}</button></div>
+     ${held ? '<p class="rd-note">Held. Talk it over, then go on.</p>' : ''}<button class="btn-link" style="display:block; margin:6px auto 0; font-size:13px;" onclick="reelSend('reel_skip')">Skip to the recap</button>`;
+  return `${held ? `<p class="rd-note">${esc((state.lines || {}).reelHold || `${firstName(state.dealerName)} is holding it here.`)}</p>` : ''}${reelTakeOverHtml()}`;
+}
 /* #24: the captions nobody bit on come first in the reel; with a server that groups them
    (state.reel.nobody = how many lead the order, 2 or more) they share one step. Older server: one at a time. */
 const reelNobody = () => { const r = state.reel, k = r && Number.isInteger(r.nobody) ? r.nobody : 0; return k >= 2 && k < reelInfo().n ? k : 0; };
 function nobodyGroupHtml(k) {
-  const { order, n } = reelInfo();
+  const { order, n } = reelInfo(), L = state.lines || {};
   const rows = order.slice(0, k).map(capByKey).filter(Boolean).map(c => {
     const badges = (state.roundBadges || []).filter(b => String(b.target) === String(c.idx) && !['moon', 'pickpocket'].includes(b.kind));
-    return `<div class="nb-row">${chipHtml(c.playerId, 'sm')}<div class="nb-txt"><p class="nb-cap">“${esc(c.caption)}”</p><p class="nb-who">${esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}${c.isClosed ? ' · the face-down one' : ''}</p>${badgeChipsHtml(badges)}</div></div>`;
+    const RL = (L.reel || {})[String(c.idx)] || {};
+    return `<div class="nb-row">${chipHtml(c.playerId, 'sm')}<div class="nb-txt"><p class="nb-cap">“${esc(c.caption)}”</p><p class="nb-who">${esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}${c.isClosed ? ' · the face-down one' : ''}</p>${RL.call ? `<p class="call-line">${esc(RL.call)}</p>` : ''}${badgeChipsHtml(badges)}${rxHtml(c.idx, { frame: true })}</div></div>`;
   }).join('');
-  const nextLabel = k === n - 1 ? 'And the real caption is…' : 'Next caption →';
-  const ctl = reelDriver()
-    ? `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" disabled aria-label="Previous caption">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="reelSend('reel_next')">${nextLabel}</button></div>
-       <button class="btn-link" style="display:block; margin:6px auto 0; font-size:13px;" onclick="reelSend('reel_skip')">Skip to the recap</button>`
-    : `<p class="center small">Take your time — ${esc(firstName(state.dealerName))} moves to the next one.</p>${reelTakeOverHtml()}`;
   return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `${roundLabel()} · 1–${k} of ${n}` })}
-    <div id="steal-slot">${stealNewsHtml()}</div>
     <div class="reel-dots">${order.map((_, i) => `<i class="${i < k ? 'on' : ''} ${i === n - 1 ? 'last' : ''}"></i>`).join('')}</div>
+    <div id="reel-clock">${reelClockHtml()}</div>
     <div class="spot pending" id="spot">
-      <p class="eyebrow">${plural(k, 'caption')}, not one chip</p>
+      <p class="eyebrow">${esc(L.reelGroup || `${plural(k, 'caption')}, not one chip`)}</p>
       <div class="spot-reveal"><div class="stamp nb-stamp" id="spot-stamp">Nobody bit</div><div class="nb-list">${rows}</div></div>
     </div>
-    <div style="margin-top:18px;">${ctl}</div>`;
+    <div style="margin-top:18px;" id="reel-ctl">${reelCtlHtml()}</div>`;
 }
+// A thief's line after the reveal (#39: never during the steal). The Mime speaks in stage directions.
+const gloatText = (t) => /^\(.*\)$/.test(String(t).trim()) ? esc(t) : `“${esc(t)}”`;
 function spotlightHtml() {
   const { order, step, n } = reelInfo(), key = order[step - 1], c = capByKey(key);
   if (!c) return '';
   const kNo = reelNobody(); if (kNo && step <= kNo) return nobodyGroupHtml(kNo);
+  const L = state.lines || {}, RL = (L.reel || {})[String(key)] || {};
   const f = roundFacts(), fc = f.caps.find(x => String(x.idx) === String(key)) || c, real = !!c.isCorrect;
   const bets = (state.bets || []).filter(b => b.target !== 'pass' && String(b.target) === String(key));
   const backers = real ? bets : bets.filter(b => b.playerId !== c.playerId);
   const people = [...new Set(backers.map(b => b.playerId))];
   const chipsOf = (pid) => backers.filter(b => b.playerId === pid).reduce((s, b) => s + b.count + (b.stolen || 0), 0);
-  const fell = people.length ? `<div class="fell"><p class="eyebrow" style="margin-bottom:8px;">${real ? 'Found the real one' : 'Fell for it'}</p><div class="fell-row">${people.map(pid => `<span class="fell-p">${chipHtml(pid, 'sm')}${esc(pid === myPlayerId ? 'You' : nameOf(pid))}${chipsOf(pid) > 1 ? ` <i>×${chipsOf(pid)}</i>` : ''}</span>`).join('')}</div></div>`
-    : `<p class="nobody">${real ? (fc.allChips ? 'Found. Then stolen.' : '<i>The truth had no friends.</i>') : 'Nobody bit.'}</p>`;
+  const fell = people.length ? `<div class="fell"><p class="eyebrow" style="margin-bottom:8px;">${real ? 'Found the real one' : esc(RL.fell || 'Fell for it')}</p><div class="fell-row">${people.map(pid => `<span class="fell-p">${chipHtml(pid, 'sm')}${esc(pid === myPlayerId ? 'You' : nameOf(pid))}${chipsOf(pid) > 1 ? ` <i>×${chipsOf(pid)}</i>` : ''}</span>`).join('')}</div></div>`
+    : `<p class="nobody">${real ? `<i>${esc(RL.line || (fc.allChips ? 'Found. Then stolen.' : 'The truth had no friends.'))}</i>` : esc(RL.nobody || 'Nobody bit.')}</p>`;
   const pts = !real && c.playerId ? backers.reduce((s, b) => s + b.count + (b.stolen || 0), 0) * (state.settings.pointsPerFool || 0) * (lateOn() ? 2 : 1) : 0;   // stolen chips still fooled them; The Late Edition doubles it
   const who = real ? `<div class="stamp real-stamp" id="spot-stamp">The real caption</div>`
     : `<div class="writer-stamp" id="spot-stamp">${chipHtml(c.playerId, 'lg')}<div><p class="eyebrow">Written by</p><div class="wname">${esc(c.playerId === myPlayerId ? 'You' : c.playerName || '?')}</div></div>${pts ? `<span class="plus" style="margin-left:auto; font-size:26px;">+${pts}</span>` : ''}</div>`;
   const realBadges = real ? (state.roundBadges || []).filter(b => ['moon', 'pickpocket'].includes(b.kind)) : [];
-  const realLine = real && people.length ? `<p class="real-line">${realLineText(people.length)}</p>` : '';
+  const realLine = real && people.length ? `<p class="real-line">${esc(RL.line || 'As printed.')}</p>` : '';
+  const extras = real ? `${state.tvcRound && state.tvcRound.line ? `<p class="tvc-line">${esc(state.tvcRound.line)}</p>` : ''}${state.odds && state.odds.line ? `<p class="odds-line">${esc(state.odds.line)}</p>` : ''}` : '';
+  const call = RL.call ? `<p class="call-line">${esc(RL.call)}</p>` : '';
+  const gloat = RL.gloat && RL.gloat.text ? `<p class="gloat-line"><b>${esc(RL.gloat.who || 'The thief')}:</b> ${gloatText(RL.gloat.text)}</p>` : '';
   const noted = real ? notedHtml() : '';
   const badges = [...(state.roundBadges || []).filter(b => String(b.target) === String(key) && !['moon', 'pickpocket'].includes(b.kind)), ...realBadges];
-  const nextLabel = step < n - 1 ? 'Next caption →' : step === n - 1 ? 'And the real caption is…' : 'Round recap →';
-  const ctl = reelDriver()
-    ? `<div class="btn-row"><button class="btn btn-sm" style="flex:0 0 64px;" ${step <= 1 ? 'disabled' : ''} onclick="reelSend('reel_prev')" aria-label="Previous caption">◀</button><button class="btn ${state.isDealer ? 'btn-yellow' : ''}" onclick="reelSend('reel_next')">${nextLabel}</button></div>
-       ${step < n ? `<button class="btn-link" style="display:block; margin:6px auto 0; font-size:13px;" onclick="reelSend('reel_skip')">Skip to the recap</button>` : ''}`
-    : `<p class="center small">Take your time — ${esc(firstName(state.dealerName))} moves to the next one.</p>${reelTakeOverHtml()}`;
   return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `${roundLabel()} · ${step} of ${n}` })}
-    ${step === 1 ? `<div id="steal-slot">${stealNewsHtml()}</div>` : ''}
     <div class="reel-dots">${order.map((_, i) => `<i class="${i + 1 < step ? 'done' : i + 1 === step ? 'on' : ''} ${i === n - 1 ? 'last' : ''}"></i>`).join('')}</div>
+    <div id="reel-clock">${reelClockHtml()}</div>
     <div class="spot ${real ? 'is-real pending' : 'pending'}" id="spot">
       <span class="num">${c.isClosed ? '<span class="cc-badge" style="margin:0;">CC</span>' : (Number(c.idx) + 1)}</span>${trayHtml(c.idx, { showStolen: true })}
+      ${real ? `<p class="spot-lead">${esc(RL.lead || 'And the real caption is…')}</p>` : ''}
       ${c.isClosed ? '<p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption</p>' : ''}
       <p class="spot-text">“${esc(c.caption)}”</p>
-      <div class="spot-reveal">${who}${realLine}${real ? galleryCreditHtml() : ''}${fell}${noted}${badgeChipsHtml(badges)}</div>
+      <div class="spot-reveal">${who}${realLine}${extras}${real ? galleryCreditHtml() : ''}${fell}${call}${gloat}${noted}${badgeChipsHtml(badges)}${rxHtml(key, { frame: true })}</div>
     </div>
-    <div style="margin-top:18px;">${ctl}</div>`;
-}
-// The real caption gets one small line of Caslon, not a celebration: "As printed." or "2 of 5 believed it."
-function realLineText(k) {
-  const bettors = new Set((state.bets || []).filter(b => b.target !== 'pass').map(b => b.playerId)).size || k;
-  return state.round % 2 ? 'As printed.' : `${k} of ${bettors} believed it.`;
+    <div style="margin-top:18px;" id="reel-ctl">${reelCtlHtml()}</div>`;
 }
 // A +6 round or a Shoot the Moon: the people at the table do the screaming. The phone says "Noted."
 function notedHtml() {
   const rs = state.roundScores || {};
   const ids = [...new Set([...Object.keys(rs).filter(id => rs[id] >= 6), ...(state.roundBadges || []).filter(b => b.kind === 'moon' && (b.detail || {}).shot === 'moon').flatMap(b => b.playerIds)])].filter(playerById);
-  return ids.length ? `<p class="noted">${ids.map(id => chipHtml(id, 'sm')).join('')}<span>Noted.</span></p>` : '';
+  return ids.length ? `<p class="noted">${ids.map(id => chipHtml(id, 'sm')).join('')}<span>${esc((state.lines || {}).noted || 'Noted.')}</span></p>` : '';
 }
 const reelPlayed = new Set();
 /* Each reel step starts on the shared beat: the server's stepAt + a short lead (step 1 comes after the
@@ -3640,7 +3780,7 @@ function syncLate() {
   o.onclick = closeLate;
   o.innerHTML = `<div class="le-card"><div class="le-rule"></div><p class="le-eye">Round ${state.round}${state.totalRounds ? ' of ' + state.totalRounds : ''}</p>
     <h2 class="le-h">The Late Edition</h2><div class="le-rule"></div>
-    <p class="le-line">${lateWhyLine(L)} Every point counts double.</p><span class="le-x2" aria-hidden="true">×2</span></div>`;
+    <p class="le-line">${L.hit || !(state.lines || {}).lateBanner ? `${lateWhyLine(L)} Every point counts double.` : esc(state.lines.lateBanner)}</p><span class="le-x2" aria-hidden="true">×2</span></div>`;
   o.className = 'on';
   bsfx.seal(); buzz([40, 60, 40]); srSay('The Late Edition. Every point counts double.');
   lateT = setTimeout(closeLate, left);
@@ -3826,8 +3966,9 @@ function renderScores() {
   return `${header({ sticker: '<span class="sticker">Scoreboard</span>', sub: goal, thumb: false })}
     <div class="sb-list ${sorted.length > 6 ? 'tight' : ''}">${rows}</div>
     ${state.nextLate ? `<p class="sb-late">Next: <b>The Late Edition.</b> ${state.late && state.late.hit ? lateWhyLine(state.late) : 'The last trip around the table.'} Every point counts double.</p>` : ''}
+    ${(state.slips || []).slice(0, 2).map(x => `<p class="sb-slip-note">${esc(x.note || '')}</p>`).join('')}
     <p class="sb-next">Next dealer: <b>${esc(firstName(state.nextDealerName))}</b></p>
-    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>`}`;
+    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>${(state.lines || {}).nextDealer ? `<p class="sb-wait-line">${esc(state.lines.nextDealer)}</p>` : ''}`}`;
 }
 // Game over: two big moments (Winner, The Grand Poobah), a compact standings row, and the buttons
 // #9 / #11: a tie for first is broken by people fooled, then captions framed (the server decides: state.standing)
@@ -4265,8 +4406,8 @@ function playScoreboardCount(key) {
   // then the round's winner (most points this round) gets a quiet stamp — same moment on every phone (it's all from state)
   const pts = state.roundScores || {}, best = Math.max(0, ...Object.values(pts));
   const winners = best > 0 ? state.players.filter(p => pts[p.id] === best).map(p => p.id) : [];
-  // the callback: a repeat winner. How many earlier rounds tonight did this (single) winner take?
-  const again = winners.length === 1 ? (state.history || []).filter(r => r.round < state.round).filter(r => { const rs = r.roundScores || {}, m = Math.max(0, ...Object.values(rs)); return m > 0 && rs[winners[0]] === m && Object.values(rs).filter(v => v === m).length === 1; }).length : 0;
+  // the callback, picked by the server (#39): a repeat winner, a habit, a new leader, at last, or a shared round
+  const again = (state.lines || {}).stamp || '';
   if (winners.length) {
     const stampAt = total + 500;
     if (elapsed < stampAt + 600) seq.timers.push(setTimeout(() => {
@@ -4279,12 +4420,11 @@ function playScoreboardCount(key) {
 const ROUND_STAMP_MS = 1100;
 let roundStampT = [];
 function closeRoundStamp() { roundStampT.forEach(clearTimeout); roundStampT = []; const el = $('rw-stamp'); if (el) el.remove(); }
-function roundStamp(ids, wait, again) {
+function roundStamp(ids, wait, line) {
   closeRoundStamp();
   const me = ids.includes(myPlayerId), el = document.createElement('div');
-  const ord = (n) => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
   el.id = 'rw-stamp';
-  el.innerHTML = `<span class="rw-chips">${ids.slice(0, 3).map(id => chipHtml(id, ids.length > 1 ? 'sm' : '')).join('')}</span><span class="rw-t"><span class="rw-e">${ids.length > 1 ? 'Round winners' : 'Round winner'}</span><span class="rw-n">${esc(me ? (ids.length > 1 ? 'You & co.' : 'You') : listNames(ids.map(nameOf)))}</span>${again ? `<span class="rw-a">Again.${again >= 2 ? ' (' + ord(again + 1) + ' time.)' : ''}</span>` : ''}</span>`;
+  el.innerHTML = `<span class="rw-chips">${ids.slice(0, 3).map(id => chipHtml(id, ids.length > 1 ? 'sm' : '')).join('')}</span><span class="rw-t"><span class="rw-e">${ids.length > 1 ? 'Round winners' : 'Round winner'}</span><span class="rw-n">${esc(me ? (ids.length > 1 ? 'You & co.' : 'You') : listNames(ids.map(nameOf)))}</span>${line ? `<span class="rw-a">${esc(line)}</span>` : ''}</span>`;
   document.body.appendChild(el);
   const RM = !!(window.ccReducedMotion && window.ccReducedMotion());
   roundStampT.push(setTimeout(() => {
@@ -4327,6 +4467,51 @@ function animateCount(el, from, to, duration) {
   if (from === to) { el.textContent = to; return; }
   const start = performance.now();
   (function step(now) { const t = Math.min(1, (now - start) / duration), e = 1 - Math.pow(1 - t, 3); el.textContent = Math.round(from + (to - from) * e); if (t < 1) requestAnimationFrame(step); })(start);
+}
+
+/* ── R1 Rejection slips: a caption nobody bet on that drew 3+ Groans gets a typed slip from The Editors, slid to its
+   writer as the scoreboard settles. The phone keeps them in a 'Rejections' drawer (menu ☰), with a running count. ── */
+function slipsGet() { try { const v = JSON.parse(localStorage.getItem('cc_rejections') || '[]'); return Array.isArray(v) ? v.filter(x => x && x.caption) : []; } catch (e) { return []; } }
+function slipKey(x) { return [x.code || '', x.round, x.target, String(x.caption || '').slice(0, 40)].join('|'); }
+function slipSave(x) {
+  const list = slipsGet(), k = slipKey(x);
+  if (list.some(y => slipKey(y) === k)) return false;
+  list.push({ code: x.code, round: x.round, target: x.target, caption: x.caption, image: x.image, groans: x.groans, line: x.line, month: x.month, at: Date.now() });
+  try { localStorage.setItem('cc_rejections', JSON.stringify(list.slice(-200))); } catch (e) {}
+  return true;
+}
+function slipHtml(x, n) {
+  return `<div class="slip"><p class="slip-h">The Editors</p><p class="slip-re">Re: <i>“${esc(x.caption || '')}”</i></p><p class="slip-f">${esc(x.line || '')}</p><p class="slip-g">Groans received: ${x.groans || 0}. Chips: none.${n ? ` · No. ${n}` : ''}</p><span class="slip-st" aria-hidden="true">Returned</span></div>`;
+}
+let slipShown = new Set();
+function syncSlip() {
+  const mine = (state.slips || []).find(x => x.writerId === myPlayerId);
+  if (!mine) return;
+  const k = state.code + '|' + state.round + '|' + mine.target;
+  if (slipShown.has(k)) return;
+  slipShown.add(k);
+  const fresh = slipSave({ ...mine, code: state.code });
+  const n = slipsGet().length;
+  if (!fresh) return;   // (already filed on this phone: a reload)
+  const due = (state.scoresAt || 0) + 2600 - (Date.now() + clockOffset);
+  if (due < -6000) return;
+  setTimeout(() => {
+    if (!state || state.phase !== 'scores') return;
+    let o = $('rd-slip'); if (!o) { o = document.createElement('div'); o.id = 'rd-slip'; o.setAttribute('role', 'status'); document.body.appendChild(o); }
+    o.innerHTML = `${slipHtml(mine, n)}<div class="slip-btns"><button class="btn btn-sm" onclick="closeSlip()">File it</button></div>`;
+    void o.offsetWidth; o.classList.add('on');
+    sfx.tap(); buzz([30, 60, 30]); srSay(`A rejection slip from The Editors. ${mine.line || ''}`);
+    o.onclick = closeSlip;
+    clearTimeout(o._t); o._t = setTimeout(closeSlip, 7000);
+  }, Math.max(0, due));
+}
+function closeSlip() { const o = $('rd-slip'); if (o) { clearTimeout(o._t); o.classList.remove('on'); } }
+function openRejections() {
+  const list = slipsGet().slice().reverse();
+  $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin-bottom:4px;">Rejections</p><p class="center small" style="margin-bottom:14px;">${plural(list.length, 'slip')} from The Editors, and counting.</p>
+    <div class="slip-list">${list.map((x, i) => `${slipHtml(x, list.length - i)}<p class="slip-meta">${esc(x.month || '')}</p>`).join('')}</div>
+    <button class="btn btn-ink" style="margin-top:16px;" onclick="closeMenu()">Close</button>`;
+  $('sheet').classList.add('on');
 }
 
 /* ── HISTORY ── */

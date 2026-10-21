@@ -3,11 +3,11 @@
    reel, the round-end headline, the scoreboard stamp, Frame It on the reveal, and the Round 2 pools (rejection slips,
    called shots, table vs. the cartoonist, the odds). Shared: the server require()s this file and picks every line
    (game.js pickLine), so every phone shows the same one and nothing repeats within a night until its pool is used up;
-   the browser loads it as a plain script (window.ccLines) for the few lines a phone picks for itself.
+   the phones get every line from the server (the file also loads as a plain script, window.ccLines, for tools).
    {name}-style placeholders are filled by the server with first names and numbers.
    House rules (BRAND): dry, understated, American spelling, no exclamation pileups, no "X. Adverb." filler.
-   During the steal nothing may hint whether the chip was on the real caption: the keyed gloats (heist.N.real /
-   heist.N.fake, end.stoleReal / end.stoleFake) are only ever picked once the real caption is out.
+   During the steal nothing may hint whether the chip was on the real caption: the keyed gloats (thief.X.real /
+   thief.X.fake, end.stoleReal / end.stoleFake) are only ever picked once the real caption is out.
    Generated from the comedy pass (scratchpad stocklines.json) plus the Round 2 pools; edit freely: the server
    forgets a night's place in a pool when the pool changes size. */
 const ccLines = {
@@ -262,14 +262,6 @@ const ccLines = {
   "{name}’s account, debited once more.",
   "Received from {name}. Again."
  ],
- "steal.eyebrow": [
-  "Change of hands",
-  "Reassignment",
-  "Property of the dealer",
-  "Chip relocation",
-  "A minor theft",
-  "Transfer of ownership"
- ],
  "steal.closing": [
   "Is anyone going to do anything about that?",
   "And that’s why I keep mine in my shoe.",
@@ -279,298 +271,107 @@ const ccLines = {
   "We used to be a quiet table.",
   "Should we tell the host, or is the host in on it?"
  ],
- "heist.0.closing": [
-  "I told you not to sit under the claw.",
-  "Twenty years, and it’s never done that for me.",
-  "It’s rigged, but in a way I respect."
+ "thief.cat.closing": [
+  "She does it slower when you’re watching.",
+  "Don’t chase her. You’ll only make it a game.",
+  "It’ll turn up in a shoe in about a month."
  ],
- "heist.0.tag": [
-  "Works one time in a hundred.",
-  "Coin-operated."
+ "thief.cat.tag": [
+  "Oops.",
+  "And?"
  ],
- "heist.0.any": [
-  "Nobody wins on the claw. Except just now.",
-  "Fifty cents well spent.",
-  "Usually it drops it right before the chute.",
-  "It’s mostly stuffed animals. Today, a chip.",
-  "The owner sets the grip. The owner is the dealer.",
-  "First try, too."
+ "thief.fisherman.closing": [
+  "He’s having it mounted.",
+  "By Sunday it’ll be the size of a dinner plate.",
+  "Catch and release. He’s still working on release."
  ],
- "heist.0.real": [
-  "Picked the one prize worth having.",
-  "It never goes for the good one. It went for the good one."
+ "thief.fisherman.tag": [
+  "Catch of the day.",
+  "A keeper."
  ],
- "heist.0.fake": [
-  "Won the prize nobody wanted.",
-  "Went for the shiny one. It was a fake."
+ "thief.bellhop.closing": [
+  "Does anyone have a dollar? He won’t leave.",
+  "Somebody tip him, or he’ll come back for another one.",
+  "We’re not even staying here."
  ],
- "heist.1.closing": [
-  "We can’t fire him. He knows where everything is.",
-  "He came with the house.",
-  "It’ll turn up polished."
+ "thief.bellhop.tag": [
+  "Tip?",
+  "Front desk."
  ],
- "heist.1.tag": [
-  "Removes what isn’t needed.",
-  "Never seen leaving a room."
+ "thief.burglar.closing": [
+  "Well, now we’re all accessories.",
+  "Nobody say anything. He knows where we sit.",
+  "In fairness, he did ask us not to look."
  ],
- "heist.1.any": [
-  "I took the liberty.",
-  "It’ll be in the study, should you wish to visit.",
-  "You won’t be needing this, I think.",
-  "Thirty years with the family. Things go missing.",
-  "Pardon my reach.",
-  "Will that be all?",
-  "I’ve put it with the good silver."
+ "thief.burglar.tag": [
+  "Shh.",
+  "You saw nothing."
  ],
- "heist.1.real": [
-  "Only the good one. One has an eye.",
-  "I only ever remove what’s valuable."
+ "thief.painter.closing": [
+  "He calls it a restoration.",
+  "Nobody asked for a second coat.",
+  "He’s done the whole house in that color."
  ],
- "heist.1.fake": [
-  "I’ll put it with the costume jewelry.",
-  "A fake. I’ll have it polished anyway."
+ "thief.painter.tag": [
+  "Signed.",
+  "Wet paint."
  ],
- "heist.2.closing": [
-  "Do the one where he gives it back.",
-  "He did my son’s birthday. The presents are still missing.",
-  "Applause seems wrong, and yet."
+ "thief.pickpocket.closing": [
+  "Lovely manners, though.",
+  "He apologized to the chips. Nobody apologizes to the chips.",
+  "So that’s where my watch went."
  ],
- "heist.2.tag": [
-  "No refunds after the trick.",
-  "Nothing up the other sleeve either.",
-  "Nothing up the sleeve."
+ "thief.pickpocket.tag": [
+  "Pardon me.",
+  "Do forgive me."
  ],
- "heist.2.any": [
-  "And for my next trick, I keep it.",
-  "Pick a chip. Any chip. Too late.",
-  "The trick is you don’t get it back.",
-  "A magician never explains, and never returns.",
-  "Watch closely. Closer. Gone.",
-  "Is this your chip? Not anymore.",
-  "No, you may not examine it."
+ "thief.cat.real": [
+  "(Knocked the one that mattered off the table. Looked pleased about it.)",
+  "(Somehow always goes for the good one. Purrs.)"
  ],
- "heist.2.real": [
-  "I knew which one was real. That’s the act.",
-  "The real one. Of course it was the real one."
+ "thief.cat.fake": [
+  "(It was worthless. She knocked it off on principle.)",
+  "(Wrong one. She is not taking feedback.)"
  ],
- "heist.2.fake": [
-  "Made a fake disappear. Nobody’s complaining.",
-  "Pulled a fake out of the hat. It happens."
+ "thief.fisherman.real": [
+  "Biggest one in the lake.",
+  "Landed the real one. By Sunday it’ll be the size of a canoe."
  ],
- "heist.3.closing": [
-  "She did the same thing with my Halloween candy.",
-  "Once it’s in the purse, it’s gone.",
-  "Nobody say anything. She’s our ride."
+ "thief.fisherman.fake": [
+  "Undersized. He’s telling everyone about it anyway.",
+  "A fake. He’s having it mounted regardless."
  ],
- "heist.3.tag": [
-  "Has a drawer for this.",
-  "Will not be discussing it.",
-  "Sweetheart, that’s mine."
+ "thief.bellhop.real": [
+  "Your most valuable item, as requested.",
+  "Fragile, and genuine. That one costs extra."
  ],
- "heist.3.any": [
-  "It’s for your own good.",
-  "It goes in the tin with the buttons.",
-  "You’ll get it back in the will.",
-  "When you’re older, you’ll understand.",
-  "Don’t make that face. It’ll stick.",
-  "You can visit it on holidays.",
-  "I’ll keep it somewhere safe. You’ll never find it."
+ "thief.bellhop.fake": [
+  "Costume jewelry. The tip is still customary.",
+  "Carried a fake up six floors. The tip stands."
  ],
- "heist.3.real": [
-  "Grandma always knows which one is real.",
-  "I’ve been reading cartoons since before you were born, dear."
+ "thief.burglar.real": [
+  "(Only takes the real thing. A professional.)",
+  "(Holds it to the light. Genuine. Nods to himself.)"
  ],
- "heist.3.fake": [
-  "I knew it was a fake, dear. I took it to be nice.",
-  "It’s not real, but it’s the thought that counts."
+ "thief.burglar.fake": [
+  "(Holds it to the light. Paste. Sighs.)",
+  "(A fake. He’d like a word with whoever made it.)"
  ],
- "heist.4.closing": [
-  "Don’t chase the cat. You’ll only make it a game.",
-  "It’ll turn up in a shoe in about a month.",
-  "We have three cats. We used to have chips."
+ "thief.painter.real": [
+  "An original. He signed it anyway.",
+  "He painted over a genuine article. Collectors will be upset."
  ],
- "heist.4.tag": [
-  "Every table is the cat’s table.",
-  "Not sorry.",
-  "It was on the table."
+ "thief.painter.fake": [
+  "A forgery. Now a forgery in the dealer’s color.",
+  "He calls it an improvement. It was a fake."
  ],
- "heist.4.any": [
-  "I’ll knock the rest off later.",
-  "I’ll be under the sofa with it.",
-  "You were done with it.",
-  "I wanted it until I had it.",
-  "Call me all you like. I won’t come.",
-  "If I sat on it, it’s mine.",
-  "Next time, don’t leave it out."
+ "thief.pickpocket.real": [
+  "The real one. Do forgive me.",
+  "Terribly sorry. I only take the good ones."
  ],
- "heist.4.real": [
-  "I always take the one you want.",
-  "I could tell it was the good one. You kept looking at it."
- ],
- "heist.4.fake": [
-  "It was the wrong one. I’m still not giving it back.",
-  "Worthless. Mine."
- ],
- "heist.5.closing": [
-  "I was only raising my hand to ask a question.",
-  "We came for the lamp.",
-  "Nobody bid. That didn’t seem to matter."
- ],
- "heist.5.tag": [
-  "Fast talker, faster hands.",
-  "No reserve.",
-  "Going once."
- ],
- "heist.5.any": [
-  "Do I hear one? I hear one. Mine.",
-  "All sales final. This one especially.",
-  "Sold as is. No returns.",
-  "Lot forty-two, to the dealer.",
-  "The buyer’s premium is the whole chip.",
-  "Sold, to the dealer.",
-  "No other bids."
- ],
- "heist.5.real": [
-  "Genuine article. Sold to the dealer.",
-  "Sold well under value."
- ],
- "heist.5.fake": [
-  "A reproduction. A good one.",
-  "Sold as authentic. It was not."
- ],
- "heist.6.closing": [
-  "We need to get a lid for this table.",
-  "Don’t feed him. He’ll come back for the rest.",
-  "Animal control says the dealer isn’t their department."
- ],
- "heist.6.tag": [
-  "Comes at night. Takes what’s out.",
-  "Small hands, big plans.",
-  "Washes everything first."
- ],
- "heist.6.any": [
-  "I’ll be in the bins if you need me.",
-  "I have a family to feed. They eat chips.",
-  "Left out overnight is fair game.",
-  "Don’t look at me like that. You’d do the same.",
-  "There’s a whole system. You wouldn’t understand it.",
-  "Rinsed it. Mine now.",
-  "Found it in the open. Basically garbage."
- ],
- "heist.6.real": [
-  "Best thing I’ve found all week, and I’ve been through a lot of trash.",
-  "Usually it’s half a sandwich. Today it was the good one."
- ],
- "heist.6.fake": [
-  "Turns out it was garbage. Feels like home.",
-  "Not the good one. Still better than the bins."
- ],
- "heist.7.closing": [
-  "He does our taxes. We can’t say a word.",
-  "Somehow we’ll end up owing him.",
-  "He’s going to itemize that."
- ],
- "heist.7.tag": [
-  "Everything balances eventually.",
-  "Itemizes.",
-  "Moves it to another column."
- ],
- "heist.7.any": [
-  "I’ve reclassified it.",
-  "It’s on my books now.",
-  "You’ll get a form in January.",
-  "It was always mine. The paperwork just caught up.",
-  "Please don’t call me during tax season.",
-  "For tax purposes, it’s mine.",
-  "It balances now."
- ],
- "heist.7.real": [
-  "A sound asset, acquired.",
-  "Valued at full price. By me."
- ],
- "heist.7.fake": [
-  "Written off as a loss. You’ll be reimbursed one point.",
-  "Bad investment. I’ll still deduct it."
- ],
- "heist.8.closing": [
-  "Somebody say something.",
-  "Whatever you do, don’t clap.",
-  "I think he took mine too. It’s hard to tell with him."
- ],
- "heist.8.tag": [
-  "No comment.",
-  "Strictly nonverbal.",
-  "Says nothing. Takes everything."
- ],
- "heist.8.any": [
-  "(Puts it in an invisible box. Locks the box.)",
-  "(Walks against the wind, with your chip.)",
-  "(Pretends to give it back. Does not.)",
-  "(Hauls it in on an invisible rope.)",
-  "(Takes a small bow. Leaves through a door that isn’t there.)",
-  "(Pockets it. Says nothing.)",
-  "(Points at you. Shrugs.)"
- ],
- "heist.8.real": [
-  "(Taps nose. Points at the real one.)",
-  "(Mimes being very, very clever.)"
- ],
- "heist.8.fake": [
-  "(Mimes surprise. Keeps it anyway.)",
-  "(Mimes reading the fake. Mimes laughing.)"
- ],
- "heist.9.closing": [
-  "Well, nobody’s touching that chip now.",
-  "And that’s why he’s not allowed at the buffet.",
-  "We were told the pond was decorative."
- ],
- "heist.9.tag": [
-  "Sits still for a living.",
-  "Long tongue, short conversation.",
-  "Patient. Then not."
- ],
- "heist.9.any": [
-  "Sat on a lily pad an hour for this.",
-  "Didn’t even have to get up.",
-  "The tongue is faster than it looks.",
-  "I’m not proud of the tongue, but it works.",
-  "I’ll be in the pond.",
-  "It looked like a fly. Still mine.",
-  "It was moving slowly. That’s on you."
- ],
- "heist.9.real": [
-  "Got the big one.",
-  "Waited all night for the right one to land."
- ],
- "heist.9.fake": [
-  "Wrong fly. Still lunch.",
-  "It was a moth. I’m not fussy."
- ],
- "heist.10.closing": [
-  "Who invited the octopus?",
-  "He also took the bread basket.",
-  "Check your pockets. All of them."
- ],
- "heist.10.tag": [
-  "Reaches across the table.",
-  "Never empty-handed.",
-  "Has a hand in everything."
- ],
- "heist.10.any": [
-  "I’d say sorry, but my hands are full.",
-  "One arm for the chip. Seven for alibis.",
-  "Seven left. Don’t tempt me.",
-  "Ink first, questions later.",
-  "I was reaching for the salt.",
-  "I had seven free hands. Do the math."
- ],
- "heist.10.real": [
-  "Eight arms, and every one went for the right chip.",
-  "Felt around for the real one. Found it."
- ],
- "heist.10.fake": [
-  "Wrong one. Seven more tries.",
-  "One arm made a mistake. The others will hear about it."
+ "thief.pickpocket.fake": [
+  "A fake. So sorry for your trouble.",
+  "Pardon me. Worthless, but I couldn’t resist."
  ],
  "flip.lead": [
   "Turning it over…",

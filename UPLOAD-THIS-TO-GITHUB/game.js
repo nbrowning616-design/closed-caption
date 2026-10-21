@@ -419,21 +419,34 @@ function roundLine(game, slot, keys, vars) {
 const first1 = (name) => (String(name || '').trim().split(/\s+/)[0]) || String(name || '');
 const ordinal = (n) => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
 const nameList = (names) => names.length <= 1 ? (names[0] || '') : names.length === 2 ? `${names[0]} & ${names[1]}` : `${names.slice(0, -1).join(', ')} & ${names[names.length - 1]}`;
-// How the rejected cartoon meets its end (every phone plays the same one)
-const EXECUTIONS = ['punch', 'tear', 'fire', 'flush', 'stomp', 'shred'];
+// How the skipped cartoon meets its end: one of 50 hand-drawn gags (public/skips.js, CCMulligan; Nick, Oct 21 2026).
+// The server deals them like a deck for the night, so every phone plays the same one and none repeats until all have.
+// (Keep in step with the engine's GAGS keys; a phone that doesn't know a kind plays its own next one.)
+const SKIP_GAGS = ['golf', 'goat', 'demo', 'critic', 'magic', 'free', 'A_anvil', 'A_piano', 'A_tnt', 'A_cannon', 'A_roller', 'A_bowl', 'A_glove', 'A_wreck', 'A_trap', 'A_sumo', 'A_tuba',
+  'B_plumber', 'B_washer', 'B_painter', 'B_chemist', 'B_dentist', 'B_mail', 'B_chef', 'B_mime', 'B_electric', 'B_photo', 'B_pest', 'C_cat', 'C_dog', 'C_skunk', 'C_beaver', 'C_kangaroo',
+  'C_seagull', 'C_snake', 'C_spider', 'C_moth', 'C_ants', 'C_elephant', 'D_rug', 'D_lapse', 'D_disc', 'D_ref', 'D_wash', 'D_vac', 'D_sneeze', 'D_fish', 'D_bat', 'D_lift', 'D_kite'];
+const SKIP_MS = 5000;   // the gag (3.5–4.2 s) and its 'Mulligan.' line, plus the shared lead: the writers get it back
+// A night-long shuffle bag: every item once before any repeats, never the same one twice running
+function dealNight(game, name, list) {
+  const decks = game.nightDecks || (game.nightDecks = {});
+  let d = Array.isArray(decks[name]) ? decks[name].filter(x => list.includes(x)) : [];
+  if (!d.length) { d = shuffleArray(list); if (d.length > 1 && d[0] === decks[name + '^']) d.push(d.shift()); }
+  const x = d.shift();
+  decks[name] = d; decks[name + '^'] = x;
+  return x;
+}
 
-// The steal shows. 'full': the night's first steal, then about one steal in four, at random — never decided by
-// where the chip was, so the show can't hint at the answer. One of the heists below, drawn in public/heists.js in
-// this same order (index = act). A room deals them like a deck, so nobody sees a repeat until all have played.
-// Every other steal is 'short': a transfer-of-ownership stamp (lines.js steal.receipt).
-// The show's lines never hint at the answer (#39): the full show ends on a neutral closing caption (heist.N.closing,
-// then steal.closing), the short one on a receipt. The thief's gloat comes AFTER the reveal only (on the reel, keyed
-// to where the chip was: heist.N.real / heist.N.fake). Lines: public/lines.js.
-const HEISTS = ['The Claw', 'The Butler', 'The Magician', 'Grandma', 'The Cat', 'The Auctioneer', 'The Raccoon', 'The Accountant', 'The Mime', 'The Frog', 'The Octopus'].map(name => ({ name }));
+// The steal shows (Nick, Oct 21 2026: the hand-drawn thieves, public/thieves.js CCSteal). 'full' (~6.5 s): the night's
+// first steal, then about one in four, at random — never decided by where the chip was, so the show can't hint at the
+// answer; the closing caption is held ~2.5 s. Every other steal is 'short' (~2 s), ending on the thief's one-word tag.
+// A room deals the thieves like a deck for the night. The show's lines never hint at the answer (#39): the closing
+// caption is neutral (thief.X.closing, then steal.closing); the thief's own line comes AFTER the reveal only (on the
+// reel, keyed to where the chip was: thief.X.real / thief.X.fake). Lines: public/lines.js.
+const HEISTS = [['cat', 'The Cat'], ['fisherman', 'The Fisherman'], ['bellhop', 'The Bellhop'], ['burglar', 'The Burglar'], ['painter', 'The Painter'], ['pickpocket', 'The Pickpocket']].map(([id, name]) => ({ id, name }));
 // A chip stolen off a fake caption pays its owner this much (the steal's cost)
 const STEAL_CAUGHT_PTS = 1;
 // How long each steal show runs on the phones (public/steal.js FULL_MS / SHORT_MS); the flip waits for it
-const STEAL_FULL_MS = 12400, STEAL_SHORT_MS = 6000, STEAL_FULL_SHARE = 0.25;
+const STEAL_FULL_MS = 6500, STEAL_SHORT_MS = 2000, STEAL_FULL_SHARE = 0.25;
 // Blind bets: everyone at once. The clock catches anyone idle; the last chip in gets a beat (to take it back),
 // then every chip drops onto the table together and the table gets a look before the steal (or the flip).
 const BLIND_MS = 45000, ALL_IN_BEAT_MS = 1500, DROP_HOLD_MS = 3200;
@@ -449,18 +462,10 @@ const FRAME_FULL_MS = 9000, FRAME_PLAQUE_MS = 3200, FRAME_LEAD_MS = 600;
 // R11 a called shot that comes in; R1 a rejection slip needs this many groans (and no chips)
 const CALL_PTS = 3, SLIP_GROANS = 3;
 const firstNameOf = (game, pid) => { const p = game.players.find(q => q.id === pid); return (String(p ? p.name : '').trim().split(/\s+/)[0]) || 'you'; };
-// Next heist off the room's deck; a fresh shuffle never opens with the one that just played
+// Next thief off the night's deck (an index into HEISTS)
 function nextHeist(game) {
-  // a room restored from an older server may hold a deck from the old 31-heist list: keep only acts that still exist
-  if (Array.isArray(game.heistDeck)) game.heistDeck = game.heistDeck.filter(i => Number.isInteger(i) && i >= 0 && i < HEISTS.length);
-  if (!Array.isArray(game.heistDeck) || !game.heistDeck.length) {
-    let d = shuffleArray(HEISTS.map((_, i) => i));
-    if (d.length > 1 && d[0] === game.lastHeist) d.push(d.shift());
-    game.heistDeck = d;
-  }
-  const act = game.heistDeck.shift();
-  game.lastHeist = act;
-  return act;
+  const id = dealNight(game, 'thieves', HEISTS.map(h => h.id));
+  return Math.max(0, HEISTS.findIndex(h => h.id === id));
 }
 
 function shuffleArray(arr) {
@@ -1067,10 +1072,10 @@ function voteMulligan(game, playerId) {
     return { ok: true, triggered: false, skipped: true };
   }
   game.mulliganCount = (game.mulliganCount || 0) + 1;
-  if (game.timerEnd) game.timerEnd += 4500;   // the execution plays over the new cartoon: give that time back ([settings] no timer: nothing to give)
+  if (game.timerEnd) game.timerEnd += SKIP_MS;   // the gag plays over the new cartoon: give that time back ([settings] no timer: nothing to give)
   game.prevMulligan = (game.prevMulligan || 0) + 1;   // this round's mulligans: a second in a row gets its own line
   const quip = pickLine(game, game.prevMulligan > 1 ? ['write.mulligan2', 'write.mulligan'] : ['write.mulligan']) || 'Next.';
-  game.mulliganEvent = { n: game.mulliganCount, quip, kind: pick(EXECUTIONS), image: oldImage, at: Date.now() };
+  game.mulliganEvent = { n: game.mulliganCount, quip, kind: dealNight(game, 'skips', SKIP_GAGS), image: oldImage, at: Date.now() };
   return { ok: true, triggered: true };
 }
 
@@ -1354,17 +1359,13 @@ function stealChip(game, betIndex) {
   const v = { name: firstNameOf(game, bet.playerId), count: robbed + 1, ordinal: ordinal(robbed + 1) };
   // #39: nothing said during the show may hint where the chip was. The full show ends on a neutral closing caption
   // (or a callback, for a repeat victim); the short one on a receipt. The thief's gloat waits for the reveal.
-  let act = null, actName = null, gloat, tag = null, eyebrow = null;
-  if (stealShow === 'full') {   // only a full show deals a heist off the deck, so they stay a treat
-    act = nextHeist(game); actName = HEISTS[act].name;
-    gloat = robbed >= 2 ? pickLine(game, ['steal.again3', 'steal.again'], v) : robbedBefore ? pickLine(game, 'steal.again', v) : pickLine(game, [`heist.${act}.closing`, 'steal.closing'], v);
-    tag = pickLine(game, `heist.${act}.tag`) || null;
-  } else {
-    gloat = robbed >= 2 ? pickLine(game, ['steal.again3', 'steal.againShort'], v) : robbedBefore ? pickLine(game, 'steal.againShort', v) : pickLine(game, 'steal.receipt', v);
-    eyebrow = pickLine(game, 'steal.eyebrow') || null;
-  }
+  const act = nextHeist(game), thief = HEISTS[act].id, actName = HEISTS[act].name;
+  // full: a closing caption held under the show (a repeat victim gets a callback instead); short: the thief's tag
+  const gloat = stealShow === 'full'
+    ? (robbed >= 2 ? pickLine(game, ['steal.again3', 'steal.again'], v) : robbedBefore ? pickLine(game, 'steal.again', v) : pickLine(game, [`thief.${thief}.closing`, 'steal.closing'], v))
+    : pickLine(game, `thief.${thief}.tag`);
   const at = Date.now();
-  game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect, act, actName, gloat, tag, eyebrow, again: robbedBefore, stealShow, seed: Math.floor(Math.random() * 1e9), at, show: game.stealShows };
+  game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect, act, thief, actName, gloat, again: robbedBefore, robbed, stealShow, seed: Math.floor(Math.random() * 1e9), at, show: game.stealShows };
   return startFlip(game, at + (stealShow === 'full' ? STEAL_FULL_MS : STEAL_SHORT_MS) + 300);
 }
 
@@ -1520,14 +1521,21 @@ function reelLines(game) {
     }
     R[key] = o;
   }
-  // The thief's gloat, now that it can't give anything away (full shows only): on the caption the chip came off
-  if (st && st.victimId && Number.isInteger(st.act) && R[keyOf(st.target)]) {
-    R[keyOf(st.target)].gloat = { who: st.actName, text: pickLine(game, [`heist.${st.act}.${st.onCorrect ? 'real' : 'fake'}`, `heist.${st.act}.any`]) };
+  // The thief's own line, now that it can't give anything away (on the caption the chip came off): after a full
+  // show, in character and keyed to where the chip was; after a short one, the paperwork
+  if (st && st.victimId && R[keyOf(st.target)]) {
+    const vn = firstNameOf(game, st.victimId);
+    R[keyOf(st.target)].gloat = st.stealShow === 'full' && st.thief
+      ? { who: st.actName, text: pickLine(game, [`thief.${st.thief}.${st.onCorrect ? 'real' : 'fake'}`, 'steal.receipt'], { name: vn }) }
+      : { who: null, text: pickLine(game, (st.robbed || 0) >= 1 ? ['steal.againShort', 'steal.receipt'] : 'steal.receipt', { name: vn }) };
   }
   for (const c of game.callResults || []) if (R[c.key]) R[c.key].call = c.line;   // R11, on the caller's caption
   L.reel = R;
   if (game.reel.nobody) L.reelGroup = pickLine(game, 'reel.group', { k: game.reel.nobody });
   L.reelHold = pickLine(game, 'reel.hold', { dealer: dn });
+  // #5: the recap's Frame It list (round 1 keeps the line that teaches it)
+  L.framePrompt = game.round === 1 ? 'Did anyone beat the real one?' : pickLine(game, 'frame.prompt');
+  L.frameSub = game.round === 1 ? 'Frame it. When most of the table does, it hangs in The Gallery for good.' : pickLine(game, 'frame.sub');
   const rs = Object.values(game.roundScores || {});
   if (rs.some(p => p >= 6) || (game.roundBadges || []).some(b => b.kind === 'moon' && (b.detail || {}).shot === 'moon')) L.noted = pickLine(game, 'reel.noted');
 }
