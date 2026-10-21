@@ -4,14 +4,56 @@
 "voice":"house2",
 "tags":[
 "sky"
-]
+],
+"odd":[
+{
+"q":"Why bring a briefcase up a diving board?",
+"x":38,
+"y":24,
+"r":7
+},
+{
+"q":"What is the lifeguard about to say?",
+"x":86,
+"y":57,
+"r":9
+},
+{
+"q":"Who wears a suit and tie to the pool?",
+"x":43,
+"y":13,
+"r":8
+}
+],
+"word":"merger"
 },
 "114":{
 "style":2,
 "voice":"house2",
 "tags":[
 "home"
-]
+],
+"odd":[
+{
+"q":"Why is a snowman holding a hair dryer?",
+"x":50,
+"y":42,
+"r":7
+},
+{
+"q":"Where is that cord plugged in?",
+"x":46,
+"y":63,
+"r":8
+},
+{
+"q":"Why the fedora on one and the beanie on the other?",
+"x":31,
+"y":30,
+"r":9
+}
+],
+"word":"talking"
 },
 "115":{
 "style":3,

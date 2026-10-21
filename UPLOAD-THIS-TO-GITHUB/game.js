@@ -893,6 +893,7 @@ function dealCartoon(game) {
   game.mulliganVotes = [];
   game.calls = {};   // R11: a call was made for a caption that no longer exists
   if (game.lines) delete game.lines.waitLast;
+  applyNote(game);   // R22: the Editor's note follows the card (a skipped-in card that doesn't fit has none)
   game.timerEnd = game.timerDuration > 0 ? Date.now() + game.timerDuration * 1000 : null;   // [settings] no timer: no end time
   game.timeAdds = 0;
   game.timerToken = (game.timerToken || 0) + 1;
@@ -900,6 +901,74 @@ function dealCartoon(game) {
 }
 // Family games never deal the grown-up cartoons
 // PG-13 cartoons only come up in 'After dark' games
+/* ── R22 Editor's notes (Nick's version): now and then a cartoon comes with a note every phone shows while writing.
+   'count': "Exactly N words." (N = the real caption's own count), one cartoon every 6–8 turns. 'word': "Must use the
+   word: mailbox." (a word from the real caption, card_meta.json "word"), about 1 in 10–12 cartoons. Never both on
+   one card, never on the first two cards of a night. Every caption must obey it (the server refuses one that
+   doesn't), so the face-down one never stands out; the real one obeys by construction. Words: split on spaces,
+   punctuation stripped, a hyphenated word counts once. ── */
+function wordsOf(text) { return String(text || '').split(/\s+/).map(t => t.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '')).filter(t => /[\p{L}\p{N}]/u.test(t)); }
+const wordCount = (t) => wordsOf(t).length;
+// The word, or a simple plural / possessive of it: mailbox, mailboxes, mailbox's, mailboxes' (also inside a hyphenated word)
+function usesWord(text, word) {
+  const w = String(word || '').toLowerCase().replace(/['’]/g, '').trim(); if (!w) return false;
+  const forms = new Set([w, w + 's', w + 'es']); if (/[^aeiou]y$/.test(w)) forms.add(w.slice(0, -1) + 'ies');
+  return String(text || '').toLowerCase().split(/[\s\-–—/]+/).map(t => t.replace(/['’]/g, '').replace(/[^\p{L}\p{N}]+/gu, '')).some(t => forms.has(t));
+}
+const rint = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+function noteSchedule(game) { return game.noteSched || (game.noteSched = { a: rint(3, 8), b: rint(4, 12) }); }
+// A new turn (not a re-deal of the same round): is a note due? (decided per turn; the card decides if it fits)
+function chooseNote(game) {
+  game.nightTurns = (game.nightTurns || 0) + 1;
+  const t = game.nightTurns, S = noteSchedule(game);
+  game.noteKind = t < 3 ? null : t >= S.a ? 'count' : t >= S.b ? 'word' : null;
+}
+// The note for the cartoon on the table (again after a skip). A card that doesn't fit has none: the note stays due.
+function applyNote(game) {
+  game.note = null;
+  const k = game.noteKind, real = game.correctCaption;
+  if (!k || !game.cartoon || !real) return;
+  if (k === 'count') { const n = wordCount(real); if (n >= 2 && n <= 16) game.note = { kind: 'count', n }; }
+  else if (k === 'word') {
+    const m = CARD_META[String(game.cartoon.id)] || {}, w = typeof m.word === 'string' ? m.word.trim().toLowerCase() : '';
+    if (w && /^[a-z][a-z'’-]{1,24}$/.test(w) && usesWord(real, w)) game.note = { kind: 'word', word: w.replace(/['’]s$/, '') };
+  }
+}
+// Writing ended with the note in force: the next one of that kind is scheduled
+function spendNote(game) {
+  if (!game.note) return;
+  const S = noteSchedule(game), t = game.nightTurns || 0;
+  if (game.note.kind === 'count') S.a = t + rint(6, 8); else S.b = t + rint(10, 12);
+  if (S.a === S.b) S.b++;   // never both on one card
+  game.noteKind = null;
+}
+function noteRefusal(game, text) {
+  const nt = game.note; if (!nt) return null;
+  if (nt.kind === 'count') { const m = wordCount(text); if (m !== nt.n) return `The Editor’s note: exactly ${nt.n} words. Yours has ${m}.`; }
+  if (nt.kind === 'word' && !usesWord(text, nt.word)) return `The Editor’s note: it has to use the word “${nt.word}”.`;
+  return null;
+}
+/* ── R16 "The kids are in bed": a game that started on the Family deck can switch to every cartoon from the next deal
+   (host, menu). "One came back down" switches back at once: the cartoon on the table is swapped for a family one if
+   it isn't family-safe and nobody has sent a caption yet; otherwise from the next deal. ── */
+function kidsToggle(game, on) {
+  if (!game.startedFamily) return { error: 'That’s only for a game that started on family cartoons' };
+  if (game.phase === PHASES.LOBBY) return { error: 'Start the game first' };
+  if (on) {
+    if (game.kidsInBed) return { ok: true, noop: true };
+    game.kidsInBed = true; game.settings.family = false; game.settings.spicy = true;
+    game.kidsCard = { kind: 'bed', at: Date.now() };
+    return { ok: true };
+  }
+  if (!game.kidsInBed) return { ok: true, noop: true };
+  game.kidsInBed = false; game.settings.family = true; game.settings.spicy = false;
+  const c = game.cartoon && CARTOONS.find(x => x.id === game.cartoon.id);
+  let swapped = false;
+  if (game.phase === PHASES.WRITING && !game.submissions.length && c && (c.adult || c.spicy) && canDeal(game) && dealCartoon(game)) swapped = true;
+  game.kidsCard = { kind: 'down', at: Date.now(), swapped };
+  return { ok: true, swapped };
+}
+
 const allowed = (game) => CARTOONS.filter(c => !isRetiredId(c.id) && !(game.settings.family && (c.adult || c.spicy)) && !(c.spicy && !game.settings.spicy));
 function dealNormal(game, currentId) {
   // Never twice in one game; of the rest, the ones the fewest people at the table have seen.
@@ -951,6 +1020,8 @@ function startRound(game, options = {}) {
     const laps = lapsOf(game);
     if (!game.lateFrom && !game.settings.targetScore && laps >= 2 && d && game.dealCount[d.id] >= laps) game.lateFrom = game.round;
   }
+  if (!options.sameRound) chooseNote(game);   // R22
+  if (game.round === 1 && !options.sameRound) { game.startedFamily = !!game.settings.family; game.kidsInBed = false; game.kidsCard = null; }   // R16
   if (!dealCartoon(game)) {
     // Nobody wrote anything and the deck has nothing new: the same cartoon again, fresh clock
     game.submissions = []; game.mulliganVotes = [];
@@ -1027,6 +1098,7 @@ function submitCaption(game, playerId, caption, mode = 'check') {
   if (mode === 'check' && p.typos.length) return { ok: true, check: { polished: p.text, fixed: p.fixed, typos: p.typos } };
   const finalText = mode === 'keep' ? p.text : p.fixed;
   if (tooCloseToReal(finalText, game.correctCaption)) return { error: 'Too close to the real one. Write your own.' };   // #31: regulars remember the real ones
+  { const no = noteRefusal(game, finalText); if (no) return { error: no }; }   // R22: every caption obeys the Editor's note
   game.submissions.push({ playerId, playerName: player.name, caption: finalText });
   noteLastWriter(game);
   return { ok: true, allIn: allCaptionsIn(game) };
@@ -1100,6 +1172,7 @@ function finishWriting(game) {
     game.openCaptions = shuffleArray(opens);
   }
   game.mulliganVotes = [];
+  spendNote(game);   // R22
   // R11: a called shot needs the caller's caption on the table (it always is) and someone who bets
   for (const [caller, called] of Object.entries(game.calls || {})) if (!game.submissions.some(s => s.playerId === caller) || !canBeCalled(game, caller, called)) delete game.calls[caller];
   // #39: the reading and betting lines for this round
@@ -1655,7 +1728,7 @@ function reelStepMs(game, step) {
     if (game.tvcRound && game.tvcRound.line) ms += 800;
     return ms;
   }
-  let ms = votesOn(game, key) ? 3200 : 2500;   // read aloud already: who wrote it, who fell for it
+  let ms = votesOn(game, key) ? (n >= 7 ? 2700 : n >= 5 ? 2950 : 3200) : 2400;   // read aloud already: who wrote it, who fell for it (a big table, a brisker reel)
   if (badges) ms += 600;
   if (o.call) ms += 900;
   if (o.gloat) ms += 800;
@@ -2332,7 +2405,14 @@ function getPlayerView(game, playerId) {
     return base;
   }
 
-  if (game.cartoon) base.cartoon = game.cartoon;
+  if (game.cartoon) {
+    base.cartoon = game.cartoon;
+    // R15: the odd details in this cartoon (card_meta.json "odd"), for the pencil-circle nudges while writing
+    const odd = game.phase === PHASES.WRITING && (CARD_META[String(game.cartoon.id)] || {}).odd;
+    if (Array.isArray(odd) && odd.length) base.cartoonOdd = odd.filter(o => o && typeof o.q === 'string' && Number.isFinite(+o.x) && Number.isFinite(+o.y) && Number.isFinite(+o.r)).slice(0, 12).map(o => ({ q: String(o.q).slice(0, 120), x: Math.max(0, Math.min(100, +o.x)), y: Math.max(0, Math.min(100, +o.y)), r: Math.max(3, Math.min(35, +o.r)) }));
+  }
+  base.note = game.note ? { ...game.note } : null;   // R22 the Editor's note (every phone, the whole round)
+  base.kids = game.startedFamily ? { inBed: !!game.kidsInBed, card: game.kidsCard ? { ...game.kidsCard } : null } : null;   // R16
   if (game.opening && game.round === 1 && game.phase === PHASES.WRITING) base.opening = JSON.parse(JSON.stringify(game.opening));
   const mine = game.submissions.find(x => x.playerId === playerId);
 
@@ -2530,6 +2610,7 @@ module.exports = {
   cleanTimer, DEFAULT_TIMER, totalRounds,   // [settings]
   addTime, undoBet, freshest, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, pickFrame, hallOfFame, planBlock, ensurePlan,
   callShot, setHold, reelDue, revealedKeys, pickLine, noteLastWriter, reactionCounts, FLIP_AUTO_MS, LINES,
+  wordCount, usesWord, applyNote, kidsToggle,
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, dropBlind, afterBlinds, moveFromReveal, moveFromSecondBets, eligibleSecondBetters,

@@ -561,6 +561,15 @@ wss.on('connection', (ws, req) => {
         broadcast(code);
         return;
       }
+      case 'kids': {
+        // R16: the host: "The kids are in bed" (every cartoon from the next deal) / "One came back down" (family again)
+        if (!isHost) return sendError(ws, 'Only the host can do that');
+        const r = G.kidsToggle(game, !!msg.on);
+        if (fail(r)) return;
+        broadcast(code);
+        if (r.swapped) scheduleWritingEnd(code);   // a family cartoon took the other one's place: its own clock
+        return;
+      }
       case 'hold': {
         // #6: the dealer (or the host, or a stand-in) holds the flip or the reel, and lets it go again
         if (!canRun) return sendError(ws, 'The dealer runs the reveal');
