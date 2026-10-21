@@ -109,7 +109,7 @@ function broadcast(code, sealTo = null) {
   // #6: every phone keeps a sealed copy of the room, refreshed on each new stage (or every 20 s), to hand back after a restart.
   // #2: and whenever a caption, a bet, the steal or a frame pick lands, so a restart never loses the last one.
   const tag = game.phase + '|' + game.round + '|' + (game.reel ? game.reel.step : '') + '|' + game.players.length + '|' + (game.frameResult ? 1 : 0) + '|' + (game.finale ? (game.finale.winner || 'v') + Object.keys(game.finale.votes || {}).length : '')
-    + '|' + (game.submissions || []).length + '|' + (game.bets || []).length + '|' + Object.keys(game.blind || {}).length + '|' + (game.dropAt || '') + '|' + (game.steal ? (game.steal.victimId ? 's' : 'p') : '') + '|' + Object.keys(game.framePicks || {}).length + '|' + (game.actN || 0) + '|' + (game.ending ? game.ending.step + (game.ending.done ? 'd' : '') : '');
+    + '|' + (game.submissions || []).length + '|' + (game.bets || []).length + '|' + Object.keys(game.blind || {}).length + '|' + (game.dropAt || '') + '|' + (game.steal ? (game.steal.victimId ? 's' : 'p') : '') + '|' + Object.keys(game.framePicks || {}).length + '|' + (game.actN || 0) + '|' + (game.ending ? game.ending.step + (game.ending.done ? 'd' : '') : '') + '|' + (game.lastCall ? 'lc' : '') + Object.keys(game.departed || {}).length;
   // #41: a game reached its final scoreboard (counted once per game)
   if (game.phase === PHASES.SCORES && game.gameNo && game._statDone !== game.gameNo && G.isGameOver(game)) { game._statDone = game.gameNo; Stats.finished(); }
   // The end of the night is worked out once, when the final scoreboard lands (night.js)
@@ -130,6 +130,7 @@ function broadcast(code, sealTo = null) {
       if (ending) view.ending = ending;
       if (prev) view.previously = prev;
       if (remote) view.remote = remote;
+      Night.decorateView(game, view, p.id);   // R30 Last Call; R18 the Late Edition's sealed scores
       c.ws.send(JSON.stringify({ type: 'state', data: view }));
       if (seal) c.ws.send(JSON.stringify({ type: 'seal', code, boot: BOOT, data: seal }));
       else if (sealTo === p.id) { try { c.ws.send(JSON.stringify({ type: 'seal', code, boot: BOOT, data: G.sealGame(game) })); } catch (e) {} }   // #2: a phone back in its seat gets a fresh copy at once
@@ -315,7 +316,7 @@ wss.on('connection', (ws, req) => {
     clients[id] = { ws, gameCode: code };
     const g = games[code], p = g.players.find(x => x.id === id);
     const awayMs = p && !p.connected && p.disconnectedAt ? Date.now() - p.disconnectedAt : 0;
-    if (p) { p.connected = true; p.disconnectedAt = null; }
+    if (p) { p.connected = true; p.disconnectedAt = null; Night.returned(g, id); }   // (back after heading out: in the game again)
     // #30: a player coming back is announced as back (never as someone new), and only after a real absence
     if (p && awayMs >= BACK_NOTICE_MS && g.phase !== PHASES.LOBBY) g.notice = { text: `${firstWord(p.name)}’s back.`, at: Date.now() };
     // #30: the host who stepped away from the lobby gets the room back on return (until the game starts)
@@ -573,6 +574,25 @@ wss.on('connection', (ws, req) => {
         if (game.phase !== PHASES.SCORES || !G.isGameOver(game)) return;
         Night.ensureEnding(game);
         if (fail(Night.nextBeat(game, msg.beat))) return;
+        broadcast(code);
+        return;
+      }
+      case 'head_out': {
+        // R28 Heading out: this player's own end credit now (from their play so far), the table hears one quiet line,
+        // and the seat leaves the turn order like a dropped phone that isn't coming back
+        const r = Night.headOut(game, playerId);
+        if (fail(r)) return;
+        G.clearVoice(game, playerId);
+        send(ws, { type: 'credit', data: r.credit });
+        delete clients[playerId];
+        playerId = null;
+        broadcast(code);
+        return;
+      }
+      case 'last_call': {
+        // R30 Last Call (the host): the next trip around the table is the last, the Late Edition, sealed
+        if (!isHost) return sendError(ws, 'Only the host can call last call');
+        if (fail(Night.lastCall(game))) return;
         broadcast(code);
         return;
       }

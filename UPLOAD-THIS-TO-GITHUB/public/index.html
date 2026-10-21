@@ -1576,6 +1576,7 @@ function onServer(msg) {
       submitting = false; pendingJoin = null; pendingName = null;
       sfx.error();
     }
+    else if (msg.type === 'credit') { if (window.Ending) Ending.showOwnCredit(msg.data); }   // R28 heading out: your own credit, now
     else if (msg.type === 'caption_check') { if (msg.cid) settle(msg.cid, false); submitting = false; showSpellCheck(msg); }
     // #30: the same name at the door, a seat being handed back, a seat that moved to another phone
     else if (msg.type === 'same_name') { if (!myPlayerId) askSameName(msg); }
@@ -1719,6 +1720,7 @@ function openMenu() {
       <p class="small center">Plays from this phone only</p></div></details>
     <button class="menu-row" onclick="closeMenu(); showScreen('screen-rules')"><span class="ic">${inkIcon('book')}</span>How to play</button>
     ${state.history && state.history.length ? `<button class="menu-row" onclick="closeMenu(); openHistory()"><span class="ic">${inkIcon('clock')}</span>Past rounds</button>` : ''}
+    ${window.Ending ? Ending.menuRows() : ''}
     <button class="menu-row" onclick="leaveGame()" style="color:var(--red-ink);"><span class="ic">${inkIcon('door')}</span>Leave game</button>
     <button class="btn btn-ink" style="margin-top:6px;" onclick="closeMenu()">Close</button>`;
   $('sheet').classList.add('on');
@@ -1832,7 +1834,7 @@ function render(force = false) {
   }
   if (state.phase === 'writing') startTimer();
   afterRender(phaseChanged);
-  syncOpening(); syncLate();
+  syncOpening(); syncLate(); if (window.Ending) Ending.tick();   // R30 the Last Call card
   if (focusMark) focusRestore(focusMark);
   if (phaseChanged || (state.phase === 'answer' && key !== lastKey && reelInfo().step > reelInfo().n)) stageSay();   // #29: every new stage, said out loud
   lastPhase = state.phase; lastRound = state.round; lastKey = key;
@@ -3513,6 +3515,7 @@ let lateShown = null, lateT = null;
 function closeLate() { clearTimeout(lateT); const o = $('late-card'); if (o) { o.className = ''; o.innerHTML = ''; } }
 function lateWhyLine(L) {
   const hit = L && L.hit, tgt = state.settings && state.settings.targetScore;
+  if (state.lastCall) return 'Last call. The last trip around the table.';
   if (hit && hit.ids && hit.ids.length) {
     const names = listNames(hit.ids.map(id => id === myPlayerId ? 'You' : fnameOf(id)));
     const has = hit.ids.length > 1 || hit.ids[0] === myPlayerId ? 'have' : 'has';
@@ -3680,6 +3683,11 @@ function renderScores() {
   }).join('');
   const goal = state.settings.targetScore ? `First to ${state.settings.targetScore} wins` : roundLabel();
   if (state.gameOver) return renderFinal(sorted, animated, goal);
+  // R18 the Late Edition: the scoreboard is sealed until the end (only your own points for the round)
+  if (state.sealed && window.Ending) return `${header({ sticker: '<span class="sticker">Scoreboard</span>', sub: goal, thumb: false })}
+    ${Ending.sealedHtml()}
+    <p class="sb-next">Next dealer: <b>${esc(firstName(state.nextDealerName))}</b></p>
+    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>`}`;
   return `${header({ sticker: '<span class="sticker">Scoreboard</span>', sub: goal, thumb: false })}
     <div class="sb-list ${sorted.length > 6 ? 'tight' : ''}">${rows}</div>
     ${state.nextLate ? `<p class="sb-late">Next: <b>The Late Edition.</b> ${state.late && state.late.hit ? lateWhyLine(state.late) : 'The last trip around the table.'} Every point counts double.</p>` : ''}
@@ -3711,7 +3719,7 @@ function renderFinal(sorted, animated, goal) {
   const win = `<div class="fn-card fn-win fade-in"><div class="fn-ic">${inkIcon('trophy', 50)}</div><p class="fn-eyebrow">${tie ? 'It’s a tie' : 'Winner'}</p><div class="fn-name" style="${fit(tops.map(p => p.name))}">${nameLines(tops.map(p => p.name))}</div><p class="fn-sub">${plural(winner.score, 'point')}</p>${why ? `<p class="fn-why">${why}</p>` : ''}${window.Ending ? Ending.remoteLineHtml() : ''}</div>`;
   const standings = sorted.map(p => `<span class="fn-st">${chipHtml(p.id, 'xs')}${esc(p.name)} <b class="score-number" data-target="${p.score}" data-from="${p.score - ((state.roundScores || {})[p.id] || 0)}">${animated ? p.score : p.score - ((state.roundScores || {})[p.id] || 0)}</b></span>`).join('');
   const nFr = state.framedTonight || 0, fin = state.finale && window.ccFinale, ended = !state.ending || state.ending.done;
-  const replay = state.ending && state.ending.done && window.Ending ? `<button class="btn-link fn-link" onclick="Ending.replay()">Watch the credits again</button>` : '';
+  const replay = state.ending && state.ending.done && window.Ending ? `<button class="btn-link fn-link" onclick="Ending.replay()">Watch the credits again</button>${state.ending.credits && state.ending.credits[myPlayerId] ? `<button class="btn-link fn-link" onclick="Ending.saveMyCredit()">Save your credit</button>` : ''}` : '';
   // Caption of the Night: the dealer's tap on the cast list opens it; if it didn't, the button is here
   const galBtn = ended && !fin && nFr && window.ccFinale ? (canRun()
       ? `<button class="btn btn-yellow fn-gal" onclick="openFinale()">Caption of the Night (${plural(nFr, 'frame')}) →</button>`
@@ -3776,6 +3784,7 @@ function playScoresSequence() {
     document.querySelectorAll('.delta').forEach((el, i) => { el.style.opacity = '0'; setTimeout(() => { el.style.transition = 'opacity .3s'; el.style.opacity = '1'; bsfx.coin(i); }, 900 + i * 120); });
   };
   if (state.gameOver) { setTimeout(count, 150); if (window.Ending) Ending.sync(); }   // the ending plays over the final page (ending.js)
+  else if (state.sealed) return;   // R18 sealed: nothing to count
   else playScoreboardCount(key);
 }
 

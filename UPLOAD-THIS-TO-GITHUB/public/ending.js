@@ -8,7 +8,10 @@
         pull quote. ~6.5 s each; the dealer (or host) taps on.
      4. The cast list, and the monkey (a dart-throwing control player) if it out-guessed anyone. The dealer's tap
         opens Caption of the Night (finale.js).
-   Also here: THE REMOTE (the table's traveling trophy: an inline drawing, the lobby line, the tape to read),
+   A sealed game (R18: the Late Edition seals the scoreboard) opens the ending by reading the standings from last
+   place up, one name a beat, then holds the top two together before the winner lands.
+   Also here: HEADING OUT (R28: your own credit now, to keep), LAST CALL (R30: the host's "one more trip around"),
+   the sealed scoreboard, THE REMOTE (the table's traveling trophy: an inline drawing, the lobby line, the tape to read),
    "PREVIOUSLY ON CLOSED CAPTION" (round 1's cold open for a returning table), and the table records each phone
    keeps (cc_tables: who has the Remote, the tape, the first cartoon, a short summary of the last game).
    Server: state.ending = { at, step, stepAt, beats, done, remote, ratings, awards, credits, cast, monkey, keys, table },
@@ -139,6 +142,37 @@
     '.pv-grudge{font-family:var(--serif);font-weight:400;font-size:21px;line-height:1.4;margin:6px 0 0;color:#FFF8EA;}',
     '.pv-re{font-family:var(--serif);font-weight:700;font-size:26px;text-align:center;margin-top:24px;color:var(--yellow,#FFD23F);}',
     '.pv-skip{display:block;margin:18px auto 0;min-height:44px;padding:0 16px;border:0;background:none;color:#B9AE9C;font:inherit;font-size:14px;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer;}',
+    /* R18 the standings, read from the bottom; the top two */
+    '.en-st{text-align:center;}',
+    '.en-place{font-family:var(--serif);font-style:italic;font-weight:400;font-size:22px;color:var(--ink-2,#4A433D);margin-top:6px;}',
+    '.en-st .en-name{margin-top:2px;}',
+    '.en-read{list-style:none;margin:22px auto 0;padding:0;max-width:320px;text-align:left;border-top:2px solid ' + INK + ';}',
+    '.en-read li{display:flex;align-items:center;gap:8px;padding:5px 2px;font-size:15px;font-weight:800;border-bottom:1.5px dashed var(--line,#E6DCC8);}',
+    '.en-read .pl{min-width:34px;font-family:var(--serif);font-style:italic;font-weight:400;color:var(--ink-2,#4A433D);}',
+    '.en-read .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+    '.en-read .pt{font-family:var(--serif);font-weight:700;}',
+    '.en-top{display:flex;justify-content:center;gap:18px;margin:18px 0 6px;flex-wrap:wrap;}',
+    '.en-top .t{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;max-width:46%;}',
+    '.en-top .t b{font-family:var(--serif);font-weight:700;font-size:30px;line-height:1.05;overflow-wrap:anywhere;}',
+    '.en-top-l{font-family:var(--serif);font-style:italic;font-weight:400;font-size:17px;color:var(--ink-2,#4A433D);margin-top:12px;}',
+    '.en-abs{display:inline-block;margin-left:8px;padding:1px 8px;border:1.5px solid #B9AE9C;border-radius:999px;font-size:12px;letter-spacing:.12em;}',
+    '.en-cl .ab{font-style:italic;font-weight:400;color:#B9AE9C;font-size:14px;margin-left:6px;}',
+    /* R18 the sealed scoreboard */
+    '.sl-card{margin:8px 0 16px;padding:22px 16px 20px;text-align:center;border:var(--bw,2.5px) dashed ' + INK + ';border-radius:var(--r-lg,18px);background:var(--card,#fff);}',
+    '.sl-h{font-family:var(--serif);font-weight:700;font-size:26px;line-height:1.15;margin:8px 0 4px;}',
+    '.sl-p{font-family:var(--serif);font-weight:400;font-size:16px;color:var(--ink-2,#4A433D);}',
+    '.sl-mine{margin:16px auto 0;max-width:320px;text-align:left;border-top:2px solid ' + INK + ';padding-top:10px;}',
+    '.sl-mine .big{font-family:var(--serif);font-weight:700;font-size:22px;}',
+    '.sl-mine ul{list-style:none;margin:6px 0 0;padding:0;font-size:15px;font-weight:800;line-height:1.5;}',
+    /* R30 the Last Call card */
+    '#lastcall{position:fixed;inset:0;z-index:772;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(20,16,13,.92);color:#FFF8EA;text-align:center;}',
+    '#lastcall.on{display:flex;animation:enFade .35s ease-out;}',
+    '#lastcall p{font-family:var(--serif);font-weight:700;font-size:30px;line-height:1.2;max-width:340px;}',
+    /* R28 heading out: your own credit */
+    '#mycredit{position:fixed;inset:0;z-index:795;display:none;overflow-y:auto;background:#14100D;color:#F3EBDD;}',
+    '#mycredit.on{display:block;animation:enFade .4s ease-out;}',
+    '#mycredit .en-foot{position:static;margin-top:22px;padding:0;background:none;gap:10px;}',
+    '#mycredit .en-foot .btn{flex:1;}',
     '@media (prefers-reduced-motion: reduce){#ending *,#prev *{animation-duration:.01s !important;transition-duration:.01s !important;}}',
   ].join('\n');
   try { var st = document.createElement('style'); st.id = 'cc-ending-css'; st.textContent = CSS; (document.head || document.documentElement).appendChild(st); } catch (e) {}
@@ -326,7 +360,9 @@
     var dark = b.k === 'credit' || b.k === 'cast';
     o.className = 'on ' + (dark ? 'dark' : 'paper');
     var html = '';
-    if (b.k === 'winner') html = winnerHtml(e);
+    if (b.k === 'stand') html = standHtml(e, b);
+    else if (b.k === 'top') html = topHtml(e, b);
+    else if (b.k === 'winner') html = winnerHtml(e);
     else if (b.k === 'awards') html = awardsHtml(e);
     else if (b.k === 'credit') html = creditHtml(e, b, c);
     else html = castHtml(e);
@@ -341,6 +377,8 @@
     if (k === 'winner') { snd(function () { tone(784, 0.2, 0, 'triangle', 0.05); tone(1047, 0.35, 120, 'triangle', 0.045); }); vib([60, 40, 120]); }
     else if (k === 'awards') snd(function () { noise(0.3, 0, 0.18, 1800); tone(880, 0.25, 0, 'sine', 0.04, 260); });
     else if (k === 'credit') snd(function () { noise(0.04, 520, 0.3, 3800, 'highpass'); tone(2400, 0.02, 520, 'square', 0.02); });   // the shutter, on the freeze
+    else if (k === 'stand') snd(function () { tone(392, 0.12, 0, 'triangle', 0.035); });
+    else if (k === 'top') snd(function () { noise(0.6, 0, 0.06, 700, 'lowpass'); tone(196, 1.2, 0, 'sine', 0.05); tone(247, 1.2, 0, 'sine', 0.035); });
     else if (k === 'cast') snd(function () { [392, 494, 587, 784].forEach(function (f, i) { tone(f, 0.9, i * 90, 'sine', 0.035); }); });
   }
 
@@ -365,6 +403,26 @@
       (rates ? '<div class="en-rates en-fade" style="animation-delay:1.2s"><p class="en-eye" style="padding:4px 2px 2px">Ratings</p>' + rates + '</div>' + (e.short ? '<p class="en-short">Short game: ratings moved less.</p>' : '') : '') +
       '</div>';
   }
+  /* R18 A sealed game: the standings, read from last place up, then the top two held together */
+  function ord(n) { var s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+  function standHtml(e, b) {
+    var sc = e.scores || {}, i = e.beats.indexOf(b);
+    var read = e.beats.slice(0, i).filter(function (x) { return x.k === 'stand'; });
+    var nm = nameOfId(b.id);
+    var gone = (e.credits[b.id] || {}).absentia;
+    var list = read.slice().reverse().map(function (x) { return '<li>' + '<span class="pl">' + ord(x.place) + '</span>' + chip(x.id) + '<span class="nm">' + E(nameOfId(x.id)) + '</span><span class="pt">' + (sc[x.id] || 0) + '</span></li>'; }).join('');
+    return '<div class="en-st" aria-live="polite"><p class="en-eye">The scores, unsealed · from the bottom</p>' +
+      '<p class="en-place en-fade">' + (b.tied ? 'Tied for ' + ord(b.place) : ord(b.place)) + (gone ? ' · in absentia' : '') + '</p>' +
+      '<h2 class="en-name en-fade' + (nm.length > 9 ? ' mid' : '') + '">' + E(nm) + '</h2>' +
+      '<p class="en-pts en-fade" style="animation-delay:.25s">' + plural(sc[b.id] || 0, 'point') + '</p>' +
+      (list ? '<ol class="en-read">' + list + '</ol>' : '') + '</div>';
+  }
+  function topHtml(e, b) {
+    var ids = b.ids || [];
+    return '<div class="en-st" aria-live="polite"><p class="en-eye">And at the top</p>' +
+      '<div class="en-top">' + ids.map(function (id, k) { return '<div class="t en-fade" style="animation-delay:' + (0.2 + k * 0.5) + 's">' + chip(id, 'lg') + '<b>' + E(nameOfId(id)) + '</b></div>'; }).join('') + '</div>' +
+      '<p class="en-top-l en-fade" style="animation-delay:1.4s">' + (ids.length > 2 ? 'One of them won. Possibly more.' : 'One of them won.') + '</p></div>';
+  }
   /* 2. The one awards slide */
   function awardsHtml(e) {
     var rows = (e.awards || []).map(function (a, i) {
@@ -383,7 +441,7 @@
     var d = r ? (r.delta > 0 ? '+' + r.delta : r.delta < 0 ? '−' + Math.abs(r.delta) : '±0') : '';
     var rt = r ? '<b>' + rating(r.after) + ' (' + d + ')' + (r.newTitle ? ' · ' + E(r.newTitle) + ', new' : r.title ? ' · ' + E(r.title) : '') + '.</b> ' : '';
     return '<div class="en-credit">' +
-      '<p class="en-eye en-count">' + k + ' of ' + n.length + '</p>' + frame +
+      '<p class="en-eye en-count">' + k + ' of ' + n.length + (cr.absentia ? '<span class="en-abs">in absentia</span>' : '') + '</p>' + frame +
       (fz && fz.caption ? '<p class="en-cap en-fade" style="animation-delay:.7s">“' + E(fz.caption) + '”</p>' : '') +
       '<p class="en-epi en-fade" style="animation-delay:1s" aria-live="polite">' + E(cr.text || '') + '</p>' +
       (rt || cr.blurb ? '<p class="en-blurb en-fade" style="animation-delay:2.2s">' + rt + (cr.blurb ? '<i>“' + E(cr.blurb) + '”</i>' : '') + '</p>' : '') +
@@ -410,7 +468,7 @@
     return line;
   }
   function castHtml(e) {
-    var rows = (e.cast || []).map(function (p, i) { return '<li style="animation-delay:' + (0.1 + i * 0.12) + 's"><span class="n">' + E(p.name) + '</span><span class="lead" aria-hidden="true"></span><span class="r">' + E(p.role) + '</span></li>'; }).join('');
+    var rows = (e.cast || []).map(function (p, i) { return '<li style="animation-delay:' + (0.1 + i * 0.12) + 's"><span class="n">' + E(p.name) + (p.absentia ? '<span class="ab">(in absentia)</span>' : '') + '</span><span class="lead" aria-hidden="true"></span><span class="r">' + E(p.role) + '</span></li>'; }).join('');
     if (e.monkey) rows += '<li class="mk" style="animation-delay:' + (0.1 + (e.cast || []).length * 0.12) + 's"><span class="n">The monkey</span><span class="lead" aria-hidden="true"></span><span class="r">Himself</span></li>';
     var vs = vsLine(e);
     return '<div class="en-cast"><h2>Cast</h2><ol class="en-cl">' + rows + '</ol>' +
@@ -490,9 +548,128 @@
     return true;
   }
 
+  /* ═════════════ R18 The sealed scoreboard ═════════════ */
+  function sealedHtml() {
+    var s = S(); if (!s || !s.sealed) return '';
+    var mine = s.sealed.mine, why = ((s.roundScoreDetails || {})[me()] || []);
+    var reasons = why.map(function (w) { return '<li>' + (w.pts > 0 ? '+' : '') + w.pts + ' ' + E(String(w.reason || '').replace(/^./, function (c) { return c.toLowerCase(); })) + '</li>'; }).join('');
+    var wrote = mine === null || mine === undefined ? '' : '<div class="sl-mine"><p class="big">' + (mine > 0 ? 'You: +' + mine + ' this round.' : 'You: nothing this round.') + '</p>' + (reasons ? '<ul>' + reasons + '</ul>' : '') + '</div>';
+    return '<div class="sl-card" role="status"><p class="eyebrow">The Late Edition</p><h2 class="sl-h">Scores are sealed until the end.</h2>' +
+      '<p class="sl-p">' + (s.lastCall ? 'Last call. ' : '') + 'Every point counts double. The standings are read out at the finish, last place first.</p>' + wrote + '</div>';
+  }
+
+  /* ═════════════ R30 Last Call: a one-line card on every phone ═════════════ */
+  var lcShown = null, lcT = null;
+  function tick() {
+    var s = S(), L = s && s.lastCall;
+    if (!L || !s.code) return;
+    var tag = s.code + '|' + L.at;
+    if (lcShown === tag) return;
+    lcShown = tag;
+    var left = L.at + 3600 - now();
+    if (left < 600) return;
+    var o = document.getElementById('lastcall');
+    if (!o) { o = document.createElement('div'); o.id = 'lastcall'; o.setAttribute('role', 'status'); document.body.appendChild(o); }
+    o.innerHTML = '<p>Last call. One more trip around.</p>'; o.className = 'on'; o.onclick = function () { o.className = ''; };
+    say('Last call. One more trip around.');
+    snd(function () { tone(523, 0.35, 0, 'triangle', 0.04); tone(392, 0.6, 220, 'triangle', 0.04); });
+    clearTimeout(lcT); lcT = setTimeout(function () { o.className = ''; }, left);
+  }
+
+  /* ═════════════ The menu: Heading out (everyone), Last Call (the host) ═════════════ */
+  function playing() { var s = S(); return !!s && s.phase !== 'lobby' && !(s.phase === 'scores' && s.gameOver); }
+  function menuRows() {
+    var s = S(); if (!playing()) return '';
+    var lc = s.isHost && !s.lastCall && !s.late ? '<button class="menu-row" onclick="Ending.askLastCall()"><span class="ic">' + (typeof inkIcon === 'function' ? inkIcon('clock') : '') + '</span>Last call<span class="r">One more trip around</span></button>' : '';
+    return lc + '<button class="menu-row" onclick="Ending.askHeadOut()"><span class="ic">' + (typeof inkIcon === 'function' ? inkIcon('door') : '') + '</span>Heading out<span class="r">Your credit, now</span></button>';
+  }
+  function askLastCall() {
+    try { closeMenu(); } catch (x) {}
+    if (!confirm('Last call? The next trip around the table is the last one, then the winner and the credits.')) return;
+    try { send({ action: 'last_call' }); } catch (x) {}
+  }
+  function askHeadOut() {
+    try { closeMenu(); } catch (x) {}
+    if (!confirm('Heading out? Your end credit plays now, and your seat leaves the game. The table carries on without you.')) return;
+    try { send({ action: 'head_out' }); } catch (x) {}
+  }
+  // The server's answer to 'head_out': this phone is out of the game; its own credit plays, to keep
+  var mine = null;
+  function showOwnCredit(d) {
+    if (!d) return;
+    mine = d;
+    try { if (window.Voice) Voice.leave(); } catch (x) {}
+    try { dropOutbox(); clearSession(); myPlayerId = null; gameCode = null; } catch (x) {}
+    noteSeen('out|' + d.key, d.key ? [d.key] : []);
+    var o = document.getElementById('mycredit');
+    if (!o) { o = document.createElement('div'); o.id = 'mycredit'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Your end credit'); document.body.appendChild(o); }
+    var fz = d.freeze;
+    var frame = fz && fz.image ? '<figure class="en-frame" id="en-frame"><img src="/images/' + E(fz.image) + '" alt="' + E('Cartoon from round ' + fz.round) + '"><div class="en-flash" id="en-flash"></div><figcaption class="en-cc"><span id="en-cc" data-n="' + E(d.name) + '">' + E(d.name) + '</span></figcaption></figure>'
+      : '<figure class="en-frame" id="en-frame" style="padding:28px 8px"><figcaption class="en-cc" style="position:static;transform:none;display:inline-block"><span id="en-cc" data-n="' + E(d.name) + '">' + E(d.name) + '</span></figcaption></figure>';
+    o.innerHTML = '<div class="en-in"><div class="en-credit"><p class="en-eye en-count">Heading out</p>' + frame +
+      (fz && fz.caption ? '<p class="en-cap en-fade" style="animation-delay:.7s">“' + E(fz.caption) + '”</p>' : '') +
+      '<p class="en-epi en-fade" style="animation-delay:1s">' + E(d.text || '') + '</p>' +
+      '<p class="en-blurb en-fade" style="animation-delay:2s"><i>The table will read it again at the end, in absentia.</i></p>' +
+      '<div class="en-foot en-fade" style="animation-delay:2.4s"><button class="btn" onclick="Ending.saveCredit()">Save the card</button><button class="btn btn-yellow" onclick="Ending.closeOwnCredit()">Done</button></div></div></div>';
+    o.className = 'on';
+    freeze({ start: now() });
+    say(d.text || '');
+    snd(function () { noise(0.04, 520, 0.3, 3800, 'highpass'); tone(2400, 0.02, 520, 'square', 0.02); });
+  }
+  function closeOwnCredit() {
+    var o = document.getElementById('mycredit'); if (o) { o.className = ''; o.innerHTML = ''; }
+    try { state = null; lastPhase = null; showScreen('screen-home'); } catch (x) {}
+  }
+
+  /* ═════════════ Save the card: a credit as a picture (1080 × 1350) ═════════════ */
+  function loadImg(src) { return new Promise(function (res) { if (!src) return res(null); var i = new Image(), done = false, fin = function (v) { if (!done) { done = true; res(v); } }; i.onload = function () { fin(i.naturalWidth ? i : null); }; i.onerror = function () { fin(null); }; setTimeout(function () { fin(null); }, 6000); i.src = src; }); }
+  function wrap(ctx, text, maxW) { var words = String(text || '').split(/\s+/), lines = [], cur = ''; words.forEach(function (w) { var t = cur ? cur + ' ' + w : w; if (ctx.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; }); if (cur) lines.push(cur); return lines; }
+  function creditCard(d) {
+    var W2 = 1080, H2 = 1350, c = document.createElement('canvas'); c.width = W2; c.height = H2;
+    var ctx = c.getContext('2d'), serif = "'Libre Caslon Text', Georgia, serif";
+    return Promise.all([loadImg(d.freeze && d.freeze.image ? '/images/' + d.freeze.image : null), document.fonts && document.fonts.load ? Promise.race([Promise.all(["400 40px 'Libre Caslon Text'", "italic 400 30px 'Libre Caslon Text'", "700 40px 'Libre Caslon Text'"].map(function (f) { return document.fonts.load(f); })), new Promise(function (r) { setTimeout(r, 2000); })]).catch(function () {}) : null]).then(function (r) {
+      var img = r[0];
+      ctx.fillStyle = '#14100D'; ctx.fillRect(0, 0, W2, H2);
+      var y = 90;
+      if (img) {
+        var fw = 860, ih = Math.min(560, fw * img.naturalHeight / img.naturalWidth), iw = ih * img.naturalWidth / img.naturalHeight, fx = (W2 - fw) / 2;
+        ctx.save(); ctx.translate(W2 / 2, y + ih / 2 + 24); ctx.rotate(-1.2 * Math.PI / 180); ctx.translate(-W2 / 2, -(y + ih / 2 + 24));
+        ctx.fillStyle = '#fff'; ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 16; ctx.fillRect(fx, y, fw, ih + 48); ctx.shadowColor = 'transparent';
+        ctx.drawImage(img, (W2 - iw) / 2, y + 24, iw, ih);
+        ctx.restore();
+        y += ih + 48;
+      }
+      ctx.font = '900 54px Nunito, system-ui, sans-serif'; var nm = String(d.name || '').toUpperCase(), nw = Math.min(900, ctx.measureText(nm).width + 64);
+      ctx.fillStyle = '#000'; ctx.fillRect((W2 - nw) / 2, y - 34, nw, 84); ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.fillText(nm, W2 / 2, y + 26, 880);
+      y += 110;
+      if (d.freeze && d.freeze.caption) { ctx.font = 'italic 400 34px ' + serif; ctx.fillStyle = '#CFC4B2'; wrap(ctx, '“' + d.freeze.caption + '”', 900).slice(0, 2).forEach(function (l) { ctx.fillText(l, W2 / 2, y); y += 46; }); y += 20; }
+      ctx.textAlign = 'left'; ctx.fillStyle = '#FFF8EA'; ctx.font = '400 46px ' + serif;
+      wrap(ctx, d.text || '', 920).slice(0, 7).forEach(function (l) { ctx.fillText(l, 80, y); y += 62; });
+      ctx.textAlign = 'center'; ctx.fillStyle = '#B9AE9C'; ctx.font = '700 28px Nunito, system-ui, sans-serif';
+      var site = ''; try { site = window.HallCard && HallCard.siteLabel ? HallCard.siteLabel() : location.host; } catch (x) {}
+      ctx.fillText('CLOSED CAPTION' + (site ? '  ·  ' + site : ''), W2 / 2, H2 - 60);
+      return new Promise(function (res) { c.toBlob(function (b) { res(b); }, 'image/png'); });
+    });
+  }
+  function saveCredit(d) {
+    d = d || mine; if (!d) return;
+    creditCard(d).then(function (blob) {
+      if (!blob) return;
+      var file = 'closed-caption-credit-' + String(d.name || 'you').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.png';
+      if (window.HallCard && HallCard.share) HallCard.share(blob, { filename: file, title: 'My Closed Caption credit', text: 'What became of me. ' + (HallCard.siteUrl ? HallCard.siteUrl('credit') : '') }).then(function (r) { if (r === 'downloaded') { try { showToast('Saved to your downloads', 'ok'); } catch (x) {} } if (r !== 'cancelled') { try { ccTally('credit'); } catch (x) {} } });
+    });
+  }
+  // Everyone else's, from the final page
+  function saveMyCredit() {
+    var s = S(), e = s && s.ending, c = e && e.credits && e.credits[me()];
+    if (c) saveCredit({ name: nameOfId(me()), text: c.text, freeze: c.freeze });
+  }
+
   window.Ending = {
     sync: sync, close: close, next: next, replay: replay, active: function () { return !!current(); },
     lobbyHtml: lobbyHtml, sendTables: sendTables, openRemote: openRemote, remoteSvg: remoteSvg, chimpSvg: chimpSvg, remoteLineHtml: remoteLineHtml,
     syncPrev: syncPrev, closePrev: closePrev, tables: tablesGet, saveTable: saveTable,
+    sealedHtml: sealedHtml, tick: tick, menuRows: menuRows, askLastCall: askLastCall, askHeadOut: askHeadOut,
+    showOwnCredit: showOwnCredit, closeOwnCredit: closeOwnCredit, saveCredit: saveCredit, saveMyCredit: saveMyCredit,
   };
 })();

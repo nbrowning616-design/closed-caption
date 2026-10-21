@@ -14,6 +14,14 @@
 //   cold open the dealer reads (last time's winner, last time's Caption of the Night, one grudge, "And now, the
 //   rematch."). On the table's anniversary it shows the first cartoon they ever played.
 //
+//   SEALED SCORES (R18): once the Late Edition starts, the phones get the totals as they stood when it began, and the
+//   scoreboard says only "Scores are sealed until the end" and your own points for the round. At game over the
+//   ending opens by reading the standings from last place up, one name a beat, then the top two together.
+//
+//   HEADING OUT (R28): a player who leaves early gets their own credit on the spot (from their play so far); the
+//   table hears "Bob has left the building."; their seat leaves the turn order; at the end their credit is read with
+//   everyone else's, "in absentia". LAST CALL (R30): the host makes the next trip around the table the last one.
+//
 //   THE MONKEY: every round a monkey bets at random under the same chip rules (nobody sees it; seeded from the game,
 //   so a restored room gets the same monkey). If anyone found the real caption fewer times than the monkey did over
 //   the same rounds, the credits end on one line about it.
@@ -29,6 +37,7 @@ let G = null;
 const game_ = () => G || (G = require('./game'));   // (late: game.js is still loading when this file is first read)
 
 const WINNER_MS = 7000, AWARDS_MS = 7500, CREDIT_MS = 6500, LEAD_MS = 400;   // the ending's beats
+const STAND_MS = 2800, TOP_MS = 3600;   // sealed games: the standings read from the bottom, then the top two held together
 const PREV_MS = 10000;   // the cold open (round 1's writers get the time back)
 const MAX_TAPE = 40, MAX_CANDS = 8;
 
@@ -241,9 +250,9 @@ function monkeyLine(game, F) {
 }
 
 /* ── Each player's candidates for a credit: [{ t, score, n, other }] ── */
-function candidates(game, X, stand) {
+function candidates(game, X, stand, partial) {
   const { F, after, rounds } = X;
-  const ps = (game.players || []).filter(p => F[p.id] && (F[p.id].wrote || F[p.id].bet || F[p.id].dealt || p.score));
+  const ps = (game.players || []).filter(p => F[p.id] && (F[p.id].wrote || F[p.id].bet || F[p.id].dealt || p.score || (game.departed && game.departed[p.id])));
   const sorted = ps.slice().sort((a, b) => b.score - a.score);
   const rankOf = (p) => sorted.filter(q => q.score > p.score).length;
   const n = ps.length, top = sorted.length ? sorted[0].score : 0, low = sorted.length ? sorted[sorted.length - 1].score : 0;
@@ -289,14 +298,17 @@ function candidates(game, X, stand) {
     if (f.groans >= 2 && f.groans === max('groans')) add('groans', 62 + more(4, f.groans), { n: f.groans });
     if (!c.some(x => !['middle', 'last', 'won', 'tiedFirst'].includes(x.t))) add('quiet', 12);
     c.sort((a, b) => b.score - a.score);
-    out[p.id] = c;
+    // heading out mid-game: no place, comeback or rating to speak of yet
+    out[p.id] = partial ? c.filter(x => !['won', 'tiedFirst', 'last', 'middle', 'comeback', 'collapse', 'ratingUp', 'ratingDown'].includes(x.t)) : c;
+    if (partial && !out[p.id].length) out[p.id] = [{ t: 'quiet', score: 12 }];
   }
   return { out, order: sorted.map(p => p.id), rankOf: Object.fromEntries(ps.map(p => [p.id, rankOf(p)])) };
 }
 
 // Give everyone their most distinctive credit, never two the same when it can be helped (the best total)
-function assign(cands, ids) {
-  const lists = ids.map(id => { const all = cands[id] || []; const top = all.slice(0, 7); return top.length ? top : [{ t: 'quiet', score: 12 }]; });
+function assign(cands, ids, fixed) {
+  fixed = fixed || {};
+  const lists = ids.map(id => { if (fixed[id]) return [{ t: fixed[id], score: 0, fixed: true }]; const all = cands[id] || []; const top = all.slice(0, 7); return top.length ? top : [{ t: 'quiet', score: 12 }]; });
   const best = { total: -Infinity, pick: null }, cur = new Array(ids.length), used = new Map();
   const ub = []; for (let i = ids.length - 1; i >= 0; i--) ub[i] = (ub[i + 1] || 0) + Math.max(...lists[i].map(c => c.score));
   let steps = 0;
@@ -487,15 +499,25 @@ function buildEnding(game) {
   const X = facts(game), stand = standingOf(game);
   const C = candidates(game, X, stand);
   const ids = C.order;
-  const pick = assign(C.out, ids);
+  const gone = game.departed || {}, fixed = {};
+  for (const [id, d] of Object.entries(gone)) if (d && d.credit && ids.includes(id)) fixed[id] = d.credit.trigger;
+  const pick = assign(C.out, ids, fixed);
   const fam = !!(game.settings && game.settings.family);
-  const seen = seenAt(game), taken = new Set();
+  const seen = seenAt(game), taken = new Set(Object.values(gone).map(d => d && d.credit && d.credit.key).filter(Boolean));
   const rows = (game.ratingResult && game.ratingResult.rows) || {};
   const credits = {}, keys = [];
   // The credits roll from the bottom of the table up; the winner's comes last
   const roll = ids.slice().reverse();
   for (const id of roll) {
-    const f = X.F[id], c = pick[id] || { t: 'quiet' };
+    const f = X.F[id], c = pick[id] || { t: 'quiet' }, r0 = rows[id];
+    if (fixed[id]) {   // heading out: the credit they were shown when they left, read in absentia
+      const d = gone[id].credit;
+      if (d.key) keys.push(d.key);
+      credits[id] = { trigger: d.trigger, role: d.role, text: d.text, key: d.key || null, freeze: d.freeze || freezeOf(game, f), absentia: true,
+        blurb: r0 ? ((r0.extra && r0.extra.text) || (r0.line && r0.line.text) || null) : null,
+        rating: r0 ? { after: r0.after, delta: r0.delta, title: r0.title || null, newTitle: r0.newTitle || null, provisional: !!r0.provisional } : null };
+      continue;
+    }
     let pool = (W.LINES[c.t] || []).filter(l => (!fam || !l.adult) && (!l.need || (l.need === 'second' && c.second)) && (!/\{other\}/.test(l.text) || c.other));
     if (!pool.length) pool = (W.LINES.quiet || []).filter(l => !fam || !l.adult);
     const pk = pickFrom(pool, seen, taken, rnd);
@@ -508,14 +530,28 @@ function buildEnding(game) {
   }
   const monkey = monkeyLine(game, X.F);
   const aw = awards(game, X, rnd);
-  const beats = [{ k: 'winner', ms: WINNER_MS }];
+  const beats = [];
+  // R18 a sealed game: the standings, read from last place up (one name a beat), then the top two held together
+  if (game.lateFrom) {
+    const win = ((stand && stand.winners) || []).filter(id => ids.includes(id));
+    const order = win.concat(ids.filter(id => !win.includes(id)));
+    const topN = Math.min(order.length, Math.max(2, win.length));
+    const score = (id) => X.F[id].score;
+    for (let i = order.length - 1; i >= topN; i--) {
+      const id = order[i];
+      beats.push({ k: 'stand', id, place: order.filter(x => score(x) > score(id)).length + 1, tied: order.some(x => x !== id && score(x) === score(id)), ms: STAND_MS });
+    }
+    beats.push({ k: 'top', ids: order.slice(0, topN), ms: TOP_MS });
+  }
+  beats.push({ k: 'winner', ms: WINNER_MS });
   if (aw.length) beats.push({ k: 'awards', ms: AWARDS_MS });
   for (const id of roll) beats.push({ k: 'credit', id, ms: CREDIT_MS });
   beats.push({ k: 'cast' });
   const remote = remoteChange(game, stand);
   const e = {
     gameId: gid, at, step: 0, stepAt: at, beats, done: false, credits, awards: aw, monkey, keys, remote,
-    cast: ids.map(id => ({ id, name: X.F[id].name, role: credits[id].role })),
+    cast: ids.map(id => ({ id, name: X.F[id].name, role: credits[id].role, absentia: !!credits[id].absentia })),
+    scores: Object.fromEntries(ids.map(id => [id, X.F[id].score])),
     summary: summaryFacts(game, X, stand, pick, monkey),
     vs: vsOf(game),
     firstCartoon: firstCartoon(game),
@@ -641,12 +677,98 @@ function previouslyView(game) {
   if (!game.previously || game.round !== 1 || game.phase !== 'writing') return null;
   return JSON.parse(JSON.stringify(game.previously));
 }
-function reset(game) { game.ending = null; game.previously = null; game.nightLog = { subs: [], skips: {} }; }
+function reset(game) {
+  game.ending = null; game.previously = null; game.nightLog = { subs: [], skips: {} }; game.lastCall = null; game.departed = {};
+  game.players = (game.players || []).filter(p => !p.gone || p.connected);   // whoever headed out has left the building
+  for (const p of game.players) delete p.gone;
+}
+
+/* ── R18 Sealed scores: from the first deal of the Late Edition until the final scoreboard ── */
+function sealedNow(game) {
+  if (!game.lateFrom || game.round < game.lateFrom || game.phase === 'lobby') return false;
+  return !(game.phase === 'scores' && game_().isGameOver(game));
+}
+// Points scored since the seal (taken off the totals the phones see)
+function sinceSeal(game) {
+  const out = {};
+  for (const h of game.history || []) if (h && h.round >= game.lateFrom) for (const [pid, pts] of Object.entries(h.roundScores || {})) out[pid] = (out[pid] || 0) + (pts || 0);
+  return out;
+}
+const ANSWERED = ['answer', 'framing', 'scores'];
+// Every phone's view, after game.js has made it: Last Call, and the seal
+function decorateView(game, view, pid) {
+  try {
+    if (game.lastCall) {
+      view.lastCall = { at: game.lastCall.at, laps: game.lastCall.laps };
+      // first to N doesn't know by itself that the next deal starts the Late Edition
+      if (view.phase === 'scores' && !view.gameOver && !game.lateFrom && view.nextDealerId) view.nextLate = (((game.dealCount || {})[view.nextDealerId] || 0) + 1) >= game.lastCall.laps;
+    }
+    const gone = game.departed || {};
+    if (Object.keys(gone).length) view.departed = Object.keys(gone);
+    if (!sealedNow(game)) return view;
+    const since = sinceSeal(game), mine = (game.roundScores || {})[pid] || 0;
+    view.players = (view.players || []).map(p => ({ ...p, score: p.score - (since[p.id] || 0) }));
+    view.sealed = { from: game.lateFrom, round: game.round, mine: ANSWERED.includes(game.phase) ? mine : null };
+    if (game.phase === 'scores') {
+      view.roundScores = { [pid]: mine };
+      view.roundScoreDetails = { [pid]: ((game.roundScoreDetails || {})[pid] || []).map(x => ({ ...x })) };
+      delete view.previousRank;
+      if (Array.isArray(view.history)) view.history = view.history.map(h => (h && h.round >= game.lateFrom ? { ...h, roundScores: { [pid]: (h.roundScores || {})[pid] || 0 }, roundScoreDetails: { [pid]: (h.roundScoreDetails || {})[pid] || [] } } : h));
+    }
+  } catch (e) { console.error('view decorate failed', e); }
+  return view;
+}
+
+/* ── R28 Heading out: this player's credit now, from their play so far; their seat leaves the turn order ── */
+function headOut(game, pid) {
+  const g = game_();
+  const p = (game.players || []).find(x => x.id === pid);
+  if (!p) return { error: 'Player not in game' };
+  if (game.phase === 'lobby') return { error: 'The game hasn’t started yet.' };
+  if (game.phase === 'scores' && g.isGameOver(game)) return { error: 'The game is over.' };
+  game.departed = game.departed || {};
+  if (!game.departed[pid]) {
+    const X = facts(game), C = candidates(game, X, null, true);
+    const used = new Set(Object.values(game.departed).map(d => d && d.credit && d.credit.trigger));
+    const list = (C.out[pid] || [{ t: 'quiet', score: 12 }]);
+    const c = list.find(x => !used.has(x.t)) || list[0] || { t: 'quiet' };
+    const fam = !!(game.settings && game.settings.family), rnd = rngFrom('out|' + (game.gameId || game.code) + '|' + pid);
+    const taken = new Set(Object.values(game.departed).map(d => d && d.credit && d.credit.key).filter(Boolean));
+    let pool = (W.LINES[c.t] || []).filter(l => (!fam || !l.adult) && !l.need && (!/\{other\}/.test(l.text) || c.other));
+    if (!pool.length) pool = (W.LINES.quiet || []).filter(l => !fam || !l.adult);
+    const pk = pickFrom(pool, seenAt(game), taken, rnd);
+    const f = X.F[pid] || { name: p.name, caps: [] };
+    game.departed[pid] = { at: Date.now(), round: game.round, credit: { trigger: c.t, role: W.ROLES[c.t] || 'The Extra', text: pk ? fill(pk.x.text, { name: p.name, other: c.other || '', n: c.n || 0, digits: !!c.digits }) : '', key: pk ? pk.k : null, freeze: freezeOf(game, f) } };
+  }
+  p.gone = true; p.connected = false; p.disconnectedAt = Date.now() - 60000;   // past the 45 s grace at once: nobody waits on them
+  delete p.again;
+  let hosting = '';
+  if (game.hostId === pid) { const nh = game.players.find(x => x.connected && !x.gone); if (nh) { game.hostId = nh.id; hosting = ` ${firstWord(nh.name)} is hosting now.`; } }
+  game.notice = { text: `${firstWord(p.name)} has left the building.${hosting}`, at: Date.now() };
+  const d = game.departed[pid].credit;
+  return { ok: true, credit: { name: p.name, text: d.text, role: d.role, key: d.key, freeze: d.freeze, round: game.departed[pid].round } };
+}
+// Back after heading out (the same seat, on a phone): they're in the game again, and get a credit at the end like anyone
+function returned(game, pid) { const p = (game.players || []).find(x => x.id === pid); if (p && p.gone) { delete p.gone; if (game.departed) delete game.departed[pid]; } }
+
+/* ── R30 Last Call: the next trip around the table is the last (the Late Edition, sealed), then the end ── */
+function lastCall(game) {
+  const g = game_();
+  if (game.phase === 'lobby') return { error: 'The game hasn’t started yet.' };
+  if (game.phase === 'scores' && g.isGameOver(game)) return { error: 'The game is over.' };
+  if (game.lateFrom) return { error: game.round >= game.lateFrom ? 'This is already the last trip around the table.' : 'The last trip around the table is next already.' };
+  if (game.lastCall) return { ok: true, noop: true };
+  const here = (game.players || []).filter(p => g.isPresent(p));
+  const deals = Math.max(1, ...(here.length ? here : game.players).map(p => (game.dealCount || {})[p.id] || 0));
+  game.lastCall = { at: Date.now(), laps: deals + 1 };
+  return { ok: true };
+}
 // The room keeps the newest record (so the next game here needs nothing from the phones)
 function keepTable(game) { try { const r = cleanTable(tableRecord(game)); if (r) game.lastTable = r; } catch (e) {} }
 
 module.exports = {
   noteSubmit, noteSkip, beginGame, ensureEnding, nextBeat, beatNow, endingView, previouslyView, lobbyRemote, setTables, reset, keepTable,
+  decorateView, headOut, returned, lastCall, sealedNow,
   // for tests
   facts, candidates, assign, monkeyRounds, monkeyLine, awards, fill, cleanTable, matchTable, tableRecord, tallyIn,
   WINNER_MS, AWARDS_MS, CREDIT_MS, PREV_MS,

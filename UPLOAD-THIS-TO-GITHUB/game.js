@@ -690,6 +690,7 @@ const seatAt = (n, i) => ((i % n) + n) % n;
    finished (finalLaps) before anyone is crowned. null = no end in sight yet. */
 function lapsOf(game) {
   const s = game.settings;
+  if (game.lastCall && game.lastCall.laps) return game.lastCall.laps;   // R30 Last Call: one more trip around, then the end (night.js)
   if (s.targetScore) return game.finalLaps || null;
   if (s.rounds) return game.fixedLaps || Math.max(1, Math.ceil(s.rounds / Math.max(1, game.players.length)));
   return [1, 2, 3].includes(s.laps) ? s.laps : 1;
@@ -908,7 +909,7 @@ function startRound(game, options = {}) {
     // #11: The Late Edition — the last trip around the table pays double. It starts with the first deal of the
     // final lap (a game that goes around once has no 'last trip' to single out: all of it would double)
     const laps = lapsOf(game);
-    if (!game.lateFrom && !game.settings.targetScore && laps >= 2 && d && game.dealCount[d.id] >= laps) game.lateFrom = game.round;
+    if (!game.lateFrom && (!game.settings.targetScore || game.lastCall) && laps >= 2 && d && game.dealCount[d.id] >= laps) game.lateFrom = game.round;
   }
   if (!dealCartoon(game)) {
     // Nobody wrote anything and the deck has nothing new: the same cartoon again, fresh clock
@@ -1363,7 +1364,7 @@ function moveToScoreboard(game) {
   // #37 first to N: someone got there. The trip around the table is finished first (everyone deals the same
   // number of times), and #11 the rest of that trip is The Late Edition.
   const s = game.settings;
-  if (s.targetScore && !game.finalLaps && game.players.some(p => p.score >= s.targetScore)) {
+  if (s.targetScore && !game.finalLaps && !game.lastCall && game.players.some(p => p.score >= s.targetScore)) {
     const counts = game.dealCount || {}, here = game.players.filter(isPresent);
     game.finalLaps = Math.max(1, ...(here.length ? here : game.players).map(p => counts[p.id] || 0));
     const top = Math.max(...game.players.map(p => p.score));
