@@ -594,7 +594,7 @@ const DEFAULT_SETTINGS = {
 };
 
 // [settings] Writing timer: 0 = no timer (nobody is rushed; the dealer or host ends writing), else 30 s to 10 min.
-const DEFAULT_TIMER = 120;   // new rooms: 2 minutes
+const DEFAULT_TIMER = 90;   // new rooms: 90 seconds (cut 4; the dealer can add 30 s)
 function cleanTimer(t) {
   const n = Number(t);
   if (t === null || t === undefined || t === '' || !Number.isInteger(n)) return null;
@@ -830,6 +830,12 @@ function nextDealerIndex(game, from) {
     const i = seatAt(n, from + k * step);
     if (game.players[i].connected && (counts[game.players[i].id] || 0) < laps) return i;
   }
+  // A phone that's only locked (inside the 45 s grace) still has its deal to come: it gets it, rather than someone
+  // here dealing twice (totalRounds counts the same people, so the game never ends with that seat undealt)
+  if (laps) for (let k = 1; k <= n; k++) {
+    const i = seatAt(n, from + k * step);
+    if (isPresent(game.players[i]) && (counts[game.players[i].id] || 0) < laps) return i;
+  }
   for (let k = 1; k <= n; k++) {
     const i = seatAt(n, from + k * step);
     if (game.players[i].connected) return i;
@@ -1054,7 +1060,9 @@ function kidsToggle(game, on) {
   return { ok: true, swapped };
 }
 
-const allowed = (game) => CARTOONS.filter(c => !isRetiredId(c.id) && !(game.settings.family && (c.adult || c.spicy)) && !(c.spicy && !game.settings.spicy));
+// Never deal a cartoon whose picture isn't on the server (checked once at start)
+const HAS_IMAGE = (() => { const fs = require('fs'), path = require('path'), dir = path.join(__dirname, 'public', 'images'); const ok = new Set(); for (const c of CARTOONS) { try { if (c.image && fs.statSync(path.join(dir, c.image)).size > 0) ok.add(c.id); } catch (e) {} } return ok; })();
+const allowed = (game) => CARTOONS.filter(c => HAS_IMAGE.has(c.id) && !isRetiredId(c.id) && !(game.settings.family && (c.adult || c.spicy)) && !(c.spicy && !game.settings.spicy));
 function dealNormal(game, currentId) {
   // Never twice in one game; of the rest, the ones the fewest people at the table have seen.
   // Nobody sees a repeat until they've seen the whole deck.
@@ -1129,6 +1137,9 @@ function startRound(game, options = {}) {
   game.blind = {};
   game.blindEnd = null;
   game.dropAt = null;
+  game.lateBlind = {};
+  game.lateEnd = null;
+  game.lateDropAt = null;
   game.flipAt = null;
   game.closedCaption = '';
   game.closedIsCorrect = false;
@@ -1161,6 +1172,15 @@ function startRound(game, options = {}) {
 const AWAY_GRACE_MS = 45000;   // a phone that locks or switches apps keeps its place for 45 s
 const isPresent = (p) => p.connected || (p.disconnectedAt && Date.now() - p.disconnectedAt < AWAY_GRACE_MS);
 
+// Writers inside the grace whose phones are off (locked, Wi-Fi gone) and who haven't written yet
+function awayWriters(game) { return game.players.filter(p => !p.connected && isPresent(p) && !game.submissions.some(x => x.playerId === p.id)).map(p => p.id); }
+// Everyone whose phone is on has written (and at least two captions are in): the away writers get a short wait,
+// not the full 45 s grace, so the table never sits behind "3 of 3 captions in" (housekeeping, server.js)
+const AWAY_WRITER_MS = 12000;
+function connectedAllIn(game) {
+  const on = game.players.filter(p => p.connected);
+  return game.submissions.length >= 2 && on.length > 0 && on.every(p => game.submissions.some(x => x.playerId === p.id));
+}
 // Everyone who is here has written something
 function allCaptionsIn(game) {
   const here = game.players.filter(isPresent);
@@ -1259,7 +1279,7 @@ function finishWriting(game) {
   game.mulliganVotes = [];
   spendNote(game);   // R22
   // R11: a called shot needs the caller's caption on the table (it always is) and someone who bets
-  for (const [caller, called] of Object.entries(game.calls || {})) if (!game.submissions.some(s => s.playerId === caller) || !canBeCalled(game, caller, called)) delete game.calls[caller];
+  for (const [caller, called] of Object.entries(game.calls || {})) if (!game.submissions.some(s => s.playerId === caller) || !canBeCalled(game, caller, called) || isNewbie(game, caller)) delete game.calls[caller];
   // #39: the reading and betting lines for this round
   const dealer = dealerOf(game), dn = dealer ? first1(dealer.name) : '';
   if (game.round >= 2) roundLine(game, 'readSub', 'read.sub', { n: game.openCaptions.length });
@@ -1275,6 +1295,16 @@ function finishWriting(game) {
   return { ok: true };
 }
 
+/* Cut 8 NEWCOMERS: a phone in its first game (it reported no finished games when the game began, or when it
+   joined) gets no called shots and no rejection slips, and its ending skips the rating and the Remote. */
+function isNewbie(game, pid) {
+  const nb = game.newbies || {};
+  if (pid in nb) return !!nb[pid];
+  const p = game.players.find(x => x.id === pid);
+  return !!p && !((p.games || 0) >= 1);
+}
+function noteNewbies(game) { game.newbies = {}; for (const p of game.players) game.newbies[p.id] = !((p.games || 0) >= 1); }
+
 /* R11 Called shot: once your caption is in (and until the betting starts), you may secretly name one person you
    expect to fall for it. If they put a chip on it, +3 (doubled in The Late Edition), and the reveal says so either way. */
 function canBeCalled(game, caller, called) {
@@ -1285,6 +1315,7 @@ function canBeCalled(game, caller, called) {
 function callShot(game, playerId, target) {
   if (game.phase !== PHASES.WRITING && game.phase !== PHASES.READING) return { error: 'Calls close when the betting starts' };
   if (!game.submissions.some(s => s.playerId === playerId)) return { error: 'Lock in your caption first' };
+  if (isNewbie(game, playerId)) return { error: 'Called shots start in your second game' };   // cut 8
   game.calls = game.calls || {};
   if (target === null || target === undefined || target === '') { delete game.calls[playerId]; return { ok: true }; }
   if (!canBeCalled(game, playerId, String(target))) return { error: 'Pick someone who bets this round' };
@@ -1305,8 +1336,10 @@ function computeBetOrder(game) {
 /* ── Blind bets: everyone at once, in secret (#7) ──
    Each bettor locks in a caption and 1 or 2 chips; nobody sees where until every chip drops onto the table at
    the same moment (dropAt). The clock catches anyone idle (a no-timer room has none: the dealer or host drops
-   the chips). Then the dealer's steal (#8: before the face-down card flips), the flip, and the late chips,
-   which still go one at a time. */
+   the chips). Then the dealer's steal (#8: before the face-down card flips), the flip, and the last chips:
+   cut 3, the same way: everyone holding one places it at once, in secret, on a 15 s clock, and they all drop
+   together (lateDropAt). */
+const LATE_BET_MS = 15000;
 function moveToFirstBets(game) {
   if (game.phase !== PHASES.READING) return { error: 'Too late — the game moved on' };
   game.betOrder = computeBetOrder(game);
@@ -1340,11 +1373,16 @@ function pendingBetters(game) {
     // Whoever hasn't locked in (a phone gone past the grace no longer holds the table up)
     return game.betOrder.filter(pid => { if (hasBlind(game, pid)) return false; const p = game.players.find(x => x.id === pid); return !!p && isPresent(p); });
   }
-  if (game.phase === PHASES.SECOND_BETS) return eligibleSecondBetters(game).filter(pid => !stageBet(game, pid, 2));
+  if (game.phase === PHASES.SECOND_BETS) {
+    if (game.lateDropAt) return [];
+    return eligibleSecondBetters(game).filter(pid => { if (hasLate(game, pid)) return false; const p = game.players.find(x => x.id === pid); return !!p && isPresent(p); });
+  }
   return [];
 }
-// Late chips go one at a time; blind bets have no turns
-function currentBetterId(game) { if (game.phase !== PHASES.SECOND_BETS) return null; const p = pendingBetters(game); return p.length ? p[0] : null; }
+// A last chip is in: still secret, or already on the table
+const hasLate = (game, pid) => !!(game.lateBlind && game.lateBlind[pid]) || !!stageBet(game, pid, 2);
+// Nobody bets in turn any more (cut 3: the last chips go down at once too)
+function currentBetterId() { return null; }
 
 function validateTarget(game, target) {
   if (target === 'closed') return { ok: true, target: 'closed' };
@@ -1371,20 +1409,19 @@ function placeBet(game, playerId, betTarget) {
     game.blind[playerId] = { target: v.target, count, at: Date.now() };
     return { ok: true, allIn: pendingBetters(game).length === 0 };
   }
-  if (stageBet(game, playerId, 2)) return { error: 'You already bet' };
-  if (currentBetterId(game) !== playerId) return { error: 'Not your turn yet' };
+  if (game.lateDropAt) return { error: 'The chips are down' };
+  if (hasLate(game, playerId)) return { error: 'You already bet' };
+  if (!eligibleSecondBetters(game).includes(playerId)) return { error: 'No chips left this round' };
   if (count !== 1) return { error: 'You have one chip left' };
   const v = validateTarget(game, betTarget.target);
   if (v.error) return v;
-  // The last chip can go anywhere — including on top of your first one.
-  game.bets.push({ playerId, target: v.target, count, stage, at: Date.now() });
-  game.secondBets[playerId] = { target: v.target, count };
+  // The last chip can go anywhere — including on top of your first one. Secret until the drop.
+  game.lateBlind = game.lateBlind || {};
+  game.lateBlind[playerId] = { target: v.target, count: 1, at: Date.now() };
   return { ok: true, allIn: pendingBetters(game).length === 0 };
 }
 
-// Changed your mind? A blind bet can be taken back until the chips drop. A late chip: within a few seconds,
-// as long as nobody has bet after you.
-const UNDO_MS = 4000;
+// Changed your mind? A secret bet (blind or last chip) can be taken back until the chips drop.
 function undoBet(game, playerId) {
   const stage = game.phase === PHASES.FIRST_BETS ? 1 : game.phase === PHASES.SECOND_BETS ? 2 : 0;
   if (stage === 1) {
@@ -1392,23 +1429,34 @@ function undoBet(game, playerId) {
     delete game.blind[playerId];
     return { ok: true };
   }
-  const last = game.bets[game.bets.length - 1];
-  if (!stage || !last || last.playerId !== playerId || last.stage !== stage || last.target === 'pass') return { error: 'Too late to take it back' };
-  if (Date.now() - (last.at || 0) > UNDO_MS) return { error: 'Too late to take it back' };
-  game.bets.pop();
-  delete game.secondBets[playerId];
-  game.timerToken = (game.timerToken || 0) + 1;   // cancels the 'all chips are down' move
-  return { ok: true };
+  if (stage === 2) {
+    if (game.lateDropAt || !game.lateBlind || !game.lateBlind[playerId]) return { error: 'Too late to take it back' };
+    delete game.lateBlind[playerId];
+    return { ok: true };
+  }
+  return { error: 'Too late to take it back' };
 }
 
-// A late chip whose phone has gone quiet: they sit it out
+// (Kept for older phones: there are no turns to skip now. The last chips just drop.)
 function skipCurrentBetter(game) {
-  if (game.phase === PHASES.FIRST_BETS) return { error: 'Everyone bets at once. Drop the chips instead.' };
+  if (game.phase === PHASES.FIRST_BETS || game.phase === PHASES.SECOND_BETS) return { error: 'Everyone bets at once. Drop the chips instead.' };
+  return { error: 'Too late — the game moved on' };
+}
+// Every last chip lands at once, in seat order. Anyone holding one who didn't place it sits it out.
+function dropLate(game) {
   if (game.phase !== PHASES.SECOND_BETS) return { error: 'Too late — the game moved on' };
-  const pid = currentBetterId(game);
-  if (!pid) return { error: 'Nobody is waiting to bet' };
-  game.bets.push({ playerId: pid, target: 'pass', count: 0, stage: 2 });
-  return { ok: true, skipped: pid, allIn: pendingBetters(game).length === 0 };
+  if (game.lateDropAt) return { ok: true, noop: true };
+  const at = Date.now();
+  for (const pid of eligibleSecondBetters(game)) {
+    if (stageBet(game, pid, 2)) continue;
+    const b = game.lateBlind && game.lateBlind[pid];
+    if (b) { game.bets.push({ playerId: pid, target: b.target, count: 1, stage: 2, at }); game.secondBets[pid] = { target: b.target, count: 1 }; }
+    else game.bets.push({ playerId: pid, target: 'pass', count: 0, stage: 2, at });
+  }
+  game.lateBlind = {};
+  game.lateEnd = null;
+  game.lateDropAt = at;
+  return { ok: true };
 }
 
 // Every blind chip lands at once, in seat order. Anyone who didn't bet sits the blind bet out: still here, they
@@ -1481,13 +1529,17 @@ function setHold(game, on) {
 // After the flip: the late chips if anyone holds one, else the answer
 function moveFromReveal(game) {
   if (game.phase !== PHASES.REVEAL) return { error: 'Too late — the game moved on' };
-  if (eligibleSecondBetters(game).some(pid => !stageBet(game, pid, 2))) { setPhase(game, PHASES.SECOND_BETS); return { ok: true }; }
+  if (eligibleSecondBetters(game).some(pid => !stageBet(game, pid, 2))) {
+    game.lateBlind = {}; game.lateDropAt = null; game.lateEnd = Date.now() + LATE_BET_MS;
+    setPhase(game, PHASES.SECOND_BETS); return { ok: true };
+  }
   revealAnswer(game);
   return { ok: true };
 }
 
 function moveFromSecondBets(game) {
   if (game.phase !== PHASES.SECOND_BETS) return { error: 'Too late — the game moved on' };
+  if (!game.lateDropAt) dropLate(game);
   revealAnswer(game);
   return { ok: true };
 }
@@ -1511,7 +1563,10 @@ function stealChip(game, betIndex) {
   game.nightSteals = (game.nightSteals || 0) + 1;
   // #1: the night's first steal gets the full show; after that about one in four, at random. Never decided by
   // where the chip was, so the show can't tip anyone off.
-  const stealShow = game.nightSteals === 1 || Math.random() < STEAL_FULL_SHARE ? 'full' : 'short';
+  // cut 7: the night's first steal in full; after that at most one full show a game (about one steal in four gets
+  // it, until one has), else the 2 s short version
+  const stealShow = game.nightSteals === 1 || (!game.stealFullGame && Math.random() < STEAL_FULL_SHARE) ? 'full' : 'short';
+  if (stealShow === 'full') game.stealFullGame = true;
   const robbed = game.history.filter(h => h.steal && h.steal.victimId === bet.playerId).length;   // earlier steals off this player, this game
   const robbedBefore = robbed > 0;
   const v = { name: firstNameOf(game, bet.playerId), count: robbed + 1, ordinal: ordinal(robbed + 1) };
@@ -1597,7 +1652,9 @@ function revealAnswer(game) {
     if (key === '-1') continue;
     const hit = game.bets.some(b => b.playerId === called && keyOf(b.target) === key && chipsOf(b) > 0);
     if (hit) add(caller, CALL_PTS, `Called shot: ${nameOfPlayer(game, called)} bit`);
-    game.callResults.push({ callerId: caller, calledId: called, key, hit, line: pickLine(game, hit ? 'call.hit' : 'call.miss', { caller: firstNameOf(game, caller), called: firstNameOf(game, called) }) });
+    // cut 6: plain facts, no patter ("Ann called Ben. Ben bit. +3" / "Ann called Ben. Missed.")
+    const cn = firstNameOf(game, caller), dn = firstNameOf(game, called);
+    game.callResults.push({ callerId: caller, calledId: called, key, hit, pts: hit ? CALL_PTS * mult : 0, line: hit ? `${cn} called ${dn}. ${dn} bit. +${CALL_PTS * mult}` : `${cn} called ${dn}. Missed.` });
   }
 
   game.roundScores = scores;
@@ -1758,7 +1815,10 @@ function tableVsCartoonist(game) {
   game.tvc = game.tvc || { table: 0, cartoonist: 0, draws: 0 };
   game.tvc[side === 'draw' ? 'draws' : side]++;
   const line = pickLine(game, 'tvc.' + side, { writer: nameList(writerIds.map(id => firstNameOf(game, id))) || 'The table', n: best, m });
-  game.tvcRound = { round: game.round, side, best, real: m, keys: tops.map(f => f.k), writerIds, line, score: { ...game.tvc } };
+  // cut 8: shown once a night (the first round that has a result); later rounds still keep the score
+  const tag = (game.gameNo || 0) + '|' + game.round;
+  if (!game.tvcShown) game.tvcShown = tag;
+  game.tvcRound = { round: game.round, side, best, real: m, keys: tops.map(f => f.k), writerIds, line, score: { ...game.tvc }, show: game.tvcShown === tag };
 }
 
 /* ── R8 The odds of that, stated deadpan: worked out from the rules and this table (each first bet as a blind guess
@@ -1810,7 +1870,7 @@ function reelStepMs(game, step) {
   if (key === realKey(game)) {   // the drumroll, the stamp (1.2 s), a line or two to read
     let ms = 5000 + (badges ? 600 : 0);
     if (game.odds && game.odds.round === game.round) ms += 1000;
-    if (game.tvcRound && game.tvcRound.line) ms += 800;
+    if (game.tvcRound && game.tvcRound.line && game.tvcRound.show) ms += 800;
     return ms;
   }
   let ms = votesOn(game, key) ? (n >= 7 ? 2700 : n >= 5 ? 2950 : 3200) : 2400;   // read aloud already: who wrote it, who fell for it (a big table, a brisker reel)
@@ -1840,9 +1900,10 @@ function moveToScoreboard(game) {
     game.finalLaps = Math.max(1, ...(here.length ? here : game.players).map(p => counts[p.id] || 0));
     const top = Math.max(...game.players.map(p => p.score));
     game.targetHit = { round: game.round, ids: game.players.filter(p => p.score === top).map(p => p.id), score: top };
-    if (!isGameOver(game)) game.lateFrom = game.round + 1;
+    if (!liveOver(game)) game.lateFrom = game.round + 1;
   }
-  if (!isGameOver(game) && !canDeal(game)) endForDeck(game);   // nothing left to deal: this is the final scoreboard
+  if (!liveOver(game) && !canDeal(game)) endForDeck(game);   // nothing left to deal: this is the final scoreboard
+  game.over = liveOver(game);   // decided now, for good
   setPhase(game, PHASES.SCORES);
   game.scoresAt = Date.now();   // phones time the scoreboard (and, at game over, the ending: night.js) from this
   try { scoreLines(game); } catch (e) { console.error('score lines', e); }
@@ -1861,7 +1922,7 @@ function closeRound(game) {
   game.slips = [];
   for (const key of playerKeys(game)) {
     const w = writerOfKey(game, key), c = counts[key] || {};
-    if (!w || votesOn(game, key) > 0 || (c.groan || 0) < SLIP_GROANS) continue;
+    if (!w || votesOn(game, key) > 0 || (c.groan || 0) < SLIP_GROANS || isNewbie(game, w)) continue;   // (cut 8: none in your first game)
     const slip = { round: game.round, target: key, writerId: w, writer: nameOfPlayer(game, w), caption: captionOfKey(game, key), groans: c.groan, image: game.cartoon && game.cartoon.image,
       line: pickLine(game, 'slip.form'), note: pickLine(game, 'slip.note', { name: firstNameOf(game, w), n: c.groan }), month: MONTH() };
     game.slips.push(slip);
@@ -1906,22 +1967,37 @@ function totalRounds(game) {
   const n = game.players.length, laps = lapsOf(game);
   if (!laps) return null;
   if (!game.round || game.dealerIndex < 0 || !game.dealCount || !n) return n * laps;
-  const c = { ...game.dealCount }, step = stepOf(game);
-  let i = game.dealerIndex, more = 0;
-  for (let g = 0; g <= n * laps; g++) {
-    i = seatAt(n, i + step);
-    const id = game.players[i].id;
-    if (!isPresent(game.players[i]) && (c[id] || 0) < laps) continue;   // #29: someone who left doesn't hold the game open for their deal
-    if ((c[id] || 0) >= laps) break;
-    c[id] = (c[id] || 0) + 1; more++;
-  }
+  // Every deal still owed to someone here (nextDealerIndex hands them out, skipping whoever has had theirs). A seat
+  // that was skipped while its phone was locked is still owed its deal; #29: someone who left doesn't hold it open.
+  const c = game.dealCount || {};
+  let more = 0;
+  for (const p of game.players) if (isPresent(p)) more += Math.max(0, laps - (c[p.id] || 0));
   return game.round + more;
 }
 
-function isGameOver(game) {
+// Game over is decided once, when a scoreboard lands (or when the table moves on from one and nobody left has a deal
+// to come), and then it stays over: a late joiner during the credits, or someone whose phone comes back, never
+// reopens a finished game. On a scoreboard that isn't the last, it stays not-over until the table moves on.
+function liveOver(game) {
   if (game.deckOut) return true;
   if (!lapsOf(game)) return false;   // first to N, and nobody's there yet
   return game.round >= totalRounds(game);
+}
+function isGameOver(game) {
+  if (game.over) return true;
+  if (game.phase === PHASES.SCORES) return false;
+  return liveOver(game);
+}
+// The scoreboard's 'next deal' tap: if everyone with a deal to come has gone since the scoreboard landed, the game
+// ends here instead (true = it's over now)
+function finishIfOver(game) {
+  if (game.over) return true;
+  if (game.phase !== PHASES.SCORES || !liveOver(game)) return false;
+  game.over = true;
+  game.scoresAt = Date.now();
+  try { scoreLines(game); } catch (e) { console.error('score lines', e); }
+  settleRating(game);
+  return true;
 }
 // #11 The Late Edition: this round (or `round`) pays double
 const isLate = (game, round = game.round) => !!game.lateFrom && round >= game.lateFrom;
@@ -2298,6 +2374,8 @@ function setCareer(game, playerId, msg) {
   if (sn && !sn.reported && rated && game.round <= 1 && !ANSWERED.includes(game.phase)) {
     game.ratingSnap[playerId] = { ...Rating.snapshot([p])[playerId], reported: true };
   }
+  // cut 8: a phone whose games arrive a moment late (still connecting at the start, or just joined) is placed now
+  if (game.newbies && (!(playerId in game.newbies) || (game.round <= 1 && !ANSWERED.includes(game.phase)))) game.newbies[playerId] = !((p.games || 0) >= 1);
   return { ok: true };
 }
 const ratingTitle = (p) => Rating.validRating(p.rating) && (p.games || 0) >= Rating.PROVISIONAL_GAMES ? Rating.titleOf(p.rating) : null;
@@ -2310,6 +2388,7 @@ function beginRated(game) {
   here.forEach(p => { snap[p.id].reported = Rating.validRating(p.rating); });
   game.ratingSnap = snap;
   game.ratingResult = null;
+  noteNewbies(game);
   try {
     const o = Rating.opening(here, snap, game.gameId);
     game.opening = { ...o, at: Date.now(), ms: OPEN_MS, gameId: game.gameId };
@@ -2334,6 +2413,9 @@ function settleRating(game) {
 function resetForNewGame(game) {
   setPhase(game, PHASES.LOBBY);
   game.deckOut = false;
+  game.over = false;
+  game.stealFullGame = false;
+  game.newbies = null;
   game.finale = null;
   game.flags = [];
   game.framePicks = {};
@@ -2486,6 +2568,13 @@ function getPlayerView(game, playerId) {
     if (Array.isArray(odd) && odd.length) base.cartoonOdd = odd.filter(o => o && typeof o.q === 'string' && Number.isFinite(+o.x) && Number.isFinite(+o.y) && Number.isFinite(+o.r)).slice(0, 12).map(o => ({ q: String(o.q).slice(0, 120), x: Math.max(0, Math.min(100, +o.x)), y: Math.max(0, Math.min(100, +o.y)), r: Math.max(3, Math.min(35, +o.r)) }));
   }
   base.gameNo = game.gameNo || 0;   // which game in this room (a second game counts its rounds from 1 again)
+  // cut 8: this phone is in its first game (no called shots, no rejection slips, no rating or Remote talk at the end)
+  base.newcomer = isNewbie(game, playerId);
+  base.callsOn = !base.newcomer;
+  // cut 7: how this round's steal plays: 'full' (the night's first steal, then at most once a game) or 'short' (2 s)
+  base.stealShow = game.steal && game.steal.stealShow ? game.steal.stealShow : null;
+  // the writers the table is still waiting on whose phones are away (locked, or gone quiet: up to 12 s more)
+  if (game.phase === PHASES.WRITING) base.awayWriters = awayWriters(game);
   base.note = game.note ? { ...game.note } : null;   // R22 the Editor's note (every phone, the whole round)
   base.kids = game.startedFamily ? { inBed: !!game.kidsInBed, card: game.kidsCard ? { ...game.kidsCard } : null } : null;   // R16
   if (game.opening && game.round === 1 && game.phase === PHASES.WRITING) base.opening = JSON.parse(JSON.stringify(game.opening));
@@ -2524,7 +2613,15 @@ function getPlayerView(game, playerId) {
       base.blindIn = game.dropAt ? [...game.betOrder] : game.betOrder.filter(pid => hasBlind(game, pid));
       base.blindEnd = game.blindEnd || null;
       base.isMyTurn = !game.dropAt && game.betOrder.includes(playerId) && !hasBlind(game, playerId);
-    } else base.isMyTurn = base.currentBetterId === playerId;
+    } else if (game.phase === PHASES.SECOND_BETS) {
+      // cut 3: the last chips, everyone at once and in secret: who's in (never where), the clock, the shared drop
+      const myLate = game.lateBlind && game.lateBlind[playerId];
+      if (!base.mySecondBet && myLate) base.mySecondBet = { target: myLate.target, count: 1 };
+      base.lateIn = game.lateDropAt ? [...base.eligibleSecondBetters] : base.eligibleSecondBetters.filter(pid => hasLate(game, pid));
+      base.lateEnd = game.lateEnd || null;
+      base.lateDropAt = game.lateDropAt || null;
+      base.isMyTurn = !game.lateDropAt && base.eligibleSecondBetters.includes(playerId) && !hasLate(game, playerId);
+    } else base.isMyTurn = false;
     // #1: whether the stolen chip was on the real caption stays on the server until the answer
     if (game.steal) { const { onCorrect, ...st } = game.steal; base.steal = ANSWERED.includes(game.phase) ? { ...game.steal } : st; }
     else base.steal = null;
@@ -2588,12 +2685,12 @@ function getPlayerView(game, playerId) {
   // R10 / R8: the blind-laugh score and this round's odds line (from the answer on)
   if (ANSWERED.includes(game.phase)) {
     base.tvc = { ...(game.tvc || { table: 0, cartoonist: 0, draws: 0 }), game: game.code + '-' + (game.gameNo || 0) };   // game: which game this tally belongs to (phones keep the table's best)
-    base.tvcRound = game.tvcRound ? { ...game.tvcRound } : null;
+    base.tvcRound = game.tvcRound && game.tvcRound.show ? { ...game.tvcRound } : null;   // (cut 8: once a night)
     base.odds = game.odds && game.odds.round === game.round ? { ...game.odds } : null;
   }
 
   if (game.phase === PHASES.SCORES) {
-    base.slips = (game.slips || []).map(x => ({ ...x }));   // R1: this round's rejection slips (each writer's phone shows its own)
+    base.slips = (game.slips || []).filter(x => x.writerId === playerId).map(x => ({ ...x }));   // R1 / cut 8: your own slip only (private: no public line)
     base.record = game.record ? JSON.parse(JSON.stringify(game.record)) : null;   // the game so far, for the end of the night
     base.gameOver = isGameOver(game);
     base.previousRank = game.previousRank || {};
@@ -2669,6 +2766,8 @@ function unsealGame(blob) {
     // #6: the reel and the flip pick up where they were, with a fair few seconds
     if (g.phase === PHASES.ANSWER && g.reel && g.reel.dueAt) g.reel.dueAt = Math.max(g.reel.dueAt, Date.now() + 3000);
     if (g.phase === PHASES.REVEAL && g.flipDue) g.flipDue = Math.max(g.flipDue, Date.now() + 3000);
+    if (g.phase === PHASES.SCORES && g.over === undefined) g.over = liveOver(g);   // (a room sealed before game over was frozen)
+    if (g.phase === PHASES.SECOND_BETS && !g.lateDropAt) { if (!g.lateBlind || typeof g.lateBlind !== 'object') g.lateBlind = {}; g.lateEnd = Math.max(g.lateEnd || 0, Date.now() + 10000); }   // last chips get a fair 10 s back
     if (!g.lineDeck || typeof g.lineDeck !== 'object') g.lineDeck = {};
     if (!g.lines || typeof g.lines !== 'object') g.lines = {};
     g.players.forEach(p => { p.connected = false; p.disconnectedAt = Date.now(); });
@@ -2686,12 +2785,12 @@ module.exports = {
   callShot, setHold, reelDue, revealedKeys, pickLine, noteLastWriter, reactionCounts, FLIP_AUTO_MS, LINES,
   wordCount, usesWord, applyNote, kidsToggle,
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
-  startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
-  moveToFirstBets, placeBet, skipCurrentBetter, dropBlind, afterBlinds, moveFromReveal, moveFromSecondBets, eligibleSecondBetters,
+  startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn, connectedAllIn, awayWriters, AWAY_WRITER_MS, isNewbie,
+  moveToFirstBets, placeBet, skipCurrentBetter, dropBlind, dropLate, LATE_BET_MS, afterBlinds, moveFromReveal, moveFromSecondBets, eligibleSecondBetters,
   standing, fooledTally, isLate, lapsOf, BLIND_MS, ALL_IN_BEAT_MS, DROP_HOLD_MS, STEAL_FULL_MS, STEAL_SHORT_MS, LATE_MS,
   openFinale, voteFinale, resolveFinale, finaleAllIn,
   setVoice, clearVoice,
-  stealChip, revealAnswer, moveToScoreboard, isGameOver, resetForNewGame, isPresent,
+  stealChip, revealAnswer, moveToScoreboard, isGameOver, liveOver, finishIfOver, resetForNewGame, isPresent,
   REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer, OPEN_MS,
   currentBetterId, pendingBetters, nextDealerIndex, getPlayerView, generateRoomCode,
 };

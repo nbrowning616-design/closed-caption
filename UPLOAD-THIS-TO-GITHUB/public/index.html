@@ -1203,7 +1203,7 @@ function buzz(pattern) {
 
 let lastGazette = null, lastIndN = null;   // The Gallery: last list the server sent; the last framing moment seen
 let myKey = null, serverBoot = null, lastTry = null, restoring = false, lastNoticeAt = 0, otherDevice = false;   // #2 seat key, #6 restart
-let ws = null, state = null, myPlayerId = null, gameCode = null, selectedTimer = 120 /* [settings] 2 min default */, timerInterval = null, wasKicked = false, clockOffset = 0;
+let ws = null, state = null, myPlayerId = null, gameCode = null, selectedTimer = 90 /* [settings] 90 s default (cut 4) */, timerInterval = null, wasKicked = false, clockOffset = 0;
 const BUILD = '__BUILD__';
 
 /* ═══════════════════════════════════════════════════════════
@@ -1642,7 +1642,7 @@ function onServer(msg) {
     if (msg.type === 'ping') return;   // #2 heartbeat (lastHeard is already fresh)
     if (msg.type === 'ack') { settle(msg.cid, true); return; }
     if (msg.type === 'rtc') { if (window.Voice) Voice.onSignal(msg); return; }
-    if (msg.type === 'hello') { serverBoot = msg.boot; backToSeat(); return; }
+    if (msg.type === 'hello') { serverBoot = msg.boot; if (preSeat) { flushPreSeat(); return; } backToSeat(); return; }
     if (msg.type === 'seal') { try { localStorage.setItem('cc_seal', JSON.stringify({ code: msg.code, data: msg.data, ts: Date.now() })); } catch (e) {} return; }
     if (msg.type === 'joined') {
       clearTimeout(claimRetryT); if (restoring) setTimeout(() => showToast('The server restarted. Your game is back where it was.', 'ok'), 600); restoring = false; lastTry = null; myKey = msg.key || null; if (msg.boot) serverBoot = msg.boot; if (demoWatched()) setTimeout(() => send({ action: 'demo_watched' }), 500); myPlayerId = msg.playerId; gameCode = msg.code; pendingJoin = null; if (pendingName) { rememberName(pendingName); pendingName = null; }
@@ -1757,7 +1757,14 @@ function send(obj) {
   }
   return _send(obj);
 }
-function _send(obj) { if (ws && ws.readyState === 1) { ws.send(JSON.stringify(obj)); return true; } showToast('Reconnecting — try again in a second'); return false; }
+// A Join or Create tapped before the connection is up waits for it (sent on the server's hello), never lost
+let preSeat = null;
+function _send(obj) {
+  if (ws && ws.readyState === 1) { ws.send(JSON.stringify(obj)); return true; }
+  if (obj && (obj.action === 'join' || obj.action === 'create')) { preSeat = { obj, at: Date.now() }; showToast('Connecting…', 'ok'); try { connect(); } catch (e) {} return true; }
+  showToast('Reconnecting — try again in a second'); return false;
+}
+function flushPreSeat() { const p = preSeat; preSeat = null; if (p && Date.now() - p.at < 30000 && ws && ws.readyState === 1) ws.send(JSON.stringify(p.obj)); }
 function showToast(message, type = 'error') {
   let t = $('app-toast');
   if (!t) { t = document.createElement('div'); t.id = 'app-toast'; document.body.appendChild(t); }
@@ -1994,7 +2001,7 @@ function stageSay() {
       case 'reading': line = `Bet. ${me ? 'Read the captions aloud.' : `${d} reads the captions aloud.`} ${plural((s.openCaptions || []).length, 'caption')} in the open, one face-down.`; break;
       case 'first_bets': line = s.isMyTurn ? '' : s.dropAt ? '' : 'Bet. Everyone bets at once, in secret.'; break;   // (your own turn: afterRender says 'Bet now')
       case 'reveal': line = 'Flip. The face-down caption turns over. Then it moves on by itself.'; break;
-      case 'second_bets': line = s.isMyTurn ? '' : `Flip. Last chips, one at a time${s.currentBetterName ? ': ' + firstName(s.currentBetterName) + ' is up' : ''}.`; break;
+      case 'second_bets': line = s.isMyTurn ? '' : s.lateDropAt ? '' : 'Flip. Last chips, everyone at once, in secret.'; break;
       case 'steal': line = me ? '' : `${d} is choosing a chip to steal, before the flip.`; break;
       case 'answer': { const { step, n } = reelInfo(); line = step > n ? 'Score. Round recap: the real caption, the points, and a frame for any caption that beat it.' : 'Score. The reveal: who wrote each caption, and who fell for it. It moves on by itself.'; break; }
       case 'scores': line = s.gameOver ? 'Final scores.' : `Scoreboard. Next dealer: ${firstName(s.nextDealerName || '')}.`; break;
@@ -2027,15 +2034,13 @@ function afterRender(phaseChanged) {
     if (!phaseChanged && bets.length > seenBets) {
       const fresh = bets.slice(seenBets);
       if (fresh.some(b => b.playerId === myPlayerId && b.target !== 'pass')) undoUntil = Date.now() + 3500;
-      fresh.forEach((b, i) => { if (b.playerId === myPlayerId && flyFrom) flyMyChips(seenBets + i); else document.querySelectorAll(`.chip-tray .chip[data-bet="${seenBets + i}"]`).forEach(c => c.classList.add('drop')); });
+      fresh.forEach((b, i) => document.querySelectorAll(`.chip-tray .chip[data-bet="${seenBets + i}"]`).forEach(c => { c.style.animationDelay = (i * 45) + 'ms'; c.classList.add('drop'); }));   // cut 3: they all land together
       const total = fresh.reduce((s, b) => s + (b.count || 0), 0);
       if (total > 0) { (fresh.some(b => b.playerId === myPlayerId) ? sfx : bsfx).chip(Math.min(2, total)); buzz(20); }   // your chip on your phone; the rest on the speaker
     }
-    if (bets.length < seenBets) undoUntil = 0;   // a chip was taken back
     seenBets = bets.length;
-    if (state.isMyTurn && !wasMyTurn) { sfx.yourTurn(); buzz([60, 80, 60]); srSay('Your last chip. Pick a caption.'); }
-    const row = $('bettor-row'), up = row && row.querySelector('.bettor.turn');
-    if (row && up && row.scrollWidth > row.clientWidth) row.scrollLeft = Math.max(0, up.offsetLeft - row.offsetLeft - (row.clientWidth - up.offsetWidth) / 2);
+    if (state.isMyTurn && !wasMyTurn) { sfx.yourTurn(); buzz([60, 80, 60]); srSay('Your last chip. Everyone at once.'); }
+    if (!state.lateDropAt && state.lateEnd) startBlindClock(); else if (state.lateDropAt) clearInterval(blindClockT);
     wasMyTurn = !!state.isMyTurn;
     renderBetBar();
   }
@@ -2232,7 +2237,7 @@ function renderLobby() {
         <p class="lb-hint">${vm === 'call' ? 'FaceTime or Zoom does the talking. The game’s own voice is off.' : vm === 'game' ? 'Everyone taps the microphone button at the top to join the call. Two phones in one room? Headphones, or they echo.' : 'Everyone in one room? Leave both off.'}</p></div>`
     : vm ? `<p class="lb-hint">${vm === 'call' ? 'This table is on a call, so the game’s own voice is off.' : 'This table talks through the game’s voice. Tap the microphone button at the top to join.'}</p>` : '';
   const settings = state.isHost ? `
-        <div class="field"><label class="eyebrow">Writing timer</label><div class="seg">${segBtn(td === 120 && !lobbyCustomTimer, 'setHostTimer(120)', '2 min')}${segBtn(customOn, 'openCustomTimer()', 'Custom')}${segBtn(td === 0 && !lobbyCustomTimer, 'setHostTimer(0)', 'No timer')}</div>
+        <div class="field"><label class="eyebrow">Writing timer</label><div class="seg">${segBtn(td === 90 && !lobbyCustomTimer, 'setHostTimer(90)', '90 s')}${segBtn(customOn, 'openCustomTimer()', 'Custom')}${segBtn(td === 0 && !lobbyCustomTimer, 'setHostTimer(0)', 'No timer')}</div>
           ${customOn ? `<div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:8px;"><button class="btn btn-sm" style="width:48px;" aria-label="One minute less" ${td && td <= 60 ? 'disabled' : ''} onclick="stepTimer(-1)">−</button><b style="font-size:18px;min-width:80px;text-align:center;">${td ? (td % 60 ? td + ' s' : tmin + ' min') : '—'}</b><button class="btn btn-sm" style="width:48px;" aria-label="One minute more" ${td >= 600 ? 'disabled' : ''} onclick="stepTimer(1)">+</button></div>` : ''}
           ${td === 0 && !lobbyCustomTimer ? '<p class="lb-hint">No countdown. Writing ends when everyone’s in, or the dealer taps “End writing”.</p>' : ''}</div>
         <div class="field"><label class="eyebrow">Game length</label><div class="seg">
@@ -2392,7 +2397,8 @@ function restoreDraft() {
 
 function writingStatusHtml() {
   const submitted = new Set(state.submittedPlayerIds || []);
-  const here = state.players.filter(p => p.connected || submitted.has(p.id));
+  const away = new Set(state.awayWriters || []);   // phones away a moment (locked): still waited on, briefly
+  const here = state.players.filter(p => p.connected || submitted.has(p.id) || away.has(p.id));
   const n = here.filter(p => submitted.has(p.id)).length;
   const last = window.Guide ? Guide.lastWriter(state) : null;   // exactly one left: spotlight them (guide.js)
   return `<div data-live="status" class="panel flat center" style="padding:12px;">
@@ -2682,6 +2688,7 @@ function tapFrame(key) {
 function callMine() { return callLocal && callLocal.tag === rTag() ? callLocal.id : (state.myCall || null); }
 function callableIds() { return state.players.filter(p => p.id !== myPlayerId && p.connected && !(p.id === state.dealerId && !dealerBetsNow())).map(p => p.id); }
 function callHtml(compact) {
+  if (state.callsOn === false) return '';   // cut 8: none in a phone's first game
   if (!(state.phase === 'writing' ? state.hasSubmitted : state.iWrote)) return '';
   const ids = callableIds(); if (!ids.length) return '';
   const mine = callMine();
@@ -2767,7 +2774,7 @@ function renderBetting(stage) {
   const eligible2 = new Set(state.eligibleSecondBetters || []);
   const passed = new Set(bets.filter(b => b.target === 'pass').map(b => b.playerId));
   const canPick = state.isMyTurn && !myBet;
-  const cls = (t) => 'cap' + (t === 'closed' ? ' closed' : '') + (canPick ? '' : ' locked') + (selectedBetTarget !== null && String(selectedBetTarget) === String(t) ? ' picked' : '');
+  const cls = (t) => 'cap' + (t === 'closed' ? ' closed' : '') + (canPick ? '' : ' locked') + ((canPick && selectedBetTarget !== null && String(selectedBetTarget) === String(t)) || (myBet && !state.lateDropAt && String(myBet.target) === String(t)) ? ' picked' : '');
   const myBlind = bets.find(b => b.playerId === myPlayerId && b.stage === 1 && b.target !== 'pass');
   const already = (t) => {
     if (!first || !myBlind || String(first.target) !== String(t)) return '';
@@ -2780,26 +2787,24 @@ function renderBetting(stage) {
   const closedCard = `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')"><span class="num"><span class="cc-badge" style="margin:0;">CC</span></span>${trayHtml('closed', { showStolen: true })}
         <p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption · turned over</p><p class="caption-text">“${esc(state.closedCaption)}”${state.iWroteClosed ? ' <span class="tag mine">Yours</span>' : ''}</p>${already('closed')}</div>`;
 
-  // Every bettor shows the chips they still hold: 1 or none. A chip leaves here and lands on a caption.
-  // #40: one row, in betting order, that scrolls sideways — your own chips sit in it (they fly from there)
+  // Cut 3: the last chips go down at once, in secret (a tick once someone's in, never where), then drop together
+  const dropped = !!state.lateDropAt, inSet = new Set(state.lateIn || []);
   const orderRow = order.map((pid, i) => {
-    const n = chipsLeft(pid), sat = passed.has(pid) && !n, turn = state.currentBetterId === pid, me = pid === myPlayerId;
+    const n = chipsLeft(pid);   // (the last chips aren't on the table until the drop)
+    const sat = passed.has(pid) && !n, me = pid === myPlayerId, isIn = !dropped && inSet.has(pid);
     const stack = n ? Array.from({ length: n }, (_, k) => chipHtml(pid, me ? 'sm mine' : 'sm', '', me ? `data-rack="${k}"` : '')).join('') : `<span class="bnone">${sat ? 'sat out' : 'all in'}</span>`;
-    return `${i ? '<span class="b-arrow" aria-hidden="true">›</span>' : ''}<div class="bettor${turn ? ' turn' : ''}${!n || sat ? ' spent' : ''}${me ? ' me' : ''}"${me ? ' id="my-rack"' : ''}><div class="bchips">${stack}</div><div class="bname">${esc(me ? 'You' : fnameOf(pid))}</div></div>`;
+    return `${i ? '<span class="b-arrow" aria-hidden="true">›</span>' : ''}<div class="bettor${!dropped && eligible2.has(pid) && !isIn ? ' waiting' : ''}${!n || sat ? ' spent' : ''}${me ? ' me' : ''}"${me ? ' id="my-rack"' : ''}><div class="bchips">${stack}</div><div class="bname">${isIn ? '<span class="b-in" aria-hidden="true">✓</span>' : ''}${esc(me ? 'You' : fnameOf(pid))}</div></div>`;
   }).join('');
-
-  const cur = state.currentBetterName ? esc(firstName(state.currentBetterName)) : '';
+  const waitOn = dropped ? [] : [...eligible2].filter(pid => !inSet.has(pid));
+  const waitWords = waitOn.length ? `Waiting on ${esc(listNames(waitOn.map(pid => pid === myPlayerId ? 'you' : fnameOf(pid))))}.` : 'Everyone’s in.';
+  const clock = !dropped && state.lateEnd ? '<p class="blind-clock" id="blind-clock" aria-hidden="true"></p>' : '';
   let banner;
   const BL = state.lines || {};
-  if (state.allBetsIn) banner = `<div class="turn-banner"><div class="h2">${esc(BL.betDown || 'All chips are down')}</div><p class="sub">Here comes the answer…</p></div>`;
-  else if (state.isMyTurn && !myBet) banner = `<div class="turn-banner you" role="status"><div class="h2">Your last chip</div><p class="sub" style="color:var(--ink);">Tap where it goes — anywhere.</p></div>`;
-  else if (myBet) banner = `<div class="turn-banner"><div class="h2">${esc(betLabel(myBet.target, 1))} ✓</div><p class="sub">${cur} is up.</p></div>`;
-  else if (!eligible2.has(myPlayerId)) banner = `<div class="turn-banner"><div class="h2">${state.isDealer && !dealerBetsNow() ? 'You’re dealing' : passed.has(myPlayerId) ? 'You sat this one out' : 'Both your chips are down'}</div><p class="sub">${cur} is betting…</p></div>`;
-  else { const away = order.indexOf(myPlayerId) - order.indexOf(state.currentBetterId); banner = `<div class="turn-banner"><div class="h2">${cur} is betting<span class="dots"></span></div><p class="sub">${away > 0 ? `You’re ${away === 1 ? 'next' : away + ' away'}.` : esc(BL.betWatch || 'Watch the chips land.')}</p></div>`; }
-
-  const curP = playerById(state.currentBetterId);
-  const tools = !state.allBetsIn && (canRun() || (curP && !curP.connected)) ? `<div class="center" style="margin-top:18px;">
-      <button class="btn-link" onclick="skipBetter()">Skip ${cur}’s turn</button>${canRun() ? ` · <button class="btn-link" onclick="forceAdvance()">End betting now</button>` : ''}</div>` : '';
+  if (dropped) banner = `<div class="turn-banner"><div class="h2">${esc(BL.betDown || 'All chips are down')}</div><p class="sub">Here comes the answer…</p></div>`;
+  else if (canPick) banner = `<div class="turn-banner you" role="status"><div class="h2">Your last chip</div><p class="sub" style="color:var(--ink);">Anywhere, even on your first one. Everyone at once, in secret.</p>${clock}</div>`;
+  else if (myBet) banner = `<div class="turn-banner"><div class="h2">${esc(betLabel(myBet.target, 1))} ✓</div><p class="sub">${waitWords} The chips drop together.</p>${clock}</div>`;
+  else banner = `<div class="turn-banner"><div class="h2">${state.isDealer && !dealerBetsNow() ? 'You’re dealing' : passed.has(myPlayerId) ? 'You sat this one out' : 'Both your chips are down'}</div><p class="sub">Last chips. ${waitWords}</p>${clock}</div>`;
+  const tools = !dropped && canRun() && waitOn.length ? `<div class="center" style="margin-top:18px;"><button class="btn-link" onclick="forceAdvance()">Drop the chips now</button></div>` : '';
 
   return `${header({ sticker: '<span class="sticker blue">Last chips</span>' })}
     ${banner}
@@ -2848,8 +2853,9 @@ function renderBlind() {
 let blindClockT = null;
 function blindClockTick() {
   const el = $('blind-clock');
-  if (!el || !state || state.phase !== 'first_bets' || state.dropAt || !state.blindEnd) { clearInterval(blindClockT); blindClockT = null; return; }
-  const left = Math.max(0, Math.ceil((state.blindEnd - (Date.now() + clockOffset)) / 1000));
+  const end = state && state.phase === 'second_bets' ? (!state.lateDropAt && state.lateEnd) : state && state.phase === 'first_bets' && !state.dropAt && state.blindEnd;
+  if (!el || !end) { clearInterval(blindClockT); blindClockT = null; return; }
+  const left = Math.max(0, Math.ceil((end - (Date.now() + clockOffset)) / 1000));
   el.textContent = left > 0 ? `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')} to bet` : 'Time.';
   el.classList.toggle('urgent', left <= 10);
 }
@@ -2875,7 +2881,7 @@ function skipBetter() { if (confirm(`Skip ${state.currentBetterName}’s turn? T
 function forceAdvance() {
   const n = (state.pendingBetters || []).length;
   if (state.phase === 'first_bets') { if (!n || confirm(`Drop the chips now? ${plural(n, 'player sits', 'players sit')} the first bets out (and ${n === 1 ? 'keeps' : 'keep'} one chip for after the flip).`)) send({ action: 'advance' }); return; }
-  if (confirm(`Move on without ${plural(n, 'more bet')}?`)) send({ action: 'advance' });
+  if (!n || confirm(`Drop the chips now? ${plural(n, 'player sits', 'players sit')} the last chip out.`)) send({ action: 'advance' });
 }
 function selectBet(target) {
   if (!state.isMyTurn) return;
@@ -2891,11 +2897,7 @@ function renderBetBar() {
   const stage = state.phase === 'first_bets' ? 1 : 2;
   // A blind bet is secret: change it any time until the chips drop
   if (stage === 1 && state.myFirstBet && !state.dropAt) { setActionBar(`<button class="btn" onclick="undoBet()">Change my bet</button>`); return; }
-  const bets = state.bets || [], last = bets[bets.length - 1];
-  if (stage === 2 && Date.now() < undoUntil && last && last.playerId === myPlayerId && last.target !== 'pass' && last.stage === 2) {
-    clearTimeout(undoT); undoT = setTimeout(() => { if (state) renderBetBar(); }, undoUntil - Date.now() + 50);
-    setActionBar(`<button class="btn" onclick="undoBet()">↩ Undo — take my chip back</button>`); return;
-  }
+  if (stage === 2 && state.mySecondBet && !state.lateDropAt) { setActionBar(`<button class="btn" onclick="undoBet()">Change my bet</button>`); return; }
   if (!state.isMyTurn || selectedBetTarget === null) { setActionBar(''); return; }
   const t = selectedBetTarget;
   const where = t === 'closed' ? (stage === 1 ? 'The face-down one' : 'The Closed Caption') : `Caption ${t + 1}`;
@@ -2909,7 +2911,8 @@ function renderBetBar() {
 function placeBet(count) {
   if (selectedBetTarget === null) return;
   const from = [...document.querySelectorAll('#my-rack .chip')].slice(-count).map(c => c.getBoundingClientRect());
-  if (send({ action: 'place_bet', target: selectedBetTarget, count })) { if (state.phase === 'second_bets') flyFrom = { rects: from, at: Date.now() }; else { sfx.chip(count); buzz(20); } selectedBetTarget = null; setActionBar(''); }
+  void from;
+  if (send({ action: 'place_bet', target: selectedBetTarget, count })) { sfx.chip(count); buzz(20); selectedBetTarget = null; setActionBar(''); }
 }
 // Your chips leave your rack and land on the caption you picked
 let flyFrom = null;
@@ -4003,9 +4006,11 @@ function renderFinal(sorted, animated, goal) {
   const win = `<div class="fn-card fn-win fade-in"><div class="fn-ic">${inkIcon('trophy', 50)}</div><p class="fn-eyebrow">${tie ? 'It’s a tie' : 'Winner'}</p><div class="fn-name" style="${fit(tops.map(p => p.name))}">${nameLines(tops.map(p => p.name))}</div><p class="fn-sub">${plural(winner.score, 'point')}</p>${why ? `<p class="fn-why">${why}</p>` : ''}${window.Ending ? Ending.remoteLineHtml() : ''}</div>`;
   const standings = sorted.map(p => `<span class="fn-st">${chipHtml(p.id, 'xs')}${esc(p.name)} <b class="score-number" data-target="${p.score}" data-from="${p.score - ((state.roundScores || {})[p.id] || 0)}">${animated ? p.score : p.score - ((state.roundScores || {})[p.id] || 0)}</b></span>`).join('');
   const nFr = state.framedTonight || 0, fin = state.finale && window.ccFinale, ended = !state.ending || state.ending.done;
-  const replay = state.ending && state.ending.done && window.Ending ? `<button class="btn-link fn-link" onclick="Ending.replay()">Watch the credits again</button>${state.ending.credits && state.ending.credits[myPlayerId] ? `<button class="btn-link fn-link" onclick="Ending.saveMyCredit()">Save your credit</button>` : ''}` : '';
+  const shortEnd = !!(state.ending && state.ending.full === false);   // cut 5: not the night's last game (yet)
+  const replay = state.ending && state.ending.done && !shortEnd && window.Ending ? `<button class="btn-link fn-link" onclick="Ending.replay()">Watch the credits again</button>${state.ending.credits && state.ending.credits[myPlayerId] ? `<button class="btn-link fn-link" onclick="Ending.saveMyCredit()">Save your credit</button>` : ''}` : '';
   // Caption of the Night: the dealer's tap on the cast list opens it; if it didn't, the button is here
-  const galBtn = ended && !fin && nFr && window.ccFinale ? (canRun()
+  const nightBtn = shortEnd && ended && state.isHost ? `<button class="btn fn-night" onclick="this.disabled=true; send({action:'call_night'})">Call it a night</button>` : '';
+  const galBtn = ended && !fin && nFr && !shortEnd && window.ccFinale ? (canRun()
       ? `<button class="btn btn-yellow fn-gal" onclick="openFinale()">Caption of the Night (${plural(nFr, 'frame')}) →</button>`
       : `<p class="rc-wait">Next: Caption of the Night. ${esc(firstName(state.dealerName || nameOf(state.hostId)))} opens it<span class="dots"></span></p>`) : '';
   if (fin) return `${header({ sticker: '<span class="sticker">Tonight’s Gallery</span>', sub: goal, thumb: false })}
@@ -4023,6 +4028,7 @@ function renderFinal(sorted, animated, goal) {
     <div class="stack fn-btns">
       ${galBtn}
       ${againHtml(!galBtn)}
+      ${nightBtn}
       ${window.Recap ? `<button class="btn" onclick="Recap.open()">Night recap</button>` : ''}
       ${replay}
       ${state.history && state.history.length ? `<button class="btn-link fn-link" onclick="openHistory()">Past rounds</button>` : ''}

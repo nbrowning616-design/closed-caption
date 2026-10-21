@@ -109,7 +109,7 @@ function broadcast(code, sealTo = null) {
   // #6: every phone keeps a sealed copy of the room, refreshed on each new stage (or every 20 s), to hand back after a restart.
   // #2: and whenever a caption, a bet, the steal or a frame pick lands, so a restart never loses the last one.
   const tag = game.phase + '|' + game.round + '|' + (game.reel ? game.reel.step : '') + '|' + game.players.length + '|' + (game.roundFrames || []).length + '|' + (game.finale ? (game.finale.winner || 'v') + Object.keys(game.finale.votes || {}).length : '')
-    + '|' + (game.submissions || []).length + '|' + (game.bets || []).length + '|' + Object.keys(game.blind || {}).length + '|' + (game.dropAt || '') + '|' + (game.steal ? (game.steal.victimId ? 's' : 'p') : '') + '|' + Object.values(game.framePicks || {}).reduce((n, l) => n + (l || []).length, 0) + '|' + Object.keys(game.calls || {}).length + '|' + (game.reel && game.reel.paused ? 'h' : '') + (game.flipHold ? 'h' : '') + '|' + (game.actN || 0)
+    + '|' + (game.submissions || []).length + '|' + (game.bets || []).length + '|' + Object.keys(game.blind || {}).length + '|' + (game.dropAt || '') + '|' + Object.keys(game.lateBlind || {}).length + (game.lateDropAt || '') + '|' + (game.steal ? (game.steal.victimId ? 's' : 'p') : '') + '|' + Object.values(game.framePicks || {}).reduce((n, l) => n + (l || []).length, 0) + '|' + Object.keys(game.calls || {}).length + '|' + (game.reel && game.reel.paused ? 'h' : '') + (game.flipHold ? 'h' : '') + '|' + (game.actN || 0)
     + '|' + (game.ending ? game.ending.step + (game.ending.done ? 'd' : '') : '') + '|' + (game.lastCall ? 'lc' : '') + Object.keys(game.departed || {}).length;
   // #41: a game reached its final scoreboard (counted once per game)
   if (game.phase === PHASES.SCORES && game.gameNo && game._statDone !== game.gameNo && G.isGameOver(game)) { game._statDone = game.gameNo; Stats.finished(); }
@@ -128,7 +128,7 @@ function broadcast(code, sealTo = null) {
       view.lanUrl = LAN_URL;
       view.build = BUILD;
       if (game.phase === PHASES.SCORES) view.wantAgain = game.players.filter(x => x.again).map(x => x.id);   // #35: who's in for another
-      if (ending) view.ending = ending;
+      if (ending) view.ending = view.newcomer ? { ...ending, ratings: [], remote: null, newcomer: true } : ending;   // cut 8: a first game's ending has no rating or Remote talk
       if (prev) view.previously = prev;
       if (remote) view.remote = remote;
       Night.decorateView(game, view, p.id);   // R30 Last Call; R18 the Late Edition's sealed scores
@@ -209,8 +209,33 @@ function autoAdvanceBets(code) {
   const g = games[code];
   if (!g) return;
   if (g.phase === PHASES.FIRST_BETS) return scheduleBlind(code);
-  // 'All chips are down' gets a beat to land (and the last bettor a moment to undo) before the table moves on
-  if (g.phase === PHASES.SECOND_BETS && G.pendingBetters(g).length === 0) later(code, 3200, PHASES.SECOND_BETS, (x) => G.pendingBetters(x).length ? null : G.moveFromSecondBets(x));
+  if (g.phase === PHASES.SECOND_BETS) return scheduleLate(code);
+}
+/* Cut 3 The last chips, everyone at once: the same shape as the blind bets. Everyone in -> a short beat -> one
+   shared drop; or the 15 s clock runs out first. Then the table has a look and the answer comes. */
+const lateT = new Map();   // code -> timeout
+function scheduleLate(code) {
+  const g = games[code];
+  clearTimeout(lateT.get(code)); lateT.delete(code);
+  if (!g || g.phase !== PHASES.SECOND_BETS || g.lateDropAt) return;
+  const allIn = G.pendingBetters(g).length === 0;
+  const at = allIn ? Date.now() + G.ALL_IN_BEAT_MS : (g.lateEnd || Date.now() + G.LATE_BET_MS);
+  const round = g.round;
+  lateT.set(code, setTimeout(() => {
+    lateT.delete(code);
+    const x = games[code];
+    if (!x || x.phase !== PHASES.SECOND_BETS || x.round !== round || x.lateDropAt) return;
+    if (allIn ? G.pendingBetters(x).length > 0 : Date.now() < (x.lateEnd || 0) - 50) return scheduleLate(code);   // someone took theirs back / the clock moved
+    lateDropNow(code);
+  }, Math.max(0, at - Date.now())));
+}
+function lateDropNow(code) {
+  const g = games[code];
+  if (!g || g.phase !== PHASES.SECOND_BETS) return;
+  clearTimeout(lateT.get(code)); lateT.delete(code);
+  try { G.dropLate(g); } catch (e) { console.error('late drop failed', code, e); }
+  broadcast(code);
+  later(code, Math.max(0, g.lateDropAt + G.DROP_HOLD_MS - Date.now()), PHASES.SECOND_BETS, G.moveFromSecondBets);
 }
 /* #7 Blind bets, everyone at once: one timer per room. Everyone in -> a short beat (the last one can still take
    theirs back) -> every chip drops onto the table together. Or the clock runs out first. */
@@ -302,6 +327,7 @@ function resumeTimers(code) {
   if (!g) return;
   if (g.phase === PHASES.WRITING) scheduleWritingEnd(code);
   if (g.phase === PHASES.FIRST_BETS && g.dropAt) later(code, 1500, PHASES.FIRST_BETS, G.afterBlinds);   // the drop already happened: on to the steal
+  else if (g.phase === PHASES.SECOND_BETS && g.lateDropAt) later(code, 1500, PHASES.SECOND_BETS, G.moveFromSecondBets);
   else if (g.phase === PHASES.FIRST_BETS || g.phase === PHASES.SECOND_BETS) autoAdvanceBets(code);
   syncAuto(code);   // #6: the flip or the reel picks up where it was
 }
@@ -627,6 +653,13 @@ wss.on('connection', (ws, req) => {
         broadcast(code);
         return;
       }
+      case 'call_night': {
+        // cut 5: game over, and that's the night: the credits, the cast list, then Caption of the Night
+        if (!isHost && !canRun) return sendError(ws, 'Only the host can call it a night');
+        if (fail(Night.callNight(game))) return;
+        broadcast(code);
+        return;
+      }
       case 'last_call': {
         // R30 Last Call (the host): the next trip around the table is the last, the Late Edition, sealed
         if (!isHost) return sendError(ws, 'Only the host can call last call');
@@ -695,15 +728,13 @@ wss.on('connection', (ws, req) => {
         if (fail(G.undoBet(game, playerId))) return;
         broadcast(code);
         if (game.phase === PHASES.FIRST_BETS) scheduleBlind(code);   // the 'all in' beat waits for them again
+        if (game.phase === PHASES.SECOND_BETS) scheduleLate(code);
         return;
       }
       case 'skip_better': {
-        // Anyone can skip a player whose phone has dropped; otherwise dealer/host only
-        const cur = game.players.find(p => p.id === G.currentBetterId(game));
-        if (!canRun && !(cur && !cur.connected)) return sendError(ws, 'Only the dealer or host can skip a turn');
-        if (fail(G.skipCurrentBetter(game))) return;
-        broadcast(code);
-        autoAdvanceBets(code);
+        // (older phones) there are no turns any more: the dealer or host drops the last chips instead
+        if (game.phase === PHASES.SECOND_BETS && canRun && !game.lateDropAt) return lateDropNow(code);
+        fail(G.skipCurrentBetter(game));
         return;
       }
       case 'steal': {
@@ -735,7 +766,9 @@ wss.on('connection', (ws, req) => {
             if (game.flipAt && Date.now() < game.flipAt + 2400) { game._advAt = 0; return game.steal && game.steal.victimId && Date.now() < game.flipAt ? sendError(ws, 'Let the thief finish') : undefined; }   // the card hasn't turned yet
             G.moveFromReveal(game); break;
           case PHASES.SECOND_BETS:
+            // 'Drop the chips now' (anyone not in sits the last chip out); after the drop, straight to the answer
             if (!canRun) return sendError(ws, 'Only the dealer or host can do that');
+            if (!game.lateDropAt) return lateDropNow(code);
             G.moveFromSecondBets(game); break;
           case PHASES.ANSWER:
             // The recap: only the dealer (or host, or a stand-in) moves on, straight to the scoreboard (#5: Frame It
@@ -747,6 +780,7 @@ wss.on('connection', (ws, req) => {
             const nd = game.players[G.nextDealerIndex(game, game.dealerIndex)];
             if (!canRun && !(nd && nd.id === playerId)) return sendError(ws, 'Waiting for the next dealer');
             if (G.isGameOver(game)) return;
+            if (G.finishIfOver(game)) { broadcast(code); return; }   // everyone with a deal to come has gone: this was the last round
             if (fail(G.startRound(game))) return;
             broadcast(code);
             scheduleWritingEnd(code);
@@ -755,11 +789,13 @@ wss.on('connection', (ws, req) => {
           default: return;
         }
         broadcast(code);
+        if (game.phase === PHASES.SECOND_BETS) scheduleLate(code);   // (the flip, tapped on: the last chips' clock)
         return;
       }
       case 'finale_open': {
         // After the credits: the host (or a stand-in) opens tonight's Gallery for every phone
         if (!canRun) return sendError(ws, 'The host opens the Gallery');
+        if (game.ending && !game.ending.full) return sendError(ws, 'Caption of the Night comes at the end of the night');   // cut 5
         if (fail(G.openFinale(game))) return;
         broadcast(code);
         return;
@@ -879,17 +915,15 @@ setInterval(() => {
     for (const [cid, c] of claims) if (c.code === code && now - c.at > 180000) { dropClaim(cid); try { send(c.ws, { type: 'claim_no', lapsed: true }); } catch (e) {} }
     // Writing: everyone still here has written (a phone that went away no longer holds it up)
     if (g.phase === PHASES.WRITING && g.submissions.length >= 2 && G.allCaptionsIn(g)) { endWriting(g); changed = true; }
+    // ...and a phone that died mid-writing holds it up a few seconds, never the full 45 s grace
+    if (g.phase === PHASES.WRITING && G.connectedAllIn(g)) { if (!g._allOnAt) g._allOnAt = now; else if (now - g._allOnAt >= G.AWAY_WRITER_MS) { g._allOnAt = 0; endWriting(g); changed = true; } }
+    else g._allOnAt = 0;
     // #28: a dealer who wanders off doesn't freeze the steal: it passes by itself after 45 s
     if (g.phase === PHASES.STEAL && g.phaseAt && now - g.phaseAt > 45000) { G.stealChip(g, null); changed = true; }
     // Blind bets: the only ones not in are phones gone past the grace — drop without them
     if (g.phase === PHASES.FIRST_BETS && !g.dropAt && !blindT.has(code) && G.pendingBetters(g).length === 0) scheduleBlind(code);
-    // Late chips: skip a player whose phone has been gone 45+ seconds
-    if (g.phase === PHASES.SECOND_BETS) {
-      const cur = g.players.find(p => p.id === G.currentBetterId(g));
-      if (cur && !cur.connected && cur.disconnectedAt && now - cur.disconnectedAt > 45000) {   // 45 s: switching to Messages or a locked phone doesn't cost your turn
-        G.skipCurrentBetter(g); changed = true; autoAdvanceBets(code);
-      }
-    }
+    // Last chips: the only ones not in are phones gone past the grace — drop without them; and never without a clock
+    if (g.phase === PHASES.SECOND_BETS && !g.lateDropAt && !lateT.has(code)) scheduleLate(code);
     // #39: the one writer everyone is waiting on can change when a phone drops
     if (g.phase === PHASES.WRITING) { const before = g.lines && g.lines.waitLast ? g.lines.waitLast.pid : null; G.noteLastWriter(g); if ((g.lines && g.lines.waitLast ? g.lines.waitLast.pid : null) !== before) changed = true; }
     // Keep "dealer is away" countdowns fresh

@@ -36,7 +36,9 @@ const W = require('./credits');
 let G = null;
 const game_ = () => G || (G = require('./game'));   // (late: game.js is still loading when this file is first read)
 
-const WINNER_MS = 7000, AWARDS_MS = 7500, CREDIT_MS = 6500, LEAD_MS = 400;   // the ending's beats
+const WINNER_MS = 7000, AWARDS_MS = 7500, CREDIT_MS = 8000, LEAD_MS = 400;   // the ending's beats (a credit: the dealer taps on; 8 s if not)
+const EPILOGUE_WORDS = 22;   // cut 5: epilogues of about 20 words (longer lines only when nothing shorter fits)
+const RETURN_GAP_MS = 6 * 3600 * 1000;   // cut 5: "Previously on" only when the table comes back on a later day
 const STAND_MS = 2800, TOP_MS = 3600;   // sealed games: the standings read from the bottom, then the top two held together
 const PREV_MS = 10000;   // the cold open (round 1's writers get the time back)
 const MAX_TAPE = 40, MAX_CANDS = 8;
@@ -61,6 +63,7 @@ function fill(text, ctx) {
   for (const [k, v] of Object.entries(ctx)) if (typeof v === 'string') t = t.split('{' + k + '}').join(v);
   return t;
 }
+const wordsIn = (t) => String(t || '').split(/\s+/).filter(Boolean).length;
 const firstWord = (s) => String(s || '').trim().split(/\s+/)[0] || String(s || '');
 const listNames = (a) => (a.length <= 1 ? (a[0] || '') : a.length === 2 ? `${a[0]} and ${a[1]}` : `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`);
 const norm = (s) => String(s || '').replace(/\s+/g, ' ').trim().toLowerCase();
@@ -466,6 +469,7 @@ function beginGame(game) {
     const rec = names.length >= 2 ? matchTable(game, names) : null;
     game.nightTable = rec ? JSON.parse(JSON.stringify(rec)) : null;
     if (!rec) return;
+    if (rec.last && Number(rec.last.at) > 0 && Date.now() - Number(rec.last.at) < RETURN_GAP_MS) return;   // (same night: no cold open)
     const rnd = rngFrom('prev|' + (game.gameId || game.code) + '|' + rec.id);
     const p = { at: Date.now(), ms: PREV_MS };
     if (rec.last) {
@@ -513,20 +517,20 @@ function buildEnding(game) {
     if (fixed[id]) {   // heading out: the credit they were shown when they left, read in absentia
       const d = gone[id].credit;
       if (d.key) keys.push(d.key);
-      credits[id] = { trigger: d.trigger, role: d.role, text: d.text, key: d.key || null, freeze: d.freeze || freezeOf(game, f), absentia: true,
-        blurb: r0 ? ((r0.extra && r0.extra.text) || (r0.line && r0.line.text) || null) : null,
-        rating: r0 ? { after: r0.after, delta: r0.delta, title: r0.title || null, newTitle: r0.newTitle || null, provisional: !!r0.provisional } : null };
+      credits[id] = { trigger: d.trigger, role: d.role, text: d.text, key: d.key || null, freeze: d.freeze || freezeOf(game, f), absentia: true, blurb: null, rating: null };   // (cut 5: no rating line)
+      void r0;
       continue;
     }
     let pool = (W.LINES[c.t] || []).filter(l => (!fam || !l.adult) && (!l.need || (l.need === 'second' && c.second)) && (!/\{other\}/.test(l.text) || c.other));
     if (!pool.length) pool = (W.LINES.quiet || []).filter(l => !fam || !l.adult);
+    { const short = pool.filter(l => wordsIn(l.text) <= EPILOGUE_WORDS); if (short.length) pool = short; }
     const pk = pickFrom(pool, seen, taken, rnd);
     const text = pk ? fill(pk.x.text, { name: f.name, other: c.other || '', n: c.n || 0, digits: !!c.digits }) : '';
     if (pk) keys.push(pk.k);
     const r = rows[id];
     const blurb = r ? ((r.extra && r.extra.text) || (r.line && r.line.text) || null) : null;
-    credits[id] = { trigger: c.t, role: W.ROLES[c.t] || 'The Extra', text, key: pk ? pk.k : null, freeze: freezeOf(game, f), blurb,
-      rating: r ? { after: r.after, delta: r.delta, title: r.title || null, newTitle: r.newTitle || null, provisional: !!r.provisional } : null };
+    credits[id] = { trigger: c.t, role: W.ROLES[c.t] || 'The Extra', text, key: pk ? pk.k : null, freeze: freezeOf(game, f), blurb: null, rating: null };   // (cut 5: no rating line on the credits)
+    void blurb;
   }
   const monkey = monkeyLine(game, X.F);
   const aw = awards(game, X, rnd);
@@ -545,11 +549,14 @@ function buildEnding(game) {
   }
   beats.push({ k: 'winner', ms: WINNER_MS });
   if (aw.length) beats.push({ k: 'awards', ms: AWARDS_MS });
-  for (const id of roll) beats.push({ k: 'credit', id, ms: CREDIT_MS });
-  beats.push({ k: 'cast' });
+  // cut 5: the credits, the cast list and Caption of the Night only after the night's last game (Last Call, or the
+  // host's "Call it a night" at game over: callNight adds them then). Earlier games: the winner, the awards, the scores.
+  const full = !!game.lastCall;
+  if (full) { for (const id of roll) beats.push({ k: 'credit', id, ms: CREDIT_MS }); beats.push({ k: 'cast' }); }
+  else beats.push({ k: 'final' });
   const remote = remoteChange(game, stand);
   const e = {
-    gameId: gid, at, step: 0, stepAt: at, beats, done: false, credits, awards: aw, monkey, keys, remote,
+    gameId: gid, at, step: 0, stepAt: at, beats, done: false, full, credits, awards: aw, monkey, keys: full ? keys : [], creditKeys: keys, remote,
     cast: ids.map(id => ({ id, name: X.F[id].name, role: credits[id].role, absentia: !!credits[id].absentia })),
     scores: Object.fromEntries(ids.map(id => [id, X.F[id].score])),
     summary: summaryFacts(game, X, stand, pick, monkey),
@@ -642,6 +649,22 @@ function tableRecord(game) {
   };
 }
 
+/* cut 5: "Call it a night" (the host, at game over after a short ending): the credits, the cast list, then
+   Caption of the Night, on every phone */
+function callNight(game) {
+  const g = game_();
+  if (!(game.phase === 'scores' && g.isGameOver(game))) return { error: 'The game is still going' };
+  const e = ensureEnding(game);
+  if (!e || e.broken) return { error: 'That didn’t take. Try again.' };
+  if (e.full) return { ok: true, noop: true };
+  const roll = (e.cast || []).map(c => c.id).reverse();
+  e.beats = roll.filter(id => e.credits[id]).map(id => ({ k: 'credit', id, ms: CREDIT_MS })).concat([{ k: 'cast' }]);
+  e.full = true; e.night = true; e.keys = e.creditKeys || [];
+  e.step = 0; e.at = e.stepAt = Date.now() + LEAD_MS; e.done = false; delete e.doneAt;
+  game.nightCalled = true;
+  return { ok: true };
+}
+
 /* Which beat is on screen at `now` (server clock) */
 function beatNow(e, now) {
   let i = Math.max(0, Math.min(e.step || 0, e.beats.length - 1)), t = e.stepAt || e.at;
@@ -654,6 +677,7 @@ function nextBeat(game, seen) {
   if (!e || e.done) return { ok: true, noop: true };
   const { i } = beatNow(e, Date.now());
   if (Number.isInteger(seen) && seen !== i) return { ok: true, noop: true };   // a tap meant for a beat that has already gone
+  if (e.beats[i].k === 'final') { e.done = true; e.doneAt = Date.now(); return { ok: true, done: true }; }
   if (e.beats[i].k === 'cast') {
     e.done = true; e.doneAt = Date.now();
     try { const g = game_(); if (!game.finale) { const r = g.openFinale(game); if (r && r.error) { /* nothing framed tonight: the final page */ } } } catch (x) {}
@@ -666,7 +690,7 @@ function nextBeat(game, seen) {
 function endingView(game) {
   const e = game.ending; if (!e) return null;
   const v = JSON.parse(JSON.stringify(e));
-  delete v.summary;
+  delete v.summary; delete v.creditKeys;
   v.table = tableRecord(game);
   const rr = game.ratingResult;
   v.ratings = rr && !rr.none && Array.isArray(rr.order) ? rr.order.map(id => { const r = rr.rows[id]; return r ? { id, after: r.after, delta: r.delta, title: r.title || null, newTitle: r.newTitle || null, provisional: !!r.provisional } : null; }).filter(Boolean) : [];
@@ -699,7 +723,7 @@ const ANSWERED = ['answer', 'framing', 'scores'];
 function decorateView(game, view, pid) {
   try {
     if (game.lastCall) {
-      view.lastCall = { at: game.lastCall.at, laps: game.lastCall.laps };
+      view.lastCall = { at: game.lastCall.at, laps: game.lastCall.laps, more: game.lastCall.more !== false };   // more: false = this trip was already the last (nothing added)
       // first to N doesn't know by itself that the next deal starts the Late Edition
       if (view.phase === 'scores' && !view.gameOver && !game.lateFrom && view.nextDealerId) view.nextLate = (((game.dealCount || {})[view.nextDealerId] || 0) + 1) >= game.lastCall.laps;
     }
@@ -761,7 +785,11 @@ function lastCall(game) {
   if (game.lastCall) return { ok: true, noop: true };
   const here = (game.players || []).filter(p => g.isPresent(p));
   const deals = Math.max(1, ...(here.length ? here : game.players).map(p => (game.dealCount || {})[p.id] || 0));
-  game.lastCall = { at: Date.now(), laps: deals + 1 };
+  // The trip being played is finished; it adds a trip only to an open-ended game, never to one that was going to
+  // end sooner ("everyone deals once" mid-trip: this trip is the last)
+  const planned = g.lapsOf(game);
+  const laps = planned ? Math.min(planned, deals + 1) : deals + 1;
+  game.lastCall = { at: Date.now(), laps, more: laps > deals };
   return { ok: true };
 }
 // The room keeps the newest record (so the next game here needs nothing from the phones)
@@ -769,7 +797,7 @@ function keepTable(game) { try { const r = cleanTable(tableRecord(game)); if (r)
 
 module.exports = {
   noteSubmit, noteSkip, beginGame, ensureEnding, nextBeat, beatNow, endingView, previouslyView, lobbyRemote, setTables, reset, keepTable,
-  decorateView, headOut, returned, lastCall, sealedNow,
+  decorateView, headOut, returned, lastCall, callNight, sealedNow,
   // for tests
   facts, candidates, assign, monkeyRounds, monkeyLine, awards, fill, cleanTable, matchTable, tableRecord, tallyIn,
   WINNER_MS, AWARDS_MS, CREDIT_MS, PREV_MS,
