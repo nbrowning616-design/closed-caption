@@ -11,12 +11,13 @@
   var SHOW_MS = 7000;
 
   var TIPS = {
+    // Cut 8: every tip under 12 words
     writing: { icon: '', text: 'Write a fake that could pass for the real caption.' },
     facedown: { icon: '', text: 'One caption is face-down. Sometimes it’s the real one.' },
-    first_bets: { icon: '', text: 'Everyone bets at once, in secret. Put 1 chip, or both for double, on the caption you think is real. Chips you put down now pay more than chips after the flip.' },
-    steal: { icon: '', text: 'Before the flip, the dealer can steal one chip. Off the real caption, its points go to the dealer. Off a fake, its owner gets +1 for the trouble.' },
-    answer: { icon: '', text: 'Who wrote what, and who fell for it. It moves on by itself; the dealer can hold it. Ha or Groan as it goes.' },
-    frame: { icon: '', text: 'Beat the real caption? Tap Frame. When most of the table frames it, it hangs in The Gallery. No limit: if it’s good, it’s good.' }
+    first_bets: { icon: '', text: 'Bet on the caption you think is real. Early chips pay more.' },
+    steal: { icon: '', text: 'The dealer steals one chip before the flip.' },
+    answer: { icon: '', text: 'Who wrote what, and who fell for it.' },
+    frame: { icon: '', text: 'Beat the real caption? Frame it for The Gallery.' }
   };
   // How long after the moment arrives before the tip slides in (let the screen's own show land first)
   var DELAY = { writing: 2600, facedown: 2400, first_bets: 1200, steal: 1800, answer: 5200, frame: 2200 };   // after the moment lands, never on top of it
@@ -54,7 +55,8 @@
     '.gd-tip .gd-lab{display:inline-block;font-size:12px;font-weight:900;letter-spacing:1.1px;text-transform:uppercase;color:#7A5A00;margin-bottom:2px;}',
     '.gd-tip p{margin:0;font-size:15px;line-height:1.35;font-weight:800;color:var(--ink,#1F1A17);}',
     '.gd-tip .gd-x{flex-shrink:0;width:44px;height:44px;margin:-10px -12px -6px 0;border:0;background:none;font-size:16px;font-weight:900;color:var(--ink-2,#4A433D);cursor:pointer;}',
-    '.gd-tip .gd-foot{display:flex;justify-content:space-between;align-items:center;margin:2px 0 0;}',
+    '.gd-tip .gd-foot{display:flex;justify-content:flex-start;align-items:center;margin:-4px 0 -6px;}',
+    '@media (max-height:700px){.gd-tip .gd-lab{display:none;}.gd-tip.on{padding-top:9px;}}',   /* a short phone: the tip stays small */
     '.gd-tip .gd-off{min-height:44px;border:0;background:none;padding:0 4px 0 0;font:inherit;font-size:13px;font-weight:800;color:var(--ink-2,#4A433D);text-decoration:underline;cursor:pointer;}',
     '.gd-tip .gd-ok{min-height:44px;min-width:88px;border:2px solid var(--ink,#1F1A17);border-radius:999px;background:var(--yellow,#FFD23F);padding:0 16px;font:inherit;font-size:14px;font-weight:900;color:var(--ink,#1F1A17);cursor:pointer;box-shadow:2px 2px 0 var(--ink,#1F1A17);}',
     '@media (prefers-reduced-motion:reduce){.gd-tip{transition:none;}}',
@@ -93,11 +95,12 @@
     return here.length >= 2 && waiting.length === 1 ? waiting[0] : null;
   }
   // The server picks the line (#39: lines.js, no repeats in a night); these only cover a last writer it hasn't named yet
-  var LINES = ['Everyone else is locked in.', 'The table is being very patient.', 'No pressure. (Some pressure.)', 'Every chip is waiting.'];
+  var LINES = ['Everyone else is locked in.'];
+  function quipRound(st) { return !!st && (st.round || 1) % 3 === 1; }   // cut 2: a waiting quip one round in three
   function serverWait(st, pid) { var w = st && st.lines && st.lines.waitLast; return w && w.pid === pid ? w : null; }
   function waitHtml(p) {
     if (!p) return '';
-    var st = cur() || {}, sw = serverWait(st, p.id), line = sw && sw.text ? sw.text : LINES[hash((st.code || '') + '|' + st.round + '|' + p.id) % LINES.length];
+    var st = cur() || {}, sw = quipRound(st) ? serverWait(st, p.id) : null, line = sw && sw.text ? sw.text : LINES[0];
     return '<div class="gd-wait" role="status"><span class="gd-ic" aria-hidden="true">⏳</span><div><div class="gd-h">Waiting on ' + esc(p.name) + '<span class="gd-dots"></span></div><span class="gd-s">' + esc(line) + '</span></div></div>';
   }
   var nudged = {};
@@ -106,10 +109,11 @@
     if (!p || p.id !== me() || st.hasSubmitted) return;
     var k = st.code + '#' + (st.gameNo || 0) + '|' + st.round + '|' + (st.cartoon && st.cartoon.id);
     if (nudged[k]) return;
+    if (blocked()) { clearTimeout(nudgeQ); nudgeQ = setTimeout(function () { checkNudge(cur()); }, 600); return; }   // never over the menu or a show: it waits its turn
     nudged[k] = 1;
-    showNudge(serverWait(st, p.id));
+    showNudge(quipRound(st) ? serverWait(st, p.id) : null);
   }
-  var nudgeEl = null, nudgeT = null;
+  var nudgeEl = null, nudgeT = null, nudgeQ = null;
   function showNudge(sw) {
     if (!nudgeEl) {
       nudgeEl = document.createElement('div'); nudgeEl.className = 'gd-nudge'; nudgeEl.setAttribute('role', 'status');
@@ -117,7 +121,7 @@
       nudgeEl.addEventListener('click', hideNudge);
       document.body.appendChild(nudgeEl);
     }
-    nudgeEl.innerHTML = '<span class="gd-em" aria-hidden="true">⏳</span><div><b>' + esc(sw && sw.title || 'The table is waiting on you.') + '</b><span class="gd-s">' + esc(sw && sw.sub || 'No rush. They’ve started talking about you.') + '</span></div>';
+    nudgeEl.innerHTML = '<span class="gd-em" aria-hidden="true">⏳</span><div><b>' + esc(sw && sw.title || 'The table is waiting on you.') + '</b><span class="gd-s">' + esc(sw && sw.sub || 'Everyone else is locked in.') + '</span></div>';
     hideTip();   // the nudge matters more right now
     void nudgeEl.offsetWidth;
     nudgeEl.classList.add('on');
@@ -138,14 +142,14 @@
       case 'steal': return 'steal';
       case 'answer': {
         var r = st.reel || {}, n = (r.order || []).length, step = r.step || 1;
-        return st.reel ? (step <= n ? 'answer' : 'frame') : null;   // #5: Frame It is on the recap (and the reel)
+        return st.reel ? (step < n ? 'answer' : step > n ? 'frame' : null) : null;   // #5: Frame It is on the recap (and the reel); never over the real one
       }
       case 'scores': return null;
     }
     return null;
   }
   function blocked() {
-    return !!document.querySelector('#stealshow.on, #boom.on, #rd-slip.on, #late-card.on, #ending.on, #prev.on, #mycredit.on, #lastcall.on, #kids-card.on, #induct.on, #sheet.on, #viewer.on, .gal-ov, #warn.on, #readaloud.on, .ccm-root');
+    return !!document.querySelector('#stealshow.on, #boom.on, #opening.on, #fp-show.on, #rd-slip.on, #late-card.on, #ending.on, #prev.on, #mycredit.on, #lastcall.on, #kids-card.on, #induct.on, #sheet.on, #viewer.on, .gal-ov, #warn.on, #readaloud.on, .ccm-root');
   }
 
   var tipEl = null, tipId = null, tipShownAt = 0, hideT = null, pending = null, ticker = null;
@@ -167,7 +171,7 @@
     var t = TIPS[id]; if (!t) return;
     var el = ensureTip();
     el.innerHTML = '<div class="gd-row">' + (t.icon ? '<span class="gd-ic" aria-hidden="true">' + t.icon + '</span>' : '') + '<div style="flex:1;min-width:0;"><span class="gd-lab">First-game tip</span><p>' + esc(t.text) + '</p></div><button class="gd-x" type="button" tabindex="-1" aria-label="Dismiss tip">✕</button></div>'
-      + '<div class="gd-foot"><button class="gd-off" type="button" tabindex="-1">Don’t show tips</button><button class="gd-ok" type="button" tabindex="-1">Got it</button></div><i class="gd-bar" style="animation-duration:' + SHOW_MS + 'ms"></i>';
+      + '<div class="gd-foot"><button class="gd-off" type="button" tabindex="-1">Don’t show tips</button></div><i class="gd-bar" style="animation-duration:' + SHOW_MS + 'ms"></i>';
     el.classList.remove('on');
     if (!place()) return false;   // no slot on this screen: wait for one
     tipId = id; tipShownAt = Date.now(); markSeen(id);
