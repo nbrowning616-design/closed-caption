@@ -432,9 +432,7 @@ cartoons, never mentioned) · R3-15 credit sagas (~1 credit in 3 continues last 
 whole table bites (rare, 2 s) · R3-26 banned-word Editor's note · R3-27 "Salted" (calm note instead of the red warning when you
 bet on your own fake; stamped when someone followed) · R3-30 invite warm-up puzzle · R3-31 caption shown "in print" while
 typing · R3-32 40-second wordless how-to short.
-R3-8 STICKY NOTE — YES after seeing the demo (scratchpad anim/sticky_demo.html), but RARER: about 1 cartoon in 20. No-peeking rule:
-the note covers a side detail only, and only on cards whose real caption could have been written without seeing under it
-(about something else, or hints without naming it); writers see "Write about what's under the note — or don't."
+R3-8 STICKY NOTE — NO (Nick, after seeing the demo: "Too distracting for purists.").
 NO: R3-3 sound captions, R3-4 pencil margin notes, R3-6 & R3-22 player names in captions/drawings (nicknames won't translate),
 R3-13 Stand By, R3-16 Next time on, R3-17 Not out loud, R3-18 Don't get it, R3-20 channel flip, R3-21 practice hand, R3-23
 no-show credit, R3-24 the squeeze, R3-25 late lights, R3-28 remote grab (no preference → not added), R3-29 shared phone.
