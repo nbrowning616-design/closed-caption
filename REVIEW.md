@@ -399,3 +399,25 @@ Everything from writing to the scoreboard. The END OF NIGHT (finale, awards, cre
 - NOT DONE / NOTES: no TV screen yet (the flip/reel timing and `sealed` are in the view, ready for one). The night's
   first frame gets the full ceremony once a night, so game 2's frames get the plaque (by design). Editor's notes can
   land on round 1 of a second game (the "not the first two cards" rule counts the night). Not pushed.
+
+## "TOO CUTE?" REVIEW — Nick's decisions (Oct 21 2026, 7am) — read first in a new chat
+Four reviewers (tough editor, weekly regular, first-timer, pacing designer) played the merged build; reports in scratchpad
+cute/*.md. Consensus: the game talks too much (~21 game lines a round, 100+ a game), the reveal is the busiest screen, rounds
+run ~4.7 min at 5 players, the full ending plays after every game. Nick approved ALL eight cuts:
+1 REVEAL: each card = caption, "Written by X", who fell for it (one fixed label "Fell for it"); at most one line under the
+  real caption; called-shot results, badges, table-vs-cartoonist move to the round recap; real caption waits for the dealer's tap.
+2 WISECRACKS: cut ~2/3 of round patter; fixed plain labels for instructions ("Bets are closed." "Turning it over…"); locked-in
+  stamp alone; waiting quips 1 round in 3; no winking parentheticals; target ≤8 game lines a round. KEEP: awards slide, the
+  Remote, the monkey, odds lines, Editor's notes, Previously-on grudges, kids-in-bed / Last Call / "left the building".
+3 LAST CHIPS: everyone at once, in secret, 15 s clock, one shared drop (reverses decision #7's turn-by-turn late chip).
+4 WRITING CLOCK: default 90 s; dealer can add 30 s.
+5 ENDING ONCE A NIGHT: full credits + cast list + Caption of the Night only after the night's last game (Last Call / "Call it
+  a night"); earlier games get winner + awards (~15 s). Credits 5 s each, epilogues ~20 words, no rating line on credits.
+  "Previously on" only when the table returns on a later day (>6 h gap).
+6 CALLED SHOTS: plain facts ("Ann called Ben. Ben bit. +3" / "Ann called Ben. Missed."); off during a phone's first game.
+7 STEAL: keep the hand-drawn thief + its one closing caption; cut waiting patter, gloats, receipts; full show night's first
+  steal, then at most once a game (2 s short version otherwise).
+8 NEWCOMERS: in a phone's first game no called shots, no rejection slips, ending shows winner + scores only (no rating/Remote
+  talk); coach tips <12 words; rejection slips private (no public scoreboard line); Ha/Groan on the reveal only; table vs. the
+  cartoonist shown once a night.
+Nick then asked to hear all 32 round-3 ideas anyway (answers recorded in scratchpad round3/round3_list.json).
