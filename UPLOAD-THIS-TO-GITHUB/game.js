@@ -1169,7 +1169,7 @@ function noteLastWriter(game) {
   const dealer = dealerOf(game), top = Math.max(...game.players.map(q => q.score));
   const keys = [];
   if (dealer && dealer.id === p.id) keys.push('wait.lastDealer');
-  else if (top > 0 && p.score === top && game.players.filter(q => q.score === top).length === 1) keys.push('wait.lastLeader');
+  else if (top > 0 && !(game.lateFrom && game.round >= game.lateFrom) && p.score === top && game.players.filter(q => q.score === top).length === 1) keys.push('wait.lastLeader');   // (R18: in the sealed Late Edition nobody is named as the leader)
   if (isLate(game)) keys.push('wait.lastLate');
   if (game.round === 1) keys.push('wait.lastFirst');
   if (!game.timerDuration) keys.push('wait.lastNoTimer');
