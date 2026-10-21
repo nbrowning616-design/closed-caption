@@ -726,6 +726,12 @@ function decorateView(game, view, pid) {
       view.lastCall = { at: game.lastCall.at, laps: game.lastCall.laps, more: game.lastCall.more !== false };   // more: false = this trip was already the last (nothing added)
       // first to N doesn't know by itself that the next deal starts the Late Edition
       if (view.phase === 'scores' && !view.gameOver && !game.lateFrom && view.nextDealerId) view.nextLate = (((game.dealCount || {})[view.nextDealerId] || 0) + 1) >= game.lastCall.laps;
+    } else if (view.isHost && game.phase !== 'lobby') {
+      // what Last Call would do now (the menu says so): add a trip, or only make this trip the last
+      const g = game_(), here = (game.players || []).filter(p => g.isPresent(p));
+      const deals = Math.max(1, ...(here.length ? here : game.players).map(p => (game.dealCount || {})[p.id] || 0));
+      const planned = g.lapsOf(game);
+      view.lastCallAdds = (planned ? Math.min(planned, deals + 1) : deals + 1) > deals;
     }
     const gone = game.departed || {};
     if (Object.keys(gone).length) view.departed = Object.keys(gone);

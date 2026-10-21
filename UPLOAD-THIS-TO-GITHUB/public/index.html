@@ -712,6 +712,7 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .le-x2 { display: inline-block; margin-top: 14px; padding: 3px 12px; border: 2.5px solid var(--ink); border-radius: 4px; font-family: var(--serif); font-weight: 700; font-size: 18px; transform: rotate(-2deg); box-shadow: 2px 2px 0 var(--ink); background: var(--card); }
 .sb-late { margin: 6px 0 12px; text-align: center; font-family: var(--serif); font-style: italic; font-size: 15.5px; line-height: 1.4; color: var(--ink); }
 .sb-late b { font-style: normal; }
+.fn-note { font-size: 13.5px; line-height: 1.35; color: var(--ink-2); text-align: center; margin: -2px 0 2px; }
 .fn-why { font-family: var(--serif); font-style: italic; font-size: 14.5px; line-height: 1.35; color: var(--ink-2); margin-top: 6px; }
 .vd-short { text-align: center; font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--muted); margin: -6px 0 12px; }
 #host-away { margin-bottom: 12px; padding: 10px 12px; text-align: center; }
@@ -1100,7 +1101,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
       <li><b>Frame It.</b> On the reveal, tap Frame on any caption that beat the real one (never your own). Frame as many as deserve it. When <span class="frame-need">most of the other players</span> frame the same one, it hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
       <li><b>Ha and Groan.</b> Two quiet buttons on every caption as it's revealed. No points. Nobody sees a count until the answer. A caption with no chips and three or more Groans gets a rejection slip from The Editors (menu ☰, Rejections).</li>
       <li><b>Call your shot.</b> Once your caption is in, name the one person you think will fall for it. If they put a chip on it, +3. The reveal says how it went either way.</li>
-      <li><b>The table vs. the cartoonist.</b> Ha’s tapped before anyone knows which caption is real are a blind test: the table’s best fake against the real one, one point a round.</li>
+      <li><b>The table vs. the cartoonist.</b> On the reveal, the Ha’s a fake gets before the real caption is turned over, against the Ha’s the real one gets: the table’s best fake against the cartoonist, one point a round.</li>
       <li><b>The Late Edition.</b> In a game that goes around the table more than once, the last trip around pays double. First to 20: when someone gets there, the trip around the table is finished (everyone deals the same number of times), at double points. Then the leader wins.</li>
       <li><b>A tie for first</b> goes to whoever fooled the most people. Still level: more captions framed. Still level: a tie.</li>
       <li><b>The Remote.</b> Every table has one: a 1980s TV remote with one button, held by the last winner. Each winner adds a strip of masking tape with their name and the date.</li>
@@ -4011,14 +4012,21 @@ function renderScores() {
   if (state.sealed && window.Ending) return `${header({ sticker: '<span class="sticker">Scoreboard</span>', sub: goal, thumb: false })}
     ${Ending.sealedHtml()}
     ${mySlipHtml()}
-    <p class="sb-next">Next dealer: <b>${esc(firstName(state.nextDealerName))}</b></p>
-    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>`}`;
+    ${dealNextHtml()}`;
   return `${header({ sticker: '<span class="sticker">Scoreboard</span>', sub: goal, thumb: false })}
     <div class="sb-list ${sorted.length > 6 ? 'tight' : ''}">${rows}</div>
     ${state.nextLate ? `<p class="sb-late">Next: <b>The Late Edition.</b> ${state.late && state.late.hit ? lateWhyLine(state.late) : 'The last trip around the table.'} Every point counts double.</p>` : ''}
     ${mySlipHtml()}
-    <p class="sb-next">Next dealer: <b>${esc(firstName(state.nextDealerName))}</b></p>
-    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>`}`;
+    ${dealNextHtml()}`;
+}
+// The scoreboard's way on. endsNext: the only seat still owed a deal is away. If it's back in time it deals;
+// otherwise the next tap ends the game (so nobody is told "Deal round N" for a round that won't happen).
+function dealNextHtml() {
+  const nd = esc(firstName(state.nextDealerName)), r = state.round + 1;
+  if (state.endsNext && !state.isNextDealer) return `<p class="sb-next">${nd} still has a deal to come but is away.</p>
+    ${canRun() ? `<button class="btn" onclick="send({action:'advance'})">End the game: final scores →</button>` : `<p class="rc-wait">The game ends unless ${nd} is back<span class="dots"></span></p>`}`;
+  return `<p class="sb-next">Next dealer: <b>${nd}</b></p>
+    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${r} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${r} for ${nd} →</button>` : `<p class="rc-wait">Waiting for ${nd} to deal<span class="dots"></span></p>`}`;
 }
 // Game over: the winner (and who has the Remote now), a compact standings row, and the buttons. The ending plays over
 // this page first (ending.js: the winner, the awards, the credits, the cast), then Caption of the Night (finale.js).
@@ -4048,7 +4056,7 @@ function renderFinal(sorted, animated, goal) {
   const shortEnd = !!(state.ending && state.ending.full === false);   // cut 5: not the night's last game (yet)
   const replay = state.ending && state.ending.done && !shortEnd && window.Ending ? `<button class="btn-link fn-link" onclick="Ending.replay()">Watch the credits again</button>${state.ending.credits && state.ending.credits[myPlayerId] ? `<button class="btn-link fn-link" onclick="Ending.saveMyCredit()">Save your credit</button>` : ''}` : '';
   // Caption of the Night: the dealer's tap on the cast list opens it; if it didn't, the button is here
-  const nightBtn = shortEnd && ended && state.isHost ? `<button class="btn fn-night" onclick="this.disabled=true; send({action:'call_night'})">Call it a night</button>` : '';
+  const nightBtn = shortEnd && ended && state.isHost ? `<button class="btn fn-night" onclick="this.disabled=true; send({action:'call_night'})" aria-describedby="fn-night-note">Call it a night</button><p class="fn-note" id="fn-night-note">Ends the night: everyone’s credits roll${nFr ? ', then Caption of the Night' : ''}.</p>` : '';
   const galBtn = ended && !fin && nFr && !shortEnd && window.ccFinale ? (canRun()
       ? `<button class="btn btn-yellow fn-gal" onclick="openFinale()">Caption of the Night (${plural(nFr, 'frame')}) →</button>`
       : `<p class="rc-wait">Next: Caption of the Night. ${esc(firstName(state.dealerName || nameOf(state.hostId)))} opens it<span class="dots"></span></p>`) : '';

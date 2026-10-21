@@ -165,9 +165,10 @@
     '.sl-mine .big{font-family:var(--serif);font-weight:700;font-size:22px;}',
     '.sl-mine ul{list-style:none;margin:6px 0 0;padding:0;font-size:15px;font-weight:800;line-height:1.5;}',
     /* R30 the Last Call card */
-    '#lastcall{position:fixed;inset:0;z-index:772;display:none;align-items:center;justify-content:center;padding:24px;background:#14100D;color:#FFF8EA;text-align:center;}',
+    /* a band across the top, not a full-screen card: it never covers a button the table needs (Deal, bets) */
+    '#lastcall{position:fixed;left:0;right:0;top:0;z-index:772;display:none;align-items:center;justify-content:center;padding:calc(16px + env(safe-area-inset-top, 0px)) 20px 16px;background:#14100D;color:#FFF8EA;text-align:center;box-shadow:0 10px 28px rgba(20,16,13,.35);cursor:pointer;}',
     '#lastcall.on{display:flex;animation:enFade .35s ease-out;}',
-    '#lastcall p{font-family:var(--serif);font-weight:700;font-size:30px;line-height:1.2;max-width:340px;}',
+    '#lastcall p{font-family:var(--serif);font-weight:700;font-size:21px;line-height:1.25;max-width:340px;margin:0;}',
     /* R28 heading out: your own credit */
     '#mycredit{position:fixed;inset:0;z-index:795;display:none;overflow-y:auto;background:#14100D;color:#F3EBDD;}',
     '#mycredit.on{display:block;animation:enFade .4s ease-out;}',
@@ -588,12 +589,13 @@
   function playing() { var s = S(); return !!s && s.phase !== 'lobby' && !(s.phase === 'scores' && s.gameOver); }
   function menuRows() {
     var s = S(); if (!playing()) return '';
-    var lc = s.isHost && !s.lastCall && !s.late ? '<button class="menu-row" onclick="Ending.askLastCall()"><span class="ic">' + (typeof inkIcon === 'function' ? inkIcon('clock') : '') + '</span>Last call<span class="r">One more trip around</span></button>' : '';
+    var lc = s.isHost && !s.lastCall && !s.late ? '<button class="menu-row" onclick="Ending.askLastCall()"><span class="ic">' + (typeof inkIcon === 'function' ? inkIcon('clock') : '') + '</span>Last call<span class="r">' + (s.lastCallAdds === false ? 'This trip is the last' : 'One more trip around') + '</span></button>' : '';
     return lc + '<button class="menu-row" onclick="Ending.askHeadOut()"><span class="ic">' + (typeof inkIcon === 'function' ? inkIcon('door') : '') + '</span>Heading out<span class="r">Your credit, now</span></button>';
   }
   function askLastCall() {
     try { closeMenu(); } catch (x) {}
-    if (!confirm('Last call? The next trip around the table is the last one, then the winner and the credits.')) return;
+    var s = S(), adds = !(s && s.lastCallAdds === false);
+    if (!confirm(adds ? 'Last call? One more trip around the table, then the winner and the credits.' : 'Last call? This trip around the table is the last one, then the winner and the credits.')) return;
     try { send({ action: 'last_call' }); } catch (x) {}
   }
   function askHeadOut() {

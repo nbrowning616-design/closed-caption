@@ -688,7 +688,16 @@ function createGame(hostId, hostName, timerDuration = DEFAULT_TIMER, seenIds = [
 
 // Every phase change is stamped with the server clock: phones start the big moments from it, together
 function setPhase(game, phase) { game.phase = phase; game.phaseAt = Date.now(); }
-function setReelStep(game, step) { game.reel.step = step; game.stepAt = Date.now(); game.reel.dueAt = reelDue(game); }   // #6: the next step's own clock
+function setReelStep(game, step) { game.reel.step = step; game.stepAt = Date.now(); game.reel.dueAt = reelDue(game); if (step > game.reel.order.length) settleTvc(game); }
+// R10 is settled once per round, when the reel reaches the recap (the blind Ha's on the fakes are all in by then)
+function settleTvc(game) {
+  const tag = (game.gameNo || 0) + '|' + game.round + '|' + (game.phaseAt || 0);   // (a re-dealt round settles again)
+  if (game.tvcSettled === tag) return;
+  game.tvcSettled = tag;
+  try { tableVsCartoonist(game); } catch (e) { console.error('table vs cartoonist', e); game.tvcRound = null; }
+  const h = (game.history || []).find(x => x.round === game.round);
+  if (h) h.tvc = game.tvcRound ? { ...game.tvcRound } : null;
+}   // #6: the next step's own clock
 
 function cleanSeen(ids) {
   const valid = new Set(CARTOONS.map(c => c.id));
@@ -1682,7 +1691,7 @@ function revealAnswer(game) {
   // #39 / R10 / R8: the reel's lines, the recap's headline, the blind-laugh score, the odds. Never break the answer.
   try { reelLines(game); } catch (e) { console.error('reel lines', e); }
   try { endLines(game, mult); } catch (e) { console.error('round-end lines', e); }
-  try { tableVsCartoonist(game); } catch (e) { console.error('table vs cartoonist', e); game.tvcRound = null; }
+  game.tvcRound = null;   // R10: settled when the reel reaches the recap (settleTvc)
   try { oddsLine(game); } catch (e) { console.error('odds', e); }
   game.reel.dueAt = reelDue(game);   // #6: the reel moves on by itself
 
@@ -1805,13 +1814,14 @@ function endLines(game, mult) {
   if (!Object.values(rs).some(v => v > 0)) L.noScore = pickLine(game, 'end.noScore');
 }
 
-/* ── R10 The table vs. the cartoonist: 'Ha' taps made before the answer (nobody knew which was real) are a blind
-   test. The table's best fake against the real caption; the round goes to whichever got more. ── */
+/* ── R10 The table vs. the cartoonist: 'Ha' taps on the fakes made on the reel before the real caption is turned
+   over (nobody knew yet which was real) against the Ha's on the real one. The table's best fake against the
+   real caption; the round goes to whichever got more. ── */
 function tableVsCartoonist(game) {
   const real = realKey(game);
-  const blindHa = (key) => Object.values((game.reactions || {})[key] || {}).filter(r => r && r.ha === 1).length;
-  const fakes = playerKeys(game).map(k => ({ k, n: blindHa(k), w: writerOfKey(game, k) }));
-  const best = Math.max(0, ...fakes.map(f => f.n)), m = blindHa(real);
+  const haOn = (key, blindOnly) => Object.values((game.reactions || {})[key] || {}).filter(r => r && (blindOnly ? r.ha === 1 : r.ha)).length;
+  const fakes = playerKeys(game).map(k => ({ k, n: haOn(k, true), w: writerOfKey(game, k) }));
+  const best = Math.max(0, ...fakes.map(f => f.n)), m = haOn(real, false);
   game.tvcRound = null;
   if (!best && !m) return;
   const tops = best > 0 ? fakes.filter(f => f.n === best) : [];
@@ -1889,6 +1899,7 @@ function reelDue(game, fromNow) {
 function moveToScoreboard(game) {
   if (game.phase !== PHASES.ANSWER) return { error: 'Too late — the game moved on' };
   if (game.reel && game.reel.step < game.reel.order.length + 1) return { error: 'Finish the reveal first' };
+  settleTvc(game);
   if (Date.now() < (game.frameHold || 0) - 300) return { error: 'One moment. It’s being hung.' };
   try { closeRound(game); } catch (e) { console.error('round close', e); }
   // #37 first to N: someone got there. The trip around the table is finished first (everyone deals the same
@@ -2219,7 +2230,10 @@ function react(game, playerId, target, kind, on) {
   const map = game.reactions[key] || (game.reactions[key] = {});
   const mine = map[playerId] && typeof map[playerId] === 'object' ? map[playerId] : (map[playerId] = {});
   const has = !!mine[kind], want = on === undefined || on === null ? !has : !!on;
-  if (want && !has) mine[kind] = ANSWERED.includes(game.phase) ? 2 : 1;
+  // R10 (after cut: Ha/Groan live on the reveal only): a tap on a fake while the real caption is still face-down
+  // on the reel is 'blind' (1); anything else is 'open' (2).
+  const realUp = game.phase === PHASES.ANSWER && game.reel ? (game.reel.step >= game.reel.order.length || key === realKey(game)) : ANSWERED.includes(game.phase);
+  if (want && !has) mine[kind] = realUp ? 2 : 1;
   else if (!want && has) delete mine[kind];
   if (!Object.keys(mine).length) delete map[playerId];
   return { ok: true };
