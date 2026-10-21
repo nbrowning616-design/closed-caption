@@ -873,7 +873,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 #join-error, #create-error { font-size: 15px; }
 /* the real caption, under the full-width cartoon, like a printed page */
 .hdr.pin ~ * .spot.is-real .spot-text, .hdr.pin ~ .spot.is-real .spot-text { text-align: center; }
-/* ── The rating (chess-style): lobby card + sheet, the opening card (the verdicts are in the end credits: ending.js) ── */
+/* ── The rating (chess-style): lobby card + sheet, the opening card (the ending: ending.js) ── */
 .rt-tag { display: inline-block; font-family: var(--serif); font-size: 13px; font-weight: 700; color: var(--ink-2); margin-right: 6px; }
 .rt-card { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; padding: 12px 14px; margin-bottom: 16px; background: var(--card); border: var(--bw) solid var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); cursor: pointer; font: inherit; color: var(--ink); }
 .rt-card:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
@@ -1110,7 +1110,6 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
       <li><b>The Late Edition.</b> In a game that goes around the table more than once, the last trip around pays double. First to 20: when someone gets there, the trip around the table is finished (everyone deals the same number of times), at double points. Then the leader wins.</li>
       <li><b>A tie for first</b> goes to whoever fooled the most people. Still level: more captions framed. Still level: a tie.</li>
       <li><b>The Remote.</b> Every table has one: a 1980s TV remote with one button, held by the last winner. Each winner adds a strip of masking tape with their name and the date.</li>
-      <li><b>The credits.</b> The night ends like a movie: a freeze-frame on each player, and what became of them.</li>
       <li><b>Your rating.</b> Ranked like chess, but judged by friends. Everyone starts at 1,200; after each game you gain points from everyone you finished above and lose them to everyone who finished above you. Beating higher-rated players moves it more; a short game moves it less. Titles: Candidate 1,400, Master 1,600, Senior Master 1,800, Grandmaster 2,000. Your phone keeps it.</li>
       <li><b>Badges.</b> Rare moments earn badges: Moon Landing, Three Bagger, Clean Sweep, Great Minds, Pickpocket. Your phone keeps those too.</li>
       <li><b>Good to know.</b> Bet on your own caption to bluff — it scores nothing. Captions are tidied the same way, the real one too. The real one isn’t always the funniest. Tap the cartoon to zoom.</li>
@@ -2081,7 +2080,7 @@ function afterRender(phaseChanged) {
   }
   if (state.phase === 'scores' && phaseChanged) playScoresSequence();
   if (state.phase === 'scores') syncSlip();   // R1: a rejection slip for this phone's writer
-  // Game over: the ending (winner, awards, credits, cast: ending.js), then Caption of the Night (finale.js)
+  // Game over: the ending (winner, awards, final scores: ending.js), then Caption of the Night (finale.js)
   if (state.phase === 'scores' && state.gameOver) { if (window.Ending) Ending.sync(); if (window.ccFinale && !(window.Ending && Ending.active())) ccFinale.sync(); markBestLocally(); }
   if (state.phase === 'lobby' && window.Ending) Ending.sendTables();   // the Remote: this phone's records of tables like this one
   if (state.phase === 'reading' && phaseChanged) { (state.openCaptions || []).forEach((_, i) => setTimeout(() => bsfx.deal(i), 120 + i * 140)); buzz(30); }
@@ -4039,7 +4038,7 @@ function dealNextHtml() {
     ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${r} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${r} for ${nd} →</button>` : `<p class="rc-wait">Waiting for ${nd} to deal<span class="dots"></span></p>`}`;
 }
 // Game over: the winner (and who has the Remote now), a compact standings row, and the buttons. The ending plays over
-// this page first (ending.js: the winner, the awards, the credits, the cast), then Caption of the Night (finale.js).
+// this page first (ending.js: the winner, the awards, the final scores), then Caption of the Night (finale.js).
 // #9 / #11: a tie for first is broken by people fooled, then captions framed (the server decides: state.standing)
 function finalWinners(sorted) {
   const stn = state.standing, won = stn && Array.isArray(stn.winners) ? stn.winners.map(playerById).filter(Boolean) : [];
@@ -4064,9 +4063,9 @@ function renderFinal(sorted, animated, goal) {
   const standings = sorted.map(p => `<span class="fn-st">${chipHtml(p.id, 'xs')}${esc(p.name)} <b class="score-number" data-target="${p.score}" data-from="${p.score - ((state.roundScores || {})[p.id] || 0)}">${animated ? p.score : p.score - ((state.roundScores || {})[p.id] || 0)}</b></span>`).join('');
   const nFr = state.framedTonight || 0, fin = state.finale && window.ccFinale, ended = !state.ending || state.ending.done;
   const shortEnd = !!(state.ending && state.ending.full === false);   // cut 5: not the night's last game (yet)
-  const replay = state.ending && state.ending.done && !shortEnd && window.Ending ? `<button class="btn-link fn-link" onclick="Ending.replay()">Watch the credits again</button>${state.ending.credits && state.ending.credits[myPlayerId] ? `<button class="btn-link fn-link" onclick="Ending.saveMyCredit()">Save your credit</button>` : ''}` : '';
-  // Caption of the Night: the dealer's tap on the cast list opens it; if it didn't, the button is here
-  const nightBtn = shortEnd && ended && state.isHost ? `<button class="btn fn-night" onclick="this.disabled=true; send({action:'call_night'})" aria-describedby="fn-night-note">Call it a night</button><p class="fn-note" id="fn-night-note">Ends the night: everyone’s credits roll${nFr ? ', then Caption of the Night' : ''}.</p>` : '';
+  const replay = '';   // (the end credits and their "Watch again" were cut)
+  // Caption of the Night: the dealer's tap on the final scores (or "Call it a night") opens it; if it didn't, the button is here
+  const nightBtn = shortEnd && ended && state.isHost ? `<button class="btn fn-night" onclick="this.disabled=true; send({action:'call_night'})" aria-describedby="fn-night-note">Call it a night</button><p class="fn-note" id="fn-night-note">${nFr ? 'Ends the night with Caption of the Night.' : 'Ends the night.'}</p>` : '';
   const galBtn = ended && !fin && nFr && !shortEnd && window.ccFinale ? (canRun()
       ? `<button class="btn btn-yellow fn-gal" onclick="openFinale()">Caption of the Night (${plural(nFr, 'frame')}) →</button>`
       : `<p class="rc-wait">Next: Caption of the Night. ${esc(firstName(state.dealerName || nameOf(state.hostId)))} opens it<span class="dots"></span></p>`) : '';
@@ -4107,7 +4106,7 @@ function againHtml(primary) {
   return `<button class="btn ${primary ? 'btn-yellow fn-deal' : ''}" onclick="send({action:'again', on:true}); buzz(20)">I’m in for another</button>`;
 }
 
-// Caption of the Night: the dealer or host opens tonight's Gallery for every phone (after the credits)
+// Caption of the Night: the dealer or host opens tonight's Gallery for every phone (after the final scores)
 function openFinale() {
   if (window.Ending && Ending.active()) return;
   if (send({ action: 'finale_open' })) { buzz(30); }

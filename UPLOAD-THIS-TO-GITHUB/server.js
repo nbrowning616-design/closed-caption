@@ -8,7 +8,7 @@ const path = require('path');
 const { WebSocketServer } = require('ws');
 const G = require('./game');
 const Stats = require('./stats');   // #41: a private tally (counts only)
-const Night = require('./night');   // the end of the night: credits, the Remote, the monkey, "Previously on"
+const Night = require('./night');   // the end of the night: the ending, the Remote, the monkey, "Previously on"
 const { PHASES } = G;
 
 // Address friends on the same Wi-Fi should type in (only used when running on a home computer)
@@ -633,7 +633,7 @@ wss.on('connection', (ws, req) => {
         return;
       }
       case 'ending_next': {
-        // Game over: the dealer/host taps on through the winner, the awards, the credits and the cast list
+        // Game over: the dealer/host taps on through the winner, the awards and the final scores (then Caption of the Night)
         if (!canRun) return sendError(ws, 'The dealer moves things along');
         if (game.phase !== PHASES.SCORES || !G.isGameOver(game)) return;
         Night.ensureEnding(game);
@@ -642,7 +642,7 @@ wss.on('connection', (ws, req) => {
         return;
       }
       case 'head_out': {
-        // R28 Heading out: this player's own end credit now (from their play so far), the table hears one quiet line,
+        // R28 Heading out: this player leaves (their phone shows a goodbye), the table hears one quiet line,
         // and the seat leaves the turn order like a dropped phone that isn't coming back
         const r = Night.headOut(game, playerId);
         if (fail(r)) return;
@@ -654,7 +654,7 @@ wss.on('connection', (ws, req) => {
         return;
       }
       case 'call_night': {
-        // cut 5: game over, and that's the night: the credits, the cast list, then Caption of the Night
+        // cut 5: game over, and that's the night: straight to Caption of the Night (or the final scores, if nothing framed)
         if (!isHost && !canRun) return sendError(ws, 'Only the host can call it a night');
         if (fail(Night.callNight(game))) return;
         broadcast(code);
@@ -702,7 +702,7 @@ wss.on('connection', (ws, req) => {
         const mode = ['check', 'fix', 'keep'].includes(msg.mode) ? msg.mode : 'check';
         const r = G.submitCaption(game, playerId, msg.caption, mode);
         if (fail(r)) return;
-        if (!r.check) Night.noteSubmit(game, playerId);   // (the credits know who was first in, and who was last)
+        if (!r.check) Night.noteSubmit(game, playerId);   // (the night's log knows who was first in, and who was last)
         if (r.check) { ws.curHeld = true; return send(ws, ws.curCid ? { type: 'caption_check', ...r.check, cid: ws.curCid } : { type: 'caption_check', ...r.check }); }   // (#2: answers that cid)
         broadcast(code);
         if (r.allIn) later(code, 900, PHASES.WRITING, endWriting);
@@ -801,7 +801,7 @@ wss.on('connection', (ws, req) => {
         return;
       }
       case 'finale_open': {
-        // After the credits: the host (or a stand-in) opens tonight's Gallery for every phone
+        // After the final scores: the host (or a stand-in) opens tonight's Gallery for every phone
         if (!canRun) return sendError(ws, 'The host opens the Gallery');
         if (game.ending && !game.ending.full) return sendError(ws, 'Caption of the Night comes at the end of the night');   // cut 5
         if (fail(G.openFinale(game))) return;

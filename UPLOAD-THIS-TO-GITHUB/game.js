@@ -2000,7 +2000,7 @@ function totalRounds(game, here = isPresent) {
 }
 
 // Game over is decided once, when a scoreboard lands (or when the table moves on from one and nobody left has a deal
-// to come), and then it stays over: a late joiner during the credits, or someone whose phone comes back, never
+// to come), and then it stays over: a late joiner during the ending, or someone whose phone comes back, never
 // reopens a finished game. On a scoreboard that isn't the last, it stays not-over until the table moves on.
 // seated: count a phone that's away (past the grace, but never headed out) as still owed its deal: the scoreboard
 // doesn't end the game behind its back; the next-deal tap decides (finishIfOver), with whoever is here then
@@ -2166,7 +2166,7 @@ function hallOfFame(game) {
   return out.sort((a, b) => a.round - b.round);
 }
 
-/* ── The finale: after the winner, the awards and the end credits (night.js), tonight's Gallery.
+/* ── The finale: after the winner, the awards and the final scores (night.js), tonight's Gallery.
    Every caption framed tonight is shown; with two or more, the table votes (never for your own).
    The winner is Caption of the Night: a short ceremony on every phone at once, then memorialized
    on the untouched cartoon in The Gallery. ── */

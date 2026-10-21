@@ -1,8 +1,10 @@
 // night.js — the end of the night (and the night before), worked out on the server so every phone shows the same.
 //
 //   THE ENDING (game over): the winner (with each player's rating change, and the Remote changing hands), one awards
-//   slide, the END CREDITS (one freeze-frame card per player, an epilogue earned from how they played, ~6.5 s each,
-//   the dealer can tap on), the cast list (and the monkey, if it out-guessed anyone), then Caption of the Night.
+//   slide, the final scores, then (at the night's end: Last Call, or the host's "Call it a night") Caption of the
+//   Night. No end credits and no cast list any more (Nick, Oct 2026): credits.js keeps its words, nothing plays them.
+//   The beats that may follow the scores at the night's end come from nightCloseBeats() (none today): the one place
+//   a between-games intermission slots in.
 //   game.ending = { at, step, stepAt, beats, done, ... }: phones work out the beat on screen from the server clock;
 //   'ending_next' (the dealer or host) moves to the next beat at once.
 //
@@ -18,13 +20,13 @@
 //   scoreboard says only "Scores are sealed until the end" and your own points for the round. At game over the
 //   ending opens by reading the standings from last place up, one name a beat, then the top two together.
 //
-//   HEADING OUT (R28): a player who leaves early gets their own credit on the spot (from their play so far); the
-//   table hears "Bob has left the building."; their seat leaves the turn order; at the end their credit is read with
-//   everyone else's, "in absentia". LAST CALL (R30): the host makes the next trip around the table the last one.
+//   HEADING OUT (R28): a player who leaves early; the table hears "Bob has left the building."; their seat leaves
+//   the turn order; a sealed game's standings read them "in absentia". LAST CALL (R30): the host makes the next trip
+//   around the table the last one.
 //
 //   THE MONKEY: every round a monkey bets at random under the same chip rules (nobody sees it; seeded from the game,
 //   so a restored room gets the same monkey). If anyone found the real caption fewer times than the monkey did over
-//   the same rounds, the credits end on one line about it.
+//   the same rounds, it goes into the table's summary (a grudge for next time's "Previously on").
 //
 // Reads the game record (game.js history, flags, ratingResult) and never changes it, apart from its own fields:
 // game.nightLog, game.ending, game.previously, game.nightTable, game.tableCands, game.lastTable.
@@ -494,7 +496,7 @@ function standingOf(game) { try { return game_().standing(game); } catch (e) { r
 function ensureEnding(game) {
   if (game.ending && game.ending.gameId === (game.gameId || game.code)) return game.ending;
   try { game.ending = buildEnding(game); }
-  catch (e) { console.error('ending failed', e); game.ending = { gameId: game.gameId || game.code, at: Date.now(), step: 0, stepAt: Date.now(), beats: [{ k: 'cast' }], done: true, cast: [], credits: {}, awards: [], ratings: [], broken: true }; }
+  catch (e) { console.error('ending failed', e); game.ending = { gameId: game.gameId || game.code, at: Date.now(), step: 0, stepAt: Date.now(), beats: [{ k: 'final' }], done: true, cast: [], credits: {}, awards: [], ratings: [], broken: true }; }
   return game.ending;
 }
 function buildEnding(game) {
@@ -549,14 +551,16 @@ function buildEnding(game) {
   }
   beats.push({ k: 'winner', ms: WINNER_MS });
   if (aw.length) beats.push({ k: 'awards', ms: AWARDS_MS });
-  // cut 5: the credits, the cast list and Caption of the Night only after the night's last game (Last Call, or the
-  // host's "Call it a night" at game over: callNight adds them then). Earlier games: the winner, the awards, the scores.
+  // Every game ends on the final scores. The night's last game (Last Call, or the host's "Call it a night" at game
+  // over: callNight) then plays nightCloseBeats() (none today), and the final scores' tap opens Caption of the Night
+  // (or, with nothing framed tonight, the night ends there). No credits, no cast list (credits.js is unplayed).
   const full = !!game.lastCall;
-  if (full) { for (const id of roll) beats.push({ k: 'credit', id, ms: CREDIT_MS }); beats.push({ k: 'cast' }); }
-  else beats.push({ k: 'final' });
+  if (full) for (const b of nightCloseBeats(game)) beats.push(b);
+  beats.push({ k: 'final' });
+  void roll; void keys;
   const remote = remoteChange(game, stand);
   const e = {
-    gameId: gid, at, step: 0, stepAt: at, beats, done: false, full, credits, awards: aw, monkey, keys: full ? keys : [], creditKeys: keys, remote,
+    gameId: gid, at, step: 0, stepAt: at, beats, done: false, full, credits, awards: aw, monkey, keys: [], remote,
     cast: ids.map(id => ({ id, name: X.F[id].name, role: credits[id].role, absentia: !!credits[id].absentia })),
     scores: Object.fromEntries(ids.map(id => [id, X.F[id].score])),
     summary: summaryFacts(game, X, stand, pick, monkey),
@@ -649,19 +653,39 @@ function tableRecord(game) {
   };
 }
 
-/* cut 5: "Call it a night" (the host, at game over after a short ending): the credits, the cast list, then
-   Caption of the Night, on every phone */
+/* ── INTERMISSION SLOT: the beats played at the night's end, after the final scores' awards and before Caption of
+   the Night. None today (the end credits and the cast list were cut). A between-games intermission goes HERE: return
+   e.g. [{ k: 'intermission', ms: 8000 }] and teach public/ending.js draw() to show that k. buildEnding (Last Call)
+   puts them just before the closing 'final' beat; callNight plays them, then 'final'. ── */
+function nightCloseBeats(game) { void game; return []; }
+// The night is over: the ending closes, and Caption of the Night opens (nothing framed tonight: the final page)
+function endNight(game, e) {
+  e.done = true; e.doneAt = Date.now();
+  try { const g = game_(); if (!game.finale) g.openFinale(game); } catch (x) {}
+}
+
+/* cut 5: "Call it a night" (the host, at game over after a short ending): straight to Caption of the Night on every
+   phone (with nothing framed tonight, the night ends on the final scores) */
 function callNight(game) {
   const g = game_();
   if (!(game.phase === 'scores' && g.isGameOver(game))) return { error: 'The game is still going' };
   const e = ensureEnding(game);
   if (!e || e.broken) return { error: 'That didn’t take. Try again.' };
   if (e.full) return { ok: true, noop: true };
-  const roll = (e.cast || []).map(c => c.id).reverse();
-  e.beats = roll.filter(id => e.credits[id]).map(id => ({ k: 'credit', id, ms: CREDIT_MS })).concat([{ k: 'cast' }]);
-  e.full = true; e.night = true; e.keys = e.creditKeys || [];
-  e.step = 0; e.at = e.stepAt = Date.now() + LEAD_MS; e.done = false; delete e.doneAt;
+  e.full = true; e.night = true;
   game.nightCalled = true;
+  const extra = nightCloseBeats(game);
+  if (!e.done) {   // the short ending is still playing: its closing 'final' beat's tap now ends the night
+    const last = e.beats.length - 1;
+    if (extra.length) { const onLast = beatNow(e, Date.now()).i >= last; e.beats.splice(last, 0, ...extra); if (onLast) { e.step = last; e.stepAt = Date.now(); } }
+    return { ok: true };
+  }
+  if (extra.length) {
+    e.beats = extra.concat([{ k: 'final' }]);
+    e.step = 0; e.at = e.stepAt = Date.now() + LEAD_MS; e.done = false; delete e.doneAt;
+    return { ok: true };
+  }
+  endNight(game, e);
   return { ok: true };
 }
 
@@ -671,16 +695,15 @@ function beatNow(e, now) {
   while (i < e.beats.length - 1 && e.beats[i].ms && now >= t + e.beats[i].ms) { t += e.beats[i].ms; i++; }
   return { i, start: t };
 }
-// The dealer or host taps on: the next beat now (the cast list's tap ends it: Caption of the Night, or the final page)
+// The dealer or host taps on: the next beat now (the final scores' tap ends it: at the night's end, Caption of the
+// Night, if anything was framed; otherwise the final page)
 function nextBeat(game, seen) {
   const e = game.ending;
   if (!e || e.done) return { ok: true, noop: true };
   const { i } = beatNow(e, Date.now());
   if (Number.isInteger(seen) && seen !== i) return { ok: true, noop: true };   // a tap meant for a beat that has already gone
-  if (e.beats[i].k === 'final') { e.done = true; e.doneAt = Date.now(); return { ok: true, done: true }; }
-  if (e.beats[i].k === 'cast') {
-    e.done = true; e.doneAt = Date.now();
-    try { const g = game_(); if (!game.finale) { const r = g.openFinale(game); if (r && r.error) { /* nothing framed tonight: the final page */ } } } catch (x) {}
+  if (e.beats[i].k === 'final' || i >= e.beats.length - 1) {
+    if (e.full) endNight(game, e); else { e.done = true; e.doneAt = Date.now(); }
     return { ok: true, done: true };
   }
   e.step = i + 1; e.stepAt = Date.now();
@@ -690,7 +713,7 @@ function nextBeat(game, seen) {
 function endingView(game) {
   const e = game.ending; if (!e) return null;
   const v = JSON.parse(JSON.stringify(e));
-  delete v.summary; delete v.creditKeys;
+  delete v.summary; delete v.creditKeys; delete v.cast;
   v.table = tableRecord(game);
   const rr = game.ratingResult;
   v.ratings = rr && !rr.none && Array.isArray(rr.order) ? rr.order.map(id => { const r = rr.rows[id]; return r ? { id, after: r.after, delta: r.delta, title: r.title || null, newTitle: r.newTitle || null, provisional: !!r.provisional } : null; }).filter(Boolean) : [];

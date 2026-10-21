@@ -1,5 +1,5 @@
 /* Closed Caption — THE FINALE (finale.js)
-   After the winner, the awards and the end credits (ending.js): tonight's Gallery.
+   After the winner, the awards and the final scores (ending.js): tonight's Gallery.
      1. Every caption framed tonight is shown. Two or more: everyone votes for the best (never their own).
      2. Caption of the Night: a short, quiet ceremony on every phone at once (~5 s). The framed card is hung,
         the rosette pinned on, the brass plaque engraved. Then it hangs in The Gallery for good, on the clean,

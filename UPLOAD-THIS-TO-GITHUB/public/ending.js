@@ -3,18 +3,17 @@
      1. The winner: the name, the points, the Remote changing hands ("Bob, hand over the remote."), and each
         player's rating change on one line.
      2. One awards slide: Best Lie and Nobody Bit (quoted), Best Liar, Most Groans, Sharpest Eye.
-     3. END CREDITS: one freeze-frame per player — their best caption on its cartoon, their name in a caption box,
-        an epilogue earned from how they played (big, for the dealer to read aloud), and their rating's verdict as a
-        pull quote. ~6.5 s each; the dealer (or host) taps on.
-     4. The cast list, and the monkey (a dart-throwing control player) if it out-guessed anyone. The dealer's tap
-        opens Caption of the Night (finale.js).
+     3. The final scores (and the table vs. the cartoonist). At the night's end (Last Call, or "Call it a night") the
+        dealer's tap opens Caption of the Night (finale.js); nothing framed tonight, the night ends there.
+        No end credits and no cast list (cut, Oct 2026). Beats the server adds before 'final' at the night's end
+        (night.js nightCloseBeats: a between-games intermission) need a branch in draw().
    A sealed game (R18: the Late Edition seals the scoreboard) opens the ending by reading the standings from last
    place up, one name a beat, then holds the top two together before the winner lands.
-   Also here: HEADING OUT (R28: your own credit now, to keep), LAST CALL (R30: the host's "one more trip around"),
+   Also here: HEADING OUT (R28: leave the game; the phone says goodbye), LAST CALL (R30: the host's "one more trip around"),
    the sealed scoreboard, THE REMOTE (the table's traveling trophy: an inline drawing, the lobby line, the tape to read),
    "PREVIOUSLY ON CLOSED CAPTION" (round 1's cold open for a returning table), and the table records each phone
    keeps (cc_tables: who has the Remote, the tape, the first cartoon, a short summary of the last game).
-   Server: state.ending = { at, step, stepAt, beats, done, remote, ratings, awards, credits, cast, monkey, keys, table },
+   Server: state.ending = { at, step, stepAt, beats, done, full, remote, ratings, awards, credits, monkey, keys, table },
            state.previously (round 1, writing), state.remote (the lobby).
    Reads the page's globals at call time: state, myPlayerId, esc, chipHtml, plural, canRun, send, clockOffset, ws,
    buzz, big, tone, noise, srSay, careerGet, careerSave, sendCareer, addSeenLines, fmtRating, inkIcon, closeMenu,
@@ -23,14 +22,14 @@
   'use strict';
   var INK = '#1F1A17';
   var CSS = [
-    /* ── the overlay: paper for the winner and the awards, the dark of a theater for the credits ── */
+    /* ── the overlay: paper (the dark theme is unused since the credits were cut) ── */
     '#ending{position:fixed;inset:0;z-index:785;display:none;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}',
     '#ending.on{display:block;}',
     '#ending.paper{background:var(--paper,#FFF8EA);background-image:radial-gradient(rgba(31,26,23,0.06) 1.2px,transparent 1.2px);background-size:18px 18px;color:' + INK + ';}',
     '#ending.dark{background:#14100D;color:#F3EBDD;}',
     '.en-in{min-height:100%;max-width:440px;margin:0 auto;padding:calc(18px + var(--sat,0px)) 16px calc(84px + var(--sab,0px));display:flex;flex-direction:column;justify-content:center;}',
     '.en-eye{font-size:12px;font-weight:900;letter-spacing:.24em;text-transform:uppercase;color:var(--muted,#6E655C);margin:0;}',
-    '#ending.dark .en-eye,#mycredit .en-eye{color:#B9AE9C;}',
+    '#ending.dark .en-eye{color:#B9AE9C;}',
     '.en-fade{animation:enFade .5s ease-out both;}',
     '@keyframes enFade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}',
     /* the bar that shows how long a beat stays; the dealer's tap */
@@ -99,6 +98,7 @@
     '.en-monkey svg{flex:none;}',
     '.en-monkey p{font-family:var(--serif);font-weight:400;font-size:17px;line-height:1.35;color:#FFF8EA;}',
     '.en-vs{font-family:var(--serif);font-size:16px;color:#CFC4B2;margin-top:16px;}',
+    '#ending.paper .en-vs{color:var(--ink-2,#4A433D);}',
     '.en-the-end{font-family:var(--serif);font-style:italic;font-size:15px;color:#B9AE9C;margin-top:22px;}',
     /* the Remote */
     '.rm-svg{display:block;overflow:visible;}',
@@ -169,8 +169,8 @@
     '#lastcall{position:fixed;left:0;right:0;top:0;z-index:772;display:none;align-items:center;justify-content:center;padding:calc(16px + env(safe-area-inset-top, 0px)) 20px 16px;background:#14100D;color:#FFF8EA;text-align:center;box-shadow:0 10px 28px rgba(20,16,13,.35);cursor:pointer;}',
     '#lastcall.on{display:flex;animation:enFade .35s ease-out;}',
     '#lastcall p{font-family:var(--serif);font-weight:700;font-size:21px;line-height:1.25;max-width:340px;margin:0;}',
-    /* R28 heading out: your own credit */
-    '#mycredit{position:fixed;inset:0;z-index:795;display:none;overflow-y:auto;background:#14100D;color:#F3EBDD;}',
+    /* R28 heading out: the goodbye */
+    '#mycredit{position:fixed;inset:0;z-index:795;display:none;overflow-y:auto;background:var(--paper,#FFF8EA);color:' + INK + ';}',
     '#mycredit.on{display:block;animation:enFade .4s ease-out;}',
     '#mycredit .en-foot{position:static;margin-top:22px;padding:0;background:none;gap:10px;}',
     '#mycredit .en-foot .btn{flex:1;}',
@@ -239,7 +239,7 @@
       '<path d="M17 134 H63 M17 134 L17.6 182 Q17.8 188 24 188 H56 Q62.2 188 62.4 182 L63 134" fill="none" stroke="#2A2420" stroke-width="1.8" opacity=".8"/>' +
       tape + '</svg>';
   }
-  // A small chimp in ink, on a paper roundel (it sits on the dark of the credits), holding up a dart like a pro
+  // A small chimp in ink, on a paper roundel, holding up a dart like a pro
   function chimpSvg(w) {
     w = w || 64;
     var s = 'stroke="' + INK + '" stroke-linecap="round" stroke-linejoin="round"', fur = '#C9C1B4', face = '#F4EFE6';
@@ -337,7 +337,7 @@
   function next(i) {
     if (local) {
       var e = local.e, c = beatNow(e, now());
-      if (e.beats[c.i].k === 'cast' || e.beats[c.i].k === 'final') { local = null; close(); try { render(true); } catch (x) {} return; }
+      if (e.beats[c.i].k === 'final' || c.i >= e.beats.length - 1) { local = null; close(); try { render(true); } catch (x) {} return; }
       e.step = c.i + 1; e.stepAt = now(); sync(); return;
     }
     vib(15);
@@ -349,7 +349,7 @@
     if (last) {
       var s = S(), fr = s && s.framedTonight;
       if (local) return '<div class="en-foot"><button class="btn btn-yellow en-go" onclick="Ending.next(' + c.i + ')">Done</button></div>';
-      if (run()) return '<div class="en-foot"><button class="btn btn-yellow en-go" onclick="Ending.next(' + c.i + ')">' + (b.k !== 'final' && fr && !(s.finale) ? 'Caption of the Night →' : 'Final scores →') + '</button></div>';
+      if (run()) return '<div class="en-foot"><button class="btn btn-yellow en-go" onclick="Ending.next(' + c.i + ')">' + (e.full && fr && !(s.finale) ? 'Caption of the Night →' : e.full ? 'Done' : 'Final scores →') + '</button></div>';
       var who = s ? first(s.dealerName || nameOfId(s.hostId)) : '';
       return '<div class="en-foot"><p class="en-who">' + E(who) + ' moves things along<span class="dots"></span></p></div>';
     }
@@ -358,30 +358,26 @@
   function nameOfId(id) { try { return nameOf(id); } catch (e) { return ''; } }
   function draw(e, c, b) {
     var o = el(), s = S(), fresh = !o.className;
-    var dark = b.k === 'credit' || b.k === 'cast';
-    o.className = 'on ' + (dark ? 'dark' : 'paper');
+    o.className = 'on paper';
     var html = '';
     if (b.k === 'stand') html = standHtml(e, b);
     else if (b.k === 'top') html = topHtml(e, b);
     else if (b.k === 'winner') html = winnerHtml(e);
     else if (b.k === 'awards') html = awardsHtml(e);
-    else if (b.k === 'credit') html = creditHtml(e, b, c);
-    else if (b.k === 'final') html = finalHtml(e);
-    else html = castHtml(e);
-    o.innerHTML = '<div class="en-in">' + html + '</div>' + footHtml(e, c, b, b.k === 'cast' || b.k === 'final');
+    // (an intermission beat from the server, night.js nightCloseBeats, gets its own branch here)
+    else html = finalHtml(e);
+    var last = b.k === 'final' || c.i >= e.beats.length - 1;
+    o.innerHTML = '<div class="en-in">' + html + '</div>' + footHtml(e, c, b, last);
     o.scrollTop = 0;
-    o.onclick = function (ev) { if ((run() || local) && b.k !== 'cast' && b.k !== 'final' && !(ev.target.closest && ev.target.closest('button'))) next(c.i); };
-    if (b.k === 'credit') freeze(c);
+    o.onclick = function (ev) { if ((run() || local) && !last && !(ev.target.closest && ev.target.closest('button'))) next(c.i); };
     sound(b.k, fresh);
     try { var f = o.querySelector('.en-in'); if (f && f.focus) { f.setAttribute('tabindex', '-1'); f.focus({ preventScroll: true }); } } catch (x) {}
   }
   function sound(k, fresh) {
     if (k === 'winner') { snd(function () { tone(784, 0.2, 0, 'triangle', 0.05); tone(1047, 0.35, 120, 'triangle', 0.045); }); vib([60, 40, 120]); }
     else if (k === 'awards') snd(function () { noise(0.3, 0, 0.18, 1800); tone(880, 0.25, 0, 'sine', 0.04, 260); });
-    else if (k === 'credit') snd(function () { noise(0.04, 520, 0.3, 3800, 'highpass'); tone(2400, 0.02, 520, 'square', 0.02); });   // the shutter, on the freeze
     else if (k === 'stand') snd(function () { tone(392, 0.12, 0, 'triangle', 0.035); });
     else if (k === 'top') snd(function () { noise(0.6, 0, 0.06, 700, 'lowpass'); tone(196, 1.2, 0, 'sine', 0.05); tone(247, 1.2, 0, 'sine', 0.035); });
-    else if (k === 'cast') snd(function () { [392, 494, 587, 784].forEach(function (f, i) { tone(f, 0.9, i * 90, 'sine', 0.035); }); });
   }
 
   /* 1. The winner, the Remote, the ratings */
@@ -433,34 +429,7 @@
     }).join('');
     return '<div class="en-aw"><p class="en-eye" style="text-align:center">The awards</p><h2>Tonight</h2>' + rows + '</div>';
   }
-  /* 3. A credit: the freeze-frame, the caption box, the epilogue, the verdict */
-  function creditHtml(e, b, c) {
-    var cr = (e.credits || {})[b.id] || {}, n = (e.beats || []).filter(function (x) { return x.k === 'credit'; }), k = n.indexOf(b) + 1;
-    var nm = nameOfId(b.id) || (e.cast || []).filter(function (x) { return x.id === b.id; }).map(function (x) { return x.name; })[0] || '';
-    var fz = cr.freeze, r = cr.rating;
-    var frame = fz && fz.image ? '<figure class="en-frame" id="en-frame"><img src="/images/' + E(fz.image) + '" alt="' + E('Cartoon from round ' + fz.round) + '"><div class="en-flash" id="en-flash"></div><figcaption class="en-cc"><span id="en-cc" data-n="' + E(nm) + '">' + E(nm) + '</span></figcaption></figure>'
-      : '<figure class="en-frame" id="en-frame" style="padding:28px 8px"><figcaption class="en-cc" style="position:static;transform:none;display:inline-block"><span id="en-cc" data-n="' + E(nm) + '">' + E(nm) + '</span></figcaption></figure>';
-    var d = r ? (r.delta > 0 ? '+' + r.delta : r.delta < 0 ? '−' + Math.abs(r.delta) : '±0') : '';
-    var rt = r ? '<b>' + rating(r.after) + ' (' + d + ')' + (r.newTitle ? ' · ' + E(r.newTitle) + ', new' : r.title ? ' · ' + E(r.title) : '') + '.</b> ' : '';
-    return '<div class="en-credit">' +
-      '<p class="en-eye en-count">' + k + ' of ' + n.length + (cr.absentia ? '<span class="en-abs">in absentia</span>' : '') + '</p>' + frame +
-      (fz && fz.caption ? '<p class="en-cap en-fade" style="animation-delay:.7s">“' + E(fz.caption) + '”</p>' : '') +
-      '<p class="en-epi en-fade" style="animation-delay:1s" aria-live="polite">' + E(cr.text || '') + '</p>' +
-      (rt || cr.blurb ? '<p class="en-blurb en-fade" style="animation-delay:2.2s">' + rt + (cr.blurb ? '<i>“' + E(cr.blurb) + '”</i>' : '') + '</p>' : '') +
-      '</div>';
-  }
-  // The freeze: the frame lands, holds, and stops (one soft flash, no strobe); the name types out like a caption
-  function freeze(c) {
-    var f = document.getElementById('en-frame'), fl = document.getElementById('en-flash'), cc = document.getElementById('en-cc');
-    var late = now() - c.start;
-    if (late > 1500 || reduced()) { if (f && f.animate && !reduced()) f.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, fill: 'both' }); return; }
-    try {
-      f.animate([{ opacity: 0, transform: 'translateY(18px) rotate(1.5deg) scale(1.05)' }, { opacity: 1, transform: 'translateY(0) rotate(-0.4deg) scale(1.03)', offset: 0.75 }, { opacity: 1, transform: 'rotate(-1.2deg) scale(1)' }], { duration: 560, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both' });
-      if (fl) setTimeout(function () { try { fl.animate([{ opacity: 0.5 }, { opacity: 0 }], { duration: 240, easing: 'ease-out', fill: 'both' }); } catch (x) {} }, 520);
-      if (cc) { var full = cc.getAttribute('data-n') || ''; cc.textContent = ''; for (var i = 1; i <= full.length; i++) (function (j) { setTimeout(function () { cc.textContent = full.slice(0, j); }, 560 + j * 45); })(i); }
-    } catch (x) {}
-  }
-  /* 4. The cast, and the monkey */
+  /* 3. The final scores */
   // R10 the table vs. the cartoonist (the round's blind laughs): tonight's score, and the table's best to beat
   function vsLine(e) {
     var v = e && e.vs; if (!v || !(v.table + v.cartoonist > 0)) return null;
@@ -469,21 +438,13 @@
     else if (v.best) line += ' This table’s best: ' + v.best.table + ' to ' + v.best.cartoonist + '.';
     return line;
   }
-  /* cut 5: a game that isn't the night's last ends on the scores (the credits wait for "Call it a night") */
+  // Every game ends here; at the night's end this beat's tap opens Caption of the Night
   function finalHtml(e) {
     var sc = e.scores || {}, ids = Object.keys(sc).sort(function (a, b) { return sc[b] - sc[a]; });
     var rows = ids.map(function (id) { return '<li>' + chip(id) + '<span class="nm">' + E(nameOfId(id)) + '</span><span class="pt">' + (sc[id] || 0) + '</span></li>'; }).join('');
-    return '<div class="en-st"><p class="en-eye">Final scores</p><ol class="en-read">' + rows + '</ol></div>';
-  }
-  function castHtml(e) {
-    var rows = (e.cast || []).map(function (p, i) { return '<li style="animation-delay:' + (0.1 + i * 0.12) + 's"><span class="n">' + E(p.name) + (p.absentia ? '<span class="ab">(in absentia)</span>' : '') + '</span><span class="lead" aria-hidden="true"></span><span class="r">' + E(p.role) + '</span></li>'; }).join('');
-    if (e.monkey) rows += '<li class="mk" style="animation-delay:' + (0.1 + (e.cast || []).length * 0.12) + 's"><span class="n">The monkey</span><span class="lead" aria-hidden="true"></span><span class="r">Himself</span></li>';
     var vs = vsLine(e);
-    return '<div class="en-cast"><h2>Cast</h2><ol class="en-cl">' + rows + '</ol>' +
-      (e.monkey ? '<div class="en-monkey" style="animation-delay:' + (0.6 + (e.cast || []).length * 0.12) + 's">' + chimpSvg(76) + '<p>' + E(e.monkey.text) + '</p></div>' : '') +
-      (vs ? '<p class="en-vs">' + E(vs) + '</p>' : '') + '</div>';
+    return '<div class="en-st"><p class="en-eye">Final scores</p><ol class="en-read">' + rows + '</ol>' + (vs ? '<p class="en-vs">' + E(vs) + '</p>' : '') + '</div>';
   }
-
   /* ── The final page, after the ending: the Remote's line (tap it to read the tape) and a replay ── */
   function remoteLineHtml() {
     var s = S(), e = s && s.ending; if (!e || !e.remote) return '';
@@ -590,94 +551,36 @@
   function menuRows() {
     var s = S(); if (!playing()) return '';
     var lc = s.isHost && !s.lastCall && !s.late ? '<button class="menu-row" onclick="Ending.askLastCall()"><span class="ic">' + (typeof inkIcon === 'function' ? inkIcon('clock') : '') + '</span>Last call<span class="r">' + (s.lastCallAdds === false ? 'This trip is the last' : 'One more trip around') + '</span></button>' : '';
-    return lc + '<button class="menu-row" onclick="Ending.askHeadOut()"><span class="ic">' + (typeof inkIcon === 'function' ? inkIcon('door') : '') + '</span>Heading out<span class="r">Your credit, now</span></button>';
+    return lc + '<button class="menu-row" onclick="Ending.askHeadOut()"><span class="ic">' + (typeof inkIcon === 'function' ? inkIcon('door') : '') + '</span>Heading out<span class="r">Leave the game</span></button>';
   }
   function askLastCall() {
     try { closeMenu(); } catch (x) {}
     var s = S(), adds = !(s && s.lastCallAdds === false);
-    if (!confirm(adds ? 'Last call? One more trip around the table, then the winner and the credits.' : 'Last call? This trip around the table is the last one, then the winner and the credits.')) return;
+    if (!confirm(adds ? 'Last call? One more trip around the table, then the winner and Caption of the Night.' : 'Last call? This trip around the table is the last one, then the winner and Caption of the Night.')) return;
     try { send({ action: 'last_call' }); } catch (x) {}
   }
   function askHeadOut() {
     try { closeMenu(); } catch (x) {}
-    if (!confirm('Heading out? Your end credit plays now, and your seat leaves the game. The table carries on without you.')) return;
+    if (!confirm('Heading out? Your seat leaves the game, and the table carries on without you.')) return;
     try { send({ action: 'head_out' }); } catch (x) {}
   }
-  // The server's answer to 'head_out': this phone is out of the game; its own credit plays, to keep
-  var mine = null;
+  // The server's answer to 'head_out': this phone is out of the game; it says goodbye (no end credit any more)
   function showOwnCredit(d) {
     if (!d) return;
-    mine = d;
     try { if (window.Voice) Voice.leave(); } catch (x) {}
     try { dropOutbox(); clearSession(); myPlayerId = null; gameCode = null; } catch (x) {}
-    noteSeen('out|' + d.key, d.key ? [d.key] : []);
     var o = document.getElementById('mycredit');
-    if (!o) { o = document.createElement('div'); o.id = 'mycredit'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Your end credit'); document.body.appendChild(o); }
-    var fz = d.freeze;
-    var frame = fz && fz.image ? '<figure class="en-frame" id="en-frame"><img src="/images/' + E(fz.image) + '" alt="' + E('Cartoon from round ' + fz.round) + '"><div class="en-flash" id="en-flash"></div><figcaption class="en-cc"><span id="en-cc" data-n="' + E(d.name) + '">' + E(d.name) + '</span></figcaption></figure>'
-      : '<figure class="en-frame" id="en-frame" style="padding:28px 8px"><figcaption class="en-cc" style="position:static;transform:none;display:inline-block"><span id="en-cc" data-n="' + E(d.name) + '">' + E(d.name) + '</span></figcaption></figure>';
-    o.innerHTML = '<div class="en-in"><div class="en-credit"><p class="en-eye en-count">Heading out</p>' + frame +
-      (fz && fz.caption ? '<p class="en-cap en-fade" style="animation-delay:.7s">“' + E(fz.caption) + '”</p>' : '') +
-      '<p class="en-epi en-fade" style="animation-delay:1s">' + E(d.text || '') + '</p>' +
-      '<p class="en-blurb en-fade" style="animation-delay:2s"><i>The table will read it again at the end, in absentia.</i></p>' +
-      '<div class="en-foot en-fade" style="animation-delay:2.4s"><button class="btn" onclick="Ending.saveCredit()">Save the card</button><button class="btn btn-yellow" onclick="Ending.closeOwnCredit()">Done</button></div></div></div>';
+    if (!o) { o = document.createElement('div'); o.id = 'mycredit'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Heading out'); document.body.appendChild(o); }
+    o.innerHTML = '<div class="en-in"><div class="en-st"><p class="en-eye">Heading out</p>' +
+      '<h2 class="en-name en-fade' + (String(d.name || '').length > 9 ? ' mid' : '') + '">' + E(d.name || '') + '</h2>' +
+      '<p class="en-pts en-fade" style="animation-delay:.3s">Thanks for playing. The table carries on without you.</p>' +
+      '<div class="en-foot en-fade" style="animation-delay:.8s"><button class="btn btn-yellow" onclick="Ending.closeOwnCredit()">Done</button></div></div></div>';
     o.className = 'on';
-    freeze({ start: now() });
-    say(d.text || '');
-    snd(function () { noise(0.04, 520, 0.3, 3800, 'highpass'); tone(2400, 0.02, 520, 'square', 0.02); });
+    say('Heading out. Thanks for playing.');
   }
   function closeOwnCredit() {
     var o = document.getElementById('mycredit'); if (o) { o.className = ''; o.innerHTML = ''; }
     try { state = null; lastPhase = null; showScreen('screen-home'); } catch (x) {}
-  }
-
-  /* ═════════════ Save the card: a credit as a picture (1080 × 1350) ═════════════ */
-  function loadImg(src) { return new Promise(function (res) { if (!src) return res(null); var i = new Image(), done = false, fin = function (v) { if (!done) { done = true; res(v); } }; i.onload = function () { fin(i.naturalWidth ? i : null); }; i.onerror = function () { fin(null); }; setTimeout(function () { fin(null); }, 6000); i.src = src; }); }
-  function wrap(ctx, text, maxW) { var words = String(text || '').split(/\s+/), lines = [], cur = ''; words.forEach(function (w) { var t = cur ? cur + ' ' + w : w; if (ctx.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; }); if (cur) lines.push(cur); return lines; }
-  function creditCard(d) {
-    var W2 = 1080, H2 = 1350, c = document.createElement('canvas'); c.width = W2; c.height = H2;
-    var ctx = c.getContext('2d'), serif = "'Libre Caslon Text', Georgia, serif";
-    return Promise.all([loadImg(d.freeze && d.freeze.image ? '/images/' + d.freeze.image : null), document.fonts && document.fonts.load ? Promise.race([Promise.all(["400 40px 'Libre Caslon Text'", "italic 400 30px 'Libre Caslon Text'", "700 40px 'Libre Caslon Text'"].map(function (f) { return document.fonts.load(f); })), new Promise(function (r) { setTimeout(r, 2000); })]).catch(function () {}) : null]).then(function (r) {
-      var img = r[0];
-      ctx.fillStyle = '#14100D'; ctx.fillRect(0, 0, W2, H2);
-      // centre the whole card on the page: measure first
-      var fw = 860, ih = img ? Math.min(560, fw * img.naturalHeight / img.naturalWidth) : 0;
-      ctx.font = 'italic 400 34px ' + serif; var capN = d.freeze && d.freeze.caption ? Math.min(2, wrap(ctx, '“' + d.freeze.caption + '”', 900).length) : 0;
-      ctx.font = '400 46px ' + serif; var epiN = Math.min(7, wrap(ctx, d.text || '', 920).length);
-      var total = (img ? ih + 48 : 0) + 110 + (capN ? capN * 46 + 20 : 0) + epiN * 62;
-      var y = Math.max(70, (H2 - 90 - total) / 2);
-      if (img) {
-        var iw = ih * img.naturalWidth / img.naturalHeight, fx = (W2 - fw) / 2;
-        ctx.save(); ctx.translate(W2 / 2, y + ih / 2 + 24); ctx.rotate(-1.2 * Math.PI / 180); ctx.translate(-W2 / 2, -(y + ih / 2 + 24));
-        ctx.fillStyle = '#fff'; ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 16; ctx.fillRect(fx, y, fw, ih + 48); ctx.shadowColor = 'transparent';
-        ctx.drawImage(img, (W2 - iw) / 2, y + 24, iw, ih);
-        ctx.restore();
-        y += ih + 48;
-      }
-      ctx.font = '900 54px Nunito, system-ui, sans-serif'; var nm = String(d.name || '').toUpperCase(), nw = Math.min(900, ctx.measureText(nm).width + 64);
-      ctx.fillStyle = '#000'; ctx.fillRect((W2 - nw) / 2, y - 34, nw, 84); ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.fillText(nm, W2 / 2, y + 26, 880);
-      y += 110;
-      if (d.freeze && d.freeze.caption) { ctx.font = 'italic 400 34px ' + serif; ctx.fillStyle = '#CFC4B2'; wrap(ctx, '“' + d.freeze.caption + '”', 900).slice(0, 2).forEach(function (l) { ctx.fillText(l, W2 / 2, y); y += 46; }); y += 20; }
-      ctx.textAlign = 'left'; ctx.fillStyle = '#FFF8EA'; ctx.font = '400 46px ' + serif;
-      wrap(ctx, d.text || '', 920).slice(0, 7).forEach(function (l) { ctx.fillText(l, 80, y); y += 62; });
-      ctx.textAlign = 'center'; ctx.fillStyle = '#B9AE9C'; ctx.font = '700 28px Nunito, system-ui, sans-serif';
-      var site = ''; try { site = window.HallCard && HallCard.siteLabel ? HallCard.siteLabel() : location.host; } catch (x) {}
-      ctx.fillText('CLOSED CAPTION' + (site ? '  ·  ' + site : ''), W2 / 2, H2 - 60);
-      return new Promise(function (res) { c.toBlob(function (b) { res(b); }, 'image/png'); });
-    });
-  }
-  function saveCredit(d) {
-    d = d || mine; if (!d) return;
-    creditCard(d).then(function (blob) {
-      if (!blob) return;
-      var file = 'closed-caption-credit-' + String(d.name || 'you').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.png';
-      if (window.HallCard && HallCard.share) HallCard.share(blob, { filename: file, title: 'My Closed Caption credit', text: 'What became of me. ' + (HallCard.siteUrl ? HallCard.siteUrl('credit') : '') }).then(function (r) { if (r === 'downloaded') { try { showToast('Saved to your downloads', 'ok'); } catch (x) {} } if (r !== 'cancelled') { try { ccTally('credit'); } catch (x) {} } });
-    });
-  }
-  // Everyone else's, from the final page
-  function saveMyCredit() {
-    var s = S(), e = s && s.ending, c = e && e.credits && e.credits[me()];
-    if (c) saveCredit({ name: nameOfId(me()), text: c.text, freeze: c.freeze });
   }
 
   window.Ending = {
@@ -685,6 +588,6 @@
     lobbyHtml: lobbyHtml, sendTables: sendTables, openRemote: openRemote, remoteSvg: remoteSvg, chimpSvg: chimpSvg, remoteLineHtml: remoteLineHtml,
     syncPrev: syncPrev, closePrev: closePrev, tables: tablesGet, saveTable: saveTable,
     sealedHtml: sealedHtml, tick: tick, menuRows: menuRows, askLastCall: askLastCall, askHeadOut: askHeadOut,
-    showOwnCredit: showOwnCredit, closeOwnCredit: closeOwnCredit, saveCredit: saveCredit, saveMyCredit: saveMyCredit,
+    showOwnCredit: showOwnCredit, closeOwnCredit: closeOwnCredit,
   };
 })();
