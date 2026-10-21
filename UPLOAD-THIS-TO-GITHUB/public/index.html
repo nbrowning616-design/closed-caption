@@ -1542,7 +1542,8 @@ function onServer(msg) {
       if (state.notice && state.notice.at > lastNoticeAt) { if (state.serverNow - state.notice.at < 8000) setTimeout(() => showToast(state.notice.text, 'ok'), 300); lastNoticeAt = state.notice.at; }
       lobbyWatch();
       render();
-      syncClaim();   // #30: the host's "Let them in?" (outside render, which can skip a redraw)
+      syncClaim();
+      if (window.Ending) Ending.tick();   // R30 the Last Call card (outside render, which can skip a redraw)   // #30: the host's "Let them in?" (outside render, which can skip a redraw)
     }
     else if (msg.type === 'gallery_purge') { galleryPurge(); if (state && state.phase === 'lobby') render(true); }   // the server refused retired frames: drop them here too
     else if (msg.type === 'error') {
@@ -1834,7 +1835,7 @@ function render(force = false) {
   }
   if (state.phase === 'writing') startTimer();
   afterRender(phaseChanged);
-  syncOpening(); syncLate(); if (window.Ending) Ending.tick();   // R30 the Last Call card
+  syncOpening(); syncLate();
   if (focusMark) focusRestore(focusMark);
   if (phaseChanged || (state.phase === 'answer' && key !== lastKey && reelInfo().step > reelInfo().n)) stageSay();   // #29: every new stage, said out loud
   lastPhase = state.phase; lastRound = state.round; lastKey = key;
@@ -2003,7 +2004,7 @@ const dealerLine = () => state.isDealer ? 'You’re the dealer' : `Dealer: ${esc
 function renderAwayBanner() {
   const d = state.dealerId && !state.dealerConnected && !state.isDealer;
   if (!d) {
-    const off = state.players.filter(p => !p.connected);
+    const off = state.players.filter(p => !p.connected && !(state.departed || []).includes(p.id));   // (R28: whoever headed out isn't "offline")
     return off.length ? `<div id="away" class="center small" style="margin:-4px 0 12px;">Offline: ${esc(off.map(p => firstName(p.name)).join(', '))}</div>` : '';
   }
   if (state.canTakeover) return `<div id="away" class="panel red flat center" style="margin-bottom:12px; padding:10px;"><p class="small" style="color:var(--ink);"><b>${esc(firstName(state.dealerName))}’s phone dropped.</b> Anyone can keep the game moving now.</p></div>`;

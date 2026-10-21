@@ -411,7 +411,7 @@
     var nm = nameOfId(b.id);
     var gone = (e.credits[b.id] || {}).absentia;
     var list = read.slice().reverse().map(function (x) { return '<li>' + '<span class="pl">' + ord(x.place) + '</span>' + chip(x.id) + '<span class="nm">' + E(nameOfId(x.id)) + '</span><span class="pt">' + (sc[x.id] || 0) + '</span></li>'; }).join('');
-    return '<div class="en-st" aria-live="polite"><p class="en-eye">The scores, unsealed · from the bottom</p>' +
+    return '<div class="en-st" aria-live="polite"><p class="en-eye">Unsealed, from the bottom</p>' +
       '<p class="en-place en-fade">' + (b.tied ? 'Tied for ' + ord(b.place) : ord(b.place)) + (gone ? ' · in absentia' : '') + '</p>' +
       '<h2 class="en-name en-fade' + (nm.length > 9 ? ' mid' : '') + '">' + E(nm) + '</h2>' +
       '<p class="en-pts en-fade" style="animation-delay:.25s">' + plural(sc[b.id] || 0, 'point') + '</p>' +
