@@ -473,3 +473,12 @@ landscape; overlays land on each other (skip gag under the opening/Late Edition/
 scoreboard); stamps start at scale(3) and widen the page sideways.
 SERVER SLEEP (reverses #3): Nick chose a FREE OUTSIDE PINGER — he creates a free UptimeRobot (or cron-job.org) monitor on
 https://closed-caption.onrender.com/status every 5 minutes. The GitHub keep-awake action ran only 12 times in ~50 h.
+
+## STATUS (Oct 21 2026, evening) — SOFT LAUNCH build live (branch launch → main)
+All eight "too cute" cuts plus the polish-audit fixes, built in two halves (rules / screens), merged, then integration-fixed
+(table vs. the cartoonist counts Ha taps on fakes before the real one turns; Last Call band no longer covers Deal; "Call it a
+night" note; away-last-dealer scoreboard; ending after an end-from-scoreboard). Tested: unit 88/88; Playwright through the real
+buttons 3 (360x640), 4, 5 (reload mid-bet, phone closed mid-writing), 8 phones x2 games incl. Last Call and Call it a night;
+a11y all clear; zero page errors. Deck checked: 389 cards, every image and card_meta entry present.
+Left: credit epilogues are 17–32 words (target ~20; copy work); the night's first framing ceremony covers the reel buttons
+~5–10 s (closes itself); scoreboard not merged into the recap.
