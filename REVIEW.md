@@ -388,8 +388,10 @@ Everything from writing to the scoreboard. The END OF NIGHT (finale, awards, cre
   mid-credits, Previously on, Caption of the Night): 108/108. 4 phones Standard (Last Call after round 1, Dee heads out
   in round 2 with her credit saved, a reload mid-reel, a server restart mid-reveal, sealed scoreboards, standings from
   the bottom, in absentia): 65/65. 5 phones After Dark twice around (a skip gag, a slip, a phone closed 26 s and
-  back, a reload mid-bet, a server restart mid-reveal, sealed Late Edition): 66/66. 8 phones Standard, 2 games, both
-  Editor's notes (word count and must-use word, Lock it in waits until it fits), called shots, slips: see below.
+  back, a reload mid-bet, a server restart mid-reveal, sealed Late Edition): 66/66. 8 phones After Dark, 2 games
+  (both Editor's notes, word count and must-use word, Lock it in waits until it fits; called shots; a slip in each
+  game; reloads mid-reel and mid-credits; Previously on): 101/101 (an earlier 8-phone Standard run found the game-2
+  slip bug above). Every run: the ending through Caption of the Night, Most Groans checked against the record.
   Bot runs: end of the night at 3/5/8 phones x 2 games (63, 69, 81 checks), Last Call/heading out/sealed (21), edges
   (anniversary, newest table record, late joiner's credit, reload and restart mid-credits: 8), the last round's slip
   (7). Unit checks: round rules (37+44), call lines (13), end-of-night record/sealed/no-repeat (150-950 per run).
