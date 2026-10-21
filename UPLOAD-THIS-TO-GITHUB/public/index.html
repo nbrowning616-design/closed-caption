@@ -699,7 +699,9 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .turn-banner.dealer .blind-clock { color: #D9CFC2; }
 .blind-clock.urgent { color: var(--red); }
 .turn-banner.dealer .blind-clock.urgent { color: #FFB3AC; }
-.bettors.blind { justify-content: center; }
+/* everyone bets at once (first chips, last chips): no order to scroll through, so the row wraps and every name shows */
+.order.bettors.blind { flex-wrap: wrap; justify-content: center; overflow: visible; row-gap: 4px; }
+.order.bettors.blind > :first-child, .order.bettors.blind > :last-child { margin-left: 0; margin-right: 0; }
 .bettor.waiting .bchips { opacity: .45; }
 .b-in { display: inline-block; margin-right: 3px; color: var(--teal); font-weight: 900; }
 #late-card { position: fixed; inset: 0; z-index: 770; display: none; align-items: center; justify-content: center; padding: calc(20px + var(--sat)) 16px calc(20px + var(--sab)); background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 18px 18px; cursor: pointer; }
@@ -2837,7 +2839,7 @@ function renderBetting(stage) {
 
   return `${header({ sticker: '<span class="sticker blue">Last chips</span>' })}
     ${banner}
-    <div class="order bettors" id="bettor-row" role="group" aria-label="Who bets the last chips">${orderRow}</div>
+    <div class="order bettors blind" id="bettor-row" role="group" aria-label="Who bets the last chips">${orderRow}</div>
     <div class="stack bet-caps">${cards}${closedCard}</div>${tools}`;
 }
 // Blind bets: every bettor at once. Nobody sees where anyone went until the chips drop.
@@ -3332,7 +3334,7 @@ function renderRecap() {
     const why = pointReasons(pid);
     return `<li class="rc-row${pid === myPlayerId ? ' me' : ''}">${chipHtml(pid, 'sm')}<span class="rc-who"><b>${esc(pid === myPlayerId ? 'You' : nameOf(pid))}</b>${why.length ? `<span class="rc-why">${why.map(w => `<span>${esc(w)}</span>`).join('')}</span>` : ''}</span><span class="rc-plus">+${p}</span></li>`;
   }).join('');
-  const t = state.tvc || {}, best = state.tvcRound ? tvcBest() : null, tvc =state.tvcRound ? `<p class="rc-tvc">The table ${t.table || 0}, the cartoonist ${t.cartoonist || 0}.${tvcBestNote(best)}</p>` : '';
+  const t = state.tvc || {}, best = state.tvcRound ? tvcBest() : null, tvc =state.tvcRound ? `<p class="rc-tvc">${state.tvcRound.side === 'draw' ? `Laughs, this round: a draw, ${state.tvcRound.best} each. ` : ''}The table ${t.table || 0}, the cartoonist ${t.cartoonist || 0}.${tvcBestNote(best)}</p>` : '';
   return `${header({ sticker: '<span class="sticker teal">Round recap</span>', thumb: false })}
     <div id="answer-root" class="done">
     ${page}
