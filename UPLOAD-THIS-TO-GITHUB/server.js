@@ -920,6 +920,11 @@ setInterval(() => {
     else g._allOnAt = 0;
     // #28: a dealer who wanders off doesn't freeze the steal: it passes by itself after 45 s
     if (g.phase === PHASES.STEAL && g.phaseAt && now - g.phaseAt > 45000) { G.stealChip(g, null); changed = true; }
+    // Bets: the only ones not in are phones that are off: a short wait (12 s), not the clock or the 45 s grace
+    if ((g.phase === PHASES.FIRST_BETS && !g.dropAt) || (g.phase === PHASES.SECOND_BETS && !g.lateDropAt)) {
+      if (G.onlyAwayPending(g)) { if (!g._betOnAt) g._betOnAt = now; else if (now - g._betOnAt >= G.AWAY_WRITER_MS) { g._betOnAt = 0; if (g.phase === PHASES.FIRST_BETS) dropNow(code); else lateDropNow(code); continue; } }
+      else g._betOnAt = 0;
+    }
     // Blind bets: the only ones not in are phones gone past the grace — drop without them
     if (g.phase === PHASES.FIRST_BETS && !g.dropAt && !blindT.has(code) && G.pendingBetters(g).length === 0) scheduleBlind(code);
     // Last chips: the only ones not in are phones gone past the grace — drop without them; and never without a clock

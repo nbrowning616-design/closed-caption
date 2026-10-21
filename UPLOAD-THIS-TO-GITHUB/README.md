@@ -16,7 +16,8 @@ A web-based multiplayer party game. One person creates a game, shares a 4-letter
 - One person taps "Host a game" and shares the 4-letter room code; everyone else taps "Join with a code" (late arrivals can join mid-game)
 - Each round everyone — the dealer too — writes a caption for the same cartoon. Half the table can vote to mulligan a bad cartoon
 - The game secretly turns one caption face-down (the Closed Caption). Usually it's a player's; sometimes it's the real one
-- Blind bets go one at a time from the dealer's left (the dealer doesn't bet), the Closed Caption is revealed, last chips go down (anywhere, even on the same caption), then the dealer may steal one chip
+- Blind bets go down everyone at once, in secret (the dealer doesn't bet), then the dealer may steal one chip, the Closed Caption is revealed, and the last chips go down the same way: everyone at once, in secret, on a 15-second clock, one shared drop (anywhere, even on the same caption)
+- The writing clock is 90 seconds by default; the dealer (or host) can add 30 seconds, up to three times a cartoon
 - The real caption is revealed and points are paid. Full rules are on the app's "How to play" screen
 - The host lines up the seats in the lobby and picks which way the deal passes (left or right)
 - Stealing a chip that was on the real caption scores the dealer +1; the real caption is face-down in about 15% of rounds, never two in a row
@@ -34,9 +35,10 @@ A web-based multiplayer party game. One person creates a game, shares a 4-letter
 - Invite friends with the lobby QR code or the invite link (it fills in the room code)
 - Frame It: on the reveal, each caption has a small frame button once it's been shown (never your own, never the real one). No limit per game. When most of the other players (2 of 2, 2 of 3, 3 of 4…) frame the same caption, it's hung in The Gallery with a shareable print: the night's first frame gets the full framing moment on every phone, later ones a quick plaque. Gallery games use framed captions as the real answers.
 - The Gallery lives on the phones: each phone saves every caption it sees framed and brings its collection to every game it joins, so it survives server restarts at no cost. Rooms never see each other's captions. (Optional: set DATA_DIR on a Render disk to also keep a server copy.)
+- Game over, mid-evening: the winner, the awards and the scores (about 15 seconds). The full end of the night (below) plays only after the night's last game: after Last Call, or when the host taps "Call it a night" on the final scores. A first game on a phone: no called shots, no rejection slips, no rating talk at the end. Rejection slips are private. A game over stays over (a late joiner or a phone coming back never reopens it)
 - The end of the night plays on every phone at once, over the final scores: the winner (and who has the Remote now), one awards slide (Best Lie, Best Liar, Nobody Bit, Most Groans from the night's real Groan counts), an end credit per player (a freeze-frame of their best caption and an epilogue earned from how they played tonight; nothing repeats at a table), the cast list, then Caption of the Night
 - The Remote is the table's trophy: the lobby says who has it, and its masking tape lists every winner. Each phone keeps the tables it has played at
-- Previously on Closed Caption: a returning table's first round opens with last time's winner, last time's Caption of the Night and one grudge (the writers get the time back)
+- Previously on Closed Caption (only when the table comes back on a later day, 6+ hours on): a returning table's first round opens with last time's winner, last time's Caption of the Night and one grudge (the writers get the time back)
 - The Late Edition's scores are sealed: each phone sees only its own points (with reasons) until the end, where the standings are read from last place up
 - Heading out (menu): your end credit plays now and the table carries on without you; it's read again at the end, in absentia. Last Call (host menu): the next trip around the table is the last
 - A phone that drops (Wi-Fi, a locked screen, a reload) goes straight back to its seat. Captions, bets, the steal and frame picks wait on the phone until the server confirms them, and go once, never twice

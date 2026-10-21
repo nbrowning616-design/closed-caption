@@ -2734,7 +2734,7 @@ function renderReading(animate) {
 /* ── BETTING ──
    #7 Blind bets: everyone at once, in secret, then every chip drops onto the table together (state.dropAt,
    the same moment on every phone). #8 The dealer's steal comes next, before the face-down card flips.
-   The late chip still goes one at a time. */
+   The last chips (cut 3) go the same way: everyone at once, in secret, then one shared drop (state.lateDropAt). */
 // #15 plain words: "1 chip on Caption 3" / "Both chips on the face-down one"
 function betLabel(target, count) {
   const where = target === 'closed' ? 'the face-down one' : 'Caption ' + (target + 1);

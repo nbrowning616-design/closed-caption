@@ -1177,6 +1177,11 @@ function awayWriters(game) { return game.players.filter(p => !p.connected && isP
 // Everyone whose phone is on has written (and at least two captions are in): the away writers get a short wait,
 // not the full 45 s grace, so the table never sits behind "3 of 3 captions in" (housekeeping, server.js)
 const AWAY_WRITER_MS = 12000;
+// The same for the bets: the only ones not in are phones that are off (inside the grace)
+function onlyAwayPending(game) {
+  const pend = pendingBetters(game);
+  return pend.length > 0 && pend.every(pid => { const p = game.players.find(x => x.id === pid); return !p || !p.connected; });
+}
 function connectedAllIn(game) {
   const on = game.players.filter(p => p.connected);
   return game.submissions.length >= 2 && on.length > 0 && on.every(p => game.submissions.some(x => x.playerId === p.id));
@@ -1900,10 +1905,10 @@ function moveToScoreboard(game) {
     game.finalLaps = Math.max(1, ...(here.length ? here : game.players).map(p => counts[p.id] || 0));
     const top = Math.max(...game.players.map(p => p.score));
     game.targetHit = { round: game.round, ids: game.players.filter(p => p.score === top).map(p => p.id), score: top };
-    if (!liveOver(game)) game.lateFrom = game.round + 1;
+    if (!liveOver(game, true)) game.lateFrom = game.round + 1;
   }
-  if (!liveOver(game) && !canDeal(game)) endForDeck(game);   // nothing left to deal: this is the final scoreboard
-  game.over = liveOver(game);   // decided now, for good
+  if (!liveOver(game, true) && !canDeal(game)) endForDeck(game);   // nothing left to deal: this is the final scoreboard
+  game.over = liveOver(game, true);   // decided now, for good (a phone that's only away keeps its deal until the next tap)
   setPhase(game, PHASES.SCORES);
   game.scoresAt = Date.now();   // phones time the scoreboard (and, at game over, the ending: night.js) from this
   try { scoreLines(game); } catch (e) { console.error('score lines', e); }
@@ -1963,7 +1968,7 @@ function scoreLines(game) {
 // the table from the current dealer, stopping at the first seat that has already dealt N times. With N = 1 and
 // nobody joining late this is exactly the old 'one round per player'; a late joiner adds the deals they will get.
 // (#37: a fixed round count and first-to-N are trips around the table too: see lapsOf. null = no end in sight yet.)
-function totalRounds(game) {
+function totalRounds(game, here = isPresent) {
   const n = game.players.length, laps = lapsOf(game);
   if (!laps) return null;
   if (!game.round || game.dealerIndex < 0 || !game.dealCount || !n) return n * laps;
@@ -1971,17 +1976,20 @@ function totalRounds(game) {
   // that was skipped while its phone was locked is still owed its deal; #29: someone who left doesn't hold it open.
   const c = game.dealCount || {};
   let more = 0;
-  for (const p of game.players) if (isPresent(p)) more += Math.max(0, laps - (c[p.id] || 0));
+  for (const p of game.players) if (here(p)) more += Math.max(0, laps - (c[p.id] || 0));
   return game.round + more;
 }
 
 // Game over is decided once, when a scoreboard lands (or when the table moves on from one and nobody left has a deal
 // to come), and then it stays over: a late joiner during the credits, or someone whose phone comes back, never
 // reopens a finished game. On a scoreboard that isn't the last, it stays not-over until the table moves on.
-function liveOver(game) {
+// seated: count a phone that's away (past the grace, but never headed out) as still owed its deal: the scoreboard
+// doesn't end the game behind its back; the next-deal tap decides (finishIfOver), with whoever is here then
+const seatedP = (p) => isPresent(p) || !p.gone;
+function liveOver(game, seated) {
   if (game.deckOut) return true;
   if (!lapsOf(game)) return false;   // first to N, and nobody's there yet
-  return game.round >= totalRounds(game);
+  return game.round >= totalRounds(game, seated ? seatedP : isPresent);
 }
 function isGameOver(game) {
   if (game.over) return true;
@@ -2508,7 +2516,7 @@ function getPlayerView(game, playerId) {
     seatClaim: game.seatClaim && game.hostId === playerId ? { ...game.seatClaim } : null,
     players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: p.connected, watched: !!p.watched, rating: Rating.validRating(p.rating) ? p.rating : null, provisional: !Rating.validRating(p.rating) || (p.games || 0) < Rating.PROVISIONAL_GAMES, title: ratingTitle(p), published: published.get(p.name.toLowerCase()) || 0 })),
     round: game.round,
-    totalRounds: lapsOf(game) ? totalRounds(game) : null,
+    totalRounds: lapsOf(game) ? totalRounds(game, seatedP) : null,   // (a phone that's only away still counts: the count doesn't wobble)
     // #11 The Late Edition: when it began, whether this round pays double, and (first to N) who got there
     late: game.lateFrom ? { from: game.lateFrom, on: isLate(game), hit: game.targetHit ? { ...game.targetHit, ids: [...game.targetHit.ids] } : null, ms: LATE_MS } : null,
     flipAt: game.flipAt || null,     // when the face-down card turns over (server time)
@@ -2698,7 +2706,10 @@ function getPlayerView(game, playerId) {
     base.scoresAt = game.scoresAt || null;
     base.gameBadges = (game.gameBadges || []).map(b => ({ ...b }));
     if (!base.gameOver) {
-      const nd = game.players[nextDealerIndex(game, game.dealerIndex)];
+      let nd = game.players[nextDealerIndex(game, game.dealerIndex)];
+      // Nobody here is owed a deal, only a phone that's away: it's named (it deals if it's back in time; the next
+      // tap ends the game if not: base.endsNext)
+      if (liveOver(game)) { base.endsNext = true; const laps = lapsOf(game), c = game.dealCount || {}, n = game.players.length; for (let k = 1; k <= n; k++) { const q = game.players[seatAt(n, game.dealerIndex + k * stepOf(game))]; if (q && !q.gone && (c[q.id] || 0) < laps) { nd = q; break; } } }
       base.nextDealerName = nd ? nd.name : '';
       base.nextDealerId = nd ? nd.id : null;
       base.isNextDealer = !!nd && nd.id === playerId;
@@ -2785,7 +2796,7 @@ module.exports = {
   callShot, setHold, reelDue, revealedKeys, pickLine, noteLastWriter, reactionCounts, FLIP_AUTO_MS, LINES,
   wordCount, usesWord, applyNote, kidsToggle,
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
-  startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn, connectedAllIn, awayWriters, AWAY_WRITER_MS, isNewbie,
+  startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn, connectedAllIn, onlyAwayPending, awayWriters, AWAY_WRITER_MS, isNewbie,
   moveToFirstBets, placeBet, skipCurrentBetter, dropBlind, dropLate, LATE_BET_MS, afterBlinds, moveFromReveal, moveFromSecondBets, eligibleSecondBetters,
   standing, fooledTally, isLate, lapsOf, BLIND_MS, ALL_IN_BEAT_MS, DROP_HOLD_MS, STEAL_FULL_MS, STEAL_SHORT_MS, LATE_MS,
   openFinale, voteFinale, resolveFinale, finaleAllIn,
