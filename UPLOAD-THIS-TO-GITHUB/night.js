@@ -81,9 +81,9 @@ function pickFrom(list, seen, taken, rnd) {
 }
 const seenAt = (game) => recency((game.players || []).map(p => p.seenLines));
 
-/* ── The round engineer's Ha / Groan tallies, read defensively (whatever shape they take) ──
-   Any of: history[r].tallies[key] = { ha, groan } · history[r].groans[key] / .has[key] = n or { pid: 1 } ·
-   history[r].reactions[key][pid] = 'groan' / 'ha' (kinds containing those words) */
+/* ── The Ha / Groan tallies (#26), read defensively ──
+   history[r].reacts[key] = { ha, groan, haBlind } (counts per caption, from the round's close) · or .tallies[key] ·
+   or .groans[key] / .has[key] = n or { pid: 1 } · or history[r].reactions[key][pid] = { ha: 1|2, groan: 1|2 } or a kind word */
 function countOf(v) {
   if (typeof v === 'number') return v > 0 ? v : 0;
   if (Array.isArray(v)) return v.length;
@@ -95,12 +95,12 @@ function tallyIn(h, kind) {
   const add = (k, n) => { if (n > 0) out[String(k)] = (out[String(k)] || 0) + n; };
   const want = kind === 'groan' ? /groan/i : /^(ha|laugh|haha)$/i;
   try {
-    const t = h && (h.tallies || h.reactionTallies);
+    const t = h && (h.reacts || h.tallies || h.reactionTallies);
     if (t && typeof t === 'object') for (const [k, v] of Object.entries(t)) if (v && typeof v === 'object') for (const [kk, vv] of Object.entries(v)) if (want.test(kk) || want.test(kk.replace(/s$/, ''))) add(k, countOf(vv));
     const direct = h && (kind === 'groan' ? (h.groans || h.groan) : (h.has || h.ha || h.laughs));
     if (direct && typeof direct === 'object') for (const [k, v] of Object.entries(direct)) add(k, countOf(v));
     if (!Object.keys(out).length && h && h.reactions && typeof h.reactions === 'object') {
-      for (const [k, m] of Object.entries(h.reactions)) if (m && typeof m === 'object') add(k, Object.values(m).filter(x => want.test(String(x))).length);
+      for (const [k, m] of Object.entries(h.reactions)) if (m && typeof m === 'object') add(k, Object.values(m).filter(x => (x && typeof x === 'object' ? Object.keys(x).some(kk => x[kk] && want.test(kk)) : want.test(String(x)))).length);
     }
   } catch (e) {}
   return out;
@@ -385,6 +385,7 @@ function cleanTable(r) {
   o.tape = Array.isArray(r.tape) ? r.tape.slice(-MAX_TAPE).map(t => (t && typeof t === 'object' ? { n: str(t.n, 40).trim(), d: /^\d{4}-\d{2}-\d{2}$/.test(t.d) ? t.d : '' } : null)).filter(t => t && t.n && t.d) : [];
   if (r.first && typeof r.first === 'object' && okMs(r.first.at)) o.first = { at: r.first.at, cartoonId: Number(r.first.cartoonId) || null, image: /^[\w.-]{1,60}$/.test(r.first.image || '') ? r.first.image : null };
   o.anniv = Number.isInteger(r.anniv) && r.anniv >= 0 && r.anniv < 100 ? r.anniv : 0;
+  if (r.vsBest && Number.isInteger(r.vsBest.table) && Number.isInteger(r.vsBest.cartoonist) && r.vsBest.table >= 0 && r.vsBest.cartoonist >= 0 && r.vsBest.table < 1000 && r.vsBest.cartoonist < 1000) o.vsBest = { table: r.vsBest.table, cartoonist: r.vsBest.cartoonist };
   if (r.last && typeof r.last === 'object' && okMs(r.last.at)) {
     const l = r.last;
     o.last = { at: l.at, winners: Array.isArray(l.winners) ? l.winners.slice(0, 8).map(n => str(n, 24).trim()).filter(Boolean) : [] };
@@ -516,9 +517,22 @@ function buildEnding(game) {
     gameId: gid, at, step: 0, stepAt: at, beats, done: false, credits, awards: aw, monkey, keys, remote,
     cast: ids.map(id => ({ id, name: X.F[id].name, role: credits[id].role })),
     summary: summaryFacts(game, X, stand, pick, monkey),
+    vs: vsOf(game),
     firstCartoon: firstCartoon(game),
   };
   return e;
+}
+// R10 the table vs. the cartoonist (blind laughs, kept by the round): tonight's score, and how it stands against
+// this table's best night (kept with the table, to beat next time)
+function vsOf(game) {
+  const t = game.tvc || (game.record && game.record.table);
+  if (!t || typeof t !== 'object') return null;
+  const table = Number(t.table) || 0, cartoonist = Number(t.cartoonist) || 0;
+  if (table + cartoonist < 1) return null;
+  const best = game.nightTable && game.nightTable.vsBest;
+  const better = (a, b) => !b || (a.table - a.cartoonist) > (b.table - b.cartoonist) || ((a.table - a.cartoonist) === (b.table - b.cartoonist) && a.table > b.table);
+  const now = { table, cartoonist };
+  return { table, cartoonist, record: !!best && better(now, best), best: best ? { table: best.table, cartoonist: best.cartoonist } : null };
 }
 // Who holds the Remote after tonight, and what the winner beat says about it
 function remoteChange(game, stand) {
@@ -587,6 +601,7 @@ function tableRecord(game) {
     holder: rm ? rm.after : (rec ? rec.holder : []), tape: rm ? rm.tape : (rec ? rec.tape : []),
     first: rec && rec.first ? rec.first : (e.firstCartoon ? { at: now, ...e.firstCartoon } : undefined),
     anniv: rec ? Math.max(rec.anniv || 0, rec.annivNow || 0) : 0,
+    vsBest: e.vs && (!e.vs.best || e.vs.record) ? { table: e.vs.table, cartoonist: e.vs.cartoonist } : (rec && rec.vsBest) || undefined,
     last: { at: now, winners: rm ? rm.after : [], coton, facts: e.summary || [] },
   };
 }

@@ -135,6 +135,7 @@
     '.pv-thumb img{display:block;width:100%;max-height:120px;object-fit:contain;background:#fff;}',
     '.pv-q{font-style:italic;font-size:17px !important;}',
     '.pv-by{font-family:var(--sans) !important;font-size:13px !important;font-weight:800;letter-spacing:.04em;color:#B9AE9C;margin-top:4px;}',
+    '.pv-kick{font-family:var(--serif) !important;font-style:italic;font-size:16px !important;color:#CFC4B2;margin-top:4px;}',
     '.pv-grudge{font-family:var(--serif);font-weight:400;font-size:21px;line-height:1.4;margin:6px 0 0;color:#FFF8EA;}',
     '.pv-re{font-family:var(--serif);font-weight:700;font-size:26px;text-align:center;margin-top:24px;color:var(--yellow,#FFD23F);}',
     '.pv-skip{display:block;margin:18px auto 0;min-height:44px;padding:0 16px;border:0;background:none;color:#B9AE9C;font:inherit;font-size:14px;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer;}',
@@ -203,25 +204,30 @@
       '<path d="M17 134 H63 M17 134 L17.6 182 Q17.8 188 24 188 H56 Q62.2 188 62.4 182 L63 134" fill="none" stroke="#2A2420" stroke-width="1.8" opacity=".8"/>' +
       tape + '</svg>';
   }
-  // A small chimp in ink, holding a dart (the monkey's line)
+  // A small chimp in ink, on a paper roundel (it sits on the dark of the credits), holding up a dart like a pro
   function chimpSvg(w) {
     w = w || 64;
-    var s = 'stroke="' + INK + '" stroke-linecap="round" stroke-linejoin="round"';
-    return '<svg viewBox="0 0 100 104" width="' + w + '" height="' + Math.round(w * 1.04) + '" aria-hidden="true" focusable="false">' +
-      '<path d="M30 70 Q24 96 33 101 H67 Q76 96 70 70" fill="#CBC3B6" ' + s + ' stroke-width="2.6"/>' +
-      '<path d="M40 82 Q50 90 60 82" fill="none" ' + s + ' stroke-width="1.8" opacity=".6"/>' +
-      '<circle cx="23" cy="45" r="9.5" fill="#EFE9DE" ' + s + ' stroke-width="2.6"/><circle cx="23" cy="45" r="4.5" fill="none" ' + s + ' stroke-width="1.6" opacity=".6"/>' +
-      '<circle cx="77" cy="45" r="9.5" fill="#EFE9DE" ' + s + ' stroke-width="2.6"/><circle cx="77" cy="45" r="4.5" fill="none" ' + s + ' stroke-width="1.6" opacity=".6"/>' +
-      '<path d="M50 19 Q76 19 76 44 Q76 69 50 70 Q24 69 24 44 Q24 19 50 19 Z" fill="#CBC3B6" ' + s + ' stroke-width="2.6"/>' +
-      '<path d="M31 46 Q30 33 41 33 Q46 33 50 36 Q54 33 59 33 Q70 33 69 46 Q71 64 50 66 Q29 64 31 46 Z" fill="#F2EDE3" ' + s + ' stroke-width="2"/>' +
-      '<path d="M35 38.5 Q41 34.5 47 38 M53 38 Q59 34.5 65 38.5" fill="none" ' + s + ' stroke-width="2.2"/>' +
-      '<circle cx="42" cy="43" r="2.3" fill="' + INK + '"/><circle cx="58" cy="43" r="2.3" fill="' + INK + '"/>' +
-      '<circle cx="47.6" cy="52" r="1.2" fill="' + INK + '"/><circle cx="52.4" cy="52" r="1.2" fill="' + INK + '"/>' +
-      '<path d="M40 58.5 Q49 63 60 56.5" fill="none" ' + s + ' stroke-width="2.2"/>' +
-      '<path d="M67 76 Q84 70 85 49" fill="none" ' + s + ' stroke-width="9"/><path d="M67 76 Q84 70 85 49" fill="none" stroke="#CBC3B6" stroke-width="4.6" stroke-linecap="round"/>' +
-      '<circle cx="85" cy="46" r="5.2" fill="#F2EDE3" ' + s + ' stroke-width="2"/>' +
-      '<path d="M86 45 L96 23" fill="none" ' + s + ' stroke-width="2.4"/><path d="M96 23 L98.5 16" fill="none" ' + s + ' stroke-width="1.4"/>' +
-      '<path d="M88 40 L82 39.5 L85.5 35.5 Z M89 41 L91.5 46.5 L94 41.5 Z" fill="#fff" ' + s + ' stroke-width="1.4"/>' +
+    var s = 'stroke="' + INK + '" stroke-linecap="round" stroke-linejoin="round"', fur = '#C9C1B4', face = '#F4EFE6';
+    return '<svg viewBox="0 0 104 100" width="' + w + '" height="' + Math.round(w * 100 / 104) + '" aria-hidden="true" focusable="false" style="overflow:visible">' +
+      '<circle cx="52" cy="50" r="51" fill="#F3EBDD"/>' +
+      // body and the arm raised to throw
+      '<path d="M28 70 Q22 92 31 99 H63 Q71 92 66 70" fill="' + fur + '" ' + s + ' stroke-width="2.6"/>' +
+      '<path d="M38 84 Q47 90 56 84" fill="none" ' + s + ' stroke-width="1.8" opacity=".55"/>' +
+      '<path d="M62 72 Q90 68 83 32" fill="none" ' + s + ' stroke-width="10"/><path d="M62 72 Q90 68 83 32" fill="none" stroke="' + fur + '" stroke-width="5.4" stroke-linecap="round"/>' +
+      // ears, head, face
+      '<circle cx="24" cy="47" r="9" fill="' + face + '" ' + s + ' stroke-width="2.6"/><circle cx="24" cy="47" r="4.2" fill="none" ' + s + ' stroke-width="1.5" opacity=".55"/>' +
+      '<circle cx="70" cy="47" r="9" fill="' + face + '" ' + s + ' stroke-width="2.6"/><circle cx="70" cy="47" r="4.2" fill="none" ' + s + ' stroke-width="1.5" opacity=".55"/>' +
+      '<path d="M47 24 Q69 24 69 46 Q69 68 47 69 Q25 68 25 46 Q25 24 47 24 Z" fill="' + fur + '" ' + s + ' stroke-width="2.6"/>' +
+      '<path d="M31 48 Q30 36 40 36 Q44 36 47 38.5 Q50 36 54 36 Q64 36 63 48 Q65 64 47 66 Q29 64 31 48 Z" fill="' + face + '" ' + s + ' stroke-width="2"/>' +
+      '<path d="M34 41 Q39.5 37.5 45 40.5 M49 40.5 Q54.5 37.5 60 41" fill="none" ' + s + ' stroke-width="2.2"/>' +
+      '<circle cx="40.5" cy="45" r="2.3" fill="' + INK + '"/><circle cx="53.5" cy="45" r="2.3" fill="' + INK + '"/>' +
+      '<circle cx="45" cy="53.5" r="1.2" fill="' + INK + '"/><circle cx="49.5" cy="53.5" r="1.2" fill="' + INK + '"/>' +
+      '<path d="M38 59 Q47 64 57 57" fill="none" ' + s + ' stroke-width="2.2"/>' +
+      // the dart: flights, shaft, barrel, point (held by the hand, pointing at the board)
+      '<path d="M79.1 27.8 L69.3 25.8 L70.5 30.1 Z M79.1 27.8 L71.7 34.4 L70.5 30.1 Z" fill="#fff" ' + s + ' stroke-width="1.5"/>' +
+      '<path d="M70.5 30.1 L81 27.3" fill="none" ' + s + ' stroke-width="1.6"/>' +
+      '<path d="M81 27.3 L89 25.1" fill="none" ' + s + ' stroke-width="3.6"/><path d="M89 25.1 L94.5 23.6" fill="none" ' + s + ' stroke-width="1.3"/>' +
+      '<circle cx="82.5" cy="28.5" r="5" fill="' + face + '" ' + s + ' stroke-width="2"/>' +
       '</svg>';
   }
 
@@ -395,20 +401,20 @@
     } catch (x) {}
   }
   /* 4. The cast, and the monkey */
-  function vsLine() {
-    var s = S(); if (!s) return null;
-    var v = s.tableVsCartoonist || s.vsCartoonist || s.blindTest || s.vs || (s.ending && s.ending.vs);
-    if (!v || typeof v !== 'object') return null;
-    var t = v.table != null ? v.table : v.tableWins, c = v.cartoonist != null ? v.cartoonist : v.cartoonistWins;
-    if (!(t >= 0) || !(c >= 0) || t + c === 0) return null;
-    return 'The table ' + t + ', the cartoonist ' + c + '.';
+  // R10 the table vs. the cartoonist (the round's blind laughs): tonight's score, and the table's best to beat
+  function vsLine(e) {
+    var v = e && e.vs; if (!v || !(v.table + v.cartoonist > 0)) return null;
+    var line = 'The table ' + v.table + ', the cartoonist ' + v.cartoonist + '.';
+    if (v.record) line += ' A new best for this table.';
+    else if (v.best) line += ' This table’s best: ' + v.best.table + ' to ' + v.best.cartoonist + '.';
+    return line;
   }
   function castHtml(e) {
     var rows = (e.cast || []).map(function (p, i) { return '<li style="animation-delay:' + (0.1 + i * 0.12) + 's"><span class="n">' + E(p.name) + '</span><span class="lead" aria-hidden="true"></span><span class="r">' + E(p.role) + '</span></li>'; }).join('');
     if (e.monkey) rows += '<li class="mk" style="animation-delay:' + (0.1 + (e.cast || []).length * 0.12) + 's"><span class="n">The monkey</span><span class="lead" aria-hidden="true"></span><span class="r">Himself</span></li>';
-    var vs = vsLine();
+    var vs = vsLine(e);
     return '<div class="en-cast"><h2>Cast</h2><ol class="en-cl">' + rows + '</ol>' +
-      (e.monkey ? '<div class="en-monkey" style="animation-delay:' + (0.6 + (e.cast || []).length * 0.12) + 's">' + chimpSvg(62) + '<p>' + E(e.monkey.text) + '</p></div>' : '') +
+      (e.monkey ? '<div class="en-monkey" style="animation-delay:' + (0.6 + (e.cast || []).length * 0.12) + 's">' + chimpSvg(76) + '<p>' + E(e.monkey.text) + '</p></div>' : '') +
       (vs ? '<p class="en-vs">' + E(vs) + '</p>' : '') + '</div>';
   }
 
@@ -470,7 +476,7 @@
     var h = '<div class="pv-in" onclick="Ending.closePrev()"><p class="pv-eye">Previously on</p><h2 class="pv-t">Closed Caption</h2>';
     if (p.winners && p.winners.length) h += '<div class="pv-row pv-b" ' + step(1.1) + '>' + remoteSvg({ w: 30, strips: [p.winners[0]] }) + '<p>Last time, <b>' + E(names(p.winners.map(first))) + '</b> ' + (p.winners.length > 1 ? 'tied for first.' : 'won.') + '</p></div>';
     if (p.coton) h += '<div class="pv-row pv-b" ' + step(1.6) + '><div class="pv-thumb"><img src="/images/' + E(p.coton.image) + '" alt="Last time’s Caption of the Night, on its cartoon"></div><div><p class="pv-q">“' + E(p.coton.caption) + '”</p><p class="pv-by">Caption of the Night · ' + E(p.coton.writer || '') + '</p></div></div>';
-    if (p.anniv) h += '<div class="pv-row pv-b" ' + step(1.6) + '><div class="pv-thumb"><img src="/images/' + E(p.anniv.image) + '" alt="This table’s first cartoon"></div><div><p>' + (p.anniv.years === 1 ? 'One year ago' : cap1(NUMS[p.anniv.years] || String(p.anniv.years)) + ' years ago') + ', this table played its first cartoon.</p><p class="pv-by">It has not gotten easier.</p></div></div>';
+    if (p.anniv) h += '<div class="pv-row pv-b" ' + step(1.6) + '><div class="pv-thumb"><img src="/images/' + E(p.anniv.image) + '" alt="This table’s first cartoon"></div><div><p>' + (p.anniv.years === 1 ? 'One year ago' : cap1(NUMS[p.anniv.years] || String(p.anniv.years)) + ' years ago') + ', this table played its first cartoon.</p><p class="pv-kick">It has not gotten easier.</p></div></div>';
     if (p.grudge && p.grudge.text) h += '<p class="pv-grudge pv-b" ' + step(2.6) + '>' + E(p.grudge.text) + '</p>';
     var reAt = Math.max(t, (p.ms / 1000) - 3.2);
     h += '<p class="pv-re pv-b" style="animation-delay:' + reAt.toFixed(2) + 's">And now, the rematch.</p><button class="pv-skip pv-b" style="animation-delay:' + (reAt + 0.4).toFixed(2) + 's" onclick="event.stopPropagation(); Ending.closePrev()">To the cartoon</button></div>';
