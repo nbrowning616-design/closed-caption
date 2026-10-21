@@ -13,7 +13,7 @@
 (function () {
   'use strict';
   var INK = '#1F1A17';
-  var FULL_MS = 7500, SHORT_MS = 2000;   // (payoff beats: the closing caption is held a full second longer than the drawing needs)   // thieves.js full.T / short.T; game.js STEAL_FULL_MS / STEAL_SHORT_MS (the flip waits for these)
+  var FULL_MS = 9000, SHORT_MS = 3500;   // (payoff beats: the closing caption is held a full second longer than the drawing needs)   // thieves.js full.T / short.T; game.js STEAL_FULL_MS / STEAL_SHORT_MS (the flip waits for these)
 
   var CSS = [
     /* the stage: paper, the steal screen drawn on it (thieves.js .ccs), the line under it */
