@@ -159,10 +159,10 @@ const CARTOONS = [
   { id: 261, adult: true, level: "medium", title: "Cash Machine", image: "card_261.jpg", correct: "Fifties, if you have them. Take your time." },
   { id: 262, adult: true, level: "easy", title: "All You Can Eat", image: "card_262_r2.jpg", correct: "It says all you can eat. It doesn't say where." },
   { id: 263, level: "medium", title: "Life Drawing", image: "card_263_r2.jpg", correct: "Same pose as yesterday, please." },
-  { id: 266, level: "hard", title: "Mail", image: "card_266.jpg", correct: "Probably just bills." },
+  { id: 266, level: "hard", title: "Mail", image: "card_266_r2.jpg", correct: "Probably just bills." },
   { id: 268, spicy: true, level: "medium", title: "The Heist", image: "card_268.jpg", correct: "Look, we both know who really lives here." },
   { id: 269, level: "medium", title: "The Orchestra", image: "card_269.jpg", correct: "Budget cuts." },
-  { id: 270, level: "easy", title: "Sighting", image: "card_270.jpg", correct: "No one's going to believe this." },
+  { id: 270, level: "easy", title: "Sighting", image: "card_270_r2.jpg", correct: "No one's going to believe this." },
   { id: 271, adult: true, level: "easy", title: "Bachelor Cooking", image: "card_271.jpg", correct: "Medium-rare, light starch." },
   { id: 272, level: "hard", title: "Shadow", image: "card_272.jpg", correct: "He's never really been on board with my plans." },
   { id: 273, adult: true, level: "medium", title: "Door to Door", image: "card_273.jpg", correct: "Think of it as a starter home." },
@@ -415,6 +415,10 @@ const CARTOONS = [
   { id: 671, adult: true, level: "medium", title: "Error Bars", image: "card_671.jpg", correct: "So it's a definite maybe." },
   { id: 530, level: "medium", title: "Empty Nest", image: "card_530.jpg", correct: "Thirty-four is a perfectly good age to fly." },
   { id: 531, spicy: true, level: "easy", title: "All In", image: "card_531.jpg", correct: "That's how I started." },
+  { id: 532, adult: true, level: "medium", title: "Reunion", image: "card_532.jpg", correct: "You haven't changed a bit." },
+  { id: 534, spicy: true, level: "medium", title: "Reflection", image: "card_534.jpg", correct: "I'll let you two talk." },
+  { id: 535, level: "medium", title: "Car Seat", image: "card_535.jpg", correct: "Don't make me turn this car around, Dad." },
+  { id: 672, adult: true, level: "hard", title: "Unopened", image: "card_672.jpg", correct: "I'm hearing a little of both." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
