@@ -8,6 +8,7 @@ const path = require('path');
 const { WebSocketServer } = require('ws');
 const G = require('./game');
 const Stats = require('./stats');   // #41: a private tally (counts only)
+const Night = require('./night');   // the end of the night: credits, the Remote, the monkey, "Previously on"
 const { PHASES } = G;
 
 // Address friends on the same Wi-Fi should type in (only used when running on a home computer)
@@ -108,9 +109,15 @@ function broadcast(code, sealTo = null) {
   // #6: every phone keeps a sealed copy of the room, refreshed on each new stage (or every 20 s), to hand back after a restart.
   // #2: and whenever a caption, a bet, the steal or a frame pick lands, so a restart never loses the last one.
   const tag = game.phase + '|' + game.round + '|' + (game.reel ? game.reel.step : '') + '|' + game.players.length + '|' + (game.frameResult ? 1 : 0) + '|' + (game.finale ? (game.finale.winner || 'v') + Object.keys(game.finale.votes || {}).length : '')
-    + '|' + (game.submissions || []).length + '|' + (game.bets || []).length + '|' + Object.keys(game.blind || {}).length + '|' + (game.dropAt || '') + '|' + (game.steal ? (game.steal.victimId ? 's' : 'p') : '') + '|' + Object.keys(game.framePicks || {}).length + '|' + (game.actN || 0);
+    + '|' + (game.submissions || []).length + '|' + (game.bets || []).length + '|' + Object.keys(game.blind || {}).length + '|' + (game.dropAt || '') + '|' + (game.steal ? (game.steal.victimId ? 's' : 'p') : '') + '|' + Object.keys(game.framePicks || {}).length + '|' + (game.actN || 0) + '|' + (game.ending ? game.ending.step + (game.ending.done ? 'd' : '') : '');
   // #41: a game reached its final scoreboard (counted once per game)
   if (game.phase === PHASES.SCORES && game.gameNo && game._statDone !== game.gameNo && G.isGameOver(game)) { game._statDone = game.gameNo; Stats.finished(); }
+  // The end of the night is worked out once, when the final scoreboard lands (night.js)
+  const over = game.phase === PHASES.SCORES && G.isGameOver(game);
+  if (over) Night.ensureEnding(game);
+  const ending = over ? Night.endingView(game) : null;
+  const prev = game.phase === PHASES.WRITING ? Night.previouslyView(game) : null;
+  const remote = game.phase === PHASES.LOBBY ? Night.lobbyRemote(game) : null;
   let seal = null;
   if (tag !== game._sealTag || Date.now() - (game._sealAt || 0) > 20000) { try { seal = G.sealGame(game); game._sealTag = tag; game._sealAt = Date.now(); } catch (e) { console.error('seal failed', e); } }
   for (const p of game.players) {
@@ -120,6 +127,9 @@ function broadcast(code, sealTo = null) {
       view.lanUrl = LAN_URL;
       view.build = BUILD;
       if (game.phase === PHASES.SCORES) view.wantAgain = game.players.filter(x => x.again).map(x => x.id);   // #35: who's in for another
+      if (ending) view.ending = ending;
+      if (prev) view.previously = prev;
+      if (remote) view.remote = remote;
       c.ws.send(JSON.stringify({ type: 'state', data: view }));
       if (seal) c.ws.send(JSON.stringify({ type: 'seal', code, boot: BOOT, data: seal }));
       else if (sealTo === p.id) { try { c.ws.send(JSON.stringify({ type: 'seal', code, boot: BOOT, data: G.sealGame(game) })); } catch (e) {} }   // #2: a phone back in its seat gets a fresh copy at once
@@ -452,6 +462,7 @@ wss.on('connection', (ws, req) => {
         if (game.players.filter(p => p.connected).length < 3) return sendError(ws, 'Need at least 3 players');
         { const c = G.startCheck(game); if (c.error) return sendError(ws, c.error); }   // the new deck is still being drawn: never start a game that would run out
         if (fail(G.startRound(game))) return;
+        Night.beginGame(game);   // "Previously on Closed Caption" when most of this table played last time
         Stats.started(game.players.filter(G.isPresent).length);   // #41
         game.origHostId = null;   // #30: whoever started it hosts it
         broadcast(code);
@@ -556,10 +567,19 @@ wss.on('connection', (ws, req) => {
         broadcast(code);
         return;
       }
-      case 'verdicts_done': {
-        // Game over: the dealer/host taps on from the rating verdicts to the Grand Poobah
+      case 'ending_next': {
+        // Game over: the dealer/host taps on through the winner, the awards, the credits and the cast list
         if (!canRun) return sendError(ws, 'The dealer moves things along');
-        if (fail(G.closeVerdicts(game))) return;
+        if (game.phase !== PHASES.SCORES || !G.isGameOver(game)) return;
+        Night.ensureEnding(game);
+        if (fail(Night.nextBeat(game, msg.beat))) return;
+        broadcast(code);
+        return;
+      }
+      case 'tables': {
+        // The lobby: this phone's records of tables that look like this one (who has the Remote, last time)
+        if (game.phase !== PHASES.LOBBY) return;
+        if (fail(Night.setTables(game, playerId, msg.list))) return;
         broadcast(code);
         return;
       }
@@ -583,12 +603,14 @@ wss.on('connection', (ws, req) => {
         const mode = ['check', 'fix', 'keep'].includes(msg.mode) ? msg.mode : 'check';
         const r = G.submitCaption(game, playerId, msg.caption, mode);
         if (fail(r)) return;
+        if (!r.check) Night.noteSubmit(game, playerId);   // (the credits know who was first in, and who was last)
         if (r.check) { ws.curHeld = true; return send(ws, ws.curCid ? { type: 'caption_check', ...r.check, cid: ws.curCid } : { type: 'caption_check', ...r.check }); }   // (#2: answers that cid)
         broadcast(code);
         if (r.allIn) later(code, 900, PHASES.WRITING, endWriting);
         return;
       }
       case 'mulligan': {
+        if (game.phase === PHASES.WRITING && !(game.mulliganVotes || []).includes(playerId)) Night.noteSkip(game, playerId);
         const r = G.voteMulligan(game, playerId);
         if (fail(r)) return;
         broadcast(code);
@@ -684,7 +706,7 @@ wss.on('connection', (ws, req) => {
         return;
       }
       case 'finale_open': {
-        // After the Grand Poobah: the host (or a stand-in) opens tonight's Gallery for every phone
+        // After the credits: the host (or a stand-in) opens tonight's Gallery for every phone
         if (!canRun) return sendError(ws, 'The host opens the Gallery');
         if (fail(G.openFinale(game))) return;
         broadcast(code);
@@ -707,7 +729,9 @@ wss.on('connection', (ws, req) => {
         if (!isHost) return sendError(ws, 'Only the host can start a new game');
         if (game.phase !== PHASES.SCORES || !G.isGameOver(game)) return sendError(ws, 'The game is still going');
         if (Array.isArray(msg.seen)) G.setSeen(game, msg.seen.slice(0, 200));
+        Night.keepTable(game);   // the room remembers tonight's table (the Remote, last time) for the next game
         G.resetForNewGame(game);
+        Night.reset(game);
         game.players.forEach(p => { delete p.again; });   // #35: a fresh show of hands next time
         broadcast(code);
         return;

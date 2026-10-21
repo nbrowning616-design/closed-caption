@@ -556,12 +556,10 @@ function createGame(hostId, hostName, timerDuration = DEFAULT_TIMER, seenIds = [
     reel: null,           // the answer screen's reveal reel: { order: [targetKey...], step }
     roundBadges: [],      // { kind, playerIds, target, detail } — this round
     gameBadges: [],       // every round's badges this game, each with its round
-    crowns: {},           // Grand Poobah crowns this game: { playerId: n }
     gameNo: 0,            // games started in this room (the rating result is keyed by room + game)
     ratingSnap: null,     // the table as the game started: { playerId: { r, g, name } } (rating.js)
     opening: null,        // the opening card: { at, gameId, table, opener, favorite, underdog, ... }
     ratingResult: null,   // game over: { gameId, rows: { playerId: { before, after, delta, ... } }, order }
-    verdictsAt: null,     // the dealer/host moved on from the verdicts (phones time the Grand Poobah from this)
   };
 }
 
@@ -1374,7 +1372,7 @@ function moveToScoreboard(game) {
   }
   if (!isGameOver(game) && !canDeal(game)) endForDeck(game);   // nothing left to deal: this is the final scoreboard
   setPhase(game, PHASES.SCORES);
-  game.scoresAt = Date.now();   // phones time the Grand Poobah ceremony from this, so it plays together
+  game.scoresAt = Date.now();   // phones time the scoreboard (and, at game over, the ending: night.js) from this
   if (isGameOver(game)) settleRating(game);
   return { ok: true };
 }
@@ -1548,7 +1546,7 @@ function hallOfFame(game) {
   return out.sort((a, b) => a.round - b.round);
 }
 
-/* ── The finale: after the winner and the Grand Poobah, tonight's Gallery.
+/* ── The finale: after the winner, the awards and the end credits (night.js), tonight's Gallery.
    Every caption framed tonight is shown; with two or more, the table votes (never for your own).
    The winner is Caption of the Night: a short ceremony on every phone at once, then memorialized
    on the untouched cartoon in The Gallery. ── */
@@ -1738,8 +1736,6 @@ function awardBadges(game) {
   const dealer = dealerOf(game);
   if (dealer && game.steal && game.steal.victimId && game.steal.onCorrect) give('pickpocket', [dealer.id], game.steal.target, {});
 
-  // (The Grand Poobah is crowned by the phones from the bets; it is not a badge.)
-
   game.roundBadges = out;
   game.gameBadges = (game.gameBadges || []).concat(out.map(b => ({ ...b, round: game.round })));
 }
@@ -1781,7 +1777,6 @@ function beginRated(game) {
   here.forEach(p => { snap[p.id].reported = Rating.validRating(p.rating); });
   game.ratingSnap = snap;
   game.ratingResult = null;
-  game.verdictsAt = null;
   try {
     const o = Rating.opening(here, snap, game.gameId);
     game.opening = { ...o, at: Date.now(), ms: OPEN_MS, gameId: game.gameId };
@@ -1801,12 +1796,6 @@ function settleRating(game) {
     if (r.order.length < 2) { game.ratingResult = { gameId: game.gameId, rows: {}, order: [], none: true }; return; }
     game.ratingResult = { gameId: game.gameId, rows: r.rows, order: r.order, at: Date.now(), scale, short: scale < 1, rounds: game.round };
   } catch (e) { console.error('rating failed', e); game.ratingResult = { gameId: game.gameId, rows: {}, order: [], none: true }; }
-}
-// The dealer/host moves on from the verdicts to the Grand Poobah
-function closeVerdicts(game) {
-  if (game.phase !== PHASES.SCORES || !isGameOver(game)) return { error: 'Not yet' };
-  if (!game.verdictsAt) game.verdictsAt = Date.now();
-  return { ok: true };
 }
 
 function resetForNewGame(game) {
@@ -1844,7 +1833,6 @@ function resetForNewGame(game) {
   game.reel = null;
   game.roundBadges = [];
   game.gameBadges = [];
-  game.crowns = {};
   game.stealShows = 0;   // (nightSteals keeps counting: the full show is for the night's first steal)
   game.blind = {};
   game.blindEnd = null;
@@ -1858,7 +1846,6 @@ function resetForNewGame(game) {
   game.ratingSnap = null;
   game.opening = null;
   game.ratingResult = null;
-  game.verdictsAt = null;
 }
 
 const AFTER_WRITING = [PHASES.READING, PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
@@ -2053,7 +2040,6 @@ function getPlayerView(game, playerId) {
       base.framedTonight = finaleEntries(game).length;
       settleRating(game);   // (a room restored from before the rating: worked out now, once)
       if (game.ratingResult && !game.ratingResult.none) base.rating = JSON.parse(JSON.stringify(game.ratingResult));
-      base.verdictsAt = game.verdictsAt || null;
       const f = game.finale;
       if (f) base.finale = {
         at: f.at, entries: f.entries.map(e => ({ ...e, flaggers: [...e.flaggers] })),
@@ -2123,6 +2109,6 @@ module.exports = {
   openFinale, voteFinale, resolveFinale, finaleAllIn,
   setVoice, clearVoice,
   stealChip, revealAnswer, moveToFraming, moveToScoreboard, isGameOver, resetForNewGame, isPresent,
-  REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer, closeVerdicts, OPEN_MS,
+  REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer, OPEN_MS,
   currentBetterId, pendingBetters, nextDealerIndex, getPlayerView, generateRoomCode,
 };
