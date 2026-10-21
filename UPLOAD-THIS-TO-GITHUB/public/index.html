@@ -1910,7 +1910,7 @@ function screenKey() {
   if (s.phase === 'writing') return ['writing', s.round, s.cartoon && s.cartoon.id, s.hasSubmitted ? 1 : 0].join('|');
   if (s.phase === 'answer') return ['answer', s.round, s.reel ? s.reel.step : 0, canRun() ? 1 : 0, reelDriver() ? 1 : 0].join('|');
   if (s.phase === 'scores' && s.finale) return ['scores', s.round, 'fin', s.finale.at, s.finale.winner ? 1 : 0, (s.finale.decided || []).length, s.finale.myVote || '', canRun() ? 1 : 0].join('|');
-  return s.phase + '|' + s.round;
+  return s.phase + '|' + s.round + (s.phase === 'scores' && s.gameOver ? '|over' : '');   // (the game ending on a scoreboard mid-count must redraw)
 }
 
 function render(force = false) {
@@ -3991,7 +3991,7 @@ function renderScores() {
   const sorted = [...state.players].sort((a, b) => b.score - a.score);
   const key = state.round + '|' + state.code;
   // A redraw in the middle of the count-up (someone reconnects, say) jumps to the finished board
-  if (scoreSeq && scoreSeq.key === key && !state.gameOver) { scoreSeq.timers.forEach(clearTimeout); scoreSeq = null; scoresAnimated = key; }
+  if (scoreSeq && scoreSeq.key === key) { scoreSeq.timers.forEach(clearTimeout); scoreSeq = null; scoresAnimated = key; }
   const animated = scoresAnimated === key;
   const earnedOf = (p) => (state.roundScores || {})[p.id] || 0, before = (p) => p.score - earnedOf(p);
   // Before the count: last round's order and totals. After: the new order.
