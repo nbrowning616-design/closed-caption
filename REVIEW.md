@@ -450,3 +450,12 @@ generous fallback (8–12 s). Time is saved from dead time instead (simultaneous
 scoreboard merged into recap, quicker transitions), never from the payoff holds.
 Plan: (1) finish the eight cuts on build-cuts with this rule; (2) a fresh panel plays it hunting only for bugs, confusing
 screens and bad timing; Nick approves fixes as taps.
+
+## HOUSE PLAYERS + SOLO PRACTICE (Nick, Oct 21 2026) — build right after the cuts
+Nick: "Can someone play alone against all computer captions to practice? Also a computer fill-in when only 2 or 3 players? Add
+some virtual players any time just to make the game better (6 players is ideal)." Decisions:
+- HOUSE PLAYERS (virtual, named, dry: e.g. Aunt Judy, The Intern): WRITE ONLY — each adds one pre-written fake caption to bluff
+  among; they never bet, never score, and fooling one earns nothing. HOST PICKS 0–5 in the lobby. Lets 2 real people play.
+- SOLO PRACTICE from the home page: you write a fake for each cartoon, then spot the real one among 5 captions (yours, the
+  real one, 3 house fakes); score = how often you find the real one; no rating change.
+- Needs a bank of ~5 good house fakes per cartoon, written ahead by writers (never generated live). Bank: card_meta "decoys".
