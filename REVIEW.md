@@ -358,3 +358,42 @@ Everything from writing to the scoreboard. The END OF NIGHT (finale, awards, cre
   blocked(): union (their #boom.on, #rd-slip.on + #ending.on, #prev.on; no #awards/#poobah). fx.js: keep night's
   comment. a11y_check.js: their round steps + night's play-to-game-over ending checks. After merging, check: their
   round stamp stays off a sealed scoreboard, and Most Groans / Nobody Bit read history[r].reacts.
+
+## STATUS — merged build (Oct 21 2026): branch merge-all = main + build-round + build-night (not pushed)
+- IN: everything in the two sections above. The round: auto flip and reel, Ha/Groan, frames on the reveal, called
+  shots, rejection slips, odds lines, the table vs. the cartoonist, the hand-drawn steal, 50 skip gags, pencil-circle
+  nudges, Editor's notes, "The kids are in bed". The end of the night: the winner, one awards slide, end credits, the
+  cast, the monkey, Caption of the Night, the Remote (no Grand Poobah text left anywhere), Previously on, sealed Late
+  Edition with standings read last to first, Heading out, Last Call. Plus sharper called-shot lines (16 hit, 16 miss).
+- MERGE: the 12 conflicts went as night's guide said, both sides kept. a11y_check.js plays the new round, then to
+  game over through the ending.
+- FIXED ON THE MERGED BUILD:
+  - Sealed Late Edition leaks: the round winner's stamp line ("Takes the lead") still reached every phone in the
+    sealed view, and the last writer's line could say "has a lead to protect" from the live totals. Both are kept out
+    while sealed. The sealed board also keeps the round's slip notes and the next-dealer line.
+  - The last round's rejection slip popped over the standings/winner at game over. It is filed at once and slides in
+    after the ending (and after Caption of the Night's show).
+  - Last Call: the Late Edition card showed the round's stock banner instead of "Last call."
+  - A second game at the same table skipped the steal show, the flip's beats, the Late Edition card and (with the
+    same caption) the slip, wherever game 1 had one: the phones keyed "already played" by room + round. The view now
+    carries gameNo and those keys include it. (This was already true before the merge.)
+  - First-game tips also wait for the own-credit, Last Call and kids cards. README: the end of the night.
+- CHECKED: Most Groans and the credits read the round's own record (history[r].reacts): each player's groans in the
+  credits = the record's, Ha counts on the freeze-frames = the record's, framed captions agree, Most Groans goes to
+  the most-groaned writer with the right count. No repeats in a night: credit lines, Previously-on grudges (4 games at
+  one table), called-shot lines (none until a pool of 16 is used up; a room dealt from the old 10-line pools starts a
+  fresh deck; the deck survives a restart).
+- TESTED (Playwright, 390x844, through the real buttons; test scripts in the session scratchpad merge/, not kept):
+  3 phones Family twice around, 2 games (kids to bed and back down, sealed Late Edition, a reload mid-reel, a reload
+  mid-credits, Previously on, Caption of the Night): 108/108. 4 phones Standard (Last Call after round 1, Dee heads out
+  in round 2 with her credit saved, a reload mid-reel, a server restart mid-reveal, sealed scoreboards, standings from
+  the bottom, in absentia): 65/65. 5 phones After Dark twice around (a skip gag, a slip, a phone closed 26 s and
+  back, a reload mid-bet, a server restart mid-reveal, sealed Late Edition): 66/66. 8 phones Standard, 2 games, both
+  Editor's notes (word count and must-use word, Lock it in waits until it fits), called shots, slips: see below.
+  Bot runs: end of the night at 3/5/8 phones x 2 games (63, 69, 81 checks), Last Call/heading out/sealed (21), edges
+  (anniversary, newest table record, late joiner's credit, reload and restart mid-credits: 8), the last round's slip
+  (7). Unit checks: round rules (37+44), call lines (13), end-of-night record/sealed/no-repeat (150-950 per run).
+  tools/a11y_check.js: all clear. Zero page errors, clean server logs.
+- NOT DONE / NOTES: no TV screen yet (the flip/reel timing and `sealed` are in the view, ready for one). The night's
+  first frame gets the full ceremony once a night, so game 2's frames get the plaque (by design). Editor's notes can
+  land on round 1 of a second game (the "not the first two cards" rule counts the night). Not pushed.
