@@ -4165,11 +4165,11 @@ function animateCount(el, from, to, duration) {
 /* ── R1 Rejection slips: a caption nobody bet on that drew 3+ Groans gets a typed slip from The Editors, slid to its
    writer as the scoreboard settles. The phone keeps them in a 'Rejections' drawer (menu ☰), with a running count. ── */
 function slipsGet() { try { const v = JSON.parse(localStorage.getItem('cc_rejections') || '[]'); return Array.isArray(v) ? v.filter(x => x && x.caption) : []; } catch (e) { return []; } }
-function slipKey(x) { return [x.code || '', x.round, x.target, String(x.caption || '').slice(0, 40)].join('|'); }
+function slipKey(x) { return [x.code || '', x.game || 0, x.round, x.target, String(x.caption || '').slice(0, 40)].join('|'); }   // (game: a second game at the table counts its rounds from 1 again)
 function slipSave(x) {
   const list = slipsGet(), k = slipKey(x);
   if (list.some(y => slipKey(y) === k)) return false;
-  list.push({ code: x.code, round: x.round, target: x.target, caption: x.caption, image: x.image, groans: x.groans, line: x.line, month: x.month, at: Date.now() });
+  list.push({ code: x.code, game: x.game || 0, round: x.round, target: x.target, caption: x.caption, image: x.image, groans: x.groans, line: x.line, month: x.month, at: Date.now() });
   try { localStorage.setItem('cc_rejections', JSON.stringify(list.slice(-200))); } catch (e) {}
   return true;
 }
@@ -4183,7 +4183,7 @@ function syncSlip() {
   if (!mine) return;
   const k = gTag() + '|' + state.round + '|' + mine.target;
   if (slipShown.has(k)) return;
-  if (!(k in slipFiled)) slipFiled[k] = slipSave({ ...mine, code: state.code });   // filed in the Rejections drawer at once
+  if (!(k in slipFiled)) slipFiled[k] = slipSave({ ...mine, code: state.code, game: state.gameNo || 0 });   // filed in the Rejections drawer at once
   const fresh = slipFiled[k], n = slipsGet().length;
   if (!fresh) { slipShown.add(k); return; }   // (already filed on this phone: a reload)
   // The last round's slip waits for the end of the night: the ending, then Caption of the Night's show, come first
