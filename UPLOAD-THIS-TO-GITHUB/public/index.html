@@ -1120,9 +1120,9 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 /* R15 the pencil circle on the cartoon (and its question) */
 .toon-big .toon-hit { position: relative; }
 .odd-ring { position: absolute; pointer-events: none; overflow: visible; }
-.odd-ring path { fill: none; stroke: #6A6A6A; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; opacity: .9; stroke-dasharray: 100; stroke-dashoffset: 100; animation: oddDraw .7s ease-out forwards; }
+.odd-ring path { fill: none; stroke: #5E5E5E; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; opacity: .9; stroke-dasharray: 100; stroke-dashoffset: 100; animation: oddDraw .7s ease-out forwards; }
 @keyframes oddDraw { to { stroke-dashoffset: 0; } }
-.odd-q { position: absolute; pointer-events: none; font-family: 'Caveat', var(--serif); font-weight: 700; font-size: 19px; line-height: 1.05; color: #4A4A4A; text-align: left; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 5px #fff; animation: fadeIn .4s ease-out .4s both; }
+.odd-q { position: absolute; pointer-events: none; font-family: 'Caveat', var(--serif); font-weight: 700; font-size: 19px; line-height: 1.05; color: #3F3F3F; text-align: left; background: rgba(255, 255, 255, .82); border-radius: 6px; padding: 1px 5px 2px; text-shadow: 0 0 3px #fff, 0 0 3px #fff; animation: fadeIn .4s ease-out .4s both; }
 @media (prefers-reduced-motion: reduce) { .odd-ring path { animation: none; stroke-dashoffset: 0; } }
 #flip-ctl:not(.on) { pointer-events: none; }
 /* The skip gags (skips.js) play on paper, like the cartoons */
@@ -3921,7 +3921,7 @@ const NUDGES = [
   'What would a very tired parent say?',
   'Apologize for the wrong thing.',
 ];
-let nudgeIdx = -1, oddFor = null, oddN = 0, oddCur = null, oddRO = null;
+let nudgeIdx = -1, oddFor = null, oddN = 0, oddCur = null, oddRO = null, oddSeen = null, oddSize = '';
 /* R15 The first nudges circle one odd thing in this cartoon, in pencil, with a short question beside it (card_meta.json
    "odd", sent as state.cartoonOdd). Each phone goes through them in its own order, so the table spreads out across
    the picture. When they run out, the general tips. */
@@ -3966,8 +3966,15 @@ function drawOdd() {
   q.style.top = Math.max(oy + 2, Math.min(oy + ch - 40, cy - 14)) + 'px';
   if (right) q.style.left = Math.min(ox + cw - maxW, cx + rx + 6) + 'px'; else q.style.right = Math.max(0, host.clientWidth - (cx - rx - 6)) + 'px';
   host.appendChild(q);
-  if (!oddRO && window.ResizeObserver) { oddRO = new ResizeObserver(() => { if (oddCur && document.querySelector('#w-toon .odd-ring')) drawOdd(); }); }
-  if (oddRO) { oddRO.disconnect(); oddRO.observe(img); }
+  // Redraw only when the picture really changes size (typing shrinks it). observe() reports once straight away, and
+  // a redraw from that would start the pencil over and over, so the size it was drawn at is kept and compared.
+  oddSize = ew + 'x' + eh;
+  if (!oddRO && window.ResizeObserver) oddRO = new ResizeObserver(() => {
+    const im = document.querySelector('#w-toon .toon-hit img');
+    if (!oddCur || !im || !document.querySelector('#w-toon .odd-ring') || im.clientWidth + 'x' + im.clientHeight === oddSize) return;
+    drawOdd();
+  });
+  if (oddRO && oddSeen !== img) { oddRO.disconnect(); oddRO.observe(img); oddSeen = img; }
 }
 
 /* ═══════════════════════════════════════════════════════════
