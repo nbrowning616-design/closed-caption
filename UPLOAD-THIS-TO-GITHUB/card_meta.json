@@ -3407,30 +3407,11 @@
 ]
 },
 "271":{
-"style":5,
+"style":2,
 "voice":"house6",
 "tags":[
+"cat",
 "kitchen"
-],
-"odd":[
-{
-"q":"What's that under the iron?",
-"x":47,
-"y":56,
-"r":7
-},
-{
-"q":"Why isn't he using the stove?",
-"x":92,
-"y":47,
-"r":9
-},
-{
-"q":"Why is he so pleased with himself?",
-"x":51,
-"y":21,
-"r":7
-}
 ]
 },
 "272":{
@@ -3461,29 +3442,9 @@
 ]
 },
 "273":{
-"style":2,
+"style":5,
 "voice":"house6",
-"tags":[],
-"odd":[
-{
-"q":"What's dangling from the heater?",
-"x":32,
-"y":59,
-"r":6
-},
-{
-"q":"What else is in the salesman's case?",
-"x":9,
-"y":70,
-"r":7
-},
-{
-"q":"How does the igloo owner feel about the pitch?",
-"x":59,
-"y":46,
-"r":7
-}
-]
+"tags":[]
 },
 "275":{
 "style":4,
@@ -9598,6 +9559,19 @@
 "elderly",
 "kids",
 "road"
+]
+},
+"536":{
+"style":1,
+"voice":"animals",
+"tags":[]
+},
+"538":{
+"style":3,
+"voice":"sitcom",
+"tags":[
+"office",
+"sky"
 ]
 },
 "654":{

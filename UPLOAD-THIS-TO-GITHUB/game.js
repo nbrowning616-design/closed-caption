@@ -163,9 +163,9 @@ const CARTOONS = [
   { id: 268, spicy: true, level: "medium", title: "The Heist", image: "card_268.jpg", correct: "Look, we both know who really lives here." },
   { id: 269, level: "medium", title: "The Orchestra", image: "card_269.jpg", correct: "Budget cuts." },
   { id: 270, level: "easy", title: "Sighting", image: "card_270_r2.jpg", correct: "No one's going to believe this." },
-  { id: 271, adult: true, level: "easy", title: "Bachelor Cooking", image: "card_271.jpg", correct: "Medium-rare, light starch." },
+  { id: 271, adult: true, level: "easy", title: "Bachelor Cooking", image: "card_271_r2.jpg", correct: "Medium-rare, light starch." },
   { id: 272, level: "hard", title: "Shadow", image: "card_272.jpg", correct: "He's never really been on board with my plans." },
-  { id: 273, adult: true, level: "medium", title: "Door to Door", image: "card_273.jpg", correct: "Think of it as a starter home." },
+  { id: 273, adult: true, level: "medium", title: "Door to Door", image: "card_273_r2.jpg", correct: "Think of it as a starter home." },
   { id: 275, level: "medium", title: "Running Late", image: "card_275.jpg", correct: "Go on without me." },
   { id: 276, adult: true, level: "hard", title: "The Reading", image: "card_276.jpg", correct: "I see a woman looking into a crystal ball." },
   { id: 277, level: "medium", title: "On Duty", image: "card_277.jpg", correct: "Nobody's drowned since I started. Mostly out of respect." },
@@ -419,6 +419,8 @@ const CARTOONS = [
   { id: 534, spicy: true, level: "medium", title: "Reflection", image: "card_534.jpg", correct: "I'll let you two talk." },
   { id: 535, level: "medium", title: "Car Seat", image: "card_535.jpg", correct: "Don't make me turn this car around, Dad." },
   { id: 672, adult: true, level: "hard", title: "Unopened", image: "card_672.jpg", correct: "I'm hearing a little of both." },
+  { id: 536, adult: true, level: "hard", title: "Groundhog Day", image: "card_536.jpg", correct: "Six more weeks of winter, scattered showers Thursday." },
+  { id: 538, adult: true, level: "hard", title: "Corporate Ladder", image: "card_538.jpg", correct: "I'd share, but you know how it is up here." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
