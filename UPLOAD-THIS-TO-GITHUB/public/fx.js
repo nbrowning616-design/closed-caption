@@ -12,7 +12,7 @@
   'use strict';
 
   /* Reduce Motion, for every script-driven moment in the app (heists, the steal, the round stamp, confetti,
-     flashes, the Poobah, the framing, Caption of the Night). One check, read live — so flipping the phone's
+     flashes, the end credits, the framing, Caption of the Night). One check, read live — so flipping the phone's
      setting mid-game takes effect at the next moment. CSS animations are already calmed by the
      media query in index.html; Web Animations and canvas confetti are not, so they ask this. */
   window.ccReducedMotion = function () {

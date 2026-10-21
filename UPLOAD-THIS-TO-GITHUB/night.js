@@ -356,9 +356,12 @@ function awards(game, X, rnd) {
     const mg = Math.max(0, ...Object.values(F).map(f => f.groans));
     if (mg >= 2) { const top = Object.values(F).filter(f => f.groans === mg); out.push({ k: 'groans', title: 'Most Groans', who: listNames(top.map(f => f.name)), line: `${num(mg)[0].toUpperCase() + num(mg).slice(1)} groans. ${W.GROANS_LINE[Math.floor(rnd() * W.GROANS_LINE.length)]}` }); }
   }
-  // Sharpest Eye, if there's room: the most rounds on the real caption
+  // Sharpest Eye, if there's room and it isn't a third award for someone already named twice
   const ms = Math.max(0, ...Object.values(F).map(f => f.found));
-  if (ms >= 2) { const top = Object.values(F).filter(f => f.found === ms); out.push({ k: 'sharp', title: 'Sharpest Eye', who: listNames(top.map(f => f.name)), line: `Found the real caption ${times(ms)}.` }); }
+  if (ms >= 2) {
+    const top = Object.values(F).filter(f => f.found === ms), named = (n) => out.filter(a => a.who.split(/, | and /).includes(n)).length;
+    if (!top.some(f => named(f.name) >= 2)) out.push({ k: 'sharp', title: 'Sharpest Eye', who: listNames(top.map(f => f.name)), line: `Found the real caption ${times(ms)}.` });
+  }
   return out.slice(0, 4);
 }
 

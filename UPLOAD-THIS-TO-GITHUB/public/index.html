@@ -48,6 +48,7 @@
 <script src="/home.js?v=__V__"></script>
 <script src="/guide.js?v=__V__"></script>
 <script src="/verdicts.js?v=__V__"></script>
+<script src="/ending.js?v=__V__"></script>
 <script>
 /* The show scripts (Gallery + share card, steal + heists, recap, finale) aren't needed until the middle
    of a round, so they no longer hold up the first screen. Once the page has loaded (or 4 s after the app is up,
@@ -504,20 +505,14 @@ body.fm-on #screen-game { padding-bottom: calc(10px + var(--sab)); }
 .fn-duo.solo { grid-template-columns: 1fr; }
 .fn-card { text-align: center; padding: 22px 8px 18px; border: var(--bw) solid var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow); min-width: 0; }
 .fn-win { background: var(--yellow); transform: rotate(-1.2deg); }
-.fn-hat { transform: rotate(1.2deg); }
 .fn-ic { font-size: 54px; line-height: 1; height: 64px; display: flex; align-items: center; justify-content: center; }
 .fn-eyebrow { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.2px; margin-top: 6px; color: var(--ink-2); }
-.fn-hat .fn-eyebrow { color: #D7CBFF; }
 .fn-name { font-family: var(--display); font-weight: 700; font-size: 32px; line-height: 1.1; margin: 4px 0 2px; overflow-wrap: break-word; }
-.fn-hat .fn-name { color: var(--yellow); }
 .fn-sub { font-size: 17px; font-weight: 800; }
-.fn-hat .fn-sub { color: #E9E2FF; }
 .fn-stand { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; margin-bottom: 16px; }
 .fn-st { display: inline-flex; align-items: center; gap: 5px; font-size: 15px; font-weight: 800; color: var(--ink-2); }
 .fn-st b { font-family: var(--display); font-weight: 700; color: var(--ink); }
 .fn-link { display: block; margin: 0 auto; font-size: 14px; padding: 4px 6px; }
-#hat-tip { width: max-content; position: fixed; top: calc(12px + var(--sat)); left: 50%; transform: translate(-50%, -160%); z-index: 950; display: flex; align-items: center; gap: 10px; max-width: 92%; padding: 10px 16px; border: var(--bw) solid var(--ink); border-radius: 999px; background: var(--yellow); box-shadow: var(--shadow-sm); font-weight: 900; font-size: 14px; transition: transform .45s var(--spring); pointer-events: none; }
-#hat-tip.on { transform: translate(-50%, 0); }
 #induct { position: fixed; inset: 0; z-index: 900; display: none; align-items: center; justify-content: center; padding: 22px; background: rgba(31,26,23,.72); }
 #induct.on { display: flex; animation: fadeIn .3s var(--ease-out); }
 .induct-card { width: 100%; max-width: 380px; text-align: center; background: #FFF9E3; border: 3px solid var(--ink); border-radius: 18px; padding: 22px 20px 18px; box-shadow: 0 0 0 6px #E9B92A, 0 0 0 9px var(--ink), 10px 12px 0 9px rgba(0,0,0,.3); animation: stampIn .6s var(--spring) both; }
@@ -536,72 +531,6 @@ body.fm-on #screen-game { padding-bottom: calc(10px + var(--sab)); }
 /* the claw itself (artwork, choreography, its st-* styles) lives in steal.js */
 body.quake { animation: quake .12s linear 10; }
 @keyframes quake { 0% { transform: translate(4px, 1px) rotate(.6deg); } 33% { transform: translate(-4px, -2px) rotate(-.6deg); } 66% { transform: translate(2px, 3px); } 100% { transform: none; } }
-
-/* ── Awards slides ── */
-#awards { position: fixed; inset: 0; z-index: 760; display: none; align-items: center; justify-content: center; flex-direction: column; padding: 24px; background: var(--yellow); background-image: radial-gradient(rgba(31,26,23,0.1) 1.4px, transparent 1.4px); background-size: 18px 18px; }
-#awards.on { display: flex; }
-.aw-card { width: 100%; max-width: 360px; text-align: center; background: #fff; border: 3px solid var(--ink); border-radius: 20px; padding: 22px 18px; box-shadow: var(--shadow-lg); animation: stampIn .55s var(--spring) both; transform: rotate(-1.5deg); }
-.aw-ic { font-size: 64px; margin: 6px 0 2px; }
-.aw-title { font-size: 34px; }
-.aw-who { font-family: var(--display); font-weight: 700; font-size: 26px; color: var(--violet); margin: 6px 0; }
-.aw-quote { font-family: Georgia, serif; font-style: italic; font-size: 18px; line-height: 1.35; margin: 6px 0 8px; }
-.aw-dots { display: flex; gap: 6px; justify-content: center; margin-top: 14px; }
-.aw-dots i { width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--ink); }
-.aw-dots i.f { background: var(--ink); }
-.aw-skip { position: absolute; bottom: calc(18px + var(--sab)); left: 50%; transform: translateX(-50%); }
-
-/* ── The Grand Poobah ── */
-.hat-count { display: inline-flex; align-items: flex-end; gap: 1px; font-size: 12px; font-weight: 900; color: var(--violet); }
-.poobah-panel { background: #2A1D5C; color: #fff; border-color: var(--ink); background-image: radial-gradient(rgba(255,255,255,.08) 1.4px, transparent 1.4px); background-size: 16px 16px; }
-.poobah-slogan { font-family: Georgia, serif; font-style: italic; font-size: 17px; line-height: 1.35; margin-top: 10px; color: #FFF4C7; }
-#poobah { position: fixed; inset: 0; z-index: 780; display: none; }
-#poobah.on { display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 24px; }
-#poobah.round { background: rgba(31,26,23,.55); animation: fadeIn .25s; }
-.pb-close { position: absolute; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; text-align: center; color: rgba(255,255,255,.75); font-weight: 800; font-size: 13px; }
-.pb-card { width: 100%; max-width: 360px; text-align: center; background: #fff; border: 3px solid var(--ink); border-radius: 20px; padding: 18px 18px 20px; box-shadow: var(--shadow-lg); animation: stampIn .5s var(--spring) both; }
-.pb-chips { display: flex; justify-content: center; gap: 22px; margin: 6px 0 10px; }
-.pb-seat { position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 86px; }
-.pb-hat { position: absolute; top: 0; left: 50%; transform: translateX(-50%); animation: hatDrop .9s cubic-bezier(.3,1.6,.5,1) .35s both; z-index: 2; }
-@keyframes hatDrop { 0% { transform: translate(-50%, -260px) rotate(-30deg); } 70% { transform: translate(-50%, 6px) rotate(6deg); } 85% { transform: translate(-50%, -4px) rotate(-3deg); } 100% { transform: translate(-50%, 0) rotate(-4deg); } }
-.chip.pb-chip { --s: 70px; font-size: 26px; }
-.pb-title { font-size: 34px; margin: 2px 0; }
-.pb-name { font-family: var(--display); font-weight: 700; font-size: 28px; color: var(--violet); margin-bottom: 4px; }
-#poobah.grand { background: #07050A; color: #fff; overflow: hidden; text-align: center; }
-#poobah.grand.flash::after { content: ''; position: absolute; inset: 0; background: #fff; animation: gpFlash .5s ease-out forwards; pointer-events: none; }
-@keyframes gpFlash { from { opacity: 1; } to { opacity: 0; } }
-.gp-spot { position: absolute; width: 70vw; height: 70vw; max-width: 380px; max-height: 380px; border-radius: 50%; background: radial-gradient(circle, rgba(255,238,170,.5), rgba(255,210,63,.12) 45%, transparent 70%); top: 20%; opacity: 0; transition: opacity .6s; pointer-events: none; }
-#poobah.roll .gp-spot, #poobah.revealed .gp-spot { opacity: 1; }
-.gp-spot.a { left: -20%; animation: spotA 1.6s ease-in-out infinite alternate; }
-.gp-spot.b { right: -20%; animation: spotB 1.3s ease-in-out infinite alternate; }
-@keyframes spotA { from { transform: translate(0, 0); } to { transform: translate(60vw, 30vh); } }
-@keyframes spotB { from { transform: translate(0, 20vh); } to { transform: translate(-60vw, -5vh); } }
-#poobah.roll { animation: gpShake .1s linear infinite; }
-@keyframes gpShake { 0% { transform: translate(1px, 0); } 50% { transform: translate(-1px, 1px); } 100% { transform: translate(0, -1px); } }
-/* #48: just big enough to cover the screen while it spins (was 240vmax ≈ 2000px square) */
-.gp-rays { position: absolute; left: 50%; top: 38%; width: 150vmax; height: 150vmax; margin: -75vmax 0 0 -75vmax; background: repeating-conic-gradient(from 0deg, rgba(255,210,63,.32) 0deg 8deg, transparent 8deg 22deg); opacity: 0; transition: opacity .8s; animation: spin 14s linear infinite; pointer-events: none; }
-#poobah.revealed .gp-rays { opacity: 1; }
-.gp-line { position: absolute; left: 24px; right: 24px; top: 42%; font-family: Georgia, serif; font-style: italic; font-size: 28px; opacity: 0; transform: translateY(10px); transition: opacity .6s, transform .6s; }
-.gp-line.on { opacity: 1; transform: none; } .gp-line.off { opacity: 0; transform: translateY(-10px); }
-.gp-tease { position: absolute; left: 16px; right: 16px; top: 40%; font-family: var(--display); font-weight: 700; font-size: 40px; line-height: 1.05; color: var(--yellow); opacity: 0; transform: scale(.6); transition: opacity .3s, transform 4.5s cubic-bezier(.2,.8,.2,1); text-shadow: 0 0 24px rgba(255,210,63,.6); }
-.gp-tease.on { opacity: 1; transform: scale(1.12); }
-.gp-reveal { position: relative; z-index: 2; display: none; flex-direction: column; align-items: center; }
-.gp-reveal.on { display: flex; }
-/* #22: during the drumroll the throne is carried in (its box laid out where it will rest; the rest waits, paused) */
-.gp-reveal.pre { display: flex; }
-.gp-reveal.pre:not(.on) > :not(#gp-throne) { visibility: hidden; animation-play-state: paused; }
-#poobah.pre .gp-tease { top: 9%; font-size: 29px; }
-.gp-throne { position: relative; width: 260px; height: 200px; margin: 64px auto 0; z-index: 3; }
-.gp-throne .gp-thsvg { display: block; }
-.gp-tplate { position: absolute; left: 50%; top: 112px; transform: translateX(-50%); max-width: 156px; padding: 4px 10px 3px; background: linear-gradient(180deg,#f3d989,#d4a94a 55%,#b08328); border: 2px solid #5a3f0c; border-radius: 3px; font-family: var(--serif); font-weight: 700; font-size: 19px; line-height: 1.1; color: #2b1d05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: inset 0 1px 0 rgba(255,255,255,.5); }
-.gp-tplate.squash { animation: gpSquash .5s ease-out; }
-@keyframes gpSquash { 0% { transform: translateX(-50%) scale(1.15,.7); } 60% { transform: translateX(-50%) scale(.95,1.06); } 100% { transform: translateX(-50%); } }
-.gp-thhat { position: absolute; left: 50%; top: -78px; margin-left: -55px; width: 110px; z-index: 4; filter: drop-shadow(0 0 18px rgba(255,210,63,.8)); }
-.gp-hat { animation: gpHat 1.4s cubic-bezier(.25,1.4,.5,1) both; filter: drop-shadow(0 0 22px rgba(255,210,63,.9)); margin-bottom: -26px; z-index: 3; }
-@keyframes gpHat { 0% { transform: translateY(-80vh) rotate(-40deg) scale(.6); } 75% { transform: translateY(8px) rotate(6deg) scale(1.05); } 100% { transform: rotate(-5deg); } }
-.chip.gp-chip { --s: 96px; font-size: 34px; animation: chipPop .7s var(--spring) .5s both; }
-.gp-name { font-family: var(--display); font-weight: 700; font-size: 54px; line-height: 1; margin-top: 14px; color: var(--yellow); -webkit-text-stroke: 2px #7A5A00; text-shadow: 0 4px 0 #7A5A00, 0 0 30px rgba(255,210,63,.8); animation: stampIn .7s var(--spring) .8s both; }
-.gp-stats { font-size: 14px; font-weight: 900; color: #E9E2FF; margin-top: 10px; animation: fadeIn .5s ease-out 1s both; }
-.gp-slogan { font-family: Georgia, serif; font-style: italic; font-size: 21px; line-height: 1.35; max-width: 340px; margin-top: 14px; color: #FFF4C7; animation: fadeIn .6s ease-out 1.35s both; }
 
 /* ── The reveal reel ── */
 .reel-dots { display: flex; gap: 6px; justify-content: center; margin: 2px 0 16px; }
@@ -657,7 +586,6 @@ body.quake { animation: quake .12s linear 10; }
 .lob-gal-row .gal-mini .gal-mcap { -webkit-line-clamp: 4; }
 .lob-gal-empty { margin: 8px 14px 0; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 14px; line-height: 1.4; color: rgba(243,230,200,.85); }
 .lob-gal-note { margin: 8px 14px 0; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 12.5px; color: rgba(243,230,200,.66); }
-.aw-img { width: 120px; height: 120px; object-fit: cover; border: 3px solid var(--ink); border-radius: 12px; margin: 6px auto 0; display: block; background: #fff; }
 
 /* ── Read-aloud ── */
 #readaloud { position: fixed; inset: 0; z-index: 650; display: none; flex-direction: column; background: var(--paper); padding: calc(16px + var(--sat)) max(20px, env(safe-area-inset-right, 0px)) calc(20px + var(--sab)) max(20px, env(safe-area-inset-left, 0px)); }
@@ -722,15 +650,6 @@ button, .cap, [role="button"], a { touch-action: manipulation; }
 .nb-row:first-child { border-top: none; padding-top: 0; }
 .nb-cap { font-family: var(--display); font-weight: 600; font-size: 19px; line-height: 1.2; }
 .nb-who { font-size: 13px; font-weight: 800; color: var(--muted); margin-top: 2px; }
-/* #21: tied Grand Poobahs, side by side */
-.gp-tie { display: flex; justify-content: center; align-items: flex-end; gap: 14px; max-width: 100vw; }
-.gp-seat { display: flex; flex-direction: column; align-items: center; min-width: 0; }
-.gp-seat .gp-hat { margin-bottom: -16px; }
-.gp-name { white-space: nowrap; max-width: calc(100vw - 32px); }
-.gp-name.gp-name-tie { font-size: 30px; margin-top: 10px; max-width: 44vw; overflow: hidden; text-overflow: ellipsis; -webkit-text-stroke: 1.5px #7A5A00; }
-.gp-tie .gp-seat:nth-child(n+3) .gp-name-tie, .gp-tie:has(.gp-seat:nth-child(3)) .gp-name-tie { font-size: 22px; max-width: 30vw; }
-.chip.gp-chip.sm3 { --s: 64px; font-size: 22px; }
-.gp-tied { font-size: 14px; font-weight: 900; color: #E9E2FF; margin-top: 6px; animation: fadeIn .5s ease-out 1.2s both; }
 /* #38: the last writer's nudge clears the timer (tips sit in their own slot in the page: guide.js) */
 body .gd-nudge { left: 82px; right: 10px; width: auto; max-width: none; transform: translateY(-180%) rotate(-1.5deg); }
 body .gd-nudge.on { transform: rotate(-1.5deg); }
@@ -742,17 +661,12 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 /* ── Tone pass (Oct 2026): the phone is the straight man ──
    Caslon (italic for captions) is the voice of every caption and every moment headline; Fredoka/Nunito stay
    for buttons, chips and labels. Moments are a stamp, a line of serif and one soft sound. */
-.caption-text, .spot-text, .rc-cap, .fm-cap, .nb-cap, .ra-cap, .fm-real-cap, .hof-caption, .aw-quote { font-family: var(--serif); font-style: italic; font-weight: 400; }
+.caption-text, .spot-text, .rc-cap, .fm-cap, .nb-cap, .ra-cap, .fm-real-cap, .hof-caption { font-family: var(--serif); font-style: italic; font-weight: 400; }
 /* #30: a long unbroken word (a stretched 'Noooo…', a pasted link) wraps inside the card instead of running off it */
-.caption-text, .spot-text, .rc-cap, .fm-cap, .nb-cap, .fm-real-cap, .hof-caption, .aw-quote, .st-quote, .ra-cap { overflow-wrap: anywhere; hyphens: auto; min-width: 0; }
-.gp-name, .gp-tease, .aw-title, .aw-who, .fn-name, .pb-name { font-family: var(--serif); font-weight: 700; letter-spacing: 0; }
-.gp-name { -webkit-text-stroke: 0; text-shadow: 0 3px 0 #7A5A00; }
-.gp-tease { text-shadow: none; }
-.gp-line, .gp-slogan, .poobah-slogan { font-family: var(--serif); font-style: italic; }
+.caption-text, .spot-text, .rc-cap, .fm-cap, .nb-cap, .fm-real-cap, .hof-caption, .st-quote, .ra-cap { overflow-wrap: anywhere; hyphens: auto; min-width: 0; }
+.fn-name { font-family: var(--serif); font-weight: 700; letter-spacing: 0; }
 .real-line { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 15px; color: var(--ink-2); margin-top: 8px; }
 .noted { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-family: var(--serif); font-size: 18px; font-weight: 400; color: var(--ink); }
-.gp-plaque { display: inline-block; margin: 12px auto 4px; padding: 8px 16px 7px; background: #D9B23C; color: var(--ink); border: 3px solid var(--ink); border-radius: 4px; font-family: var(--serif); font-size: 15px; line-height: 1.3; box-shadow: 3px 3px 0 var(--ink); }
-.gp-plaque i { font-size: 13px; }
 #rw-stamp { position: fixed; left: 50%; top: 30%; z-index: 755; pointer-events: none; display: flex; align-items: center; gap: 10px; padding: 8px 16px 8px 10px; background: #FFF8EA; border: 4px solid #D7261E; border-radius: 14px; color: #D7261E; box-shadow: 0 0 0 2px #FFF8EA, 5px 6px 0 rgba(31,26,23,.85); transform: translate(-50%,-50%) rotate(-7deg); opacity: 0; }
 #rw-stamp .rw-chips { display: flex; flex: none; }
 #rw-stamp .rw-chips .chip + .chip { margin-left: -8px; }
@@ -770,8 +684,6 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 @keyframes wordIn { to { transform: rotate(-2deg) scale(1); } }
 #boom .quip { font-family: var(--serif); font-style: italic; font-weight: 400; }
 .fn-ic .ink-ic { color: var(--ink); }
-.aw-ic { display: flex; justify-content: center; }
-.fn-also { font-family: var(--serif); font-style: italic; font-size: 14px; line-height: 1.35; color: var(--ink-2); margin-top: 8px; display: flex; gap: 6px; align-items: center; justify-content: center; flex-wrap: wrap; }
 .flip-table { margin: 22px auto 0; max-width: 340px; text-align: left; background: var(--card); border: 2.5px solid var(--ink); border-radius: 12px; padding: 10px 12px; box-shadow: var(--shadow-sm); }
 .ft-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-top: 1.5px dashed var(--line); flex-wrap: wrap; }
 .ft-row:first-of-type { border-top: 0; }
@@ -946,7 +858,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 #join-error, #create-error { font-size: 15px; }
 /* the real caption, under the full-width cartoon, like a printed page */
 .hdr.pin ~ * .spot.is-real .spot-text, .hdr.pin ~ .spot.is-real .spot-text { text-align: center; }
-/* ── The rating (chess-style): lobby card + sheet, the opening card, the verdicts ── */
+/* ── The rating (chess-style): lobby card + sheet, the opening card (the verdicts are in the end credits: ending.js) ── */
 .rt-tag { display: inline-block; font-family: var(--serif); font-size: 13px; font-weight: 700; color: var(--ink-2); margin-right: 6px; }
 .rt-card { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; padding: 12px 14px; margin-bottom: 16px; background: var(--card); border: var(--bw) solid var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); cursor: pointer; font: inherit; color: var(--ink); }
 .rt-card:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
@@ -987,28 +899,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .op-who { font-family: var(--serif); font-size: 16px; color: var(--ink); }
 .op-who b { font-weight: 700; }
 .op-pick .op-line { margin-top: 2px; font-size: 15px; }
-#verdicts { position: fixed; inset: 0; z-index: 765; display: none; overflow-y: auto; background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 18px 18px; }
-#verdicts.on { display: block; animation: fadeIn .35s ease-out; }
-.vd-wrap { max-width: 440px; margin: 0 auto; padding: calc(22px + var(--sat)) 16px calc(24px + var(--sab)); }
-.vd-h { font-family: var(--serif); font-weight: 700; font-size: 28px; text-align: center; margin: 2px 0 14px; }
-.vd-list { display: flex; flex-direction: column; }
-.vd-row { padding: 11px 2px 12px; border-top: 1.5px dashed var(--line); animation: vdIn .45s var(--ease-out) both; }
-.vd-row:first-child { border-top: 2px solid var(--ink); }
-.vd-row:last-child { border-bottom: 2px solid var(--ink); }
-.vd-row.me { background: linear-gradient(90deg, var(--yellow-bg), transparent); margin: 0 -8px; padding-left: 10px; padding-right: 10px; }
-.vd-top { display: flex; align-items: baseline; gap: 7px; }
-.vd-top .chip { align-self: center; }
-.vd-name { font-weight: 900; font-size: 16px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.vd-title { font-family: var(--serif); font-style: italic; font-size: 13.5px; color: var(--ink-2); white-space: nowrap; }
-.vd-num { margin-left: auto; flex: none; font-family: var(--serif); font-weight: 700; font-size: 18px; white-space: nowrap; }
-.vd-d { font-family: var(--sans); font-size: 13px; font-weight: 900; margin-left: 6px; color: var(--muted); }
-.vd-d.up { color: var(--teal); } .vd-d.down { color: var(--red); }
-.vd-line { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 15.5px; line-height: 1.4; color: var(--ink); margin-top: 4px; padding-left: 27px; }
-.vd-extra { font-family: var(--serif); font-weight: 400; font-size: 13.5px; line-height: 1.4; color: var(--muted); margin-top: 3px; padding-left: 27px; }
-.vd-extra b { font-weight: 700; color: var(--ink); }
-.vd-foot { margin-top: 18px; }
-@keyframes vdIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .vd-row, .op-table, .op-pick { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .op-table, .op-pick { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -1021,10 +912,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 <div id="boom"></div>
 <div id="stealshow"></div>
 <div id="induct" onclick="if (event.target === this) closeInduction()"></div>
-<div id="awards"></div>
 <div id="opening"></div>
-<div id="verdicts"></div>
-<div id="poobah"></div>
 <label class="ios-haptic" id="haptic-label" aria-hidden="true"><input type="checkbox" switch id="haptic-input" tabindex="-1" aria-label="Haptic tap"></label>
 
 <!-- ═══════ HOME ═══════ -->
@@ -1074,7 +962,8 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
       <li><b>Frame It.</b> After each round, pick a caption that beat the real one (never your own). Frame as many as deserve it, one a round. When <span class="frame-need">most of the other players</span> pick the same one, it hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
       <li><b>The Late Edition.</b> In a game that goes around the table more than once, the last trip around pays double. First to 20: when someone gets there, the trip around the table is finished (everyone deals the same number of times), at double points. Then the leader wins.</li>
       <li><b>A tie for first</b> goes to whoever fooled the most people. Still level: more captions framed. Still level: a tie.</li>
-      <li><b>The Grand Poobah.</b> Points say who bet best. The hat goes to who wrote best: the most chips on their fakes, all night.</li>
+      <li><b>The Remote.</b> Every table has one: a 1980s TV remote with one button, held by the last winner. Each winner adds a strip of masking tape with their name and the date.</li>
+      <li><b>The credits.</b> The night ends like a movie: a freeze-frame on each player, and what became of them.</li>
       <li><b>Your rating.</b> Ranked like chess, but judged by friends. Everyone starts at 1,200; after each game you gain points from everyone you finished above and lose them to everyone who finished above you. Beating higher-rated players moves it more; a short game moves it less. Titles: Candidate 1,400, Master 1,600, Senior Master 1,800, Grandmaster 2,000. Your phone keeps it.</li>
       <li><b>Badges.</b> Rare moments earn badges: Moon Landing, Three Bagger, Clean Sweep, Great Minds, Pickpocket. Your phone keeps those too.</li>
       <li><b>Good to know.</b> Bet on your own caption to bluff — it scores nothing. Captions are tidied the same way, the real one too. The real one isn’t always the funniest. Tap the cartoon to zoom.</li>
@@ -1890,8 +1779,8 @@ function render(force = false) {
     if (state.phase === 'lobby' && lastPhase) sendSeen();   // back in the lobby: refresh before the next game
     if (state.phase === 'lobby') { answerSeqRound = null; scoresAnimated = null; }
     if (lastPhase === 'framing') { clearFrameGos(); closeInduction(); }   // the scoreboard (and its hat) takes over
-    if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); closeRoundStamp(); closeVerdicts(); if (window.ccFinale) ccFinale.close(); }
-    if (state.phase !== 'writing') closeOpening();
+    if (lastPhase === 'scores') { closeRoundStamp(); if (window.Ending) Ending.close(); if (window.ccFinale) ccFinale.close(); }
+    if (state.phase !== 'writing') { closeOpening(); if (window.Ending) Ending.closePrev(); }
     if (lastPhase && !['reveal', 'answer', 'framing', 'scores'].includes(state.phase)) bsfx.advance();
     document.body.classList.toggle('fm-on', state.phase === 'framing');
     if (state.phase !== 'writing') { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
@@ -1943,7 +1832,7 @@ function render(force = false) {
   }
   if (state.phase === 'writing') startTimer();
   afterRender(phaseChanged);
-  syncOpening(); syncVerdicts(); syncLate();
+  syncOpening(); syncLate();
   if (focusMark) focusRestore(focusMark);
   if (phaseChanged || (state.phase === 'answer' && key !== lastKey && reelInfo().step > reelInfo().n)) stageSay();   // #29: every new stage, said out loud
   lastPhase = state.phase; lastRound = state.round; lastKey = key;
@@ -2038,7 +1927,9 @@ function afterRender(phaseChanged) {
   }
   if (state.phase === 'framing') { fitFraming(); framingSounds(phaseChanged); fmShowFramed(); }
   if (state.phase === 'scores' && phaseChanged) playScoresSequence();
-  if (state.phase === 'scores' && state.gameOver && window.ccFinale) { if (state.finale && $('poobah').className) closeGrand(); ccFinale.sync(); markBestLocally(); }
+  // Game over: the ending (winner, awards, credits, cast: ending.js), then Caption of the Night (finale.js)
+  if (state.phase === 'scores' && state.gameOver) { if (window.Ending) Ending.sync(); if (window.ccFinale && !(window.Ending && Ending.active())) ccFinale.sync(); markBestLocally(); }
+  if (state.phase === 'lobby' && window.Ending) Ending.sendTables();   // the Remote: this phone's records of tables like this one
   if (state.phase === 'reading' && phaseChanged) { (state.openCaptions || []).forEach((_, i) => setTimeout(() => bsfx.deal(i), 120 + i * 140)); buzz(30); }
   if (state.phase === 'writing' && phaseChanged) buzz(30);
 }
@@ -2270,6 +2161,7 @@ function renderLobby() {
     ${demoCardHtml()}
     <h2 class="lb-at">At the table · ${connected}${watched}</h2>
     <ul class="lb-names">${names}</ul>
+    ${window.Ending ? Ending.lobbyHtml() : ''}
     ${played ? ratingCardHtml() : ''}
     ${deckNote}
     ${options}
@@ -3593,6 +3485,7 @@ function openRatingSheet() {
 let openingShown = null, openingT = null;
 function closeOpening() { clearTimeout(openingT); const o = $('opening'); if (o) { o.className = ''; o.innerHTML = ''; } }
 function syncOpening() {
+  if (window.Ending && Ending.syncPrev()) { if ($('opening').className) closeOpening(); return; }   // a returning table: "Previously on Closed Caption" instead
   const o = state && state.phase === 'writing' && state.round === 1 ? state.opening : null;
   if (!o || !o.gameId) { if ($('opening').className) closeOpening(); return; }
   if (openingShown === o.gameId) return;
@@ -3644,42 +3537,6 @@ function syncLate() {
   o.className = 'on';
   bsfx.seal(); buzz([40, 60, 40]); srSay('The Late Edition. Every point counts double.');
   lateT = setTimeout(closeLate, left);
-}
-
-/* ── The verdicts: after the awards and the winner, before the Grand Poobah. A reading moment:
-   everyone's new rating, the change, the title, and one line each (picked by the server: same on every
-   phone, never one this phone has read before). The dealer or host taps on. ── */
-const VERDICT_LEAD_MS = 2000;   // the winner's card gets its moment first
-const verdictsPending = () => !!(state && state.phase === 'scores' && state.gameOver && state.rating && !state.verdictsAt && !state.finale);
-const verdictsStart = () => state.scoresAt + 300 + computeAwards().length * AWARD_SLIDE_MS + VERDICT_LEAD_MS;
-let verdictsFor = null, verdictsT = null;
-function closeVerdicts() { clearTimeout(verdictsT); const o = $('verdicts'); if (o && o.className) { o.className = ''; o.innerHTML = ''; } verdictsFor = null; }
-function syncVerdicts() {
-  if (!verdictsPending()) { closeVerdicts(); if (state && state.phase === 'scores' && state.gameOver && state.verdictsAt && !state.finale) scheduleGrandPoobah(); return; }
-  const R = state.rating, key = R.gameId + '|' + (canRun() ? 1 : 0);
-  if (verdictsFor === key) return;
-  clearTimeout(verdictsT);
-  const wait = verdictsStart() - (Date.now() + clockOffset);
-  if (wait > 0) { verdictsT = setTimeout(() => { verdictsFor = null; syncVerdicts(); }, wait); return; }
-  const fresh = !$('verdicts').className;
-  verdictsFor = key;
-  const sign = (d) => d > 0 ? '+' + d : d < 0 ? '−' + Math.abs(d) : '±0';
-  const rows = (R.order || []).map((id, i) => {
-    const r = R.rows[id]; if (!r) return '';
-    return `<div class="vd-row${id === myPlayerId ? ' me' : ''}" style="animation-delay:${fresh ? 0.25 + i * 0.12 : 0}s">
-      <div class="vd-top">${chipHtml(id, 'xs')}<span class="vd-name">${esc(nameOf(id))}</span>${r.title ? `<span class="vd-title">${esc(r.title)}</span>` : r.provisional ? '<span class="vd-title">new</span>' : ''}
-        <span class="vd-num">${fmtRating(r.after)}<span class="vd-d ${r.delta > 0 ? 'up' : r.delta < 0 ? 'down' : ''}">${sign(r.delta)}</span></span></div>
-      ${r.line ? `<p class="vd-line">${esc(r.line.text)}</p>` : ''}
-      ${r.extra ? `<p class="vd-extra">${r.newTitle ? `<b>New title: ${esc(r.newTitle)}.</b> ` : ''}${esc(r.extra.text)}</p>` : ''}
-    </div>`;
-  }).join('');
-  const nextWord = gamePoobah() && !poobahIsWinner() ? 'On to the Grand Poobah' : 'On to the final scores';
-  $('verdicts').innerHTML = `<div class="vd-wrap"><p class="eyebrow center">After tonight</p><h2 class="vd-h">The ratings</h2>
-    ${R.short ? '<p class="vd-short">Short game: rating moves less.</p>' : ''}
-    <div class="vd-list">${rows}</div>
-    <div class="vd-foot">${canRun() ? `<button class="btn btn-yellow" onclick="this.disabled=true; send({action:'verdicts_done'})">${nextWord} →</button>` : `<p class="rc-wait">${esc(firstName(state.dealerName || nameOf(state.hostId)))} moves things along<span class="dots"></span></p>`}</div></div>`;
-  $('verdicts').className = 'on';
-  if (fresh) { try { bsfx.swish(); } catch (e) {} }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -3829,7 +3686,8 @@ function renderScores() {
     <p class="sb-next">Next dealer: <b>${esc(firstName(state.nextDealerName))}</b></p>
     ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>`}`;
 }
-// Game over: two big moments (Winner, The Grand Poobah), a compact standings row, and the buttons
+// Game over: the winner (and who has the Remote now), a compact standings row, and the buttons. The ending plays over
+// this page first (ending.js: the winner, the awards, the credits, the cast), then Caption of the Night (finale.js).
 // #9 / #11: a tie for first is broken by people fooled, then captions framed (the server decides: state.standing)
 function finalWinners(sorted) {
   const stn = state.standing, won = stn && Array.isArray(stn.winners) ? stn.winners.map(playerById).filter(Boolean) : [];
@@ -3847,39 +3705,34 @@ function tieWhyLine(stn) {
 function renderFinal(sorted, animated, goal) {
   const tops = finalWinners(sorted), winner = tops[0], tie = tops.length > 1, why = tieWhyLine(state.standing);
   sorted = [...tops, ...sorted.filter(p => !tops.includes(p))];   // the winner first, even when a tie-break decided it
-  const g = gamePoobah(), at = ceremonyAt();
-  const folded = !!g && poobahIsWinner(g);
-  const vPend = verdictsPending();
-  const showHat = g && !folded && !vPend && (grandShown || !at || Date.now() + clockOffset >= at + POOBAH_SHOW_MS);   // no spoilers before the ceremony
-  const also = folded ? `<p class="fn-also">${poobahHat(22)} ${g.ids.length > 1 || tie ? esc(listNames(g.ids.map(nameOf))) + ' also took' : 'Also took'} the Grand Poobah. ${esc(poobahStatLine(g))}</p>` : '';
   // #39: one name per line, and long names shrink — never split mid-word
   const fit = (list) => { const m = Math.max(...list.map(t => t.length)), k = list.length; return m > 12 ? 'font-size:19px;' : m > 8 || k > 2 ? 'font-size:23px;' : k > 1 ? 'font-size:27px;' : ''; };
   const nameLines = (list) => list.map(t => `<span class="fn-line">${esc(t)}</span>`).join('');
-  const win = `<div class="fn-card fn-win fade-in"><div class="fn-ic">${inkIcon('trophy', 50)}</div><p class="fn-eyebrow">${tie ? 'It’s a tie' : 'Winner'}</p><div class="fn-name" style="${fit(tops.map(p => p.name))}">${nameLines(tops.map(p => p.name))}</div><p class="fn-sub">${plural(winner.score, 'point')}</p>${why ? `<p class="fn-why">${why}</p>` : ''}${also}</div>`;
-  const hat = showHat ? `<div class="fn-card fn-hat poobah-panel fade-in"><div class="fn-ic bob">${poobahHat(54)}</div><p class="fn-eyebrow">The Grand Poobah</p><div class="fn-name" style="${fit(g.ids.map(nameOf))}">${nameLines(g.ids.map(nameOf))}</div><p class="fn-sub">${plural(g.n, 'chip')} on fakes</p></div>` : '';
+  const win = `<div class="fn-card fn-win fade-in"><div class="fn-ic">${inkIcon('trophy', 50)}</div><p class="fn-eyebrow">${tie ? 'It’s a tie' : 'Winner'}</p><div class="fn-name" style="${fit(tops.map(p => p.name))}">${nameLines(tops.map(p => p.name))}</div><p class="fn-sub">${plural(winner.score, 'point')}</p>${why ? `<p class="fn-why">${why}</p>` : ''}${window.Ending ? Ending.remoteLineHtml() : ''}</div>`;
   const standings = sorted.map(p => `<span class="fn-st">${chipHtml(p.id, 'xs')}${esc(p.name)} <b class="score-number" data-target="${p.score}" data-from="${p.score - ((state.roundScores || {})[p.id] || 0)}">${animated ? p.score : p.score - ((state.roundScores || {})[p.id] || 0)}</b></span>`).join('');
-  const nFr = state.framedTonight || 0, fin = state.finale && window.ccFinale;
-  // Tonight's Gallery: after the winner and the Poobah, the host opens it for every phone.
-  // #21: the button waits until the Poobah's ceremony is over (or there's no Poobah to crown)
-  const poobahDue = (vPend && !!g && !folded) || (!!g && !grandShown && !!at && Date.now() + clockOffset < at + POOBAH_SHOW_MS);
-  if (poobahDue && !fin && at) { clearTimeout(window._galGateT); window._galGateT = setTimeout(() => { if (state && state.phase === 'scores' && state.gameOver && !state.finale) render(true); }, at + POOBAH_SHOW_MS - (Date.now() + clockOffset) + 100); }
-  const galBtn = !fin && nFr && window.ccFinale ? (canRun()
-      ? (poobahDue ? `<button class="btn btn-yellow fn-gal" disabled aria-disabled="true">Tonight’s Gallery — after the Poobah</button>` : `<button class="btn btn-yellow fn-gal" onclick="openFinale()">Tonight’s Gallery (${nFr}) →</button>`)
-      : `<p class="rc-wait">Next: tonight’s Gallery — ${plural(nFr, 'frame')}. The host opens it<span class="dots"></span></p>`) : '';
+  const nFr = state.framedTonight || 0, fin = state.finale && window.ccFinale, ended = !state.ending || state.ending.done;
+  const replay = state.ending && state.ending.done && window.Ending ? `<button class="btn-link fn-link" onclick="Ending.replay()">Watch the credits again</button>` : '';
+  // Caption of the Night: the dealer's tap on the cast list opens it; if it didn't, the button is here
+  const galBtn = ended && !fin && nFr && window.ccFinale ? (canRun()
+      ? `<button class="btn btn-yellow fn-gal" onclick="openFinale()">Caption of the Night (${plural(nFr, 'frame')}) →</button>`
+      : `<p class="rc-wait">Next: Caption of the Night. ${esc(firstName(state.dealerName || nameOf(state.hostId)))} opens it<span class="dots"></span></p>`) : '';
   if (fin) return `${header({ sticker: '<span class="sticker">Tonight’s Gallery</span>', sub: goal, thumb: false })}
     ${ccFinale.screenHtml()}
     <div class="fn-stand">${standings}</div>
+    ${window.Ending ? Ending.remoteLineHtml() : ''}
     <div class="stack fn-btns">
       ${state.finale.winner ? againHtml(true) : ''}
       ${window.Recap && state.finale.winner ? `<button class="btn" onclick="Recap.open()">Night recap</button>` : ''}
+      ${replay}
     </div>`;
   return `${header({ sticker: '<span class="sticker">Final scores</span>', sub: goal, thumb: false })}
-    <div class="fn-duo ${hat ? '' : 'solo'}">${win}${hat}</div>
+    <div class="fn-duo solo">${win}</div>
     <div class="fn-stand">${standings}</div>
     <div class="stack fn-btns">
       ${galBtn}
       ${againHtml(!galBtn)}
       ${window.Recap ? `<button class="btn" onclick="Recap.open()">Night recap</button>` : ''}
+      ${replay}
       ${state.history && state.history.length ? `<button class="btn-link fn-link" onclick="openHistory()">Past rounds</button>` : ''}
     </div>`;
 }
@@ -3899,241 +3752,9 @@ function againHtml(primary) {
   return `<button class="btn ${primary ? 'btn-yellow fn-deal' : ''}" onclick="send({action:'again', on:true}); buzz(20)">I’m in for another</button>`;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   The Grand Poobah — the best captionist.
-   Points say who bet well. The hat says who wrote the caption
-   the table believed: most chips (votes) on your fake caption.
-   ═══════════════════════════════════════════════════════════ */
-function poobahHat(w = 120, cls = '') {
-  const h = Math.round(w * 1.15);
-  return `<svg class="${cls}" viewBox="0 0 120 138" width="${w}" height="${h}" aria-hidden="true">
-    <g stroke="#1F1A17" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-      <path d="M86 26 C104 6 118 18 108 34 C100 46 92 36 98 30" fill="#fff"/>
-      <path d="M92 30 C100 22 108 24 104 32" fill="none" stroke-width="2.5"/>
-      <path d="M26 118 L34 34 Q36 22 48 20 H72 Q84 22 86 34 L94 118 Z" fill="#6E4CF5"/>
-      <path d="M42 30 Q40 70 44 112" fill="none" stroke="#9C84FF" stroke-width="5" stroke-opacity=".7"/>
-      <rect x="20" y="96" width="80" height="24" rx="6" fill="#FFD23F"/>
-      <path d="M30 108 H90" stroke="#C99A08" stroke-width="2.5"/>
-      <path d="M60 99 L68 108 L60 117 L52 108 Z" fill="#E8453A"/>
-      <circle cx="60" cy="20" r="7" fill="#FFD23F"/>
-      <path d="M60 22 Q46 40 36 46" fill="none" stroke-width="3"/>
-      <path d="M30 42 L36 46 L40 58 L32 60 L28 50 Z" fill="#FFD23F"/>
-      <path d="M38 76 l3 7 7 1 -5 5 1 7 -6 -3 -6 3 1 -7 -5 -5 7 -1 Z" fill="#FFD23F" stroke-width="2.5"/>
-      <path d="M74 56 l2.5 5 5 .7 -3.6 3.5 .9 5 -4.8 -2.4 -4.8 2.4 .9 -5 -3.6 -3.5 5 -.7 Z" fill="#FFD23F" stroke-width="2.5"/>
-    </g></svg>`;
-}
-// #55: five different jokes (they used to be five ways of saying "points vs. the hat")
-// The Poobah's line never contradicts the score: these are for a Poobah who did NOT also win on points.
-// (A Poobah who won, or tied for first, is folded into the winner's card instead: one quiet line, no second ceremony.)
-const POOBAH_SLOGANS = [
-  'The truth was on the table all night. The table chose this instead.',
-  'Lied beautifully. Was believed. Is now wearing a hat.',
-  'Never once told the truth. Nobody minded.',
-  'The table was fooled, and would like it noted that it enjoyed it.',
-  'Not the most points. Just the most persuasive.',
-];
-// The points winner (or a co-winner) is also the Poobah: no separate ceremony that repeats them
-function poobahIsWinner(g) {
-  g = g === undefined ? gamePoobah() : g; if (!g || !state.players || !state.players.length) return false;
-  const w = state.standing && state.standing.winners;   // (a tie-break may have decided the winner)
-  if (Array.isArray(w) && w.length) return g.ids.some(id => w.includes(id));
-  const top = Math.max(...state.players.map(p => p.score));
-  return g.ids.some(id => (playerById(id) || {}).score === top);
-}
-const pickBy = (arr, key) => { let h = 0; for (const ch of String(key)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return arr[h % arr.length]; };
-
-// Chips other players put on each writer's fake caption in one round (stolen chips still count — they were believed)
-function roundVotes(r) {
-  const votes = {};
-  const author = (t) => t === 'closed' ? r.closedPlayerId : (r.openCaptions[t] || {}).playerId;
-  const real = (t) => t === 'closed' ? !!r.closedIsCorrect : !!(r.openCaptions[t] || {}).isCorrect;
-  for (const b of r.bets || []) {
-    if (b.target === 'pass' || real(b.target)) continue;
-    const a = author(b.target), n = b.count + (b.stolen || 0);
-    if (a && a !== b.playerId && n > 0) votes[a] = (votes[a] || 0) + n;
-  }
-  return votes;
-}
-function roundPoobah(r) {
-  const v = roundVotes(r), m = Math.max(0, ...Object.values(v));
-  return m > 0 ? { ids: Object.keys(v).filter(k => v[k] === m), n: m } : null;
-}
-function crownCounts() {
-  const c = {};
-  for (const r of state.history || []) { const p = roundPoobah(r); if (p) p.ids.forEach(id => { c[id] = (c[id] || 0) + 1; }); }
-  return c;
-}
-// The game's Grand Poobah: most votes all game; ties go to more crowns, then share the hat
-function gamePoobah() {
-  const total = {};
-  for (const r of state.history || []) for (const [k, n] of Object.entries(roundVotes(r))) total[k] = (total[k] || 0) + n;
-  const m = Math.max(0, ...Object.values(total)); if (!m) return null;
-  const crowns = crownCounts();
-  let ids = Object.keys(total).filter(k => total[k] === m && playerById(k));
-  const mc = Math.max(...ids.map(k => crowns[k] || 0));
-  ids = ids.filter(k => (crowns[k] || 0) === mc);
-  return { ids, n: m, crowns: mc };
-}
-// The plaque's stat line: "Lied 4 times. Was believed 6 times." (one Poobah); a tie gets the chips line
-function poobahStatLine(g) {
-  if (g.ids.length !== 1) return `${plural(g.n, 'chip')} on fake captions`;
-  const id = g.ids[0], lied = (state.history || []).filter(r => (r.openCaptions || []).some(c => c.playerId === id) || r.closedPlayerId === id).length;
-  return `Lied ${lied === 1 ? 'once' : lied + ' times'}. Was believed ${g.n === 1 ? 'once' : g.n + ' times'}.`;
-}
-function hatsHtml(pid) {
-  const n = crownCounts()[pid] || 0;
-  return n ? `<span class="hat-count" title="Grand Poobah ${n}×">${poobahHat(18)}${n > 1 ? '×' + n : ''}</span>` : '';
-}
-function poobahPanelHtml() {
-  const g = gamePoobah(); if (!g) return '';
-  const at = ceremonyAt();
-  if (!grandShown && at && Date.now() + clockOffset < at + POOBAH_SHOW_MS) return '';   // no spoilers before the ceremony
-  return `<div class="panel poobah-panel center fade-in" style="margin-top:16px;">
-    <div class="bob">${poobahHat(64)}</div>
-    <p class="eyebrow" style="color:#D7CBFF;">The Grand Poobah</p>
-    <div class="h-display" style="font-size:34px; margin:2px 0 4px; color:var(--yellow);">${esc(listNames(g.ids.map(nameOf)))}</div>
-    <p class="small" style="color:#E9E2FF;">${plural(g.n, 'chip')} on fake captions · crowned ${plural(g.crowns, 'round')}</p>
-    <p class="poobah-slogan">“${esc(pickBy(POOBAH_SLOGANS, state.code + state.history.length))}”</p>
-  </div>`;
-}
-
-function closePoobah() { const o = $('poobah'); o.className = ''; o.innerHTML = ''; }
-
-/* End of game: wildly overproduced. Every phone, timed from the server, so they play together. */
-function organ(dur, vol = 0.05) { if (!bigSound()) return; [65.41, 130.81, 196, 261.63, 392].forEach((f, i) => tone(f, dur, 0, i < 2 ? 'sine' : 'triangle', vol / (i + 1) * 1.6)); }
-function gong() { if (!bigSound()) return; tone(98, 4.5, 0, 'sine', 0.32, 92); tone(147, 3.5, 0, 'sine', 0.14, 140); tone(233, 2.8, 0, 'sine', 0.08); tone(311, 2.2, 0, 'sine', 0.05); noise(1.4, 0, 0.18, 500, 'lowpass'); }
-function timpaniRoll(ms) { if (!bigSound()) return; let t = 0, gap = 120; while (t < ms) { const v = 0.06 + 0.3 * (t / ms); tone(73, 0.09, t, 'sine', v); noise(0.04, t, v * 0.8, 700, 'lowpass'); t += gap; gap = Math.max(34, gap * 0.93); } }
-// #21: the end of the night was ~a minute of watching. Slides 4.4s → 2.5s, the gap 6s → 2s, the Poobah's build-up 8.3s → 4s.
-const CEREMONY_LEAD_MS = 2000;   // after the awards slides end: the winner gets their moment first
-const AWARD_SLIDE_MS = 2500;     // one slide = one name and one line: enough to read it out loud
-const POOBAH_REVEAL_MS = 4000;   // the Grand Poobah: "And now…", the drumroll (the throne comes in under it), the gong
-const POOBAH_SHOW_MS = POOBAH_REVEAL_MS + 2200;   // reveal + the slogan read: after this the hat is no spoiler
-function ceremonyAt() {
-  if (!state.scoresAt || poobahIsWinner()) return null;   // folded into the winner's card: no ceremony
-  if (state.rating) return state.verdictsAt ? state.verdictsAt + 600 : null;   // the ratings come first; the dealer/host taps on
-  return state.scoresAt + 300 + computeAwards().length * AWARD_SLIDE_MS + CEREMONY_LEAD_MS;
-}
-let ceremonyFor = null, ceremonyTimer = null, grandShown = false;
-function scheduleGrandPoobah() {
-  const key = state.code + '|' + state.round + '|' + state.scoresAt + '|' + (state.verdictsAt || '');
-  if (ceremonyFor === key) return;
-  ceremonyFor = key;
-  clearTimeout(ceremonyTimer);
-  const at = ceremonyAt(), g = gamePoobah(); if (!at || !g) return;
-  const wait = at - (Date.now() + clockOffset);
-  if (wait < -15000) return;   // arrived long after: the panel on the final screen does the honours
-  ceremonyTimer = setTimeout(() => { if (state && state.phase === 'scores' && state.gameOver && !state.finale) playGrandPoobah(g); }, Math.max(0, wait));   // #21: never over an open Gallery
-}
-// #21: the Gallery waits for the Poobah (no ceremony, or it's over, or this phone already saw it)
-function poobahDone() {
-  if (verdictsPending()) return false;
-  const at = ceremonyAt();
-  return grandShown || !gamePoobah() || !at || Date.now() + clockOffset >= at + POOBAH_SHOW_MS;
-}
-function playGrandPoobah(g) {
-  const o = $('poobah'), names = listNames(g.ids.map(nameOf)), me = g.ids.includes(myPlayerId);
-  if ($('awards').classList.contains('on') && window._awFinish) window._awFinish();
-  closeInduction();
-  o.className = 'grand on';
-  o.innerHTML = `<div class="gp-spot a"></div><div class="gp-spot b"></div><div class="gp-rays"></div>
-    <p class="gp-line" id="gp-l1">And now, the hat.</p>
-    <div class="gp-tease" id="gp-tease">The Grand Poobah is…</div>
-    <div class="gp-reveal" id="gp-reveal">
-${gpWinnersHtml(g)}
-      <div class="gp-plaque">Grand Poobah, est. tonight.<br><i>Term: until the next game.</i></div>
-      <p class="gp-stats">${esc(poobahStatLine(g))}${me ? ' · that’s you' : ''}</p>
-      <p class="gp-slogan">“${esc(pickBy(POOBAH_SLOGANS, state.code + state.history.length))}”</p>
-      <button class="btn btn-yellow" style="margin-top:18px; width:auto; padding:13px 26px;" onclick="closeGrand(true)">Long live the Poobah${state.framedTonight && canRun() && window.ccFinale ? ' → Gallery' : ''}</button>
-    </div>`;
-  const step = (id, cls, t) => setTimeout(() => { const e = $(id); if (e) e.classList.add(cls); }, t);
-  if (window.ccReducedMotion && window.ccReducedMotion()) {   // #11 Reduce Motion: the result, faded in, no drumroll show
-    o.classList.add('revealed'); step('gp-reveal', 'on', 0);
-    const r = $('gp-reveal'); if (r) r.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, easing: 'ease-out', fill: 'both' });
-    gpThrones(g);
-    gong(); buzz([200, 80, 200]); if (window.ccBeat) window.ccBeat('poobah:reveal');
-    o.onclick = (e) => { if (e.target === o) closeGrand(); };
-    return;
-  }
-  // #21 + #22: the reveal at 4s (it was 8.3s). One line, then the drumroll; the throne is carried in UNDER the
-  // roll so the hat lands on the gong (it used to arrive 3.3s after the gong, on an empty stage).
-  (window._gpT || []).forEach(clearTimeout);
-  const R = POOBAH_REVEAL_MS, ROLL = 1500, gpT = window._gpT = [], t0 = performance.now();
-  const at = (fn, ms) => gpT.push(setTimeout(() => { if (o.classList.contains('grand')) fn(); }, ms));
-  organ(1.8, 0.06); buzz(60);
-  step('gp-l1', 'on', 120); step('gp-l1', 'off', ROLL - 200);
-  at(() => {
-    o.classList.add('roll', 'pre'); step('gp-tease', 'on', 0); bsfx.drumroll(R - ROLL); timpaniRoll(R - ROLL);
-    const rv = $('gp-reveal'), seat = g.ids.length < 2 ? $('gp-throne') : null;   // ties: the hats go on at the gong
-    if (seat && rv) { rv.classList.add('pre'); gpThrones(g, Math.max(600, R - (performance.now() - t0))); }   // lands on the gong even if this timer ran late
-  }, ROLL);
-  [0, 700, 1300, 1800, 2150, 2350].forEach(t => at(() => buzz(40 + t / 30), ROLL + t));
-  at(() => {
-    o.classList.remove('roll'); o.classList.add('flash', 'revealed');
-    const t = $('gp-tease'); if (t) t.classList.remove('on');
-    step('gp-reveal', 'on', 0);
-    gpThrones(g);   // a phone whose drumroll timer ran late still gets the throne (ties: their hats are CSS)
-    // The gong carries the size (the crash, the boom and the fanfare are gone, so no duck is needed; the limiter still guards)
-    gong(); buzz([300, 100, 300]); if (window.ccFlash) window.ccFlash(0.4); if (window.ccBeat) window.ccBeat('poobah:reveal');
-    confetti.cannons();
-    setTimeout(() => o.classList.remove('flash'), 500);
-  }, R);
-  o.onclick = (e) => { if (o.classList.contains('revealed') && e.target === o) closeGrand(); };
-}
-// #21: one Poobah gets the throne; tied Poobahs sit side by side, each under their own name.
-// No photos: the name itself is the one on the throne — a brass nameplate carried in on a sedan chair, the hat dropped on it.
-function gpWinnersHtml(g) {
-  const n = g.ids.length;
-  if (n < 2) return `<div id="gp-throne" class="gp-throne">${gpThroneSvg()}<div class="gp-tplate" style="${gpPlateSize(nameOf(g.ids[0]))}" data-name="${esc(nameOf(g.ids[0]))}">${esc(nameOf(g.ids[0]))}</div><div class="gp-thhat">${poobahHat(110)}</div></div><div class="gp-name" style="${gpSize(nameOf(g.ids[0]))}">${esc(nameOf(g.ids[0]))}</div>`;
-  return `<div class="gp-tie">${g.ids.map((id, i) => `<div class="gp-seat"><div class="gp-hat">${poobahHat(n === 2 ? 96 : 70)}</div>${chipHtml(id, 'gp-chip' + (n > 2 ? ' sm3' : ''))}
-    <div class="gp-name gp-name-tie">${esc(firstName(nameOf(id)))}</div></div>`).join('')}</div><p class="gp-tied">${n === 2 ? 'A tie. Two hats.' : `A ${n}-way tie. Hats all round.`}</p>`;
-}
-const gpSize = (t) => t.length > 10 ? 'font-size:36px;' : t.length > 8 ? 'font-size:44px;' : '';
-const gpPlateSize = (t) => t.length > 9 ? 'font-size:13px;' : t.length > 6 ? 'font-size:16px;' : '';
-function gpThroneSvg() {
-  const ink = '#1F1A17', st = `stroke="${ink}" stroke-width="5" stroke-linejoin="round"`;
-  const bearer = (x, c) => `<g transform="translate(${x} 150)"><path d="M-9 0 V-34" stroke="${ink}" stroke-width="12" stroke-linecap="round"/><path d="M-9 0 V-34" stroke="${c}" stroke-width="7" stroke-linecap="round"/><circle cx="-9" cy="-44" r="10" fill="#F2C9A0" ${st}/><path d="M-20 -60 Q-9 -70 2 -60" fill="none" stroke="${ink}" stroke-width="4"/><path d="M-15 0 L-19 26 M-3 0 L1 26" stroke="${ink}" stroke-width="7" stroke-linecap="round"/></g>`;
-  return `<svg class="gp-thsvg" viewBox="0 0 260 200" width="260" height="200" aria-hidden="true" style="overflow:visible">
-    <g class="gp-carry">${[30, 78, 182, 230].map((x, i) => bearer(x, ['#E8453A', '#2E9E6B', '#2E5EAA', '#E89A2A'][i])).join('')}</g>
-    <rect x="6" y="104" width="248" height="12" rx="5" fill="#8a6418" ${st}/>
-    <path d="M62 104 V30 Q62 2 130 0 Q198 2 198 30 V104 Z" fill="#B3263A" ${st}/>
-    <path d="M78 98 V40 Q78 18 130 16 Q182 18 182 40 V98 Z" fill="#8C1C2C" stroke="${ink}" stroke-width="2.5" stroke-opacity=".5"/>
-    <circle cx="130" cy="0" r="10" fill="#FFD23F" ${st}/>
-    <path d="M40 104 H220 V138 H40 Z" fill="#D4A017" ${st}/>
-  </svg>`;
-}
-// The throne bit: carried in from the left, bouncing, under the drumroll; set down; the hat drops onto the nameplate
-// on the gong (landMs from now). Without landMs (Reduce Motion, a tie, a late phone): everything simply in place.
-function gpThrones(g, landMs) {
-  const box = $('gp-throne'); if (!box) return;
-  const hat = box.querySelector('.gp-thhat'), carry = box.querySelector('.gp-carry'), plate = box.querySelector('.gp-tplate');
-  if (box.dataset.on) { if (!landMs && plate && !plate.textContent) plate.textContent = plate.dataset.name || ''; return; }   // the gong: the name is on, whatever the timers did
-  box.dataset.on = '1';
-  const RM = !!(window.ccReducedMotion && window.ccReducedMotion());
-  if (!landMs || RM) {
-    try { box.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 450, easing: 'ease-out', fill: 'both' }); } catch (e) {}
-    if (carry) carry.style.opacity = 0;
-    return;
-  }
-  if (plate) plate.textContent = '';   // carried in blank under the drumroll; the name goes on with the hat, on the gong
-  const D = Math.max(1200, landMs / 0.76), W = Math.min(window.innerWidth || 390, 600);
-  const bob = []; for (let i = 0; i <= 10; i++) bob.push({ offset: i / 10 * 0.55, transform: `translateX(${Math.round(-W + W * (i / 10))}px) translateY(${i % 2 ? -10 : 0}px) rotate(${i % 2 ? 3 : -3}deg)`, easing: 'steps(2,end)' });
-  bob.push({ offset: 0.62, transform: 'none' }, { offset: 1, transform: 'none' });
-  try { box.animate(bob, { duration: D, fill: 'both' }); } catch (e) {}
-  // the bearers set it down and walk off to the right
-  try { carry.animate([{ transform: 'none', opacity: 1 }, { offset: 0.66, transform: 'none', opacity: 1 }, { offset: 0.72, transform: `translateX(${W}px)`, opacity: 1 }, { transform: `translateX(${W}px)`, opacity: 0 }], { duration: D, fill: 'both' }); } catch (e) {}
-  try { hat.animate([{ transform: 'translateY(-110vh)', opacity: 1 }, { offset: 0.7, transform: 'translateY(-110vh)', opacity: 1, easing: 'cubic-bezier(.6,0,1,.5)' }, { offset: 0.76, transform: 'translateY(6px) scale(1.1,.9)' }, { offset: 0.8, transform: 'translateY(-4px) rotate(-3deg)' }, { transform: 'rotate(-6deg)' }], { duration: D, fill: 'both' }); } catch (e) {}
-  (window._gpT || (window._gpT = [])).push(setTimeout(() => { if (plate) { plate.textContent = plate.dataset.name || ''; plate.classList.remove('squash'); void plate.offsetWidth; plate.classList.add('squash'); } }, D * 0.76));
-  const steps = 8, gap = (D * 0.55) / steps;
-  for (let k = 0; k < steps; k++) window._gpT.push(setTimeout(() => big(() => tone(196, 0.06, 0, 'square', 0.035)), k * gap));   // the bearers' march
-}
-function closeGrand(tapped) {
-  (window._gpT || []).forEach(clearTimeout); window._gpT = [];
-  const o = $('poobah'); o.className = ''; o.innerHTML = ''; grandShown = true;
-  if (tapped && state && state.phase === 'scores' && state.gameOver && state.framedTonight && !state.finale && canRun() && window.ccFinale) { openFinale(); return; }
-  if (state && state.phase === 'scores') render(true);
-}
+// Caption of the Night: the dealer or host opens tonight's Gallery for every phone (after the credits)
 function openFinale() {
-  if (!poobahDone()) { if (typeof showToast === 'function') showToast('The Grand Poobah first…'); return; }   // #21: the Gallery waits for the hat
+  if (window.Ending && Ending.active()) return;
   if (send({ action: 'finale_open' })) { buzz(30); }
 }
 // Caption of the Night: this phone's copy of The Gallery remembers it too (a ribbon on the wall)
@@ -4147,86 +3768,6 @@ function markBestLocally() {
   } catch (err) {}
 }
 
-/* ── End-of-game awards: at most three slides, each meaning one thing ──
-   Deterministic on every phone (the Grand Poobah's timing depends on how many there are):
-   frames only count if they were up when the final scores landed (server clock). */
-let awardsMemo = null;
-function computeAwards() {
-  const key = state.code + '|' + state.round + '|' + state.scoresAt;
-  if (awardsMemo && awardsMemo.key === key) return awardsMemo.list;
-  const h = state.history || [], sharp = {}, moonHit = {}, robbed = {};
-  const tally = (o, k, n = 1) => { if (k) o[k] = (o[k] || 0) + n; };
-  for (const r of h) {
-    const right = (t) => t === 'closed' ? !!r.closedIsCorrect : !!(r.openCaptions[t] || {}).isCorrect;
-    for (const b of r.bets || []) {
-      if (b.target === 'pass') continue;
-      const n = b.count + (b.stolen || 0); if (n < 1) continue;
-      if (right(b.target)) tally(sharp, b.playerId, n);
-      if (b.stage === 1 && n === 2 && right(b.target)) tally(moonHit, b.playerId);
-    }
-    if (r.steal && r.steal.victimId) tally(robbed, r.steal.victimId);
-  }
-  const top = (o) => { const m = Math.max(0, ...Object.values(o)); return m > 0 ? { ids: Object.keys(o).filter(k => o[k] === m && playerById(k)), n: m } : null; };
-  const names = (t) => listNames(t.ids.map(nameOf));
-  const out = [];
-  let t;
-  if ((t = top(sharp)) && t.ids.length) out.push({ icon: 'eye', title: 'Sharpest Eye', who: names(t), line: `${plural(t.n, 'chip')} on the real caption` });
-  if ((t = top(moonHit)) && t.ids.length) out.push({ icon: 'moon', title: 'Moon Shooter', who: names(t), line: `Both chips blind, on the real one${t.n > 1 ? ' — ' + t.n + ' times' : ''}` });
-  // Most Framed: the most frames on one caption tonight (2 or more)
-  const groups = {}, cut = state.scoresAt || Infinity;
-  for (const f of state.allFlags || []) { if ((f.at || 0) > cut) continue; const k = f.round + '|' + f.target; groups[k] = (groups[k] || 0) + 1; }
-  const m = Math.max(0, ...Object.values(groups));
-  if (m >= 2) {
-    const best = Object.keys(groups).filter(k => groups[k] === m).sort().map(k => { const [rd, tg] = k.split('|'); const r = h.find(x => String(x.round) === rd); return r ? { ...capOf(r, tg), image: r.cartoon && r.cartoon.image } : null; }).filter(Boolean);
-    if (best.length) { const n = best.length, tieWord = n === 2 ? 'A tie' : n === 3 ? 'Three-way tie' : `${n}-way tie`;
-      const writers = best.map(c => c.playerId ? nameOf(c.playerId) : 'The real caption').filter((v, i, a) => a.indexOf(v) === i);
-      // #30: every tied caption by one writer is no tie between people: "Two captions, 3 frames each."
-      const line = n === 1 ? plural(m, 'frame') : writers.length === 1 ? `${n === 2 ? 'Two' : n === 3 ? 'Three' : n} captions, ${plural(m, 'frame')} each.` : `${tieWord}. ${plural(m, 'frame')} each.`;
-      out.push({ icon: 'frame', title: 'Most Framed', who: writers.join(' & '), quote: n === 1 ? best[0].caption : null, image: n === 1 ? best[0].image : null, line }); }
-  }
-  // Most Robbed only if there's room: highlights + awards are never more than three slides
-  if ((t = top(robbed)) && t.ids.length) out.push({ icon: 'mask', title: 'Most Robbed', who: names(t), line: `Lost ${plural(t.n, 'chip')} to the dealer` });
-  const list = out.slice(0, 3);
-  awardsMemo = { key, list };
-  return list;
-}
-// award icons: the badge patches badges.js draws, or the house ink
-function awardIcon(k, size) { return k === 'moon' && window.Badges ? window.Badges.icon('moon', size) : inkIcon(k, size); }
-function capOf(r, t) { return t === 'closed' ? { caption: r.closedCaption, playerId: r.closedPlayerId, isCorrect: r.closedIsCorrect } : (r.openCaptions[Number(t)] || {}); }
-function badgesRecapHtml() {
-  if (!window.Badges) return '';
-  const by = {};
-  for (const b of state.gameBadges || []) if (window.Badges.KINDS[b.kind]) for (const id of b.playerIds) (by[id] = by[id] || []).push(b.kind);
-  const ids = Object.keys(by).filter(playerById); if (!ids.length) return '';
-  return `<div class="panel flat" style="margin-top:16px;"><p class="eyebrow" style="margin-bottom:8px;">Tonight’s badges</p>${ids.map(id => `<div class="award-line" style="align-items:center;">${chipHtml(id, 'sm')}<b style="min-width:64px;">${esc(nameOf(id))}</b><span class="bdg-mini">${by[id].map(k => window.Badges.icon(k, 26)).join('')}</span></div>`).join('')}</div>`;
-}
-function awardsRecapHtml() {
-  const a = computeAwards(); if (!a.length) return badgesRecapHtml();
-  return `<div class="panel flat" style="margin-top:16px;"><p class="eyebrow" style="margin-bottom:8px;">Tonight’s awards</p>${a.map(x => `<div class="award-line"><span class="ic">${awardIcon(x.icon, 22)}</span><div><b>${esc(x.title)}</b> · ${esc(x.who)}<br><span class="small">${x.quote ? '“' + esc(x.quote) + '” · ' : ''}${esc(x.line)}</span></div></div>`).join('')}</div>${badgesRecapHtml()}`;
-}
-function playAwards(done) {
-  const list = computeAwards(), o = $('awards');
-  if (!list.length) { done(); return; }
-  // #60: slides keep the server's clock (state.scoresAt, the same instant ceremonyAt() counts from), so every
-  // phone shows the same slide and the Poobah never cuts one short. A late phone joins on the current slide.
-  const start = state.scoresAt ? state.scoresAt + 300 : Date.now() + clockOffset, nowS = () => Date.now() + clockOffset;
-  const behind = Math.floor((nowS() - start) / AWARD_SLIDE_MS);
-  if (behind >= list.length) { done(); return; }
-  let i = Math.max(-1, behind - 1), timer = null;
-  const finish = () => { clearTimeout(timer); o.classList.remove('on'); o.innerHTML = ''; o.onclick = null; done(); };
-  const next = () => {
-    clearTimeout(timer); i++;
-    if (i >= list.length) return finish();
-    const a = list[i];
-    o.innerHTML = `<div class="aw-card" key="${i}"><p class="eyebrow">Award ${i + 1} of ${list.length}</p>${a.image ? `<img class="aw-img" src="/images/${esc(a.image)}" alt="">` : ''}<div class="aw-ic">${awardIcon(a.icon, 56)}</div><div class="h-display aw-title">${esc(a.title)}</div><div class="aw-who">${esc(a.who)}</div>${a.quote ? `<p class="aw-quote">“${esc(a.quote)}”</p>` : ''}<p class="sub">${esc(a.line)}</p>
-      <div class="aw-dots">${list.map((_, k) => `<i class="${k === i ? 'f' : ''}"></i>`).join('')}</div></div><button class="btn-link aw-skip" onclick="event.stopPropagation(); window._awFinish()">Skip to the final scores</button>`;
-    bsfx.swish(); buzz(20);
-    timer = setTimeout(next, Math.max(0, start + (i + 1) * AWARD_SLIDE_MS - nowS()));
-  };
-  window._awFinish = finish;
-  o.classList.add('on'); o.onclick = next;
-  next();
-}
 function playScoresSequence() {
   const key = state.round + '|' + state.code;
   scoresAnimated = key;   // later re-draws show the final numbers
@@ -4234,7 +3775,7 @@ function playScoresSequence() {
     document.querySelectorAll('.score-number').forEach(el => animateCount(el, parseInt(el.dataset.from), parseInt(el.dataset.target), 900));
     document.querySelectorAll('.delta').forEach((el, i) => { el.style.opacity = '0'; setTimeout(() => { el.style.transition = 'opacity .3s'; el.style.opacity = '1'; bsfx.coin(i); }, 900 + i * 120); });
   };
-  if (state.gameOver) { grandShown = false; scheduleGrandPoobah(); playAwards(() => { setTimeout(count, 150); setTimeout(() => { const w = document.querySelector('.fn-win'); if (w && window.ccPunch) window.ccPunch(w); bsfx.tada(); buzz([60, 40, 120]); }, 500); }); }
+  if (state.gameOver) { setTimeout(count, 150); if (window.Ending) Ending.sync(); }   // the ending plays over the final page (ending.js)
   else playScoreboardCount(key);
 }
 

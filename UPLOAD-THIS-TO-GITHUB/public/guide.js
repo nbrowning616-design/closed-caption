@@ -144,7 +144,7 @@
     return null;
   }
   function blocked() {
-    return !!document.querySelector('#stealshow.on, #late-card.on, #awards.on, #poobah.on, #induct.on, #sheet.on, #viewer.on, .gal-ov, #warn.on, #readaloud.on, .fx-root');
+    return !!document.querySelector('#stealshow.on, #late-card.on, #ending.on, #prev.on, #induct.on, #sheet.on, #viewer.on, .gal-ov, #warn.on, #readaloud.on, .fx-root');
   }
 
   var tipEl = null, tipId = null, tipShownAt = 0, hideT = null, pending = null, ticker = null;
