@@ -2621,7 +2621,11 @@ function capNote(i) { return state.myOpenIndex === i ? ' <span class="tag mine">
    No points. Before the answer nobody sees a count (a laugh count would hint at what's real): only your own taps.
    From the answer on, the counts. A tap shows at once here; the server's next state confirms it. ── */
 let rxLocal = {}, frLocal = {}, callLocal = null;
-const rTag = () => state.code + '|' + state.round;
+// A round's tag on this phone: the room, which game in the room (a second game at the same table counts its rounds
+// from 1 again), and the round. Every "played it already" set (the steal show, the flip, the reel's lines, the Late
+// Edition card, the slip) keys on it.
+const gTag = () => state.code + '#' + (state.gameNo || 0);
+const rTag = () => gTag() + '|' + state.round;
 function isMineKey(key) {
   key = String(key);
   if (key === 'closed') return !!state.iWroteClosed || (state.phase === 'reading' && !!state.iWrote && state.myOpenIndex === -1);
@@ -2853,7 +2857,7 @@ function startBlindClock() { clearInterval(blindClockT); blindClockTick(); blind
 // The drop: every chip lands at once, on every phone (state.dropAt + the shared lead). Arrive late: they're just there.
 let dropPlayedFor = null;
 function playDrop() {
-  const key = state.code + '|' + state.round;
+  const key = gTag() + '|' + state.round;
   if (dropPlayedFor === key) return;
   dropPlayedFor = key;
   const sy = window.ccSync ? window.ccSync(state.dropAt) : { wait: 0, late: 0 };
@@ -3018,7 +3022,7 @@ const FLIP_BEATS = { turn: 1000, land: 1460, settle: 2100 };
 let revealDone = new Set(), stealShown = new Set();
 // #8: the steal show plays as the flip screen opens (the card waits for it), on every phone at once
 function playStealIfFresh() {
-  const st = state.steal, key = state.code + '|' + state.round;
+  const st = state.steal, key = gTag() + '|' + state.round;
   if (!st || !st.victimId || !st.at || stealShown.has(key)) return;
   stealShown.add(key);
   const sy = window.ccSync ? window.ccSync(st.at) : { wait: 0, late: 0, stale: false };
@@ -3032,7 +3036,7 @@ function playRevealSequence() {
   const flip = $('reveal-flip'), ctl = $('flip-ctl'), hint = $('reveal-hint'), lead = $('reveal-lead'), riders = $('flip-riders');
   if (!flip) return;
   (window._revealT || []).forEach(clearTimeout); window._revealT = [];
-  const key = state.code + '|' + state.round, B = FLIP_BEATS, RM = !!(window.ccReducedMotion && window.ccReducedMotion());
+  const key = gTag() + '|' + state.round, B = FLIP_BEATS, RM = !!(window.ccReducedMotion && window.ccReducedMotion());
   const sy = window.ccSync ? window.ccSync(state.flipAt || state.phaseAt) : { wait: 0, late: 0 };
   const elapsed = sy.late - sy.wait;   // ms since the shared start (negative: not yet)
   const once = (k) => { if (revealDone.has(key + k)) return false; revealDone.add(key + k); return true; };
@@ -3386,9 +3390,9 @@ function answerContinueHtml(lastRound) {
    the host gets a small 'Take over' instead of a second button. Every tap says which step it was meant for, so two
    taps at once never skip a caption (the server drops the stale one). */
 let reelTook = null;
-const reelDriver = () => !!state && (state.isDealer || state.canTakeover || (canRun() && reelTook === state.code + '|' + state.round));
+const reelDriver = () => !!state && (state.isDealer || state.canTakeover || (canRun() && reelTook === gTag() + '|' + state.round));
 function reelTakeOverHtml() { return canRun() && !reelDriver() ? `<button class="btn-link" style="display:block; margin:8px auto 0; font-size:13px;" onclick="reelTake()">Take over</button>` : ''; }
-function reelTake() { reelTook = state.code + '|' + state.round; render(true); }
+function reelTake() { reelTook = gTag() + '|' + state.round; render(true); }
 function reelSend(action) { send({ action, step: state && state.reel ? state.reel.step : undefined }); }
 // Live updates while the answer is up (who drives, held or running, frames and taps) without replaying the show
 function answerLive() {
@@ -3509,7 +3513,7 @@ const reelPlayed = new Set();
    steal show). A phone more than 2.5s late skips straight to the end state, no stale replay. */
 function playReelStep(fromEntry) {
   const { order, step, n } = reelInfo(), key = order[step - 1];
-  const tag = state.code + '|' + state.round + '|' + step;
+  const tag = gTag() + '|' + state.round + '|' + step;
   const endState = () => { const s = $('spot'); if (s) { s.classList.remove('pending', 'tremble'); if (s.classList.contains('is-real')) s.classList.add('correct'); } };
   if (reelPlayed.has(tag)) { endState(); return; }
   reelPlayed.add(tag);
@@ -3520,7 +3524,7 @@ function playReelStep(fromEntry) {
   const c = capByKey(key), real = c && c.isCorrect;
   const beat = (b) => { if (window.ccBeat) window.ccBeat(b + ':' + step); };
   let timers = [];
-  const still = () => state && state.phase === 'answer' && state.code + '|' + state.round + '|' + (state.reel && state.reel.step) === tag;
+  const still = () => state && state.phase === 'answer' && gTag() + '|' + state.round + '|' + (state.reel && state.reel.step) === tag;
   if (startIn < -(window.ccSync ? window.ccSync.STALE : 2500)) {   // too late: no replay
     endState(); beat(real ? 'real:end' : 'fake:end'); popBadgesFor(key, real, BADGE_AFTER_MS); window._answerGo = null; return;
   }
@@ -3552,15 +3556,15 @@ const BADGE_AFTER_MS = 2700;
 function popBadgesFor(key, real, wait) {
   if (!window.Badges) return;
   const RANK = ['moon', 'three_bagger', 'clean_sweep', 'great_minds', 'pickpocket'];
-  const tag = state.code + '|' + state.round + '|' + (state.reel && state.reel.step);
+  const tag = gTag() + '|' + state.round + '|' + (state.reel && state.reel.step);
   // At most two pops per caption — yours first, then the rarest. The rest sit on the card as chips.
   const list = (state.roundBadges || []).filter(b => RANK.includes(b.kind) && ((String(b.target) === String(key) && !['moon', 'pickpocket'].includes(b.kind)) || (real && ['moon', 'pickpocket'].includes(b.kind))))
     .sort((a, b) => (b.playerIds.includes(myPlayerId) - a.playerIds.includes(myPlayerId)) || RANK.indexOf(a.kind) - RANK.indexOf(b.kind)).slice(0, 2);
-  setTimeout(() => (state && state.phase === 'answer' && state.code + '|' + state.round + '|' + (state.reel && state.reel.step) === tag) && list.forEach(b => window.Badges.pop({ kind: b.kind, who: b.playerIds.map(nameOf), line: badgeLine(b), mine: b.playerIds.includes(myPlayerId) })), wait);
+  setTimeout(() => (state && state.phase === 'answer' && gTag() + '|' + state.round + '|' + (state.reel && state.reel.step) === tag) && list.forEach(b => window.Badges.pop({ kind: b.kind, who: b.playerIds.map(nameOf), line: badgeLine(b), mine: b.playerIds.includes(myPlayerId) })), wait);
 }
 let recapPlayed = null;
 function onReelRecap() {
-  const tag = state.code + '|' + state.round + '|' + (state.cartoon && state.cartoon.id);
+  const tag = gTag() + '|' + state.round + '|' + (state.cartoon && state.cartoon.id);
   if (recapPlayed === tag) return;
   recapPlayed = tag;
   big(() => [523, 659, 784].forEach((f, i) => tone(f, 0.2, i * 70, 'triangle', 0.05)));
@@ -3741,7 +3745,7 @@ function syncLate() {
   const L = state && state.late;
   const due = L && state.phase === 'writing' && state.round === L.from;
   if (!due) { if ($('late-card') && $('late-card').className) closeLate(); return; }
-  const key = state.code + '|' + state.round + '|' + L.from + '|' + (state.history || []).length;
+  const key = gTag() + '|' + state.round + '|' + L.from + '|' + (state.history || []).length;
   if (lateShown === key) return;
   lateShown = key;
   const left = (state.phaseAt || 0) + (L.ms || 3500) - (Date.now() + clockOffset);
@@ -3816,7 +3820,7 @@ function oddOrder() {
 }
 function nextNudge() {
   const b = $('nudge-box'); if (!b) return;
-  const tag = state && state.code + '|' + state.round + '|' + (state.cartoon && state.cartoon.id);
+  const tag = state && gTag() + '|' + state.round + '|' + (state.cartoon && state.cartoon.id);
   if (oddFor !== tag) { oddFor = tag; oddN = 0; }
   const odd = oddOrder();
   let text;
@@ -4177,7 +4181,7 @@ const slipFiled = {}; let slipWaitT = null;
 function syncSlip() {
   const mine = (state.slips || []).find(x => x.writerId === myPlayerId);
   if (!mine) return;
-  const k = state.code + '|' + state.round + '|' + mine.target;
+  const k = gTag() + '|' + state.round + '|' + mine.target;
   if (slipShown.has(k)) return;
   if (!(k in slipFiled)) slipFiled[k] = slipSave({ ...mine, code: state.code });   // filed in the Rejections drawer at once
   const fresh = slipFiled[k], n = slipsGet().length;

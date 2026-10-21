@@ -2455,6 +2455,7 @@ function getPlayerView(game, playerId) {
     const odd = game.phase === PHASES.WRITING && (CARD_META[String(game.cartoon.id)] || {}).odd;
     if (Array.isArray(odd) && odd.length) base.cartoonOdd = odd.filter(o => o && typeof o.q === 'string' && Number.isFinite(+o.x) && Number.isFinite(+o.y) && Number.isFinite(+o.r)).slice(0, 12).map(o => ({ q: String(o.q).slice(0, 120), x: Math.max(0, Math.min(100, +o.x)), y: Math.max(0, Math.min(100, +o.y)), r: Math.max(3, Math.min(35, +o.r)) }));
   }
+  base.gameNo = game.gameNo || 0;   // which game in this room (a second game counts its rounds from 1 again)
   base.note = game.note ? { ...game.note } : null;   // R22 the Editor's note (every phone, the whole round)
   base.kids = game.startedFamily ? { inBed: !!game.kidsInBed, card: game.kidsCard ? { ...game.kidsCard } : null } : null;   // R16
   if (game.opening && game.round === 1 && game.phase === PHASES.WRITING) base.opening = JSON.parse(JSON.stringify(game.opening));

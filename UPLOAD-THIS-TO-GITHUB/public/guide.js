@@ -104,7 +104,7 @@
   function checkNudge(st) {
     var p = lastWriter(st);
     if (!p || p.id !== me() || st.hasSubmitted) return;
-    var k = st.code + '|' + st.round + '|' + (st.cartoon && st.cartoon.id);
+    var k = st.code + '#' + (st.gameNo || 0) + '|' + st.round + '|' + (st.cartoon && st.cartoon.id);
     if (nudged[k]) return;
     nudged[k] = 1;
     showNudge(serverWait(st, p.id));
