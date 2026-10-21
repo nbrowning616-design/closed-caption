@@ -336,7 +336,7 @@
   function next(i) {
     if (local) {
       var e = local.e, c = beatNow(e, now());
-      if (e.beats[c.i].k === 'cast') { local = null; close(); try { render(true); } catch (x) {} return; }
+      if (e.beats[c.i].k === 'cast' || e.beats[c.i].k === 'final') { local = null; close(); try { render(true); } catch (x) {} return; }
       e.step = c.i + 1; e.stepAt = now(); sync(); return;
     }
     vib(15);
@@ -348,7 +348,7 @@
     if (last) {
       var s = S(), fr = s && s.framedTonight;
       if (local) return '<div class="en-foot"><button class="btn btn-yellow en-go" onclick="Ending.next(' + c.i + ')">Done</button></div>';
-      if (run()) return '<div class="en-foot"><button class="btn btn-yellow en-go" onclick="Ending.next(' + c.i + ')">' + (fr && !(s.finale) ? 'Caption of the Night →' : 'Final scores →') + '</button></div>';
+      if (run()) return '<div class="en-foot"><button class="btn btn-yellow en-go" onclick="Ending.next(' + c.i + ')">' + (b.k !== 'final' && fr && !(s.finale) ? 'Caption of the Night →' : 'Final scores →') + '</button></div>';
       var who = s ? first(s.dealerName || nameOfId(s.hostId)) : '';
       return '<div class="en-foot"><p class="en-who">' + E(who) + ' moves things along<span class="dots"></span></p></div>';
     }
@@ -365,10 +365,11 @@
     else if (b.k === 'winner') html = winnerHtml(e);
     else if (b.k === 'awards') html = awardsHtml(e);
     else if (b.k === 'credit') html = creditHtml(e, b, c);
+    else if (b.k === 'final') html = finalHtml(e);
     else html = castHtml(e);
-    o.innerHTML = '<div class="en-in">' + html + '</div>' + footHtml(e, c, b, b.k === 'cast');
+    o.innerHTML = '<div class="en-in">' + html + '</div>' + footHtml(e, c, b, b.k === 'cast' || b.k === 'final');
     o.scrollTop = 0;
-    o.onclick = function (ev) { if ((run() || local) && b.k !== 'cast' && !(ev.target.closest && ev.target.closest('button'))) next(c.i); };
+    o.onclick = function (ev) { if ((run() || local) && b.k !== 'cast' && b.k !== 'final' && !(ev.target.closest && ev.target.closest('button'))) next(c.i); };
     if (b.k === 'credit') freeze(c);
     sound(b.k, fresh);
     try { var f = o.querySelector('.en-in'); if (f && f.focus) { f.setAttribute('tabindex', '-1'); f.focus({ preventScroll: true }); } } catch (x) {}
@@ -466,6 +467,12 @@
     if (v.record) line += ' A new best for this table.';
     else if (v.best) line += ' This table’s best: ' + v.best.table + ' to ' + v.best.cartoonist + '.';
     return line;
+  }
+  /* cut 5: a game that isn't the night's last ends on the scores (the credits wait for "Call it a night") */
+  function finalHtml(e) {
+    var sc = e.scores || {}, ids = Object.keys(sc).sort(function (a, b) { return sc[b] - sc[a]; });
+    var rows = ids.map(function (id) { return '<li>' + chip(id) + '<span class="nm">' + E(nameOfId(id)) + '</span><span class="pt">' + (sc[id] || 0) + '</span></li>'; }).join('');
+    return '<div class="en-st"><p class="en-eye">Final scores</p><ol class="en-read">' + rows + '</ol></div>';
   }
   function castHtml(e) {
     var rows = (e.cast || []).map(function (p, i) { return '<li style="animation-delay:' + (0.1 + i * 0.12) + 's"><span class="n">' + E(p.name) + (p.absentia ? '<span class="ab">(in absentia)</span>' : '') + '</span><span class="lead" aria-hidden="true"></span><span class="r">' + E(p.role) + '</span></li>'; }).join('');
@@ -570,8 +577,9 @@
     if (left < 600) return;
     var o = document.getElementById('lastcall');
     if (!o) { o = document.createElement('div'); o.id = 'lastcall'; o.setAttribute('role', 'status'); document.body.appendChild(o); }
-    o.innerHTML = '<p>Last call. One more trip around.</p>'; o.className = 'on'; o.onclick = function () { o.className = ''; };
-    say('Last call. One more trip around.');
+    var lcLine = L.more === false ? 'Last call. This trip around is the last.' : 'Last call. One more trip around.';
+    o.innerHTML = '<p>' + lcLine + '</p>'; o.className = 'on'; o.onclick = function () { o.className = ''; };
+    say(lcLine);
     snd(function () { tone(523, 0.35, 0, 'triangle', 0.04); tone(392, 0.6, 220, 'triangle', 0.04); });
     clearTimeout(lcT); lcT = setTimeout(function () { o.className = ''; }, left);
   }
