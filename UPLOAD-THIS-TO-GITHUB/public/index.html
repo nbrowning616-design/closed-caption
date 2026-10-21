@@ -3400,7 +3400,7 @@ function renderRecap() {
     const why = pointReasons(pid);
     return `<li class="rc-row${pid === myPlayerId ? ' me' : ''}">${chipHtml(pid, 'sm')}<span class="rc-who"><b>${esc(pid === myPlayerId ? 'You' : nameOf(pid))}</b>${why.length ? `<span class="rc-why">${why.map(w => `<span>${esc(w)}</span>`).join('')}</span>` : ''}</span><span class="rc-plus">+${p}</span></li>`;
   }).join('');
-  const t = state.tvc || {}, tvc = state.tvcRound ? `<p class="rc-tvc">The table ${t.table || 0}, the cartoonist ${t.cartoonist || 0}.</p>` : '';
+  const t = state.tvc || {}, best = state.tvcRound ? tvcBest() : null, tvc =state.tvcRound ? `<p class="rc-tvc">The table ${t.table || 0}, the cartoonist ${t.cartoonist || 0}.${tvcBestNote(best)}</p>` : '';
   return `${header({ sticker: '<span class="sticker teal">Round recap</span>', thumb: false })}
     <div id="answer-root" class="done">
     ${page}
@@ -3458,6 +3458,26 @@ function pointReasons(pid) {
 }
 function isLastRound() {
   return state.totalRounds ? state.round >= state.totalRounds : false;   // (#37 first to N: once someone's there, the trip around the table is counted out)
+}
+/* R10 The table's best game against the cartoonist, kept on this phone (cc_table_best): the biggest lead in blind
+   laughs, more laughs breaking a tie. This game's tally is saved at every recap (so it doesn't wait for the end of the
+   night); only this game and the best other one are kept. Returns { cur, best, mine } or null. */
+function tvcBest() {
+  const t = state && state.tvc; if (!t || !t.game) return null;
+  let saved = {}; try { saved = JSON.parse(localStorage.getItem('cc_table_best') || '{}') || {}; } catch (e) { saved = {}; }
+  const cur = { table: t.table || 0, cartoonist: t.cartoonist || 0, at: Date.now() };
+  const lead = (r) => (r.table - r.cartoonist) * 1000 + r.table;
+  const others = Object.entries(saved).filter(([g, r]) => g !== t.game && r && r.table > r.cartoonist).sort((a, b) => lead(b[1]) - lead(a[1]));
+  const keep = {}; if (others[0]) keep[others[0][0]] = others[0][1];
+  if (cur.table > cur.cartoonist) keep[t.game] = cur;
+  try { localStorage.setItem('cc_table_best', JSON.stringify(keep)); } catch (e) {}
+  const prev = others[0] ? others[0][1] : null;
+  return { cur, best: prev, mine: cur.table > cur.cartoonist && !!prev && lead(cur) > lead(prev) };
+}
+function tvcBestNote(b) {
+  if (!b || !b.best) return '';
+  if (b.mine) return ' The table’s best on this phone.';
+  return isLastRound() ? ` Best on this phone: the table ${b.best.table}, the cartoonist ${b.best.cartoonist}.` : '';
 }
 function answerContinueHtml(lastRound) {
   const label = lastRound ? 'Final scores →' : 'Scoreboard →';

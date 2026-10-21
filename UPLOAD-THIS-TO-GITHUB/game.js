@@ -2536,7 +2536,7 @@ function getPlayerView(game, playerId) {
   }
   // R10 / R8: the blind-laugh score and this round's odds line (from the answer on)
   if (ANSWERED.includes(game.phase)) {
-    base.tvc = { ...(game.tvc || { table: 0, cartoonist: 0, draws: 0 }) };
+    base.tvc = { ...(game.tvc || { table: 0, cartoonist: 0, draws: 0 }), game: game.code + '-' + (game.gameNo || 0) };   // game: which game this tally belongs to (phones keep the table's best)
     base.tvcRound = game.tvcRound ? { ...game.tvcRound } : null;
     base.odds = game.odds && game.odds.round === game.round ? { ...game.odds } : null;
   }
