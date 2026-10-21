@@ -482,3 +482,20 @@ buttons 3 (360x640), 4, 5 (reload mid-bet, phone closed mid-writing), 8 phones x
 a11y all clear; zero page errors. Deck checked: 389 cards, every image and card_meta entry present.
 Left: credit epilogues are 17–32 words (target ~20; copy work); the night's first framing ceremony covers the reel buttons
 ~5–10 s (closes itself); scoreboard not merged into the recap.
+
+## END OF THE NIGHT: CREDITS SCRAPPED → "DID YOU KNOW?" (Nick, Oct 21 2026, night)
+- Scrap the end credits and the cast list. The night ends with Caption of the Night.
+- New: a brief intermission "Did you know?", like the between-innings facts at a ballgame, styled as an old-school 1980s
+  TV public-service announcement (our own look and sound; no real network's slogan, star or jingle). Plays BETWEEN GAMES:
+  once after each game, 2–3 facts about the players, ~15 s (dealer tap to move on). At the night's end it plays where the
+  credits were, then Caption of the Night.
+- Tone (Nick rated 10 samples):
+  LOVE — absurd consequence of real play ("Based on tonight's lying, John could sell you the Brooklyn Bridge. He already
+  sold Dottie two."); fake study ("Studies show people who bet on their own caption also clap when the plane lands. Bob,
+  three times tonight."); backhand for the leader ("Nick is winning. His family has been informed and is taking it well.");
+  career advice from a stat ("With a lying rate of 64%, John now qualifies for a career in real estate."); fake record
+  ("Before tonight, nobody had ever fallen for the same person three rounds in a row. Thank you, Margaret."); dry
+  non-sequitur ("Dottie hasn't blinked since round two. We're choosing not to ask.").
+  GOOD — roast for last place ("Bob is in last place, but he's in last place with real conviction.").
+  NO — a plain sports stat jab ("found the real caption zero times. A club record."); compliment-then-sting about
+  captions ("funniest captions… nobody believed one"); the cartoonist as a character ("has asked for privacy").
