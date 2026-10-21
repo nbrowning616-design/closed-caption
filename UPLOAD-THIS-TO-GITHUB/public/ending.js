@@ -93,7 +93,7 @@
     '.en-cl li{display:flex;align-items:baseline;gap:6px;font-family:var(--serif);font-size:18px;line-height:1.5;color:#FFF8EA;animation:enFade .5s ease-out both;}',
     '.en-cl .n{flex:none;max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
     '.en-cl .lead{flex:1;border-bottom:1.5px dotted rgba(243,235,221,.4);transform:translateY(-5px);min-width:14px;}',
-    '.en-cl .r{flex:none;font-style:italic;color:#CFC4B2;max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+    '.en-cl .r{flex:none;font-style:italic;color:#CFC4B2;max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:.18em;}',   /* (room for the italic's last letter) */
     '.en-cl li.mk{margin-top:6px;}',
     '.en-monkey{display:flex;align-items:center;gap:12px;margin:22px auto 0;max-width:340px;text-align:left;animation:enFade .6s ease-out both;}',
     '.en-monkey svg{flex:none;}',
