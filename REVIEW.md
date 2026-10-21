@@ -252,3 +252,150 @@ R22 CHANGED by Nick — Editor's-note rounds: (a) exact word count = real captio
 NO: R4, R6, R7, R9 (no envelope, no superlatives: "too corny, too gimmicky"), R12, R13 cross-examination, R14 footnotes, R19 private tells, R20 ledger,
 R21 reading voices, R23 journal-article recap, R24 passing the reading around, R25 acceptance speech, R26 sitcom night titles, R27 house laws, R29 humor matches.
 Round 3 of ideas requested (Oct 20); same rule: only ideas most of 5 judges call award-worthy.
+
+## STATUS (Oct 21 2026) — build-round: the ROUND items (branch build-round, not merged, not pushed)
+Everything from writing to the scoreboard. The END OF NIGHT (finale, awards, credits, trophy, verdicts) is another branch.
+- #39 lines: `public/lines.js` (122 pools, ~590 lines: the comedy pass's stock lines by situation plus the Round 2 pools).
+  The server picks every line (game.js `pickLine`), every phone shows the same one, and nothing repeats in a night until
+  its pool is used up. Gloats about the steal come only after the reveal; during the steal, nothing hints whether the chip
+  was on the real caption. Rebuilt by scratchpad `rb/build_lines.py`.
+- #18 the flip: a held second, then the face-down card turns on every phone at once (server-timed), one card-flip sound,
+  the blind chips on it light up. #6: the flip moves on by itself after ~6.5 s, and the reveal reel moves on by itself
+  (~3-5 s a caption, ~5 s for the real one). The dealer can hold, go back, or skip to the recap; if the dealer is away
+  the host can. The red "You stole…" banner is gone.
+- #5 Frame It: a small frame button on each caption once it's been shown on the reveal (no separate screen, no limit,
+  same majority rule). The night's first frame gets the full framing moment on every phone (the recap's Scoreboard
+  button waits for it); later frames get a ~3 s plaque.
+- #26 Ha / Groan on every caption while it's read and revealed. No points. Counts appear only after the answer.
+  Kept per caption in the game record.
+- New steal (6 hand-drawn thieves, `public/thieves.js`, built from scratchpad anim/src): the full show (~6.5 s) for the
+  night's first steal, then about 1 in 4 at random (never because of where the chip was), else ~2 s. The closing
+  caption is held ~2.5 s. The old heists (heists.js) are deleted. Skip gags: 50 hand-drawn gags (`public/skips.js`,
+  ~440 KB, fetched once a phone has a seat). The server deals the gag so every phone plays the same one on the same beat.
+- R1 rejection slips: a fake caption with no chips and 3+ Groans. A slip "from The Editors" goes to its writer's phone
+  (25 form lines), plus a Rejections drawer in the menu with a running count (localStorage cc_rejections).
+- R8 odds: one line, only for events rarer than 1 in 20 (true odds from the rules and the table size), at most once a game.
+- R10 table vs. the cartoonist: blind Ha taps (before the answer) decide each round, one line on the reveal, the tally
+  ("The table 6, the cartoonist 3.") on the recap and in the record. Each phone keeps the table's best game
+  (localStorage cc_table_best).
+- R11 call your shot: after locking in, secretly name one person. +3 (doubled in the Late Edition) if they bet on your
+  caption; 16 hit and 16 miss lines (sharper set, Oct 21).
+- R15 nudges: the first taps on "Need a nudge?" circle an odd detail in pencil, with its question (card_meta "odd",
+  shuffled per phone). Then the general tips. Cards without "odd" go straight to the tips.
+- R22 Editor's notes: "Exactly N words." (N = the real caption's length) every 6-8 turns; "Must use the word: X." about
+  1 in 10-12 (only if card_meta "word" is really in that card's caption). Never both, never on the first two cards of a
+  night. The caption box shows whether yours fits, and one that doesn't can't be locked in. Word count: split on spaces,
+  punctuation stripped, hyphenated = one word.
+- R16 "The kids are in bed" (host menu, only for games started on Family): the full deck from the next deal (family
+  off, spicy on), with one quiet card on every phone. "One came back down": Family again at once, and a grown-up cartoon
+  nobody has written for yet is swapped. The setting carries into the next game in the room.
+- Card data: "odd" and "word" go to phones only for the card being written (never before it's dealt, never the list).
+  No house decoys exist yet, so the note's decoy rule has nothing to apply to.
+- No TV screen exists on this branch. The flip/reel timing is in the room state, ready for one.
+- For the end of night: `game.record` = { captions: [{round, target, writerId, writer, caption, ha, groan, haBlind,
+  chips, framed}], real: [{round, ha, groan, haBlind}], table: {table, cartoonist, draws}, rejections: [...],
+  calls: [{round, callerId, calledId, hit, pts}], odds }. Also each history entry: reacts, calls, tvc, odds, slips, frames.
+  Sent to phones from the answer on.
+- Tested (Playwright, 390x844, full games): 3 phones (Family, kids to bed and back down), 5 phones (a skip gag, a
+  rejection slip on its writer's phone only), 8 phones (a rejection slip, an Editor's note round). All pass (41-42
+  checks a run): the flip and reel move on by themselves
+  and holds work, no Ha/Groan counts before the answer, the thief on stage, the flip waits for the show, frames on the
+  reveal (full, then a plaque), called-shot lines, pencil circles, lines from the server, recap reasons add up, no page
+  errors, clean server log. Rounds at 5 phones take ~70-90 s. Unit checks (rules, lines, notes, kids, odd data): all pass.
+  tools/a11y_check.js: all clear.
+
+## STATUS (Oct 21 2026) — END OF THE NIGHT: branch build-night (not merged, not pushed)
+- #12 trimmed finale, one overlay every phone plays together from the server clock (night.js works it out once at game
+  over; public/ending.js draws it): the WINNER (each player's rating change on one line, the Remote changing hands) →
+  ONE AWARDS SLIDE → END CREDITS → the CAST LIST → Caption of the Night. ~players × 6.5 s + ~15 s. The dealer/host
+  taps on (or it moves by itself); the cast list's tap opens Caption of the Night. "Watch the credits again" and
+  "Save your credit" on the final page. The verdicts screen is gone: each verdict line is the pull quote on its credit (#14).
+- END CREDITS: a freeze-frame per player (their best caption tonight on its cartoon, the name in a closed-caption box),
+  the epilogue (credits.js: Nick's 9–10 samples given the opening clause his rule asks for + the 150-line pool, 25
+  triggers), the verdict as a pull quote. Every trigger is computed from the game record (submission order and skip
+  votes are logged by night.js); each player gets their most distinctive trigger, no two alike when it can be helped;
+  Family games use family lines only; no line comes back for any phone at the table (seen-line hashes, like verdicts).
+  Credits roll from last place up; the winner's is last. THE MONKEY: a seeded random bettor every round, same chip
+  rules; if anyone found the real caption fewer times than it did (over the same rounds), one line + an ink chimp with
+  a dart under the cast list, and "The monkey ... Himself" in the cast.
+- #27 the one awards slide: Best Lie (quoted, who fell for it), Best Liar (what the hat measured), Nobody Bit (quoted,
+  gently: framed ones first), Most Groans (only with groan tallies), Sharpest Eye if there's room; max 4.
+- THE REMOTE replaces the Grand Poobah everywhere (screens, copy, sound, badge art, rules, demo note, recap picture:
+  its second card is Best Liar now). Inline ink drawing: a boxy 1980s remote, one CC button, masking tape on the battery
+  cover. Lobby: "Dottie has the Remote." (+ "Two straight." / "…isn't here to defend it."); tap to read the tape (every
+  winner's name and date). Winner beat: "First game at this table. The remote goes to…", "Bob, hand over the remote.",
+  "Retained. Nobody touches the remote.", joint custody for ties. Each phone keeps cc_tables (holder, tape, first
+  cartoon, games, a short summary of the last game); a table = most of tonight's names played its last game; phones send
+  the records that fit, the most recent wins; the room also keeps its own after "Deal again".
+- R3 PREVIOUSLY ON CLOSED CAPTION (round 1, a returning table, instead of the rating card; writers get the 10 s back):
+  last time's winner, last time's Caption of the Night small under its cartoon (left out in Expert games), one grudge
+  (22 templates from the last game's facts, only about people here tonight), "And now, the rematch." Extra continuity:
+  the table's anniversary shows its first cartoon ("It has not gotten easier."), once a year; the Remote's streak.
+- R10 read from the round branch: the cast list says "The table 6, the cartoonist 3." and keeps the table's best night.
+- R18 SEALED SCORES: from the Late Edition's first deal, phones get the totals as they stood when it began; the
+  scoreboard says "Scores are sealed until the end." + your own points with reasons (the recap still lists everyone's
+  points with reasons). The ending then opens with the standings read from last place up, one name a beat (2.8 s), then
+  the top two held together (3.6 s) before the winner. (No TV screen exists on this branch; the view carries `sealed`.)
+- R28 HEADING OUT (menu, with a confirm): your own credit plays now from your play so far, with Save the card (a
+  1080×1350 picture); the table hears "Bob has left the building."; the seat leaves the turn order at once (past the
+  45 s grace; host passes on); at the end the credit is read with everyone else's, "in absentia" (cast list too).
+- R30 LAST CALL (host's menu, with a confirm): the next trip around the table is the last one — the Late Edition,
+  sealed — then the winner and the credits. Every phone shows "Last call. One more trip around."
+- Tested (Playwright, 390×844): full games, then a second game at the same table: 3 phones Standard, 3 phones Family
+  twice around, 5 phones Family, 5 phones After Dark twice around, 8 phones After Dark (54–79 checks each, all pass:
+  beats, one awards slide, a credit per player, no repeated trigger or line, family lines only, no line back from the
+  first game, the cast list's tap → Caption of the Night, the lobby Remote and its tape, the cold open on every phone
+  with the time given back, retained/handover lines, axe on the lobby, the Remote sheet and the cold open). Edges: the
+  newest table record wins, the anniversary, a late joiner's credit, a phone reloaded mid-credits (same beat), a server
+  restart mid-credits (back in the ending), the table record after (8/8). Late game: Last Call, heading out (own credit,
+  saved card, "left the building", Done → Home), sealed scoreboards, standings from the bottom, in absentia, axe on all
+  of them (19/19). tools/a11y_check.js plays to game over now and checks the winner, awards, a credit and the cast: all clear.
+- MERGING WITH build-round (dry run, nothing touched): 12 small conflicts. game.js: scoresAt line (keep their
+  scoreLines call, drop the Poobah comment), awardBadges (keep their badge lines, drop the Poobah comment), exports (no
+  closeVerdicts; they dropped moveToFraming). server.js: the seal tag (theirs + `game.ending` step/done, lastCall,
+  departed count). index.html: the verdicts CSS (drop it, keep their round CSS), render()'s scores cleanup and
+  afterRender's game-over line (take night's Ending calls, keep their additions), renderFinal (night's). guide.js
+  blocked(): union (their #boom.on, #rd-slip.on + #ending.on, #prev.on; no #awards/#poobah). fx.js: keep night's
+  comment. a11y_check.js: their round steps + night's play-to-game-over ending checks. After merging, check: their
+  round stamp stays off a sealed scoreboard, and Most Groans / Nobody Bit read history[r].reacts.
+
+## STATUS — merged build (Oct 21 2026): branch merge-all = main + build-round + build-night (not pushed)
+- IN: everything in the two sections above. The round: auto flip and reel, Ha/Groan, frames on the reveal, called
+  shots, rejection slips, odds lines, the table vs. the cartoonist, the hand-drawn steal, 50 skip gags, pencil-circle
+  nudges, Editor's notes, "The kids are in bed". The end of the night: the winner, one awards slide, end credits, the
+  cast, the monkey, Caption of the Night, the Remote (no Grand Poobah text left anywhere), Previously on, sealed Late
+  Edition with standings read last to first, Heading out, Last Call. Plus sharper called-shot lines (16 hit, 16 miss).
+- MERGE: the 12 conflicts went as night's guide said, both sides kept. a11y_check.js plays the new round, then to
+  game over through the ending.
+- FIXED ON THE MERGED BUILD:
+  - Sealed Late Edition leaks: the round winner's stamp line ("Takes the lead") still reached every phone in the
+    sealed view, and the last writer's line could say "has a lead to protect" from the live totals. Both are kept out
+    while sealed. The sealed board also keeps the round's slip notes and the next-dealer line.
+  - The last round's rejection slip popped over the standings/winner at game over. It is filed at once and slides in
+    after the ending (and after Caption of the Night's show).
+  - Last Call: the Late Edition card showed the round's stock banner instead of "Last call."
+  - A second game at the same table skipped the steal show, the flip's beats, the Late Edition card and (with the
+    same caption) the slip, wherever game 1 had one: the phones keyed "already played" by room + round. The view now
+    carries gameNo and those keys include it. (This was already true before the merge.)
+  - First-game tips also wait for the own-credit, Last Call and kids cards. README: the end of the night.
+- CHECKED: Most Groans and the credits read the round's own record (history[r].reacts): each player's groans in the
+  credits = the record's, Ha counts on the freeze-frames = the record's, framed captions agree, Most Groans goes to
+  the most-groaned writer with the right count. No repeats in a night: credit lines, Previously-on grudges (4 games at
+  one table), called-shot lines (none until a pool of 16 is used up; a room dealt from the old 10-line pools starts a
+  fresh deck; the deck survives a restart).
+- TESTED (Playwright, 390x844, through the real buttons; test scripts in the session scratchpad merge/, not kept):
+  3 phones Family twice around, 2 games (kids to bed and back down, sealed Late Edition, a reload mid-reel, a reload
+  mid-credits, Previously on, Caption of the Night): 108/108. 4 phones Standard (Last Call after round 1, Dee heads out
+  in round 2 with her credit saved, a reload mid-reel, a server restart mid-reveal, sealed scoreboards, standings from
+  the bottom, in absentia): 65/65. 5 phones After Dark twice around (a skip gag, a slip, a phone closed 26 s and
+  back, a reload mid-bet, a server restart mid-reveal, sealed Late Edition): 66/66. 8 phones After Dark, 2 games
+  (both Editor's notes, word count and must-use word, Lock it in waits until it fits; called shots; a slip in each
+  game; reloads mid-reel and mid-credits; Previously on): 101/101 (an earlier 8-phone Standard run found the game-2
+  slip bug above). Every run: the ending through Caption of the Night, Most Groans checked against the record.
+  Bot runs: end of the night at 3/5/8 phones x 2 games (63, 69, 81 checks), Last Call/heading out/sealed (21), edges
+  (anniversary, newest table record, late joiner's credit, reload and restart mid-credits: 8), the last round's slip
+  (7). Unit checks: round rules (37+44), call lines (13), end-of-night record/sealed/no-repeat (150-950 per run).
+  tools/a11y_check.js: all clear. Zero page errors, clean server logs.
+- NOT DONE / NOTES: no TV screen yet (the flip/reel timing and `sealed` are in the view, ready for one). The night's
+  first frame gets the full ceremony once a night, so game 2's frames get the plaque (by design). Editor's notes can
+  land on round 1 of a second game (the "not the first two cards" rule counts the night). Not pushed.

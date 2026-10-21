@@ -69,7 +69,7 @@
     Object.defineProperty(window, '_gameAudio', { configurable: true, get: function () { return ga; }, set: function (v) { ga = wire(v); } });
     if (ga) wire(ga);
   } catch (e) {}
-  // Dip the whole mix by db for ms (then back over half a second). The Grand Poobah's reveal uses -6 dB.
+  // Dip the whole mix by db for ms (then back over half a second).
   function duck(db, ms) {
     var c = window._gameAudio; if (!c || !c.__ccOut) return;
     try {

@@ -11,10 +11,12 @@
 //   4. STEAL        The dealer may take one chip off the table, before the face-down card flips.
 //   5. REVEAL       The Closed Caption is turned face-up (flipAt: after the steal show).
 //   6. SECOND_BETS  Anyone holding a chip places it, one at a time — anywhere, even on the same caption.
-//   7. ANSWER       The real caption is shown and points are paid (double in The Late Edition).
-//   8. FRAMING      "Anything frame-worthy?" Everyone secretly picks one caption (not their own) or passes.
-//                   Enough picks on one caption and it's framed: it hangs in The Gallery.
-//   9. SCORES       Scoreboard; the deal moves left.
+//   7. ANSWER       The reveal reel (it moves on by itself; the dealer can hold it or go back), then the recap.
+//                   Frame It lives here (#5): a small frame on each fake once it's revealed; when most of the
+//                   other players frame one, it's framed on the spot and hangs in The Gallery. 'Ha' and 'Groan'
+//                   on every caption (#26), from the reading on. Points are paid (double in The Late Edition).
+//   8. SCORES       Scoreboard; the deal moves left.
+//   (FRAMING, the old Frame It screen, is gone; a room restored in it comes back on the recap.)
 
 const PHASES = {
   LOBBY: 'lobby',
@@ -464,70 +466,92 @@ function syncGallery(game, entries) {
 
 const MAX_PLAYERS = 8;
 
-// Shown on everyone's screen when the table votes a cartoon off
-const MULLIGAN_QUIPS = [
-  'Thank you for your submission.',
-  'The table has spoken.',
-  'Noted, and declined.',
-  'The cartoonist has been informed.',
-  'Politely, firmly, no.',
-  'Into the shredder it goes.',
-  'Not even the artist liked that one.',
-  'Cartoon fired. Security will walk it out.',
-];
-// How the rejected cartoon meets its end (every phone plays the same one)
-const EXECUTIONS = ['punch', 'tear', 'fire', 'flush', 'stomp', 'shred'];
+/* ── Round lines (#39): every stock line comes from public/lines.js, picked here so every phone shows the same one.
+   A room deals each pool like a deck for the whole night (across games): no line repeats until its pool is used up.
+   pickLine(game, keys, vars): the first key whose deck still has an unseen line tonight wins (a small special pool,
+   once used up, falls through to the next, more general one); the last key reshuffles when it runs out. ── */
+let LINES = {};
+try { LINES = require('./public/lines.js') || {}; } catch (e) { console.error('lines.js failed to load', e); LINES = {}; }
+function fillLine(t, vars) {
+  return String(t).replace(/\{(\w+)\}/g, (m, k) => (vars && vars[k] !== undefined && vars[k] !== null ? String(vars[k]) : m));
+}
+function pickLine(game, keys, vars, perKey) {
+  const list = (Array.isArray(keys) ? keys : [keys]).map((k, i) => ({ k, v: (perKey && perKey[i]) || vars })).filter(x => Array.isArray(LINES[x.k]) && LINES[x.k].length);
+  if (!list.length) return '';
+  const deck = game.lineDeck || (game.lineDeck = {});
+  for (let i = 0; i < list.length; i++) {
+    const k = list[i].k, pool = LINES[k], last = i === list.length - 1;
+    vars = list[i].v;
+    let d = Array.isArray(deck[k]) ? deck[k].filter(x => Number.isInteger(x) && x >= 0 && x < pool.length) : null;
+    if (d && deck[k + '#'] !== pool.length) d = null;   // the pool was edited since this room started dealing it
+    if (!d) d = shuffleArray(pool.map((_, j) => j));
+    else if (!d.length) {
+      if (!last) { deck[k] = d; continue; }   // used up tonight: the next, more general pool
+      d = shuffleArray(pool.map((_, j) => j));
+      if (d.length > 1 && d[0] === deck[k + '^']) d.push(d.shift());   // a fresh shuffle never opens with the last one
+    }
+    const j = d.shift();
+    deck[k] = d; deck[k + '#'] = pool.length; deck[k + '^'] = j;
+    return fillLine(pool[j], vars);
+  }
+  return '';
+}
+// One line per slot per round (game.lines is cleared when a round is dealt)
+function roundLine(game, slot, keys, vars) {
+  const L = game.lines || (game.lines = {});
+  if (L[slot] === undefined) L[slot] = pickLine(game, keys, vars);
+  return L[slot];
+}
+const first1 = (name) => (String(name || '').trim().split(/\s+/)[0]) || String(name || '');
+const ordinal = (n) => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+const nameList = (names) => names.length <= 1 ? (names[0] || '') : names.length === 2 ? `${names[0]} & ${names[1]}` : `${names.slice(0, -1).join(', ')} & ${names[names.length - 1]}`;
+// How the skipped cartoon meets its end: one of 50 hand-drawn gags (public/skips.js, CCMulligan; Nick, Oct 21 2026).
+// The server deals them like a deck for the night, so every phone plays the same one and none repeats until all have.
+// (Keep in step with the engine's GAGS keys; a phone that doesn't know a kind plays its own next one.)
+const SKIP_GAGS = ['golf', 'goat', 'demo', 'critic', 'magic', 'free', 'A_anvil', 'A_piano', 'A_tnt', 'A_cannon', 'A_roller', 'A_bowl', 'A_glove', 'A_wreck', 'A_trap', 'A_sumo', 'A_tuba',
+  'B_plumber', 'B_washer', 'B_painter', 'B_chemist', 'B_dentist', 'B_mail', 'B_chef', 'B_mime', 'B_electric', 'B_photo', 'B_pest', 'C_cat', 'C_dog', 'C_skunk', 'C_beaver', 'C_kangaroo',
+  'C_seagull', 'C_snake', 'C_spider', 'C_moth', 'C_ants', 'C_elephant', 'D_rug', 'D_lapse', 'D_disc', 'D_ref', 'D_wash', 'D_vac', 'D_sneeze', 'D_fish', 'D_bat', 'D_lift', 'D_kite'];
+const SKIP_MS = 5000;   // the gag (3.5–4.2 s) and its 'Mulligan.' line, plus the shared lead: the writers get it back
+// A night-long shuffle bag: every item once before any repeats, never the same one twice running
+function dealNight(game, name, list) {
+  const decks = game.nightDecks || (game.nightDecks = {});
+  let d = Array.isArray(decks[name]) ? decks[name].filter(x => list.includes(x)) : [];
+  if (!d.length) { d = shuffleArray(list); if (d.length > 1 && d[0] === decks[name + '^']) d.push(d.shift()); }
+  const x = d.shift();
+  decks[name] = d; decks[name + '^'] = x;
+  return x;
+}
 
-// The steal shows. 'full': the night's first steal, then about one steal in four, at random — never decided by
-// where the chip was, so the show can't hint at the answer. One of the heists below, drawn in public/heists.js in
-// this same order (index = act). A room deals them like a deck, so nobody sees a repeat until all have played.
-// Every other steal is 'short': a transfer-of-ownership stamp (RECEIPTS).
-// House rule for every line here: a caption. Short, specific, deadpan, one beat. Every line is used once.
-const HEISTS = [
-  { name: 'The Claw', gloats: ['Skill game.', 'First try, too.'] },
-  { name: 'The Butler', gloats: ['Will that be all?', 'I’ve put it with the good silver.'] },
-  { name: 'The Magician', gloats: ['Is this your chip? Not anymore.', 'No, you may not examine it.'] },
-  { name: 'Grandma', gloats: ['You can visit it on holidays.', 'I’ll keep it somewhere safe. You’ll never find it.'] },
-  { name: 'The Cat', gloats: ['If I sat on it, it’s mine.', 'Next time, don’t leave it out.'] },
-  { name: 'The Auctioneer', gloats: ['Sold, to the dealer.', 'No other bids.'] },
-  { name: 'The Raccoon', gloats: ['Rinsed it. Mine now.', 'Found it in the open. Basically garbage.'] },
-  { name: 'The Accountant', gloats: ['For tax purposes, it’s mine.', 'It balances now.'] },
-  { name: 'The Mime', gloats: ['(Pockets it. Says nothing.)', '(Points at you. Shrugs.)'] },
-  { name: 'The Frog', gloats: ['It looked like a fly. Still mine.', 'It was moving slowly. That’s on you.'] },
-  { name: 'The Octopus', gloats: ['I had seven free hands. Do the math.', 'Eight arms. Zero apologies.'] },
-];
-// The short show is paperwork: a transfer-of-ownership stamp and one typed line. {name} = whose chip it was.
-const RECEIPTS = [
-  'Received from {name}. Condition: used.',
-  'Received from {name}. No receipt.',
-  'Transferred from {name}. Signed for.',
-  'Formerly {name}’s. Condition: fair.',
-];
-// Callbacks: the same player robbed twice in one game
+// The steal shows (Nick, Oct 21 2026: the hand-drawn thieves, public/thieves.js CCSteal). 'full' (~6.5 s): the night's
+// first steal, then about one in four, at random — never decided by where the chip was, so the show can't hint at the
+// answer; the closing caption is held ~2.5 s. Every other steal is 'short' (~2 s), ending on the thief's one-word tag.
+// A room deals the thieves like a deck for the night. The show's lines never hint at the answer (#39): the closing
+// caption is neutral (thief.X.closing, then steal.closing); the thief's own line comes AFTER the reveal only (on the
+// reel, keyed to where the chip was: thief.X.real / thief.X.fake). Lines: public/lines.js.
+const HEISTS = [['cat', 'The Cat'], ['fisherman', 'The Fisherman'], ['bellhop', 'The Bellhop'], ['burglar', 'The Burglar'], ['painter', 'The Painter'], ['pickpocket', 'The Pickpocket']].map(([id, name]) => ({ id, name }));
 // A chip stolen off a fake caption pays its owner this much (the steal's cost)
 const STEAL_CAUGHT_PTS = 1;
 // How long each steal show runs on the phones (public/steal.js FULL_MS / SHORT_MS); the flip waits for it
-const STEAL_FULL_MS = 12400, STEAL_SHORT_MS = 6000, STEAL_FULL_SHARE = 0.25;
+const STEAL_FULL_MS = 6500, STEAL_SHORT_MS = 2000, STEAL_FULL_SHARE = 0.25;
 // Blind bets: everyone at once. The clock catches anyone idle; the last chip in gets a beat (to take it back),
 // then every chip drops onto the table together and the table gets a look before the steal (or the flip).
 const BLIND_MS = 45000, ALL_IN_BEAT_MS = 1500, DROP_HOLD_MS = 3200;
 // The Late Edition card (the last trip around the table: double points); the writers get the time back
 const LATE_MS = 3500;
-const AGAIN_FULL = 'We meet again, {name}.';
-const AGAIN_SHORT = 'Received from {name}. Again.';
+// #6: the flip and the reveal reel move on by themselves (the dealer can hold them, or go back). The flip: a held
+// second of silence, the card turns on every phone at once (#18), then time to read it out.
+const FLIP_AUTO_MS = 6500;
+const REEL_LEAD_MS = 400;
+// #5 Frame It on the reveal: the night's first frame gets the whole ceremony (the reel waits for it); after that a
+// quick plaque (3 s) that doesn't stop anything.
+const FRAME_FULL_MS = 9000, FRAME_PLAQUE_MS = 3200, FRAME_LEAD_MS = 600;
+// R11 a called shot that comes in; R1 a rejection slip needs this many groans (and no chips)
+const CALL_PTS = 3, SLIP_GROANS = 3;
 const firstNameOf = (game, pid) => { const p = game.players.find(q => q.id === pid); return (String(p ? p.name : '').trim().split(/\s+/)[0]) || 'you'; };
-// Next heist off the room's deck; a fresh shuffle never opens with the one that just played
+// Next thief off the night's deck (an index into HEISTS)
 function nextHeist(game) {
-  // a room restored from an older server may hold a deck from the old 31-heist list: keep only acts that still exist
-  if (Array.isArray(game.heistDeck)) game.heistDeck = game.heistDeck.filter(i => Number.isInteger(i) && i >= 0 && i < HEISTS.length);
-  if (!Array.isArray(game.heistDeck) || !game.heistDeck.length) {
-    let d = shuffleArray(HEISTS.map((_, i) => i));
-    if (d.length > 1 && d[0] === game.lastHeist) d.push(d.shift());
-    game.heistDeck = d;
-  }
-  const act = game.heistDeck.shift();
-  game.lastHeist = act;
-  return act;
+  const id = dealNight(game, 'thieves', HEISTS.map(h => h.id));
+  return Math.max(0, HEISTS.findIndex(h => h.id === id));
 }
 
 function shuffleArray(arr) {
@@ -586,12 +610,23 @@ function createGame(hostId, hostName, timerDuration = DEFAULT_TIMER, seenIds = [
     seenBy: { [hostId]: cleanSeen(seenIds) },   // every phone's 'already seen' list, by player
     deck: newRoomDeck(),            // this room's Gallery: the server's saved copy + whatever the phones bring
     closePlan: [],                  // closePlan[round - 1] = true when the real caption is face-down that round
-    flags: [],                      // Frame It picks, recorded when each round's framing resolves: { fromId, round, target, at }
-    framePicks: {},                 // this round's secret picks while framing: { playerId: target | 'pass' }
-    frameVoters: [],                // who was here when framing began (late joiners may pick, never block)
-    frameResult: null,              // once framing resolves: { at, framed: [target], counts: { key: n }, endsAt }
+    flags: [],                      // Frame It picks, live (#5): { fromId, round, target, at } — one per player per caption
+    framePicks: {},                 // this round's frames: { targetKey: [playerId] } (anyone may frame any number of fakes)
+    roundFrames: [],                // this round's framings, in order: the celebration items (each with n, at, kind, ms)
+    nightFrames: 0,                 // framings in this room tonight (every game): the first gets the whole ceremony
+    frameHold: 0,                   // the reel waits until then (the night's first frame is being hung)
+    frameBusy: 0,                   // the last celebration ends then (the next one waits its turn)
     inducted: [],                   // 'round|target' keys already inducted this game
-    lastInduction: null,            // the latest induction, for the celebration: { n, round, target, caption, ... }
+    lastInduction: null,            // the latest induction, for the celebration: { n, round, target, caption, ..., list }
+    lineDeck: {},                   // #39: the night's place in every line pool (lines.js), so nothing repeats
+    lines: {},                      // this round's picked lines, by slot (sent to the phones that show them)
+    calls: {},                      // R11 called shots this round: { callerId: calledId } (secret until the reveal)
+    callResults: [],                // the reveal: [{ callerId, calledId, key, hit, line }]
+    tvc: { table: 0, cartoonist: 0, draws: 0 },   // R10 the table vs. the cartoonist, this game (blind laughs)
+    tvcRound: null,                 // this round's blind-laugh result: { side, key, writerIds, best, real, line }
+    odds: null,                     // R8 this game's one odds line: { round, kind, odds, line }
+    slips: [],                      // R1 this round's rejection slips: [{ round, target, writerId, caption, groans, line, note }]
+    record: null,                   // this game's record for the end of the night (see newRecord)
     realCredit: null,               // Expert Mode: who wrote this round's real answer { author, month, flags, entryId }
     code: generateRoomCode(),
     phase: PHASES.LOBBY,
@@ -638,22 +673,22 @@ function createGame(hostId, hostName, timerDuration = DEFAULT_TIMER, seenIds = [
     timerEnd: null,
     timerToken: 0,
     history: [],
-    reactions: {},        // { [targetKey]: { [playerId]: kind } } — this round only
-    reel: null,           // the answer screen's reveal reel: { order: [targetKey...], step }
+    reactions: {},        // #26 { [targetKey]: { [playerId]: { ha?: 1|2, groan?: 1|2 } } } — 1 = before the answer (blind), 2 = after
+    reel: null,           // the answer screen's reveal reel: { order: [targetKey...], step, nobody, paused, dueAt }
+    flipDue: null,        // #6 when the face-down card's screen moves on by itself (null: held)
+    flipHold: false,      // the dealer is holding the flip
     roundBadges: [],      // { kind, playerIds, target, detail } — this round
     gameBadges: [],       // every round's badges this game, each with its round
-    crowns: {},           // Grand Poobah crowns this game: { playerId: n }
     gameNo: 0,            // games started in this room (the rating result is keyed by room + game)
     ratingSnap: null,     // the table as the game started: { playerId: { r, g, name } } (rating.js)
     opening: null,        // the opening card: { at, gameId, table, opener, favorite, underdog, ... }
     ratingResult: null,   // game over: { gameId, rows: { playerId: { before, after, delta, ... } }, order }
-    verdictsAt: null,     // the dealer/host moved on from the verdicts (phones time the Grand Poobah from this)
   };
 }
 
 // Every phase change is stamped with the server clock: phones start the big moments from it, together
 function setPhase(game, phase) { game.phase = phase; game.phaseAt = Date.now(); }
-function setReelStep(game, step) { game.reel.step = step; game.stepAt = Date.now(); }
+function setReelStep(game, step) { game.reel.step = step; game.stepAt = Date.now(); game.reel.dueAt = reelDue(game); }   // #6: the next step's own clock
 
 function cleanSeen(ids) {
   const valid = new Set(CARTOONS.map(c => c.id));
@@ -778,6 +813,7 @@ const seatAt = (n, i) => ((i % n) + n) % n;
    finished (finalLaps) before anyone is crowned. null = no end in sight yet. */
 function lapsOf(game) {
   const s = game.settings;
+  if (game.lastCall && game.lastCall.laps) return game.lastCall.laps;   // R30 Last Call: one more trip around, then the end (night.js)
   if (s.targetScore) return game.finalLaps || null;
   if (s.rounds) return game.fixedLaps || Math.max(1, Math.ceil(s.rounds / Math.max(1, game.players.length)));
   return [1, 2, 3].includes(s.laps) ? s.laps : 1;
@@ -940,6 +976,9 @@ function dealCartoon(game) {
   game.autoClose = ensurePlan(game, Math.max(1, game.round));   // a mulligan keeps the round's plan
   game.submissions = [];
   game.mulliganVotes = [];
+  game.calls = {};   // R11: a call was made for a caption that no longer exists
+  if (game.lines) delete game.lines.waitLast;
+  applyNote(game);   // R22: the Editor's note follows the card (a skipped-in card that doesn't fit has none)
   game.timerEnd = game.timerDuration > 0 ? Date.now() + game.timerDuration * 1000 : null;   // [settings] no timer: no end time
   game.timeAdds = 0;
   game.timerToken = (game.timerToken || 0) + 1;
@@ -947,6 +986,74 @@ function dealCartoon(game) {
 }
 // Family games never deal the grown-up cartoons
 // PG-13 cartoons only come up in 'After dark' games
+/* ── R22 Editor's notes (Nick's version): now and then a cartoon comes with a note every phone shows while writing.
+   'count': "Exactly N words." (N = the real caption's own count), one cartoon every 6–8 turns. 'word': "Must use the
+   word: mailbox." (a word from the real caption, card_meta.json "word"), about 1 in 10–12 cartoons. Never both on
+   one card, never on the first two cards of a night. Every caption must obey it (the server refuses one that
+   doesn't), so the face-down one never stands out; the real one obeys by construction. Words: split on spaces,
+   punctuation stripped, a hyphenated word counts once. ── */
+function wordsOf(text) { return String(text || '').split(/\s+/).map(t => t.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '')).filter(t => /[\p{L}\p{N}]/u.test(t)); }
+const wordCount = (t) => wordsOf(t).length;
+// The word, or a simple plural / possessive of it: mailbox, mailboxes, mailbox's, mailboxes' (also inside a hyphenated word)
+function usesWord(text, word) {
+  const w = String(word || '').toLowerCase().replace(/['’]/g, '').trim(); if (!w) return false;
+  const forms = new Set([w, w + 's', w + 'es']); if (/[^aeiou]y$/.test(w)) forms.add(w.slice(0, -1) + 'ies');
+  return String(text || '').toLowerCase().split(/[\s\-–—/]+/).map(t => t.replace(/['’]/g, '').replace(/[^\p{L}\p{N}]+/gu, '')).some(t => forms.has(t));
+}
+const rint = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+function noteSchedule(game) { return game.noteSched || (game.noteSched = { a: rint(3, 8), b: rint(4, 12) }); }
+// A new turn (not a re-deal of the same round): is a note due? (decided per turn; the card decides if it fits)
+function chooseNote(game) {
+  game.nightTurns = (game.nightTurns || 0) + 1;
+  const t = game.nightTurns, S = noteSchedule(game);
+  game.noteKind = t < 3 ? null : t >= S.a ? 'count' : t >= S.b ? 'word' : null;
+}
+// The note for the cartoon on the table (again after a skip). A card that doesn't fit has none: the note stays due.
+function applyNote(game) {
+  game.note = null;
+  const k = game.noteKind, real = game.correctCaption;
+  if (!k || !game.cartoon || !real) return;
+  if (k === 'count') { const n = wordCount(real); if (n >= 2 && n <= 16) game.note = { kind: 'count', n }; }
+  else if (k === 'word') {
+    const m = CARD_META[String(game.cartoon.id)] || {}, w = typeof m.word === 'string' ? m.word.trim().toLowerCase() : '';
+    if (w && /^[a-z][a-z'’-]{1,24}$/.test(w) && usesWord(real, w)) game.note = { kind: 'word', word: w.replace(/['’]s$/, '') };
+  }
+}
+// Writing ended with the note in force: the next one of that kind is scheduled
+function spendNote(game) {
+  if (!game.note) return;
+  const S = noteSchedule(game), t = game.nightTurns || 0;
+  if (game.note.kind === 'count') S.a = t + rint(6, 8); else S.b = t + rint(10, 12);
+  if (S.a === S.b) S.b++;   // never both on one card
+  game.noteKind = null;
+}
+function noteRefusal(game, text) {
+  const nt = game.note; if (!nt) return null;
+  if (nt.kind === 'count') { const m = wordCount(text); if (m !== nt.n) return `The Editor’s note: exactly ${nt.n} words. Yours has ${m}.`; }
+  if (nt.kind === 'word' && !usesWord(text, nt.word)) return `The Editor’s note: it has to use the word “${nt.word}”.`;
+  return null;
+}
+/* ── R16 "The kids are in bed": a game that started on the Family deck can switch to every cartoon from the next deal
+   (host, menu). "One came back down" switches back at once: the cartoon on the table is swapped for a family one if
+   it isn't family-safe and nobody has sent a caption yet; otherwise from the next deal. ── */
+function kidsToggle(game, on) {
+  if (!game.startedFamily) return { error: 'That’s only for a game that started on family cartoons' };
+  if (game.phase === PHASES.LOBBY) return { error: 'Start the game first' };
+  if (on) {
+    if (game.kidsInBed) return { ok: true, noop: true };
+    game.kidsInBed = true; game.settings.family = false; game.settings.spicy = true;
+    game.kidsCard = { kind: 'bed', at: Date.now() };
+    return { ok: true };
+  }
+  if (!game.kidsInBed) return { ok: true, noop: true };
+  game.kidsInBed = false; game.settings.family = true; game.settings.spicy = false;
+  const c = game.cartoon && CARTOONS.find(x => x.id === game.cartoon.id);
+  let swapped = false;
+  if (game.phase === PHASES.WRITING && !game.submissions.length && c && (c.adult || c.spicy) && canDeal(game) && dealCartoon(game)) swapped = true;
+  game.kidsCard = { kind: 'down', at: Date.now(), swapped };
+  return { ok: true, swapped };
+}
+
 const allowed = (game) => CARTOONS.filter(c => !isRetiredId(c.id) && !(game.settings.family && (c.adult || c.spicy)) && !(c.spicy && !game.settings.spicy));
 function dealNormal(game, currentId) {
   // Never twice in one game; of the rest, the ones the fewest people at the table have seen.
@@ -996,8 +1103,10 @@ function startRound(game, options = {}) {
     // #11: The Late Edition — the last trip around the table pays double. It starts with the first deal of the
     // final lap (a game that goes around once has no 'last trip' to single out: all of it would double)
     const laps = lapsOf(game);
-    if (!game.lateFrom && !game.settings.targetScore && laps >= 2 && d && game.dealCount[d.id] >= laps) game.lateFrom = game.round;
+    if (!game.lateFrom && (!game.settings.targetScore || game.lastCall) && laps >= 2 && d && game.dealCount[d.id] >= laps) game.lateFrom = game.round;
   }
+  if (!options.sameRound) chooseNote(game);   // R22
+  if (game.round === 1 && !options.sameRound) { game.startedFamily = !!game.settings.family; game.kidsInBed = false; game.kidsCard = null; }   // R16
   if (!dealCartoon(game)) {
     // Nobody wrote anything and the deck has nothing new: the same cartoon again, fresh clock
     game.submissions = []; game.mulliganVotes = [];
@@ -1006,7 +1115,17 @@ function startRound(game, options = {}) {
     game.notice = { text: 'Same cartoon. The deck has nothing new left.', at: Date.now() };
   }
   if (game.round === 1 && !options.sameRound && !game.ratingSnap) beginRated(game);
+  if (game.round === 1 && !options.sameRound) { game.record = newRecord(); game.tvc = { table: 0, cartoonist: 0, draws: 0 }; game.odds = null; }
   if (game.lateFrom === game.round && !options.sameRound && game.timerEnd) game.timerEnd += LATE_MS;   // the Late Edition card never eats writing time
+  // This round's lines (#39). A same-round redeal keeps the ones already picked.
+  if (!options.sameRound) {
+    game.lines = {};
+    game.calls = {};
+    game.prevMulligan = 0;
+    if (game.timerDuration > 0) { roundLine(game, 'warn20', 'write.warn20'); roundLine(game, 'warn10', 'write.warn10'); roundLine(game, 'timesUp', 'write.timesUp'); }
+    roundLine(game, 'lockedIn', 'write.lockedIn');
+    if (game.lateFrom === game.round && !(game.targetHit) && !game.lastCall) roundLine(game, 'lateBanner', 'late.banner');   // (Last Call has its own reason: night.js)
+  }
   game.blind = {};
   game.blindEnd = null;
   game.dropAt = null;
@@ -1026,10 +1145,15 @@ function startRound(game, options = {}) {
   game.dealerBonusAwarded = false;
   game.reactions = {};
   game.reel = null;
+  game.flipDue = null;
+  game.flipHold = false;
   game.roundBadges = [];
   game.framePicks = {};
-  game.frameVoters = [];
-  game.frameResult = null;
+  game.roundFrames = [];
+  game.frameHold = 0;
+  game.callResults = [];
+  game.tvcRound = null;
+  game.slips = [];
   setPhase(game, PHASES.WRITING);
 }
 
@@ -1059,8 +1183,28 @@ function submitCaption(game, playerId, caption, mode = 'check') {
   if (mode === 'check' && p.typos.length) return { ok: true, check: { polished: p.text, fixed: p.fixed, typos: p.typos } };
   const finalText = mode === 'keep' ? p.text : p.fixed;
   if (tooCloseToReal(finalText, game.correctCaption)) return { error: 'Too close to the real one. Write your own.' };   // #31: regulars remember the real ones
+  { const no = noteRefusal(game, finalText); if (no) return { error: no }; }   // R22: every caption obeys the Editor's note
   game.submissions.push({ playerId, playerName: player.name, caption: finalText });
+  noteLastWriter(game);
   return { ok: true, allIn: allCaptionsIn(game) };
+}
+// #39: one writer left: the table's line about them, and their own nudge (picked once per last writer)
+function noteLastWriter(game) {
+  if (game.phase !== PHASES.WRITING) return;
+  const sub = new Set(game.submissions.map(s => s.playerId));
+  const here = game.players.filter(p => p.connected || sub.has(p.id)), waiting = here.filter(p => !sub.has(p.id));
+  if (here.length < 2 || waiting.length !== 1) return;
+  const p = waiting[0], L = game.lines || (game.lines = {});
+  if (L.waitLast && L.waitLast.pid === p.id) return;
+  const dealer = dealerOf(game), top = Math.max(...game.players.map(q => q.score));
+  const keys = [];
+  if (dealer && dealer.id === p.id) keys.push('wait.lastDealer');
+  else if (top > 0 && !(game.lateFrom && game.round >= game.lateFrom) && p.score === top && game.players.filter(q => q.score === top).length === 1) keys.push('wait.lastLeader');   // (R18: in the sealed Late Edition nobody is named as the leader)
+  if (isLate(game)) keys.push('wait.lastLate');
+  if (game.round === 1) keys.push('wait.lastFirst');
+  if (!game.timerDuration) keys.push('wait.lastNoTimer');
+  keys.push('wait.last');
+  L.waitLast = { pid: p.id, text: pickLine(game, keys, { name: first1(p.name) }), title: pickLine(game, 'wait.nudgeTitle'), sub: pickLine(game, 'wait.nudgeSub') };
 }
 
 // Toggle this player's mulligan vote. Half the table (at least 2 people) swaps the cartoon.
@@ -1085,8 +1229,10 @@ function voteMulligan(game, playerId) {
     return { ok: true, triggered: false, skipped: true };
   }
   game.mulliganCount = (game.mulliganCount || 0) + 1;
-  if (game.timerEnd) game.timerEnd += 4500;   // the execution plays over the new cartoon: give that time back ([settings] no timer: nothing to give)
-  game.mulliganEvent = { n: game.mulliganCount, quip: pick(MULLIGAN_QUIPS), kind: pick(EXECUTIONS), image: oldImage, at: Date.now() };
+  if (game.timerEnd) game.timerEnd += SKIP_MS;   // the gag plays over the new cartoon: give that time back ([settings] no timer: nothing to give)
+  game.prevMulligan = (game.prevMulligan || 0) + 1;   // this round's mulligans: a second in a row gets its own line
+  const quip = pickLine(game, game.prevMulligan > 1 ? ['write.mulligan2', 'write.mulligan'] : ['write.mulligan']) || 'Next.';
+  game.mulliganEvent = { n: game.mulliganCount, quip, kind: dealNight(game, 'skips', SKIP_GAGS), image: oldImage, at: Date.now() };
   return { ok: true, triggered: true };
 }
 
@@ -1111,7 +1257,38 @@ function finishWriting(game) {
     game.openCaptions = shuffleArray(opens);
   }
   game.mulliganVotes = [];
+  spendNote(game);   // R22
+  // R11: a called shot needs the caller's caption on the table (it always is) and someone who bets
+  for (const [caller, called] of Object.entries(game.calls || {})) if (!game.submissions.some(s => s.playerId === caller) || !canBeCalled(game, caller, called)) delete game.calls[caller];
+  // #39: the reading and betting lines for this round
+  const dealer = dealerOf(game), dn = dealer ? first1(dealer.name) : '';
+  if (game.round >= 2) roundLine(game, 'readSub', 'read.sub', { n: game.openCaptions.length });
+  roundLine(game, 'readHint', 'read.hint');
+  if (game.closedPlayerId) { roundLine(game, 'yoursRead', 'read.yours'); roundLine(game, 'yoursFlip', 'flip.yours'); }
+  if (!dealerBets(game)) roundLine(game, 'betDealer', stealOn(game) ? 'bet.dealer' : 'bet.dealerNoSteal');
+  if (stealOn(game)) roundLine(game, 'stealWait', 'steal.waiting', { dealer: dn });
+  roundLine(game, 'betWatch', 'bet.watch');
+  roundLine(game, 'betDown', 'bet.down');
+  roundLine(game, 'flipLead', 'flip.lead');
+  roundLine(game, 'flipUp', 'flip.up');
   setPhase(game, PHASES.READING);
+  return { ok: true };
+}
+
+/* R11 Called shot: once your caption is in (and until the betting starts), you may secretly name one person you
+   expect to fall for it. If they put a chip on it, +3 (doubled in The Late Edition), and the reveal says so either way. */
+function canBeCalled(game, caller, called) {
+  if (!called || called === caller || !game.players.some(p => p.id === called)) return false;
+  const dealer = dealerOf(game);
+  return !(dealer && dealer.id === called && !dealerBets(game));   // a dealer who doesn't bet can't fall for anything
+}
+function callShot(game, playerId, target) {
+  if (game.phase !== PHASES.WRITING && game.phase !== PHASES.READING) return { error: 'Calls close when the betting starts' };
+  if (!game.submissions.some(s => s.playerId === playerId)) return { error: 'Lock in your caption first' };
+  game.calls = game.calls || {};
+  if (target === null || target === undefined || target === '') { delete game.calls[playerId]; return { ok: true }; }
+  if (!canBeCalled(game, playerId, String(target))) return { error: 'Pick someone who bets this round' };
+  game.calls[playerId] = String(target);
   return { ok: true };
 }
 
@@ -1273,11 +1450,32 @@ function afterBlinds(game) {
   }
   return startFlip(game, Date.now());
 }
-// The face-down card turns over at `at` (server time): every phone flips it together
+// The face-down card turns over at `at` (server time): every phone flips it together (#18: a held second of
+// silence, then the turn). #6: then it moves on by itself (flipDue), unless the dealer holds it.
 function startFlip(game, at) {
   game.flipAt = at;
+  game.flipHold = false;
+  game.flipDue = at + FLIP_AUTO_MS;
+  const riders = [...new Set(game.bets.filter(b => b.stage === 1 && b.target === 'closed' && b.count > 0).map(b => b.playerId))];
+  if (riders.length) roundLine(game, 'flipRiders', 'flip.riders', { riders: nameList(riders.map(id => firstNameOf(game, id))) });
+  else roundLine(game, 'flipNone', 'flip.none');
   setPhase(game, PHASES.REVEAL);
   return { ok: true };
+}
+// #6: the dealer (or the host) holds the flip or the reel, and lets it go again
+function setHold(game, on) {
+  const now = Date.now();
+  if (game.phase === PHASES.REVEAL) {
+    game.flipHold = !!on;
+    game.flipDue = on ? null : Math.max(now + 1800, (game.flipAt || now) + FLIP_AUTO_MS);
+    return { ok: true };
+  }
+  if (game.phase === PHASES.ANSWER && game.reel) {
+    game.reel.paused = !!on;
+    game.reel.dueAt = reelDue(game, on ? null : 2200);
+    return { ok: true };
+  }
+  return { error: 'Nothing to hold right now' };
 }
 
 // After the flip: the late chips if anyone holds one, else the answer
@@ -1314,17 +1512,18 @@ function stealChip(game, betIndex) {
   // #1: the night's first steal gets the full show; after that about one in four, at random. Never decided by
   // where the chip was, so the show can't tip anyone off.
   const stealShow = game.nightSteals === 1 || Math.random() < STEAL_FULL_SHARE ? 'full' : 'short';
-  const robbedBefore = game.history.some(h => h.steal && h.steal.victimId === bet.playerId);
-  const vname = firstNameOf(game, bet.playerId);
-  let act = null, actName = null, gloat;
-  if (stealShow === 'full') {   // only a full show deals a heist off the deck, so they stay a treat
-    act = nextHeist(game); actName = HEISTS[act].name;
-    gloat = robbedBefore ? AGAIN_FULL.replace('{name}', vname) : pick(HEISTS[act].gloats);
-  } else {
-    gloat = (robbedBefore ? AGAIN_SHORT : pick(RECEIPTS)).replace('{name}', vname);
-  }
+  const robbed = game.history.filter(h => h.steal && h.steal.victimId === bet.playerId).length;   // earlier steals off this player, this game
+  const robbedBefore = robbed > 0;
+  const v = { name: firstNameOf(game, bet.playerId), count: robbed + 1, ordinal: ordinal(robbed + 1) };
+  // #39: nothing said during the show may hint where the chip was. The full show ends on a neutral closing caption
+  // (or a callback, for a repeat victim); the short one on a receipt. The thief's gloat waits for the reveal.
+  const act = nextHeist(game), thief = HEISTS[act].id, actName = HEISTS[act].name;
+  // full: a closing caption held under the show (a repeat victim gets a callback instead); short: the thief's tag
+  const gloat = stealShow === 'full'
+    ? (robbed >= 2 ? pickLine(game, ['steal.again3', 'steal.again'], v) : robbedBefore ? pickLine(game, 'steal.again', v) : pickLine(game, [`thief.${thief}.closing`, 'steal.closing'], v))
+    : pickLine(game, `thief.${thief}.tag`);
   const at = Date.now();
-  game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect, act, actName, gloat, again: robbedBefore, stealShow, seed: Math.floor(Math.random() * 1e9), at, show: game.stealShows };
+  game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect, act, thief, actName, gloat, again: robbedBefore, robbed, stealShow, seed: Math.floor(Math.random() * 1e9), at, show: game.stealShows };
   return startFlip(game, at + (stealShow === 'full' ? STEAL_FULL_MS : STEAL_SHORT_MS) + 300);
 }
 
@@ -1390,6 +1589,16 @@ function revealAnswer(game) {
     add(dealer.id, s.dealerBonus, 'Dealer’s revenge — no chip on the real caption');
     game.dealerBonusAwarded = true;
   }
+  // R11 called shots: did the person you named put a chip on your caption? (a stolen chip still counts: they bit)
+  game.callResults = [];
+  for (const [caller, called] of Object.entries(game.calls || {})) {
+    if (!(caller in scores)) continue;
+    const key = game.closedPlayerId === caller ? 'closed' : keyOf(game.openCaptions.findIndex(c => c.playerId === caller));
+    if (key === '-1') continue;
+    const hit = game.bets.some(b => b.playerId === called && keyOf(b.target) === key && chipsOf(b) > 0);
+    if (hit) add(caller, CALL_PTS, `Called shot: ${nameOfPlayer(game, called)} bit`);
+    game.callResults.push({ callerId: caller, calledId: called, key, hit, line: pickLine(game, hit ? 'call.hit' : 'call.miss', { caller: firstNameOf(game, caller), called: firstNameOf(game, called) }) });
+  }
 
   game.roundScores = scores;
   game.roundScoreDetails = details;
@@ -1404,10 +1613,16 @@ function revealAnswer(game) {
 
   { const order = reelOrder(game), real = realKey(game); let k = 0;
     while (k < order.length && order[k] !== real && votesOn(game, order[k]) === 0) k++;
-    game.reel = { order, step: 1, nobody: k >= 2 && k < order.length ? k : 0 }; }   // #24: the captions nobody bit on share one step
+    game.reel = { order, step: 1, nobody: k >= 2 && k < order.length ? k : 0, paused: false, dueAt: null }; }   // #24: the captions nobody bit on share one step
   game.stepAt = game.phaseAt;
   // Badges never break the answer: if anything goes wrong, the round just has none
   try { awardBadges(game); } catch (e) { console.error('badges', e); game.roundBadges = []; }
+  // #39 / R10 / R8: the reel's lines, the recap's headline, the blind-laugh score, the odds. Never break the answer.
+  try { reelLines(game); } catch (e) { console.error('reel lines', e); }
+  try { endLines(game, mult); } catch (e) { console.error('round-end lines', e); }
+  try { tableVsCartoonist(game); } catch (e) { console.error('table vs cartoonist', e); game.tvcRound = null; }
+  try { oddsLine(game); } catch (e) { console.error('odds', e); }
+  game.reel.dueAt = reelDue(game);   // #6: the reel moves on by itself
 
   game.history.push({
     round: game.round,
@@ -1428,30 +1643,199 @@ function revealAnswer(game) {
     roundScoreDetails: JSON.parse(JSON.stringify(details)),
     dealerBonusAwarded: game.dealerBonusAwarded,
     reactions: JSON.parse(JSON.stringify(game.reactions || {})),
+    reacts: reactionCounts(game),   // #26 per caption { ha, groan, haBlind } (refreshed when the round ends)
+    calls: game.callResults.map(c => ({ ...c })),   // R11
+    tvc: game.tvcRound ? { ...game.tvcRound } : null,   // R10
+    odds: game.odds && game.odds.round === game.round ? { ...game.odds } : null,   // R8
     reelOrder: [...game.reel.order],
     badges: JSON.parse(JSON.stringify(game.roundBadges)),
   });
 }
 
-// The recap is done: "Anything frame-worthy?"
-function moveToFraming(game) {
+/* ── #39 The reel's lines, one set per round (the server picks, every phone shows the same) ── */
+function reelLines(game) {
+  const R = {}, real = realKey(game), dealer = dealerOf(game), st = game.steal, dn = dealer ? first1(dealer.name) : '';
+  const L = game.lines || (game.lines = {});
+  const bettors = new Set(game.bets.filter(b => b.target !== 'pass').map(b => b.playerId)).size || game.betOrder.length;
+  for (const key of game.reel.order) {
+    const o = {};
+    if (key === real) {
+      const people = [...new Set(game.bets.filter(b => keyOf(b.target) === key && b.count > 0).map(b => b.playerId))];
+      const ever = game.bets.some(b => keyOf(b.target) === key && chipsOf(b) > 0), k = people.length;
+      if (!k) o.line = ever ? pickLine(game, 'reel.realStolen', { victim: st && st.victimId ? firstNameOf(game, st.victimId) : 'someone', dealer: dn }) : pickLine(game, 'reel.realNobody');
+      else if (k === bettors && k >= 2) o.line = pickLine(game, ['reel.realAll', 'reel.real']);
+      else if (k === 1) o.line = pickLine(game, ['reel.realOne', 'reel.real'], { name: firstNameOf(game, people[0]) });
+      else if (k > bettors / 2) o.line = pickLine(game, ['reel.realMost', 'reel.real'], { k, n: bettors });
+      else o.line = pickLine(game, ['reel.realFew', 'reel.real'], { k, n: bettors });
+      o.lead = pickLine(game, 'reel.lead');
+    } else {
+      const w = writerOfKey(game, key);
+      const backers = [...new Set(game.bets.filter(b => keyOf(b.target) === key && b.playerId !== w && chipsOf(b) > 0).map(b => b.playerId))];
+      const field = game.betOrder.filter(id => id !== w);
+      if (!backers.length) o.nobody = pickLine(game, 'reel.fakeNobody');
+      else if (field.length >= 2 && field.every(id => backers.includes(id))) o.fell = pickLine(game, ['reel.fellAll', 'reel.fell']);
+      else if (backers.length === 1) o.fell = pickLine(game, ['reel.fellOne', 'reel.fell']);
+      else o.fell = pickLine(game, 'reel.fell');
+    }
+    R[key] = o;
+  }
+  // The thief's own line, now that it can't give anything away (on the caption the chip came off): after a full
+  // show, in character and keyed to where the chip was; after a short one, the paperwork
+  if (st && st.victimId && R[keyOf(st.target)]) {
+    const vn = firstNameOf(game, st.victimId);
+    R[keyOf(st.target)].gloat = st.stealShow === 'full' && st.thief
+      ? { who: st.actName, text: pickLine(game, [`thief.${st.thief}.${st.onCorrect ? 'real' : 'fake'}`, 'steal.receipt'], { name: vn }) }
+      : { who: null, text: pickLine(game, (st.robbed || 0) >= 1 ? ['steal.againShort', 'steal.receipt'] : 'steal.receipt', { name: vn }) };
+  }
+  for (const c of game.callResults || []) if (R[c.key]) R[c.key].call = c.line;   // R11, on the caller's caption
+  L.reel = R;
+  if (game.reel.nobody) L.reelGroup = pickLine(game, 'reel.group', { k: game.reel.nobody });
+  L.reelHold = pickLine(game, 'reel.hold', { dealer: dn });
+  // #5: the recap's Frame It list (round 1 keeps the line that teaches it)
+  L.framePrompt = game.round === 1 ? 'Did anyone beat the real one?' : pickLine(game, 'frame.prompt');
+  L.frameSub = game.round === 1 ? 'Frame it. When most of the table does, it hangs in The Gallery for good.' : pickLine(game, 'frame.sub');
+  const rs = Object.values(game.roundScores || {});
+  if (rs.some(p => p >= 6) || (game.roundBadges || []).some(b => b.kind === 'moon' && (b.detail || {}).shot === 'moon')) L.noted = pickLine(game, 'reel.noted');
+}
+
+/* ── #39 The recap's lines: one headline (the first situation that fits, and whose pool still has a fresh line
+   tonight), the steal in a sentence (only now: the real caption is out), and the nobody-scored line ── */
+function endLines(game, mult) {
+  const L = game.lines || (game.lines = {}), real = realKey(game), fakes = playerKeys(game), dealer = dealerOf(game);
+  const dn = dealer ? first1(dealer.name) : '', fn = (id) => firstNameOf(game, id), st = game.steal;
+  const cand = [], add = (k, v) => cand.push({ k, v: v || {} });
+  const blindOn = (key) => game.bets.filter(b => b.stage === 1 && keyOf(b.target) === key && chipsOf(b) > 0);
+  const moons = (game.roundBadges || []).filter(b => b.kind === 'moon');
+  const moonShot = moons.find(b => (b.detail || {}).shot === 'moon');
+  if (moonShot) add('end.moonHit', { name: fn(moonShot.playerIds[0]) });
+  const ccRiders = [...new Set(blindOn('closed').filter(b => b.playerId !== game.closedPlayerId).map(b => b.playerId))];
+  if (game.closedIsCorrect && ccRiders.length) add('end.ccRealRiders', { riders: nameList(ccRiders.map(fn)) });
+  const sweep = (game.roundBadges || []).find(b => b.kind === 'clean_sweep');
+  if (sweep) add('end.swept', { writer: fn(sweep.playerIds[0]) });
+  const betters = game.betOrder.filter(id => game.bets.some(b => b.playerId === id && b.target !== 'pass'));
+  if (betters.length >= 2 && betters.every(id => game.bets.some(b => b.playerId === id && keyOf(b.target) === real && chipsOf(b) > 0))) add('end.allFound');
+  if (game.closedIsCorrect && !game.bets.some(b => b.target === 'closed' && chipsOf(b) > 0)) add('end.ccRealAlone');
+  if (game.dealerBonusAwarded && dealer) add('end.revenge', { dealer: dn, pts: (game.settings.dealerBonus || 0) * mult });
+  for (const b of game.bets) {
+    if (b.stage !== 1 || chipsOf(b) !== 2 || keyOf(b.target) === real) continue;
+    const w = writerOfKey(game, keyOf(b.target));
+    if (w && w !== b.playerId) { add('end.moonMiss', { name: fn(b.playerId), writer: fn(w) }); break; }
+  }
+  if (!game.closedIsCorrect && game.closedPlayerId && ccRiders.length) add('end.ccFakeRiders', { writer: fn(game.closedPlayerId), riders: nameList(ccRiders.map(fn)) });
+  const minds = (game.roundBadges || []).find(b => b.kind === 'great_minds');
+  if (minds && minds.playerIds.length >= 2) add('end.minds', { a: fn(minds.playerIds[0]), b: fn(minds.playerIds[1]) });
+  const fk = fakes.map(k => { const w = writerOfKey(game, k); return { k, w, people: new Set(game.bets.filter(b => keyOf(b.target) === k && b.playerId !== w && chipsOf(b) > 0).map(b => b.playerId)).size, chips: votesOn(game, k) }; });
+  const maxChips = Math.max(0, ...fk.map(f => f.chips)), tops = fk.filter(f => f.chips === maxChips && maxChips >= 2), tw = [...new Set(tops.map(f => f.w))];
+  if (tops.length && tw.length === 1 && tops[0].people >= 2) add('end.bluff', { writer: fn(tw[0]), n: tops[0].people });
+  else if (tops.length && tw.length === 2 && tops.every(f => f.people === tops[0].people) && tops[0].people >= 2) add('end.bluff2', { writers: nameList(tw.map(fn)), n: tops[0].people });
+  if (fakes.length && !fk.some(f => f.chips > 0) && game.bets.some(b => keyOf(b.target) === real && chipsOf(b) > 0)) add('end.honest', { n: fakes.length });
+  const own = game.bets.find(b => b.target !== 'pass' && chipsOf(b) > 0 && writerOfKey(game, keyOf(b.target)) === b.playerId);
+  if (own) add('end.betOwn', { name: fn(own.playerId) });
+  const rs = game.roundScores || {}, top = Math.max(0, ...Object.values(rs));
+  if (top > 0 && Object.values(rs).filter(v => v === top).length >= 2) add('end.tie');
+  if (lapsOf(game) && game.round >= totalRounds(game)) add('end.last');
+  if (isLate(game)) add('end.late');
+  if (game.round === 1) add('end.first');
+  L.endHead = cand.length ? pickLine(game, cand.map(c => c.k), null, cand.map(c => c.v)) : '';
+  // The steal, said after the answer only (#1: the show never hints)
+  if (st && st.victimId) L.endSteal = st.onCorrect ? pickLine(game, 'end.stoleReal', { dealer: dn, victim: fn(st.victimId) }) : pickLine(game, 'end.stoleFake', { dealer: dn, victim: fn(st.victimId), pts: STEAL_CAUGHT_PTS * mult });
+  else if (st && st.skipped && stealOn(game)) L.endSteal = pickLine(game, 'end.peace', { dealer: dn });
+  if (!Object.values(rs).some(v => v > 0)) L.noScore = pickLine(game, 'end.noScore');
+}
+
+/* ── R10 The table vs. the cartoonist: 'Ha' taps made before the answer (nobody knew which was real) are a blind
+   test. The table's best fake against the real caption; the round goes to whichever got more. ── */
+function tableVsCartoonist(game) {
+  const real = realKey(game);
+  const blindHa = (key) => Object.values((game.reactions || {})[key] || {}).filter(r => r && r.ha === 1).length;
+  const fakes = playerKeys(game).map(k => ({ k, n: blindHa(k), w: writerOfKey(game, k) }));
+  const best = Math.max(0, ...fakes.map(f => f.n)), m = blindHa(real);
+  game.tvcRound = null;
+  if (!best && !m) return;
+  const tops = best > 0 ? fakes.filter(f => f.n === best) : [];
+  const writerIds = [...new Set(tops.map(f => f.w).filter(Boolean))];
+  const side = best > m ? 'table' : m > best ? 'cartoonist' : 'draw';
+  game.tvc = game.tvc || { table: 0, cartoonist: 0, draws: 0 };
+  game.tvc[side === 'draw' ? 'draws' : side]++;
+  const line = pickLine(game, 'tvc.' + side, { writer: nameList(writerIds.map(id => firstNameOf(game, id))) || 'The table', n: best, m });
+  game.tvcRound = { round: game.round, side, best, real: m, keys: tops.map(f => f.k), writerIds, line, score: { ...game.tvc } };
+}
+
+/* ── R8 The odds of that, stated deadpan: worked out from the rules and this table (each first bet as a blind guess
+   among the captions that aren't yours; the face-down card is real about autoCloseProbability of the time).
+   Only for something rarer than 1 in 20, and once a game. ── */
+function fmtOdds(n) {
+  if (n < 100) return String(Math.round(n));
+  if (n < 1000) return String(Math.round(n / 5) * 5);
+  const p = Math.pow(10, Math.floor(Math.log10(n)) - 1);
+  return (Math.round(n / p) * p).toLocaleString('en-US');
+}
+function oddsLine(game) {
+  if (game.odds) return;
+  const C = game.openCaptions.length + 1, wrote = new Set(game.submissions.map(s => s.playerId));
+  const choices = (pid) => Math.max(1, C - (wrote.has(pid) ? 1 : 0));
+  const prod = (ids) => ids.reduce((p, id) => p / choices(id), 1);
+  const blind = game.bets.filter(b => b.stage === 1 && b.target !== 'pass' && chipsOf(b) > 0);
+  const bettors = game.betOrder.filter(pid => blind.some(b => b.playerId === pid));
+  const allBet = bettors.length === game.betOrder.length && bettors.length >= 3;
+  const real = realKey(game), ev = [];
+  if (allBet && blind.every(b => keyOf(b.target) === real)) ev.push({ kind: 'allBlind', p: prod(bettors) });
+  if (allBet && blind.every(b => b.target === 'closed')) ev.push({ kind: 'allCC', p: prod(bettors) });
+  // One fake drew every other first bet. Any fake could have: their chances add up (they can't both happen).
+  let pAny = 0, swept = null;
+  for (const k of playerKeys(game)) {
+    const w = writerOfKey(game, k), others = game.betOrder.filter(id => id !== w);
+    if (others.length < 3) continue;
+    pAny += prod(others);
+    if (others.every(id => blind.some(b => b.playerId === id && keyOf(b.target) === k))) swept = w;
+  }
+  if (swept && pAny > 0) ev.push({ kind: 'sweep', p: pAny, vars: { writer: firstNameOf(game, swept) } });
+  const pc = Math.min(1, Math.max(0, Number(game.settings.autoCloseProbability) || 0.15));
+  for (const b of blind) if (b.target === 'closed' && game.closedIsCorrect && chipsOf(b) === 2) { ev.push({ kind: 'moon', p: pc / choices(b.playerId), vars: { name: firstNameOf(game, b.playerId) } }); break; }
+  const rare = ev.filter(e => e.p > 0 && e.p < 1 / 20).sort((a, b) => a.p - b.p)[0];
+  if (!rare) return;
+  const odds = fmtOdds(1 / rare.p);
+  game.odds = { round: game.round, kind: rare.kind, odds, p: rare.p, line: pickLine(game, 'odds.' + rare.kind, { ...(rare.vars || {}), odds }) };
+}
+
+/* ── #6 The reel moves on by itself: a few seconds a caption (longer when there's more to read), the real one
+   longest. The recap waits for the dealer. Held (paused): no clock. The night's first framing holds it too. ── */
+function reelStepMs(game, step) {
+  const r = game.reel; if (!r) return 0;
+  const n = r.order.length; if (step > n) return 0;
+  const k = r.nobody || 0;
+  if (k && step <= k) return 2300 + 450 * k;
+  const key = r.order[step - 1], o = ((game.lines || {}).reel || {})[key] || {};
+  const badges = (game.roundBadges || []).filter(b => String(b.target) === key || (key === realKey(game) && ['moon', 'pickpocket'].includes(b.kind))).length;
+  if (key === realKey(game)) {   // the drumroll, the stamp (1.2 s), a line or two to read
+    let ms = 5000 + (badges ? 600 : 0);
+    if (game.odds && game.odds.round === game.round) ms += 1000;
+    if (game.tvcRound && game.tvcRound.line) ms += 800;
+    return ms;
+  }
+  let ms = votesOn(game, key) ? (n >= 7 ? 2700 : n >= 5 ? 2950 : 3200) : 2400;   // read aloud already: who wrote it, who fell for it (a big table, a brisker reel)
+  if (badges) ms += 600;
+  if (o.call) ms += 900;
+  if (o.gloat) ms += 800;
+  return ms;
+}
+function reelDue(game, fromNow) {
+  const r = game.reel; if (!r || r.paused) return null;
+  if (r.step > r.order.length) return null;
+  const base = fromNow !== undefined && fromNow !== null ? Date.now() + fromNow : (game.stepAt || Date.now()) + REEL_LEAD_MS + reelStepMs(game, r.step);
+  return Math.max(base, (game.frameHold || 0) + 800);
+}
+
+// The recap is done: the scoreboard (#5: Frame It happened on the reveal, so there's no screen in between)
+function moveToScoreboard(game) {
   if (game.phase !== PHASES.ANSWER) return { error: 'Too late — the game moved on' };
   if (game.reel && game.reel.step < game.reel.order.length + 1) return { error: 'Finish the reveal first' };
-  game.framePicks = {};
-  game.frameVoters = game.players.filter(isPresent).map(p => p.id);
-  game.frameResult = null;
-  setPhase(game, PHASES.FRAMING);
-  return { ok: true };
-}
-// Framing over (resolving it first if the dealer moves on early): the scoreboard
-function moveToScoreboard(game) {
-  if (game.phase === PHASES.ANSWER) return { error: 'Frame It comes first' };
-  if (game.phase !== PHASES.FRAMING) return { error: 'Too late — the game moved on' };
-  if (!game.frameResult) resolveFraming(game);
+  if (Date.now() < (game.frameHold || 0) - 300) return { error: 'One moment. It’s being hung.' };
+  try { closeRound(game); } catch (e) { console.error('round close', e); }
   // #37 first to N: someone got there. The trip around the table is finished first (everyone deals the same
   // number of times), and #11 the rest of that trip is The Late Edition.
   const s = game.settings;
-  if (s.targetScore && !game.finalLaps && game.players.some(p => p.score >= s.targetScore)) {
+  if (s.targetScore && !game.finalLaps && !game.lastCall && game.players.some(p => p.score >= s.targetScore)) {
     const counts = game.dealCount || {}, here = game.players.filter(isPresent);
     game.finalLaps = Math.max(1, ...(here.length ? here : game.players).map(p => counts[p.id] || 0));
     const top = Math.max(...game.players.map(p => p.score));
@@ -1460,9 +1844,58 @@ function moveToScoreboard(game) {
   }
   if (!isGameOver(game) && !canDeal(game)) endForDeck(game);   // nothing left to deal: this is the final scoreboard
   setPhase(game, PHASES.SCORES);
-  game.scoresAt = Date.now();   // phones time the Grand Poobah ceremony from this, so it plays together
+  game.scoresAt = Date.now();   // phones time the scoreboard (and, at game over, the ending: night.js) from this
+  try { scoreLines(game); } catch (e) { console.error('score lines', e); }
   if (isGameOver(game)) settleRating(game);
   return { ok: true };
+}
+
+/* ── The round is over (the reel is done, the frames are in): the tallies the end of the night reads (#26 Ha and
+   Groan per caption, R1 rejection slips, R10 the table vs. the cartoonist, R11 called shots, R8 the odds) ── */
+function newRecord() { return { captions: [], table: { table: 0, cartoonist: 0, draws: 0 }, rejections: [], calls: [], odds: null }; }
+function closeRound(game) {
+  const h = game.history.find(x => x.round === game.round);
+  const counts = reactionCounts(game), mult = isLate(game) ? 2 : 1;
+  const rec = game.record || (game.record = newRecord());
+  // R1: a fake with no chips at all and 3+ groans: a rejection slip from The Editors, slid to its writer
+  game.slips = [];
+  for (const key of playerKeys(game)) {
+    const w = writerOfKey(game, key), c = counts[key] || {};
+    if (!w || votesOn(game, key) > 0 || (c.groan || 0) < SLIP_GROANS) continue;
+    const slip = { round: game.round, target: key, writerId: w, writer: nameOfPlayer(game, w), caption: captionOfKey(game, key), groans: c.groan, image: game.cartoon && game.cartoon.image,
+      line: pickLine(game, 'slip.form'), note: pickLine(game, 'slip.note', { name: firstNameOf(game, w), n: c.groan }), month: MONTH() };
+    game.slips.push(slip);
+  }
+  // The game's record, rebuilt for this round (a re-deal never counts twice)
+  rec.captions = rec.captions.filter(x => x.round !== game.round);
+  for (const key of playerKeys(game)) {
+    const w = writerOfKey(game, key), c = counts[key] || {};
+    rec.captions.push({ round: game.round, target: key, writerId: w, writer: nameOfPlayer(game, w), caption: captionOfKey(game, key), ha: c.ha || 0, groan: c.groan || 0, haBlind: c.haBlind || 0, chips: votesOn(game, key), framed: (game.inducted || []).includes(game.round + '|' + (key === 'closed' ? 'closed' : Number(key))) });
+  }
+  { const rk = realKey(game), c = counts[rk] || {}; rec.real = (rec.real || []).filter(x => x.round !== game.round).concat({ round: game.round, ha: c.ha || 0, groan: c.groan || 0, haBlind: c.haBlind || 0 }); }
+  rec.rejections = rec.rejections.filter(x => x.round !== game.round).concat(game.slips.map(s => ({ round: s.round, target: s.target, writerId: s.writerId, writer: s.writer, caption: s.caption, groans: s.groans, line: s.line })));
+  rec.calls = rec.calls.filter(x => x.round !== game.round).concat((game.callResults || []).map(c => ({ round: game.round, callerId: c.callerId, calledId: c.calledId, hit: c.hit, pts: c.hit ? CALL_PTS * mult : 0 })));
+  rec.table = { ...(game.tvc || { table: 0, cartoonist: 0, draws: 0 }) };
+  if (game.odds && !rec.odds) rec.odds = { ...game.odds };
+  if (h) { h.reacts = counts; h.reactions = JSON.parse(JSON.stringify(game.reactions || {})); h.slips = game.slips.map(s => ({ ...s })); h.frames = (game.roundFrames || []).map(f => ({ target: f.target, caption: f.caption, author: f.author, flags: f.flags, kind: f.kind })); }
+}
+// #39: the scoreboard's lines: the round winner's stamp (by what happened) and the wait for the next dealer
+function scoreLines(game) {
+  const L = game.lines || (game.lines = {}), rs = game.roundScores || {}, best = Math.max(0, ...Object.values(rs));
+  const winners = best > 0 ? game.players.filter(p => rs[p.id] === best).map(p => p.id) : [];
+  delete L.stamp;
+  if (winners.length > 1) L.stamp = pickLine(game, 'stamp.tied');
+  else if (winners.length === 1) {
+    const w = winners[0], fn = firstNameOf(game, w);
+    const wins = game.history.filter(r => r.round < game.round).filter(r => { const x = r.roundScores || {}, m = Math.max(0, ...Object.values(x)); return m > 0 && x[w] === m && Object.values(x).filter(v => v === m).length === 1; }).length;
+    const p = game.players.find(q => q.id === w), top = Math.max(...game.players.map(q => q.score));
+    const leads = !!p && p.score === top && game.players.filter(q => q.score === top).length === 1 && (game.previousRank || {})[w] > 0;
+    if (wins >= 2) L.stamp = pickLine(game, ['stamp.againN', 'stamp.again'], { ordinal: ordinal(wins + 1), name: fn });
+    else if (wins === 1) L.stamp = pickLine(game, 'stamp.again', { name: fn });
+    else if (leads) L.stamp = pickLine(game, 'stamp.lead', { name: fn });
+    else if (game.round >= 4) L.stamp = pickLine(game, 'stamp.atLast', { name: fn });
+  }
+  if (!isGameOver(game)) { const nd = game.players[nextDealerIndex(game, game.dealerIndex)]; if (nd) L.nextDealer = pickLine(game, 'score.nextDealer', { dealer: first1(nd.name) }); }
 }
 
 // [settings] 'Everyone deals N times' (laps): the rounds played so far, plus the deals still to come going around
@@ -1528,66 +1961,62 @@ function standing(game) {
   return { ...out, by: tied.length === 1 ? 'framed' : 'tie', winners: tied };
 }
 
-/* ── Frame It: after every answer, one secret pick per player per cartoon, every round (no limit per game) ──
-   A caption is FRAMED when a majority of the other players (everyone but its writer) pick it (inductNeed):
-   player-written ones join The Gallery deck. */
+/* ── #5 Frame It, on the reveal: a small frame on every fake once the reel has shown who wrote it (and on the recap).
+   Frame as many as deserve it (never your own, never the real one); tap again to take it back. A caption is FRAMED
+   the moment a majority of the other players (everyone but its writer) have framed it (inductNeed): it hangs in
+   The Gallery on the spot. The night's first framing gets the whole ceremony (the reel waits for it); after that,
+   a quick plaque that doesn't stop anything. ── */
 function authorOf(game, target) { return target === 'closed' ? game.closedPlayerId : (game.openCaptions[target] || {}).playerId; }
-// Pick a caption (not your own) or 'pass'. Changeable until the framing resolves.
-function pickFrame(game, playerId, target) {
-  if (game.phase !== PHASES.FRAMING) return { error: 'Framing happens after the answer' };
-  if (game.frameResult) return { error: 'The frames are in' };
+// The captions the reel has shown so far (their writers are out); at the recap, all of them
+function revealedKeys(game) {
+  const r = game.reel; if (!r) return [];
+  const n = r.order.length, k = r.nobody || 0;
+  const shown = r.step > n ? n : (k && r.step <= k ? k : r.step);
+  return r.order.slice(0, shown);
+}
+function pickFrame(game, playerId, target, on) {
+  if (game.phase !== PHASES.ANSWER) return { error: 'Framing happens on the reveal' };
   if (!game.players.some(p => p.id === playerId)) return { error: 'Player not in game' };
-  let t = 'pass';
-  if (target !== 'pass') {
-    const v = validateTarget(game, target);
-    if (v.error) return v;
-    if (authorOf(game, v.target) === playerId) return { error: 'You can’t frame your own caption' };
-    if (isBetOnCorrect(game, { target: v.target })) return { error: 'The real caption can’t be framed' };
-    t = v.target;
-  }
-  (game.framePicks = game.framePicks || {})[playerId] = t;
-  return { ok: true, allIn: allFramesIn(game) };
+  const v = validateTarget(game, target);
+  if (v.error) return v;
+  const key = keyOf(v.target);
+  if (!revealedKeys(game).includes(key)) return { error: 'Not yet. Wait for it.' };
+  if (authorOf(game, v.target) === playerId) return { error: 'You can’t frame your own caption' };
+  if (isBetOnCorrect(game, { target: v.target })) return { error: 'The real caption can’t be framed' };
+  const picks = (game.framePicks = game.framePicks || {}), list = picks[key] || (picks[key] = []);
+  const has = list.includes(playerId), want = on === undefined || on === null ? !has : !!on;
+  if (want === has) return { ok: true, noop: true };
+  game.flags = game.flags || [];
+  if (want) { list.push(playerId); game.flags.push({ fromId: playerId, round: game.round, target: v.target, at: Date.now() }); }
+  else { list.splice(list.indexOf(playerId), 1); game.flags = game.flags.filter(f => !(f.round === game.round && String(f.target) === key && f.fromId === playerId)); }
+  let framed = null;
+  const ikey = game.round + '|' + v.target;
+  if (want && list.length >= inductNeed(game) && !(game.inducted || []).includes(ikey)) framed = frameNow(game, v.target);
+  return { ok: true, framed: !!framed };
 }
-// Everyone who was here when framing began, and is still here, has decided (a dropped phone stops counting after the grace)
-function allFramesIn(game) {
-  const picks = game.framePicks || {};
-  const voters = new Set(game.frameVoters || []);
-  return game.players.filter(p => voters.has(p.id) && isPresent(p)).every(p => p.id in picks);
-}
-// The ceremony's beats (server clock): each framed caption gets a slot, then the scoreboard
-const FRAME_LEAD_MS = 900, FRAME_SLOT_MS = 10000, FRAME_NONE_MS = 3600;   // a framing gets time to be admired before the scoreboard
-// Count the picks; every caption with enough is framed (most picks first). Happens once per round.
-function resolveFraming(game) {
-  if (game.phase !== PHASES.FRAMING) return { error: 'Too late — the game moved on' };
-  if (game.frameResult) return { ok: true, noop: true };
-  const at = Date.now(), counts = {}, by = {};
-  const order = game.openCaptions.map((_, i) => String(i)).concat('closed');
-  for (const [pid, t] of Object.entries(game.framePicks || {})) {
-    if (t === 'pass' || !game.players.some(p => p.id === pid)) continue;
-    const k = String(t);
-    counts[k] = (counts[k] || 0) + 1;
-    (by[k] = by[k] || []).push(pid);
-  }
-  // Every pick is kept (the night's 'Most Framed' award and the Gallery's 'framed by' read them)
-  game.flags = (game.flags || []).filter(f => f.round !== game.round);
-  for (const k of order) for (const pid of by[k] || []) game.flags.push({ fromId: pid, round: game.round, target: k === 'closed' ? 'closed' : Number(k), at });
-  const need = inductNeed(game);
-  const framed = Object.keys(counts).filter(k => counts[k] >= need).sort((x, y) => counts[y] - counts[x] || order.indexOf(x) - order.indexOf(y));
+// Framed: into The Gallery now, and the celebration is scheduled on every phone (one after another if two land at once)
+function frameNow(game, target) {
   game.inducted = game.inducted || [];
-  const items = [];
-  framed.forEach((k, i) => {
-    const target = k === 'closed' ? 'closed' : Number(k), key = game.round + '|' + target;
-    if (!game.inducted.includes(key)) game.inducted.push(key);
-    const fl = game.flags.filter(f => f.round === game.round && String(f.target) === k);
-    try { const it = induct(game, target, fl, counts[k], at + FRAME_LEAD_MS + i * FRAME_SLOT_MS); if (it) items.push(it); } catch (e) { console.error('induction', e); }
-  });
-  if (items.length) {
-    const n = ((game.lastInduction && game.lastInduction.n) || game.inductionCount || 0) + 1;
-    game.lastInduction = { ...items[0], n, list: items };
-  }
-  const endsAt = framed.length ? at + FRAME_LEAD_MS + framed.length * FRAME_SLOT_MS : at + FRAME_NONE_MS;
-  game.frameResult = { at, framed: framed.map(k => (k === 'closed' ? 'closed' : Number(k))), counts, endsAt };
-  return { ok: true, framed: game.frameResult.framed, endsAt };
+  const key = game.round + '|' + target;
+  game.inducted.push(key);
+  const fl = (game.flags || []).filter(f => f.round === game.round && String(f.target) === String(target));
+  const now = Date.now(), full = !(game.nightFrames > 0);
+  const at = Math.max(now + FRAME_LEAD_MS, game.frameBusy || 0), ms = full ? FRAME_FULL_MS : FRAME_PLAQUE_MS;
+  let it = null;
+  try { it = induct(game, target, fl, fl.length, at); } catch (e) { console.error('induction', e); }
+  if (!it) return null;
+  game.nightFrames = (game.nightFrames || 0) + 1;
+  game.frameBusy = at + ms;
+  if (full) game.frameHold = at + ms;   // the reel waits while the night's first frame is hung
+  const many = (game.roundFrames || []).length >= 1;
+  const n = Math.max((game.lastInduction && game.lastInduction.n) || 0, game.inductionCount || 0) + 1;
+  Object.assign(it, { n, kind: full ? 'full' : 'plaque', ms,
+    line: pickLine(game, many ? ['frame.many', 'frame.plaque'] : 'frame.plaque', { n: (game.roundFrames || []).length + 1 }),
+    lineMine: pickLine(game, 'frame.mine') });
+  game.roundFrames = (game.roundFrames || []).concat(it);
+  game.lastInduction = { ...it, list: game.roundFrames };
+  if (game.reel && !game.reel.paused && game.reel.step <= game.reel.order.length) game.reel.dueAt = Math.max(game.reel.dueAt || 0, reelDue(game) || 0);
+  return it;
 }
 // Framed = a majority of the OTHER players (the writer can't frame their own): 3 players -> 2, 4 -> 2, 5 -> 3, 6 -> 3, 8 -> 4
 const inductNeed = (game) => Math.floor(Math.max(1, game.players.length - 1) / 2) + 1;
@@ -1634,7 +2063,7 @@ function hallOfFame(game) {
   return out.sort((a, b) => a.round - b.round);
 }
 
-/* ── The finale: after the winner and the Grand Poobah, tonight's Gallery.
+/* ── The finale: after the winner, the awards and the end credits (night.js), tonight's Gallery.
    Every caption framed tonight is shown; with two or more, the table votes (never for your own).
    The winner is Caption of the Night: a short ceremony on every phone at once, then memorialized
    on the untouched cartoon in The Gallery. ── */
@@ -1694,37 +2123,47 @@ function resolveFinale(game) {
   return { ok: true };
 }
 
-/* ── Emoji reactions: one per person per caption, counts only until the answer ── */
-const REACTION_KINDS = ['laugh', 'up', 'fire', 'huh', 'dead', 'roll'];
-const REACT_FACE_UP = [PHASES.READING, PHASES.FIRST_BETS, PHASES.STEAL];   // the Closed Caption is still face-down (#8: the steal comes before the flip)
-const REACT_ALL = [PHASES.REVEAL, PHASES.SECOND_BETS];                 // open captions and the Closed Caption
-function react(game, playerId, target, kind) {
-  const early = REACT_FACE_UP.includes(game.phase);
-  if (!early && !REACT_ALL.includes(game.phase)) return { error: 'Reactions close once the bets are in' };
+/* ── #26 'Ha' and 'Groan': two quiet buttons on every caption, from the reading to the end of the reveal. No points.
+   Each player can Ha and/or Groan each caption once (tap again to take it back), never their own. Nothing is shown
+   before the answer (only your own taps, on your phone): a laugh count would hint at what's real. From the answer on,
+   the counts per caption. A tap made before the answer is 'blind' (1), after it 'open' (2): R10 counts blind Ha's. ── */
+const REACTION_KINDS = ['ha', 'groan'];
+const REACT_PHASES = [PHASES.READING, PHASES.FIRST_BETS, PHASES.STEAL, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.ANSWER];
+function react(game, playerId, target, kind, on) {
+  if (!REACT_PHASES.includes(game.phase)) return { error: 'Reactions close with the round' };
   if (!game.players.some(p => p.id === playerId)) return { error: 'Player not in game' };
   if (!REACTION_KINDS.includes(kind)) return { error: 'That didn’t take. Try again.' };
   const v = validateTarget(game, target);
   if (v.error) return v;
-  if (early && v.target === 'closed') return { error: 'The Closed Caption is still face-down' };
+  if (v.target === 'closed' && !REVEALED.includes(game.phase)) return { error: 'The Closed Caption is still face-down' };
+  if (authorOf(game, v.target) === playerId) return { error: 'Not your own' };
   const key = String(v.target);
   const map = game.reactions[key] || (game.reactions[key] = {});
-  if (map[playerId] === kind) delete map[playerId];   // same one again takes it back
-  else map[playerId] = kind;                          // a different one replaces it
+  const mine = map[playerId] && typeof map[playerId] === 'object' ? map[playerId] : (map[playerId] = {});
+  const has = !!mine[kind], want = on === undefined || on === null ? !has : !!on;
+  if (want && !has) mine[kind] = ANSWERED.includes(game.phase) ? 2 : 1;
+  else if (!want && has) delete mine[kind];
+  if (!Object.keys(mine).length) delete map[playerId];
   return { ok: true };
 }
-// { [targetKey]: { [kind]: n } } — never who, or it would give away who wrote what
+// { [targetKey]: { ha, groan, haBlind } } — never who (it would give away who wrote what)
 function reactionCounts(game) {
   const out = {};
   for (const [key, map] of Object.entries(game.reactions || {})) {
-    const c = {};
-    for (const kind of Object.values(map)) c[kind] = (c[kind] || 0) + 1;
-    if (Object.keys(c).length) out[key] = c;
+    const c = { ha: 0, groan: 0, haBlind: 0 };
+    for (const r of Object.values(map || {})) {
+      if (!r || typeof r !== 'object') continue;   // (a room restored from before #26: the old emoji kinds don't count)
+      if (r.ha) c.ha++;
+      if (r.ha === 1) c.haBlind++;
+      if (r.groan) c.groan++;
+    }
+    if (c.ha || c.groan) out[key] = c;
   }
   return out;
 }
 function myReactions(game, playerId) {
   const out = {};
-  for (const [key, map] of Object.entries(game.reactions || {})) if (map[playerId]) out[key] = map[playerId];
+  for (const [key, map] of Object.entries(game.reactions || {})) { const r = map && map[playerId]; if (r && typeof r === 'object' && (r.ha || r.groan)) out[key] = { ha: !!r.ha, groan: !!r.groan }; }
   return out;
 }
 
@@ -1751,7 +2190,7 @@ function reelOrder(game) {
   const real = realKey(game);
   return real === '-1' ? fakes : [...fakes, real];
 }
-// The dealer steps through the reel one caption at a time; the last step is the round recap
+// The reel steps through the captions by itself (#6); the dealer can go on, go back, or skip to the round recap
 function reelStep(game, how) {
   if (game.phase !== PHASES.ANSWER || !game.reel) return { error: 'Too late — the game moved on' };
   const last = game.reel.order.length + 1;
@@ -1824,8 +2263,12 @@ function awardBadges(game) {
   const dealer = dealerOf(game);
   if (dealer && game.steal && game.steal.victimId && game.steal.onCorrect) give('pickpocket', [dealer.id], game.steal.target, {});
 
-  // (The Grand Poobah is crowned by the phones from the bets; it is not a badge.)
-
+  // #39: each badge's line, picked here so every phone pops the same one
+  for (const b of out) {
+    const d = b.detail || (b.detail = {});
+    const k = b.kind === 'moon' ? (d.shot === 'moon' ? 'badge.moon' : 'badge.half') : b.kind === 'three_bagger' ? 'badge.three' : b.kind === 'clean_sweep' ? 'badge.sweep' : b.kind === 'great_minds' ? 'badge.minds' : b.kind === 'pickpocket' ? 'badge.pickpocket' : null;
+    if (k) d.line = pickLine(game, k, { names: nameList((d.by || []).map(id => firstNameOf(game, id))) });
+  }
   game.roundBadges = out;
   game.gameBadges = (game.gameBadges || []).concat(out.map(b => ({ ...b, round: game.round })));
 }
@@ -1867,7 +2310,6 @@ function beginRated(game) {
   here.forEach(p => { snap[p.id].reported = Rating.validRating(p.rating); });
   game.ratingSnap = snap;
   game.ratingResult = null;
-  game.verdictsAt = null;
   try {
     const o = Rating.opening(here, snap, game.gameId);
     game.opening = { ...o, at: Date.now(), ms: OPEN_MS, gameId: game.gameId };
@@ -1888,12 +2330,6 @@ function settleRating(game) {
     game.ratingResult = { gameId: game.gameId, rows: r.rows, order: r.order, at: Date.now(), scale, short: scale < 1, rounds: game.round };
   } catch (e) { console.error('rating failed', e); game.ratingResult = { gameId: game.gameId, rows: {}, order: [], none: true }; }
 }
-// The dealer/host moves on from the verdicts to the Grand Poobah
-function closeVerdicts(game) {
-  if (game.phase !== PHASES.SCORES || !isGameOver(game)) return { error: 'Not yet' };
-  if (!game.verdictsAt) game.verdictsAt = Date.now();
-  return { ok: true };
-}
 
 function resetForNewGame(game) {
   setPhase(game, PHASES.LOBBY);
@@ -1901,10 +2337,22 @@ function resetForNewGame(game) {
   game.finale = null;
   game.flags = [];
   game.framePicks = {};
-  game.frameVoters = [];
-  game.frameResult = null;
+  game.roundFrames = [];
+  game.frameHold = 0;
+  game.frameBusy = 0;
   game.inducted = [];
   game.realCredit = null;
+  // (lineDeck and nightFrames keep going: no line repeats tonight, and the first frame of the night was the big one)
+  game.lines = {};
+  game.calls = {};
+  game.callResults = [];
+  game.tvc = { table: 0, cartoonist: 0, draws: 0 };
+  game.tvcRound = null;
+  game.odds = null;
+  game.slips = [];
+  game.record = null;
+  game.flipDue = null;
+  game.flipHold = false;
   // The celebration belongs to the old game (n keeps counting, so phones still spot the next one)
   game.inductionCount = game.lastInduction ? game.lastInduction.n : (game.inductionCount || 0);
   game.lastInduction = null;
@@ -1930,7 +2378,6 @@ function resetForNewGame(game) {
   game.reel = null;
   game.roundBadges = [];
   game.gameBadges = [];
-  game.crowns = {};
   game.stealShows = 0;   // (nightSteals keeps counting: the full show is for the night's first steal)
   game.blind = {};
   game.blindEnd = null;
@@ -1944,7 +2391,6 @@ function resetForNewGame(game) {
   game.ratingSnap = null;
   game.opening = null;
   game.ratingResult = null;
-  game.verdictsAt = null;
 }
 
 const AFTER_WRITING = [PHASES.READING, PHASES.FIRST_BETS, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.STEAL, PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
@@ -2005,7 +2451,7 @@ function getPlayerView(game, playerId) {
     stealShows: game.stealShows || 0,
     voice: Object.fromEntries(Object.entries(game.voice || {}).filter(([pid]) => game.players.some(p => p.id === pid && p.connected)).map(([pid, v]) => [pid, { on: true, muted: !!v.muted }])),   // who's in the voice call
     inductNeed: inductNeed(game),
-    lastInduction: game.lastInduction ? { ...game.lastInduction, flaggers: [...game.lastInduction.flaggers], list: (game.lastInduction.list || []).map(x => ({ ...x, flaggers: [...x.flaggers] })) } : null,   // only made when framing resolves
+    lastInduction: game.lastInduction ? { ...game.lastInduction, flaggers: [...game.lastInduction.flaggers], list: (game.lastInduction.list || []).map(x => ({ ...x, flaggers: [...x.flaggers] })) } : null,   // the latest framing (#5: the moment it's framed, on the reveal)
     hofDeck: deckCartoons(game),
     hofTotal: deckOf(game).count(),
   };
@@ -2033,7 +2479,15 @@ function getPlayerView(game, playerId) {
     return base;
   }
 
-  if (game.cartoon) base.cartoon = game.cartoon;
+  if (game.cartoon) {
+    base.cartoon = game.cartoon;
+    // R15: the odd details in this cartoon (card_meta.json "odd"), for the pencil-circle nudges while writing
+    const odd = game.phase === PHASES.WRITING && (CARD_META[String(game.cartoon.id)] || {}).odd;
+    if (Array.isArray(odd) && odd.length) base.cartoonOdd = odd.filter(o => o && typeof o.q === 'string' && Number.isFinite(+o.x) && Number.isFinite(+o.y) && Number.isFinite(+o.r)).slice(0, 12).map(o => ({ q: String(o.q).slice(0, 120), x: Math.max(0, Math.min(100, +o.x)), y: Math.max(0, Math.min(100, +o.y)), r: Math.max(3, Math.min(35, +o.r)) }));
+  }
+  base.gameNo = game.gameNo || 0;   // which game in this room (a second game counts its rounds from 1 again)
+  base.note = game.note ? { ...game.note } : null;   // R22 the Editor's note (every phone, the whole round)
+  base.kids = game.startedFamily ? { inBed: !!game.kidsInBed, card: game.kidsCard ? { ...game.kidsCard } : null } : null;   // R16
   if (game.opening && game.round === 1 && game.phase === PHASES.WRITING) base.opening = JSON.parse(JSON.stringify(game.opening));
   const mine = game.submissions.find(x => x.playerId === playerId);
 
@@ -2076,16 +2530,29 @@ function getPlayerView(game, playerId) {
     else base.steal = null;
   }
 
-  // Before the answer: how many of each reaction, never who; after: the full picture
-  if (REACT_FACE_UP.includes(game.phase) || REACT_ALL.includes(game.phase) || game.phase === PHASES.STEAL) {
-    base.reactionCounts = reactionCounts(game);
+  // #26 Ha / Groan: before the answer only your own taps; from the answer on, the counts per caption (never who)
+  if (REACT_PHASES.includes(game.phase) || game.phase === PHASES.SCORES) {
     base.myReactions = myReactions(game, playerId);
+    if (ANSWERED.includes(game.phase)) base.reactionCounts = reactionCounts(game);
   }
   if (ANSWERED.includes(game.phase)) {
-    base.reactions = JSON.parse(JSON.stringify(game.reactions || {}));
-    base.reel = game.reel ? { order: [...game.reel.order], step: game.reel.step, nobody: game.reel.nobody || 0 } : null;
-    base.roundBadges = (game.roundBadges || []).map(b => ({ ...b }));
+    base.reel = game.reel ? { order: [...game.reel.order], step: game.reel.step, nobody: game.reel.nobody || 0, paused: !!game.reel.paused, dueAt: game.reel.dueAt || null } : null;
+    base.roundBadges = (game.roundBadges || []).map(b => ({ ...b, detail: { ...(b.detail || {}) } }));
   }
+  // #6: the flip moves on by itself at flipDue (null: the dealer is holding it)
+  if (game.phase === PHASES.REVEAL) { base.flipDue = game.flipDue || null; base.flipHold = !!game.flipHold; }
+  // #39: this round's lines (the server picked them; a line about your own face-down caption only reaches you)
+  { const L = game.lines || {}, out = {};
+    for (const [k, v] of Object.entries(L)) {
+      if ((k === 'yoursRead' || k === 'yoursFlip') && game.closedPlayerId !== playerId) continue;
+      if (k === 'betDealer' && !isDealer) continue;
+      if ((k === 'reel' || k.startsWith('end') || k === 'noted' || k === 'reelGroup' || k === 'reelHold') && !ANSWERED.includes(game.phase)) continue;
+      out[k] = v && typeof v === 'object' ? JSON.parse(JSON.stringify(v)) : v;
+    }
+    base.lines = out; }
+  // R11: your own call (secret), until the reveal says how it went
+  if (game.phase === PHASES.WRITING || game.phase === PHASES.READING) base.myCall = (game.calls || {})[playerId] || null;
+  if (ANSWERED.includes(game.phase)) base.callResults = (game.callResults || []).map(c => ({ ...c }));
 
   if (REVEALED.includes(game.phase)) {
     base.closedCaption = game.closedCaption;
@@ -2107,19 +2574,27 @@ function getPlayerView(game, playerId) {
     base.hallOfFame = hallOfFame(game);
   }
 
-  // Frame It: who has decided (never who picked what, or how many) until it resolves
-  if (game.phase === PHASES.FRAMING) {
-    const picks = game.framePicks || {}, r = game.frameResult;
+  // #5 Frame It on the reveal: what you've framed, how many frames each caption has (never who), what's been framed
+  if (game.phase === PHASES.ANSWER) {
+    const picks = game.framePicks || {};
     base.framing = {
-      voters: [...(game.frameVoters || [])],
-      decided: Object.keys(picks),
-      myPick: playerId in picks ? picks[playerId] : null,
-      resolved: !!r,
-      result: r ? { at: r.at, framed: [...r.framed], counts: { ...r.counts }, endsAt: r.endsAt } : null,
+      mine: Object.keys(picks).filter(k => (picks[k] || []).includes(playerId)),
+      counts: Object.fromEntries(Object.entries(picks).map(([k, l]) => [k, (l || []).length]).filter(([, n]) => n > 0)),
+      framed: (game.roundFrames || []).map(f => String(f.target)),
+      revealed: revealedKeys(game),
+      hold: game.frameHold || 0,
     };
+  }
+  // R10 / R8: the blind-laugh score and this round's odds line (from the answer on)
+  if (ANSWERED.includes(game.phase)) {
+    base.tvc = { ...(game.tvc || { table: 0, cartoonist: 0, draws: 0 }), game: game.code + '-' + (game.gameNo || 0) };   // game: which game this tally belongs to (phones keep the table's best)
+    base.tvcRound = game.tvcRound ? { ...game.tvcRound } : null;
+    base.odds = game.odds && game.odds.round === game.round ? { ...game.odds } : null;
   }
 
   if (game.phase === PHASES.SCORES) {
+    base.slips = (game.slips || []).map(x => ({ ...x }));   // R1: this round's rejection slips (each writer's phone shows its own)
+    base.record = game.record ? JSON.parse(JSON.stringify(game.record)) : null;   // the game so far, for the end of the night
     base.gameOver = isGameOver(game);
     base.previousRank = game.previousRank || {};
     base.history = game.history || [];
@@ -2139,7 +2614,6 @@ function getPlayerView(game, playerId) {
       base.framedTonight = finaleEntries(game).length;
       settleRating(game);   // (a room restored from before the rating: worked out now, once)
       if (game.ratingResult && !game.ratingResult.none) base.rating = JSON.parse(JSON.stringify(game.ratingResult));
-      base.verdictsAt = game.verdictsAt || null;
       const f = game.finale;
       if (f) base.finale = {
         at: f.at, entries: f.entries.map(e => ({ ...e, flaggers: [...e.flaggers] })),
@@ -2190,6 +2664,13 @@ function unsealGame(blob) {
     if (g.phase === PHASES.FIRST_BETS && !g.dropAt && g.blindEnd) g.blindEnd = Math.max(g.blindEnd, Date.now() + 20000);   // bettors get a fair 20 s back
     g.usedCartoonIds = (g.usedCartoonIds || []).filter(id => !isRetiredId(id));
     if (g.cartoon && isRetiredId(g.cartoon.id)) resetForNewGame(g);   // a room from before the retirement: back to the lobby
+    // #5: a room sealed on the old Frame It screen comes back on the recap (Frame It lives on the reveal now)
+    if (g.phase === 'framing') { g.phase = PHASES.ANSWER; if (g.reel) { g.reel.step = (g.reel.order || []).length + 1; g.reel.dueAt = null; } }
+    // #6: the reel and the flip pick up where they were, with a fair few seconds
+    if (g.phase === PHASES.ANSWER && g.reel && g.reel.dueAt) g.reel.dueAt = Math.max(g.reel.dueAt, Date.now() + 3000);
+    if (g.phase === PHASES.REVEAL && g.flipDue) g.flipDue = Math.max(g.flipDue, Date.now() + 3000);
+    if (!g.lineDeck || typeof g.lineDeck !== 'object') g.lineDeck = {};
+    if (!g.lines || typeof g.lines !== 'object') g.lines = {};
     g.players.forEach(p => { p.connected = false; p.disconnectedAt = Date.now(); });
     g.timerToken = (g.timerToken || 0) + 1;
     if (g.timerEnd) g.timerEnd = Math.max(g.timerEnd, Date.now() + 30000);   // writers get a fair 30 s back
@@ -2201,14 +2682,16 @@ module.exports = {
   sealGame, unsealGame, tooCloseToReal, pickByLevel, tableKind, setPosition, levelOf, canDeal, deckStatus, startCheck, endForDeck, isRetiredId, FIRST_LIVE_ID,
   PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS,
   cleanTimer, DEFAULT_TIMER, totalRounds,   // [settings]
-  addTime, undoBet, freshest, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, pickFrame, allFramesIn, resolveFraming, hallOfFame, planBlock, ensurePlan,
+  addTime, undoBet, freshest, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, pickFrame, hallOfFame, planBlock, ensurePlan,
+  callShot, setHold, reelDue, revealedKeys, pickLine, noteLastWriter, reactionCounts, FLIP_AUTO_MS, LINES,
+  wordCount, usesWord, applyNote, kidsToggle,
   inductNeed, deckCartoons, dealCartoon, store, syncGallery, setPlayerSeen, seenCounts,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn,
   moveToFirstBets, placeBet, skipCurrentBetter, dropBlind, afterBlinds, moveFromReveal, moveFromSecondBets, eligibleSecondBetters,
   standing, fooledTally, isLate, lapsOf, BLIND_MS, ALL_IN_BEAT_MS, DROP_HOLD_MS, STEAL_FULL_MS, STEAL_SHORT_MS, LATE_MS,
   openFinale, voteFinale, resolveFinale, finaleAllIn,
   setVoice, clearVoice,
-  stealChip, revealAnswer, moveToFraming, moveToScoreboard, isGameOver, resetForNewGame, isPresent,
-  REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer, closeVerdicts, OPEN_MS,
+  stealChip, revealAnswer, moveToScoreboard, isGameOver, resetForNewGame, isPresent,
+  REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer, OPEN_MS,
   currentBetterId, pendingBetters, nextDealerIndex, getPlayerView, generateRoomCode,
 };

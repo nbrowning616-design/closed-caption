@@ -395,7 +395,7 @@
       var title = mine ? 'You’ve been framed.' : isReal ? 'The original, framed.' : 'Framed.';
       var who = isReal ? 'The original caption' : esc(author);
       var plaqueBy = framers ? 'Framed by ' + esc(framers) : 'Framed by the table';
-      var now = isReal ? 'The classics hold up.' : mine ? 'You beat the real one. Hanging in The Gallery for good.' : 'Better than the real one. Now hanging in The Gallery.';
+      var now = opts.now ? String(opts.now) : isReal ? 'The classics hold up.' : mine ? 'You beat the real one. Hanging in The Gallery for good.' : 'Better than the real one. Now hanging in The Gallery.';   // #39: the server picks the line
 
       root.innerHTML =
         '<div class="gal-wall"></div><div class="gal-plaster"></div><div class="gal-floor"></div>' +

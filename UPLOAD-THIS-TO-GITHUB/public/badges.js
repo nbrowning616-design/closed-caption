@@ -23,7 +23,7 @@
 
   /* ── Kinds ── rim = patch colour, bg = inner disc */
   // Only the five badges that tell a story. Old careers on a phone may still count removed kinds
-  // (ice_cold, better_than_real, less_is_more, crowd_favorite, poobah, hat_trick): the badge case ignores them.
+  // (ice_cold, better_than_real, less_is_more, crowd_favorite and two retired hat badges): the badge case ignores them.
   var KINDS = {
     moon:             { name: 'Moon Landing',               desc: 'Bet both chips blind on the real caption — and hit.' },
     three_bagger:     { name: 'Three Bagger',               desc: 'Three players bet both chips on your caption.' },
@@ -41,9 +41,7 @@
     less_is_more:     { rim: '#E8559E', bg: '#FFE4F0' },
     great_minds:      { rim: BLUE,      bg: '#E3EDFF' },
     pickpocket:       { rim: '#3A332E', bg: '#FFF1D6' },
-    crowd_favorite:   { rim: '#F28C0F', bg: '#FFE9CC' },
-    poobah:           { rim: VIOLET,    bg: '#ECE7FF' },
-    hat_trick:        { rim: '#3B2A8F', bg: '#FFF4C7', stitch: YELLOW }
+    crowd_favorite:   { rim: '#F28C0F', bg: '#FFE9CC' }
   };
 
   function esc(s) {
@@ -67,17 +65,6 @@
       pts.push((cx + r * Math.cos(a)).toFixed(2) + ' ' + (cy + r * Math.sin(a)).toFixed(2));
     }
     return '<path d="M' + pts.join(' L') + ' Z" fill="' + fill + '"' + (sw != null ? ' stroke-width="' + sw + '"' : '') + '/>';
-  }
-  // The Poobah fez, drawn upright around (32,31)
-  function fez(sw, big) {
-    return '<path d="M32 15 Q24 19 20 25" fill="none" stroke-width="' + (sw * 0.8) + '"/>' +
-      '<path d="M17 24.5 L22 25.5 L23 33 L18.5 33.5 Z" fill="' + YELLOW + '"/>' +
-      '<path d="M21 47 L25 20 Q26 14.5 31 14.5 H33 Q38 14.5 39 20 L43 47 Z" fill="' + VIOLET + '"/>' +
-      (big ? '<path d="M27.5 21 Q26.5 32 27.5 42" fill="none" stroke="#9C84FF" stroke-width="' + (sw * 1.1) + '" stroke-opacity=".8"/>' : '') +
-      '<rect x="17" y="39" width="30" height="10" rx="3" fill="' + YELLOW + '"/>' +
-      '<path d="M32 40 L36 44 L32 48 L28 44 Z" fill="' + RED + '" stroke-width="' + (sw * 0.8) + '"/>' +
-      '<circle cx="32" cy="14.5" r="3.2" fill="' + YELLOW + '"/>' +
-      (big ? star5(35.5, 28, 3.6, YELLOW, sw * 0.6) : '');
   }
   function rocket(sw, big) {
     // upright rocket, nose at (32,12)
@@ -204,16 +191,6 @@
         '<path d="M13 28 Q11 33 12.6 35.6 Q14.4 37.8 16.4 35.4 Q17.8 33 13 28 Z" fill="#7FC4FF" stroke-width="' + (sw * 0.75) + '"/>' +
         '<path d="M51 28 Q53 33 51.4 35.6 Q49.6 37.8 47.6 35.4 Q46.2 33 51 28 Z" fill="#7FC4FF" stroke-width="' + (sw * 0.75) + '"/>' +
         (big ? '<path d="M24.5 17.8 Q28 15.6 31.5 15.8" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="' + (sw * 0.9) + '"/>' : '');
-    },
-    poobah: function (sw, big) {
-      return '<g transform="translate(32 32) scale(1.02) translate(-32 -32)">' + fez(sw, big) + '</g>';
-    },
-    hat_trick: function (sw, big) {
-      function hat(x, y, k, rot) {
-        return '<g transform="translate(' + x + ' ' + y + ') rotate(' + rot + ') scale(' + k + ') translate(-32 -31)" stroke-width="' + (sw / k) + '">' + fez(sw / k, false) + '</g>';
-      }
-      return (big ? star4(14.5, 19, 2.6, VIOLET) + star4(49.5, 19, 2.6, VIOLET) : '') +
-        hat(18, 37, 0.42, -14) + hat(46, 37, 0.42, 14) + hat(32, 30.5, 0.58, 0);
     }
   };
 

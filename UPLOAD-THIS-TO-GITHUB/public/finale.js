@@ -1,12 +1,12 @@
 /* Closed Caption — THE FINALE (finale.js)
-   After the winner and the Grand Poobah: tonight's Gallery.
+   After the winner, the awards and the end credits (ending.js): tonight's Gallery.
      1. Every caption framed tonight is shown. Two or more: everyone votes for the best (never their own).
      2. Caption of the Night: a short, quiet ceremony on every phone at once (~5 s). The framed card is hung,
         the rosette pinned on, the brass plaque engraved. Then it hangs in The Gallery for good, on the clean,
         untouched cartoon. One keepsake: the framed card, to save or text.
    Server: state.finale = { entries, voters, decided, myVote, canVote, winner, counts, tie, showAt, best }.
    Reads the page's globals at call time: state, myPlayerId, esc, nameOf, playerById, chipHtml, plural,
-   tone, noise, buzz, big, sfx, canRun, send, clockOffset, makeCardFrom, closeGrand, render.
+   tone, noise, buzz, big, sfx, canRun, send, clockOffset, makeCardFrom, render.
    CSS prefix: fp-. */
 (function () {
   'use strict';
@@ -239,7 +239,6 @@
     if (playing === tag || doneFor === tag) return;
     var t = now(), wait = f.showAt - t;
     if (wait < -60000) return;   // long over: the memorial on the page does the honours
-    try { if (typeof closeGrand === 'function' && document.getElementById('poobah') && document.getElementById('poobah').className) closeGrand(); } catch (e) {}
     play(f, Math.max(0, wait), Math.max(0, -wait));
   }
   // The keepsake: the framed card (the untouched cartoon and the caption)
