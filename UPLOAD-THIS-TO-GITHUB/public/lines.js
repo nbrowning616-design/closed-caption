@@ -396,7 +396,7 @@ const ccLines = {
  ],
  "flip.riders": [
   "{riders} bet on it without reading it.",
-  "{riders} are riding on this.",
+  "{riders} went in blind on this one.",
   "{riders} took it on faith."
  ],
  "reel.real": [
