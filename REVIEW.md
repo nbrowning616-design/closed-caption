@@ -459,3 +459,6 @@ some virtual players any time just to make the game better (6 players is ideal).
 - SOLO PRACTICE from the home page: you write a fake for each cartoon, then spot the real one among 5 captions (yours, the
   real one, 3 house fakes); score = how often you find the real one; no rating change.
 - Needs a bank of ~5 good house fakes per cartoon, written ahead by writers (never generated live). Bank: card_meta "decoys".
+- Nick: "For the practice version, the real one should be slightly superior or even with the next best auto-generated." The
+  bank rates every house fake 2–5 against the real caption (5 = as good, never better); solo practice deals fakes rated 4–5 so
+  the real one is the best or tied, never outshone; house players at the table use the same bank.
