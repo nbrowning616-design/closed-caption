@@ -436,3 +436,17 @@ NO: R3-14 The Regular / fern man (Nick: "great ideas, but just too much for now"
 R3-13 Stand By, R3-16 Next time on, R3-17 Not out loud, R3-18 Don't get it, R3-20 channel flip, R3-21 practice hand, R3-23
 no-show credit, R3-24 the squeeze, R3-25 late lights, R3-28 remote grab (no preference → not added), R3-29 shared phone.
 Build order: the eight cuts first (build-cuts), then the round-3 YES items on top, measured against the cut targets.
+
+## DIRECTION (Nick, Oct 21 2026, morning) — CORE FIRST
+"Forget sequels for now. The bones, mechanics and UI of the program need to be perfect first. Then we can look to maybe add a
+few of these great ideas." → ALL new features are PARKED: round-3 items, sequels, The Regular, sticky note, TV screen, Daily,
+come-back hooks, holiday deck, small-table decoys, press page. Cartoons keep coming.
+PAYOFF BEATS (Nick: "sometimes a funny comment needs another few beats to pay off. Some screens seemed too quick to pay off."
+He named: the real-caption reveal (and who fell for what), the steal and skip-gag endings, and the end of night — awards,
+credits, Caption of the Night). Rule for the cuts: CUT TALK, NOT PAYOFF TIME. Every line that stays gets its reading time
+(words ÷ 3 s) plus a held beat of 1.5–2 s of stillness before anything moves; never stack a second line on a first that
+hasn't landed; the big payoffs (the real caption, each end credit, Caption of the Night) advance on the dealer's tap with a
+generous fallback (8–12 s). Time is saved from dead time instead (simultaneous last chips, 90 s clock, fewer lines,
+scoreboard merged into recap, quicker transitions), never from the payoff holds.
+Plan: (1) finish the eight cuts on build-cuts with this rule; (2) a fresh panel plays it hunting only for bugs, confusing
+screens and bad timing; Nick approves fixes as taps.
