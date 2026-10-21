@@ -24,6 +24,28 @@
 "y":58,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"Sir, you'll have to shower first.",
+"s":4
+},
+{
+"t":"He says it's cheaper than therapy.",
+"s":3
+},
+{
+"t":"I'm not paid enough to go in after a briefcase.",
+"s":4
+},
+{
+"t":"It's his first day off in eleven years.",
+"s":4
+},
+{
+"t":"He won't jump without a second opinion.",
+"s":3
+}
 ]
 },
 "114":{
@@ -52,7 +74,29 @@
 "r":11
 }
 ],
-"word":"Florida"
+"word":"Florida",
+"decoys":[
+{
+"t":"Relax, it's on the cool setting.",
+"s":4
+},
+{
+"t":"I just want to take a little off the middle.",
+"s":4
+},
+{
+"t":"Give me the carrot and nobody melts.",
+"s":4
+},
+{
+"t":"I found it in the house. They use it on each other.",
+"s":3
+},
+{
+"t":"Say that again about my hat.",
+"s":3
+}
+]
 },
 "115":{
 "style":3,
@@ -81,7 +125,29 @@
 "r":9
 }
 ],
-"word":"agent"
+"word":"agent",
+"decoys":[
+{
+"t":"The critics say he's all technique.",
+"s":3
+},
+{
+"t":"He's showing off. Most people manage with two.",
+"s":4
+},
+{
+"t":"I was supposed to be his page-turner.",
+"s":4
+},
+{
+"t":"Wait until he gets to the duet.",
+"s":3
+},
+{
+"t":"Honestly, I preferred him on the harp.",
+"s":3
+}
+]
 },
 "116":{
 "style":4,
@@ -108,6 +174,28 @@
 "x":50,
 "y":56,
 "r":15
+}
+],
+"decoys":[
+{
+"t":"Our therapist said we had to share a couch.",
+"s":3
+},
+{
+"t":"Text me if you want the volume up.",
+"s":4
+},
+{
+"t":"The dog used to sit in the middle.",
+"s":4
+},
+{
+"t":"Whoever blinks first picks the show.",
+"s":3
+},
+{
+"t":"The salesman called it a loveseat.",
+"s":4
 }
 ]
 },
@@ -138,6 +226,28 @@
 "y":47,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"Hold still. I'm almost at the sleeve.",
+"s":4
+},
+{
+"t":"It's for him, actually.",
+"s":4
+},
+{
+"t":"He prefers this to the clippers.",
+"s":3
+},
+{
+"t":"We've been meeting here every Tuesday since spring.",
+"s":3
+},
+{
+"t":"He gets a little colder with every grandchild.",
+"s":4
+}
 ]
 },
 "119":{
@@ -167,7 +277,29 @@
 "r":6
 }
 ],
-"word":"client"
+"word":"client",
+"decoys":[
+{
+"t":"All further questions go through my brother.",
+"s":4
+},
+{
+"t":"We'll need to see last year's books.",
+"s":3
+},
+{
+"t":"The permit's under my mom's name.",
+"s":4
+},
+{
+"t":"Read the part about free refills again.",
+"s":3
+},
+{
+"t":"My associate needs a juice box before we continue.",
+"s":3
+}
+]
 },
 "120":{
 "style":3,
@@ -197,7 +329,29 @@
 "r":7
 }
 ],
-"word":"mother"
+"word":"mother",
+"decoys":[
+{
+"t":"The HOA has responded to your letter.",
+"s":4
+},
+{
+"t":"I may have hit 'order' more than once.",
+"s":4
+},
+{
+"t":"Act natural. I think one of them moved.",
+"s":3
+},
+{
+"t":"Apparently they migrate.",
+"s":3
+},
+{
+"t":"I said one would be tasteful.",
+"s":4
+}
+]
 },
 "121":{
 "style":4,
@@ -225,7 +379,29 @@
 "r":6
 }
 ],
-"word":"HR"
+"word":"HR",
+"decoys":[
+{
+"t":"The restructuring was very thorough.",
+"s":4
+},
+{
+"t":"Phil and I keep to ourselves.",
+"s":4
+},
+{
+"t":"The plant got the corner office.",
+"s":3
+},
+{
+"t":"They say the open plan fosters collaboration.",
+"s":3
+},
+{
+"t":"I water it Fridays. It's a whole commute.",
+"s":3
+}
+]
 },
 "122":{
 "style":5,
@@ -253,6 +429,28 @@
 "x":17,
 "y":47,
 "r":13
+}
+],
+"decoys":[
+{
+"t":"The youngest takes after his father.",
+"s":4
+},
+{
+"t":"That one's never once talked back.",
+"s":4
+},
+{
+"t":"Keep up, all five of you.",
+"s":3
+},
+{
+"t":"It's a support duck.",
+"s":3
+},
+{
+"t":"He wanted a dog, but we're a duck family.",
+"s":3
 }
 ]
 },
@@ -283,6 +481,28 @@
 "y":22,
 "r":11
 }
+],
+"decoys":[
+{
+"t":"Every day he gets a little faster. It's very rude.",
+"s":4
+},
+{
+"t":"His doctor gave him ten more years. We'll see.",
+"s":4
+},
+{
+"t":"Give it till noon.",
+"s":3
+},
+{
+"t":"Personally, I blame the electrolyte drinks.",
+"s":3
+},
+{
+"t":"Remind me why we passed on the golfer.",
+"s":4
+}
 ]
 },
 "124":{
@@ -311,6 +531,28 @@
 "x":89,
 "y":44,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Don't stare. He's very self-conscious about wrinkles.",
+"s":4
+},
+{
+"t":"He's still looking for the other sock.",
+"s":3
+},
+{
+"t":"That's my good one. This is my everyday.",
+"s":4
+},
+{
+"t":"He's waiting on his wife.",
+"s":3
+},
+{
+"t":"He seems harmless. He separates his darks.",
+"s":3
 }
 ]
 },
@@ -341,6 +583,28 @@
 "y":66,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"Sir, I'll need to see some ID.",
+"s":4
+},
+{
+"t":"He usually sends his squire.",
+"s":4
+},
+{
+"t":"He refuses to scan anything he hasn't slain.",
+"s":3
+},
+{
+"t":"He wants the manager. He means the king.",
+"s":3
+},
+{
+"t":"Every time, he asks if we take gold.",
+"s":3
+}
 ]
 },
 "126":{
@@ -369,6 +633,28 @@
 "x":68,
 "y":56,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"He's been very cold since the election.",
+"s":4
+},
+{
+"t":"It's not you. I just needed my own island.",
+"s":4
+},
+{
+"t":"We tried seeing other people. Nobody came.",
+"s":3
+},
+{
+"t":"He keeps saying the water's better on his side.",
+"s":3
+},
+{
+"t":"He still won't say what happened to the raft.",
+"s":3
 }
 ]
 },
@@ -399,6 +685,28 @@
 "y":37,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"Count your kidneys. I'll count mine.",
+"s":4
+},
+{
+"t":"Remember, you didn't see anything.",
+"s":4
+},
+{
+"t":"Last thing I remember, I was the best man.",
+"s":3
+},
+{
+"t":"Don't look at me like that. You live in water too.",
+"s":3
+},
+{
+"t":"The ice was your idea, as I recall.",
+"s":3
+}
 ]
 },
 "128":{
@@ -426,6 +734,28 @@
 "x":59,
 "y":43,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"Lower. Lower. Keep going.",
+"s":4
+},
+{
+"t":"If I'm wrong, you win the mouse.",
+"s":4
+},
+{
+"t":"Take your time. Most men round up.",
+"s":4
+},
+{
+"t":"Gross or net? It changes the prize.",
+"s":3
+},
+{
+"t":"The booth next door guesses your pension.",
+"s":3
 }
 ]
 },
@@ -457,7 +787,29 @@
 "r":8
 }
 ],
-"word":"box"
+"word":"box",
+"decoys":[
+{
+"t":"No, no, don't get up.",
+"s":4
+},
+{
+"t":"Step twelve says to lower your expectations.",
+"s":3
+},
+{
+"t":"Two hundred dollars, and they want my lap.",
+"s":4
+},
+{
+"t":"The reviews all said 'eventually.'",
+"s":3
+},
+{
+"t":"It's for the cats, theoretically.",
+"s":3
+}
+]
 },
 "130":{
 "style":3,
@@ -484,6 +836,28 @@
 "x":82,
 "y":68,
 "r":14
+}
+],
+"decoys":[
+{
+"t":"It's based on a true story.",
+"s":4
+},
+{
+"t":"I keep waiting for the car chase.",
+"s":4
+},
+{
+"t":"The critics called it painfully relatable.",
+"s":3
+},
+{
+"t":"Third week in a row it's been held over.",
+"s":3
+},
+{
+"t":"Honestly, the book was better.",
+"s":3
 }
 ]
 },
@@ -516,7 +890,29 @@
 "r":6
 }
 ],
-"word":"friend"
+"word":"friend",
+"decoys":[
+{
+"t":"Let me guess. First time north of the equator.",
+"s":4
+},
+{
+"t":"Do you have anything with herring in it?",
+"s":3
+},
+{
+"t":"Ice is extra, I'm afraid.",
+"s":4
+},
+{
+"t":"You'll want to reapply every twenty minutes.",
+"s":3
+},
+{
+"t":"Bit formal for the beach, isn't it?",
+"s":3
+}
+]
 },
 "134":{
 "style":1,
@@ -542,6 +938,28 @@
 "x":77,
 "y":35,
 "r":13
+}
+],
+"decoys":[
+{
+"t":"My critics say I've turned my back on the public.",
+"s":4
+},
+{
+"t":"It's a series. You can watch the bald spot evolve.",
+"s":4
+},
+{
+"t":"My dealer keeps asking for one from the front.",
+"s":4
+},
+{
+"t":"I paint what I can't see.",
+"s":3
+},
+{
+"t":"It's the only side of me my wife still likes.",
+"s":3
 }
 ]
 },
@@ -574,6 +992,28 @@
 "y":61,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"I was only checking the expiration date.",
+"s":4
+},
+{
+"t":"We'll discuss this in the spring.",
+"s":4
+},
+{
+"t":"Who keeps putting it back in the cupboard?",
+"s":3
+},
+{
+"t":"The doctor said cut back, not cut out.",
+"s":3
+},
+{
+"t":"You're up early for December.",
+"s":3
+}
 ]
 },
 "136":{
@@ -603,7 +1043,29 @@
 "r":8
 }
 ],
-"word":"client"
+"word":"client",
+"decoys":[
+{
+"t":"Before dessert, there are a few disclosures.",
+"s":4
+},
+{
+"t":"For the record, she's splitting the check.",
+"s":4
+},
+{
+"t":"We'll need to revisit the goodnight kiss clause.",
+"s":3
+},
+{
+"t":"She'd like it noted that you chew loudly.",
+"s":3
+},
+{
+"t":"His mother's lawyer will be joining us shortly.",
+"s":3
+}
+]
 },
 "137":{
 "style":3,
@@ -632,7 +1094,29 @@
 "r":7
 }
 ],
-"word":"fishing"
+"word":"fishing",
+"decoys":[
+{
+"t":"Keep it down. You're scaring the fish.",
+"s":4
+},
+{
+"t":"Don't look at me. I just fish here.",
+"s":4
+},
+{
+"t":"Third one this month. The insurance man knows me by name.",
+"s":3
+},
+{
+"t":"Every captain thinks he's the exception.",
+"s":3
+},
+{
+"t":"He'll wave in a minute. They always wave.",
+"s":3
+}
+]
 },
 "138":{
 "style":5,
@@ -664,7 +1148,29 @@
 "r":7
 }
 ],
-"word":"hamster"
+"word":"hamster",
+"decoys":[
+{
+"t":"He's never once asked for a raise.",
+"s":4
+},
+{
+"t":"Frankly, he's shown a lot more initiative this quarter.",
+"s":4
+},
+{
+"t":"He used to sit where you're sitting.",
+"s":4
+},
+{
+"t":"I like to look at every candidate from all sides.",
+"s":3
+},
+{
+"t":"That mug, by the way, belongs to the fish.",
+"s":3
+}
+]
 },
 "139":{
 "style":1,
@@ -692,6 +1198,28 @@
 "x":73,
 "y":29,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"He tips well, if you can reach it.",
+"s":4
+},
+{
+"t":"Don't honk. He's a regular.",
+"s":4
+},
+{
+"t":"It's his third lap. He keeps forgetting the napkins.",
+"s":3
+},
+{
+"t":"Ask him if the salad's any good.",
+"s":3
+},
+{
+"t":"Everything he orders comes with extra lettuce.",
+"s":3
 }
 ]
 },
@@ -721,7 +1249,29 @@
 "r":11
 }
 ],
-"word":"wife"
+"word":"wife",
+"decoys":[
+{
+"t":"She always did have to make an entrance.",
+"s":4
+},
+{
+"t":"He paid for the hat. He just doesn't know it.",
+"s":4
+},
+{
+"t":"Don't look now, but the will just walked in.",
+"s":4
+},
+{
+"t":"She RSVP'd for herself and the hat.",
+"s":3
+},
+{
+"t":"Of course she wore the good veil.",
+"s":3
+}
+]
 },
 "142":{
 "style":5,
@@ -750,7 +1300,29 @@
 "r":8
 }
 ],
-"word":"loan"
+"word":"loan",
+"decoys":[
+{
+"t":"Give it a minute. It grows on you.",
+"s":4
+},
+{
+"t":"I've guarded it for thirty years. Not a scratch.",
+"s":4
+},
+{
+"t":"It was a lot busier before lunch.",
+"s":3
+},
+{
+"t":"Sir, please, no flash.",
+"s":3
+},
+{
+"t":"The artist said he'd know when it was finished.",
+"s":3
+}
+]
 },
 "143":{
 "style":1,
@@ -777,6 +1349,28 @@
 "x":15,
 "y":49,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Don't worry. There's no such thing as little boys.",
+"s":4
+},
+{
+"t":"Last one. My mother thinks I'm under the bed.",
+"s":4
+},
+{
+"t":"Your parents think you're ready for the scary version.",
+"s":3
+},
+{
+"t":"I'll do the voices if you stop shaking.",
+"s":3
+},
+{
+"t":"Your father and I go way back.",
+"s":3
 }
 ]
 },
@@ -809,7 +1403,29 @@
 "r":11
 }
 ],
-"word":"car"
+"word":"car",
+"decoys":[
+{
+"t":"Better than anything on cable.",
+"s":4
+},
+{
+"t":"I told you the new couple would be interesting.",
+"s":4
+},
+{
+"t":"Pass the popcorn. I think they're making up.",
+"s":3
+},
+{
+"t":"Fifty-one years, and we never once did that.",
+"s":3
+},
+{
+"t":"Should we bring a casserole or wait for the divorce?",
+"s":3
+}
+]
 },
 "145":{
 "style":3,
@@ -837,6 +1453,28 @@
 "x":34,
 "y":22,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"The previous owner was a soup.",
+"s":4
+},
+{
+"t":"It's in a very up-and-coming pantry.",
+"s":4
+},
+{
+"t":"Be quick. The couple in the light bulb are bidding too.",
+"s":3
+},
+{
+"t":"Honestly, I always thought of the teacup as a rental.",
+"s":3
+},
+{
+"t":"There's some rust, but the bones are good.",
+"s":3
 }
 ]
 },
@@ -867,6 +1505,28 @@
 "y":58,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"They promised me an office with a view.",
+"s":4
+},
+{
+"t":"Relax, it's just a shortcut to the parking lot.",
+"s":4
+},
+{
+"t":"My predecessor also had an open-door policy.",
+"s":4
+},
+{
+"t":"They leave it open on Fridays for morale.",
+"s":3
+},
+{
+"t":"Facilities says it's the only fire exit.",
+"s":3
+}
 ]
 },
 "147":{
@@ -895,6 +1555,28 @@
 "y":51,
 "r":13
 }
+],
+"decoys":[
+{
+"t":"He's been taking ballet. It's not helping.",
+"s":4
+},
+{
+"t":"Honestly, the hat was doing all the work.",
+"s":4
+},
+{
+"t":"He has an audition at the farm down the road.",
+"s":3
+},
+{
+"t":"Give him a minute. He's finding his motivation.",
+"s":3
+},
+{
+"t":"I liked his early work better. More menacing.",
+"s":3
+}
 ]
 },
 "148":{
@@ -922,6 +1604,28 @@
 "x":72,
 "y":50,
 "r":12
+}
+],
+"decoys":[
+{
+"t":"He says he's doing the advanced version.",
+"s":4
+},
+{
+"t":"Don't wake him. He paid for the whole year.",
+"s":4
+},
+{
+"t":"It's the only class he's ever finished.",
+"s":3
+},
+{
+"t":"His instructor says he's very in touch with the floor.",
+"s":3
+},
+{
+"t":"I told him to bring water.",
+"s":3
 }
 ]
 },
@@ -952,6 +1656,28 @@
 "y":34,
 "r":13
 }
+],
+"decoys":[
+{
+"t":"He's my nephew. I'm not rushing him.",
+"s":4
+},
+{
+"t":"Honk again and I'll make him go back.",
+"s":4
+},
+{
+"t":"It's a quiet day. Usually it's the whole class.",
+"s":3
+},
+{
+"t":"The union says I can't carry him.",
+"s":3
+},
+{
+"t":"Sir, this is a school zone.",
+"s":3
+}
 ]
 },
 "150":{
@@ -978,6 +1704,28 @@
 "x":29,
 "y":77,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"Your references all seem to be unavailable.",
+"s":4
+},
+{
+"t":"And why did you leave your last flock?",
+"s":4
+},
+{
+"t":"We're looking for someone who can really blend in.",
+"s":3
+},
+{
+"t":"Under 'experience' you've just written 'lamb.'",
+"s":3
+},
+{
+"t":"Our dress code isn't quite this strict.",
+"s":3
 }
 ]
 },
@@ -1008,7 +1756,29 @@
 "r":7
 }
 ],
-"word":"anniversary"
+"word":"anniversary",
+"decoys":[
+{
+"t":"Don't get excited. It's a copy.",
+"s":4
+},
+{
+"t":"My mother finally agreed to let you have one.",
+"s":4
+},
+{
+"t":"It was my ex-wife's. She won't be needing it.",
+"s":4
+},
+{
+"t":"I had the locks changed. This one's for you.",
+"s":3
+},
+{
+"t":"Don't ask what it opens. That's next year's gift.",
+"s":3
+}
+]
 },
 "153":{
 "style":1,
@@ -1038,7 +1808,29 @@
 "r":9
 }
 ],
-"word":"room"
+"word":"room",
+"decoys":[
+{
+"t":"Checkout is at dusk.",
+"s":4
+},
+{
+"t":"Please sign the register. Either way up is fine.",
+"s":4
+},
+{
+"t":"Ring if you need me. Not loudly.",
+"s":3
+},
+{
+"t":"Your bags will stay down there with you.",
+"s":3
+},
+{
+"t":"We're a family business. Mostly cousins.",
+"s":3
+}
+]
 },
 "154":{
 "style":3,
@@ -1067,7 +1859,29 @@
 "r":8
 }
 ],
-"word":"family"
+"word":"family",
+"decoys":[
+{
+"t":"She's the only one Mother still speaks to.",
+"s":4
+},
+{
+"t":"She doesn't talk politics. That's why she's invited.",
+"s":4
+},
+{
+"t":"Nobody mention the salad.",
+"s":4
+},
+{
+"t":"Still or sparkling, madam?",
+"s":3
+},
+{
+"t":"Father always insisted she get the seat by the window.",
+"s":3
+}
+]
 },
 "155":{
 "style":3,
@@ -1093,6 +1907,28 @@
 "x":31,
 "y":18,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Is this the one who left you?",
+"s":4
+},
+{
+"t":"He says he's never seen you before.",
+"s":4
+},
+{
+"t":"We found it behind a dryer, if that helps.",
+"s":3
+},
+{
+"t":"Sir, could you be a little more visible?",
+"s":3
+},
+{
+"t":"It's been here since spring. It's gotten attached.",
+"s":3
 }
 ]
 },
@@ -1125,6 +1961,28 @@
 "y":34,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"Sir, is the pigeon with you?",
+"s":4
+},
+{
+"t":"License, registration, and how you got in there.",
+"s":4
+},
+{
+"t":"Do you know how small you were driving?",
+"s":3
+},
+{
+"t":"Step up out of the vehicle, please.",
+"s":3
+},
+{
+"t":"I take it those two were here first.",
+"s":3
+}
 ]
 },
 "157":{
@@ -1152,6 +2010,28 @@
 "x":71,
 "y":28,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"My brother-in-law needed the exercise.",
+"s":4
+},
+{
+"t":"He's been very eager since he got laid off.",
+"s":4
+},
+{
+"t":"The dog prefers to supervise.",
+"s":3
+},
+{
+"t":"That's the new walker. He's still in training.",
+"s":3
+},
+{
+"t":"He came with the house. We just kept him.",
+"s":3
 }
 ]
 },
@@ -1181,6 +2061,28 @@
 "y":41,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"We've decided to go in a softer direction.",
+"s":4
+},
+{
+"t":"Let's skip the handshake this time.",
+"s":4
+},
+{
+"t":"The small one can go with you. The big one stays.",
+"s":3
+},
+{
+"t":"To be clear, nobody's pressing charges.",
+"s":3
+},
+{
+"t":"Your replacement prefers ferns.",
+"s":3
+}
 ]
 },
 "159":{
@@ -1209,7 +2111,29 @@
 "r":6
 }
 ],
-"word":"wife"
+"word":"wife",
+"decoys":[
+{
+"t":"He'll stay for the speeches. I won't.",
+"s":4
+},
+{
+"t":"My therapist said to spend more time with myself.",
+"s":4
+},
+{
+"t":"He's the one who RSVP'd.",
+"s":3
+},
+{
+"t":"He's much better at small talk.",
+"s":3
+},
+{
+"t":"We're both thrilled to be here.",
+"s":3
+}
+]
 },
 "161":{
 "style":5,
@@ -1237,6 +2161,28 @@
 "y":26,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"I thought you were bringing the other one.",
+"s":4
+},
+{
+"t":"Fine. But I get the end with the grill marks.",
+"s":4
+},
+{
+"t":"Anybody want to say a few words?",
+"s":4
+},
+{
+"t":"My wife said this would be good for me.",
+"s":3
+},
+{
+"t":"I say we let it rest before we cut it.",
+"s":3
+}
 ]
 },
 "162":{
@@ -1263,6 +2209,28 @@
 "x":94,
 "y":45,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"Leave him. He tips better asleep.",
+"s":4
+},
+{
+"t":"When I got here, I only needed a trim.",
+"s":4
+},
+{
+"t":"Do we wake him for the mirror, or let him find out?",
+"s":3
+},
+{
+"t":"You do the left. I'll do whatever matches.",
+"s":3
+},
+{
+"t":"Shh. He's the owner.",
+"s":3
 }
 ]
 },
@@ -1293,7 +2261,29 @@
 "r":9
 }
 ],
-"word":"cash"
+"word":"cash",
+"decoys":[
+{
+"t":"Would you like to leave a tip?",
+"s":4
+},
+{
+"t":"It's still cheaper than the ferry.",
+"s":4
+},
+{
+"t":"I used to eat them. This is more sustainable.",
+"s":3
+},
+{
+"t":"Do you have a rewards account with us?",
+"s":3
+},
+{
+"t":"Sorry, it's peak hours.",
+"s":3
+}
+]
 },
 "167":{
 "style":5,
@@ -1320,6 +2310,28 @@
 "x":73,
 "y":37,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"He brought it from home. Security was fine with it.",
+"s":4
+},
+{
+"t":"The gentleman behind you has asked for a word.",
+"s":4
+},
+{
+"t":"Remember, it goes upright for landing.",
+"s":3
+},
+{
+"t":"We'll be landing in about three episodes.",
+"s":3
+},
+{
+"t":"Would you like your slippers now or after takeoff?",
+"s":3
 }
 ]
 },
@@ -1353,7 +2365,29 @@
 "r":8
 }
 ],
-"word":"tide"
+"word":"tide",
+"decoys":[
+{
+"t":"Possession is nine-tenths of the law, kid.",
+"s":4
+},
+{
+"t":"Do you have a permit for these turrets?",
+"s":4
+},
+{
+"t":"I'll have to condemn the moat.",
+"s":3
+},
+{
+"t":"We found you a tenant. He pays in shells.",
+"s":3
+},
+{
+"t":"Sweetheart, we need to talk about property taxes.",
+"s":3
+}
+]
 },
 "169":{
 "style":3,
@@ -1381,6 +2415,28 @@
 "x":75,
 "y":21,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"We'd already ordered it. Might as well.",
+"s":4
+},
+{
+"t":"HR says you can take a slice for the road.",
+"s":4
+},
+{
+"t":"Make a wish. Not that one.",
+"s":4
+},
+{
+"t":"It says 'Happy Birthday,' but we all know what it means.",
+"s":3
+},
+{
+"t":"Security says you can blow out the candles first.",
+"s":3
 }
 ]
 },
@@ -1413,7 +2469,29 @@
 "r":12
 }
 ],
-"word":"park"
+"word":"park",
+"decoys":[
+{
+"t":"Can I help you?",
+"s":4
+},
+{
+"t":"Is that my good wine?",
+"s":4
+},
+{
+"t":"I only said the word once.",
+"s":3
+},
+{
+"t":"Five more minutes, then I need the tub.",
+"s":3
+},
+{
+"t":"Fine, but you're drying yourself.",
+"s":3
+}
+]
 },
 "172":{
 "style":1,
@@ -1442,6 +2520,28 @@
 "y":47,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"He's much cheaper than our last accountant.",
+"s":4
+},
+{
+"t":"Don't let him find the receipts for the cat.",
+"s":4
+},
+{
+"t":"He wants to know why we claimed him as a dependent.",
+"s":3
+},
+{
+"t":"He says the audit will be fun. He says that about everything.",
+"s":3
+},
+{
+"t":"He's very thorough. He ate last year's.",
+"s":3
+}
 ]
 },
 "174":{
@@ -1469,6 +2569,28 @@
 "x":58,
 "y":46,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Still nothing about the asteroid?",
+"s":4
+},
+{
+"t":"Read me the obituaries. I like to see who I know.",
+"s":4
+},
+{
+"t":"Is that today's? I've fallen a little behind.",
+"s":3
+},
+{
+"t":"Check the job listings. I've been here long enough.",
+"s":3
+},
+{
+"t":"Hold the light still. My eyes aren't what they were.",
+"s":3
 }
 ]
 },
@@ -1500,7 +2622,29 @@
 "r":6
 }
 ],
-"word":"car"
+"word":"car",
+"decoys":[
+{
+"t":"Nobody make eye contact. He shares.",
+"s":4
+},
+{
+"t":"The pigeon got on at his stop.",
+"s":4
+},
+{
+"t":"He says he's bringing it to a meeting.",
+"s":3
+},
+{
+"t":"Somebody ask him where he got it.",
+"s":3
+},
+{
+"t":"Rush hour is his lunch hour.",
+"s":3
+}
+]
 },
 "177":{
 "style":1,
@@ -1529,6 +2673,28 @@
 "y":90,
 "r":14
 }
+],
+"decoys":[
+{
+"t":"We'll let you know. Where are you staying?",
+"s":4
+},
+{
+"t":"Thank you. Don't go far.",
+"s":4
+},
+{
+"t":"Could you project? We're losing you in the back.",
+"s":3
+},
+{
+"t":"I see you've mostly done work in the walls.",
+"s":3
+},
+{
+"t":"Take your time. I've already eaten.",
+"s":3
+}
 ]
 },
 "178":{
@@ -1556,6 +2722,28 @@
 "x":40,
 "y":53,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Make me an offer. She won't.",
+"s":4
+},
+{
+"t":"It's mine, actually. Long story.",
+"s":4
+},
+{
+"t":"No returns. I learned that the hard way.",
+"s":3
+},
+{
+"t":"The lamps were wedding gifts too, if you're interested.",
+"s":3
+},
+{
+"t":"The books explain everything.",
+"s":3
 }
 ]
 },
@@ -1588,7 +2776,29 @@
 "r":7
 }
 ],
-"word":"eye"
+"word":"eye",
+"decoys":[
+{
+"t":"I told you this place was hard to get into.",
+"s":4
+},
+{
+"t":"Not the worst thing to come out of the kitchen tonight.",
+"s":4
+},
+{
+"t":"He's been waiting longer than we have.",
+"s":3
+},
+{
+"t":"Every time we try somewhere new.",
+"s":3
+},
+{
+"t":"Pretend he's the sommelier.",
+"s":3
+}
+]
 },
 "180":{
 "style":1,
@@ -1617,7 +2827,29 @@
 "r":14
 }
 ],
-"word":"shift"
+"word":"shift",
+"decoys":[
+{
+"t":"He's already saved the duck twice.",
+"s":4
+},
+{
+"t":"Adult swim is in ten minutes.",
+"s":4
+},
+{
+"t":"Thirty minutes after your juice, miss.",
+"s":3
+},
+{
+"t":"He was overqualified for the beach.",
+"s":3
+},
+{
+"t":"Her parents went with the premium package.",
+"s":3
+}
+]
 },
 "181":{
 "style":5,
@@ -1646,6 +2878,28 @@
 "y":45,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"I still get in by nine. Old habits.",
+"s":4
+},
+{
+"t":"My wife says I'm home too much.",
+"s":4
+},
+{
+"t":"The pigeons report to me now.",
+"s":3
+},
+{
+"t":"Nobody's called yet. It must be a busy week.",
+"s":3
+},
+{
+"t":"Technically, I'm still on call.",
+"s":3
+}
 ]
 },
 "182":{
@@ -1670,6 +2924,28 @@
 "x":86,
 "y":52,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"He says he had no screws left over.",
+"s":4
+},
+{
+"t":"He's only on loan until December.",
+"s":4
+},
+{
+"t":"He did it while I was looking for the little wrench.",
+"s":3
+},
+{
+"t":"I never asked for help. I want that noted.",
+"s":3
+},
+{
+"t":"Elves don't read instructions. That's the trick.",
+"s":3
 }
 ]
 },
@@ -1703,7 +2979,29 @@
 "r":8
 }
 ],
-"word":"dog"
+"word":"dog",
+"decoys":[
+{
+"t":"Nobody tell her. It's her birthday.",
+"s":4
+},
+{
+"t":"Every week they pick the same spots.",
+"s":4
+},
+{
+"t":"They're new to the neighborhood.",
+"s":3
+},
+{
+"t":"The mail's been late since the game started.",
+"s":3
+},
+{
+"t":"She counts to a thousand to make it fair.",
+"s":3
+}
+]
 },
 "184":{
 "style":3,
@@ -1730,6 +3028,28 @@
 "x":81,
 "y":58,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Housekeeping came by. They won't be back.",
+"s":4
+},
+{
+"t":"He's going to wake up a father.",
+"s":4
+},
+{
+"t":"The deposit is definitely gone.",
+"s":3
+},
+{
+"t":"He says he won it at cards. He doesn't play cards.",
+"s":3
+},
+{
+"t":"Let him sleep. He's the one with the key.",
+"s":3
 }
 ]
 },
@@ -1758,6 +3078,28 @@
 "x":85,
 "y":40,
 "r":14
+}
+],
+"decoys":[
+{
+"t":"Sir, the sword will have to be checked.",
+"s":4
+},
+{
+"t":"Strictly no sneakers. Armor's fine.",
+"s":4
+},
+{
+"t":"He's been coming here since it was a castle.",
+"s":3
+},
+{
+"t":"The little one carries his coat.",
+"s":3
+},
+{
+"t":"Name, please. All of it.",
+"s":3
 }
 ]
 },
@@ -1788,6 +3130,28 @@
 "y":43,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"Next week, the one about the leaf blower.",
+"s":4
+},
+{
+"t":"The grandchildren moved out west.",
+"s":4
+},
+{
+"t":"Don't wake that one. He's had a hard winter.",
+"s":3
+},
+{
+"t":"Tomorrow they go back out on the lawn.",
+"s":3
+},
+{
+"t":"My wife says they're a phase.",
+"s":3
+}
 ]
 },
 "187":{
@@ -1815,6 +3179,28 @@
 "y":33,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"He rented the shoes. That's how you know he's serious.",
+"s":4
+},
+{
+"t":"She's league. He knew what he was getting into.",
+"s":4
+},
+{
+"t":"He's been down there since the seventh.",
+"s":3
+},
+{
+"t":"She'll answer after she checks her average.",
+"s":3
+},
+{
+"t":"Her last one proposed at the batting cage.",
+"s":3
+}
 ]
 },
 "188":{
@@ -1841,7 +3227,29 @@
 "r":6
 }
 ],
-"word":"bank"
+"word":"bank",
+"decoys":[
+{
+"t":"Sorry, I'm with another robbery.",
+"s":4
+},
+{
+"t":"She's on with her mother. It could be a while.",
+"s":4
+},
+{
+"t":"Have you tried our app?",
+"s":3
+},
+{
+"t":"Do you have an appointment?",
+"s":3
+},
+{
+"t":"I'll need you to fill that out in blue ink.",
+"s":3
+}
+]
 },
 "189":{
 "style":1,
@@ -1867,6 +3275,28 @@
 "x":24,
 "y":30,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"They still don't speak.",
+"s":4
+},
+{
+"t":"Valedictorian. Nobody saw it coming.",
+"s":4
+},
+{
+"t":"His thesis was on pacing.",
+"s":3
+},
+{
+"t":"He started freshman year in the seventies.",
+"s":3
+},
+{
+"t":"The other one wants a recount.",
+"s":3
 }
 ]
 },
@@ -1899,6 +3329,28 @@
 "y":58,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"Thirty years, and it comes down to this.",
+"s":4
+},
+{
+"t":"I was only gone a week.",
+"s":4
+},
+{
+"t":"Her lawyer will be in touch about the cat.",
+"s":3
+},
+{
+"t":"Don't worry, I labeled everything 'misc.'",
+"s":3
+},
+{
+"t":"Call me when you find the toothbrushes.",
+"s":3
+}
 ]
 },
 "191":{
@@ -1928,6 +3380,28 @@
 "x":19,
 "y":38,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"The dog's been on my laptop again.",
+"s":4
+},
+{
+"t":"He's waiting on the last one. It's a ladder.",
+"s":4
+},
+{
+"t":"Just leave it with him. He signs for everything.",
+"s":3
+},
+{
+"t":"Honey, did you subscribe to something?",
+"s":3
+},
+{
+"t":"That isn't even the dog we ordered.",
+"s":3
 }
 ]
 },
@@ -1959,6 +3433,28 @@
 "y":58,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"The worm is here as an independent consultant.",
+"s":4
+},
+{
+"t":"Your predecessor was very enthusiastic about lunch.",
+"s":4
+},
+{
+"t":"We've had some turnover in the upper levels.",
+"s":3
+},
+{
+"t":"Up and to the right. Never just up.",
+"s":3
+},
+{
+"t":"Don't touch the free lunch. It's a test.",
+"s":3
+}
 ]
 },
 "193":{
@@ -1987,6 +3483,28 @@
 "y":26,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"Mine came in through the window.",
+"s":4
+},
+{
+"t":"Check your wallet when he's done.",
+"s":4
+},
+{
+"t":"He prefers the night appointments.",
+"s":3
+},
+{
+"t":"Honestly, his hands are very soft.",
+"s":3
+},
+{
+"t":"He comes with the cabin.",
+"s":3
+}
 ]
 },
 "194":{
@@ -2014,6 +3532,28 @@
 "x":56,
 "y":54,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Everyone thinks it's all scythes and glamour.",
+"s":4
+},
+{
+"t":"If one more person asks for an extension.",
+"s":4
+},
+{
+"t":"Flu season. Every single year.",
+"s":3
+},
+{
+"t":"I used to just knock on doors.",
+"s":3
+},
+{
+"t":"They automated the easy ones.",
+"s":3
 }
 ]
 },
@@ -2045,6 +3585,28 @@
 "y":17,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"Mom said location, location, location.",
+"s":4
+},
+{
+"t":"He says he'll drink it later.",
+"s":4
+},
+{
+"t":"Exact change, please. It's been a long morning.",
+"s":3
+},
+{
+"t":"We're out of lemons. And water. And cups.",
+"s":3
+},
+{
+"t":"The ones in back are just here for the shade.",
+"s":3
+}
 ]
 },
 "196":{
@@ -2072,6 +3634,28 @@
 "x":49,
 "y":53,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"We bought these after his wedding toast.",
+"s":4
+},
+{
+"t":"The headphones were his idea, actually.",
+"s":4
+},
+{
+"t":"Somebody wake him up for the cake.",
+"s":3
+},
+{
+"t":"He's toasting himself again this year.",
+"s":3
+},
+{
+"t":"Mother insisted he say a few words.",
+"s":3
 }
 ]
 },
@@ -2102,6 +3686,28 @@
 "y":52,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"They've been neck and neck since Tuesday.",
+"s":4
+},
+{
+"t":"Best two out of three?",
+"s":4
+},
+{
+"t":"We're still waiting on the photo.",
+"s":3
+},
+{
+"t":"Results will be posted in the spring.",
+"s":3
+},
+{
+"t":"Neither one will accept second.",
+"s":3
+}
 ]
 },
 "199":{
@@ -2130,6 +3736,28 @@
 "x":68,
 "y":36,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"Knock twice if you're still awake.",
+"s":4
+},
+{
+"t":"I still say a curtain would've been enough.",
+"s":4
+},
+{
+"t":"Our counselor called it a healthy boundary.",
+"s":3
+},
+{
+"t":"The contractor finished right on our anniversary.",
+"s":3
+},
+{
+"t":"You're hogging the blankets. I can tell.",
+"s":3
 }
 ]
 },
@@ -2161,6 +3789,28 @@
 "y":81,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"The ocean was right here when I took the job.",
+"s":4
+},
+{
+"t":"He swears he saw a wave in '87.",
+"s":4
+},
+{
+"t":"The light's mostly for the camels now.",
+"s":3
+},
+{
+"t":"He keeps the boat ready, just in case.",
+"s":3
+},
+{
+"t":"It's a very quiet posting.",
+"s":3
+}
 ]
 },
 "202":{
@@ -2188,6 +3838,28 @@
 "x":77,
 "y":61,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"He's been paying with an invisible wallet all night.",
+"s":4
+},
+{
+"t":"He says his wife doesn't understand him.",
+"s":4
+},
+{
+"t":"Is that a wave or a refill?",
+"s":3
+},
+{
+"t":"I'm cutting you off. Nod if you understand.",
+"s":3
+},
+{
+"t":"Rough night. He's been stuck in a box since six.",
+"s":3
 }
 ]
 },
@@ -2218,6 +3890,28 @@
 "y":54,
 "r":12
 }
+],
+"decoys":[
+{
+"t":"The founder's will was very specific.",
+"s":4
+},
+{
+"t":"The bear will be taking the minutes.",
+"s":4
+},
+{
+"t":"He'd like to open with show-and-tell.",
+"s":3
+},
+{
+"t":"He's the majority shareholder. Also, he bites.",
+"s":3
+},
+{
+"t":"His grandfather always said he had a head for numbers.",
+"s":3
+}
 ]
 },
 "205":{
@@ -2245,6 +3939,28 @@
 "x":45,
 "y":37,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Ma'am, are you two together?",
+"s":4
+},
+{
+"t":"This is the most he's slept since the wedding.",
+"s":4
+},
+{
+"t":"He's been testing the warranty since Tuesday.",
+"s":3
+},
+{
+"t":"Should I ring it up or bring him a blanket?",
+"s":3
+},
+{
+"t":"She's shopping for one of her own.",
+"s":3
 }
 ]
 },
@@ -2275,6 +3991,28 @@
 "y":61,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"He started out as a customer.",
+"s":4
+},
+{
+"t":"It was nicer when it was free.",
+"s":4
+},
+{
+"t":"Sorry, this lane is finches only.",
+"s":3
+},
+{
+"t":"The humans think we're the ones eating it all.",
+"s":3
+},
+{
+"t":"Don't argue. He has the whole tree.",
+"s":3
+}
 ]
 },
 "207":{
@@ -2301,6 +4039,28 @@
 "x":16,
 "y":31,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"The view's better from the back.",
+"s":4
+},
+{
+"t":"He's the one who made the rule.",
+"s":4
+},
+{
+"t":"Just once, I'd like to see where we're going.",
+"s":3
+},
+{
+"t":"Don't look. He's from accounting.",
+"s":3
+},
+{
+"t":"Somebody always has to be the optimist.",
+"s":3
 }
 ]
 },
@@ -2332,6 +4092,28 @@
 "y":42,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"He's agreed you may visit on holidays.",
+"s":4
+},
+{
+"t":"My client would like to begin with the feeding schedule.",
+"s":4
+},
+{
+"t":"He's contesting the part about the vet.",
+"s":3
+},
+{
+"t":"Your mother always said he was the reasonable one.",
+"s":3
+},
+{
+"t":"Please, no sudden movements during the reading.",
+"s":3
+}
 ]
 },
 "209":{
@@ -2362,6 +4144,28 @@
 "y":77,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"He's taking a year off from the front.",
+"s":4
+},
+{
+"t":"Anything in there about hunting season?",
+"s":4
+},
+{
+"t":"We're both headed south for the winter.",
+"s":3
+},
+{
+"t":"He says it's quieter up here.",
+"s":3
+},
+{
+"t":"He navigates. I do the crossword.",
+"s":3
+}
 ]
 },
 "212":{
@@ -2389,6 +4193,28 @@
 "x":94,
 "y":73,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Excuse me. You were purring.",
+"s":4
+},
+{
+"t":"The last librarian was much more lenient.",
+"s":4
+},
+{
+"t":"You'll have to read with your mouth closed.",
+"s":3
+},
+{
+"t":"That's your third roar this week.",
+"s":3
+},
+{
+"t":"Please don't growl at the large-print section.",
+"s":3
 }
 ]
 },
@@ -2419,7 +4245,29 @@
 "r":20
 }
 ],
-"word":"forecast"
+"word":"forecast",
+"decoys":[
+{
+"t":"The client wants it a little less threatening.",
+"s":4
+},
+{
+"t":"He's just touching up the silver lining.",
+"s":4
+},
+{
+"t":"It looked fluffier in the brochure.",
+"s":3
+},
+{
+"t":"Third coat. Heaven is very particular.",
+"s":3
+},
+{
+"t":"He charges extra above the tree line.",
+"s":3
+}
+]
 },
 "214":{
 "style":3,
@@ -2449,6 +4297,28 @@
 "y":18,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"Your wife said you'd try around midnight.",
+"s":4
+},
+{
+"t":"I'll need to see a doctor's note.",
+"s":4
+},
+{
+"t":"Step away from the leftovers, sir.",
+"s":3
+},
+{
+"t":"I'm on until breakfast.",
+"s":3
+},
+{
+"t":"The light, by the way, is me.",
+"s":3
+}
 ]
 },
 "215":{
@@ -2477,6 +4347,28 @@
 "y":34,
 "r":12
 }
+],
+"decoys":[
+{
+"t":"You just missed the lunch rush.",
+"s":4
+},
+{
+"t":"Cash only. No signal up here.",
+"s":4
+},
+{
+"t":"Congratulations. We close at four.",
+"s":3
+},
+{
+"t":"First time? The first one's on the house.",
+"s":3
+},
+{
+"t":"Most people take the gondola.",
+"s":3
+}
 ]
 },
 "216":{
@@ -2504,6 +4396,28 @@
 "x":85,
 "y":32,
 "r":15
+}
+],
+"decoys":[
+{
+"t":"Note the bold use of red.",
+"s":4
+},
+{
+"t":"The fire marshal donated it anonymously.",
+"s":4
+},
+{
+"t":"Critics call it a meditation on preparedness.",
+"s":3
+},
+{
+"t":"It's our most popular work during the drills.",
+"s":3
+},
+{
+"t":"Insurance insisted on eye level.",
+"s":3
 }
 ]
 },
@@ -2536,6 +4450,28 @@
 "y":64,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"Keep walking. Her cat has a history.",
+"s":4
+},
+{
+"t":"We tried a leash. It didn't go well.",
+"s":4
+},
+{
+"t":"He's a rescue. He's still nervous around crowds.",
+"s":3
+},
+{
+"t":"He likes to see the trees.",
+"s":3
+},
+{
+"t":"Every morning, same route. He insists.",
+"s":3
+}
 ]
 },
 "218":{
@@ -2564,6 +4500,28 @@
 "y":38,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"He was a show horse. Now he's in compliance.",
+"s":4
+},
+{
+"t":"I hear he was the boss's daughter's.",
+"s":4
+},
+{
+"t":"He says he's here until the farm calls back.",
+"s":3
+},
+{
+"t":"Corporate says he's a great culture fit.",
+"s":3
+},
+{
+"t":"Don't ask about the lunch bag.",
+"s":3
+}
 ]
 },
 "219":{
@@ -2590,6 +4548,28 @@
 "x":73,
 "y":74,
 "r":14
+}
+],
+"decoys":[
+{
+"t":"That's not my blood on your collar.",
+"s":4
+},
+{
+"t":"Don't bother. The coffin's taken.",
+"s":4
+},
+{
+"t":"Sunrise was twenty minutes ago.",
+"s":3
+},
+{
+"t":"Your mother's been calling since midnight.",
+"s":3
+},
+{
+"t":"I hope she was worth the sunburn.",
+"s":3
 }
 ]
 },
@@ -2620,6 +4600,28 @@
 "y":39,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"I asked for a table by the water.",
+"s":4
+},
+{
+"t":"I sent forty invitations. He came.",
+"s":4
+},
+{
+"t":"We've been seeing each other since the shipwreck.",
+"s":3
+},
+{
+"t":"He's only here for the fish course.",
+"s":3
+},
+{
+"t":"Don't let the candles fool you. It's casual.",
+"s":3
+}
 ]
 },
 "221":{
@@ -2648,6 +4650,28 @@
 "x":63,
 "y":52,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"The instructor is a natural.",
+"s":4
+},
+{
+"t":"She's only here for cow pose. It hasn't come up.",
+"s":4
+},
+{
+"t":"He makes it look easy. It's insulting.",
+"s":3
+},
+{
+"t":"Breathe in. Don't look at the cow.",
+"s":3
+},
+{
+"t":"The farm said she needed to get out more.",
+"s":3
 }
 ]
 },
@@ -2678,6 +4702,28 @@
 "y":51,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"Every year, same window.",
+"s":4
+},
+{
+"t":"Was it the slideshow again?",
+"s":4
+},
+{
+"t":"Leave the coats. We'll buy new ones.",
+"s":3
+},
+{
+"t":"Took you long enough. I left before the soup.",
+"s":3
+},
+{
+"t":"I kept it running, like you said.",
+"s":3
+}
 ]
 },
 "223":{
@@ -2707,7 +4753,29 @@
 "r":9
 }
 ],
-"word":"birthday"
+"word":"birthday",
+"decoys":[
+{
+"t":"It's your college acceptance.",
+"s":4
+},
+{
+"t":"Sign here. Take your time, I did.",
+"s":4
+},
+{
+"t":"Sorry. It's just a catalog.",
+"s":3
+},
+{
+"t":"Your mother says you never write.",
+"s":3
+},
+{
+"t":"It's marked 'urgent.'",
+"s":3
+}
+]
 },
 "224":{
 "style":3,
@@ -2736,7 +4804,29 @@
 "r":8
 }
 ],
-"word":"witness"
+"word":"witness",
+"decoys":[
+{
+"t":"Answer in your own words this time.",
+"s":4
+},
+{
+"t":"Is he aware he can't just say 'objection'?",
+"s":4
+},
+{
+"t":"Who taught him that word?",
+"s":3
+},
+{
+"t":"You may step down. Or fly.",
+"s":3
+},
+{
+"t":"We've all heard the tape. Several times now.",
+"s":3
+}
+]
 },
 "226":{
 "style":3,
@@ -2763,6 +4853,28 @@
 "x":68,
 "y":36,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"He says this is how he got the watch.",
+"s":4
+},
+{
+"t":"It's catch and release, he says.",
+"s":4
+},
+{
+"t":"He threw the last lawyer back. Too small.",
+"s":3
+},
+{
+"t":"Every Saturday, he limits out on accountants.",
+"s":3
+},
+{
+"t":"Don't look at him. That's how he gets you.",
+"s":3
 }
 ]
 },
@@ -2794,7 +4906,29 @@
 "r":10
 }
 ],
-"word":"owners"
+"word":"owners",
+"decoys":[
+{
+"t":"And the light in here is wonderful in the mornings.",
+"s":4
+},
+{
+"t":"Original fixtures throughout.",
+"s":4
+},
+{
+"t":"Wait until you see the den.",
+"s":3
+},
+{
+"t":"It's a lot of house for two. Or three.",
+"s":3
+},
+{
+"t":"Don't mind him. He's the inspector.",
+"s":3
+}
+]
 },
 "228":{
 "style":2,
@@ -2820,6 +4954,28 @@
 "x":37,
 "y":67,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"Sounds like he's doing the unabridged version.",
+"s":4
+},
+{
+"t":"Apparently the express line is for venial sins only.",
+"s":4
+},
+{
+"t":"Don't look now, but that's my husband in there.",
+"s":4
+},
+{
+"t":"I'd get comfortable. He brought a binder.",
+"s":3
+},
+{
+"t":"I only came in to ask where the restroom was.",
+"s":3
 }
 ]
 },
@@ -2850,6 +5006,28 @@
 "y":46,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"Apparently the whole Sea of Tranquility is permit parking.",
+"s":5
+},
+{
+"t":"I told her I was just running out for a rock.",
+"s":4
+},
+{
+"t":"Does anyone up here validate?",
+"s":4
+},
+{
+"t":"A quarter-million miles, and not one meter.",
+"s":3
+},
+{
+"t":"Mission Control says to just pay it and not make a scene.",
+"s":3
+}
 ]
 },
 "230":{
@@ -2878,6 +5056,28 @@
 "x":48,
 "y":68,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"Careful. The last gentleman inhaled his.",
+"s":5
+},
+{
+"t":"Is it too late to switch to the bread basket?",
+"s":4
+},
+{
+"t":"The magnifying glass is included in the service charge.",
+"s":4
+},
+{
+"t":"That's the appetizer, the entr\u00e9e and the dessert.",
+"s":3
+},
+{
+"t":"And for four hundred dollars, he stands there beaming.",
+"s":3
 }
 ]
 },
@@ -2908,6 +5108,28 @@
 "y":37,
 "r":12
 }
+],
+"decoys":[
+{
+"t":"We're trying something new this month.",
+"s":4
+},
+{
+"t":"Don't talk to him before he's had his kibble.",
+"s":4
+},
+{
+"t":"Once he's finished, we'll discuss the litter box.",
+"s":4
+},
+{
+"t":"Twelve years of opening cans. Now it's my turn.",
+"s":3
+},
+{
+"t":"I asked for one morning where nobody needed anything from me.",
+"s":3
+}
 ]
 },
 "232":{
@@ -2937,6 +5159,28 @@
 "y":50,
 "r":12
 }
+],
+"decoys":[
+{
+"t":"The duck's been with me since spring.",
+"s":4
+},
+{
+"t":"At least one of us is having a nice day.",
+"s":4
+},
+{
+"t":"It was sunny when I left the house.",
+"s":3
+},
+{
+"t":"He's not my duck. He just follows me around.",
+"s":3
+},
+{
+"t":"I'd invite you over, but bring a towel.",
+"s":3
+}
 ]
 },
 "233":{
@@ -2964,6 +5208,28 @@
 "x":77,
 "y":56,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Whatever you did to that plant, I'm reporting it.",
+"s":5
+},
+{
+"t":"They lost my secret identity again.",
+"s":4
+},
+{
+"t":"Funny. I always pictured your lair with better chairs.",
+"s":4
+},
+{
+"t":"Don't get any ideas. I'm seventeen.",
+"s":3
+},
+{
+"t":"So which one of us is renewing the cape?",
+"s":3
 }
 ]
 },
@@ -2993,6 +5259,28 @@
 "x":61,
 "y":39,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Social Security says it's still processing.",
+"s":5
+},
+{
+"t":"The doctor said to get out more.",
+"s":4
+},
+{
+"t":"I always thought we'd travel more.",
+"s":4
+},
+{
+"t":"Honestly, the first ten years flew by.",
+"s":4
+},
+{
+"t":"Don't feed the gray one. He's been here longer than we have.",
+"s":3
 }
 ]
 },
@@ -3024,6 +5312,28 @@
 "y":52,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"Order quickly. Your half is drifting.",
+"s":4
+},
+{
+"t":"He used to drive up. Now he just drifts in.",
+"s":4
+},
+{
+"t":"Make it two scoops. I'm eating for hibernation.",
+"s":4
+},
+{
+"t":"Do you take salmon, or just halibut?",
+"s":3
+},
+{
+"t":"No, the fish is for the tip.",
+"s":3
+}
 ]
 },
 "239":{
@@ -3050,6 +5360,28 @@
 "x":26,
 "y":39,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Nobody told him about the buckets.",
+"s":4
+},
+{
+"t":"He says he's judging the finish.",
+"s":4
+},
+{
+"t":"Notes of oak, blackberry and a very long week.",
+"s":4
+},
+{
+"t":"He's the one paying for all this.",
+"s":3
+},
+{
+"t":"His wife left him for the sommelier.",
+"s":3
 }
 ]
 },
@@ -3078,6 +5410,28 @@
 "x":18,
 "y":70,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"He said he'd be down by dinner.",
+"s":4
+},
+{
+"t":"I keep telling him to get his own string.",
+"s":4
+},
+{
+"t":"He outsources everything.",
+"s":4
+},
+{
+"t":"Technically, it's all one kite.",
+"s":3
+},
+{
+"t":"The wind was supposed to die down by noon.",
+"s":3
 }
 ]
 },
@@ -3108,6 +5462,28 @@
 "y":31,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"Pop quiz. Who can see what's on the board?",
+"s":4
+},
+{
+"t":"In this classroom, we sit in chairs.",
+"s":4
+},
+{
+"t":"This will all be on the midterm, which is at noon.",
+"s":4
+},
+{
+"t":"I can tell when you're sleeping, you know.",
+"s":3
+},
+{
+"t":"If you have a question, just screech.",
+"s":3
+}
 ]
 },
 "244":{
@@ -3136,6 +5512,28 @@
 "y":36,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"I think that one wants him back.",
+"s":4
+},
+{
+"t":"My wife says size isn't everything.",
+"s":4
+},
+{
+"t":"Biggest one all season.",
+"s":4
+},
+{
+"t":"Wait till the guys see the little one.",
+"s":3
+},
+{
+"t":"The guide said they were biting today.",
+"s":3
+}
 ]
 },
 "245":{
@@ -3162,6 +5560,28 @@
 "x":59,
 "y":53,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Best sixty dollars we've spent all year.",
+"s":4
+},
+{
+"t":"The kids think we're locked in.",
+"s":4
+},
+{
+"t":"Honestly, this is the most we've talked in years.",
+"s":4
+},
+{
+"t":"Gin. Now you have to find the clue.",
+"s":3
+},
+{
+"t":"I'm glad we didn't book the zombie one.",
+"s":3
 }
 ]
 },
@@ -3190,6 +5610,28 @@
 "x":46,
 "y":23,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Don't move. He thinks we can't see him.",
+"s":4
+},
+{
+"t":"He's nesting. Give him some space.",
+"s":4
+},
+{
+"t":"I can't find him anywhere in the book.",
+"s":4
+},
+{
+"t":"Write it down: one, possibly a dentist.",
+"s":3
+},
+{
+"t":"They're so much shyer in the suburbs.",
+"s":3
 }
 ]
 },
@@ -3221,6 +5663,28 @@
 "y":30,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"What did you do?",
+"s":4
+},
+{
+"t":"Those had better be for me.",
+"s":4
+},
+{
+"t":"Bigger than last time. This must be bad.",
+"s":4
+},
+{
+"t":"The florist called to say thank you.",
+"s":3
+},
+{
+"t":"You can put them on the couch with your pillow.",
+"s":3
+}
 ]
 },
 "249":{
@@ -3251,6 +5715,28 @@
 "y":43,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"So, how did you hear about us?",
+"s":4
+},
+{
+"t":"Nobody's ever left a bad review.",
+"s":4
+},
+{
+"t":"The spa package includes drawn butter.",
+"s":4
+},
+{
+"t":"Tell me when it gets too warm.",
+"s":3
+},
+{
+"t":"Relax. I'm off duty.",
+"s":3
+}
 ]
 },
 "250":{
@@ -3280,6 +5766,28 @@
 "y":36,
 "r":14
 }
+],
+"decoys":[
+{
+"t":"Collated and stapled, please.",
+"s":4
+},
+{
+"t":"That's the most work he's done all year.",
+"s":4
+},
+{
+"t":"Thirty copies. He's running for something.",
+"s":3
+},
+{
+"t":"Accounting wants to know who's paying for the toner.",
+"s":3
+},
+{
+"t":"He said HR needed a better likeness.",
+"s":3
+}
 ]
 },
 "251":{
@@ -3306,6 +5814,28 @@
 "x":44,
 "y":72,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"He wants to get there before the crowds.",
+"s":4
+},
+{
+"t":"He said he'd know his stop when he saw it.",
+"s":4
+},
+{
+"t":"Eventually you stop asking where it goes.",
+"s":3
+},
+{
+"t":"He's on the express. The rest of us took the stairs.",
+"s":3
+},
+{
+"t":"I hear the view from the top is overrated.",
+"s":3
 }
 ]
 },
@@ -3334,6 +5864,28 @@
 "x":78,
 "y":64,
 "r":14
+}
+],
+"decoys":[
+{
+"t":"Keep the change.",
+"s":4
+},
+{
+"t":"Sixty-second floor, and you still beat the elevator.",
+"s":4
+},
+{
+"t":"Did you bring napkins, or just your cousins?",
+"s":4
+},
+{
+"t":"Same tip as last time.",
+"s":3
+},
+{
+"t":"That's the third pizza this week that came with feathers.",
+"s":3
 }
 ]
 },
@@ -3366,6 +5918,28 @@
 "y":37,
 "r":11
 }
+],
+"decoys":[
+{
+"t":"He left me the one with the motor. That's love.",
+"s":4
+},
+{
+"t":"Every summer he gets a little faster.",
+"s":4
+},
+{
+"t":"He said he'd come back for the bird.",
+"s":3
+},
+{
+"t":"He's going for a bigger boat.",
+"s":3
+},
+{
+"t":"I only brought the essentials.",
+"s":3
+}
 ]
 },
 "254":{
@@ -3392,6 +5966,28 @@
 "x":21,
 "y":31,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Rush hour.",
+"s":4
+},
+{
+"t":"I'm not backing up. I have a nine o'clock.",
+"s":4
+},
+{
+"t":"Same pigeon every morning.",
+"s":3
+},
+{
+"t":"You'd think they'd add a second rope.",
+"s":3
+},
+{
+"t":"Don't spill that.",
+"s":3
 }
 ]
 },
@@ -3420,6 +6016,28 @@
 "x":69,
 "y":44,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"Check.",
+"s":5
+},
+{
+"t":"Don't wake him. He's ahead.",
+"s":4
+},
+{
+"t":"I'll give him till spring.",
+"s":4
+},
+{
+"t":"The pigeon's been coaching him.",
+"s":3
+},
+{
+"t":"He always does this when he's losing.",
+"s":3
 }
 ]
 },
@@ -3450,6 +6068,28 @@
 "y":31,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"My wife says I spend more time with her.",
+"s":4
+},
+{
+"t":"Whatever you do, don't say \"bacon.\"",
+"s":4
+},
+{
+"t":"Three years running. The judges are starting to talk.",
+"s":3
+},
+{
+"t":"She does all the work. I just stand here.",
+"s":3
+},
+{
+"t":"Don't let it go to her head.",
+"s":3
+}
 ]
 },
 "257":{
@@ -3478,6 +6118,28 @@
 "x":10,
 "y":33,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Please don't sneeze again.",
+"s":4
+},
+{
+"t":"Would you like a balloon for being brave?",
+"s":4
+},
+{
+"t":"I'll need you to stop flinching.",
+"s":3
+},
+{
+"t":"Do you want it styled, or just survived?",
+"s":3
+},
+{
+"t":"Remind me how you found us.",
+"s":3
 }
 ]
 },
@@ -3510,6 +6172,28 @@
 "y":70,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"He circled the block for three days.",
+"s":4
+},
+{
+"t":"You should've seen him back it in.",
+"s":4
+},
+{
+"t":"Technically, this is a loading zone.",
+"s":4
+},
+{
+"t":"I was told there'd be valet.",
+"s":3
+},
+{
+"t":"It's alternate-side today, Captain.",
+"s":3
+}
 ]
 },
 "259":{
@@ -3540,7 +6224,29 @@
 "r":9
 }
 ],
-"word":"house"
+"word":"house",
+"decoys":[
+{
+"t":"One balloon, neat. Like always.",
+"s":4
+},
+{
+"t":"I can't serve you any more helium.",
+"s":4
+},
+{
+"t":"Your wife called. She's keeping the car.",
+"s":4
+},
+{
+"t":"Rough birthday party?",
+"s":3
+},
+{
+"t":"The kids won't find you here.",
+"s":3
+}
+]
 },
 "260":{
 "style":1,
@@ -3568,6 +6274,28 @@
 "y":13,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"Don't mind him. He's from the union.",
+"s":4
+},
+{
+"t":"Overtime starts at midnight.",
+"s":4
+},
+{
+"t":"Have you tried reading?",
+"s":4
+},
+{
+"t":"We're paid by the jump, so take your time.",
+"s":3
+},
+{
+"t":"Same fence, same sheep, every night.",
+"s":3
+}
 ]
 },
 "261":{
@@ -3594,6 +6322,28 @@
 "x":33,
 "y":22,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"He's the reason for the four-dollar fee.",
+"s":4
+},
+{
+"t":"Your balance is none of my business, but wow.",
+"s":4
+},
+{
+"t":"I miss when you could just talk to a machine.",
+"s":3
+},
+{
+"t":"He's been in there since the merger.",
+"s":3
+},
+{
+"t":"Please, no small talk. There's a line.",
+"s":3
 }
 ]
 },
@@ -3624,6 +6374,28 @@
 "y":43,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"Sir, the wheelbarrow is a separate charge.",
+"s":4
+},
+{
+"t":"Wait till you see what his mother brings.",
+"s":4
+},
+{
+"t":"We're going to need another turkey.",
+"s":3
+},
+{
+"t":"He says he's eating for the whole cul-de-sac.",
+"s":3
+},
+{
+"t":"Every Sunday since the divorce.",
+"s":3
+}
 ]
 },
 "263":{
@@ -3653,6 +6425,28 @@
 "y":56,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"He's been on that one since spring.",
+"s":4
+},
+{
+"t":"We'll break for lunch when he blinks.",
+"s":4
+},
+{
+"t":"Honestly, he's the best model we've ever had.",
+"s":4
+},
+{
+"t":"Don't rush. He certainly won't.",
+"s":3
+},
+{
+"t":"Next week, we're drawing the tortoise.",
+"s":3
+}
 ]
 },
 "266":{
@@ -3680,6 +6474,28 @@
 "x":59,
 "y":39,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"Another one for the previous tenant.",
+"s":4
+},
+{
+"t":"A postcard from the beach. How thoughtful.",
+"s":4
+},
+{
+"t":"It's from the clam's lawyer.",
+"s":3
+},
+{
+"t":"Don't stare. He's very private.",
+"s":3
+},
+{
+"t":"The neighbors moved. He never forwards anything.",
+"s":3
 }
 ]
 },
@@ -3709,6 +6525,28 @@
 "y":48,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"Same time next Tuesday?",
+"s":4
+},
+{
+"t":"She never sits on my lap at home.",
+"s":4
+},
+{
+"t":"Your people have terrible taste in silverware.",
+"s":4
+},
+{
+"t":"Five more minutes, then the television.",
+"s":3
+},
+{
+"t":"Don't purr so loud. The neighbors will hear.",
+"s":3
+}
 ]
 },
 "269":{
@@ -3737,6 +6575,28 @@
 "y":44,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"From the harp solo, please.",
+"s":4
+},
+{
+"t":"Again. This time with feeling.",
+"s":4
+},
+{
+"t":"He's the only one who read the email.",
+"s":3
+},
+{
+"t":"He said he could cover the strings.",
+"s":3
+},
+{
+"t":"The rest of the section is at a wedding.",
+"s":3
+}
 ]
 },
 "270":{
@@ -3763,6 +6623,28 @@
 "x":41,
 "y":27,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Size ten. Maybe ten and a half.",
+"s":4
+},
+{
+"t":"Careful. They spook easily.",
+"s":4
+},
+{
+"t":"Get his good side.",
+"s":3
+},
+{
+"t":"He's smaller than I imagined.",
+"s":3
+},
+{
+"t":"Don't make eye contact. He'll start talking.",
+"s":3
 }
 ]
 },
@@ -3792,6 +6674,28 @@
 "y":46,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"She took the toaster.",
+"s":4
+},
+{
+"t":"Your shirt's ready, if you're hungry.",
+"s":4
+},
+{
+"t":"Don't look at me like that. You eat off the floor.",
+"s":3
+},
+{
+"t":"Tomorrow, I'm trying pancakes on the radiator.",
+"s":3
+},
+{
+"t":"It's that or the hair dryer.",
+"s":3
+}
 ]
 },
 "272":{
@@ -3819,6 +6723,28 @@
 "y":71,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"Let him go. He'll be back by noon.",
+"s":4
+},
+{
+"t":"We agreed to see other people.",
+"s":4
+},
+{
+"t":"He's taking the long way.",
+"s":3
+},
+{
+"t":"I'm told he's doing very well out west.",
+"s":3
+},
+{
+"t":"Don't wait up.",
+"s":3
+}
 ]
 },
 "273":{
@@ -3843,6 +6769,28 @@
 "x":7,
 "y":57,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"Your neighbors were very happy with theirs.",
+"s":4
+},
+{
+"t":"Most of my customers never call back.",
+"s":4
+},
+{
+"t":"It comes with a thirty-day guarantee.",
+"s":3
+},
+{
+"t":"That one was the floor model.",
+"s":3
+},
+{
+"t":"I also carry a very nice line of fans.",
+"s":3
 }
 ]
 },
@@ -3872,6 +6820,28 @@
 "y":46,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"I keep telling him to get Velcro.",
+"s":4
+},
+{
+"t":"Give me a minute. These are new.",
+"s":4
+},
+{
+"t":"Double knots. I learned the hard way.",
+"s":3
+},
+{
+"t":"Want to just get breakfast instead?",
+"s":3
+},
+{
+"t":"He's the reason the 5K starts at noon.",
+"s":3
+}
 ]
 },
 "276":{
@@ -3898,7 +6868,29 @@
 "r":9
 }
 ],
-"word":"ball"
+"word":"ball",
+"decoys":[
+{
+"t":"Well, at least I'll still be working.",
+"s":4
+},
+{
+"t":"I really need to do something about this scarf.",
+"s":4
+},
+{
+"t":"I'm going to need a second opinion.",
+"s":3
+},
+{
+"t":"Same as yesterday.",
+"s":3
+},
+{
+"t":"That'll be twenty dollars, apparently.",
+"s":3
+}
+]
 },
 "277":{
 "style":1,
@@ -3925,6 +6917,28 @@
 "x":37,
 "y":28,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"Slow summer.",
+"s":4
+},
+{
+"t":"Whistle if you need me. I'm mid-row.",
+"s":4
+},
+{
+"t":"If anyone goes under, I've got sixty feet of scarf.",
+"s":4
+},
+{
+"t":"It's for the ocean. It looked cold.",
+"s":3
+},
+{
+"t":"The union says I'm allowed a hobby.",
+"s":3
 }
 ]
 },
@@ -3955,7 +6969,29 @@
 "r":7
 }
 ],
-"word":"jury"
+"word":"jury",
+"decoys":[
+{
+"t":"My client was in another room when the vase fell.",
+"s":4
+},
+{
+"t":"Need I remind you who feeds you?",
+"s":4
+},
+{
+"t":"We'll take a short recess while juror nine coughs that up.",
+"s":3
+},
+{
+"t":"No further questions. Not that they'd answer.",
+"s":3
+},
+{
+"t":"The prosecution's dog has been dismissed.",
+"s":3
+}
+]
 },
 "279":{
 "style":3,
@@ -3983,6 +7019,28 @@
 "x":69,
 "y":37,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"It's understated, but I like it.",
+"s":4
+},
+{
+"t":"My husband insisted on coming.",
+"s":4
+},
+{
+"t":"I'd take it off, but the kids are napping.",
+"s":4
+},
+{
+"t":"They came with the hat. I didn't have the heart.",
+"s":3
+},
+{
+"t":"Nobody behind me can see a thing.",
+"s":3
 }
 ]
 },
@@ -4012,6 +7070,28 @@
 "y":61,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"Somebody keeps tracking it in.",
+"s":4
+},
+{
+"t":"The guests complained it was sandy.",
+"s":4
+},
+{
+"t":"Two more summers and it's all in one pile.",
+"s":3
+},
+{
+"t":"I'll get the shells next week.",
+"s":3
+},
+{
+"t":"The boss wants it spotless by Memorial Day.",
+"s":3
+}
 ]
 },
 "281":{
@@ -4039,6 +7119,28 @@
 "x":75,
 "y":70,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"License, registration and proof of lawn.",
+"s":4
+},
+{
+"t":"She got the truck in the divorce.",
+"s":4
+},
+{
+"t":"You missed a spot about two miles back.",
+"s":4
+},
+{
+"t":"Please step off the mower, sir.",
+"s":3
+},
+{
+"t":"I'm only headed to my brother's. He's three counties over.",
+"s":3
 }
 ]
 },
@@ -4068,7 +7170,29 @@
 "r":7
 }
 ],
-"word":"chapter"
+"word":"chapter",
+"decoys":[
+{
+"t":"Go ahead. I've been through two divorces.",
+"s":4
+},
+{
+"t":"Tell me when we get to the part with the doves.",
+"s":4
+},
+{
+"t":"Mind the stockings. They're new.",
+"s":3
+},
+{
+"t":"Last week's assistant is still in two boxes.",
+"s":3
+},
+{
+"t":"Honestly, the legs were never my best feature.",
+"s":3
+}
+]
 },
 "284":{
 "style":3,
@@ -4096,7 +7220,29 @@
 "r":7
 }
 ],
-"word":"treatment"
+"word":"treatment",
+"decoys":[
+{
+"t":"Most of my clients take this off afterward.",
+"s":4
+},
+{
+"t":"Would you like cucumbers on the eyes?",
+"s":4
+},
+{
+"t":"Any allergies to linen?",
+"s":3
+},
+{
+"t":"Relax. Your organs are in very good hands.",
+"s":3
+},
+{
+"t":"Tipping is customary, even in the afterlife.",
+"s":3
+}
+]
 },
 "285":{
 "style":4,
@@ -4120,6 +7266,28 @@
 "x":50,
 "y":65,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"The rooster's at a conference.",
+"s":4
+},
+{
+"t":"It's the only time I get to myself.",
+"s":4
+},
+{
+"t":"I haven't finished a chapter since spring.",
+"s":3
+},
+{
+"t":"Twenty-one days. I may never get up.",
+"s":3
+},
+{
+"t":"Don't ask me which one is my favorite.",
+"s":3
 }
 ]
 },
@@ -4150,7 +7318,29 @@
 "r":7
 }
 ],
-"word":"shareholders"
+"word":"shareholders",
+"decoys":[
+{
+"t":"He thinks he's getting somewhere.",
+"s":4
+},
+{
+"t":"If he takes lunch, we lose the top ten floors.",
+"s":4
+},
+{
+"t":"We're officially carbon-neutral.",
+"s":4
+},
+{
+"t":"He's the only one who's never asked for a raise.",
+"s":3
+},
+{
+"t":"Don't tell him about weekends.",
+"s":3
+}
+]
 },
 "287":{
 "style":1,
@@ -4176,6 +7366,28 @@
 "x":30,
 "y":30,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Do I still get the cookie?",
+"s":4
+},
+{
+"t":"Funny. I'm usually on the other end of this.",
+"s":4
+},
+{
+"t":"What's your type, by the way?",
+"s":4
+},
+{
+"t":"Don't worry. Not all of it is mine.",
+"s":3
+},
+{
+"t":"Could we do this after sundown next time?",
+"s":3
 }
 ]
 },
@@ -4207,6 +7419,28 @@
 "y":33,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"The insurance company had some notes.",
+"s":4
+},
+{
+"t":"His mother says he's ready for a real one.",
+"s":4
+},
+{
+"t":"That's the one that threw his father.",
+"s":3
+},
+{
+"t":"Don't let the paint fool you. She's mean.",
+"s":3
+},
+{
+"t":"Next year, they're adding a pony.",
+"s":3
+}
 ]
 },
 "289":{
@@ -4236,7 +7470,29 @@
 "r":8
 }
 ],
-"word":"mother"
+"word":"mother",
+"decoys":[
+{
+"t":"I told him it was family style.",
+"s":4
+},
+{
+"t":"He's on a liquid diet.",
+"s":4
+},
+{
+"t":"And he said the portions were small.",
+"s":3
+},
+{
+"t":"Please, nobody mention dessert.",
+"s":3
+},
+{
+"t":"This is why we stopped hosting.",
+"s":3
+}
+]
 },
 "290":{
 "style":4,
@@ -4264,7 +7520,29 @@
 "r":7
 }
 ],
-"word":"salt"
+"word":"salt",
+"decoys":[
+{
+"t":"Send back the chef.",
+"s":4
+},
+{
+"t":"That's one star.",
+"s":4
+},
+{
+"t":"Did you even taste this?",
+"s":3
+},
+{
+"t":"Tell the kitchen I'm disappointed. Then tell the guards.",
+"s":3
+},
+{
+"t":"I asked for the special, not the usual.",
+"s":3
+}
+]
 },
 "291":{
 "style":5,
@@ -4291,6 +7569,28 @@
 "x":20,
 "y":66,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"Let him on first. He can't reach the fare box.",
+"s":4
+},
+{
+"t":"Don't stand too close. He's not a morning person.",
+"s":4
+},
+{
+"t":"He always gets the window seat.",
+"s":3
+},
+{
+"t":"He only bites when it's crowded.",
+"s":3
+},
+{
+"t":"I hear he's retiring next year.",
+"s":3
 }
 ]
 },
@@ -4321,7 +7621,29 @@
 "r":9
 }
 ],
-"word":"miles"
+"word":"miles",
+"decoys":[
+{
+"t":"It worked on the horse.",
+"s":4
+},
+{
+"t":"Twenty years of marriage. I know what works.",
+"s":4
+},
+{
+"t":"Tomorrow, it's a stalk of celery.",
+"s":3
+},
+{
+"t":"The trainer cost three hundred dollars. This was a dollar ten.",
+"s":3
+},
+{
+"t":"He's never this fast at work.",
+"s":3
+}
+]
 },
 "293":{
 "style":2,
@@ -4350,6 +7672,28 @@
 "y":55,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"Her mother's on the next tier down.",
+"s":4
+},
+{
+"t":"That's the third topper this month.",
+"s":4
+},
+{
+"t":"I always said he was a flight risk.",
+"s":3
+},
+{
+"t":"He's just going for more frosting.",
+"s":3
+},
+{
+"t":"Somebody tell the band to keep playing.",
+"s":3
+}
 ]
 },
 "294":{
@@ -4376,6 +7720,28 @@
 "x":85,
 "y":28,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Does he count as a bishop?",
+"s":4
+},
+{
+"t":"He's been sitting on my queen for an hour.",
+"s":4
+},
+{
+"t":"He came with the set.",
+"s":3
+},
+{
+"t":"Check. I think.",
+"s":3
+},
+{
+"t":"Don't touch him. He's still thinking.",
+"s":3
 }
 ]
 },
@@ -4406,6 +7772,28 @@
 "y":50,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"We're making excellent time. Somewhere.",
+"s":4
+},
+{
+"t":"The copilot has the compass, and he's in the restroom.",
+"s":4
+},
+{
+"t":"Can I get a show of hands for left?",
+"s":4
+},
+{
+"t":"Nobody panic. I've got the folding part down.",
+"s":3
+},
+{
+"t":"Remain seated. I'm going to ask at the next cloud.",
+"s":3
+}
 ]
 },
 "296":{
@@ -4434,7 +7822,29 @@
 "r":9
 }
 ],
-"word":"news"
+"word":"news",
+"decoys":[
+{
+"t":"It's the only privacy you get in coach.",
+"s":4
+},
+{
+"t":"I paid for the window, you know.",
+"s":4
+},
+{
+"t":"Wake me when the cart comes.",
+"s":3
+},
+{
+"t":"Honey, are you still there?",
+"s":3
+},
+{
+"t":"Could you turn to the crossword? I'm stuck on six down.",
+"s":3
+}
+]
 },
 "297":{
 "style":1,
@@ -4462,6 +7872,28 @@
 "x":94,
 "y":52,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Most of our customers go up a half size.",
+"s":4
+},
+{
+"t":"Will you be wearing them out?",
+"s":4
+},
+{
+"t":"I'd stick with what you're wearing.",
+"s":3
+},
+{
+"t":"We'll have to call the factory.",
+"s":3
+},
+{
+"t":"And the other one's the same?",
+"s":3
 }
 ]
 },
@@ -4491,6 +7923,28 @@
 "y":58,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"Remind me to wind you before bed.",
+"s":4
+},
+{
+"t":"There. Now try the stairs.",
+"s":4
+},
+{
+"t":"You never used to need this much.",
+"s":3
+},
+{
+"t":"Don't move. You're dripping on the bench.",
+"s":3
+},
+{
+"t":"Remember when we did this for fun?",
+"s":3
+}
 ]
 },
 "299":{
@@ -4518,6 +7972,28 @@
 "x":64,
 "y":46,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"It says you left your last position after a mutiny.",
+"s":4
+},
+{
+"t":"Your r\u00e9sum\u00e9 has a lot of gaps, and one X.",
+"s":4
+},
+{
+"t":"We have a very strict policy about plundering.",
+"s":3
+},
+{
+"t":"The bird can't sit in on the second interview.",
+"s":3
+},
+{
+"t":"Can you start Monday, or are you still at sea?",
+"s":3
 }
 ]
 },
@@ -4548,7 +8024,29 @@
 "r":12
 }
 ],
-"word":"moon"
+"word":"moon",
+"decoys":[
+{
+"t":"It's strictly catch and release.",
+"s":4
+},
+{
+"t":"The fishing's been slow.",
+"s":4
+},
+{
+"t":"My father caught a bigger one.",
+"s":3
+},
+{
+"t":"Just one more, then we head in.",
+"s":3
+},
+{
+"t":"Don't tell the tides.",
+"s":3
+}
+]
 },
 "304":{
 "style":3,
@@ -4577,6 +8075,28 @@
 "y":86,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"It's been a slow hour.",
+"s":4
+},
+{
+"t":"Wake me when someone turns it over.",
+"s":4
+},
+{
+"t":"Funny. It felt longer from the outside.",
+"s":3
+},
+{
+"t":"Tell the office I'm on a break.",
+"s":3
+},
+{
+"t":"Don't tap the glass.",
+"s":3
+}
 ]
 },
 "305":{
@@ -4604,6 +8124,28 @@
 "y":37,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"Lucky bounce.",
+"s":4
+},
+{
+"t":"Would you look at that.",
+"s":4
+},
+{
+"t":"Must have rolled out of the rough.",
+"s":3
+},
+{
+"t":"Take your time. I'll mark the card.",
+"s":3
+},
+{
+"t":"Huh. Right in the fairway.",
+"s":3
+}
 ]
 },
 "306":{
@@ -4629,6 +8171,28 @@
 "y":75,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"Our father left it to me.",
+"s":4
+},
+{
+"t":"You don't even use the left side.",
+"s":4
+},
+{
+"t":"Fine. Show me the receipt.",
+"s":3
+},
+{
+"t":"Let go. It's sentimental.",
+"s":3
+},
+{
+"t":"We should have just called the lawyers.",
+"s":3
+}
 ]
 },
 "307":{
@@ -4653,6 +8217,28 @@
 "x":44,
 "y":77,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"Management asked for more authenticity.",
+"s":4
+},
+{
+"t":"The green screen is in the shop.",
+"s":4
+},
+{
+"t":"And for the rest of you, it's sunny.",
+"s":3
+},
+{
+"t":"I'm told this is a localized event.",
+"s":3
+},
+{
+"t":"Bring an umbrella. I'll be using mine.",
+"s":3
 }
 ]
 },
@@ -4680,6 +8266,28 @@
 "x":46,
 "y":24,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"She left me for him.",
+"s":4
+},
+{
+"t":"Twenty years, and he still gets all the laughs.",
+"s":4
+},
+{
+"t":"He insists on paying. With my wallet.",
+"s":3
+},
+{
+"t":"Same as him, but sadder.",
+"s":3
+},
+{
+"t":"Don't encourage him.",
+"s":3
 }
 ]
 },
@@ -4710,6 +8318,28 @@
 "y":55,
 "r":12
 }
+],
+"decoys":[
+{
+"t":"He was very small when we got him.",
+"s":4
+},
+{
+"t":"The kids promised they'd feed him.",
+"s":4
+},
+{
+"t":"The goldfish is in there somewhere.",
+"s":3
+},
+{
+"t":"Don't tap the glass. He holds a grudge.",
+"s":3
+},
+{
+"t":"The landlord said no dogs.",
+"s":3
+}
 ]
 },
 "310":{
@@ -4738,6 +8368,28 @@
 "y":38,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"Thirty years of silence, and now I get one bar.",
+"s":4
+},
+{
+"t":"The abbot wants a photo for the brochure.",
+"s":4
+},
+{
+"t":"Sorry, you're breaking up. I'm on a mountain.",
+"s":3
+},
+{
+"t":"It says the update will take an eternity.",
+"s":3
+},
+{
+"t":"Detachment is easier with Wi-Fi.",
+"s":3
+}
 ]
 },
 "311":{
@@ -4764,6 +8416,28 @@
 "x":37,
 "y":68,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"The salesman said I'd grow into it.",
+"s":4
+},
+{
+"t":"It came with the jacket.",
+"s":4
+},
+{
+"t":"Be grateful it isn't a convertible.",
+"s":3
+},
+{
+"t":"The training wheels come off in spring.",
+"s":3
+},
+{
+"t":"Tell the guys I'll meet them at the bar.",
+"s":3
 }
 ]
 },
@@ -4793,6 +8467,28 @@
 "y":16,
 "r":18
 }
+],
+"decoys":[
+{
+"t":"Just until the leaf peepers leave.",
+"s":4
+},
+{
+"t":"Fall is canceled this year.",
+"s":4
+},
+{
+"t":"I'm not ready for winter.",
+"s":3
+},
+{
+"t":"Don't tell the other squirrels.",
+"s":3
+},
+{
+"t":"Every year, I get a little further.",
+"s":3
+}
 ]
 },
 "313":{
@@ -4821,7 +8517,29 @@
 "r":7
 }
 ],
-"word":"decaf"
+"word":"decaf",
+"decoys":[
+{
+"t":"Brains, and a splash of oat milk.",
+"s":4
+},
+{
+"t":"Who scheduled a nine o'clock?",
+"s":4
+},
+{
+"t":"Same as every Monday.",
+"s":3
+},
+{
+"t":"HR says we can't call it an outbreak.",
+"s":3
+},
+{
+"t":"Somebody tell IT the printer's dead too.",
+"s":3
+}
+]
 },
 "314":{
 "style":3,
@@ -4848,6 +8566,28 @@
 "x":44,
 "y":50,
 "r":11
+}
+],
+"decoys":[
+{
+"t":"This is the part of the date I look forward to.",
+"s":4
+},
+{
+"t":"My accountant thinks this is going very well.",
+"s":4
+},
+{
+"t":"Third date. I figured you'd want to see my numbers.",
+"s":3
+},
+{
+"t":"Let's not ruin dessert by talking about the tip.",
+"s":3
+},
+{
+"t":"Shall we split the cab, too?",
+"s":3
 }
 ]
 },
@@ -4877,6 +8617,28 @@
 "y":72,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"I see the problem. You're stuck.",
+"s":4
+},
+{
+"t":"Sir, stop struggling while I pull up your account.",
+"s":4
+},
+{
+"t":"We'll have a technician out between nine and five.",
+"s":3
+},
+{
+"t":"Can I put you down as satisfied?",
+"s":3
+},
+{
+"t":"Can I interest you in our premium plan?",
+"s":3
+}
 ]
 },
 "316":{
@@ -4904,6 +8666,28 @@
 "x":79,
 "y":30,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"Same look they gave me at Thanksgiving.",
+"s":4
+},
+{
+"t":"I didn't even say anything.",
+"s":4
+},
+{
+"t":"They were exactly like this when I married in.",
+"s":3
+},
+{
+"t":"I came for the impressionists.",
+"s":3
+},
+{
+"t":"Fine. I'll sit up straight.",
+"s":3
 }
 ]
 },
@@ -4933,7 +8717,29 @@
 "r":15
 }
 ],
-"word":"circus"
+"word":"circus",
+"decoys":[
+{
+"t":"Not at the table, dear.",
+"s":4
+},
+{
+"t":"Wait till you see what he does with the meatballs.",
+"s":4
+},
+{
+"t":"And this is why we don't have guests.",
+"s":3
+},
+{
+"t":"Dessert is flamb\u00e9, so stand back.",
+"s":3
+},
+{
+"t":"Someone hide the cake knife.",
+"s":3
+}
+]
 },
 "319":{
 "style":3,
@@ -4962,7 +8768,29 @@
 "r":14
 }
 ],
-"word":"elves"
+"word":"elves",
+"decoys":[
+{
+"t":"Eleven months a year, I'm just a guy.",
+"s":4
+},
+{
+"t":"Down here, I'm not checking anything twice.",
+"s":4
+},
+{
+"t":"Ho. That's all I've got until November.",
+"s":3
+},
+{
+"t":"Don't tell the kids where I am.",
+"s":3
+},
+{
+"t":"No more milk. Just put rum in it.",
+"s":3
+}
+]
 },
 "320":{
 "style":4,
@@ -4983,6 +8811,28 @@
 "x":45,
 "y":42,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"He doesn't trust the power company.",
+"s":4
+},
+{
+"t":"His mother bought them for him.",
+"s":4
+},
+{
+"t":"Ever since the squirrel incident.",
+"s":3
+},
+{
+"t":"The rain's not until Thursday.",
+"s":3
+},
+{
+"t":"He's not from around here.",
+"s":3
 }
 ]
 },
@@ -5013,7 +8863,29 @@
 "r":9
 }
 ],
-"word":"grandchild"
+"word":"grandchild",
+"decoys":[
+{
+"t":"Make the anchor a little bigger, dear.",
+"s":4
+},
+{
+"t":"Last time she tipped me in mittens.",
+"s":4
+},
+{
+"t":"Is this going to take long? I have bridge at three.",
+"s":4
+},
+{
+"t":"Breathe, dear. You're doing fine.",
+"s":4
+},
+{
+"t":"My doctor said to find something relaxing.",
+"s":3
+}
+]
 },
 "322":{
 "style":1,
@@ -5044,7 +8916,29 @@
 "r":8
 }
 ],
-"word":"kettle"
+"word":"kettle",
+"decoys":[
+{
+"t":"Was that the tea bell or the biscuit bell?",
+"s":4
+},
+{
+"t":"Milk first. We've been over this.",
+"s":3
+},
+{
+"t":"Lovely. Now the other thing we discussed.",
+"s":4
+},
+{
+"t":"My sister uses an app. I prefer the classics.",
+"s":3
+},
+{
+"t":"He used to be a senior partner, you know.",
+"s":3
+}
+]
 },
 "324":{
 "style":3,
@@ -5071,6 +8965,28 @@
 "x":68,
 "y":33,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"The nearest curb is two hundred miles down.",
+"s":4
+},
+{
+"t":"She says it isn't going to take itself out.",
+"s":4
+},
+{
+"t":"Mission control says I'm not allowed to just let go.",
+"s":4
+},
+{
+"t":"Recycling goes out the other hatch.",
+"s":3
+},
+{
+"t":"Twelve billion dollars and I still have to do this.",
+"s":3
 }
 ]
 },
@@ -5100,6 +9016,28 @@
 "y":59,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"He eats the weights after.",
+"s":4
+},
+{
+"t":"He's bulking.",
+"s":4
+},
+{
+"t":"The cat's been working out too.",
+"s":4
+},
+{
+"t":"Spot me.",
+"s":3
+},
+{
+"t":"Nobody tell him about the holes.",
+"s":3
+}
 ]
 },
 "328":{
@@ -5126,6 +9064,28 @@
 "x":83,
 "y":55,
 "r":12
+}
+],
+"decoys":[
+{
+"t":"I'll take that as a no on dessert.",
+"s":4
+},
+{
+"t":"Your companion says she'll wait in the car.",
+"s":4
+},
+{
+"t":"Sir, we can see your shoes.",
+"s":4
+},
+{
+"t":"We take all major cards, sir.",
+"s":3
+},
+{
+"t":"It's been tried, sir. Many times.",
+"s":3
 }
 ]
 },
@@ -5157,6 +9117,28 @@
 "y":45,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"Sign here. And here. And here.",
+"s":4
+},
+{
+"t":"Congratulations. Your next one is free.",
+"s":4
+},
+{
+"t":"Are you sure you have the right house?",
+"s":4
+},
+{
+"t":"I'll put you down for the usual, then.",
+"s":3
+},
+{
+"t":"We've been meaning to move.",
+"s":3
+}
 ]
 },
 "330":{
@@ -5187,7 +9169,29 @@
 "r":6
 }
 ],
-"word":"Tuesday"
+"word":"Tuesday",
+"decoys":[
+{
+"t":"His doctor told him to stay close to home.",
+"s":4
+},
+{
+"t":"Don't pull the plug. He's had a nibble.",
+"s":4
+},
+{
+"t":"It's catch and release. Mostly the soap.",
+"s":4
+},
+{
+"t":"He says the fish are smarter in the ocean.",
+"s":3
+},
+{
+"t":"Honey, I'd like my bath back.",
+"s":3
+}
+]
 },
 "332":{
 "style":1,
@@ -5216,6 +9220,28 @@
 "y":54,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"That one's been very distant lately.",
+"s":4
+},
+{
+"t":"He was adopted. We don't make a thing of it.",
+"s":4
+},
+{
+"t":"On windy days he wanders off.",
+"s":4
+},
+{
+"t":"Nobody shears that one.",
+"s":3
+},
+{
+"t":"He keeps up. That's all I ask.",
+"s":3
+}
 ]
 },
 "333":{
@@ -5243,6 +9269,28 @@
 "x":17,
 "y":55,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"They've gone gluten-free.",
+"s":4
+},
+{
+"t":"We do brunch now, thanks.",
+"s":4
+},
+{
+"t":"Try the ducks. They'll eat anything.",
+"s":4
+},
+{
+"t":"Just leave it by the bench. We'll get to it.",
+"s":3
+},
+{
+"t":"Is that the store brand?",
+"s":3
 }
 ]
 },
@@ -5273,6 +9321,28 @@
 "y":35,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"It's the only way to keep him off his phone.",
+"s":4
+},
+{
+"t":"The vet says two more weeks.",
+"s":4
+},
+{
+"t":"Whatever you do, don't mention the mailman.",
+"s":4
+},
+{
+"t":"Somebody get him a straw.",
+"s":3
+},
+{
+"t":"He's been told to stay away from the cheese plate.",
+"s":3
+}
 ]
 },
 "337":{
@@ -5300,6 +9370,28 @@
 "x":28,
 "y":76,
 "r":15
+}
+],
+"decoys":[
+{
+"t":"Nobody came, but the view is lovely.",
+"s":4
+},
+{
+"t":"Enjoy it. You know what comes next.",
+"s":4
+},
+{
+"t":"Same as last year.",
+"s":3
+},
+{
+"t":"I'm told this is the high point.",
+"s":3
+},
+{
+"t":"One more year closer to retirement.",
+"s":3
 }
 ]
 },
@@ -5330,6 +9422,28 @@
 "y":62,
 "r":14
 }
+],
+"decoys":[
+{
+"t":"Pass the gravy before he starts on the chairs.",
+"s":4
+},
+{
+"t":"That was the last of the dining set.",
+"s":4
+},
+{
+"t":"We'll eat in the living room, then.",
+"s":3
+},
+{
+"t":"He said he wasn't hungry.",
+"s":3
+},
+{
+"t":"Your mother's coming, so leave the hutch.",
+"s":3
+}
 ]
 },
 "339":{
@@ -5359,6 +9473,28 @@
 "y":40,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"He's been in the fourth grade for twelve years.",
+"s":4
+},
+{
+"t":"My volcano never stood a chance.",
+"s":4
+},
+{
+"t":"Next year, I'm bringing my lawyer.",
+"s":3
+},
+{
+"t":"I think he's sponsored.",
+"s":3
+},
+{
+"t":"Ours was going to erupt, but we got nervous.",
+"s":3
+}
 ]
 },
 "340":{
@@ -5383,6 +9519,28 @@
 "x":90,
 "y":22,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"You're on the list. Unfortunately.",
+"s":4
+},
+{
+"t":"I'll put you down near the frogs.",
+"s":4
+},
+{
+"t":"Sorry, we're full.",
+"s":3
+},
+{
+"t":"The swatter's just for emergencies.",
+"s":3
+},
+{
+"t":"May I see some identification?",
+"s":3
 }
 ]
 },
@@ -5412,6 +9570,28 @@
 "y":76,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"If this is about the tree, I'm sorry.",
+"s":4
+},
+{
+"t":"It's six in the morning.",
+"s":4
+},
+{
+"t":"I already gave at the office.",
+"s":3
+},
+{
+"t":"That's the third door this year.",
+"s":3
+},
+{
+"t":"We're not interested in siding.",
+"s":3
+}
 ]
 },
 "342":{
@@ -5440,6 +9620,28 @@
 "y":40,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"He's been down there since the reorg.",
+"s":4
+},
+{
+"t":"Facilities says your desk is six to eight weeks out.",
+"s":4
+},
+{
+"t":"I liked you better on the yoga ball.",
+"s":3
+},
+{
+"t":"Is this a meeting, or a picnic?",
+"s":3
+},
+{
+"t":"Whatever it is, legal wants it in writing.",
+"s":3
+}
 ]
 },
 "343":{
@@ -5466,6 +9668,28 @@
 "x":29,
 "y":41,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"My lawyer will be in touch.",
+"s":4
+},
+{
+"t":"Now all we need is somewhere to go.",
+"s":4
+},
+{
+"t":"Mine rolls better downhill.",
+"s":3
+},
+{
+"t":"Great. Now invent a reason.",
+"s":3
+},
+{
+"t":"Don't tell anyone until we figure out the axle.",
+"s":3
 }
 ]
 },
@@ -5497,7 +9721,29 @@
 "r":10
 }
 ],
-"word":"kids"
+"word":"kids",
+"decoys":[
+{
+"t":"Close the door. You're letting the light in.",
+"s":4
+},
+{
+"t":"I thought you were a raccoon.",
+"s":4
+},
+{
+"t":"You didn't see me, and I won't mention your browser history.",
+"s":4
+},
+{
+"t":"I'm taking inventory.",
+"s":3
+},
+{
+"t":"It's a private tasting.",
+"s":3
+}
+]
 },
 "346":{
 "style":1,
@@ -5525,6 +9771,28 @@
 "y":60,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"It's just a standard thirty-year mortgage.",
+"s":4
+},
+{
+"t":"We've updated our terms and conditions.",
+"s":4
+},
+{
+"t":"Initial here, and here, and here.",
+"s":3
+},
+{
+"t":"Nobody reads it. That's what makes it work.",
+"s":3
+},
+{
+"t":"Take your time. We close at five.",
+"s":3
+}
 ]
 },
 "347":{
@@ -5551,6 +9819,28 @@
 "x":47,
 "y":67,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"It'll break left. I moved some things.",
+"s":4
+},
+{
+"t":"Don't mind me. I'm with the city.",
+"s":4
+},
+{
+"t":"Sorry. We're adding a second hole.",
+"s":3
+},
+{
+"t":"You're putting into my living room.",
+"s":3
+},
+{
+"t":"Quiet, please. I'm working down here.",
+"s":3
 }
 ]
 },
@@ -5581,7 +9871,29 @@
 "r":7
 }
 ],
-"word":"neighbors"
+"word":"neighbors",
+"decoys":[
+{
+"t":"Half an inch over. I'll need to see the mower.",
+"s":4
+},
+{
+"t":"Coffee, or would that count as a bribe?",
+"s":4
+},
+{
+"t":"Ma'am, is this the original lawn?",
+"s":3
+},
+{
+"t":"It's been a very wet spring.",
+"s":3
+},
+{
+"t":"My husband handles the yard. That's the problem.",
+"s":3
+}
+]
 },
 "349":{
 "style":4,
@@ -5607,6 +9919,28 @@
 "x":72,
 "y":46,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"I put in for a transfer upstairs.",
+"s":4
+},
+{
+"t":"It's not the heat. It's the humidity.",
+"s":4
+},
+{
+"t":"Anyone know how to work the cold tap?",
+"s":3
+},
+{
+"t":"How was your weekend? Same here.",
+"s":3
+},
+{
+"t":"Accounting says the new guy's a lawyer.",
+"s":3
 }
 ]
 },
@@ -5636,7 +9970,29 @@
 "r":14
 }
 ],
-"word":"potato"
+"word":"potato",
+"decoys":[
+{
+"t":"Kids, this is what teamwork looks like.",
+"s":4
+},
+{
+"t":"Somebody get a description.",
+"s":4
+},
+{
+"t":"That basket was a wedding present.",
+"s":3
+},
+{
+"t":"We'll stop for lunch on the way home.",
+"s":3
+},
+{
+"t":"Anybody want half a sandwich?",
+"s":3
+}
+]
 },
 "351":{
 "style":1,
@@ -5666,6 +10022,28 @@
 "y":42,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"He microwaved fish.",
+"s":4
+},
+{
+"t":"He asked what the company actually does.",
+"s":4
+},
+{
+"t":"He said he likes Mondays.",
+"s":3
+},
+{
+"t":"He took the last coffee.",
+"s":3
+},
+{
+"t":"He just found out what we all make.",
+"s":3
+}
 ]
 },
 "352":{
@@ -5694,6 +10072,28 @@
 "x":22,
 "y":31,
 "r":15
+}
+],
+"decoys":[
+{
+"t":"Thumbs up means you're ready to order.",
+"s":4
+},
+{
+"t":"The emperor sends his compliments.",
+"s":4
+},
+{
+"t":"Would the gentleman care to see the wine list?",
+"s":3
+},
+{
+"t":"Will anyone be joining you this evening?",
+"s":3
+},
+{
+"t":"Take your time. I'm in no rush.",
+"s":3
 }
 ]
 },
@@ -5726,6 +10126,28 @@
 "y":46,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"I've dated worse.",
+"s":4
+},
+{
+"t":"Mother says he'll grow on me.",
+"s":4
+},
+{
+"t":"He's royal on his mother's side.",
+"s":3
+},
+{
+"t":"That's three this week.",
+"s":3
+},
+{
+"t":"We're taking it slow.",
+"s":3
+}
 ]
 },
 "354":{
@@ -5754,6 +10176,28 @@
 "y":60,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"It's your mother. She says stop laughing.",
+"s":4
+},
+{
+"t":"Hello? Is this the internet?",
+"s":4
+},
+{
+"t":"Don't help me. I'm figuring it out.",
+"s":3
+},
+{
+"t":"It's very warm for a phone.",
+"s":3
+},
+{
+"t":"Remind me which end you talk into.",
+"s":3
+}
 ]
 },
 "355":{
@@ -5780,6 +10224,28 @@
 "x":93,
 "y":51,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"You won't be needing the floatie.",
+"s":4
+},
+{
+"t":"Do you have anything round-trip?",
+"s":4
+},
+{
+"t":"Gratuity is two coins, as usual.",
+"s":3
+},
+{
+"t":"Sit still. You're rocking the boat.",
+"s":3
+},
+{
+"t":"We'll be there in an eternity or so.",
+"s":3
 }
 ]
 },
@@ -5809,6 +10275,28 @@
 "y":63,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"I can see the house from here.",
+"s":4
+},
+{
+"t":"Next time, we rent the pontoon.",
+"s":4
+},
+{
+"t":"The brochure said two people.",
+"s":3
+},
+{
+"t":"Lean forward. No, more.",
+"s":3
+},
+{
+"t":"I'll steer.",
+"s":3
+}
 ]
 },
 "357":{
@@ -5835,6 +10323,28 @@
 "x":92,
 "y":33,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Next month's pick is a cabernet.",
+"s":4
+},
+{
+"t":"My husband thinks we're very intellectual.",
+"s":4
+},
+{
+"t":"Who's driving?",
+"s":3
+},
+{
+"t":"Pass the bottle, and then the book.",
+"s":3
+},
+{
+"t":"Can we talk about the neighbor instead?",
+"s":3
 }
 ]
 },
@@ -5866,6 +10376,28 @@
 "y":28,
 "r":12
 }
+],
+"decoys":[
+{
+"t":"Nobody's asked for the check in years.",
+"s":4
+},
+{
+"t":"Whatever you do, don't ask to share her table.",
+"s":3
+},
+{
+"t":"The service is slow, but nobody complains.",
+"s":4
+},
+{
+"t":"She likes the quiet out here.",
+"s":4
+},
+{
+"t":"It's the only caf\u00e9 that doesn't make me wear a hat.",
+"s":3
+}
 ]
 },
 "359":{
@@ -5890,6 +10422,28 @@
 "x":89,
 "y":44,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"He's on the night shift.",
+"s":4
+},
+{
+"t":"He used to be one of us.",
+"s":3
+},
+{
+"t":"Seniority.",
+"s":4
+},
+{
+"t":"He swears he can hear hawks better lying down.",
+"s":3
+},
+{
+"t":"We rotate. His turn comes up in August.",
+"s":4
 }
 ]
 },
@@ -5918,6 +10472,28 @@
 "y":31,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"Don't move them. I have a system.",
+"s":4
+},
+{
+"t":"Could you send up another refrigerator?",
+"s":4
+},
+{
+"t":"I see you've already done the inventory.",
+"s":4
+},
+{
+"t":"My wife thinks I'm at a conference.",
+"s":3
+},
+{
+"t":"Just leave the towels by the bottles.",
+"s":3
+}
 ]
 },
 "361":{
@@ -5945,6 +10521,28 @@
 "y":22,
 "r":22
 }
+],
+"decoys":[
+{
+"t":"Careful. There are eggs in there.",
+"s":4
+},
+{
+"t":"I'll be right back. I forgot the milk.",
+"s":4
+},
+{
+"t":"My chiropractor says I shouldn't lift anything.",
+"s":4
+},
+{
+"t":"You won't even notice it's there.",
+"s":3
+},
+{
+"t":"Same time next Tuesday?",
+"s":3
+}
 ]
 },
 "362":{
@@ -5971,6 +10569,28 @@
 "x":58,
 "y":50,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"He's not ready for anything with a pulse.",
+"s":4
+},
+{
+"t":"It started as a rebound.",
+"s":4
+},
+{
+"t":"We used to double-date.",
+"s":4
+},
+{
+"t":"At least it doesn't drift off in the night.",
+"s":3
+},
+{
+"t":"She's from out of town. You wouldn't know her.",
+"s":4
 }
 ]
 },
@@ -6001,7 +10621,29 @@
 "r":7
 }
 ],
-"word":"team"
+"word":"team",
+"decoys":[
+{
+"t":"He's scouting for a new goalie.",
+"s":4
+},
+{
+"t":"Our keeper is having a quiet season.",
+"s":4
+},
+{
+"t":"He's more of a big-picture player.",
+"s":4
+},
+{
+"t":"Twelve minutes in and I already have four pages of notes.",
+"s":3
+},
+{
+"t":"The binoculars were his mother's idea.",
+"s":3
+}
+]
 },
 "364":{
 "style":4,
@@ -6029,6 +10671,28 @@
 "x":94,
 "y":57,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Must have come with it.",
+"s":4
+},
+{
+"t":"Anyone in there lose a sandal?",
+"s":4
+},
+{
+"t":"Funny. My cousin has a pair just like these.",
+"s":3
+},
+{
+"t":"Leave it. Somebody will come back for it.",
+"s":4
+},
+{
+"t":"Should we feed it, or is that a Greek thing?",
+"s":3
 }
 ]
 },
@@ -6058,6 +10722,28 @@
 "y":59,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"He's been like this since the trailers.",
+"s":4
+},
+{
+"t":"He does this at every love scene.",
+"s":4
+},
+{
+"t":"We should've sat behind the man in the hat.",
+"s":4
+},
+{
+"t":"At least he turned his phone off.",
+"s":3
+},
+{
+"t":"I think it means he liked it.",
+"s":3
+}
 ]
 },
 "366":{
@@ -6086,7 +10772,29 @@
 "r":12
 }
 ],
-"word":"store"
+"word":"store",
+"decoys":[
+{
+"t":"This one feels more honest.",
+"s":4
+},
+{
+"t":"My wife said not to come home with the wrong one.",
+"s":3
+},
+{
+"t":"I'd like to see them both in natural light.",
+"s":4
+},
+{
+"t":"One of these will be in my house longer than I will.",
+"s":4
+},
+{
+"t":"Could I take them both home overnight?",
+"s":3
+}
+]
 },
 "367":{
 "style":2,
@@ -6115,6 +10823,28 @@
 "y":20,
 "r":20
 }
+],
+"decoys":[
+{
+"t":"She's going to ding my door. I can feel it.",
+"s":4
+},
+{
+"t":"I think he's trying to tell me something.",
+"s":3
+},
+{
+"t":"It's the only spot with any shade.",
+"s":4
+},
+{
+"t":"He does this at the bank, too.",
+"s":3
+},
+{
+"t":"Lock your doors. He looks like a talker.",
+"s":4
+}
 ]
 },
 "368":{
@@ -6142,6 +10872,28 @@
 "x":38,
 "y":30,
 "r":12
+}
+],
+"decoys":[
+{
+"t":"Chin up. Tusks a little more forward.",
+"s":4
+},
+{
+"t":"Hold still. I've got about ten minutes of torch left.",
+"s":4
+},
+{
+"t":"It's going over the fireplace, so no pressure.",
+"s":3
+},
+{
+"t":"Relax. People will be looking at this for thirty thousand years.",
+"s":4
+},
+{
+"t":"I'm taking a little off the sides. Everyone asks.",
+"s":4
 }
 ]
 },
@@ -6172,7 +10924,29 @@
 "r":8
 }
 ],
-"word":"box"
+"word":"box",
+"decoys":[
+{
+"t":"Excellent choice, sir. Shall I let it breathe?",
+"s":4
+},
+{
+"t":"The chef drinks it on his break.",
+"s":3
+},
+{
+"t":"It pairs beautifully with a second marriage.",
+"s":4
+},
+{
+"t":"Sir may want to check the date on the bottom.",
+"s":4
+},
+{
+"t":"Leave it on the table. I'll pour my own.",
+"s":3
+}
+]
 },
 "370":{
 "style":5,
@@ -6198,6 +10972,28 @@
 "x":77,
 "y":84,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"Mostly comets this time of year.",
+"s":4
+},
+{
+"t":"My wife thinks I'm at the lake.",
+"s":4
+},
+{
+"t":"Some nights you don't get a single nibble.",
+"s":3
+},
+{
+"t":"Don't tell anybody at the bait shop about this spot.",
+"s":3
+},
+{
+"t":"The trick is a very long line and no expectations.",
+"s":4
 }
 ]
 },
@@ -6227,6 +11023,28 @@
 "y":45,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"You're still holding the cookie.",
+"s":4
+},
+{
+"t":"I'll check on him after my show.",
+"s":4
+},
+{
+"t":"Fine. I'll finish the rest of them myself.",
+"s":3
+},
+{
+"t":"I'm not sweeping around you twice.",
+"s":3
+},
+{
+"t":"He does this every time my sister visits.",
+"s":4
+}
 ]
 },
 "372":{
@@ -6254,6 +11072,28 @@
 "x":40,
 "y":67,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"I'm easing back in.",
+"s":4
+},
+{
+"t":"Those two are going to need visitor badges.",
+"s":4
+},
+{
+"t":"My therapist said to bring a little bit of home with me.",
+"s":3
+},
+{
+"t":"We can discuss the rabbits at your review.",
+"s":4
+},
+{
+"t":"I'm still on Pacific time.",
+"s":3
 }
 ]
 },
@@ -6284,6 +11124,28 @@
 "y":12,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"She's up a few years.",
+"s":4
+},
+{
+"t":"You know the rule, dear. No tools at the table.",
+"s":4
+},
+{
+"t":"Same time next Thursday, then?",
+"s":4
+},
+{
+"t":"You can't take it with you, dear. So I will.",
+"s":4
+},
+{
+"t":"He's been trying to collect since 1994.",
+"s":3
+}
 ]
 },
 "374":{
@@ -6310,6 +11172,28 @@
 "x":79,
 "y":41,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"Somebody suggested eucalyptus.",
+"s":4
+},
+{
+"t":"He bought a day pass, same as everyone.",
+"s":4
+},
+{
+"t":"Nobody touch the ladle.",
+"s":3
+},
+{
+"t":"He swears it opens up the sinuses.",
+"s":3
+},
+{
+"t":"I was told it's a dry heat. It's not dry enough.",
+"s":3
 }
 ]
 },
@@ -6342,6 +11226,28 @@
 "y":57,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"Accounting has the key.",
+"s":4
+},
+{
+"t":"Don't look at me. I only take the unlocked ones.",
+"s":4
+},
+{
+"t":"It's tuna. He's very private about it.",
+"s":4
+},
+{
+"t":"Legal says we're not allowed to ask what's in it.",
+"s":3
+},
+{
+"t":"You'd think it was something better than meatloaf.",
+"s":3
+}
 ]
 },
 "377":{
@@ -6368,6 +11274,28 @@
 "x":56,
 "y":47,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"He's looking for last year's numbers.",
+"s":4
+},
+{
+"t":"And over here is our risk management department.",
+"s":4
+},
+{
+"t":"He took the news better than the rest of us.",
+"s":4
+},
+{
+"t":"Our CFO prefers to work from the drawer now.",
+"s":3
+},
+{
+"t":"As you can see, morale is strongest in Filing.",
+"s":3
 }
 ]
 },
@@ -6398,6 +11326,28 @@
 "y":50,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"He was a club pro.",
+"s":4
+},
+{
+"t":"Eternity is long. You improvise.",
+"s":4
+},
+{
+"t":"Your serve has really come along.",
+"s":3
+},
+{
+"t":"Ball sports are strictly a downstairs thing.",
+"s":3
+},
+{
+"t":"He's still not used to there being no net.",
+"s":3
+}
 ]
 },
 "380":{
@@ -6422,6 +11372,28 @@
 "x":25,
 "y":50,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"I'm taking a gap year.",
+"s":4
+},
+{
+"t":"Tell the bear I said hello.",
+"s":4
+},
+{
+"t":"Everyone's in such a hurry to spawn.",
+"s":4
+},
+{
+"t":"I'm letting the river decide.",
+"s":3
+},
+{
+"t":"My parents made the trip. Never heard from them again.",
+"s":3
 }
 ]
 },
@@ -6450,6 +11422,28 @@
 "x":94,
 "y":37,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"We were like that until the entr\u00e9es.",
+"s":4
+},
+{
+"t":"You used to share your dessert.",
+"s":3
+},
+{
+"t":"Don't stare. It might be catching.",
+"s":4
+},
+{
+"t":"I think that's our old table.",
+"s":4
+},
+{
+"t":"Pass the salt.",
+"s":3
 }
 ]
 },
@@ -6480,6 +11474,28 @@
 "y":56,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"You'll still be in on Mondays, of course.",
+"s":4
+},
+{
+"t":"Careful. It's a little warm.",
+"s":4
+},
+{
+"t":"Now, about your pension.",
+"s":4
+},
+{
+"t":"The rest of the staff chipped in.",
+"s":3
+},
+{
+"t":"It's not real gold. Nothing down here is.",
+"s":3
+}
 ]
 },
 "383":{
@@ -6508,7 +11524,29 @@
 "r":8
 }
 ],
-"word":"crowd"
+"word":"crowd",
+"decoys":[
+{
+"t":"My brother-in-law. Very supportive.",
+"s":4
+},
+{
+"t":"He's been like that since the two-drink minimum.",
+"s":4
+},
+{
+"t":"He laughed at the fire exits, too.",
+"s":4
+},
+{
+"t":"I'll take it.",
+"s":3
+},
+{
+"t":"Do the gazelle bit again.",
+"s":3
+}
+]
 },
 "384":{
 "style":4,
@@ -6535,6 +11573,28 @@
 "y":48,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"There hasn't been a leaf on this street since August.",
+"s":4
+},
+{
+"t":"He says it's mostly for the gutters.",
+"s":4
+},
+{
+"t":"The HOA rules say nothing about thrust.",
+"s":4
+},
+{
+"t":"Seven a.m. Every Sunday.",
+"s":3
+},
+{
+"t":"It came with the divorce.",
+"s":3
+}
 ]
 },
 "385":{
@@ -6559,6 +11619,28 @@
 "x":10,
 "y":78,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"It has to line up with the solstice and the driveway.",
+"s":4
+},
+{
+"t":"Don't rush him. The sun is very particular.",
+"s":4
+},
+{
+"t":"He measures twice and drags once.",
+"s":4
+},
+{
+"t":"The contractor said three weeks. That was four summers ago.",
+"s":3
+},
+{
+"t":"I'm not paying for another stone.",
+"s":3
 }
 ]
 },
@@ -6589,6 +11671,28 @@
 "y":30,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"He needed a hobby after the knights stopped coming.",
+"s":4
+},
+{
+"t":"It's the closest he gets to the beach.",
+"s":4
+},
+{
+"t":"He's looking for the receipt.",
+"s":4
+},
+{
+"t":"Mostly bottle caps today.",
+"s":3
+},
+{
+"t":"He says the good stuff sinks to the bottom.",
+"s":3
+}
 ]
 },
 "387":{
@@ -6618,7 +11722,29 @@
 "r":7
 }
 ],
-"word":"Thanksgiving"
+"word":"Thanksgiving",
+"decoys":[
+{
+"t":"So what did you do?",
+"s":4
+},
+{
+"t":"He says the conversation is better over here.",
+"s":4
+},
+{
+"t":"You get used to the chairs.",
+"s":4
+},
+{
+"t":"Are you going to finish your peas?",
+"s":3
+},
+{
+"t":"Can you cut my turkey, too?",
+"s":3
+}
+]
 },
 "388":{
 "style":3,
@@ -6648,6 +11774,28 @@
 "y":39,
 "r":12
 }
+],
+"decoys":[
+{
+"t":"Sir, liquids have to be under three ounces.",
+"s":4
+},
+{
+"t":"Those are just my carry-ons.",
+"s":4
+},
+{
+"t":"Sir, please empty your pouch.",
+"s":4
+},
+{
+"t":"Have you seen what they charge for food on board?",
+"s":4
+},
+{
+"t":"They were alive when I packed them.",
+"s":3
+}
 ]
 },
 "389":{
@@ -6676,6 +11824,28 @@
 "y":47,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"Dad, you're embarrassing me.",
+"s":4
+},
+{
+"t":"You wore that when I learned to ride a bike, too.",
+"s":4
+},
+{
+"t":"We haven't left the driveway yet.",
+"s":4
+},
+{
+"t":"Ten and two, sweetheart. Ten and two.",
+"s":3
+},
+{
+"t":"Your mother taught your brother. She doesn't drive anymore.",
+"s":3
+}
 ]
 },
 "392":{
@@ -6703,6 +11873,28 @@
 "x":66,
 "y":59,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Shall we skip straight to dessert?",
+"s":4
+},
+{
+"t":"Don't worry about me. I've already eaten.",
+"s":4
+},
+{
+"t":"So. Tell me about your ex.",
+"s":4
+},
+{
+"t":"I'll get the check. You've done enough.",
+"s":3
+},
+{
+"t":"My mother warned me about women who order nothing.",
+"s":3
 }
 ]
 },
@@ -6733,6 +11925,28 @@
 "y":49,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"I'm afraid your manuscript is over the carry-on limit.",
+"s":4
+},
+{
+"t":"It's a lot of paper for a parking ticket.",
+"s":4
+},
+{
+"t":"That'll have to go first class, then.",
+"s":4
+},
+{
+"t":"And this is just the cover letter?",
+"s":4
+},
+{
+"t":"The committee read your r\u00e9sum\u00e9. Parts of it.",
+"s":3
+}
 ]
 },
 "394":{
@@ -6760,6 +11974,28 @@
 "x":68,
 "y":32,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Call me a cab. I'm in no shape to fly.",
+"s":4
+},
+{
+"t":"Somebody left a screen door open on Elm.",
+"s":4
+},
+{
+"t":"What type was that last one?",
+"s":4
+},
+{
+"t":"I'll walk. It's only two porches over.",
+"s":3
+},
+{
+"t":"I was only at the picnic for an hour.",
+"s":3
 }
 ]
 },
@@ -6790,7 +12026,29 @@
 "r":8
 }
 ],
-"word":"round"
+"word":"round",
+"decoys":[
+{
+"t":"As you can see, the big slice is nachos.",
+"s":4
+},
+{
+"t":"He brings it to weddings, too.",
+"s":4
+},
+{
+"t":"This is the fun version. He's had a drink.",
+"s":4
+},
+{
+"t":"He was told this was optional.",
+"s":3
+},
+{
+"t":"Next time I'm picking the bar.",
+"s":3
+}
+]
 },
 "396":{
 "style":1,
@@ -6814,6 +12072,28 @@
 "x":81,
 "y":48,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"I'll call. I can always lay more.",
+"s":4
+},
+{
+"t":"House rule, Reynard. Nobody eats the pot.",
+"s":4
+},
+{
+"t":"He told us he was a vegetarian.",
+"s":4
+},
+{
+"t":"Whose idea was it to play in the henhouse?",
+"s":3
+},
+{
+"t":"I fold. And I'd like to go home now.",
+"s":3
 }
 ]
 },
@@ -6843,7 +12123,29 @@
 "r":12
 }
 ],
-"word":"bill"
+"word":"bill",
+"decoys":[
+{
+"t":"Sure. Pick any envelope you like.",
+"s":4
+},
+{
+"t":"So I'll put you down as a maybe on the car.",
+"s":4
+},
+{
+"t":"How about some advice instead? It's free.",
+"s":4
+},
+{
+"t":"Ask your mother. She has the other wallet.",
+"s":3
+},
+{
+"t":"Your allowance has been restructured.",
+"s":3
+}
+]
 },
 "398":{
 "style":3,
@@ -6870,6 +12172,28 @@
 "x":5,
 "y":32,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"I hear the view at the end is incredible.",
+"s":4
+},
+{
+"t":"Honestly, I'm only here because everyone else is.",
+"s":4
+},
+{
+"t":"Is this the line for the cliff or the parachutes?",
+"s":4
+},
+{
+"t":"Does it come in a smaller size?",
+"s":3
+},
+{
+"t":"My cousin got one last year. Still waiting on his review.",
+"s":3
 }
 ]
 },
@@ -6900,6 +12224,28 @@
 "y":35,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"That's Linda, from Compliance.",
+"s":4
+},
+{
+"t":"She's been like this since the reorg.",
+"s":4
+},
+{
+"t":"Do I need to be on a list?",
+"s":4
+},
+{
+"t":"Employee of the Month. Since 2017.",
+"s":3
+},
+{
+"t":"Wipe your feet. It's just been cleaned.",
+"s":3
+}
 ]
 },
 "400":{
@@ -6928,6 +12274,28 @@
 "y":22,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"Careful. I'm union.",
+"s":4
+},
+{
+"t":"You know, I also do the half hours.",
+"s":4
+},
+{
+"t":"Go ahead. Say it one more time.",
+"s":4
+},
+{
+"t":"We agreed. Nothing after eleven.",
+"s":3
+},
+{
+"t":"I don't care what time it is in Switzerland.",
+"s":3
+}
 ]
 },
 "401":{
@@ -6955,6 +12323,28 @@
 "x":90,
 "y":42,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"I'm usually much taller.",
+"s":4
+},
+{
+"t":"Walter's calves won't make it to dessert.",
+"s":4
+},
+{
+"t":"Tell us more about your ex-husband the jockey.",
+"s":4
+},
+{
+"t":"We're both very interested in your work.",
+"s":3
+},
+{
+"t":"So. Do you dance?",
+"s":3
 }
 ]
 },
@@ -6985,7 +12375,29 @@
 "r":6
 }
 ],
-"word":"Saturday"
+"word":"Saturday",
+"decoys":[
+{
+"t":"He always goes for the hot wax.",
+"s":4
+},
+{
+"t":"I should be able to dry him by Thursday.",
+"s":4
+},
+{
+"t":"It's the only thing that reaches his back anymore.",
+"s":4
+},
+{
+"t":"He tips in lettuce.",
+"s":3
+},
+{
+"t":"He keeps asking us to skip the undercarriage.",
+"s":3
+}
+]
 },
 "404":{
 "style":1,
@@ -7013,6 +12425,28 @@
 "x":38,
 "y":69,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Go with the warm white this time.",
+"s":4
+},
+{
+"t":"The moon just isn't doing it for him anymore.",
+"s":4
+},
+{
+"t":"Union rules. He has to be present for any bulb change.",
+"s":4
+},
+{
+"t":"He's been out here every night since the outage.",
+"s":3
+},
+{
+"t":"Don't look directly at it, buddy. I mean it.",
+"s":3
 }
 ]
 },
@@ -7044,7 +12478,29 @@
 "r":6
 }
 ],
-"word":"worm"
+"word":"worm",
+"decoys":[
+{
+"t":"Five more minutes.",
+"s":4
+},
+{
+"t":"I'm just here to read the meter.",
+"s":4
+},
+{
+"t":"I'm not really a morning person.",
+"s":4
+},
+{
+"t":"Don't. I have a doctor's note.",
+"s":3
+},
+{
+"t":"I set it for you. You're welcome.",
+"s":3
+}
+]
 },
 "406":{
 "style":3,
@@ -7073,6 +12529,28 @@
 "x":21,
 "y":40,
 "r":12
+}
+],
+"decoys":[
+{
+"t":"Well, that's a no-passing zone now.",
+"s":4
+},
+{
+"t":"She's going to wake up a two-lane highway.",
+"s":4
+},
+{
+"t":"The county pays by the mile.",
+"s":4
+},
+{
+"t":"She was here first. I asked.",
+"s":3
+},
+{
+"t":"I've done worse. Ask the mailbox at mile seven.",
+"s":3
 }
 ]
 },
@@ -7103,6 +12581,28 @@
 "y":72,
 "r":15
 }
+],
+"decoys":[
+{
+"t":"He read the part about sun exposure.",
+"s":4
+},
+{
+"t":"Our homeowner's policy doesn't cover the sun.",
+"s":4
+},
+{
+"t":"He doesn't trust the ocean to finish the job.",
+"s":4
+},
+{
+"t":"Next week he wants to try the moon.",
+"s":3
+},
+{
+"t":"This is his vacation. Imagine the rest of the year.",
+"s":3
+}
 ]
 },
 "408":{
@@ -7130,6 +12630,28 @@
 "x":89,
 "y":49,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"I'll pick them when they're sixty watts.",
+"s":4
+},
+{
+"t":"Harold said nothing would grow out here.",
+"s":4
+},
+{
+"t":"My electric bill is down forty dollars.",
+"s":4
+},
+{
+"t":"At least the deer leave them alone.",
+"s":3
+},
+{
+"t":"I talk to them. It's supposed to help.",
+"s":3
 }
 ]
 },
@@ -7159,6 +12681,28 @@
 "y":64,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"Don't encourage him, Margaret.",
+"s":4
+},
+{
+"t":"It's his first dinner party since the space station.",
+"s":4
+},
+{
+"t":"He ordered the soup. We had to call someone.",
+"s":4
+},
+{
+"t":"Careful with the gravy, dear.",
+"s":3
+},
+{
+"t":"Just once, a normal dinner party.",
+"s":3
+}
 ]
 },
 "410":{
@@ -7186,6 +12730,28 @@
 "x":22,
 "y":61,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"Do you take gold?",
+"s":4
+},
+{
+"t":"Sir, there's no smoking at the pumps.",
+"s":4
+},
+{
+"t":"His doctor told him to cut back on sheep.",
+"s":4
+},
+{
+"t":"Pump four. Pay inside, please.",
+"s":3
+},
+{
+"t":"Last time, he paid with a knight.",
+"s":3
 }
 ]
 },
@@ -7215,6 +12781,28 @@
 "y":49,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"He's a rescue.",
+"s":4
+},
+{
+"t":"Did anybody try to pet you?",
+"s":4
+},
+{
+"t":"Good boy. Nobody parked in front of you.",
+"s":4
+},
+{
+"t":"He gets anxious when I go inside.",
+"s":3
+},
+{
+"t":"Don't look at me like that. You had water this morning.",
+"s":3
+}
 ]
 },
 "413":{
@@ -7242,6 +12830,28 @@
 "x":63,
 "y":55,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"Give me five more minutes. I'm almost steeped.",
+"s":4
+},
+{
+"t":"Martin, the vicar is coming at four.",
+"s":4
+},
+{
+"t":"This is the only quiet I get all day.",
+"s":4
+},
+{
+"t":"Leave the lid off. I like a little air.",
+"s":3
+},
+{
+"t":"Not the milk. Not yet.",
+"s":3
 }
 ]
 },
@@ -7271,6 +12881,28 @@
 "x":42,
 "y":55,
 "r":15
+}
+],
+"decoys":[
+{
+"t":"Typical. Never one around when you need it.",
+"s":4
+},
+{
+"t":"He says it was his to begin with.",
+"s":4
+},
+{
+"t":"Fine. I'll jaywalk.",
+"s":4
+},
+{
+"t":"The city's going to want that back.",
+"s":3
+},
+{
+"t":"I wasn't using it anyway.",
+"s":3
 }
 ]
 },
@@ -7304,7 +12936,29 @@
 "r":9
 }
 ],
-"word":"job"
+"word":"job",
+"decoys":[
+{
+"t":"He was on sale.",
+"s":4
+},
+{
+"t":"I'm not taking him back. You take him back.",
+"s":4
+},
+{
+"t":"So. Where's the milk?",
+"s":3
+},
+{
+"t":"He followed me home from the parking lot.",
+"s":3
+},
+{
+"t":"Don't tell me. Aisle nine again.",
+"s":3
+}
+]
 },
 "416":{
 "style":3,
@@ -7330,6 +12984,28 @@
 "x":24,
 "y":79,
 "r":12
+}
+],
+"decoys":[
+{
+"t":"The bucket was supposed to be for champagne.",
+"s":4
+},
+{
+"t":"She said she needed to think it over. I said I'd wait.",
+"s":4
+},
+{
+"t":"This is my fourth park today.",
+"s":4
+},
+{
+"t":"She always takes the long way around.",
+"s":3
+},
+{
+"t":"I've been pacing since Tuesday.",
+"s":3
 }
 ]
 },
@@ -7357,6 +13033,28 @@
 "x":57,
 "y":44,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Finally. Someone to go to the in-laws'.",
+"s":4
+},
+{
+"t":"Don't worry. I'll take it from here.",
+"s":4
+},
+{
+"t":"My wife is going to have questions.",
+"s":4
+},
+{
+"t":"He'll need his own key, of course.",
+"s":3
+},
+{
+"t":"Is there a warranty on him?",
+"s":3
 }
 ]
 },
@@ -7387,6 +13085,28 @@
 "y":31,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"I'll know when I've had enough.",
+"s":4
+},
+{
+"t":"Last call, sir. That includes you.",
+"s":4
+},
+{
+"t":"He's been in there since the playoffs.",
+"s":4
+},
+{
+"t":"I'll take a straw, when you get a minute.",
+"s":3
+},
+{
+"t":"Let me know when you want to come up for air.",
+"s":3
+}
 ]
 },
 "419":{
@@ -7416,6 +13136,28 @@
 "y":54,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"I came straight from my mother's.",
+"s":4
+},
+{
+"t":"I like to be prepared in case it goes well.",
+"s":4
+},
+{
+"t":"So. Do you live alone?",
+"s":4
+},
+{
+"t":"It's mostly shoes.",
+"s":3
+},
+{
+"t":"My flight isn't until Thursday.",
+"s":3
+}
 ]
 },
 "420":{
@@ -7442,6 +13184,28 @@
 "x":24,
 "y":37,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"I'll have what he's having.",
+"s":4
+},
+{
+"t":"He was here before you were, pal.",
+"s":4
+},
+{
+"t":"Go easy on him. Somebody shook him earlier.",
+"s":4
+},
+{
+"t":"Don't lean on him. He gets moody.",
+"s":3
+},
+{
+"t":"He's been stuck on B4 for an hour.",
+"s":3
 }
 ]
 },
@@ -7472,6 +13236,28 @@
 "y":40,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"He said he wanted to downsize.",
+"s":4
+},
+{
+"t":"Dinner's at six, Howard. I'll lift the roof.",
+"s":4
+},
+{
+"t":"He's been much easier to live with.",
+"s":4
+},
+{
+"t":"I dust him on Sundays.",
+"s":3
+},
+{
+"t":"My sister says I'm controlling.",
+"s":3
+}
 ]
 },
 "424":{
@@ -7500,6 +13286,28 @@
 "y":72,
 "r":12
 }
+],
+"decoys":[
+{
+"t":"Some of us have to work all night.",
+"s":4
+},
+{
+"t":"And they wonder why the tides are off.",
+"s":4
+},
+{
+"t":"Same two cars every Saturday.",
+"s":4
+},
+{
+"t":"I'm going behind a cloud for a bit.",
+"s":3
+},
+{
+"t":"Somebody ought to call their parents.",
+"s":3
+}
 ]
 },
 "425":{
@@ -7527,6 +13335,28 @@
 "y":36,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"You did say the whole family.",
+"s":4
+},
+{
+"t":"He's being buried with the station wagon.",
+"s":4
+},
+{
+"t":"This is for his ego. He's next door.",
+"s":4
+},
+{
+"t":"I got carried away.",
+"s":3
+},
+{
+"t":"I'm paid by the foot.",
+"s":3
+}
 ]
 },
 "426":{
@@ -7553,7 +13383,29 @@
 "r":18
 }
 ],
-"word":"doctor"
+"word":"doctor",
+"decoys":[
+{
+"t":"I'm still on the same article.",
+"s":4
+},
+{
+"t":"My insurance has changed twice since I sat down.",
+"s":4
+},
+{
+"t":"Everyone else gave up and got better.",
+"s":4
+},
+{
+"t":"I came in with a cold.",
+"s":3
+},
+{
+"t":"Still no word on my number.",
+"s":3
+}
+]
 },
 "427":{
 "style":4,
@@ -7582,6 +13434,28 @@
 "x":53,
 "y":74,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Don't tell her I was up.",
+"s":4
+},
+{
+"t":"It's been listening all night. Now it's my turn.",
+"s":4
+},
+{
+"t":"Cancel whatever I said at dinner.",
+"s":4
+},
+{
+"t":"Remind me why I came in here.",
+"s":3
+},
+{
+"t":"Can you hear me thinking?",
+"s":3
 }
 ]
 },
@@ -7614,7 +13488,29 @@
 "r":9
 }
 ],
-"word":"forecast"
+"word":"forecast",
+"decoys":[
+{
+"t":"Don't make eye contact. They'll follow you home.",
+"s":4
+},
+{
+"t":"I only came out for the paper.",
+"s":4
+},
+{
+"t":"I should have brought a leash.",
+"s":4
+},
+{
+"t":"The shelters are going to be swamped.",
+"s":3
+},
+{
+"t":"Last spring it was hamsters.",
+"s":3
+}
+]
 },
 "429":{
 "style":5,
@@ -7641,6 +13537,28 @@
 "x":38,
 "y":24,
 "r":14
+}
+],
+"decoys":[
+{
+"t":"Sorry, Dave. I had to take this.",
+"s":4
+},
+{
+"t":"Under four seconds. A new department record.",
+"s":4
+},
+{
+"t":"We've decided to go in a different direction.",
+"s":4
+},
+{
+"t":"This was supposed to build morale.",
+"s":3
+},
+{
+"t":"He's from Accounting. Nobody knows him.",
+"s":3
 }
 ]
 },
@@ -7671,6 +13589,28 @@
 "y":43,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"Does this make me look longer?",
+"s":4
+},
+{
+"t":"Don't wait up.",
+"s":4
+},
+{
+"t":"You look like a whole new woman.",
+"s":4
+},
+{
+"t":"We're going to miss the reservation.",
+"s":3
+},
+{
+"t":"Bring a sweater. It gets cold after dark.",
+"s":3
+}
 ]
 },
 "431":{
@@ -7698,6 +13638,28 @@
 "x":40,
 "y":18,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"Not my lane, not my problem.",
+"s":4
+},
+{
+"t":"She's been trying to lap him all week.",
+"s":4
+},
+{
+"t":"He's in the fast lane. Rules are rules.",
+"s":4
+},
+{
+"t":"I'm not paid enough to look up.",
+"s":3
+},
+{
+"t":"Adult swim.",
+"s":3
 }
 ]
 },
@@ -7731,7 +13693,29 @@
 "r":7
 }
 ],
-"word":"cat"
+"word":"cat",
+"decoys":[
+{
+"t":"He says the commute clears his head.",
+"s":4
+},
+{
+"t":"He'll still beat the bus.",
+"s":4
+},
+{
+"t":"I hear he's moving up to a tank.",
+"s":4
+},
+{
+"t":"He works from home on Fridays.",
+"s":3
+},
+{
+"t":"Don't stare. He can see you too.",
+"s":3
+}
+]
 },
 "433":{
 "style":5,
@@ -7763,6 +13747,28 @@
 "y":9,
 "r":13
 }
+],
+"decoys":[
+{
+"t":"Did anyone remember the dog?",
+"s":3
+},
+{
+"t":"Leave the lamp. The cabin has a lamp.",
+"s":4
+},
+{
+"t":"It's only a weekend.",
+"s":4
+},
+{
+"t":"The bridge clearance is eleven feet.",
+"s":3
+},
+{
+"t":"I'm not unpacking any of this alone.",
+"s":3
+}
 ]
 },
 "434":{
@@ -7792,7 +13798,29 @@
 "r":10
 }
 ],
-"word":"door"
+"word":"door",
+"decoys":[
+{
+"t":"It's mostly catalogs.",
+"s":4
+},
+{
+"t":"One of these is a jury summons.",
+"s":4
+},
+{
+"t":"Every winter he forgets to stop the paper.",
+"s":4
+},
+{
+"t":"I'll try again in April.",
+"s":3
+},
+{
+"t":"The holiday cards alone took me a week.",
+"s":3
+}
+]
 },
 "435":{
 "style":5,
@@ -7822,6 +13850,28 @@
 "y":57,
 "r":16
 }
+],
+"decoys":[
+{
+"t":"Nobody touches the cake until the call is confirmed.",
+"s":4
+},
+{
+"t":"Uncle Phil takes birthdays very seriously.",
+"s":4
+},
+{
+"t":"We're going to need another angle on the candles.",
+"s":4
+},
+{
+"t":"He also does weddings.",
+"s":3
+},
+{
+"t":"Ruling on the field is two scoops.",
+"s":3
+}
 ]
 },
 "436":{
@@ -7850,6 +13900,28 @@
 "x":14,
 "y":24,
 "r":13
+}
+],
+"decoys":[
+{
+"t":"I'm going to refer you to an entomologist.",
+"s":4
+},
+{
+"t":"We can try the net, but they always come back.",
+"s":4
+},
+{
+"t":"Good news. They're not moths.",
+"s":4
+},
+{
+"t":"Stay away from flowers for a while.",
+"s":3
+},
+{
+"t":"It should clear up by spring.",
+"s":3
 }
 ]
 },
@@ -7882,7 +13954,29 @@
 "r":9
 }
 ],
-"word":"weekend"
+"word":"weekend",
+"decoys":[
+{
+"t":"We brought a little something for the house.",
+"s":4
+},
+{
+"t":"Your father can only sleep in his own bed.",
+"s":4
+},
+{
+"t":"Should the lamp go in the guest room or the nursery?",
+"s":4
+},
+{
+"t":"The movers charge by the hour, so we'll be quick.",
+"s":3
+},
+{
+"t":"Your mother wants to see the guest room first.",
+"s":3
+}
+]
 },
 "438":{
 "style":2,
@@ -7912,6 +14006,28 @@
 "x":64,
 "y":87,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"He's been afraid of heights since the incident.",
+"s":4
+},
+{
+"t":"Sorry, pal. This one only goes to Hartford.",
+"s":4
+},
+{
+"t":"He didn't want to be the one in front again.",
+"s":4
+},
+{
+"t":"He'll meet them in Florida.",
+"s":3
+},
+{
+"t":"First winter?",
+"s":3
 }
 ]
 },
@@ -7944,7 +14060,29 @@
 "r":10
 }
 ],
-"word":"page"
+"word":"page",
+"decoys":[
+{
+"t":"Whatever happens, the bird doesn't get a vote.",
+"s":4
+},
+{
+"t":"Has anyone tried blowing on it?",
+"s":4
+},
+{
+"t":"Best two out of three?",
+"s":4
+},
+{
+"t":"I'm calling the league office. Nobody touch it.",
+"s":3
+},
+{
+"t":"It's never done that in practice.",
+"s":3
+}
+]
 },
 "440":{
 "style":3,
@@ -7971,6 +14109,28 @@
 "x":55,
 "y":55,
 "r":12
+}
+],
+"decoys":[
+{
+"t":"It's done wonders for their self-esteem.",
+"s":4
+},
+{
+"t":"Bessie's on her fourth lap.",
+"s":4
+},
+{
+"t":"The farmer says it keeps out the riffraff.",
+"s":4
+},
+{
+"t":"They took it out of the old bank.",
+"s":3
+},
+{
+"t":"Milking is at four. Sharp.",
+"s":3
 }
 ]
 },
@@ -8000,7 +14160,29 @@
 "r":10
 }
 ],
-"word":"book"
+"word":"book",
+"decoys":[
+{
+"t":"I'm calling it rustic.",
+"s":4
+},
+{
+"t":"There. Now you can finally unpack.",
+"s":4
+},
+{
+"t":"I'll have the second one up by Christmas.",
+"s":4
+},
+{
+"t":"It's level. It's the wall that's off.",
+"s":3
+},
+{
+"t":"That'll be four hundred, cash.",
+"s":3
+}
+]
 },
 "442":{
 "style":4,
@@ -8028,6 +14210,28 @@
 "x":41,
 "y":47,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"Any family history of glowing?",
+"s":4
+},
+{
+"t":"Whatever it is, it's saving us a fortune on lighting.",
+"s":4
+},
+{
+"t":"Does it hurt when you blink?",
+"s":4
+},
+{
+"t":"Take two of these and call me after dark.",
+"s":3
+},
+{
+"t":"Nurse, can we get some shade in here?",
+"s":3
 }
 ]
 },
@@ -8061,7 +14265,29 @@
 "r":11
 }
 ],
-"word":"client"
+"word":"client",
+"decoys":[
+{
+"t":"Mistakes were made.",
+"s":4
+},
+{
+"t":"Ma'am, we've prepared a brief statement.",
+"s":4
+},
+{
+"t":"The vase was very close to the edge when he arrived.",
+"s":4
+},
+{
+"t":"He'll be stepping back from the coffee table.",
+"s":3
+},
+{
+"t":"His allowance has been frozen pending review.",
+"s":3
+}
+]
 },
 "444":{
 "style":2,
@@ -8088,6 +14314,28 @@
 "x":15,
 "y":29,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"He brought a shield this time.",
+"s":4
+},
+{
+"t":"He's got five stars on the neighborhood app.",
+"s":4
+},
+{
+"t":"Tuesday is recycling. He knows that.",
+"s":4
+},
+{
+"t":"Should I let him in? He looks cold.",
+"s":3
+},
+{
+"t":"He rang twice. That's new.",
+"s":3
 }
 ]
 },
@@ -8120,6 +14368,28 @@
 "y":46,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"They're forty-six and forty-four.",
+"s":4
+},
+{
+"t":"Gravy goes to the winner, boys.",
+"s":4
+},
+{
+"t":"Whoever wins gets the house.",
+"s":4
+},
+{
+"t":"It's been going since the parade.",
+"s":3
+},
+{
+"t":"Their father would be so proud.",
+"s":3
+}
 ]
 },
 "446":{
@@ -8150,6 +14420,28 @@
 "y":33,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"The projections were optimistic, Your Majesty.",
+"s":4
+},
+{
+"t":"Shall I put it with the other one, ma'am?",
+"s":4
+},
+{
+"t":"It's small-batch, ma'am. Very exclusive.",
+"s":4
+},
+{
+"t":"The workers would like to discuss a four-day week.",
+"s":3
+},
+{
+"t":"The drones say it wasn't them.",
+"s":3
+}
 ]
 },
 "447":{
@@ -8176,6 +14468,28 @@
 "x":86,
 "y":25,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"He's molting. Don't stare.",
+"s":4
+},
+{
+"t":"The gulls think he's showing off.",
+"s":4
+},
+{
+"t":"Could you get the spot between my wings?",
+"s":4
+},
+{
+"t":"No flying in the swim area, sir.",
+"s":3
+},
+{
+"t":"It takes him two hours to dry off.",
+"s":3
 }
 ]
 },
@@ -8207,6 +14521,28 @@
 "y":62,
 "r":11
 }
+],
+"decoys":[
+{
+"t":"Would you like to add a tip?",
+"s":4
+},
+{
+"t":"The ones in the glass go on Grandpa's account.",
+"s":4
+},
+{
+"t":"Rates have gone up since your brother lost his.",
+"s":4
+},
+{
+"t":"I'll need to see some ID.",
+"s":3
+},
+{
+"t":"Was it a molar? Molars are extra.",
+"s":3
+}
 ]
 },
 "449":{
@@ -8237,6 +14573,28 @@
 "y":28,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"Your co-pay doesn't include fishing rights.",
+"s":4
+},
+{
+"t":"Technically, the sign only says no cell phones.",
+"s":4
+},
+{
+"t":"He's asking if we validate campsites.",
+"s":4
+},
+{
+"t":"The dog is actually the patient.",
+"s":3
+},
+{
+"t":"Please don't cook anything from the tank.",
+"s":3
+}
 ]
 },
 "450":{
@@ -8264,6 +14622,28 @@
 "x":93,
 "y":44,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Okay, now one where you're darting into traffic.",
+"s":4
+},
+{
+"t":"Hold still. The car is ruining the background.",
+"s":4
+},
+{
+"t":"He only crosses when there's an audience.",
+"s":4
+},
+{
+"t":"Get one with the sign, or nobody back home will believe it.",
+"s":3
+},
+{
+"t":"I'll wait. Apparently it's a whole thing for them.",
+"s":3
 }
 ]
 },
@@ -8296,6 +14676,28 @@
 "y":24,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"Says here gold is up again. Any idea why?",
+"s":4
+},
+{
+"t":"Try not to scratch your nose today, dear.",
+"s":4
+},
+{
+"t":"Last week it was the gardener.",
+"s":4
+},
+{
+"t":"Just this once, let me butter it for you.",
+"s":3
+},
+{
+"t":"We're down to our last wooden spoon.",
+"s":3
+}
 ]
 },
 "452":{
@@ -8324,6 +14726,28 @@
 "y":86,
 "r":13
 }
+],
+"decoys":[
+{
+"t":"Don't make eye contact. He's buffering.",
+"s":4
+},
+{
+"t":"Somebody ask the bear for the password.",
+"s":4
+},
+{
+"t":"He gets very territorial about the router.",
+"s":4
+},
+{
+"t":"Fine, one photo of nature, then we go.",
+"s":3
+},
+{
+"t":"The brochure did say 'rustic.'",
+"s":3
+}
 ]
 },
 "453":{
@@ -8351,6 +14775,28 @@
 "x":72,
 "y":38,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"It's a teaching hospital. Try to look natural.",
+"s":4
+},
+{
+"t":"Normally we'd close the door, but it's sold out.",
+"s":4
+},
+{
+"t":"Turn around slowly. The back rows paid extra.",
+"s":4
+},
+{
+"t":"Your insurance only covers the open-back model.",
+"s":3
+},
+{
+"t":"Don't mind them. They came for the boxers.",
+"s":3
 }
 ]
 },
@@ -8381,6 +14827,28 @@
 "y":35,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"One way, I'm guessing?",
+"s":5
+},
+{
+"t":"And is the gentleman with the pan traveling with you?",
+"s":4
+},
+{
+"t":"Your passport photo has a lot less mustache.",
+"s":4
+},
+{
+"t":"I'm just here to see him off.",
+"s":4
+},
+{
+"t":"Window seat, as far from the galley as possible.",
+"s":3
+}
 ]
 },
 "455":{
@@ -8409,7 +14877,29 @@
 "r":8
 }
 ],
-"word":"wedding"
+"word":"wedding",
+"decoys":[
+{
+"t":"Climbing's off until the sheets are dry.",
+"s":4
+},
+{
+"t":"Your mother never did the delicates this way.",
+"s":4
+},
+{
+"t":"I'll just send it up with the next load.",
+"s":3
+},
+{
+"t":"You're dripping on my crown.",
+"s":3
+},
+{
+"t":"Should I start bringing my own clothespins?",
+"s":3
+}
+]
 },
 "456":{
 "style":3,
@@ -8439,6 +14929,28 @@
 "x":57,
 "y":67,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"Technically, it's a school zone.",
+"s":4
+},
+{
+"t":"I'll pull him over sometime after lunch.",
+"s":4
+},
+{
+"t":"He just likes how he looks in the photos.",
+"s":4
+},
+{
+"t":"We're a little short on quota this month.",
+"s":3
+},
+{
+"t":"Third time this week. He thinks nobody's watching.",
+"s":3
 }
 ]
 },
@@ -8470,7 +14982,29 @@
 "r":8
 }
 ],
-"word":"doctor"
+"word":"doctor",
+"decoys":[
+{
+"t":"Nobody jumps on Daddy until Tuesday.",
+"s":4
+},
+{
+"t":"Don't ask. And nobody eat the peas.",
+"s":4
+},
+{
+"t":"And that, kids, is why there won't be a fifth.",
+"s":4
+},
+{
+"t":"Kids, this is what we call a family planning meeting.",
+"s":3
+},
+{
+"t":"He says it was worth it. He says it very slowly.",
+"s":3
+}
+]
 },
 "458":{
 "style":5,
@@ -8499,6 +15033,28 @@
 "y":70,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"I keep saying I'll switch to evergreen.",
+"s":4
+},
+{
+"t":"The maple next door hasn't even started.",
+"s":4
+},
+{
+"t":"Honestly, it's the only exercise I get.",
+"s":3
+},
+{
+"t":"I'm keeping a few for the scrapbook.",
+"s":3
+},
+{
+"t":"The hard part is waiting for the last ones to let go.",
+"s":3
+}
 ]
 },
 "459":{
@@ -8525,6 +15081,28 @@
 "x":17,
 "y":50,
 "r":14
+}
+],
+"decoys":[
+{
+"t":"The king's insurance won't cover another one.",
+"s":4
+},
+{
+"t":"Honestly, the knee pads are just for confidence.",
+"s":4
+},
+{
+"t":"Sir, have you ever considered a bench?",
+"s":3
+},
+{
+"t":"All the king's men took a first-aid course this year.",
+"s":3
+},
+{
+"t":"Legal wants him down by noon.",
+"s":3
 }
 ]
 },
@@ -8556,6 +15134,28 @@
 "y":35,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"Next time, try a bookmark.",
+"s":4
+},
+{
+"t":"That's the third encyclopedia this month.",
+"s":4
+},
+{
+"t":"And did you at least enjoy it?",
+"s":4
+},
+{
+"t":"I'd stay on this side of the desk if I were you.",
+"s":3
+},
+{
+"t":"I'm going to need to see your library card.",
+"s":3
+}
 ]
 },
 "461":{
@@ -8584,6 +15184,28 @@
 "x":77,
 "y":73,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"Honey, nobody's looking. You can let it out.",
+"s":4
+},
+{
+"t":"Same thing every summer. Lasts about forty feet.",
+"s":4
+},
+{
+"t":"He trained for this all winter.",
+"s":3
+},
+{
+"t":"Wait until he sees the walk back.",
+"s":3
+},
+{
+"t":"I married him for his lung capacity.",
+"s":3
 }
 ]
 },
@@ -8616,6 +15238,28 @@
 "y":27,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"So, which one is mine?",
+"s":4
+},
+{
+"t":"He'll want to go down a few collar sizes.",
+"s":4
+},
+{
+"t":"We found a whippet. We also found your keys.",
+"s":3
+},
+{
+"t":"He's going to be cold, and he's going to blame you.",
+"s":3
+},
+{
+"t":"That'll be forty dollars, plus disposal.",
+"s":3
+}
 ]
 },
 "463":{
@@ -8645,6 +15289,28 @@
 "x":12,
 "y":50,
 "r":12
+}
+],
+"decoys":[
+{
+"t":"The rats were easier. They didn't need charging.",
+"s":4
+},
+{
+"t":"Fine. I still have the broom.",
+"s":4
+},
+{
+"t":"He'll bring them back when the town pays up.",
+"s":4
+},
+{
+"t":"The cat's coming along as a consultant.",
+"s":3
+},
+{
+"t":"They all followed him after the last software update.",
+"s":3
 }
 ]
 },
@@ -8678,7 +15344,29 @@
 "r":9
 }
 ],
-"word":"Tuesday"
+"word":"Tuesday",
+"decoys":[
+{
+"t":"She called us herself.",
+"s":4
+},
+{
+"t":"Ma'am, she's asking if you could step out of the shot.",
+"s":4
+},
+{
+"t":"She says she'll come down after golden hour.",
+"s":4
+},
+{
+"t":"Just hand her the tuna. She'll come down when she's ready.",
+"s":3
+},
+{
+"t":"Sorry, ma'am. She won't come down for anything under salmon.",
+"s":3
+}
+]
 },
 "465":{
 "style":3,
@@ -8708,6 +15396,28 @@
 "y":50,
 "r":14
 }
+],
+"decoys":[
+{
+"t":"Mine's a sheepdog.",
+"s":4
+},
+{
+"t":"Your swan's been staring at my yard all summer.",
+"s":4
+},
+{
+"t":"My wife says I'm not allowed near the property line.",
+"s":3
+},
+{
+"t":"I'm letting it find itself.",
+"s":3
+},
+{
+"t":"We're in the same garden club, technically.",
+"s":3
+}
 ]
 },
 "466":{
@@ -8736,6 +15446,28 @@
 "y":61,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"It won't be ready till spring.",
+"s":4
+},
+{
+"t":"We can't guarantee it'll fit you afterward.",
+"s":4
+},
+{
+"t":"Ticket says 'wings, light starch.'",
+"s":3
+},
+{
+"t":"Did you want that on a hanger or folded?",
+"s":3
+},
+{
+"t":"Same-day service is extra, and frankly impossible.",
+"s":3
+}
 ]
 },
 "467":{
@@ -8763,6 +15495,28 @@
 "x":93,
 "y":18,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Don't look at me. I'm just the driver.",
+"s":4
+},
+{
+"t":"Parking was only validated until midnight.",
+"s":4
+},
+{
+"t":"Nobody ever comes back for the pumpkin.",
+"s":3
+},
+{
+"t":"Sweep around the mouse. He's waiting for someone.",
+"s":3
+},
+{
+"t":"I'm not touching that. It's somebody's whole future.",
+"s":3
 }
 ]
 },
@@ -8795,6 +15549,28 @@
 "y":32,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"The vacuum's getting jealous.",
+"s":4
+},
+{
+"t":"Ask it to order more candles while you're down there.",
+"s":4
+},
+{
+"t":"Before this, it was the thermostat.",
+"s":4
+},
+{
+"t":"He leaves the fruit. I'm the one who eats it.",
+"s":3
+},
+{
+"t":"We tried church. The parking was a nightmare.",
+"s":3
+}
 ]
 },
 "469":{
@@ -8825,7 +15601,29 @@
 "r":6
 }
 ],
-"word":"Friday"
+"word":"Friday",
+"decoys":[
+{
+"t":"Apparently the paprika isn't up to code.",
+"s":4
+},
+{
+"t":"The dog failed his inspection last week.",
+"s":4
+},
+{
+"t":"Dinner's been delayed pending a site review.",
+"s":4
+},
+{
+"t":"He wants a permit for the souffl\u00e9.",
+"s":3
+},
+{
+"t":"Say one word about the cumin.",
+"s":3
+}
+]
 },
 "470":{
 "style":5,
@@ -8856,7 +15654,29 @@
 "r":8
 }
 ],
-"word":"permit"
+"word":"permit",
+"decoys":[
+{
+"t":"The squirrel filed a complaint about the noise.",
+"s":4
+},
+{
+"t":"These twigs aren't load-bearing, ma'am.",
+"s":4
+},
+{
+"t":"You'll need a railing before anyone learns to fly.",
+"s":4
+},
+{
+"t":"I have the plans right here. My mother drew them.",
+"s":3
+},
+{
+"t":"Who did your twig work?",
+"s":3
+}
+]
 },
 "471":{
 "style":1,
@@ -8884,6 +15704,28 @@
 "x":34,
 "y":74,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"She left an hour ago. Keep playing.",
+"s":4
+},
+{
+"t":"I'll give you till the end of the chorus.",
+"s":4
+},
+{
+"t":"Her mother and I thought you'd be taller.",
+"s":3
+},
+{
+"t":"Wrong window. Hers faces the garage.",
+"s":3
+},
+{
+"t":"I'm watering the roses. Ignore me.",
+"s":3
 }
 ]
 },
@@ -8915,6 +15757,28 @@
 "y":42,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"He has a five-star rating, somehow.",
+"s":4
+},
+{
+"t":"I think the masked one is the surge pricing.",
+"s":4
+},
+{
+"t":"I asked for something with more legroom.",
+"s":3
+},
+{
+"t":"It says he's three minutes and one century away.",
+"s":3
+},
+{
+"t":"I really should have read the reviews.",
+"s":3
+}
 ]
 },
 "473":{
@@ -8945,7 +15809,29 @@
 "r":8
 }
 ],
-"word":"diploma"
+"word":"diploma",
+"decoys":[
+{
+"t":"Show your work, Daddy.",
+"s":4
+},
+{
+"t":"It's okay. Mommy cried at subtraction too.",
+"s":4
+},
+{
+"t":"Want me to get the calculator, or just Mom?",
+"s":4
+},
+{
+"t":"We can try again after snack.",
+"s":3
+},
+{
+"t":"My teacher said no help from parents. Not a problem.",
+"s":3
+}
+]
 },
 "474":{
 "style":3,
@@ -8974,6 +15860,28 @@
 "x":5,
 "y":19,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"And how long have you been feeling exposed?",
+"s":4
+},
+{
+"t":"Is that crab with you?",
+"s":4
+},
+{
+"t":"Normally we just knock on the shell.",
+"s":3
+},
+{
+"t":"Any history of shyness in the family?",
+"s":3
+},
+{
+"t":"Cough, please. Slowly.",
+"s":3
 }
 ]
 },
@@ -9004,6 +15912,28 @@
 "y":38,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"Collated and stapled?",
+"s":4
+},
+{
+"t":"You know we can just email these.",
+"s":4
+},
+{
+"t":"Sir, the recycling bin is for paper.",
+"s":4
+},
+{
+"t":"Any chance we could fit it on one page?",
+"s":3
+},
+{
+"t":"Want it enlarged? Some of the shalls are tiny.",
+"s":3
+}
 ]
 },
 "476":{
@@ -9030,6 +15960,28 @@
 "x":34,
 "y":61,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"I'll be brief. The dog has a two o'clock.",
+"s":4
+},
+{
+"t":"I'll share my screen. Nothing else.",
+"s":4
+},
+{
+"t":"As you can see, I've been very productive.",
+"s":3
+},
+{
+"t":"Sorry, my office is a little formal.",
+"s":3
+},
+{
+"t":"Let's keep this short. The pizza's getting cold.",
+"s":3
 }
 ]
 },
@@ -9065,7 +16017,29 @@
 "r":7
 }
 ],
-"word":"uncle"
+"word":"uncle",
+"decoys":[
+{
+"t":"Should I call your mother, or a detective?",
+"s":4
+},
+{
+"t":"Don't move. The cat's onto something.",
+"s":4
+},
+{
+"t":"I'll just leave this by the door.",
+"s":3
+},
+{
+"t":"Honey, it's been three days. Let them sit anywhere.",
+"s":3
+},
+{
+"t":"Your sister can sit near the cake or near me. Not both.",
+"s":3
+}
+]
 },
 "478":{
 "style":3,
@@ -9093,6 +16067,28 @@
 "x":85,
 "y":24,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"Technically, I'm an alarm.",
+"s":4
+},
+{
+"t":"I'm union. Mornings are in my contract.",
+"s":4
+},
+{
+"t":"Get headphones, like a normal person.",
+"s":3
+},
+{
+"t":"One more and you're soup.",
+"s":3
+},
+{
+"t":"I filed a complaint. He filed a counterclaim.",
+"s":3
 }
 ]
 },
@@ -9124,6 +16120,28 @@
 "y":20,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"It's the first time the reading room has ever won anything.",
+"s":4
+},
+{
+"t":"She's been undefeated at shushing for thirty years.",
+"s":4
+},
+{
+"t":"They said it's tradition. She said it's a library.",
+"s":3
+},
+{
+"t":"Some of us are trying to study.",
+"s":3
+},
+{
+"t":"Her retirement party got a little out of hand.",
+"s":3
+}
 ]
 },
 "480":{
@@ -9152,6 +16170,28 @@
 "x":5,
 "y":50,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"One more episode, then we really should water that.",
+"s":4
+},
+{
+"t":"I told you it had eleven seasons.",
+"s":4
+},
+{
+"t":"We should really call the kids.",
+"s":3
+},
+{
+"t":"Remind me who the killer was?",
+"s":3
+},
+{
+"t":"The pizza's probably still fine.",
+"s":3
 }
 ]
 },
@@ -9184,6 +16224,28 @@
 "y":31,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"Anyone crosses the leash, we go straight home.",
+"s":4
+},
+{
+"t":"Fourteen hours to Grandma's. Measure carefully.",
+"s":4
+},
+{
+"t":"I'm measuring, and I don't like what I see.",
+"s":3
+},
+{
+"t":"Next year, we're flying.",
+"s":3
+},
+{
+"t":"It's eleven and a quarter on each side. I checked.",
+"s":3
+}
 ]
 },
 "482":{
@@ -9213,6 +16275,28 @@
 "x":29,
 "y":40,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"Could I get mine to go?",
+"s":4
+},
+{
+"t":"Just coffee. I'm watching my weight.",
+"s":4
+},
+{
+"t":"Regular or decaf? Kidding.",
+"s":3
+},
+{
+"t":"He tips well, but nobody sits near him.",
+"s":3
+},
+{
+"t":"Same booth as always? He likes to see the door.",
+"s":3
 }
 ]
 },
@@ -9246,6 +16330,28 @@
 "y":46,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"The race between innings got a little heated.",
+"s":4
+},
+{
+"t":"We're all here because of the T-shirt cannon.",
+"s":4
+},
+{
+"t":"I just have an earache.",
+"s":3
+},
+{
+"t":"The doctor will see the bird first. Better insurance.",
+"s":3
+},
+{
+"t":"Don't stare, honey. They're off duty.",
+"s":3
+}
 ]
 },
 "484":{
@@ -9273,6 +16379,28 @@
 "x":54,
 "y":47,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"Let's go around and share one fun fact.",
+"s":4
+},
+{
+"t":"He's from Accounting. He's always like this.",
+"s":4
+},
+{
+"t":"Can someone check if he's still muted?",
+"s":3
+},
+{
+"t":"HR says we keep going until he shares something.",
+"s":3
+},
+{
+"t":"Name, department, and how long you've been in there.",
+"s":3
 }
 ]
 },
@@ -9303,6 +16431,28 @@
 "y":74,
 "r":12
 }
+],
+"decoys":[
+{
+"t":"She accepted the pizza. We're making progress.",
+"s":4
+},
+{
+"t":"The broccoli was a tactical error.",
+"s":4
+},
+{
+"t":"Even the dog won't take the broccoli.",
+"s":3
+},
+{
+"t":"Day three. She only communicates in notes now.",
+"s":3
+},
+{
+"t":"Slide it slowly. She can smell vegetables.",
+"s":3
+}
 ]
 },
 "486":{
@@ -9332,6 +16482,28 @@
 "x":47,
 "y":33,
 "r":12
+}
+],
+"decoys":[
+{
+"t":"The one on the end is new. He still needs the lyrics.",
+"s":4
+},
+{
+"t":"Front row. Nobody else wanted it.",
+"s":4
+},
+{
+"t":"I told them I'm a critic. It seems to be working.",
+"s":3
+},
+{
+"t":"Every month it's the same three songs.",
+"s":3
+},
+{
+"t":"I'm told there's a reception afterward.",
+"s":3
 }
 ]
 },
@@ -9364,6 +16536,28 @@
 "y":55,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"Honey, they're stacking the chairs.",
+"s":4
+},
+{
+"t":"I want to thank everyone who voted for me. You know who you are.",
+"s":4
+},
+{
+"t":"Let's keep it short. The janitor has a ride.",
+"s":3
+},
+{
+"t":"Technically, we won the room.",
+"s":3
+},
+{
+"t":"I'll just do the short version.",
+"s":3
+}
 ]
 },
 "488":{
@@ -9390,6 +16584,28 @@
 "x":40,
 "y":23,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"Mind doing mine when you're done?",
+"s":4
+},
+{
+"t":"Every Saturday. Takes him four hours.",
+"s":4
+},
+{
+"t":"He's very particular about his edges.",
+"s":3
+},
+{
+"t":"Watch out for the gnome. He's been through a lot.",
+"s":3
+},
+{
+"t":"It's not the size of the lawn. It's the commitment.",
+"s":3
 }
 ]
 },
@@ -9420,6 +16636,28 @@
 "y":30,
 "r":12
 }
+],
+"decoys":[
+{
+"t":"We booked the cruise the day you left.",
+"s":4
+},
+{
+"t":"You're early. We hadn't finished celebrating.",
+"s":4
+},
+{
+"t":"Grab a roller. Rent's due Friday.",
+"s":3
+},
+{
+"t":"We were going to tell you at Thanksgiving.",
+"s":3
+},
+{
+"t":"Did you change the locks, or just the paint?",
+"s":3
+}
 ]
 },
 "490":{
@@ -9447,6 +16685,28 @@
 "x":94,
 "y":52,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Exact change, and both feet, please.",
+"s":4
+},
+{
+"t":"Nobody wants to be the first to put a foot down.",
+"s":4
+},
+{
+"t":"I just assumed it was a new rule.",
+"s":3
+},
+{
+"t":"The flamingo's been here since six.",
+"s":3
+},
+{
+"t":"Apparently it helps with the wait.",
+"s":3
 }
 ]
 },
@@ -9477,6 +16737,28 @@
 "x":88,
 "y":52,
 "r":12
+}
+],
+"decoys":[
+{
+"t":"He's been stuck on the same clue since lunch.",
+"s":4
+},
+{
+"t":"Excuse me, is this the original?",
+"s":4
+},
+{
+"t":"The pigeon's the only one with a plan.",
+"s":3
+},
+{
+"t":"They take their breaks together.",
+"s":3
+},
+{
+"t":"Neither of them has moved since nine.",
+"s":3
 }
 ]
 },
@@ -9511,6 +16793,28 @@
 "y":28,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"Two humps. That's two spaces.",
+"s":5
+},
+{
+"t":"He's a compact.",
+"s":4
+},
+{
+"t":"Sir, this zone is loading only.",
+"s":3
+},
+{
+"t":"He's been here since Tuesday. He doesn't need water.",
+"s":3
+},
+{
+"t":"Is he electric? Those spots are free.",
+"s":3
+}
 ]
 },
 "493":{
@@ -9541,6 +16845,28 @@
 "y":72,
 "r":13
 }
+],
+"decoys":[
+{
+"t":"Even the dog has filed a grievance.",
+"s":4
+},
+{
+"t":"He wears the key to bed.",
+"s":4
+},
+{
+"t":"It's not cold. You're just not moving enough.",
+"s":4
+},
+{
+"t":"Forty years, and I've never once seen it unlocked.",
+"s":3
+},
+{
+"t":"Wait till you see what he did to the fridge.",
+"s":3
+}
 ]
 },
 "494":{
@@ -9567,6 +16893,28 @@
 "x":55,
 "y":79,
 "r":12
+}
+],
+"decoys":[
+{
+"t":"X marks the spot. All of them.",
+"s":4
+},
+{
+"t":"I swear I put it next to the flag.",
+"s":4
+},
+{
+"t":"I'd keep that map away from the jay.",
+"s":3
+},
+{
+"t":"Next year, I'm using a different color.",
+"s":3
+},
+{
+"t":"I'm told it's near the third oak from the left.",
+"s":3
 }
 ]
 },
@@ -9595,6 +16943,28 @@
 "x":10,
 "y":46,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"Actually, I'll come back Tuesday.",
+"s":4
+},
+{
+"t":"You said you wanted something low maintenance.",
+"s":4
+},
+{
+"t":"It's exactly like the picture, ma'am.",
+"s":3
+},
+{
+"t":"It'll grow on you. Slowly.",
+"s":3
+},
+{
+"t":"Trust me, it's very big in Europe.",
+"s":3
 }
 ]
 },
@@ -9627,6 +16997,28 @@
 "y":40,
 "r":12
 }
+],
+"decoys":[
+{
+"t":"That's the boat. The jar's working on a lake.",
+"s":4
+},
+{
+"t":"He's on with the IT help desk again.",
+"s":4
+},
+{
+"t":"He prepays now. It's easier.",
+"s":4
+},
+{
+"t":"Accounting wants to know if the jar is a profit center.",
+"s":3
+},
+{
+"t":"His mother-in-law calls every Thursday.",
+"s":3
+}
 ]
 },
 "498":{
@@ -9657,6 +17049,28 @@
 "x":18,
 "y":55,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"Honey, wake up. It's for you.",
+"s":4
+},
+{
+"t":"I knew we should have gotten the cabin.",
+"s":4
+},
+{
+"t":"Don't move. I think he wants the pillow.",
+"s":3
+},
+{
+"t":"Did you invite anyone?",
+"s":3
+},
+{
+"t":"Just pretend you're a log.",
+"s":3
 }
 ]
 },
@@ -9689,6 +17103,28 @@
 "y":71,
 "r":13
 }
+],
+"decoys":[
+{
+"t":"Sir, the boat launch is on the other side.",
+"s":4
+},
+{
+"t":"He's only here for the soft-serve.",
+"s":4
+},
+{
+"t":"Somebody owes that kid a castle.",
+"s":3
+},
+{
+"t":"Helmets off in the snack line, gentlemen.",
+"s":3
+},
+{
+"t":"We're going to need to see a beach permit.",
+"s":3
+}
 ]
 },
 "500":{
@@ -9717,6 +17153,28 @@
 "y":62,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"We're running out of yard.",
+"s":4
+},
+{
+"t":"Mark it. I may need it back.",
+"s":4
+},
+{
+"t":"Honestly, the lawn's never looked better.",
+"s":3
+},
+{
+"t":"Our counselor suggested a smaller shovel.",
+"s":3
+},
+{
+"t":"Happy anniversary. Dig deeper this time.",
+"s":3
+}
 ]
 },
 "502":{
@@ -9744,6 +17202,28 @@
 "x":36,
 "y":25,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"I'd offer you some, but you seem busy.",
+"s":4
+},
+{
+"t":"You're in my seat.",
+"s":4
+},
+{
+"t":"Your chips are on the way down.",
+"s":3
+},
+{
+"t":"The view's better from the top. Just a tip.",
+"s":3
+},
+{
+"t":"Next time, pack two.",
+"s":3
 }
 ]
 },
@@ -9776,6 +17256,28 @@
 "y":53,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"Let's start with something simple. What's your name?",
+"s":4
+},
+{
+"t":"This is the shortest he's been all day.",
+"s":4
+},
+{
+"t":"Detective, Accounting would like their hallway back.",
+"s":3
+},
+{
+"t":"We'll go off the record once the bird leaves.",
+"s":3
+},
+{
+"t":"Off the record, I believe you.",
+"s":3
+}
 ]
 },
 "504":{
@@ -9804,6 +17306,28 @@
 "x":17,
 "y":46,
 "r":13
+}
+],
+"decoys":[
+{
+"t":"I'd give it a minute.",
+"s":4
+},
+{
+"t":"He brought the whole paper.",
+"s":4
+},
+{
+"t":"Occupied.",
+"s":3
+},
+{
+"t":"I was told this was a wilderness experience.",
+"s":3
+},
+{
+"t":"Do you have the sports section?",
+"s":3
 }
 ]
 },
@@ -9835,6 +17359,28 @@
 "y":44,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"This is better than anything on TV.",
+"s":4
+},
+{
+"t":"We should invite him over. We know him so well.",
+"s":4
+},
+{
+"t":"Shh. I think he's about to call his mother.",
+"s":3
+},
+{
+"t":"He's been eating cereal for an hour. Something's wrong.",
+"s":3
+},
+{
+"t":"Honestly, I expected more from a man in those pajamas.",
+"s":3
+}
 ]
 },
 "506":{
@@ -9863,6 +17409,28 @@
 "x":25,
 "y":41,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"The hat's coming with me. It's very me.",
+"s":4
+},
+{
+"t":"He said take only pictures. We took everything else.",
+"s":4
+},
+{
+"t":"I'll just wait for dark. Again.",
+"s":3
+},
+{
+"t":"He'll be fine. The lodge is only a mile.",
+"s":3
+},
+{
+"t":"Grab the shoes. They never chase you without shoes.",
+"s":3
 }
 ]
 },
@@ -9894,6 +17462,28 @@
 "y":74,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"Twelve hundred years, and nobody's asked for a receipt.",
+"s":4
+},
+{
+"t":"I re-glue it every Sunday.",
+"s":4
+},
+{
+"t":"Strong guy? Two pulls for ten.",
+"s":3
+},
+{
+"t":"Weekends we get the knights from out of town.",
+"s":3
+},
+{
+"t":"No refunds if you become king.",
+"s":3
+}
 ]
 },
 "509":{
@@ -9923,6 +17513,28 @@
 "y":27,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"Third tie this quarter.",
+"s":4
+},
+{
+"t":"HR says I mop. I don't report.",
+"s":4
+},
+{
+"t":"Every year, right after the holiday party.",
+"s":3
+},
+{
+"t":"I'm going to need a bigger lost and found.",
+"s":3
+},
+{
+"t":"She took the stapler. That's how you know it's serious.",
+"s":3
+}
 ]
 },
 "510":{
@@ -9945,6 +17557,28 @@
 "x":26,
 "y":70,
 "r":12
+}
+],
+"decoys":[
+{
+"t":"He does this every time the cameras are here.",
+"s":4
+},
+{
+"t":"Very nice, dear. Are you done?",
+"s":4
+},
+{
+"t":"And here, the female feigns indifference.",
+"s":3
+},
+{
+"t":"I married him for his tail. I stayed for nothing.",
+"s":3
+},
+{
+"t":"Do the other side. The crew missed it.",
+"s":3
 }
 ]
 },
@@ -9974,6 +17608,28 @@
 "y":30,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"He's looking for an honest man. Accounting went home early.",
+"s":4
+},
+{
+"t":"Don't make eye contact. He asks follow-up questions.",
+"s":4
+},
+{
+"t":"HR says he's a consultant.",
+"s":3
+},
+{
+"t":"He's done every floor but Legal. Nobody goes to Legal.",
+"s":3
+},
+{
+"t":"Bring the lantern back to Facilities when you're done.",
+"s":3
+}
 ]
 },
 "512":{
@@ -10002,6 +17658,28 @@
 "x":13,
 "y":34,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Not tonight. It's charging.",
+"s":4
+},
+{
+"t":"Honestly, it listens better than you do.",
+"s":4
+},
+{
+"t":"Our counselor said to make room for each other.",
+"s":3
+},
+{
+"t":"We said no screens in the bedroom. It said nothing.",
+"s":3
+},
+{
+"t":"Remember when we used to argue about the dog?",
+"s":3
 }
 ]
 },
@@ -10035,6 +17713,28 @@
 "y":50,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"Mother insisted. The package came with a third glass.",
+"s":4
+},
+{
+"t":"She paid for the room, so.",
+"s":4
+},
+{
+"t":"Don't mind her. She's working on the Sunday puzzle.",
+"s":3
+},
+{
+"t":"Your father would have wanted me here.",
+"s":3
+},
+{
+"t":"She brought her own pillow. That's how you know she's staying.",
+"s":3
+}
 ]
 },
 "514":{
@@ -10061,6 +17761,28 @@
 "x":23,
 "y":49,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"The mud wrap is complimentary.",
+"s":4
+},
+{
+"t":"Don't open your eyes. Trust me.",
+"s":4
+},
+{
+"t":"Ask about our couples package.",
+"s":3
+},
+{
+"t":"He tips in fish.",
+"s":3
+},
+{
+"t":"The towel guy is very attentive.",
+"s":3
 }
 ]
 },
@@ -10091,6 +17813,28 @@
 "y":60,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"I think I'm king now. Is that how this works?",
+"s":4
+},
+{
+"t":"I was hoping for a bass.",
+"s":4
+},
+{
+"t":"That's mine! I've been waiting nine years!",
+"s":3
+},
+{
+"t":"That's the third king this week.",
+"s":3
+},
+{
+"t":"The lady says my license is for trout only.",
+"s":3
+}
 ]
 },
 "516":{
@@ -10117,6 +17861,28 @@
 "x":34,
 "y":40,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"She's very decisive.",
+"s":4
+},
+{
+"t":"So, tell me about yourself. Quickly.",
+"s":4
+},
+{
+"t":"That was her ex. He took it well.",
+"s":3
+},
+{
+"t":"I was told she was looking for something serious.",
+"s":3
+},
+{
+"t":"Are those for me, or for the next guy?",
+"s":3
 }
 ]
 },
@@ -10145,6 +17911,28 @@
 "x":63,
 "y":33,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"He's been at it since four. The other one since three.",
+"s":4
+},
+{
+"t":"It's not a vacation if you don't win.",
+"s":4
+},
+{
+"t":"Sir, the pool doesn't open till nine.",
+"s":3
+},
+{
+"t":"Twelve chairs, party of one.",
+"s":3
+},
+{
+"t":"Every year, the same cold war.",
+"s":3
 }
 ]
 },
@@ -10175,6 +17963,28 @@
 "y":61,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"The reviews did say 'cozy.'",
+"s":4
+},
+{
+"t":"Three stars. He snores.",
+"s":4
+},
+{
+"t":"I booked a single.",
+"s":4
+},
+{
+"t":"He's a terrible blanket hog.",
+"s":3
+},
+{
+"t":"I'm sure he's harmless. He's wearing a nightcap.",
+"s":3
+}
 ]
 },
 "519":{
@@ -10202,6 +18012,28 @@
 "x":15,
 "y":31,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"He's getting closer. I can tell.",
+"s":4
+},
+{
+"t":"Have you considered contacts?",
+"s":4
+},
+{
+"t":"Your mother says this counts as quality time.",
+"s":3
+},
+{
+"t":"Don't worry. I've hit the tree every time.",
+"s":3
+},
+{
+"t":"Hold still. The apple's doing great.",
+"s":3
 }
 ]
 },
@@ -10231,6 +18063,28 @@
 "x":59,
 "y":17,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"The roast is under the table.",
+"s":4
+},
+{
+"t":"You're going to want to sit down for this one.",
+"s":4
+},
+{
+"t":"Is this the whole roast?",
+"s":3
+},
+{
+"t":"Honey, I think the oven is trying to tell me something.",
+"s":3
+},
+{
+"t":"Should I be checking it every few minutes?",
+"s":3
 }
 ]
 },
@@ -10262,6 +18116,28 @@
 "y":69,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"He's my favorite. Don't tell the others.",
+"s":4
+},
+{
+"t":"He only turns when I bring the good water.",
+"s":4
+},
+{
+"t":"The crow says he's a rebel.",
+"s":3
+},
+{
+"t":"There's always one in every field.",
+"s":3
+},
+{
+"t":"I knew this would happen if I talked to them.",
+"s":3
+}
 ]
 },
 "523":{
@@ -10291,6 +18167,28 @@
 "x":44,
 "y":31,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"Thank you, ma'am. It all goes to the lifeboat fund.",
+"s":4
+},
+{
+"t":"An encore? Optimistic, but thank you.",
+"s":4
+},
+{
+"t":"Cash only. The card reader went down with the purser.",
+"s":3
+},
+{
+"t":"That one's for the cellist. He's not staying.",
+"s":3
+},
+{
+"t":"We'll be here all night, apparently.",
+"s":3
 }
 ]
 },
@@ -10322,6 +18220,28 @@
 "y":45,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"I'll do the voices tomorrow.",
+"s":4
+},
+{
+"t":"Sweet dreams. I'll be in your bed.",
+"s":4
+},
+{
+"t":"Should I leave the night-light on for him?",
+"s":3
+},
+{
+"t":"Same time tomorrow, Daddy.",
+"s":3
+},
+{
+"t":"He's very tired. Work was hard on him.",
+"s":3
+}
 ]
 },
 "526":{
@@ -10352,6 +18272,28 @@
 "y":60,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"I told him about the tide. He said, 'No spoilers.'",
+"s":4
+},
+{
+"t":"The crab is just reading over his shoulder.",
+"s":4
+},
+{
+"t":"Should I tell him, or let the ocean do it?",
+"s":3
+},
+{
+"t":"He doesn't like to be interrupted.",
+"s":3
+},
+{
+"t":"He swears it's a page-turner.",
+"s":3
+}
 ]
 },
 "527":{
@@ -10379,6 +18321,28 @@
 "x":69,
 "y":50,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"Pour faster.",
+"s":4
+},
+{
+"t":"Remind me why we didn't take the place in Rome.",
+"s":4
+},
+{
+"t":"Sign here. Quickly.",
+"s":3
+},
+{
+"t":"I hear it's even better at night.",
+"s":3
+},
+{
+"t":"It'll settle down. It always does.",
+"s":3
 }
 ]
 },
@@ -10409,6 +18373,28 @@
 "x":93,
 "y":48,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"Ten minutes a cup. It's how he relaxes.",
+"s":4
+},
+{
+"t":"Honey, the recycling guy says we're his favorite house.",
+"s":4
+},
+{
+"t":"The cat thinks this is the most interesting thing he does.",
+"s":3
+},
+{
+"t":"He's started labeling them by year.",
+"s":3
+},
+{
+"t":"He used to just eat the yogurt.",
+"s":3
 }
 ]
 },
@@ -10441,6 +18427,28 @@
 "y":38,
 "r":9
 }
+],
+"decoys":[
+{
+"t":"Your father and I are going south. Alone.",
+"s":4
+},
+{
+"t":"The briefcase was a nice touch. Now jump.",
+"s":4
+},
+{
+"t":"We've already rented out your half of the twigs.",
+"s":3
+},
+{
+"t":"Don't look at me. I'm on sabbatical.",
+"s":3
+},
+{
+"t":"We'll call it a gap year. Now go.",
+"s":3
+}
 ]
 },
 "531":{
@@ -10469,6 +18477,28 @@
 "x":76,
 "y":83,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"House rules. The barrel stays on.",
+"s":4
+},
+{
+"t":"Fold while you still have pockets.",
+"s":4
+},
+{
+"t":"I'll see your keys and raise you a barrel.",
+"s":3
+},
+{
+"t":"I had a feeling about the river.",
+"s":3
+},
+{
+"t":"He had a very good hand an hour ago.",
+"s":3
 }
 ]
 },
@@ -10500,6 +18530,28 @@
 "y":25,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"Whoever's in the lion looks fantastic.",
+"s":4
+},
+{
+"t":"Remember when we could see our shoes?",
+"s":4
+},
+{
+"t":"I peaked here. Literally, right here.",
+"s":3
+},
+{
+"t":"Still going steady with the buffet, I see.",
+"s":3
+},
+{
+"t":"My jacket shrank. Yours too?",
+"s":3
+}
 ]
 },
 "534":{
@@ -10528,6 +18580,28 @@
 "x":85,
 "y":68,
 "r":9
+}
+],
+"decoys":[
+{
+"t":"Finally, someone who gets me.",
+"s":4
+},
+{
+"t":"He sent flowers. Well, I sent flowers.",
+"s":4
+},
+{
+"t":"The duck has asked us to keep it down.",
+"s":3
+},
+{
+"t":"Third anniversary. He remembered.",
+"s":3
+},
+{
+"t":"He's very in touch with himself.",
+"s":3
 }
 ]
 },
@@ -10559,6 +18633,28 @@
 "y":18,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"Mom, Grandpa's kicking my seat.",
+"s":4
+},
+{
+"t":"Finish your juice, Grandpa, and you can have the sports page.",
+"s":4
+},
+{
+"t":"Grandpa, it says here your stocks are down.",
+"s":3
+},
+{
+"t":"Mom, he wants to know if we're there yet.",
+"s":3
+},
+{
+"t":"He said he wanted the window.",
+"s":3
+}
 ]
 },
 "536":{
@@ -10584,6 +18680,28 @@
 "x":78,
 "y":82,
 "r":12
+}
+],
+"decoys":[
+{
+"t":"Get to the part about the shadow.",
+"s":4
+},
+{
+"t":"He's under contract for the extended forecast now.",
+"s":4
+},
+{
+"t":"Every year the speech gets longer.",
+"s":3
+},
+{
+"t":"He's also taking questions.",
+"s":3
+},
+{
+"t":"Sir, the cameras are only here until noon.",
+"s":3
 }
 ]
 },
@@ -10613,6 +18731,28 @@
 "y":25,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"Leave mine on the third rung.",
+"s":4
+},
+{
+"t":"She's been eating lunch up there since the reorg.",
+"s":4
+},
+{
+"t":"You can come up when there's an opening.",
+"s":3
+},
+{
+"t":"The view's lovely. The Wi-Fi is terrible.",
+"s":3
+},
+{
+"t":"Who gets the coffee first?",
+"s":3
+}
 ]
 },
 "654":{
@@ -10641,6 +18781,28 @@
 "x":31,
 "y":58,
 "r":8
+}
+],
+"decoys":[
+{
+"t":"Is this the study that pays fifty dollars?",
+"s":4
+},
+{
+"t":"Tomorrow we'll try it with the mailman.",
+"s":4
+},
+{
+"t":"Don't look at the stopwatch. Look at me.",
+"s":4
+},
+{
+"t":"The grant only covers one bowl.",
+"s":3
+},
+{
+"t":"Sit. Stay. We'll begin shortly.",
+"s":3
 }
 ]
 },
@@ -10672,6 +18834,28 @@
 "y":30,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"Next time, just weigh the crown.",
+"s":4
+},
+{
+"t":"Write it down before it evaporates.",
+"s":4
+},
+{
+"t":"Hold still. You're three and a half cups so far.",
+"s":4
+},
+{
+"t":"The neighbors downstairs would like a word.",
+"s":3
+},
+{
+"t":"Lovely. Now do the dishes that way.",
+"s":3
+}
 ]
 },
 "656":{
@@ -10701,6 +18885,28 @@
 "y":67,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"Has anyone seen a femur? About yea big?",
+"s":4
+},
+{
+"t":"Sixty-six million years, and it goes missing on my shift.",
+"s":4
+},
+{
+"t":"It's not missing. It's on loan.",
+"s":4
+},
+{
+"t":"The museum wants it standing by Friday.",
+"s":3
+},
+{
+"t":"Don't look now, but we have a rival dig.",
+"s":3
+}
 ]
 },
 "657":{
@@ -10728,6 +18934,28 @@
 "x":75,
 "y":9,
 "r":13
+}
+],
+"decoys":[
+{
+"t":"We'll issue a warning when he gets to the left ear.",
+"s":4
+},
+{
+"t":"Ever since flea season, we've lost all credibility.",
+"s":4
+},
+{
+"t":"Should I alert the coast or just get the brush?",
+"s":3
+},
+{
+"t":"That spike was the mailman.",
+"s":3
+},
+{
+"t":"Funding's been tight. We're using local sources.",
+"s":3
 }
 ]
 },
@@ -10757,6 +18985,28 @@
 "y":52,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"Saturn, could we lose the ring for just one?",
+"s":4
+},
+{
+"t":"Earth, you've got something on your face.",
+"s":4
+},
+{
+"t":"We only do this every few billion years, people.",
+"s":4
+},
+{
+"t":"Can we get one where nobody's orbiting?",
+"s":3
+},
+{
+"t":"Okay, everybody look at the sun.",
+"s":3
+}
 ]
 },
 "659":{
@@ -10784,6 +19034,28 @@
 "x":87,
 "y":87,
 "r":11
+}
+],
+"decoys":[
+{
+"t":"He's been through the air shower twice.",
+"s":4
+},
+{
+"t":"Just call him a very large particle.",
+"s":4
+},
+{
+"t":"So much for the six-month certification.",
+"s":3
+},
+{
+"t":"Somebody tell Quality we found the source.",
+"s":3
+},
+{
+"t":"He was fine until somebody said 'bath.'",
+"s":3
 }
 ]
 },
@@ -10817,7 +19089,29 @@
 "r":9
 }
 ],
-"word":"cake"
+"word":"cake",
+"decoys":[
+{
+"t":"Next year, we're just doing a magician.",
+"s":4
+},
+{
+"t":"Somebody's mom is going to ask questions.",
+"s":4
+},
+{
+"t":"He insisted on doing the punch himself.",
+"s":3
+},
+{
+"t":"Honey, I think that's enough dry ice.",
+"s":3
+},
+{
+"t":"Well, the invitations did say 'atmospheric.'",
+"s":3
+}
+]
 },
 "661":{
 "style":1,
@@ -10846,7 +19140,29 @@
 "r":8
 }
 ],
-"word":"scale"
+"word":"scale",
+"decoys":[
+{
+"t":"Only six hundred sextillion to go.",
+"s":4
+},
+{
+"t":"This is why we don't let biology run the chem lab.",
+"s":4
+},
+{
+"t":"He lost count again at forty thousand.",
+"s":3
+},
+{
+"t":"Next week he's doing a gram of sand.",
+"s":3
+},
+{
+"t":"He swears there's a faster way, but he likes the company.",
+"s":3
+}
+]
 },
 "662":{
 "style":5,
@@ -10874,6 +19190,28 @@
 "y":24,
 "r":6
 }
+],
+"decoys":[
+{
+"t":"Every year he insists the herd is trending upward.",
+"s":4
+},
+{
+"t":"Last spring, he tried a bell curve.",
+"s":4
+},
+{
+"t":"The cows think it's a line for something.",
+"s":3
+},
+{
+"t":"She's not an outlier. She's a free thinker.",
+"s":3
+},
+{
+"t":"He used to just count them.",
+"s":3
+}
 ]
 },
 "663":{
@@ -10900,6 +19238,28 @@
 "x":73,
 "y":62,
 "r":7
+}
+],
+"decoys":[
+{
+"t":"The rotten ones go in the appendix.",
+"s":4
+},
+{
+"t":"Remind me why we can't just shake the tree?",
+"s":4
+},
+{
+"t":"Not that one. It disagrees with us.",
+"s":3
+},
+{
+"t":"Grant renewal's in March. Take your time.",
+"s":3
+},
+{
+"t":"Careful. That one has a conflict of interest.",
+"s":3
 }
 ]
 },
@@ -10931,6 +19291,28 @@
 "y":40,
 "r":11
 }
+],
+"decoys":[
+{
+"t":"This one hasn't seen daylight since the spring semester.",
+"s":4
+},
+{
+"t":"In the wild, they live almost entirely on free pizza.",
+"s":4
+},
+{
+"t":"Please don't tap the glass. It upsets the advisor.",
+"s":3
+},
+{
+"t":"That one's been on the same sentence since March.",
+"s":3
+},
+{
+"t":"If you're very quiet, you can hear him defending.",
+"s":3
+}
 ]
 },
 "665":{
@@ -10960,6 +19342,28 @@
 "y":45,
 "r":11
 }
+],
+"decoys":[
+{
+"t":"World domination can wait. He's having fun.",
+"s":4
+},
+{
+"t":"One more lap, and then we melt the moon.",
+"s":4
+},
+{
+"t":"He's the only one who's ever caught it.",
+"s":3
+},
+{
+"t":"Ransom demands go out after his nap.",
+"s":3
+},
+{
+"t":"We were aiming for the capital.",
+"s":3
+}
 ]
 },
 "666":{
@@ -10988,6 +19392,28 @@
 "x":60,
 "y":46,
 "r":15
+}
+],
+"decoys":[
+{
+"t":"Masks stay on. We'll eat it with our eyes.",
+"s":4
+},
+{
+"t":"Who approved an open flame?",
+"s":4
+},
+{
+"t":"Safety says one candle, max.",
+"s":3
+},
+{
+"t":"Somebody sign off on the frosting.",
+"s":3
+},
+{
+"t":"We'll do the singing after the air test.",
+"s":3
 }
 ]
 },
@@ -11019,6 +19445,28 @@
 "y":85,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"I see someone's been keeping up the research.",
+"s":4
+},
+{
+"t":"Your committee is ready whenever you are.",
+"s":4
+},
+{
+"t":"Who approved the hammock?",
+"s":3
+},
+{
+"t":"I'll want to see your notes.",
+"s":3
+},
+{
+"t":"Did anyone water the plants? Never mind.",
+"s":3
+}
 ]
 },
 "668":{
@@ -11049,6 +19497,28 @@
 "y":53,
 "r":7
 }
+],
+"decoys":[
+{
+"t":"Countdown starts after his juice box.",
+"s":4
+},
+{
+"t":"The dog has requested a scrub.",
+"s":4
+},
+{
+"t":"Grandpa, it's a two-dollar rocket.",
+"s":4
+},
+{
+"t":"Best thing to happen to this neighborhood since retirement.",
+"s":3
+},
+{
+"t":"Let's run it one more time. The neighbors aren't ready.",
+"s":3
+}
 ]
 },
 "669":{
@@ -11078,6 +19548,28 @@
 "y":25,
 "r":10
 }
+],
+"decoys":[
+{
+"t":"We've read your abstract. Any last words?",
+"s":4
+},
+{
+"t":"Revise and resubmit. Assuming you can climb out.",
+"s":4
+},
+{
+"t":"Your figures were lovely. Your conclusions were not.",
+"s":3
+},
+{
+"t":"We'll get back to you in eight to ten months.",
+"s":3
+},
+{
+"t":"The lever is purely ceremonial. Mostly.",
+"s":3
+}
 ]
 },
 "670":{
@@ -11105,6 +19597,28 @@
 "x":38,
 "y":42,
 "r":10
+}
+],
+"decoys":[
+{
+"t":"Should've printed it on a cookie.",
+"s":4
+},
+{
+"t":"The coffee is getting better engagement.",
+"s":4
+},
+{
+"t":"Wake me if anyone cites me.",
+"s":3
+},
+{
+"t":"Hour three. My chart and I are bonding.",
+"s":3
+},
+{
+"t":"Don't wake her. She defended last week.",
+"s":3
 }
 ]
 },
@@ -11135,6 +19649,28 @@
 "y":53,
 "r":8
 }
+],
+"decoys":[
+{
+"t":"Facilities would like a word about the ceiling.",
+"s":4
+},
+{
+"t":"Before you ask, those are the conservative estimates.",
+"s":4
+},
+{
+"t":"The donuts are the only result I'm confident in.",
+"s":3
+},
+{
+"t":"Next slide, please. Somebody hold the drywall.",
+"s":3
+},
+{
+"t":"We're within the margin of the building.",
+"s":3
+}
 ]
 },
 "672":{
@@ -11163,6 +19699,28 @@
 "x":51,
 "y":24,
 "r":6
+}
+],
+"decoys":[
+{
+"t":"Whatever you do, don't lift the lid.",
+"s":4
+},
+{
+"t":"Has he been eating?",
+"s":4
+},
+{
+"t":"Insurance won't cover anything we can't observe.",
+"s":4
+},
+{
+"t":"The other one's just here for moral support.",
+"s":3
+},
+{
+"t":"The owner is a physicist. He's very calm about it.",
+"s":3
 }
 ]
 }
