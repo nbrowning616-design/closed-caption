@@ -152,10 +152,10 @@ const CARTOONS = [
   { id: 254, level: "medium", title: "Right of Way", image: "card_254_r2.jpg", correct: "After you." },
   { id: 255, adult: true, level: "hard", title: "Your Move", image: "card_255.jpg", correct: "Your move." },
   { id: 256, spicy: true, level: "medium", title: "The Prize", image: "card_256.jpg", correct: "They say you start to look alike." },
-  { id: 257, level: "easy", title: "Just a Trim", image: "card_257.jpg", correct: "Just take a little off the top. And the sides. Carefully." },
-  { id: 258, adult: true, level: "medium", title: "Parallel Parking", image: "card_258.jpg", correct: "I'll only be a minute." },
+  { id: 257, level: "easy", title: "Just a Trim", image: "card_257_r2.jpg", correct: "Just take a little off the top. And the sides. Carefully." },
+  { id: 258, adult: true, level: "medium", title: "Parallel Parking", image: "card_258_r2.jpg", correct: "I'll only be a minute." },
   { id: 259, spicy: true, level: "medium", title: "Last Call", image: "card_259.jpg", correct: "It's on the house. Don't make it into anything." },
-  { id: 260, level: "hard", title: "Insomnia", image: "card_260.jpg", correct: "You're number four hundred and twelve. Sleep tight." },
+  { id: 260, level: "hard", title: "Insomnia", image: "card_260_r2.jpg", correct: "You're number four hundred and twelve. Sleep tight." },
   { id: 261, adult: true, level: "medium", title: "Cash Machine", image: "card_261.jpg", correct: "Fifties, if you have them. Take your time." },
   { id: 262, adult: true, level: "easy", title: "All You Can Eat", image: "card_262.jpg", correct: "It says all you can eat. It doesn't say where." },
   { id: 263, level: "medium", title: "Life Drawing", image: "card_263.jpg", correct: "Same pose as yesterday, please." },
@@ -404,6 +404,12 @@ const CARTOONS = [
   { id: 517, adult: true, level: "medium", title: "Reserved", image: "card_517.jpg", correct: "They both checked out yesterday." },
   { id: 518, spicy: true, level: "medium", title: "Bedfellow", image: "card_518.jpg", correct: "The front desk says he was here first." },
   { id: 519, spicy: true, level: "medium", title: "Steady Aim", image: "card_519.jpg", correct: "Maybe start with a watermelon." },
+  { id: 520, spicy: true, level: "hard", title: "Surprise", image: "card_520.jpg", correct: "So what are we having with it?" },
+  { id: 522, level: "hard", title: "The Odd One", image: "card_522.jpg", correct: "I'm flattered, but the sun's that way." },
+  { id: 670, adult: true, level: "easy", title: "Poster Session", image: "card_670.jpg", correct: "If there are no questions, I'll start again." },
+  { id: 523, spicy: true, level: "medium", title: "Tip Jar", image: "card_523.jpg", correct: "Do you know anything shorter?" },
+  { id: 525, level: "medium", title: "Lights Out", image: "card_525.jpg", correct: "He never makes it past the bunny." },
+  { id: 526, adult: true, level: "medium", title: "High Tide", image: "card_526.jpg", correct: "He's almost done with the chapter." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
