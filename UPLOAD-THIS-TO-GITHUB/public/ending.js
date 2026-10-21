@@ -30,7 +30,7 @@
     '#ending.dark{background:#14100D;color:#F3EBDD;}',
     '.en-in{min-height:100%;max-width:440px;margin:0 auto;padding:calc(18px + var(--sat,0px)) 16px calc(84px + var(--sab,0px));display:flex;flex-direction:column;justify-content:center;}',
     '.en-eye{font-size:12px;font-weight:900;letter-spacing:.24em;text-transform:uppercase;color:var(--muted,#6E655C);margin:0;}',
-    '#ending.dark .en-eye{color:#B9AE9C;}',
+    '#ending.dark .en-eye,#mycredit .en-eye{color:#B9AE9C;}',
     '.en-fade{animation:enFade .5s ease-out both;}',
     '@keyframes enFade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}',
     /* the bar that shows how long a beat stays; the dealer's tap */
@@ -165,7 +165,7 @@
     '.sl-mine .big{font-family:var(--serif);font-weight:700;font-size:22px;}',
     '.sl-mine ul{list-style:none;margin:6px 0 0;padding:0;font-size:15px;font-weight:800;line-height:1.5;}',
     /* R30 the Last Call card */
-    '#lastcall{position:fixed;inset:0;z-index:772;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(20,16,13,.92);color:#FFF8EA;text-align:center;}',
+    '#lastcall{position:fixed;inset:0;z-index:772;display:none;align-items:center;justify-content:center;padding:24px;background:#14100D;color:#FFF8EA;text-align:center;}',
     '#lastcall.on{display:flex;animation:enFade .35s ease-out;}',
     '#lastcall p{font-family:var(--serif);font-weight:700;font-size:30px;line-height:1.2;max-width:340px;}',
     /* R28 heading out: your own credit */
@@ -630,9 +630,14 @@
     return Promise.all([loadImg(d.freeze && d.freeze.image ? '/images/' + d.freeze.image : null), document.fonts && document.fonts.load ? Promise.race([Promise.all(["400 40px 'Libre Caslon Text'", "italic 400 30px 'Libre Caslon Text'", "700 40px 'Libre Caslon Text'"].map(function (f) { return document.fonts.load(f); })), new Promise(function (r) { setTimeout(r, 2000); })]).catch(function () {}) : null]).then(function (r) {
       var img = r[0];
       ctx.fillStyle = '#14100D'; ctx.fillRect(0, 0, W2, H2);
-      var y = 90;
+      // centre the whole card on the page: measure first
+      var fw = 860, ih = img ? Math.min(560, fw * img.naturalHeight / img.naturalWidth) : 0;
+      ctx.font = 'italic 400 34px ' + serif; var capN = d.freeze && d.freeze.caption ? Math.min(2, wrap(ctx, '“' + d.freeze.caption + '”', 900).length) : 0;
+      ctx.font = '400 46px ' + serif; var epiN = Math.min(7, wrap(ctx, d.text || '', 920).length);
+      var total = (img ? ih + 48 : 0) + 110 + (capN ? capN * 46 + 20 : 0) + epiN * 62;
+      var y = Math.max(70, (H2 - 90 - total) / 2);
       if (img) {
-        var fw = 860, ih = Math.min(560, fw * img.naturalHeight / img.naturalWidth), iw = ih * img.naturalWidth / img.naturalHeight, fx = (W2 - fw) / 2;
+        var iw = ih * img.naturalWidth / img.naturalHeight, fx = (W2 - fw) / 2;
         ctx.save(); ctx.translate(W2 / 2, y + ih / 2 + 24); ctx.rotate(-1.2 * Math.PI / 180); ctx.translate(-W2 / 2, -(y + ih / 2 + 24));
         ctx.fillStyle = '#fff'; ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 16; ctx.fillRect(fx, y, fw, ih + 48); ctx.shadowColor = 'transparent';
         ctx.drawImage(img, (W2 - iw) / 2, y + 24, iw, ih);

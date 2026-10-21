@@ -2007,7 +2007,7 @@ function renderAwayBanner() {
     const off = state.players.filter(p => !p.connected && !(state.departed || []).includes(p.id));   // (R28: whoever headed out isn't "offline")
     return off.length ? `<div id="away" class="center small" style="margin:-4px 0 12px;">Offline: ${esc(off.map(p => firstName(p.name)).join(', '))}</div>` : '';
   }
-  if (state.canTakeover) return `<div id="away" class="panel red flat center" style="margin-bottom:12px; padding:10px;"><p class="small" style="color:var(--ink);"><b>${esc(firstName(state.dealerName))}’s phone dropped.</b> Anyone can keep the game moving now.</p></div>`;
+  if (state.canTakeover) return `<div id="away" class="panel red flat center" style="margin-bottom:12px; padding:10px;"><p class="small" style="color:var(--ink);"><b>${esc(firstName(state.dealerName))}${(state.departed || []).includes(state.dealerId) ? ' has left the building.' : '’s phone dropped.'}</b> Anyone can keep the game moving now.</p></div>`;
   return `<div id="away" class="panel yellow flat center" style="margin-bottom:12px; padding:10px;"><p class="small">${esc(firstName(state.dealerName))} (dealer) dropped off — waiting ${Math.max(0, state.takeoverSecs - state.dealerAwaySecs)}s for them</p></div>`;
 }
 
