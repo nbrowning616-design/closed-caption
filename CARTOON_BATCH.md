@@ -1,5 +1,9 @@
 # Closed Caption — daily cartoon batch (runbook)
 
+> **Queue mode (from Oct 21 2026): read `drawing/README.md` first.** The premises are already written and ordered in
+> `drawing/queue.json`; a nightly run draws the next ones (in ChatGPT's "Cartoons" project only — the account is shared)
+> and does not write new premises. Steps 4, 5 and 8 below are replaced by that file; everything else still applies.
+
 Nick's decisions (Oct 19 2026): the whole old deck (ids ≤ 112) and every old Gallery frame are retired for good. The new
 deck is built from scratch toward **1,000 cartoons**, using ONLY the five styles Nick approved — read `CARTOON_STYLES.md`
 first; it is the art direction and overrides anything else. Claude drives **Nick's own signed-in ChatGPT** in the
