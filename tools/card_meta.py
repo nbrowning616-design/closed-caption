@@ -72,7 +72,9 @@ def main():
     a.add_argument('--voice', required=True); a.add_argument('--scene', required=True); a.add_argument('--title', default='')
     x = a.parse_args()
     meta = json.load(open(META)) if os.path.exists(META) else {}
-    meta[str(x.id)] = {'style': x.style, 'voice': x.voice, 'tags': tags_for(x.title + ' ' + x.scene)}
+    # a new or redrawn picture: keep 'word' (it comes from the caption), drop 'odd' (circles were placed on the old picture)
+    keep = {k: v for k, v in meta.get(str(x.id), {}).items() if k == 'word'}
+    meta[str(x.id)] = {'style': x.style, 'voice': x.voice, 'tags': tags_for(x.title + ' ' + x.scene), **keep}
     json.dump(dict(sorted(meta.items(), key=lambda kv: int(kv[0]))), open(META, 'w'), indent=0, separators=(',', ':'))
     print(x.id, meta[str(x.id)])
 

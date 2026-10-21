@@ -239,3 +239,16 @@ possible joke line is out (audit the deck: redraw or cut). Queued premises get r
   face-down caption not yet sent, flip after the steal show, last chips one at a time, every recap row's reasons add up
   to its points; "I'm in for another" -> "2 of N want another" -> Deal again -> lobby. tools/a11y_check.js (updated for
   the new order): all clear. The rules branch's e2e (33) and edges (12) on the merged build: all pass.
+
+## ROUND 2 — Nick's decisions (Oct 20 2026) — read first in a new chat
+YES: R1 rejection slips · R2 the trophy = THE REMOTE (replaces every Grand Poobah mention) · R3 "Previously on…" (plus a few more continuity touches) ·
+R5 the monkey · R8 odds lines · R10 table vs. the cartoonist · R11 called shot (needs much better hit/miss lines) ·
+R15 pencil-circle nudges (circle one odd detail per tap, shuffled per phone; data = card_meta "odd") ·
+R16 "The kids are in bed" / "One came back down" deck switch · R17 framed lines get published in the Daily (after the Daily exists; writer opts in once) ·
+R18 sealed scores for the Late Edition, standings read last to first · R28 "Heading out": early leaver sees own credit, read later "in absentia" ·
+R30 LAST CALL only (no finish-time estimate).
+R22 CHANGED by Nick — Editor's-note rounds: (a) exact word count = real caption's length, one cartoon every 6–8 turns;
+(b) "Must use the word: ___" (a concrete word from the real caption; card_meta "word"), about 1 in 10–12 cartoons. Never both on one card.
+NO: R4, R6, R7, R9 (no envelope, no superlatives: "too corny, too gimmicky"), R12, R13 cross-examination, R14 footnotes, R19 private tells, R20 ledger,
+R21 reading voices, R23 journal-article recap, R24 passing the reading around, R25 acceptance speech, R26 sitcom night titles, R27 house laws, R29 humor matches.
+Round 3 of ideas requested (Oct 20); same rule: only ideas most of 5 judges call award-worthy.
