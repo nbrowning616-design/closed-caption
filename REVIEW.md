@@ -427,13 +427,12 @@ YES: R3-1 freeze-frame on your best lie (credit opens on the cartoon where you f
 R3-2 Corrections line at the end of Previously on · R3-5 sequel cartoons "Later that evening." (drawn in pairs; second comes back
 in the Late Edition) · R3-7 the Monkey bets one chip for someone who stepped away · R3-9 public steal (pencil circle follows
 the dealer's finger) · R3-10 "Don't smile." (private, ≤1 a round) · R3-11 late arrivals start level with last place · R3-12
-Previously-on payoff (one storyline, one word at the reveal) · R3-14 The Regular (raincoat man with a potted fern in ~1 in 15
-cartoons, never mentioned) · R3-15 credit sagas (~1 credit in 3 continues last time's story) · R3-19 the page tilts when the
+Previously-on payoff (one storyline, one word at the reveal) · R3-15 credit sagas (~1 credit in 3 continues last time's story) · R3-19 the page tilts when the
 whole table bites (rare, 2 s) · R3-26 banned-word Editor's note · R3-27 "Salted" (calm note instead of the red warning when you
 bet on your own fake; stamped when someone followed) · R3-30 invite warm-up puzzle · R3-31 caption shown "in print" while
 typing · R3-32 40-second wordless how-to short.
 R3-8 STICKY NOTE — NO (Nick, after seeing the demo: "Too distracting for purists.").
-NO: R3-3 sound captions, R3-4 pencil margin notes, R3-6 & R3-22 player names in captions/drawings (nicknames won't translate),
+NO: R3-14 The Regular / fern man (Nick: "great ideas, but just too much for now"), R3-3 sound captions, R3-4 pencil margin notes, R3-6 & R3-22 player names in captions/drawings (nicknames won't translate),
 R3-13 Stand By, R3-16 Next time on, R3-17 Not out loud, R3-18 Don't get it, R3-20 channel flip, R3-21 practice hand, R3-23
 no-show credit, R3-24 the squeeze, R3-25 late lights, R3-28 remote grab (no preference → not added), R3-29 shared phone.
 Build order: the eight cuts first (build-cuts), then the round-3 YES items on top, measured against the cut targets.
