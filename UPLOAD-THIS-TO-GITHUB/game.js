@@ -147,9 +147,9 @@ const CARTOONS = [
   { id: 249, spicy: true, level: "medium", title: "Hot Tub", image: "card_249.jpg", correct: "Enjoy it. Dinner's at eight." },
   { id: 250, adult: true, level: "easy", title: "Office Party", image: "card_250_r2.jpg", correct: "Someone stop him before he does the other end." },
   { id: 251, level: "hard", title: "Going Up", image: "card_251.jpg", correct: "They finally automated the corporate ladder." },
-  { id: 252, adult: true, level: "medium", title: "Delivery", image: "card_252.jpg", correct: "It's cold. You must have walked." },
-  { id: 253, spicy: true, level: "easy", title: "The Visit", image: "card_253.jpg", correct: "Mother, I'll call you when I land." },
-  { id: 254, level: "medium", title: "Right of Way", image: "card_254.jpg", correct: "After you." },
+  { id: 252, adult: true, level: "medium", title: "Delivery", image: "card_252_r2.jpg", correct: "It's cold. You must have walked." },
+  { id: 253, spicy: true, level: "easy", title: "The Visit", image: "card_253_r2.jpg", correct: "Mother, I'll call you when I land." },
+  { id: 254, level: "medium", title: "Right of Way", image: "card_254_r2.jpg", correct: "After you." },
   { id: 255, adult: true, level: "hard", title: "Your Move", image: "card_255.jpg", correct: "Your move." },
   { id: 256, spicy: true, level: "medium", title: "The Prize", image: "card_256.jpg", correct: "They say you start to look alike." },
   { id: 257, level: "easy", title: "Just a Trim", image: "card_257.jpg", correct: "Just take a little off the top. And the sides. Carefully." },
@@ -399,6 +399,11 @@ const CARTOONS = [
   { id: 513, spicy: true, level: "medium", title: "Honeymoon Suite", image: "card_513.jpg", correct: "She says she's a very heavy sleeper." },
   { id: 514, adult: true, level: "medium", title: "Spa Day", image: "card_514.jpg", correct: "My wife booked this for me." },
   { id: 515, adult: true, level: "medium", title: "The Catch", image: "card_515.jpg", correct: "Sorry, pal. Catch and release." },
+  { id: 516, spicy: true, level: "medium", title: "Swipe", image: "card_516.jpg", correct: "Maybe I'll text first." },
+  { id: 669, adult: true, level: "medium", title: "Peer Review", image: "card_669.jpg", correct: "Reviewer Two has a few minor comments." },
+  { id: 517, adult: true, level: "medium", title: "Reserved", image: "card_517.jpg", correct: "They both checked out yesterday." },
+  { id: 518, spicy: true, level: "medium", title: "Bedfellow", image: "card_518.jpg", correct: "The front desk says he was here first." },
+  { id: 519, spicy: true, level: "medium", title: "Steady Aim", image: "card_519.jpg", correct: "Maybe start with a watermelon." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
