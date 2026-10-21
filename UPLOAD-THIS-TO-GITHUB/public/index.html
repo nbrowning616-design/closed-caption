@@ -101,8 +101,7 @@
   --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px);
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
-html, body { max-width: 100%; }
+html { -webkit-text-size-adjust: 100%; }
 #screen-game, .screen { overflow-x: clip; }   /* (a stamp landing, a wide name: never a sideways scroll) */
 body { font-family: var(--sans); font-weight: 700; background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 18px 18px; color: var(--ink); min-height: 100dvh; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 button { font-family: inherit; color: inherit; }
@@ -746,7 +745,7 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 /* The pinned cartoon never crowds out the captions: about a third of a tall phone, less on a short one; in landscape
    (or a very short window) the header scrolls away with the page instead of staying pinned. */
 .pin-toon img { height: clamp(92px, calc(38dvh - 84px), 380px); min-height: 0; }
-@media (max-height: 700px) { .pin-toon img { height: clamp(84px, calc(34dvh - 76px), 300px); } .hdr.pin { row-gap: 6px; padding-bottom: 8px; } }
+@media (max-height: 700px) { .pin-toon img { height: clamp(80px, calc(30dvh - 72px), 260px); } .hdr.pin { row-gap: 6px; padding-bottom: 8px; } }
 @media (max-height: 700px) { .toon-big .toon-hit img { max-height: 40dvh; } }
 @media (max-height: 520px) { .hdr.pin { position: relative; } .pin-toon img { height: clamp(84px, 42dvh, 220px); } }
 .toon-big { cursor: default; }
@@ -1846,6 +1845,7 @@ document.addEventListener('keydown', (e) => {
    Menu (room code, sound, music, rules, leave)
    ═══════════════════════════════════════════════════════════ */
 function openMenu() {
+  document.querySelectorAll('.gd-nudge.on, #rd-slip.on').forEach(e => e.classList.remove('on'));   // (the menu never sits under a nudge or a slip)
   if (!state) return;
   const tracks = window.GameMusic ? window.GameMusic.tracks() : [], cur = window.GameMusic ? window.GameMusic.currentTrack() : null;
   $('sheet-body').innerHTML = `<div class="grip"></div>
@@ -2170,7 +2170,7 @@ function syncClaim() {
 }
 function claimAnswer(id, ok) { send({ action: 'claim_answer', id, ok }); const el = $('claim-bar'); if (el) el.remove(); }
 let lastJoin = null, claimRetryT = null;
-function sheetOpen(html) { $('sheet-body').innerHTML = `<div class="grip"></div>${html}`; $('sheet').classList.add('on'); }
+function sheetOpen(html) { document.querySelectorAll('.gd-nudge.on').forEach(e => e.classList.remove('on')); $('sheet-body').innerHTML = `<div class="grip"></div>${html}`; $('sheet').classList.add('on'); }
 function askSameName(m) {
   const n = esc(m.name);
   sheetOpen(`<p class="eyebrow center" style="margin-bottom:6px;">Room ${esc(m.code)}</p>
@@ -2600,7 +2600,7 @@ function playMulligan(ev, wait = 0) {
         CCMulligan.play(b, { kind: ev.kind, src, rect, line: 'Mulligan.', seed: ev.n || 7, onCue: (n) => { if (window.ccCueSound) ccCueSound(n); } });
       } catch (e) { console.error('skip', e); }
       window._boomQ = setTimeout(() => { quip(); if (window.ccBeat) window.ccBeat('mulligan:hit'); buzz(40); }, dur);
-      window._boomT = setTimeout(close, dur + 2300);
+      window._boomT = setTimeout(close, dur + 3300);   // (payoff beats: the line gets its reading time and a held beat)
     } else {   // skips.js isn't here yet: the old cartoon fades out, the word, the line
       loadSkips(); b.classList.remove('ccm');
       b.innerHTML = src ? `<div class="old"><img src="${esc(src)}" alt=""></div>` : '';
