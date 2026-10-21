@@ -2744,6 +2744,26 @@
 "tags":[
 "fish",
 "sea"
+],
+"odd":[
+{
+"q":"What's dangling from the fish's line?",
+"x":96,
+"y":50,
+"r":7
+},
+{
+"q":"What's that poking out of the fish's bucket?",
+"x":88,
+"y":58,
+"r":7
+},
+{
+"q":"Whose lures are pinned to that hat?",
+"x":68,
+"y":36,
+"r":8
+}
 ]
 },
 "227":{
@@ -2810,6 +2830,26 @@
 "mountain",
 "sky",
 "space"
+],
+"odd":[
+{
+"q":"What's clamped onto the rover's front wheel?",
+"x":26,
+"y":77,
+"r":9
+},
+{
+"q":"Who is that strolling off in a cap?",
+"x":86,
+"y":46,
+"r":9
+},
+{
+"q":"What does the slip in his glove say?",
+"x":43,
+"y":46,
+"r":6
+}
 ]
 },
 "230":{
@@ -2819,7 +2859,27 @@
 "giant",
 "restaurant"
 ],
-"word":"chef"
+"word":"chef",
+"odd":[
+{
+"q":"What's lying on the waiter's tray?",
+"x":86,
+"y":46,
+"r":9
+},
+{
+"q":"Why does the chef look so proud?",
+"x":20,
+"y":26,
+"r":9
+},
+{
+"q":"What exactly is that speck on the plate?",
+"x":48,
+"y":68,
+"r":6
+}
+]
 },
 "231":{
 "style":5,
@@ -2857,6 +2917,26 @@
 "bird",
 "park",
 "sky"
+],
+"odd":[
+{
+"q":"Where did he find such a tiny umbrella?",
+"x":50,
+"y":53,
+"r":7
+},
+{
+"q":"Why is the duck so happy to stay?",
+"x":40,
+"y":68,
+"r":10
+},
+{
+"q":"What do the sunbathers make of all this?",
+"x":14,
+"y":50,
+"r":12
+}
 ]
 },
 "233":{
@@ -2865,6 +2945,26 @@
 "tags":[
 "fantasy",
 "office"
+],
+"odd":[
+{
+"q":"What happened to the plant between them?",
+"x":48,
+"y":61,
+"r":9
+},
+{
+"q":"Who is the receptionist about to call?",
+"x":89,
+"y":35,
+"r":9
+},
+{
+"q":"How long has number 18 been waiting?",
+"x":77,
+"y":56,
+"r":7
+}
 ]
 },
 "235":{
@@ -2904,6 +3004,26 @@
 "fish",
 "medical",
 "road"
+],
+"odd":[
+{
+"q":"What is that bear paying with?",
+"x":56,
+"y":42,
+"r":6
+},
+{
+"q":"Where is that crack in the ice heading?",
+"x":85,
+"y":66,
+"r":10
+},
+{
+"q":"What flavor is the little cub hoping for?",
+"x":34,
+"y":52,
+"r":8
+}
 ]
 },
 "239":{
@@ -3051,6 +3171,26 @@
 "tags":[
 "bird",
 "farm"
+],
+"odd":[
+{
+"q":"How long has that nest been on his hat?",
+"x":64,
+"y":45,
+"r":9
+},
+{
+"q":"Who is the bird with binoculars spying on?",
+"x":27,
+"y":20,
+"r":10
+},
+{
+"q":"What kind of field guide is that bird reading?",
+"x":46,
+"y":23,
+"r":8
+}
 ]
 },
 "247":{
@@ -3120,6 +3260,26 @@
 "office",
 "party",
 "sea"
+],
+"odd":[
+{
+"q":"What does the man in glasses think of that copy?",
+"x":80,
+"y":30,
+"r":11
+},
+{
+"q":"How many copies are on the floor now?",
+"x":80,
+"y":82,
+"r":14
+},
+{
+"q":"Has anyone at the party noticed yet?",
+"x":25,
+"y":36,
+"r":14
+}
 ]
 },
 "251":{
@@ -3155,6 +3315,26 @@
 "tags":[
 "bird",
 "office"
+],
+"odd":[
+{
+"q":"Who ordered the pizza?",
+"x":52,
+"y":53,
+"r":9
+},
+{
+"q":"What's he sprinkling out the window?",
+"x":52,
+"y":41,
+"r":6
+},
+{
+"q":"What are the other pigeons waiting for?",
+"x":78,
+"y":64,
+"r":14
+}
 ]
 },
 "253":{
@@ -3166,13 +3346,53 @@
 "elderly",
 "sea"
 ],
-"word":"mother"
+"word":"mother",
+"odd":[
+{
+"q":"Why is the motorboat still tied up?",
+"x":77,
+"y":70,
+"r":14
+},
+{
+"q":"Who's riding along in the birdcage?",
+"x":19,
+"y":51,
+"r":7
+},
+{
+"q":"Where is he rowing off to so fast?",
+"x":80,
+"y":37,
+"r":11
+}
+]
 },
 "254":{
 "style":3,
 "voice":"house6",
 "tags":[
 "bird"
+],
+"odd":[
+{
+"q":"Who has to step around the pigeon?",
+"x":49,
+"y":37,
+"r":7
+},
+{
+"q":"How is she not spilling that coffee?",
+"x":82,
+"y":26,
+"r":6
+},
+{
+"q":"What's so important in the briefcase?",
+"x":21,
+"y":31,
+"r":7
+}
 ]
 },
 "255":{
@@ -3239,6 +3459,26 @@
 "kitchen",
 "shop",
 "sky"
+],
+"odd":[
+{
+"q":"What's that stuck in the mirror?",
+"x":87,
+"y":29,
+"r":8
+},
+{
+"q":"Why is she wearing oven mitts?",
+"x":37,
+"y":37,
+"r":11
+},
+{
+"q":"Who tied a balloon to the waiting chair?",
+"x":10,
+"y":33,
+"r":8
+}
 ]
 },
 "258":{
@@ -3250,6 +3490,26 @@
 "road",
 "sea",
 "street"
+],
+"odd":[
+{
+"q":"What is the captain calling down?",
+"x":59,
+"y":34,
+"r":8
+},
+{
+"q":"What's the officer writing up?",
+"x":64,
+"y":64,
+"r":8
+},
+{
+"q":"Where exactly did the anchor land?",
+"x":77,
+"y":70,
+"r":8
+}
 ]
 },
 "259":{
@@ -3288,6 +3548,26 @@
 "tags":[
 "bedroom",
 "farmanimal"
+],
+"odd":[
+{
+"q":"What is the sheep with the clipboard writing?",
+"x":86,
+"y":61,
+"r":12
+},
+{
+"q":"Who is actually getting sleepy here?",
+"x":13,
+"y":31,
+"r":10
+},
+{
+"q":"How late is it out there?",
+"x":87,
+"y":13,
+"r":8
+}
 ]
 },
 "261":{
@@ -3324,6 +3604,26 @@
 "bug",
 "elderly",
 "restaurant"
+],
+"odd":[
+{
+"q":"What's grandma planning for her wheelbarrow?",
+"x":19,
+"y":46,
+"r":14
+},
+{
+"q":"What are the chef and server thinking?",
+"x":82,
+"y":28,
+"r":13
+},
+{
+"q":"Is that a whole turkey on top?",
+"x":66,
+"y":43,
+"r":8
+}
 ]
 },
 "263":{
@@ -3333,6 +3633,26 @@
 "bear",
 "museum",
 "school"
+],
+"odd":[
+{
+"q":"How long has that painter been here?",
+"x":87,
+"y":60,
+"r":14
+},
+{
+"q":"Is the sloth even awake?",
+"x":17,
+"y":28,
+"r":9
+},
+{
+"q":"How much has anyone painted so far?",
+"x":9,
+"y":56,
+"r":8
+}
 ]
 },
 "266":{
@@ -3341,6 +3661,26 @@
 "tags":[
 "fish",
 "sea"
+],
+"odd":[
+{
+"q":"Who could the letter be addressed to?",
+"x":36,
+"y":46,
+"r":6
+},
+{
+"q":"Who lives in the big shell house?",
+"x":78,
+"y":53,
+"r":14
+},
+{
+"q":"Who put the mailbox flag up?",
+"x":59,
+"y":39,
+"r":6
+}
 ]
 },
 "268":{
@@ -3404,6 +3744,26 @@
 "voice":"house6",
 "tags":[
 "forest"
+],
+"odd":[
+{
+"q":"What's the second one pouring on the ground?",
+"x":77,
+"y":59,
+"r":13
+},
+{
+"q":"What's so special about the hiker's boots?",
+"x":20,
+"y":73,
+"r":10
+},
+{
+"q":"Who will see the photo from that camera?",
+"x":41,
+"y":27,
+"r":7
+}
 ]
 },
 "271":{
@@ -3412,6 +3772,26 @@
 "tags":[
 "cat",
 "kitchen"
+],
+"odd":[
+{
+"q":"What's that mark on the hanging shirt?",
+"x":83,
+"y":58,
+"r":8
+},
+{
+"q":"What does the cat think of dinner?",
+"x":78,
+"y":29,
+"r":9
+},
+{
+"q":"Who is the second slice of bread for?",
+"x":15,
+"y":46,
+"r":9
+}
 ]
 },
 "272":{
@@ -3444,7 +3824,27 @@
 "273":{
 "style":5,
 "voice":"house6",
-"tags":[]
+"tags":[],
+"odd":[
+{
+"q":"What happened to the igloo next door?",
+"x":77,
+"y":52,
+"r":13
+},
+{
+"q":"Where is that heater even plugged in?",
+"x":24,
+"y":53,
+"r":7
+},
+{
+"q":"What else is in his briefcase?",
+"x":7,
+"y":57,
+"r":6
+}
+]
 },
 "275":{
 "style":4,
@@ -9297,6 +9697,26 @@
 "tags":[
 "couple",
 "garden"
+],
+"odd":[
+{
+"q":"What's buried under all those little flags?",
+"x":82,
+"y":41,
+"r":14
+},
+{
+"q":"What are they lowering into the hole?",
+"x":51,
+"y":77,
+"r":7
+},
+{
+"q":"What will this new flag mark?",
+"x":56,
+"y":62,
+"r":6
+}
 ]
 },
 "502":{
@@ -9305,6 +9725,26 @@
 "tags":[
 "farmanimal",
 "mountain"
+],
+"odd":[
+{
+"q":"Whose lunch bag is that falling?",
+"x":57,
+"y":74,
+"r":7
+},
+{
+"q":"Who packed the goat a thermos?",
+"x":54,
+"y":34,
+"r":6
+},
+{
+"q":"What is the climber staring at?",
+"x":36,
+"y":25,
+"r":7
+}
 ]
 },
 "503":{
@@ -9316,6 +9756,26 @@
 "home",
 "kids",
 "shop"
+],
+"odd":[
+{
+"q":"Why is a bird perched out there?",
+"x":66,
+"y":40,
+"r":6
+},
+{
+"q":"Who is ducking past in the hallway?",
+"x":84,
+"y":50,
+"r":10
+},
+{
+"q":"What's in the file on the table?",
+"x":37,
+"y":53,
+"r":7
+}
 ]
 },
 "504":{
@@ -9325,6 +9785,26 @@
 "bathroom",
 "bear",
 "forest"
+],
+"odd":[
+{
+"q":"Who hung the toilet paper on the branch?",
+"x":53,
+"y":29,
+"r":8
+},
+{
+"q":"How long has the hiker been waiting?",
+"x":87,
+"y":46,
+"r":13
+},
+{
+"q":"What is the bear in line reading?",
+"x":17,
+"y":46,
+"r":13
+}
 ]
 },
 "505":{
@@ -9335,6 +9815,26 @@
 "bird",
 "couple",
 "home"
+],
+"odd":[
+{
+"q":"What has the parrot been repeating?",
+"x":61,
+"y":35,
+"r":9
+},
+{
+"q":"What are the two in bed listening for?",
+"x":37,
+"y":40,
+"r":9
+},
+{
+"q":"What does the neighbor think he just heard?",
+"x":80,
+"y":44,
+"r":8
+}
 ]
 },
 "506":{
@@ -9344,7 +9844,27 @@
 "mountain",
 "sea"
 ],
-"word":"watch"
+"word":"watch",
+"odd":[
+{
+"q":"Where did the raccoon get that hat?",
+"x":62,
+"y":51,
+"r":8
+},
+{
+"q":"Whose shoes are those?",
+"x":89,
+"y":69,
+"r":7
+},
+{
+"q":"What is he holding up out of the water?",
+"x":25,
+"y":41,
+"r":7
+}
+]
 },
 "507":{
 "style":3,
@@ -9354,6 +9874,26 @@
 "forest",
 "garden",
 "kids"
+],
+"odd":[
+{
+"q":"What's in the box on his lap?",
+"x":81,
+"y":56,
+"r":9
+},
+{
+"q":"Who let the little kid get in line?",
+"x":6,
+"y":49,
+"r":8
+},
+{
+"q":"Whose bottle is lying in the grass?",
+"x":93,
+"y":74,
+"r":6
+}
 ]
 },
 "509":{
@@ -9363,7 +9903,27 @@
 "home",
 "office"
 ],
-"word":"closet"
+"word":"closet",
+"odd":[
+{
+"q":"Who left a tie and a shoe by the closet?",
+"x":55,
+"y":70,
+"r":11
+},
+{
+"q":"Why is she carrying a stapler?",
+"x":79,
+"y":47,
+"r":6
+},
+{
+"q":"What does the janitor know?",
+"x":19,
+"y":27,
+"r":8
+}
+]
 },
 "510":{
 "style":5,
@@ -9372,6 +9932,20 @@
 "bird",
 "court",
 "sea"
+],
+"odd":[
+{
+"q":"What's that bird working on?",
+"x":84,
+"y":32,
+"r":11
+},
+{
+"q":"Who is the cameraman really filming?",
+"x":26,
+"y":70,
+"r":12
+}
 ]
 },
 "511":{
@@ -9380,6 +9954,26 @@
 "tags":[
 "bear",
 "office"
+],
+"odd":[
+{
+"q":"Why is that man hiding under his desk?",
+"x":12,
+"y":64,
+"r":10
+},
+{
+"q":"Who is giving the visitor the tour?",
+"x":39,
+"y":34,
+"r":9
+},
+{
+"q":"Why does he need a lantern indoors?",
+"x":67,
+"y":30,
+"r":7
+}
 ]
 },
 "512":{
@@ -9389,6 +9983,26 @@
 "bedroom",
 "couple",
 "kids"
+],
+"odd":[
+{
+"q":"Whose phone is glowing between them?",
+"x":42,
+"y":42,
+"r":7
+},
+{
+"q":"What is the baby monitor picking up?",
+"x":91,
+"y":40,
+"r":6
+},
+{
+"q":"What is he pretending not to see?",
+"x":13,
+"y":34,
+"r":8
+}
 ]
 },
 "513":{
@@ -9401,6 +10015,26 @@
 "couple",
 "home",
 "space"
+],
+"odd":[
+{
+"q":"Who's the third glass for?",
+"x":13,
+"y":47,
+"r":9
+},
+{
+"q":"What's packed in that overnight bag?",
+"x":94,
+"y":68,
+"r":7
+},
+{
+"q":"What is she working on in that chair?",
+"x":89,
+"y":50,
+"r":7
+}
 ]
 },
 "514":{
@@ -9408,6 +10042,26 @@
 "voice":"animals",
 "tags":[
 "bigbeast"
+],
+"odd":[
+{
+"q":"Why is the heron holding a towel?",
+"x":81,
+"y":30,
+"r":12
+},
+{
+"q":"Who gave the alligator cucumbers too?",
+"x":76,
+"y":62,
+"r":9
+},
+{
+"q":"Where did he get the towel on his head?",
+"x":23,
+"y":49,
+"r":8
+}
 ]
 },
 "515":{
@@ -9417,6 +10071,26 @@
 "fantasy",
 "fish",
 "sea"
+],
+"odd":[
+{
+"q":"What's the knight on shore so worked up about?",
+"x":15,
+"y":37,
+"r":11
+},
+{
+"q":"Whose arm is coming up out of the lake?",
+"x":86,
+"y":56,
+"r":12
+},
+{
+"q":"What bait is in his tackle box?",
+"x":27,
+"y":60,
+"r":6
+}
 ]
 },
 "516":{
@@ -9424,6 +10098,26 @@
 "voice":"sight",
 "tags":[
 "park"
+],
+"odd":[
+{
+"q":"Where did that flying man come from?",
+"x":10,
+"y":26,
+"r":13
+},
+{
+"q":"Who are the flowers meant for?",
+"x":92,
+"y":46,
+"r":8
+},
+{
+"q":"What does that thumb gesture mean?",
+"x":34,
+"y":40,
+"r":7
+}
 ]
 },
 "517":{
@@ -9432,6 +10126,26 @@
 "tags":[
 "bathroom",
 "mountain"
+],
+"odd":[
+{
+"q":"Who is that at the far end of the row?",
+"x":85,
+"y":37,
+"r":8
+},
+{
+"q":"What does the pool guy make of this?",
+"x":8,
+"y":34,
+"r":10
+},
+{
+"q":"What time did he get up for this?",
+"x":63,
+"y":33,
+"r":7
+}
 ]
 },
 "518":{
@@ -9441,6 +10155,26 @@
 "bedroom",
 "bug",
 "cat"
+],
+"odd":[
+{
+"q":"Who is he about to call?",
+"x":26,
+"y":33,
+"r":7
+},
+{
+"q":"Where did the bug get a nightcap?",
+"x":77,
+"y":27,
+"r":9
+},
+{
+"q":"Whose slippers are those by the bed?",
+"x":94,
+"y":61,
+"r":7
+}
 ]
 },
 "519":{
@@ -9449,6 +10183,26 @@
 "tags":[
 "forest",
 "kids"
+],
+"odd":[
+{
+"q":"Who put all those arrows in the tree?",
+"x":79,
+"y":31,
+"r":14
+},
+{
+"q":"Why is the woman on the blanket so calm?",
+"x":45,
+"y":54,
+"r":11
+},
+{
+"q":"Can the archer actually see the apple?",
+"x":15,
+"y":31,
+"r":7
+}
 ]
 },
 "520":{
@@ -9458,6 +10212,26 @@
 "couple",
 "dog",
 "kitchen"
+],
+"odd":[
+{
+"q":"What is the dog chewing under the table?",
+"x":78,
+"y":77,
+"r":10
+},
+{
+"q":"What's that little thing in the oven?",
+"x":10,
+"y":54,
+"r":8
+},
+{
+"q":"Why does she look so pleased?",
+"x":59,
+"y":17,
+"r":8
+}
 ]
 },
 "522":{
@@ -9468,7 +10242,27 @@
 "farm",
 "garden"
 ],
-"word":"sun"
+"word":"sun",
+"odd":[
+{
+"q":"Why is this one sunflower facing the farmer?",
+"x":72,
+"y":39,
+"r":11
+},
+{
+"q":"What are all the other sunflowers looking at?",
+"x":27,
+"y":55,
+"r":18
+},
+{
+"q":"What's in the farmer's watering can?",
+"x":89,
+"y":69,
+"r":8
+}
+]
 },
 "523":{
 "style":5,
@@ -9478,6 +10272,26 @@
 "restaurant",
 "sea",
 "stage"
+],
+"odd":[
+{
+"q":"What is she dropping in the jar?",
+"x":23,
+"y":33,
+"r":7
+},
+{
+"q":"Where is that instrument case sliding off to?",
+"x":87,
+"y":87,
+"r":10
+},
+{
+"q":"Who's that by the railing in the back?",
+"x":44,
+"y":31,
+"r":7
+}
 ]
 },
 "525":{
@@ -9488,7 +10302,27 @@
 "bedroom",
 "kids"
 ],
-"word":"bunny"
+"word":"bunny",
+"odd":[
+{
+"q":"Whose feet are hanging off the bed?",
+"x":88,
+"y":64,
+"r":10
+},
+{
+"q":"Why is the teddy bear on the floor?",
+"x":12,
+"y":63,
+"r":9
+},
+{
+"q":"Which page did the story stop on?",
+"x":45,
+"y":45,
+"r":9
+}
+]
 },
 "526":{
 "style":3,
@@ -9498,7 +10332,27 @@
 "couple",
 "fish"
 ],
-"word":"chapter"
+"word":"chapter",
+"odd":[
+{
+"q":"How long has the crab been up there?",
+"x":46,
+"y":38,
+"r":7
+},
+{
+"q":"What does the woman on the sand think?",
+"x":81,
+"y":25,
+"r":12
+},
+{
+"q":"How did his chair end up in the surf?",
+"x":59,
+"y":60,
+"r":8
+}
+]
 },
 "527":{
 "style":5,
@@ -9506,6 +10360,26 @@
 "tags":[
 "giant",
 "sports"
+],
+"odd":[
+{
+"q":"What's written on his scroll?",
+"x":89,
+"y":52,
+"r":11
+},
+{
+"q":"Is the servant still bringing refills?",
+"x":12,
+"y":46,
+"r":11
+},
+{
+"q":"Who's out on that little boat in the bay?",
+"x":69,
+"y":50,
+"r":6
+}
 ]
 },
 "529":{
@@ -9516,6 +10390,26 @@
 "kitchen",
 "road",
 "shop"
+],
+"odd":[
+{
+"q":"How many cups has he washed today?",
+"x":79,
+"y":66,
+"r":13
+},
+{
+"q":"What's the truck outside doing with that bin?",
+"x":62,
+"y":22,
+"r":15
+},
+{
+"q":"What has the cat noticed out the window?",
+"x":93,
+"y":48,
+"r":9
+}
 ]
 },
 "530":{
@@ -9527,6 +10421,26 @@
 "bug",
 "forest",
 "garden"
+],
+"odd":[
+{
+"q":"What's the bird in the lawn chair reading?",
+"x":80,
+"y":53,
+"r":12
+},
+{
+"q":"What did he pack in that little suitcase?",
+"x":57,
+"y":46,
+"r":7
+},
+{
+"q":"Who is giving the big bird a push?",
+"x":31,
+"y":38,
+"r":9
+}
 ]
 },
 "531":{
@@ -9536,6 +10450,26 @@
 "church",
 "couple",
 "road"
+],
+"odd":[
+{
+"q":"What's that man putting in the pot?",
+"x":40,
+"y":53,
+"r":8
+},
+{
+"q":"What is the dealer thinking right now?",
+"x":56,
+"y":30,
+"r":8
+},
+{
+"q":"Where did his shoes go?",
+"x":76,
+"y":83,
+"r":8
+}
 ]
 },
 "532":{
@@ -9546,6 +10480,26 @@
 "party",
 "school",
 "sports"
+],
+"odd":[
+{
+"q":"Who's inside the mascot costume?",
+"x":85,
+"y":25,
+"r":13
+},
+{
+"q":"When was the photo on his jacket taken?",
+"x":24,
+"y":31,
+"r":7
+},
+{
+"q":"What are the guests in the back whispering?",
+"x":8,
+"y":25,
+"r":10
+}
 ]
 },
 "534":{
@@ -9555,6 +10509,26 @@
 "airport",
 "bird",
 "couple"
+],
+"odd":[
+{
+"q":"How long has she been waiting with the bags?",
+"x":17,
+"y":22,
+"r":13
+},
+{
+"q":"Where did the reflection get a rose?",
+"x":59,
+"y":72,
+"r":9
+},
+{
+"q":"What does the duck make of this?",
+"x":85,
+"y":68,
+"r":9
+}
 ]
 },
 "535":{
@@ -9565,13 +10539,53 @@
 "kids",
 "road"
 ],
-"word":"car"
+"word":"car",
+"odd":[
+{
+"q":"What is grandpa sipping back there?",
+"x":22,
+"y":46,
+"r":7
+},
+{
+"q":"What's the boy reading about?",
+"x":53,
+"y":52,
+"r":11
+},
+{
+"q":"What can she see in the rearview mirror?",
+"x":51,
+"y":18,
+"r":10
+}
+]
 },
 "536":{
 "style":1,
 "voice":"animals",
 "tags":[],
-"word":"winter"
+"word":"winter",
+"odd":[
+{
+"q":"Why is that groundhog holding an umbrella?",
+"x":21,
+"y":47,
+"r":12
+},
+{
+"q":"What is the man timing with his watch?",
+"x":68,
+"y":25,
+"r":7
+},
+{
+"q":"How long is that scroll, anyway?",
+"x":78,
+"y":82,
+"r":12
+}
+]
 },
 "538":{
 "style":3,
@@ -9579,6 +10593,26 @@
 "tags":[
 "office",
 "sky"
+],
+"odd":[
+{
+"q":"Who are all those coffees for?",
+"x":29,
+"y":66,
+"r":8
+},
+{
+"q":"What is she eating way up there?",
+"x":59,
+"y":10,
+"r":6
+},
+{
+"q":"What does the climber want to tell her?",
+"x":45,
+"y":25,
+"r":7
+}
 ]
 },
 "654":{
@@ -9935,7 +10969,27 @@
 "party",
 "sky"
 ],
-"word":"birthday"
+"word":"birthday",
+"odd":[
+{
+"q":"Who's going to blow out that candle?",
+"x":19,
+"y":53,
+"r":7
+},
+{
+"q":"Why are balloons tied to the forklift?",
+"x":90,
+"y":25,
+"r":12
+},
+{
+"q":"Which one in the lineup is the birthday person?",
+"x":60,
+"y":46,
+"r":15
+}
+]
 },
 "667":{
 "style":5,
@@ -9945,6 +10999,26 @@
 "bear",
 "bird",
 "school"
+],
+"odd":[
+{
+"q":"What is the monkey looking at so closely?",
+"x":85,
+"y":53,
+"r":10
+},
+{
+"q":"Who has been sleeping in the hammock?",
+"x":59,
+"y":51,
+"r":13
+},
+{
+"q":"How long is the visitor planning to stay?",
+"x":25,
+"y":85,
+"r":10
+}
 ]
 },
 "668":{
@@ -9955,6 +11029,26 @@
 "elderly",
 "garden",
 "space"
+],
+"odd":[
+{
+"q":"Why is the dog covering its face?",
+"x":22,
+"y":79,
+"r":11
+},
+{
+"q":"Who is really in charge of the launch?",
+"x":92,
+"y":64,
+"r":10
+},
+{
+"q":"How big is that rocket, really?",
+"x":69,
+"y":53,
+"r":7
+}
 ]
 },
 "669":{
@@ -9964,6 +11058,26 @@
 "court",
 "giant",
 "park"
+],
+"odd":[
+{
+"q":"What's that hatch under his feet?",
+"x":37,
+"y":92,
+"r":13
+},
+{
+"q":"Why does the judge have a giant pen?",
+"x":41,
+"y":16,
+"r":10
+},
+{
+"q":"Is the judge on the right even awake?",
+"x":87,
+"y":25,
+"r":10
+}
 ]
 },
 "670":{
@@ -9972,6 +11086,26 @@
 "tags":[
 "bird",
 "office"
+],
+"odd":[
+{
+"q":"What's drawing the crowd at the far end?",
+"x":87,
+"y":40,
+"r":14
+},
+{
+"q":"How long has she been standing there?",
+"x":18,
+"y":45,
+"r":12
+},
+{
+"q":"Who is he presenting to?",
+"x":38,
+"y":42,
+"r":10
+}
 ]
 },
 "671":{
@@ -9981,6 +11115,26 @@
 "bar",
 "office",
 "school"
+],
+"odd":[
+{
+"q":"What are those lines running across the ceiling?",
+"x":66,
+"y":13,
+"r":20
+},
+{
+"q":"Who brought the donuts?",
+"x":75,
+"y":70,
+"r":10
+},
+{
+"q":"What is the man staring at overhead?",
+"x":62,
+"y":53,
+"r":8
+}
 ]
 },
 "672":{
@@ -9990,6 +11144,26 @@
 "cat",
 "medical",
 "office"
+],
+"odd":[
+{
+"q":"Why is that cat waiting out on the chair?",
+"x":9,
+"y":52,
+"r":9
+},
+{
+"q":"What's that warning sign on the crate?",
+"x":54,
+"y":58,
+"r":7
+},
+{
+"q":"Who's in the framed picture on the wall?",
+"x":51,
+"y":24,
+"r":6
+}
 ]
 }
 }
