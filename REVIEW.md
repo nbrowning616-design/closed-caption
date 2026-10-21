@@ -252,3 +252,58 @@ R22 CHANGED by Nick — Editor's-note rounds: (a) exact word count = real captio
 NO: R4, R6, R7, R9 (no envelope, no superlatives: "too corny, too gimmicky"), R12, R13 cross-examination, R14 footnotes, R19 private tells, R20 ledger,
 R21 reading voices, R23 journal-article recap, R24 passing the reading around, R25 acceptance speech, R26 sitcom night titles, R27 house laws, R29 humor matches.
 Round 3 of ideas requested (Oct 20); same rule: only ideas most of 5 judges call award-worthy.
+
+## STATUS (Oct 21 2026) — END OF THE NIGHT: branch build-night (not merged, not pushed)
+- #12 trimmed finale, one overlay every phone plays together from the server clock (night.js works it out once at game
+  over; public/ending.js draws it): the WINNER (each player's rating change on one line, the Remote changing hands) →
+  ONE AWARDS SLIDE → END CREDITS → the CAST LIST → Caption of the Night. ~players × 6.5 s + ~15 s. The dealer/host
+  taps on (or it moves by itself); the cast list's tap opens Caption of the Night. "Watch the credits again" and
+  "Save your credit" on the final page. The verdicts screen is gone: each verdict line is the pull quote on its credit (#14).
+- END CREDITS: a freeze-frame per player (their best caption tonight on its cartoon, the name in a closed-caption box),
+  the epilogue (credits.js: Nick's 9–10 samples given the opening clause his rule asks for + the 150-line pool, 25
+  triggers), the verdict as a pull quote. Every trigger is computed from the game record (submission order and skip
+  votes are logged by night.js); each player gets their most distinctive trigger, no two alike when it can be helped;
+  Family games use family lines only; no line comes back for any phone at the table (seen-line hashes, like verdicts).
+  Credits roll from last place up; the winner's is last. THE MONKEY: a seeded random bettor every round, same chip
+  rules; if anyone found the real caption fewer times than it did (over the same rounds), one line + an ink chimp with
+  a dart under the cast list, and "The monkey ... Himself" in the cast.
+- #27 the one awards slide: Best Lie (quoted, who fell for it), Best Liar (what the hat measured), Nobody Bit (quoted,
+  gently: framed ones first), Most Groans (only with groan tallies), Sharpest Eye if there's room; max 4.
+- THE REMOTE replaces the Grand Poobah everywhere (screens, copy, sound, badge art, rules, demo note, recap picture:
+  its second card is Best Liar now). Inline ink drawing: a boxy 1980s remote, one CC button, masking tape on the battery
+  cover. Lobby: "Dottie has the Remote." (+ "Two straight." / "…isn't here to defend it."); tap to read the tape (every
+  winner's name and date). Winner beat: "First game at this table. The remote goes to…", "Bob, hand over the remote.",
+  "Retained. Nobody touches the remote.", joint custody for ties. Each phone keeps cc_tables (holder, tape, first
+  cartoon, games, a short summary of the last game); a table = most of tonight's names played its last game; phones send
+  the records that fit, the most recent wins; the room also keeps its own after "Deal again".
+- R3 PREVIOUSLY ON CLOSED CAPTION (round 1, a returning table, instead of the rating card; writers get the 10 s back):
+  last time's winner, last time's Caption of the Night small under its cartoon (left out in Expert games), one grudge
+  (22 templates from the last game's facts, only about people here tonight), "And now, the rematch." Extra continuity:
+  the table's anniversary shows its first cartoon ("It has not gotten easier."), once a year; the Remote's streak.
+- R10 read from the round branch: the cast list says "The table 6, the cartoonist 3." and keeps the table's best night.
+- R18 SEALED SCORES: from the Late Edition's first deal, phones get the totals as they stood when it began; the
+  scoreboard says "Scores are sealed until the end." + your own points with reasons (the recap still lists everyone's
+  points with reasons). The ending then opens with the standings read from last place up, one name a beat (2.8 s), then
+  the top two held together (3.6 s) before the winner. (No TV screen exists on this branch; the view carries `sealed`.)
+- R28 HEADING OUT (menu, with a confirm): your own credit plays now from your play so far, with Save the card (a
+  1080×1350 picture); the table hears "Bob has left the building."; the seat leaves the turn order at once (past the
+  45 s grace; host passes on); at the end the credit is read with everyone else's, "in absentia" (cast list too).
+- R30 LAST CALL (host's menu, with a confirm): the next trip around the table is the last one — the Late Edition,
+  sealed — then the winner and the credits. Every phone shows "Last call. One more trip around."
+- Tested (Playwright, 390×844): full games, then a second game at the same table: 3 phones Standard, 3 phones Family
+  twice around, 5 phones Family, 5 phones After Dark twice around, 8 phones After Dark (54–79 checks each, all pass:
+  beats, one awards slide, a credit per player, no repeated trigger or line, family lines only, no line back from the
+  first game, the cast list's tap → Caption of the Night, the lobby Remote and its tape, the cold open on every phone
+  with the time given back, retained/handover lines, axe on the lobby, the Remote sheet and the cold open). Edges: the
+  newest table record wins, the anniversary, a late joiner's credit, a phone reloaded mid-credits (same beat), a server
+  restart mid-credits (back in the ending), the table record after (8/8). Late game: Last Call, heading out (own credit,
+  saved card, "left the building", Done → Home), sealed scoreboards, standings from the bottom, in absentia, axe on all
+  of them (19/19). tools/a11y_check.js plays to game over now and checks the winner, awards, a credit and the cast: all clear.
+- MERGING WITH build-round (dry run, nothing touched): 12 small conflicts. game.js: scoresAt line (keep their
+  scoreLines call, drop the Poobah comment), awardBadges (keep their badge lines, drop the Poobah comment), exports (no
+  closeVerdicts; they dropped moveToFraming). server.js: the seal tag (theirs + `game.ending` step/done, lastCall,
+  departed count). index.html: the verdicts CSS (drop it, keep their round CSS), render()'s scores cleanup and
+  afterRender's game-over line (take night's Ending calls, keep their additions), renderFinal (night's). guide.js
+  blocked(): union (their #boom.on, #rd-slip.on + #ending.on, #prev.on; no #awards/#poobah). fx.js: keep night's
+  comment. a11y_check.js: their round steps + night's play-to-game-over ending checks. After merging, check: their
+  round stamp stays off a sealed scoreboard, and Most Groans / Nobody Bit read history[r].reacts.
