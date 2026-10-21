@@ -223,3 +223,19 @@ possible joke line is out (audit the deck: redraw or cut). Queued premises get r
   back in ~3 s, the bet placed while the server was down landed once, re-sent bets answered as repeats); a reload with
   a pending bet (never passed through Home, bet landed once); a lost ack on a late chip (re-sent, answered as a repeat,
   one chip); stale/closed seats, invite to another room, limits vs reconnects; tally counts. 45 checks, all pass.
+
+## STATUS (Oct 21 2026) — both branches merged into main (not pushed)
+- Screens branch (lobby, home, invites, sharing, recap reasons, accessibility, plain words) + rules/dropped-phones branch
+  (bets at once, steal before the flip, new payouts, The Late Edition, first to N, rating scaling, bug fixes, reconnects,
+  private tally) are both on main. Conflicts kept both sides: the new bet flow with the plain words (First bets / Last
+  bets, "1 chip" / "Both chips — double"), the calm/red/teal connection banner in the contrast-safe colours, the warm
+  invite text counted as via=link (lobby QR via=qr), /room/CODE and /stats side by side, recap steal line + Late Edition
+  line, new point defaults in "Reset to defaults". After the merge: read-aloud stage lines, the flip hint ("One at a
+  time, from the dealer's left") and the betting dealer's lines no longer describe the old turn-by-turn first bets.
+- Tested on the merged build (Playwright, 390x844): full games with 3 phones (2 times around, Late Edition rounds 4-6),
+  4 phones (dealer bets and steals, Late Edition 5-8), 5 phones (first to 20, a phone closed for 26 s and back with
+  "Cal's back.", a reload mid-bet, never through Home, bet landed once; trip finished before the crown) and 8 phones;
+  every round: all bettors at once, no chip visible before the drop, one drop moment, the steal before the flip with the
+  face-down caption not yet sent, flip after the steal show, last chips one at a time, every recap row's reasons add up
+  to its points; "I'm in for another" -> "2 of N want another" -> Deal again -> lobby. tools/a11y_check.js (updated for
+  the new order): all clear. The rules branch's e2e (33) and edges (12) on the merged build: all pass.
