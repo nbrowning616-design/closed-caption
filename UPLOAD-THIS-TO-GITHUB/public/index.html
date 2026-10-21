@@ -1106,6 +1106,24 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .slip-list { display: flex; flex-direction: column; gap: 14px; }
 .slip-list .slip { box-shadow: 0 4px 10px rgba(31,26,23,.15); }
 .slip-meta { font-size: 12px; color: #6E655C; margin: 6px 0 0; }
+/* R22 the Editor's note */
+.ed-note { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; margin: 0 0 10px; padding: 9px 12px; border: 1.5px solid var(--ink); border-left: 5px solid var(--ink); border-radius: 4px; background: var(--card); text-align: left; }
+.ed-k { font-family: var(--sans); font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.ed-t { font-family: var(--serif); font-size: 17px; font-weight: 400; color: var(--ink); }
+.ed-t b { font-weight: 700; }
+.ed-note.small { margin: 12px auto 0; max-width: 340px; }
+#submit-btn:disabled { opacity: .5; cursor: default; }
+/* R16 the kids' card */
+#kids-card { position: fixed; inset: 0; z-index: 770; display: none; align-items: center; justify-content: center; padding: calc(20px + var(--sat)) 16px calc(20px + var(--sab)); background: var(--paper); cursor: pointer; }
+#kids-card.on { display: flex; animation: fadeIn .35s ease-out; }
+.kd-h { font-size: 30px; }
+/* R15 the pencil circle on the cartoon (and its question) */
+.toon-big .toon-hit { position: relative; }
+.odd-ring { position: absolute; pointer-events: none; overflow: visible; }
+.odd-ring path { fill: none; stroke: #6A6A6A; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; opacity: .9; stroke-dasharray: 100; stroke-dashoffset: 100; animation: oddDraw .7s ease-out forwards; }
+@keyframes oddDraw { to { stroke-dashoffset: 0; } }
+.odd-q { position: absolute; pointer-events: none; font-family: 'Caveat', var(--serif); font-weight: 700; font-size: 19px; line-height: 1.05; color: #4A4A4A; text-align: left; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 5px #fff; animation: fadeIn .4s ease-out .4s both; }
+@media (prefers-reduced-motion: reduce) { .odd-ring path { animation: none; stroke-dashoffset: 0; } }
 #flip-ctl:not(.on) { pointer-events: none; }
 /* The skip gags (skips.js) play on paper, like the cartoons */
 #boom.ccm { display: block; padding: 0; background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 18px 18px; }
@@ -1928,6 +1946,7 @@ function openMenu() {
     <button class="menu-row" onclick="openInvite()"><span class="ic">${inkIcon('invite')}</span>Invite someone<span class="r">QR + link</span></button>
     <button class="menu-row" onclick="openGallery()"><span class="ic">${inkIcon('frame')}</span>The Gallery<span class="r">${galleryList().length ? plural(galleryList().length, 'caption') : ''}</span></button>
     <button class="menu-row" onclick="openRatingSheet()"><span class="ic">${inkIcon('trophy')}</span>My rating and badges<span class="r">${fmtRating(careerSummary().rating)}</span></button>
+    ${state.kids && state.isHost && state.phase !== 'lobby' && !(state.phase === 'scores' && state.gameOver) ? `<button class="menu-row" onclick="closeMenu(); send({ action: 'kids', on: ${state.kids.inBed ? 'false' : 'true'} })"><span class="ic">${inkIcon('door')}</span>${state.kids.inBed ? 'One came back down' : 'The kids are in bed'}<span class="r">${state.kids.inBed ? 'Family cartoons' : 'Every cartoon'}</span></button>` : ''}
     ${slipsGet().length ? `<button class="menu-row" onclick="openRejections()"><span class="ic">${inkIcon('invite')}</span>Rejections<span class="r">${slipsGet().length}</span></button>` : ''}
     <button class="menu-row" onclick="toggleSound()"><span class="ic">${inkIcon(soundEnabled() ? 'sound' : 'mute')}</span>Sound<span class="r">${soundEnabled() ? 'On' : 'Off'}</span></button>
     <button class="menu-row" id="bigsound-row" onclick="toggleBigSound()"><span class="ic">${inkIcon('speaker')}</span>Use this phone as the speaker<span class="r">${bigSound() ? 'On' : 'Off'}</span></button>
@@ -2042,9 +2061,9 @@ function render(force = false) {
     window.scrollTo(0, phaseChanged ? 0 : scrollY);
     if (state.phase === 'writing') restoreDraft();
   }
-  if (state.phase === 'writing') startTimer();
+  if (state.phase === 'writing') { startTimer(); const ci = $('caption-input'); if (ci && !state.hasSubmitted) updateLengthMeter(ci.value); }
   afterRender(phaseChanged);
-  syncOpening(); syncVerdicts(); syncLate();
+  syncOpening(); syncVerdicts(); syncLate(); syncKids();
   if (focusMark) focusRestore(focusMark);
   if (phaseChanged || (state.phase === 'answer' && key !== lastKey && reelInfo().step > reelInfo().n)) stageSay();   // #29: every new stage, said out loud
   lastPhase = state.phase; lastRound = state.round; lastKey = key;
@@ -2441,12 +2460,34 @@ function onCaptionInput() {
   const c = $('cap-count'); if (c) c.textContent = `${i.value.length} / 200`;
   updateLengthMeter(i.value);
 }
-// A plain word count (no colour, no advice: it must never hint at what the real caption looks like)
+// A plain word count (no colour, no advice: it must never hint at what the real caption looks like).
+// R22 with an Editor's note: the count against the note (or the word), and Lock it in waits until it fits.
 function updateLengthMeter(text) {
   const m = $('len-meter'), f = $('len-fill'), n = $('len-note'); if (!m || !f || !n) return;
-  const words = (text.trim().match(/\S+/g) || []).length;
+  const words = noteWordCount(text), nt = state && state.note;
   f.style.width = Math.min(100, (words / 18) * 100) + '%';
-  n.textContent = !words ? '' : `${plural(words, 'word')}.`;   // neutral: never a hint about what the real caption looks like
+  if (nt && nt.kind === 'count') n.textContent = `${words} of ${nt.n} words${words === nt.n ? ' ✓' : ''}`;
+  else if (nt && nt.kind === 'word') n.textContent = noteUses(text, nt.word) ? `Uses “${nt.word}” ✓` : `Needs “${nt.word}”`;
+  else n.textContent = !words ? '' : `${plural(words, 'word')}.`;   // neutral: never a hint about what the real caption looks like
+  const b = $('submit-btn'); if (b) { const okNote = noteOk(text); b.disabled = !okNote; b.setAttribute('aria-disabled', okNote ? 'false' : 'true'); }
+}
+/* R22 the Editor's note: the same word rules as the server (split on spaces, punctuation stripped, a hyphenated
+   word counts once; the word, or a simple plural or possessive of it) */
+function noteWords(t) { return String(t || '').split(/\s+/).map(x => x.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '')).filter(x => /[\p{L}\p{N}]/u.test(x)); }
+const noteWordCount = (t) => noteWords(t).length;
+function noteUses(text, word) {
+  const w = String(word || '').toLowerCase().replace(/['’]/g, '').trim(); if (!w) return false;
+  const forms = new Set([w, w + 's', w + 'es']); if (/[^aeiou]y$/.test(w)) forms.add(w.slice(0, -1) + 'ies');
+  return String(text || '').toLowerCase().split(/[\s\-–—/]+/).map(t => t.replace(/['’]/g, '').replace(/[^\p{L}\p{N}]+/gu, '')).some(t => forms.has(t));
+}
+function noteOk(text) {
+  const nt = state && state.note; if (!nt || !String(text || '').trim()) return !!String(text || '').trim() || !nt;
+  return nt.kind === 'count' ? noteWordCount(text) === nt.n : nt.kind === 'word' ? noteUses(text, nt.word) : true;
+}
+function noteText(nt) { return nt.kind === 'count' ? `Exactly ${nt.n} words.` : `Must use the word: <b>${esc(nt.word)}</b>.`; }
+function noteHtml(small) {
+  const nt = state && state.note; if (!nt) return '';
+  return `<div class="ed-note${small ? ' small' : ''}" role="note"><span class="ed-k">Editor’s note</span><span class="ed-t">${noteText(nt)}</span></div>`;
 }
 function restoreDraft() {
   const i = $('caption-input'); if (!i) return;
@@ -2483,6 +2524,7 @@ function renderWriting() {
         <div class="stamp">Locked in</div>
         ${(state.lines || {}).lockedIn ? `<p class="rd-note" style="margin-top:10px;">${esc(state.lines.lockedIn)}</p>` : ''}
         <div class="panel flat" style="margin-top:16px; text-align:left;"><p class="eyebrow">Your caption, as everyone sees it</p><p class="caption-text" style="margin-top:4px;">“${esc(state.myCaption || '')}”</p></div>
+        ${noteHtml(true)}
         ${callHtml(false)}
       </div>
       ${writingStatusHtml()}`;
@@ -2490,6 +2532,7 @@ function renderWriting() {
   return `${header({ sticker: `<span class="sticker">${state.isDealer ? 'Your deal' : 'Write'}</span>`, sub: `${roundLabel()} · ${dealerLine()}`, ring: true })}
     ${bigToon(false, true)}
     <div class="w-box">
+      ${noteHtml(false)}
       <label class="sr-only" for="caption-input">Your caption</label>
       <textarea id="caption-input" class="caption-input" placeholder="Write a caption that could pass for the real one…" maxlength="200" oninput="onCaptionInput()" onfocus="onCaptionFocus()" onblur="onCaptionBlur()" enterkeyhint="done" autocapitalize="sentences" autocorrect="on" autocomplete="off" spellcheck="true"></textarea>
       <div class="lenmeter" id="len-meter" style="margin-top:8px;"><i id="len-fill"></i></div>
@@ -2525,6 +2568,14 @@ function submitCaption(auto = false) {
   const i = $('caption-input'); if (!i || submitting) return;
   const caption = i.value.trim();
   if (!caption) { if (!auto) { i.classList.remove('shake'); void i.offsetWidth; i.classList.add('shake'); sfx.error(); } return; }
+  // R22: a caption that doesn't fit the Editor's note isn't sent (the server would turn it down)
+  if (!noteOk(caption)) {
+    const nt = state.note;
+    if (auto) { showToast('Time’s up. It didn’t fit the Editor’s note, so it wasn’t sent.'); return; }
+    i.classList.remove('shake'); void i.offsetWidth; i.classList.add('shake'); sfx.error();
+    showToast(nt.kind === 'count' ? `The Editor’s note: exactly ${nt.n} words. You have ${noteWordCount(caption)}.` : `The Editor’s note: use the word “${nt.word}”.`);
+    return;
+  }
   submitting = true; setTimeout(() => { submitting = false; }, 3000);
   // Auto-send at the buzzer takes the spelling fixes; otherwise the server may ask "did you mean…?" first
   const mode = auto ? 'fix' : 'check';
@@ -2761,6 +2812,7 @@ function renderReading(animate) {
       <h2 class="h2">${state.isDealer ? 'Read them aloud' : `${esc(firstName(state.dealerName))} reads them aloud`}</h2>
       <p class="sub">${L.readSub ? esc(L.readSub) : `${plural(nOpen, 'caption')} out in the open, one face-down. One of them is real.`}</p>
       ${state.round === 1 ? '<p class="small" style="margin-top:6px;">Ha or Groan as they’re read. Nobody sees the counts until the answer.</p>' : ''}
+      ${noteHtml(true)}
     </div>
     <div class="stack" style="margin-bottom:14px;">${cards}</div>
     <div class="cap closed locked ${animate ? 'deal-in' : ''}" style="animation-delay:${nOpen * 0.14}s; text-align:center; padding:18px; margin-top:16px;">
@@ -3786,6 +3838,22 @@ function syncLate() {
   lateT = setTimeout(closeLate, left);
 }
 
+/* R16: one quiet card on every phone when the host says the kids are in bed (or one came back down) */
+let kidsShown = null;
+function closeKids() { const o = $('kids-card'); if (o) { clearTimeout(o._t); o.className = ''; o.innerHTML = ''; } }
+function syncKids() {
+  const c = state && state.kids && state.kids.card;
+  if (!c || !c.at || kidsShown === state.code + '|' + c.at) return;
+  kidsShown = state.code + '|' + c.at;
+  if (Date.now() + clockOffset - c.at > 6000) return;   // walked in later: no card
+  let o = $('kids-card'); if (!o) { o = document.createElement('div'); o.id = 'kids-card'; o.setAttribute('role', 'status'); document.body.appendChild(o); }
+  const bed = c.kind === 'bed';
+  o.innerHTML = `<div class="le-card kd-card"><div class="le-rule"></div><h2 class="le-h kd-h">${bed ? 'The kids have gone to bed.' : 'One came back down.'}</h2><div class="le-rule"></div><p class="le-line">${bed ? 'Every cartoon is in play from the next deal.' : c.swapped ? 'Family cartoons again, starting with this one.' : 'Family cartoons again from the next deal.'}</p></div>`;
+  o.className = 'on'; o.onclick = closeKids;
+  bsfx.seal(); srSay(bed ? 'The kids have gone to bed. Every cartoon is in play from the next deal.' : 'One came back down. Family cartoons again.');
+  clearTimeout(o._t); o._t = setTimeout(closeKids, 3200);
+}
+
 /* ── The verdicts: after the awards and the winner, before the Grand Poobah. A reading moment:
    everyone's new rating, the change, the title, and one line each (picked by the server: same on every
    phone, never one this phone has read before). The dealer or host taps on. ── */
@@ -3853,12 +3921,53 @@ const NUDGES = [
   'What would a very tired parent say?',
   'Apologize for the wrong thing.',
 ];
-let nudgeIdx = -1;
+let nudgeIdx = -1, oddFor = null, oddN = 0, oddCur = null, oddRO = null;
+/* R15 The first nudges circle one odd thing in this cartoon, in pencil, with a short question beside it (card_meta.json
+   "odd", sent as state.cartoonOdd). Each phone goes through them in its own order, so the table spreads out across
+   the picture. When they run out, the general tips. */
+function oddOrder() {
+  const list = (state && state.cartoonOdd) || [], key = (myPlayerId || '') + '|' + (state.cartoon && state.cartoon.id);
+  let h = 2166136261; for (const ch of key) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
+  const idx = list.map((_, i) => i);
+  for (let i = idx.length - 1; i > 0; i--) { h = Math.imul(h ^ (h >>> 13), 1103515245) + 12345 >>> 0; const j = h % (i + 1); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+  return idx.map(i => list[i]);
+}
 function nextNudge() {
-  nudgeIdx = (nudgeIdx + 1 + Math.floor(Math.random() * (NUDGES.length - 1))) % NUDGES.length;
   const b = $('nudge-box'); if (!b) return;
-  b.innerHTML = `<span class="nudge-ic">${inkIcon('bulb', 20)}</span><span>${esc(NUDGES[nudgeIdx])}</span><button class="btn-link" style="padding:2px 4px; font-size:13px; margin-left:auto;" onclick="nextNudge()">Another</button>`;
+  const tag = state && state.code + '|' + state.round + '|' + (state.cartoon && state.cartoon.id);
+  if (oddFor !== tag) { oddFor = tag; oddN = 0; }
+  const odd = oddOrder();
+  let text;
+  if (oddN < odd.length) { oddCur = odd[oddN++]; text = oddCur.q; drawOdd(); }
+  else { clearOdd(); nudgeIdx = (nudgeIdx + 1 + Math.floor(Math.random() * (NUDGES.length - 1))) % NUDGES.length; text = NUDGES[nudgeIdx]; }
+  b.innerHTML = `<span class="nudge-ic">${inkIcon('bulb', 20)}</span><span>${esc(text)}</span><button class="btn-link" style="padding:2px 4px; font-size:13px; margin-left:auto;" onclick="nextNudge()">Another</button>`;
   b.classList.add('on'); sfx.tap();
+}
+function clearOdd() { oddCur = null; document.querySelectorAll('#w-toon .odd-ring, #w-toon .odd-q').forEach(e => e.remove()); }
+// A loose graphite loop over the picture (where the image actually sits inside its box), the question beside it
+function drawOdd() {
+  const img = document.querySelector('#w-toon .toon-hit img'), o = oddCur;
+  document.querySelectorAll('#w-toon .odd-ring, #w-toon .odd-q').forEach(e => e.remove());
+  if (!img || !o) return;
+  if (!img.complete || !img.naturalWidth) { img.addEventListener('load', drawOdd, { once: true }); return; }
+  const host = img.parentElement, ew = img.clientWidth, eh = img.clientHeight, sc = Math.min(ew / img.naturalWidth, eh / img.naturalHeight);
+  const cw = img.naturalWidth * sc, ch = img.naturalHeight * sc, ox = img.offsetLeft + (ew - cw) / 2, oy = img.offsetTop + (eh - ch) / 2;
+  const cx = ox + o.x / 100 * cw, cy = oy + o.y / 100 * ch, r = Math.max(12, o.r / 100 * cw), rx = r * 1.12, ry = r * 0.92;
+  // two passes of a pencil that doesn't quite close: a little wobble, an overshoot
+  const pts = []; let seed = Math.round(o.x * 7 + o.y * 13 + o.r);
+  const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  for (let k = 0; k <= 30; k++) { const a = -1.9 + k / 30 * Math.PI * 2.25, w = 1 + (rnd() - 0.5) * 0.09; pts.push([cx + Math.cos(a) * rx * w, cy + Math.sin(a) * ry * w]); }
+  const d = 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L');
+  const svg = `<svg class="odd-ring" aria-hidden="true" style="left:0;top:0;width:${host.clientWidth}px;height:${host.clientHeight}px" viewBox="0 0 ${host.clientWidth} ${host.clientHeight}"><path d="${d}" pathLength="100"/></svg>`;
+  host.insertAdjacentHTML('beforeend', svg);
+  const q = document.createElement('div'); q.className = 'odd-q'; q.textContent = o.q;
+  const right = o.x <= 55, maxW = Math.max(110, Math.min(cw * 0.46, 200));
+  q.style.maxWidth = maxW + 'px';
+  q.style.top = Math.max(oy + 2, Math.min(oy + ch - 40, cy - 14)) + 'px';
+  if (right) q.style.left = Math.min(ox + cw - maxW, cx + rx + 6) + 'px'; else q.style.right = Math.max(0, host.clientWidth - (cx - rx - 6)) + 'px';
+  host.appendChild(q);
+  if (!oddRO && window.ResizeObserver) { oddRO = new ResizeObserver(() => { if (oddCur && document.querySelector('#w-toon .odd-ring')) drawOdd(); }); }
+  if (oddRO) { oddRO.disconnect(); oddRO.observe(img); }
 }
 
 /* ═══════════════════════════════════════════════════════════

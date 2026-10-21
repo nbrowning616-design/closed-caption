@@ -116,7 +116,10 @@ async function check(page, label, report) {
     await pages[2].evaluate(() => askSkip()); await sleep(400);
     await check(pages[2], 'skip this cartoon? sheet', report);
     await pages[2].evaluate(() => closeMenu());
-    for (let i = 0; i < 4; i++) await pages[i].evaluate((c) => send({ action: 'submit_caption', caption: c, mode: 'keep' }), CAPS[i]);
+    for (let i = 1; i < 4; i++) await pages[i].evaluate((c) => send({ action: 'submit_caption', caption: c, mode: 'keep' }), CAPS[i]);
+    await sleep(900);
+    await check(guest, 'locked in (call your shot)', report);
+    await pages[0].evaluate((c) => send({ action: 'submit_caption', caption: c, mode: 'keep' }), CAPS[0]);
     await until(() => state.phase === 'reading'); await sleep(4300);
     await check(guest, 'reading (with a first-game tip)', report);
     let dealer = host; for (const p of pages) if ((await S(p)).isDealer) dealer = p;
@@ -139,20 +142,19 @@ async function check(page, label, report) {
       } else if (ph === 'reveal') {
         const at = await guest.evaluate(() => (state.flipAt || 0) - (Date.now() + (typeof clockOffset === 'number' ? clockOffset : 0)));
         if (at > 0) { await sleep(Math.min(at, 14000) + 400); continue; }
-        if (!done.has('reveal')) { done.add('reveal'); await sleep(2400); await check(guest, 'flip', report); }
-        await dealer.evaluate(() => send({ action: 'advance' })); await sleep(1600);
+        if (!done.has('reveal')) { done.add('reveal'); await sleep(2600); await check(guest, 'flip', report); await check(dealer, 'flip (dealer: hold / go on)', report); }
+        await dealer.evaluate(() => send({ action: 'advance' })); await sleep(1600);   // (it would move on by itself, too)
       } else if (ph === 'second_bets') await bet('second_bets');
       await sleep(300);
     }
-    await until(() => state.phase === 'answer'); await sleep(14000);
-    await check(guest, 'reveal', report);
+    await until(() => state.phase === 'answer'); await sleep(2600);
+    await check(guest, 'reveal (it moves on by itself)', report); await check(dealer, 'reveal (dealer: back / hold / on)', report);
+    await dealer.evaluate(() => send({ action: 'hold', on: true, phase: state.phase, round: state.round })); await sleep(900);
+    await check(guest, 'reveal (held)', report);
     await dealer.evaluate(() => send({ action: 'reel_skip' }));
     await until(() => state.reel && state.reel.step > state.reel.order.length); await sleep(800);
-    await check(guest, 'round recap', report);
+    await check(guest, 'round recap (with Frame It)', report);
     await dealer.evaluate(() => send({ action: 'advance' }));
-    await until(() => state.phase === 'framing'); await sleep(1200);
-    await check(guest, 'frame it', report);
-    for (const p of pages) await p.evaluate(() => send({ action: 'frame_pick', target: 'pass' }));
     await until(() => state.phase === 'scores'); await sleep(9000);
     await host.evaluate(() => send({ action: 'verdicts_done' })).catch(() => {});
     await sleep(8000);
