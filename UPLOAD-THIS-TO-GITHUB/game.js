@@ -1094,7 +1094,7 @@ function startRound(game, options = {}) {
     game.prevMulligan = 0;
     if (game.timerDuration > 0) { roundLine(game, 'warn20', 'write.warn20'); roundLine(game, 'warn10', 'write.warn10'); roundLine(game, 'timesUp', 'write.timesUp'); }
     roundLine(game, 'lockedIn', 'write.lockedIn');
-    if (game.lateFrom === game.round && !(game.targetHit)) roundLine(game, 'lateBanner', 'late.banner');
+    if (game.lateFrom === game.round && !(game.targetHit) && !game.lastCall) roundLine(game, 'lateBanner', 'late.banner');   // (Last Call has its own reason: night.js)
   }
   game.blind = {};
   game.blindEnd = null;

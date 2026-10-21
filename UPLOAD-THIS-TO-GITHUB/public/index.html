@@ -3750,7 +3750,7 @@ function syncLate() {
   o.onclick = closeLate;
   o.innerHTML = `<div class="le-card"><div class="le-rule"></div><p class="le-eye">Round ${state.round}${state.totalRounds ? ' of ' + state.totalRounds : ''}</p>
     <h2 class="le-h">The Late Edition</h2><div class="le-rule"></div>
-    <p class="le-line">${L.hit || !(state.lines || {}).lateBanner ? `${lateWhyLine(L)} Every point counts double.` : esc(state.lines.lateBanner)}</p><span class="le-x2" aria-hidden="true">×2</span></div>`;
+    <p class="le-line">${L.hit || state.lastCall || !(state.lines || {}).lateBanner ? `${lateWhyLine(L)} Every point counts double.` : esc(state.lines.lateBanner)}</p><span class="le-x2" aria-hidden="true">×2</span></div>`;
   o.className = 'on';
   bsfx.seal(); buzz([40, 60, 40]); srSay('The Late Edition. Every point counts double.');
   lateT = setTimeout(closeLate, left);
