@@ -2014,7 +2014,7 @@ function render(force = false) {
     if (state.phase === 'lobby' && lastPhase) sendSeen();   // back in the lobby: refresh before the next game
     if (state.phase === 'lobby') { answerSeqRound = null; scoresAnimated = null; }
     if (state.phase === 'writing' || state.phase === 'lobby') { clearFrameGos(); closeInduction(); closePlaque(); }   // a new round: no frame left over
-    if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); closeRoundStamp(); closeVerdicts(); closeSlip(); if (window.ccFinale) ccFinale.close(); }
+    if (lastPhase === 'scores') { clearTimeout(ceremonyTimer); closePoobah(); closeRoundStamp(); closeVerdicts(); if (state.phase !== 'writing') closeSlip(); if (window.ccFinale) ccFinale.close(); }   // (a slip stays a moment into the next card: a quick dealer doesn't snatch it away)
     if (state.phase !== 'writing') closeOpening();
     if (lastPhase && !['reveal', 'answer', 'framing', 'scores'].includes(state.phase)) bsfx.advance();
     if (state.phase !== 'writing') { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
@@ -4632,7 +4632,7 @@ function syncSlip() {
   const due = (state.scoresAt || 0) + 2600 - (Date.now() + clockOffset);
   if (due < -6000) return;
   setTimeout(() => {
-    if (!state || state.phase !== 'scores') return;
+    if (!state || !['scores', 'writing'].includes(state.phase)) return;   // (the dealer may already have dealt: it still arrives)
     let o = $('rd-slip'); if (!o) { o = document.createElement('div'); o.id = 'rd-slip'; o.setAttribute('role', 'status'); document.body.appendChild(o); }
     o.innerHTML = `${slipHtml(mine, n)}<div class="slip-btns"><button class="btn btn-sm" onclick="closeSlip()">File it</button></div>`;
     void o.offsetWidth; o.classList.add('on');
