@@ -713,6 +713,7 @@ function decorateView(game, view, pid) {
       view.roundScores = { [pid]: mine };
       view.roundScoreDetails = { [pid]: ((game.roundScoreDetails || {})[pid] || []).map(x => ({ ...x })) };
       delete view.previousRank;
+      if (view.lines) delete view.lines.stamp;   // (the round winner's stamp names who won the round, or who leads: sealed too)
       if (Array.isArray(view.history)) view.history = view.history.map(h => (h && h.round >= game.lateFrom ? { ...h, roundScores: { [pid]: (h.roundScores || {})[pid] || 0 }, roundScoreDetails: { [pid]: (h.roundScoreDetails || {})[pid] || [] } } : h));
     }
   } catch (e) { console.error('view decorate failed', e); }

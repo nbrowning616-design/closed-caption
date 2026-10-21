@@ -3964,8 +3964,9 @@ function renderScores() {
   // R18 the Late Edition: the scoreboard is sealed until the end (only your own points for the round)
   if (state.sealed && window.Ending) return `${header({ sticker: '<span class="sticker">Scoreboard</span>', sub: goal, thumb: false })}
     ${Ending.sealedHtml()}
+    ${(state.slips || []).slice(0, 2).map(x => `<p class="sb-slip-note">${esc(x.note || '')}</p>`).join('')}
     <p class="sb-next">Next dealer: <b>${esc(firstName(state.nextDealerName))}</b></p>
-    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>`}`;
+    ${state.isNextDealer ? `<button class="btn btn-yellow" onclick="send({action:'advance'})">Deal round ${state.round + 1} →</button>` : canRun() ? `<button class="btn" onclick="send({action:'advance'})">Deal round ${state.round + 1} for ${esc(firstName(state.nextDealerName))} →</button>` : `<p class="rc-wait">Waiting for ${esc(firstName(state.nextDealerName))} to deal<span class="dots"></span></p>${(state.lines || {}).nextDealer ? `<p class="sb-wait-line">${esc(state.lines.nextDealer)}</p>` : ''}`}`;
   return `${header({ sticker: '<span class="sticker">Scoreboard</span>', sub: goal, thumb: false })}
     <div class="sb-list ${sorted.length > 6 ? 'tight' : ''}">${rows}</div>
     ${state.nextLate ? `<p class="sb-late">Next: <b>The Late Edition.</b> ${state.late && state.late.hit ? lateWhyLine(state.late) : 'The last trip around the table.'} Every point counts double.</p>` : ''}
@@ -4172,16 +4173,23 @@ function slipHtml(x, n) {
   return `<div class="slip"><p class="slip-h">The Editors</p><p class="slip-re">Re: <i>“${esc(x.caption || '')}”</i></p><p class="slip-f">${esc(x.line || '')}</p><p class="slip-g">Groans received: ${x.groans || 0}. Chips: none.${n ? ` · No. ${n}` : ''}</p><span class="slip-st" aria-hidden="true">Returned</span></div>`;
 }
 let slipShown = new Set();
+const slipFiled = {}; let slipWaitT = null;
 function syncSlip() {
   const mine = (state.slips || []).find(x => x.writerId === myPlayerId);
   if (!mine) return;
   const k = state.code + '|' + state.round + '|' + mine.target;
   if (slipShown.has(k)) return;
+  if (!(k in slipFiled)) slipFiled[k] = slipSave({ ...mine, code: state.code });   // filed in the Rejections drawer at once
+  const fresh = slipFiled[k], n = slipsGet().length;
+  if (!fresh) { slipShown.add(k); return; }   // (already filed on this phone: a reload)
+  // The last round's slip waits for the end of the night: the ending, then Caption of the Night's show, come first
+  const over = !!state.gameOver;
+  if (over && (!state.ending || !state.ending.done || (window.Ending && Ending.active()) || document.querySelector('#fp-show.on'))) {
+    clearTimeout(slipWaitT); slipWaitT = setTimeout(() => { if (state && state.phase === 'scores' && state.gameOver) syncSlip(); }, 1500);
+    return;
+  }
   slipShown.add(k);
-  const fresh = slipSave({ ...mine, code: state.code });
-  const n = slipsGet().length;
-  if (!fresh) return;   // (already filed on this phone: a reload)
-  const due = (state.scoresAt || 0) + 2600 - (Date.now() + clockOffset);
+  const due = over ? 1200 : (state.scoresAt || 0) + 2600 - (Date.now() + clockOffset);
   if (due < -6000) return;
   setTimeout(() => {
     if (!state || !['scores', 'writing'].includes(state.phase)) return;   // (the dealer may already have dealt: it still arrives)
