@@ -107,8 +107,8 @@ function broadcast(code, sealTo = null) {
   if (!game) return;
   // #6: every phone keeps a sealed copy of the room, refreshed on each new stage (or every 20 s), to hand back after a restart.
   // #2: and whenever a caption, a bet, the steal or a frame pick lands, so a restart never loses the last one.
-  const tag = game.phase + '|' + game.round + '|' + (game.reel ? game.reel.step : '') + '|' + game.players.length + '|' + (game.frameResult ? 1 : 0) + '|' + (game.finale ? (game.finale.winner || 'v') + Object.keys(game.finale.votes || {}).length : '')
-    + '|' + (game.submissions || []).length + '|' + (game.bets || []).length + '|' + Object.keys(game.blind || {}).length + '|' + (game.dropAt || '') + '|' + (game.steal ? (game.steal.victimId ? 's' : 'p') : '') + '|' + Object.keys(game.framePicks || {}).length + '|' + (game.actN || 0);
+  const tag = game.phase + '|' + game.round + '|' + (game.reel ? game.reel.step : '') + '|' + game.players.length + '|' + (game.roundFrames || []).length + '|' + (game.finale ? (game.finale.winner || 'v') + Object.keys(game.finale.votes || {}).length : '')
+    + '|' + (game.submissions || []).length + '|' + (game.bets || []).length + '|' + Object.keys(game.blind || {}).length + '|' + (game.dropAt || '') + '|' + (game.steal ? (game.steal.victimId ? 's' : 'p') : '') + '|' + Object.values(game.framePicks || {}).reduce((n, l) => n + (l || []).length, 0) + '|' + Object.keys(game.calls || {}).length + '|' + (game.reel && game.reel.paused ? 'h' : '') + (game.flipHold ? 'h' : '') + '|' + (game.actN || 0);
   // #41: a game reached its final scoreboard (counted once per game)
   if (game.phase === PHASES.SCORES && game.gameNo && game._statDone !== game.gameNo && G.isGameOver(game)) { game._statDone = game.gameNo; Stats.finished(); }
   let seal = null;
@@ -125,6 +125,31 @@ function broadcast(code, sealTo = null) {
       else if (sealTo === p.id) { try { c.ws.send(JSON.stringify({ type: 'seal', code, boot: BOOT, data: G.sealGame(game) })); } catch (e) {} }   // #2: a phone back in its seat gets a fresh copy at once
     }
   }
+  syncAuto(code);
+}
+
+/* #6: the flip and the reveal reel move on by themselves. The game says when (game.flipDue, game.reel.dueAt; null
+   while the dealer holds it); every broadcast re-arms one timer per room to match, so a hold, a tap back, a frame
+   being hung or a restart all just move the time. */
+const autoT = new Map();   // code -> { key, t }
+function syncAuto(code) {
+  const g = games[code], cur = autoT.get(code);
+  let key = null, at = 0;
+  if (g && g.phase === PHASES.REVEAL && g.flipDue && !g.flipHold) { key = `${g.round}|flip|${g.flipDue}`; at = g.flipDue; }
+  else if (g && g.phase === PHASES.ANSWER && g.reel && g.reel.dueAt && !g.reel.paused) { key = `${g.round}|reel|${g.reel.step}|${g.reel.dueAt}`; at = g.reel.dueAt; }
+  if (cur && cur.key === key) return;
+  if (cur) { clearTimeout(cur.t); autoT.delete(code); }
+  if (!key) return;
+  autoT.set(code, { key, t: setTimeout(() => {
+    const x = games[code], c2 = autoT.get(code);
+    if (!c2 || c2.key !== key) return;
+    autoT.delete(code);
+    if (!x) return;
+    try {
+      if (x.phase === PHASES.REVEAL && x.flipDue && !x.flipHold && `${x.round}|flip|${x.flipDue}` === key) { G.moveFromReveal(x); broadcast(code); autoAdvanceBets(code); }
+      else if (x.phase === PHASES.ANSWER && x.reel && !x.reel.paused && `${x.round}|reel|${x.reel.step}|${x.reel.dueAt}` === key) { G.reelStep(x, 'next'); broadcast(code); }
+    } catch (e) { console.error('auto step failed', code, e); }
+  }, Math.max(0, at - Date.now())) });
 }
 
 // Run fn later, but only if the game is still where we left it
@@ -151,7 +176,7 @@ function scheduleWritingEnd(code) {
     // #34: one caption plus the real one gives the answer away: 30 s more, up to twice, then on regardless
     if (g.submissions.length === 1 && (g.oneCapExt || 0) < 2 && g.players.filter(G.isPresent).length >= 2) {
       g.oneCapExt = (g.oneCapExt || 0) + 1; g.timerEnd = Date.now() + 30000; g.timerToken++;
-      g.notice = { text: 'One caption isn’t a game. Thirty more seconds.', at: Date.now() };
+      g.notice = { text: G.pickLine(g, 'write.oneCaption') || 'One caption isn’t a game. Thirty more seconds.', at: Date.now() };
       return setTimeout(() => scheduleWritingEnd(code), 0);
     }
     g.oneCapExt = 0;
@@ -204,15 +229,6 @@ function dropNow(code) {
   later(code, Math.max(0, g.dropAt + G.DROP_HOLD_MS - Date.now()), PHASES.FIRST_BETS, G.afterBlinds);
 }
 
-// Frame It: count the picks once, then the scoreboard comes by itself after the ceremony
-function resolveFrames(code) {
-  const g = games[code];
-  if (!g || g.phase !== PHASES.FRAMING || g.frameResult) return false;
-  const r = G.resolveFraming(g);
-  if (r.error) return false;
-  later(code, Math.max(0, r.endsAt - Date.now()), PHASES.FRAMING, G.moveToScoreboard);
-  return true;
-}
 
 // #4 / #51: limits, per phone address. New rooms: 6 a minute. Wrong room codes typed on 'join': 40 per 5 minutes,
 // then a 2-minute wait. #2: a whole party shares one Wi-Fi address, so the bar is high, and a phone reconnecting to
@@ -232,7 +248,7 @@ function clientIp(req) {
   return xff.find(a => !PRIVATE_IP.test(a)) || xff[0] || String((req && req.socket && req.socket.remoteAddress) || '');
 }
 const blocked = (ip) => hitsOf(ip).blockedUntil > Date.now();
-const ACKED = new Set(['submit_caption', 'place_bet', 'undo_bet', 'steal', 'frame_pick']);   // #2: answered by cid, never applied twice
+const ACKED = new Set(['submit_caption', 'place_bet', 'undo_bet', 'steal', 'frame_pick', 'react', 'call_shot']);   // #2: answered by cid, never applied twice
 setInterval(() => { const now = Date.now(); for (const [ip, h] of hits) if (!h.creates.length && !h.misses.length && h.blockedUntil < now) hits.delete(ip); else { recent(h.creates, 60000); recent(h.misses, 5 * 60000); } }, 60000);
 /* #30 Same name at the door: "Are you the Chris who was playing, or a different Chris?"
    A different Chris gets a seat of their own ("Chris 2"). 'It's me' takes the old seat only once its phone has
@@ -275,7 +291,7 @@ function resumeTimers(code) {
   if (g.phase === PHASES.WRITING) scheduleWritingEnd(code);
   if (g.phase === PHASES.FIRST_BETS && g.dropAt) later(code, 1500, PHASES.FIRST_BETS, G.afterBlinds);   // the drop already happened: on to the steal
   else if (g.phase === PHASES.FIRST_BETS || g.phase === PHASES.SECOND_BETS) autoAdvanceBets(code);
-  if (g.phase === PHASES.FRAMING && g.frameResult) later(code, Math.max(1500, g.frameResult.endsAt - Date.now()), PHASES.FRAMING, G.moveToScoreboard);
+  syncAuto(code);   // #6: the flip or the reel picks up where it was
 }
 
 const send = (ws, obj) => { if (ws.readyState === 1) ws.send(JSON.stringify(obj)); };
@@ -528,16 +544,28 @@ wss.on('connection', (ws, req) => {
         return;
       }
       case 'frame_pick': {
-        // One secret pick per cartoon (or 'pass'); when everyone here has decided, the frames are counted
-        const r = G.pickFrame(game, playerId, msg.target);
-        if (fail(r)) return;
-        if (r.allIn) resolveFrames(code);
+        // #5 Frame It on the reveal: frame a revealed fake (or take it back); a majority frames it on the spot
+        if (fail(G.pickFrame(game, playerId, msg.target, msg.on))) return;
         broadcast(code);
         return;
       }
       case 'react': {
-        // Anyone, on any caption (their own too); counts only until the answer
-        if (fail(G.react(game, playerId, msg.target, msg.kind))) return;
+        // #26 Ha / Groan: on any caption but your own; nobody sees a count until the answer
+        if (fail(G.react(game, playerId, msg.target, msg.kind, msg.on))) return;
+        broadcast(code);
+        return;
+      }
+      case 'call_shot': {
+        // R11: after you lock in, name the one person you expect to fall for yours (secret until the reveal)
+        if (fail(G.callShot(game, playerId, msg.target === undefined ? null : msg.target))) return;
+        broadcast(code);
+        return;
+      }
+      case 'hold': {
+        // #6: the dealer (or the host, or a stand-in) holds the flip or the reel, and lets it go again
+        if (!canRun) return sendError(ws, 'The dealer runs the reveal');
+        if (msg.phase !== undefined && (msg.phase !== game.phase || (msg.round !== undefined && msg.round !== game.round))) return;
+        if (fail(G.setHold(game, !!msg.on))) return;
         broadcast(code);
         return;
       }
@@ -639,7 +667,6 @@ wss.on('connection', (ws, req) => {
         // One tap per stage: ignore a tap meant for an earlier stage (double taps, slow screens),
         // and any second advance within 1.2 s of the last one (older phones that don't say which stage)
         if (msg.phase !== undefined && (msg.phase !== game.phase || (msg.round !== undefined && msg.round !== game.round))) return;
-        if (msg.framed !== undefined && game.phase === PHASES.FRAMING && !!msg.framed !== !!game.frameResult) return;
         if (game._advAt && Date.now() - game._advAt < 1200) return;
         game._advAt = Date.now();
         switch (game.phase) {
@@ -653,21 +680,16 @@ wss.on('connection', (ws, req) => {
             G.afterBlinds(game); break;
           case PHASES.REVEAL:
             if (!canRun) return sendError(ws, 'The dealer moves things along');
-            if (game.flipAt && Date.now() < game.flipAt + 1500) { game._advAt = 0; return game.steal && game.steal.victimId && Date.now() < game.flipAt ? sendError(ws, 'Let the thief finish') : undefined; }   // the card hasn't turned yet
+            if (game.flipAt && Date.now() < game.flipAt + 2400) { game._advAt = 0; return game.steal && game.steal.victimId && Date.now() < game.flipAt ? sendError(ws, 'Let the thief finish') : undefined; }   // the card hasn't turned yet
             G.moveFromReveal(game); break;
           case PHASES.SECOND_BETS:
             if (!canRun) return sendError(ws, 'Only the dealer or host can do that');
             G.moveFromSecondBets(game); break;
           case PHASES.ANSWER:
-            // The table lingers on the answer: only the dealer (or host, or a stand-in) moves on, to Frame It
+            // The recap: only the dealer (or host, or a stand-in) moves on, straight to the scoreboard (#5: Frame It
+            // happened on the reveal)
             if (!canRun) return sendError(ws, 'The dealer moves things along');
-            if (fail(G.moveToFraming(game))) return;   // not until the reel reaches the recap
-            break;
-          case PHASES.FRAMING:
-            // 'Move on' counts the picks now; once they're counted, straight to the scoreboard
-            if (!canRun) return sendError(ws, 'The dealer moves things along');
-            if (!game.frameResult) resolveFrames(code);
-            else if (fail(G.moveToScoreboard(game))) return;
+            if (fail(G.moveToScoreboard(game))) { game._advAt = 0; return; }   // not until the reel reaches the recap
             break;
           case PHASES.SCORES: {
             const nd = game.players[G.nextDealerIndex(game, game.dealerIndex)];
@@ -814,8 +836,8 @@ setInterval(() => {
         G.skipCurrentBetter(g); changed = true; autoAdvanceBets(code);
       }
     }
-    // Frame It: a phone that went away no longer holds it up
-    if (g.phase === PHASES.FRAMING && !g.frameResult && G.allFramesIn(g)) { resolveFrames(code); changed = true; }
+    // #39: the one writer everyone is waiting on can change when a phone drops
+    if (g.phase === PHASES.WRITING) { const before = g.lines && g.lines.waitLast ? g.lines.waitLast.pid : null; G.noteLastWriter(g); if ((g.lines && g.lines.waitLast ? g.lines.waitLast.pid : null) !== before) changed = true; }
     // Keep "dealer is away" countdowns fresh
     if (changed || g.players.some(p => !p.connected && p.disconnectedAt && now - p.disconnectedAt < 120000)) broadcast(code);
   } catch (e) { console.error('housekeeping failed', code, e); }   // one bad room never stops the rest
