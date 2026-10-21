@@ -15,8 +15,8 @@
     facedown: { icon: '', text: 'One caption is face-down. Sometimes it’s the real one.' },
     first_bets: { icon: '', text: 'Everyone bets at once, in secret. Put 1 chip, or both for double, on the caption you think is real. Chips you put down now pay more than chips after the flip.' },
     steal: { icon: '', text: 'Before the flip, the dealer can steal one chip. Off the real caption, its points go to the dealer. Off a fake, its owner gets +1 for the trouble.' },
-    answer: { icon: '', text: 'Who wrote what. Who fell for it. No rush.' },
-    frame: { icon: '', text: 'Beat the real caption? Frame it. If most of the table frames it, it hangs in The Gallery. No limit: if it’s good, it’s good.' }
+    answer: { icon: '', text: 'Who wrote what, and who fell for it. It moves on by itself; the dealer can hold it. Ha or Groan as it goes.' },
+    frame: { icon: '', text: 'Beat the real caption? Tap Frame. When most of the table frames it, it hangs in The Gallery. No limit: if it’s good, it’s good.' }
   };
   // How long after the moment arrives before the tip slides in (let the screen's own show land first)
   var DELAY = { writing: 2600, facedown: 2400, first_bets: 1200, steal: 1800, answer: 5200, frame: 2200 };   // after the moment lands, never on top of it
@@ -92,10 +92,12 @@
     var waiting = here.filter(function (p) { return !sub[p.id]; });
     return here.length >= 2 && waiting.length === 1 ? waiting[0] : null;
   }
-  var LINES = ['Everyone else is locked in.', 'The table is being very patient.', 'Genius takes time. Apparently.', 'No pressure. (Some pressure.)', 'Every chip is waiting.'];
+  // The server picks the line (#39: lines.js, no repeats in a night); these only cover a last writer it hasn't named yet
+  var LINES = ['Everyone else is locked in.', 'The table is being very patient.', 'No pressure. (Some pressure.)', 'Every chip is waiting.'];
+  function serverWait(st, pid) { var w = st && st.lines && st.lines.waitLast; return w && w.pid === pid ? w : null; }
   function waitHtml(p) {
     if (!p) return '';
-    var st = cur() || {}, line = LINES[hash((st.code || '') + '|' + st.round + '|' + p.id) % LINES.length];
+    var st = cur() || {}, sw = serverWait(st, p.id), line = sw && sw.text ? sw.text : LINES[hash((st.code || '') + '|' + st.round + '|' + p.id) % LINES.length];
     return '<div class="gd-wait" role="status"><span class="gd-ic" aria-hidden="true">⏳</span><div><div class="gd-h">Waiting on ' + esc(p.name) + '<span class="gd-dots"></span></div><span class="gd-s">' + esc(line) + '</span></div></div>';
   }
   var nudged = {};
@@ -105,17 +107,17 @@
     var k = st.code + '|' + st.round + '|' + (st.cartoon && st.cartoon.id);
     if (nudged[k]) return;
     nudged[k] = 1;
-    showNudge();
+    showNudge(serverWait(st, p.id));
   }
   var nudgeEl = null, nudgeT = null;
-  function showNudge() {
+  function showNudge(sw) {
     if (!nudgeEl) {
       nudgeEl = document.createElement('div'); nudgeEl.className = 'gd-nudge'; nudgeEl.setAttribute('role', 'status');
       nudgeEl.addEventListener('pointerdown', function (e) { e.preventDefault(); }); // keep the keyboard up
       nudgeEl.addEventListener('click', hideNudge);
       document.body.appendChild(nudgeEl);
     }
-    nudgeEl.innerHTML = '<span class="gd-em" aria-hidden="true">⏳</span><div><b>The table is waiting on you.</b><span class="gd-s">No rush. They’ve started talking about you.</span></div>';
+    nudgeEl.innerHTML = '<span class="gd-em" aria-hidden="true">⏳</span><div><b>' + esc(sw && sw.title || 'The table is waiting on you.') + '</b><span class="gd-s">' + esc(sw && sw.sub || 'No rush. They’ve started talking about you.') + '</span></div>';
     hideTip();   // the nudge matters more right now
     void nudgeEl.offsetWidth;
     nudgeEl.classList.add('on');
@@ -136,15 +138,14 @@
       case 'steal': return 'steal';
       case 'answer': {
         var r = st.reel || {}, n = (r.order || []).length, step = r.step || 1;
-        return st.reel && step <= n ? 'answer' : null;
+        return st.reel ? (step <= n ? 'answer' : 'frame') : null;   // #5: Frame It is on the recap (and the reel)
       }
-      case 'framing': return st.framing && st.framing.resolved ? null : 'frame';   // Frame It has its own screen
       case 'scores': return null;
     }
     return null;
   }
   function blocked() {
-    return !!document.querySelector('#stealshow.on, #late-card.on, #awards.on, #poobah.on, #induct.on, #sheet.on, #viewer.on, .gal-ov, #warn.on, #readaloud.on, .fx-root');
+    return !!document.querySelector('#stealshow.on, #boom.on, #rd-slip.on, #late-card.on, #awards.on, #poobah.on, #induct.on, #sheet.on, #viewer.on, .gal-ov, #warn.on, #readaloud.on, .ccm-root');
   }
 
   var tipEl = null, tipId = null, tipShownAt = 0, hideT = null, pending = null, ticker = null;

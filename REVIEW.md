@@ -252,3 +252,54 @@ R22 CHANGED by Nick — Editor's-note rounds: (a) exact word count = real captio
 NO: R4, R6, R7, R9 (no envelope, no superlatives: "too corny, too gimmicky"), R12, R13 cross-examination, R14 footnotes, R19 private tells, R20 ledger,
 R21 reading voices, R23 journal-article recap, R24 passing the reading around, R25 acceptance speech, R26 sitcom night titles, R27 house laws, R29 humor matches.
 Round 3 of ideas requested (Oct 20); same rule: only ideas most of 5 judges call award-worthy.
+
+## STATUS (Oct 21 2026) — build-round: the ROUND items (branch build-round, not merged, not pushed)
+Everything from writing to the scoreboard. The END OF NIGHT (finale, awards, credits, trophy, verdicts) is another branch.
+- #39 lines: `public/lines.js` (122 pools, ~590 lines: the comedy pass's stock lines by situation plus the Round 2 pools).
+  The server picks every line (game.js `pickLine`), every phone shows the same one, and nothing repeats in a night until
+  its pool is used up. Gloats about the steal come only after the reveal; during the steal, nothing hints whether the chip
+  was on the real caption. Rebuilt by scratchpad `rb/build_lines.py`.
+- #18 the flip: a held second, then the face-down card turns on every phone at once (server-timed), one card-flip sound,
+  the blind chips on it light up. #6: the flip moves on by itself after ~6.5 s, and the reveal reel moves on by itself
+  (~3-5 s a caption, ~5 s for the real one). The dealer can hold, go back, or skip to the recap; if the dealer is away
+  the host can. The red "You stole…" banner is gone.
+- #5 Frame It: a small frame button on each caption once it's been shown on the reveal (no separate screen, no limit,
+  same majority rule). The night's first frame gets the full framing moment on every phone (the recap's Scoreboard
+  button waits for it); later frames get a ~3 s plaque.
+- #26 Ha / Groan on every caption while it's read and revealed. No points. Counts appear only after the answer.
+  Kept per caption in the game record.
+- New steal (6 hand-drawn thieves, `public/thieves.js`, built from scratchpad anim/src): the full show (~6.5 s) for the
+  night's first steal, then about 1 in 4 at random (never because of where the chip was), else ~2 s. The closing
+  caption is held ~2.5 s. The old heists (heists.js) are deleted. Skip gags: 50 hand-drawn gags (`public/skips.js`,
+  ~440 KB, fetched once a phone has a seat). The server deals the gag so every phone plays the same one on the same beat.
+- R1 rejection slips: a fake caption with no chips and 3+ Groans. A slip "from The Editors" goes to its writer's phone
+  (25 form lines), plus a Rejections drawer in the menu with a running count (localStorage cc_rejections).
+- R8 odds: one line, only for events rarer than 1 in 20 (true odds from the rules and the table size), at most once a game.
+- R10 table vs. the cartoonist: blind Ha taps (before the answer) decide each round, one line on the reveal, the tally
+  ("The table 6, the cartoonist 3.") on the recap and in the record. Each phone keeps the table's best game
+  (localStorage cc_table_best).
+- R11 call your shot: after locking in, secretly name one person. +3 (doubled in the Late Edition) if they bet on your
+  caption; 10 hit and 10 miss lines.
+- R15 nudges: the first taps on "Need a nudge?" circle an odd detail in pencil, with its question (card_meta "odd",
+  shuffled per phone). Then the general tips. Cards without "odd" go straight to the tips.
+- R22 Editor's notes: "Exactly N words." (N = the real caption's length) every 6-8 turns; "Must use the word: X." about
+  1 in 10-12 (only if card_meta "word" is really in that card's caption). Never both, never on the first two cards of a
+  night. The caption box shows whether yours fits, and one that doesn't can't be locked in. Word count: split on spaces,
+  punctuation stripped, hyphenated = one word.
+- R16 "The kids are in bed" (host menu, only for games started on Family): the full deck from the next deal (family
+  off, spicy on), with one quiet card on every phone. "One came back down": Family again at once, and a grown-up cartoon
+  nobody has written for yet is swapped. The setting carries into the next game in the room.
+- Card data: "odd" and "word" go to phones only for the card being written (never before it's dealt, never the list).
+  No house decoys exist yet, so the note's decoy rule has nothing to apply to.
+- No TV screen exists on this branch. The flip/reel timing is in the room state, ready for one.
+- For the end of night: `game.record` = { captions: [{round, target, writerId, writer, caption, ha, groan, haBlind,
+  chips, framed}], real: [{round, ha, groan, haBlind}], table: {table, cartoonist, draws}, rejections: [...],
+  calls: [{round, callerId, calledId, hit, pts}], odds }. Also each history entry: reacts, calls, tvc, odds, slips, frames.
+  Sent to phones from the answer on.
+- Tested (Playwright, 390x844, full games): 3 phones (Family, kids to bed and back down), 5 phones (a skip gag, a
+  rejection slip on its writer's phone only), 8 phones (a rejection slip, an Editor's note round). All pass (41-42
+  checks a run): the flip and reel move on by themselves
+  and holds work, no Ha/Groan counts before the answer, the thief on stage, the flip waits for the show, frames on the
+  reveal (full, then a plaque), called-shot lines, pencil circles, lines from the server, recap reasons add up, no page
+  errors, clean server log. Rounds at 5 phones take ~70-90 s. Unit checks (rules, lines, notes, kids, odd data): all pass.
+  tools/a11y_check.js: all clear.

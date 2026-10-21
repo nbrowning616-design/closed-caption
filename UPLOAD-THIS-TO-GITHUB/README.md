@@ -20,10 +20,19 @@ A web-based multiplayer party game. One person creates a game, shares a 4-letter
 - The real caption is revealed and points are paid. Full rules are on the app's "How to play" screen
 - The host lines up the seats in the lobby and picks which way the deal passes (left or right)
 - Stealing a chip that was on the real caption scores the dealer +1; the real caption is face-down in about 15% of rounds, never two in a row
-- The answer is a dealer-paced reveal, one caption at a time, with a few badges for great moments
+- The flip: every phone turns the face-down card at the same moment, then the round moves on by itself after a few seconds (the dealer can hold it)
+- The answer is a reveal reel, one caption at a time, that moves on by itself every few seconds (the dealer can hold it, go back, or skip to the recap; if the dealer is away the host can take over), with a few badges for great moments
+- Ha and Groan: two small buttons on every caption while it's read and revealed. No points; the counts appear only once the answer is out. Ha taps made before the answer are "blind", and they decide each round of the table vs. the cartoonist ("The table 6, the cartoonist 3"); each phone keeps the table's best game
+- Call your shot: after locking in a caption you may secretly name one person. If they put a chip on your caption, +3
+- A caption with no chips and three or more Groans gets a rejection slip from The Editors, on its writer's phone only (their drawer of slips is in the menu: Rejections)
+- Editor's notes: now and then (never in the first two cards) a round comes with a rule for the captions: "Exactly N words." or "Must use the word: X." The caption box shows whether yours fits; one that doesn't can't be locked in
+- Need a nudge? The first taps circle an odd detail of the cartoon in pencil, with a question beside it (card_meta.json "odd"); then general tips
+- The kids are in bed (host menu, family games only): the full deck from the next deal. One came back down: family cards again at once
+- The dealer's steal plays as a hand-drawn caper with one of six thieves (the night's first steal in full, then mostly short), the same frame on every phone; a skip vote plays one of 50 hand-drawn gags
+- Most lines the game says (warnings, waits, reveal lines, gloats after the reveal) come from public/lines.js, picked by the server so a night never repeats one
 - Each phone keeps a chess-style rating (starts at 1,200; titles from Candidate to Grandmaster) and its badges across game nights
 - Invite friends with the lobby QR code or the invite link (it fills in the room code)
-- Frame It: every round, each player can frame one caption (never their own, never the real one). No limit per game. When most of the other players (2 of 2, 2 of 3, 3 of 4…) frame the same caption, it's hung in The Gallery with a shareable print. Gallery games use framed captions as the real answers.
+- Frame It: on the reveal, each caption has a small frame button once it's been shown (never your own, never the real one). No limit per game. When most of the other players (2 of 2, 2 of 3, 3 of 4…) frame the same caption, it's hung in The Gallery with a shareable print: the night's first frame gets the full framing moment on every phone, later ones a quick plaque. Gallery games use framed captions as the real answers.
 - The Gallery lives on the phones: each phone saves every caption it sees framed and brings its collection to every game it joins, so it survives server restarts at no cost. Rooms never see each other's captions. (Optional: set DATA_DIR on a Render disk to also keep a server copy.) End-of-game awards play before the final scores
 - A phone that drops (Wi-Fi, a locked screen, a reload) goes straight back to its seat. Captions, bets, the steal and frame picks wait on the phone until the server confirms them, and go once, never twice
 - Every caption, including the real ones, is tidied the same way (capitals, punctuation, apostrophes, quotes) so style never gives anything away. Likely typos get a "Did you mean…?" before locking in
@@ -57,7 +66,7 @@ is a small file (in `DATA_DIR` if set, else the temp folder), so on a free plan 
 - `polish.js` — Caption tidying (punctuation, common grammar slips) and spelling suggestions
 - `words.txt` — English word list used for spelling suggestions (from the wordfreq project)
 - `public/index.html` — The entire frontend (mobile-first)
-- `public/fx.js` — The mulligan "executions"
+- `public/fx.js` — Reduced-motion check shared by the effects (window.ccReducedMotion)
 - `public/hof.js` — Draws the Gallery share print
 - `public/gallery.js` — The framing moment and the Gallery wall
 - `store.js` — Saves The Gallery
@@ -67,7 +76,10 @@ is a small file (in `DATA_DIR` if set, else the temp folder), so on a free plan 
 - `public/verdicts.js` — The pool of verdict lines (shared by the server and the phones)
 - `public/home.js` — The opening screen
 - `public/moments.js` — Keeps big moments in sync across phones; one phone plays the big sounds
-- `public/steal.js` — The Claw: the dealer's steal animation
+- `public/steal.js` — The steal on every phone: lays out the table and drives the hand-drawn show from the server's beat; the painted chip a stolen chip leaves
+- `public/thieves.js` — The hand-drawn steal engine and its six thieves (CCSteal), loaded after the first screen
+- `public/skips.js` — The 50 hand-drawn skip gags (CCMulligan), about 440 KB, fetched only once a phone has a seat
+- `public/lines.js` — The game's lines for the round (shared by the server and the phones; the server picks, a night never repeats one)
 - `public/recap.js` — The night recap picture
 - `public/guide.js` — First-game tips and the "Waiting on…" banner
 - `public/qrcode.js` — QR code maker (MIT, Kazuhiko Arase)

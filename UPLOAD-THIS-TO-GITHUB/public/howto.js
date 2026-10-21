@@ -1,7 +1,7 @@
 /* Closed Caption — HOW TO PLAY, the one-minute version. A fake round plays itself, sped up, with the
    real game's buttons and chips: same cartoon for everyone → write a fake caption → the real one hides
    among them → everyone bets at once, the chips drop together → the dealer steals (before the flip) →
-   the face-down one flips, a last chip → the reveal → Frame It → points.
+   the face-down one flips, a last chip → the reveal (Frame It is on it) → points.
    Big short headlines, a red-pen note, almost no reading. Tap the stage to pause; ◀ ▶ to jump.
    The full rules sit one tap below (index.html #rules-full).
    window.HowTo = { start(mountEl), stop() }. The demo captions are written for this screen only, and the
@@ -207,7 +207,7 @@
       at(1400, function () { c.classList.remove('flip'); });
       at(2600, function () { bet('you', '3', { x: sr.width / 2, y: sr.height - 40 }, 1); head('The face-down one flips.', 'your last chip. late chips pay less'); });
     } },
-    { h: 'The reveal.', note: 'who wrote what · who fell for it', ms: 7600, go: function () {
+    { h: 'The reveal.', note: 'who wrote what · who fell for it · Ha or Groan', ms: 7600, go: function () {
       at(400, function () { stamp('1', 'Amy wrote it', P.amy.c); cap('1').classList.add('dim'); });
       at(1500, function () { stamp('2', 'You wrote it', P.you.c); });
       at(2000, function () { pts('2', '+2 fooled Amy'); });
@@ -216,7 +216,7 @@
       at(4800, function () { var c = cap('3'); c.classList.add('real'); stamp('3', '✓ The real one', 'var(--teal)'); snd(function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.25, i * 90, 'square', 0.04); }); }); });
       at(5500, function () { pts('3', '+3 You · +2 Dan'); });
     } },
-    { h: 'Frame It.', note: 'beat the real one? frame it. it hangs in The Gallery.', ms: 5200, go: function () {
+    { h: 'Frame the good ones.', note: 'beat the real one? tap Frame. most of the table agrees, it hangs in The Gallery.', ms: 5200, go: function () {
       $$('.ht-pts,.ht-stamp').forEach(function (e) { e.style.opacity = 0; });
       $$('.ht-cap').forEach(function (c) { if (c.dataset.k !== 'cc') c.classList.add('dim'); else c.classList.remove('dim'); });
       at(900, function () { var f = document.createElement('span'); f.className = 'ht-frame'; cap('cc').appendChild(f); void f.offsetWidth; f.classList.add('on'); thunk(); });
