@@ -1646,19 +1646,19 @@ function reelStepMs(game, step) {
   const r = game.reel; if (!r) return 0;
   const n = r.order.length; if (step > n) return 0;
   const k = r.nobody || 0;
-  if (k && step <= k) return 3000 + 650 * k;
+  if (k && step <= k) return 2300 + 450 * k;
   const key = r.order[step - 1], o = ((game.lines || {}).reel || {})[key] || {};
   const badges = (game.roundBadges || []).filter(b => String(b.target) === key || (key === realKey(game) && ['moon', 'pickpocket'].includes(b.kind))).length;
-  if (key === realKey(game)) {
-    let ms = 6200 + (badges ? 900 : 0);
-    if (game.odds && game.odds.round === game.round) ms += 1400;
-    if (game.tvcRound && game.tvcRound.line) ms += 1100;
+  if (key === realKey(game)) {   // the drumroll, the stamp (1.2 s), a line or two to read
+    let ms = 5000 + (badges ? 600 : 0);
+    if (game.odds && game.odds.round === game.round) ms += 1000;
+    if (game.tvcRound && game.tvcRound.line) ms += 800;
     return ms;
   }
-  let ms = votesOn(game, key) ? 4300 : 3200;
-  if (badges) ms += 1000;
-  if (o.call) ms += 1300;
-  if (o.gloat) ms += 1100;
+  let ms = votesOn(game, key) ? 3200 : 2500;   // read aloud already: who wrote it, who fell for it
+  if (badges) ms += 600;
+  if (o.call) ms += 900;
+  if (o.gloat) ms += 800;
   return ms;
 }
 function reelDue(game, fromNow) {
