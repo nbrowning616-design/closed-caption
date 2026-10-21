@@ -222,7 +222,7 @@
       at(900, function () { var f = document.createElement('span'); f.className = 'ht-frame'; cap('cc').appendChild(f); void f.offsetWidth; f.classList.add('on'); thunk(); });
       at(1500, function () { snd(function () { [784, 988, 1175, 1568].forEach(function (f, i) { tone(f, 0.3, i * 110, 'triangle', 0.06); }); }); });
     } },
-    { h: 'Most points wins.', note: 'the best liar gets crowned the Grand Poobah', ms: 5200, go: function () {
+    { h: 'Most points wins.', note: 'the winner takes the remote. until next time.', ms: 5200, go: function () {
       $$('.ht-cap').forEach(function (c) { c.classList.remove('on', 'dim', 'real'); c.style.opacity = 0; });
       $('.ht-toon').style.opacity = 0;
       $('.ht-board').classList.add('on');

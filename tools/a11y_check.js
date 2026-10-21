@@ -155,11 +155,41 @@ async function check(page, label, report) {
     await until(() => state.reel && state.reel.step > state.reel.order.length); await sleep(800);
     await check(guest, 'round recap (with Frame It)', report);
     await dealer.evaluate(() => send({ action: 'advance' }));
-    await until(() => state.phase === 'scores'); await sleep(9000);
-    await host.evaluate(() => send({ action: 'verdicts_done' })).catch(() => {});
-    await sleep(8000);
-    for (const p of pages) await p.evaluate(() => { try { closeGrand(); } catch (e) {} });
-    await sleep(600);
+    await until(() => state.phase === 'scores');
+    // The rest of the game, quickly (whole trips around the table: everyone deals once), then the end of the night
+    for (let k = 0; k < 900; k++) {
+      const v = await host.evaluate(() => state && state.phase === 'scores' && state.gameOver && !!state.ending);
+      if (v) break;
+      for (let i = 0; i < pages.length; i++) {
+        await pages[i].evaluate(([c]) => {
+          const s = state; if (!s) return;
+          const go = (o) => send(o);
+          const fit = (t) => { const nt = s.note; if (!nt) return t; if (nt.kind === 'count') return 'the soup is fine again today for everyone here and there now then yes no'.split(' ').slice(0, nt.n).join(' '); return t + ' near the ' + nt.word; };   // R22: obey the Editor's note
+          if (s.phase === 'writing' && !(s.submittedPlayerIds || []).includes(myPlayerId)) go({ action: 'submit_caption', caption: fit(c), mode: 'keep' });
+          else if (s.phase === 'reading' && s.isDealer) go({ action: 'advance' });
+          else if (s.phase === 'first_bets' && s.isMyTurn && !s.dropAt) go({ action: 'place_bet', target: s.myOpenIndex === 0 ? 1 : 0, count: 1 });
+          else if (s.phase === 'steal' && s.isDealer) go({ action: 'steal', betIndex: null });
+          else if (s.phase === 'reveal' && s.isDealer && Date.now() + clockOffset > (s.flipAt || 0) + 1800) go({ action: 'advance' });
+          else if (s.phase === 'second_bets' && s.isMyTurn) go({ action: 'place_bet', target: 0, count: 1 });
+          else if (s.phase === 'answer' && s.isDealer) go(s.reel && s.reel.step < s.reel.order.length + 1 ? { action: 'reel_skip' } : { action: 'advance' });
+          else if (s.phase === 'scores' && !s.gameOver && s.isHost) go({ action: 'advance' });
+        }, [CAPS[i]]).catch(() => {});
+      }
+      await sleep(400);
+    }
+    // The end of the night (ending.js): the winner, one awards slide, a credit per player, the cast list
+    await until(() => state.phase === 'scores' && state.ending, 60000); await sleep(2400);
+    await check(guest, 'the winner (guest)', report); await check(host, 'the winner (host, with the tap-on button)', report);
+    const beat = () => guest.evaluate(() => { const o = document.getElementById('ending'); return !o || !o.className.includes('on') ? null : o.querySelector('.en-aw') ? 'awards' : o.querySelector('.en-credit') ? 'credit' : o.querySelector('.en-cast') ? 'cast' : 'winner'; });
+    const seenBeats = new Set(['winner']);
+    for (let k = 0; k < 30; k++) {
+      await host.evaluate(() => { const b = document.querySelector('#ending .en-next'); if (b) b.click(); });
+      await sleep(1400);
+      const b = await beat(); if (!b) break;
+      if (!seenBeats.has(b)) { seenBeats.add(b); await sleep(1600); await check(guest, `ending: ${b}`, report); if (b === 'cast') { await check(host, 'ending: cast (host)', report); break; } }
+    }
+    await host.evaluate(() => { const b = document.querySelector('#ending .en-go'); if (b) b.click(); });
+    await sleep(1500);
     await check(guest, 'game over (guest)', report); await check(host, 'game over (host)', report);
   } catch (e) { errors.push('run: ' + e.message); }
   await browser.close(); srv.kill();

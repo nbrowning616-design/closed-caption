@@ -1,7 +1,7 @@
 /* Closed Caption — Night recap image (1080×1350 portrait, for the family group chat).
  * Self-contained (injected CSS, `rc-` prefix). Exposes window.Recap = { open, make, data }.
- * Reads the game's globals at call time: state, gamePoobah, computeAwards, roundVotes,
- * playerById, nameOf, playerColor, getPlayerIndex, poobahHat. Shares via window.HallCard.share.
+ * Reads the game's globals at call time: state, playerById, nameOf, playerColor, getPlayerIndex.
+ * Shares via window.HallCard.share.
  */
 (function () {
   var W = 1080, H = 1350, M = 60;
@@ -40,8 +40,18 @@
     // a tie for first broken by people fooled, then captions framed (the server's state.standing)
     var won = s.standing && s.standing.winners ? players.filter(function (p) { return s.standing.winners.indexOf(p.id) >= 0; }) : [];
     if (won.length) winners = won;
-    var poobah = null; try { poobah = g('gamePoobah') ? gamePoobah() : null; } catch (e) {}
     var hist = s.history || [];
+    // Best Liar: the most chips other players put on their fakes, all night (a stolen chip still fooled them)
+    var lies = {};
+    hist.forEach(function (r) {
+      (r.bets || []).forEach(function (b) {
+        if (b.target === 'pass') return;
+        var c = b.target === 'closed' ? { playerId: r.closedPlayerId, isCorrect: r.closedIsCorrect } : (r.openCaptions[b.target] || {}), n = b.count + (b.stolen || 0);
+        if (!c.isCorrect && c.playerId && c.playerId !== b.playerId && n > 0) lies[c.playerId] = (lies[c.playerId] || 0) + n;
+      });
+    });
+    var lm = 0; Object.keys(lies).forEach(function (k) { if (lies[k] > lm) lm = lies[k]; });
+    var liar = lm ? { ids: Object.keys(lies).filter(function (k) { return lies[k] === lm; }), n: lm } : null;
     // The night's framed captions (up to 3), else the night's best bluffs
     var framed = (s.hallOfFame || []).slice(0, 3).map(function (e) {
       return { image: e.image, caption: e.caption, credit: e.isReal || !e.writerName ? 'the real caption' : e.writerName, note: (e.flaggers && e.flaggers.length) ? 'framed by ' + joinNames(e.flaggers) : '' };
@@ -89,7 +99,7 @@
       date: new Date(),
       code: s.code, rounds: hist.length || s.round || 0, nPlayers: players.length,
       winners: winners.map(function (p) { return { id: p.id, name: p.name }; }), winScore: top,
-      poobah: poobah ? { ids: poobah.ids, names: poobah.ids.map(nm), n: poobah.n, crowns: poobah.crowns } : null,
+      liar: liar ? { ids: liar.ids, names: liar.ids.map(nm), n: liar.n } : null,
       caps: framed, capsTitle: capsTitle, stats: stats.slice(0, 2)
     };
   }
@@ -202,13 +212,6 @@
     var all = Promise.all(['700 64px Fredoka', '600 40px Fredoka', '800 36px Nunito', '900 24px Nunito', '700 30px Nunito'].map(function (f) { return document.fonts.load(f, 'AaBb “’…'); })).catch(function () {});
     return Promise.race([all, new Promise(function (r) { setTimeout(r, 2500); })]);
   }
-  function hatImage() {
-    try {
-      if (typeof poobahHat !== 'function') return Promise.resolve(null);
-      var svg = poobahHat(240).replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
-      return loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
-    } catch (e) { return Promise.resolve(null); }
-  }
 
   /* ── The card ── */
   function draw(canvas, d, imgs) {
@@ -254,7 +257,7 @@
     ctx.fillStyle = C.ink2; ctx.font = font(800, 28);
     ctx.fillText(plural(d.winScore, 'point') + ' · won the night', wx + hw / 2, hy + hh - 28);
 
-    // Grand Poobah
+    // Best Liar
     var px = M + hw + gap;
     panel(ctx, px, hy, hw, hh, 30, C.night, 9);
     ctx.save(); rr(ctx, px, hy, hw, hh, 30); ctx.clip();
@@ -263,14 +266,15 @@
     ctx.restore();
     rr(ctx, px, hy, hw, hh, 30); ctx.lineWidth = 5; ctx.strokeStyle = C.ink; ctx.stroke();
     ctx.textAlign = 'center'; ctx.fillStyle = C.lilac; ctx.font = font(900, 23);
-    tracked(ctx, 'THE GRAND POOBAH', px + hw / 2, hy + 52, 3, 'center');
-    if (imgs.hat) { var hh2 = 104, hw2 = hh2 / 1.15; ctx.drawImage(imgs.hat, px + hw / 2 - hw2 / 2, ICY - hh2 / 2 - 4, hw2, hh2); }
-    if (d.poobah) {
-      var pname = joinNames(d.poobah.names);
+    tracked(ctx, d.liar && d.liar.ids.length > 1 ? 'BEST LIARS · A TIE' : 'BEST LIAR', px + hw / 2, hy + 52, 3, 'center');
+    if (d.liar) {
+      var ln = d.liar.ids.slice(0, 3), lr = ln.length > 1 ? 44 : 50;
+      ln.forEach(function (id, i) { chip(ctx, px + hw / 2 + (i - (ln.length - 1) / 2) * (lr * 2 + 14), ICY, lr, color(id), initialsOf(nm(id))); });
+      var pname = joinNames(d.liar.names);
       ctx.fillStyle = C.yellow; fitOne(ctx, pname, hw - 50, 700, 58, 32, DISPLAY);
       ctx.fillText(pname, px + hw / 2, NAMEY);
       ctx.fillStyle = C.lilac2; ctx.font = font(800, 28);
-      ctx.fillText(plural(d.poobah.n, 'vote') + ' on fake captions', px + hw / 2, hy + hh - 28);
+      ctx.fillText(plural(d.liar.n, 'chip') + ' on fake captions', px + hw / 2, hy + hh - 28);
     } else {
       ctx.fillStyle = C.yellow; ctx.font = font(700, 48, DISPLAY); ctx.fillText('Unclaimed', px + hw / 2, NAMEY);
       ctx.fillStyle = C.lilac2; ctx.font = font(800, 26); ctx.fillText('Nobody fooled anybody', px + hw / 2, hy + hh - 28);
@@ -348,13 +352,13 @@
 
   function make() {
     var d = data(); if (!d) return Promise.reject(new Error('no game'));
-    return Promise.all([loadFonts(), hatImage(), Promise.all(d.caps.map(function (c) { return loadImage(c.image ? '/images/' + c.image : null); }))]).then(function (r) {
-      var imgs = { hat: r[1], caps: r[2] };
+    return Promise.all([loadFonts(), Promise.all(d.caps.map(function (c) { return loadImage(c.image ? '/images/' + c.image : null); }))]).then(function (r) {
+      var imgs = { caps: r[1] };
       var canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
       try { draw(canvas, d, imgs); } catch (e) { console.warn('Recap draw', e); }
       return toBlob(canvas).catch(function () {   // tainted (e.g. SVG on an old Safari): draw again without the pictures
         var c2 = document.createElement('canvas'); c2.width = W; c2.height = H;
-        draw(c2, d, { hat: null, caps: [] }); return toBlob(c2);
+        draw(c2, d, { caps: [] }); return toBlob(c2);
       });
     });
   }

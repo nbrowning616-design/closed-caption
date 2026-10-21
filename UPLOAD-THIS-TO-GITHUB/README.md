@@ -74,6 +74,9 @@ is a small file (in `DATA_DIR` if set, else the temp folder), so on a free plan 
 - `public/badges.js` — Badge artwork, badge pops, badge case
 - `rating.js` — The chess-style rating: Elo over every pair at the table, the opening card and the verdict lines (server side)
 - `public/verdicts.js` — The pool of verdict lines (shared by the server and the phones)
+- `night.js` — The end of the night (server side): the end credits, the one awards slide, the monkey, the Remote and its tape, "Previously on Closed Caption"
+- `credits.js` — The words for it: the end-credit lines (by what the player did tonight), the grudges, the awards and the Remote's lines
+- `public/ending.js` — The end of the night on the phones: the winner, the awards, the credits, the cast; the Remote; the cold open; the tables each phone keeps
 - `public/home.js` — The opening screen
 - `public/moments.js` — Keeps big moments in sync across phones; one phone plays the big sounds
 - `public/steal.js` — The steal on every phone: lays out the table and drives the hand-drawn show from the server's beat; the painted chip a stolen chip leaves

@@ -47,7 +47,7 @@ The deck is headed for ~400 cartoons. Every new cartoon gets this in the same up
    (writes the image and the CARTOONS line). No heads to mark: the game takes no photos (Nick, Oct 19 2026).
 
 ## The finale (built Oct 18 2026)
-Winner → Grand Poobah → **Tonight's Gallery** (host opens it; the Poobah button leads straight in). Every caption framed
+Winner (and the Remote) → one awards slide → **end credits** → **Tonight's Gallery** (the dealer's tap on the cast list opens it). Every caption framed
 tonight (they all beat the real one). 2+ frames: everyone votes, never for their own; ties → more frames, then a coin flip.
 The winner is **Caption of the Night**: a short, quiet moment on every phone at once (~5 s) — the framed card lands,
 the rosette is pinned on, the brass plaque is engraved ("Caption by NAME · Caption of the Night · Month Year"), and it is

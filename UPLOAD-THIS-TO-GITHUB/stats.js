@@ -12,7 +12,7 @@ const path = require('path');
 const FILE = process.env.DATA_DIR ? path.join(process.env.DATA_DIR, 'stats.json')
   : process.env.STATS_FILE || path.join(os.tmpdir(), 'closed-caption-stats.json');
 const VIA = ['qr', 'link', 'code'];
-const SHARES = ['recap', 'gallery'];
+const SHARES = ['recap', 'gallery', 'credit'];
 const DAYS_KEPT = 400;
 
 const blank = () => ({
