@@ -18,7 +18,7 @@
   var CSS = [
     /* the stage: paper, the steal screen drawn on it (thieves.js .ccs), the line under it */
     '#stealshow.ccs-on{background:var(--paper,#FFF8EA);background-image:none;color:var(--ink,#1F1A17);padding:calc(14px + var(--sat,0px)) 12px calc(14px + var(--sab,0px));}',
-    '#stealshow .st-wrap{width:100%;max-width:430px;margin:0 auto;}',
+    '#stealshow .st-wrap{width:100%;max-width:min(430px, 56dvh);margin:0 auto;}',   /* (a landscape phone: the whole show fits, line and all) */
     '#stealshow .ccs-scr{box-shadow:0 1px 0 rgba(31,26,23,.05);}',
     '#stealshow .st-plain{max-width:340px;margin:0 auto;text-align:center;font-family:var(--serif,Georgia,serif);}',
     '#stealshow .st-plain p{margin:0;}',
