@@ -48,6 +48,10 @@ def main():
     img = 'card_%d.jpg' % o.id
     if m:
         old = m.group(0)
+        # a redraw gets a new file name, so no phone shows a cached old picture under a new caption;
+        # the old file stays for any saved Gallery frame that points at it
+        prev = re.search(r'image: "card_%d(?:_r(\d+))?\.jpg"' % o.id, old)
+        img = 'card_%d_r%d.jpg' % (o.id, (int(prev.group(1)) + 1) if prev and prev.group(1) else 2)
         title = o.title or re.search(r'title: ("(?:[^"\\]|\\.)*")', old).group(1)
         title = js_str(o.title) if o.title else title
         cap = js_str(o.caption) if o.caption else re.search(r'correct: ("(?:[^"\\]|\\.)*")', old).group(1)
