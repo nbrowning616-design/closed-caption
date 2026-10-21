@@ -462,3 +462,14 @@ some virtual players any time just to make the game better (6 players is ideal).
 - Nick: "For the practice version, the real one should be slightly superior or even with the next best auto-generated." The
   bank rates every house fake 2–5 against the real caption (5 = as good, never better); solo practice deals fakes rated 4–5 so
   the real one is the best or tied, never outshone; house players at the table use the same bank.
+
+## POLISH AUDIT (Oct 21 2026) — reports in scratchpad polish/ (ui.md, mechanics.md, realworld.md)
+Three auditors (visual UI, rules/edge cases, real-world phones and Wi-Fi) played the live build. Plain bugs get fixed without
+asking, on top of the cuts (build-cuts), then retested with 3–8 phones. Headline bugs: game over can be undone (a joiner during
+the credits, or the next dealer away 45 s); Last Call adds a whole extra trip in an "everyone deals once" game; a locked phone
+can make someone deal twice and another seat never deal; the table freezes behind "3 of 3 captions in" when a phone dies
+mid-writing; a Join tapped before the socket is up is lost; the pinned cartoon crowds out captions on small phones and in
+landscape; overlays land on each other (skip gag under the opening/Late Edition/kids cards, nudge over the menu, slip over the
+scoreboard); stamps start at scale(3) and widen the page sideways.
+SERVER SLEEP (reverses #3): Nick chose a FREE OUTSIDE PINGER — he creates a free UptimeRobot (or cron-job.org) monitor on
+https://closed-caption.onrender.com/status every 5 minutes. The GitHub keep-awake action ran only 12 times in ~50 h.
