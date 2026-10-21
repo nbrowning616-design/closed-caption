@@ -479,7 +479,7 @@
   /* ── The final page, after the ending: the Remote's line (tap it to read the tape) and a replay ── */
   function remoteLineHtml() {
     var s = S(), e = s && s.ending; if (!e || !e.remote) return '';
-    return '<button class="en-rm-btn" onclick="Ending.openRemote()" aria-label="The Remote. ' + E(e.remote.line) + ' Read the tape.">' + remoteSvg({ w: 26, strips: e.remote.tape.slice(-1).map(function (t) { return t.n; }) }) + '<p>' + E(e.remote.line) + '</p></button>';
+    return '<button class="en-rm-btn" onclick="Ending.openRemote()" >' + remoteSvg({ w: 26, strips: e.remote.tape.slice(-1).map(function (t) { return t.n; }) }) + '<p>' + E(e.remote.line) + '<span class="sr-only"> The Remote: read the tape.</span></p></button>';
   }
   function replay() {
     var s = S(); if (!s || !s.ending) return;

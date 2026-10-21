@@ -567,6 +567,7 @@ body.quake { animation: quake .12s linear 10; }
 .code-pill { font-family: var(--display); font-weight: 700; font-size: 14px; letter-spacing: 2px; padding: 3px 9px; border-radius: 8px; border: 2px solid var(--ink); background: #fff; cursor: pointer; color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
 .qr-wrap { display: inline-block; background: #fff; padding: 8px; border: 3px solid var(--ink); border-radius: 14px; box-shadow: var(--shadow-sm); line-height: 0; }
 .qr-wrap svg { display: block; }
+@media (max-height: 700px) { .lb-code .qr-wrap svg { width: 116px; height: 116px; } .lb-code .do { margin-bottom: 8px !important; } }
 .gallery-credit { margin-top: 12px; padding: 8px 12px; border: 2px solid #B8860B; border-radius: 12px; background: linear-gradient(135deg, #FFF3C4, #F6D77A 55%, #FFF0B8); color: #4A3500; font-family: Georgia, serif; font-style: italic; font-size: 15px; line-height: 1.35; box-shadow: inset 0 0 0 2px rgba(255,255,255,.55); }
 .pub-mark { display: inline-block; font-size: 11px; font-weight: 900; padding: 1px 6px; border-radius: 999px; border: 1.5px solid #B8860B; background: #FFF3C4; color: #4A3500; vertical-align: 2px; margin-left: 4px; white-space: nowrap; }
 .gal-toggle { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border: 2px solid var(--ink); border-radius: 14px; background: #fff; cursor: pointer; text-align: left; font-weight: 900; font-size: 15px; margin-bottom: 14px; }
@@ -813,6 +814,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .rc-page { margin: 0 0 18px; }
 .rc-art { display: block; width: 100%; padding: 6px; margin: 0; background: #fff; border: 2.5px solid var(--ink); border-radius: 10px; box-shadow: var(--shadow-sm); cursor: zoom-in; }
 .rc-art img { display: block; width: 100%; max-height: 42dvh; object-fit: contain; background: #fff; }
+@media (max-height: 700px) { .rc-art img { max-height: 34dvh; } }
 .rc-print { font-family: var(--serif); font-style: italic; font-size: 25px; line-height: 1.28; text-align: center; margin: 14px 6px 0; text-wrap: balance; overflow-wrap: anywhere; }
 .rc-under { text-align: center; font-size: 13px; font-weight: 800; letter-spacing: .3px; color: var(--ink-2); margin-top: 6px; }
 .rc-h { font-family: var(--sans); font-size: 13px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-2); margin: 0 0 6px; }
@@ -3525,7 +3527,7 @@ function spotlightHtml() {
       ${real ? `<p class="spot-lead">And the real caption is…</p>` : ''}
       ${c.isClosed ? '<p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption</p>' : ''}
       <p class="spot-text">“${esc(c.caption)}”</p>
-      <div class="spot-reveal">${who}${fell}${realLine}${rxHtml(key, { frame: true })}</div>
+      <div class="spot-reveal">${who}${real && !people.length && realLine ? '' : fell}${realLine}${rxHtml(key, { frame: true })}</div>
     </div>
     <div style="margin-top:18px;" id="reel-ctl">${reelCtlHtml()}</div>`;
 }
