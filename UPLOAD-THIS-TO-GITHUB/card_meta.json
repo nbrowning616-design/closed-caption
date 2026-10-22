@@ -18755,6 +18755,107 @@
 }
 ]
 },
+"539":{
+"style":2,
+"voice":"winks",
+"tags":[
+"fish",
+"sea"
+],
+"odd":[
+{
+"q":"Why is he tied to the mast?",
+"x":38,
+"y":20,
+"r":10
+},
+{
+"q":"What are the rowers trying not to hear?",
+"x":23,
+"y":50,
+"r":14
+},
+{
+"q":"Where did she get a ukulele?",
+"x":80,
+"y":28,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"Keep rowing. She takes requests.",
+"s":4
+},
+{
+"t":"Tie me tighter. She's starting the second set.",
+"s":5
+},
+{
+"t":"Every voyage, the same open mic.",
+"s":4
+},
+{
+"t":"Row faster, she's tuning.",
+"s":3
+},
+{
+"t":"My wife sent her, didn't she?",
+"s":3
+}
+]
+},
+"540":{
+"style":5,
+"voice":"sitcom",
+"tags":[
+"bird",
+"dog",
+"park"
+],
+"odd":[
+{
+"q":"How did the leashes get like that?",
+"x":42,
+"y":78,
+"r":12
+},
+{
+"q":"What's the pigeon doing in the middle?",
+"x":51,
+"y":42,
+"r":8
+},
+{
+"q":"Who is he really texting?",
+"x":17,
+"y":42,
+"r":9
+}
+],
+"decoys":[
+{
+"t":"Don't look now, but I think we're being set up.",
+"s":5
+},
+{
+"t":"He's typing. I can see him typing.",
+"s":4
+},
+{
+"t":"Same app, same bench, same dog walker.",
+"s":4
+},
+{
+"t":"I matched with the pigeon.",
+"s":3
+},
+{
+"t":"The pigeon says you're seeing someone.",
+"s":2
+}
+]
+},
 "654":{
 "style":5,
 "voice":"science",
@@ -19721,6 +19822,472 @@
 {
 "t":"The owner is a physicist. He's very calm about it.",
 "s":3
+}
+]
+},
+"693":{
+"style":5,
+"voice":"chemist",
+"tags":[
+"medical",
+"shop"
+],
+"odd":[
+{
+"q":"Who drew all over his stomach?",
+"x":45,
+"y":38,
+"r":10
+},
+{
+"q":"What is the nurse fixing?",
+"x":63,
+"y":35,
+"r":9
+},
+{
+"q":"What's in that stack of printouts?",
+"x":88,
+"y":33,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"We'll start where the arrow says start.",
+"s":4
+},
+{
+"t":"The dotted lines are for the residents.",
+"s":4
+},
+{
+"t":"Second opinion? He brought a third.",
+"s":3
+},
+{
+"t":"He'd like to keep the leftovers.",
+"s":3
+},
+{
+"t":"He's asking about a coupon.",
+"s":2
+}
+]
+},
+"694":{
+"style":1,
+"voice":"culdesac",
+"tags":[
+"couple",
+"farm",
+"home"
+],
+"odd":[
+{
+"q":"What's in the pot between them?",
+"x":72,
+"y":45,
+"r":8
+},
+{
+"q":"What's on their TV?",
+"x":73,
+"y":28,
+"r":9
+},
+{
+"q":"What color were they thinking?",
+"x":44,
+"y":38,
+"r":8
+}
+],
+"decoys":[
+{
+"t":"Good news, the fondue is still warm.",
+"s":5
+},
+{
+"t":"Let's keep the paneling. And them.",
+"s":4
+},
+{
+"t":"They've been waiting since 1974 for the cable guy.",
+"s":4
+},
+{
+"t":"Ask if they're staying through the remodel.",
+"s":3
+},
+{
+"t":"I think we found the asbestos.",
+"s":3
+}
+]
+},
+"824":{
+"style":5,
+"voice":"commuter",
+"tags":[
+"bear",
+"fantasy",
+"garden",
+"kids",
+"park"
+],
+"odd":[
+{
+"q":"What's on top of his hat?",
+"x":82,
+"y":13,
+"r":9
+},
+{
+"q":"Is Grandma okay back there?",
+"x":20,
+"y":55,
+"r":10
+},
+{
+"q":"When did Dad grow that beard?",
+"x":42,
+"y":40,
+"r":9
+}
+],
+"decoys":[
+{
+"t":"Next time we spring for the fast pass.",
+"s":5
+},
+{
+"t":"His voice changed somewhere around the gift shop.",
+"s":4
+},
+{
+"t":"Grandma says go on without her.",
+"s":4
+},
+{
+"t":"Can we get the photo? He's changed a lot.",
+"s":3
+},
+{
+"t":"Keep your arms inside the ride, buddy.",
+"s":2
+}
+]
+},
+"825":{
+"style":3,
+"voice":"greenroom",
+"tags":[
+"cat",
+"death",
+"home",
+"party",
+"stage"
+],
+"odd":[
+{
+"q":"Who's holding the microphone?",
+"x":55,
+"y":28,
+"r":10
+},
+{
+"q":"Who's filming all this?",
+"x":72,
+"y":38,
+"r":10
+},
+{
+"q":"What has the cat noticed?",
+"x":88,
+"y":15,
+"r":8
+}
+],
+"decoys":[
+{
+"t":"Just act natural. Pretend we're not here.",
+"s":5
+},
+{
+"t":"Can you creep that again? We lost the light.",
+"s":4
+},
+{
+"t":"Season twelve, still nothing.",
+"s":4
+},
+{
+"t":"The readings are off the charts in here.",
+"s":3
+},
+{
+"t":"The cat's in the union.",
+"s":3
+}
+]
+},
+"826":{
+"style":5,
+"voice":"commuter",
+"tags":[
+"airport",
+"couple",
+"elderly",
+"office"
+],
+"odd":[
+{
+"q":"Whose are those?",
+"x":34,
+"y":32,
+"r":8
+},
+{
+"q":"Why is he hiding his face?",
+"x":90,
+"y":23,
+"r":9
+},
+{
+"q":"Why are they so calm about it?",
+"x":67,
+"y":75,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"I'll need to call a supervisor. She'll love this.",
+"s":5
+},
+{
+"t":"That's his. I'm just holding it.",
+"s":4
+},
+{
+"t":"Ma'am, is this trip business or pleasure?",
+"s":4
+},
+{
+"t":"Everything in the bin is under three ounces.",
+"s":3
+},
+{
+"t":"It's our second honeymoon. Fourth, technically.",
+"s":3
+}
+]
+},
+"953":{
+"style":2,
+"voice":"county",
+"tags":[
+"couple",
+"court",
+"farm"
+],
+"odd":[
+{
+"q":"Why is he holding his hat like that?",
+"x":27,
+"y":47,
+"r":9
+},
+{
+"q":"What's she so happy about?",
+"x":77,
+"y":15,
+"r":9
+},
+{
+"q":"Why did she bring a lawyer to an auction?",
+"x":93,
+"y":22,
+"r":8
+}
+],
+"decoys":[
+{
+"t":"Do I hear alimony?",
+"s":4
+},
+{
+"t":"She's bidding with his card.",
+"s":5
+},
+{
+"t":"He named it after her, you know.",
+"s":4
+},
+{
+"t":"Going once, going twice, going to her sister's.",
+"s":3
+},
+{
+"t":"The lawyer gets the hay wagon.",
+"s":2
+}
+]
+},
+"954":{
+"style":1,
+"voice":"helpdesk",
+"tags":[
+"bug",
+"cat",
+"couple",
+"kitchen",
+"mountain",
+"shop"
+],
+"odd":[
+{
+"q":"Where does that cord go?",
+"x":82,
+"y":17,
+"r":9
+},
+{
+"q":"Why is the bill so long?",
+"x":85,
+"y":47,
+"r":10
+},
+{
+"q":"Why is the cat sitting right there?",
+"x":43,
+"y":63,
+"r":8
+}
+],
+"decoys":[
+{
+"t":"We went with the cheaper model.",
+"s":5
+},
+{
+"t":"Ask it to turn the plant down.",
+"s":4
+},
+{
+"t":"Every timer she sets, the neighbors' lights dim.",
+"s":4
+},
+{
+"t":"It says it needs to think about that.",
+"s":3
+},
+{
+"t":"The cat is our only backup.",
+"s":2
+}
+]
+},
+"1081":{
+"style":1,
+"voice":"pass",
+"tags":[
+"restaurant",
+"shop"
+],
+"odd":[
+{
+"q":"Why is the chef dressed like that?",
+"x":42,
+"y":28,
+"r":12
+},
+{
+"q":"What are the wire cutters for?",
+"x":16,
+"y":42,
+"r":9
+},
+{
+"q":"Why did everyone else move down?",
+"x":92,
+"y":36,
+"r":9
+}
+],
+"decoys":[
+{
+"t":"I'll have whatever he's defusing.",
+"s":4
+},
+{
+"t":"No substitutions, no sudden movements.",
+"s":5
+},
+{
+"t":"The apprentice handles the red wire.",
+"s":4
+},
+{
+"t":"Chef recommends the tempura. Strongly.",
+"s":3
+},
+{
+"t":"Sit closer. It's better fresh.",
+"s":3
+}
+]
+},
+"1082":{
+"style":2,
+"voice":"trailhead",
+"tags":[
+"couple",
+"elderly",
+"forest",
+"kids"
+],
+"odd":[
+{
+"q":"How close are they now?",
+"x":52,
+"y":40,
+"r":9
+},
+{
+"q":"What's the bat waiting for?",
+"x":38,
+"y":6,
+"r":7
+},
+{
+"q":"Why are those two so moved?",
+"x":85,
+"y":60,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"Don't. They're taking it slow.",
+"s":5
+},
+{
+"t":"We come every anniversary to check on them.",
+"s":4
+},
+{
+"t":"Nobody rushed us, either.",
+"s":4
+},
+{
+"t":"Touch nothing. The bat is watching.",
+"s":3
+},
+{
+"t":"That's where the tour ends, by the way.",
+"s":2
 }
 ]
 }

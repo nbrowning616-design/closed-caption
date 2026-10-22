@@ -423,6 +423,17 @@ const CARTOONS = [
   { id: 672, adult: true, level: "hard", title: "Unopened", image: "card_672.jpg", correct: "I'm hearing a little of both." },
   { id: 536, adult: true, level: "hard", title: "Groundhog Day", image: "card_536.jpg", correct: "Six more weeks of winter, scattered showers Thursday." },
   { id: 538, adult: true, level: "hard", title: "Corporate Ladder", image: "card_538.jpg", correct: "I'd share, but you know how it is up here." },
+  { id: 539, spicy: true, level: "hard", title: "Lashed", image: "card_539.jpg", correct: "Honestly, it's the cardigan that does it for me." },
+  { id: 693, adult: true, level: "medium", title: "Pre-Op", image: "card_693.jpg", correct: "Honestly, his plan is better than mine." },
+  { id: 953, spicy: true, level: "medium", title: "Going Once", image: "card_953.jpg", correct: "She doesn't even have a barn." },
+  { id: 1081, adult: true, level: "medium", title: "Fugu", image: "card_1081.jpg", correct: "The omakase comes with a waiver." },
+  { id: 540, spicy: true, level: "hard", title: "Nearby", image: "card_540.jpg", correct: "Our dogs have been seeing each other for weeks." },
+  { id: 825, level: "easy", title: "Paranormal", image: "card_825.jpg", correct: "It's the only way anyone sees us anymore." },
+  { id: 954, level: "medium", title: "Plug", image: "card_954.jpg", correct: "Don't ask it anything hard. It's peak hours." },
+  { id: 824, level: "medium", title: "Switchback", image: "card_824.jpg", correct: "He was just under the line when we got here." },
+  { id: 1082, level: "hard", title: "Inch Apart", image: "card_1082.jpg", correct: "They've waited forty thousand years. Give them a minute." },
+  { id: 694, adult: true, level: "medium", title: "Behind the Wall", image: "card_694.jpg", correct: "We were told the house came furnished." },
+  { id: 826, spicy: true, level: "easy", title: "Gray Bin", image: "card_826.jpg", correct: "They told me it was a quilting retreat." },
 ];
 
 // The real captions get the same polish as players' captions, so they look identical
