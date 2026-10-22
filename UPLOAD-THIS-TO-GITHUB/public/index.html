@@ -1100,15 +1100,13 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 <!-- ═══════ HOME ═══════ -->
 <div id="screen-home" class="screen active">
   <div class="home-root">
-    <div id="home-mount"><h1 class="hero-title" style="margin-top:6vh;"><span class="w1">CLOSED</span><span class="w2">CAPTION</span></h1></div>
+    <div id="home-mount"><h1 class="home-mast"><span class="home-w1">CLOSED</span><span>CAPTION</span></h1></div>
     <div class="home-actions">
       <div id="rejoin-box"></div>
       <button class="btn btn-yellow home-host" onclick="showScreen('screen-create')">Host a game</button>
       <button class="btn" onclick="showScreen('screen-join')">Join a game</button>
       <button class="btn home-solo" onclick="window.Practice && Practice.open()">Practice alone</button>
-      <p class="home-free">Free. No app, no sign-up. 30 seconds to join.</p>
-      <div class="home-foot"><button class="btn-link" onclick="showScreen('screen-rules')">How to play</button><span class="home-dot">·</span><span class="small">2–8 players · a phone each</span><span class="home-dot">·</span><a class="btn-link small" href="/privacy.html">Privacy</a><!-- #18: privacy page (public/privacy.html) --></div>
-      <p class="home-call">Playing over FaceTime or Zoom? Works great — everyone uses their own phone.</p>
+      <div class="home-foot"><button class="btn-link" onclick="showScreen('screen-rules')">How to play</button><span class="home-dot" aria-hidden="true">·</span><a class="btn-link" href="/privacy.html">Privacy</a></div>
     </div>
   </div>
 </div>
