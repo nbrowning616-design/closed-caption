@@ -216,6 +216,8 @@
     '@keyframes stChase{0%{background-position:0 50%}50%{background-position:7px 50%}}',
     '.st-g-eye{font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:#FFE38A;}',
     '.st-g-head{font-family:var(--display);font-weight:700;font-size:21px;line-height:1.15;margin-top:6px;}',
+    '#stealshow.st-film{background:var(--paper,#FFF8EA);background-image:none;padding:calc(10px + var(--sat,0px)) 10px calc(10px + var(--sab,0px));}',
+    '#stealshow .st-film-box{width:min(100%, calc((100dvh - 20px - var(--sat,0px) - var(--sab,0px)) * 390 / 700));aspect-ratio:390/700;max-height:100%;}',
     '.st-done{position:absolute;left:18px;right:18px;top:calc(46px + var(--sat,0px));z-index:9;text-align:center;opacity:0;pointer-events:none;}',
     '.st-done-t{margin:0;font-family:var(--display);font-weight:700;font-size:28px;line-height:1.15;color:#FFF8EA;text-shadow:0 2px 0 rgba(0,0,0,.45);}',
     '.st-quote{font-family:var(--display);font-weight:700;font-size:29px;line-height:1.12;margin:14px 0 8px;text-shadow:0 2px 0 rgba(31,26,23,.35);}',
@@ -311,15 +313,17 @@
   };
 
   /* ── The show ── */
-  var FULL_MS = 11500, SHORT_MS = 4500;   // (Nick, Oct 22: the spray and the set-down get at least two more beats)   // game.js STEAL_FULL_MS / STEAL_SHORT_MS (the flip waits for these); the full show's
+  var FULL_MS = 11500, SHORT_MS = 4500, FILM_MS = 10300;   // FILM_MS: the films (steals.js) run 10 s; game.js STEAL_FULL_MS matches   // (Nick, Oct 22: the spray and the set-down get at least two more beats)   // game.js STEAL_FULL_MS / STEAL_SHORT_MS (the flip waits for these); the full show's
   // gloat card lands at 6.25 s and is held to the end, so the table can see what happened
   function showKind(st) { var k = (st && st.stealShow) || (typeof state !== 'undefined' && state && state.stealShow); return k === 'short' ? 'short' : 'full'; }
-  function lengthFor(st) { return showKind(st) === 'short' ? SHORT_MS : FULL_MS; }
+  function lengthFor(st) { return showKind(st) === 'short' ? SHORT_MS : (st && st.thief && window['CCSteal2_' + st.thief] ? FILM_MS : FULL_MS); }
   function play(wait, opt) {
     opt = opt || {};
     var st = state.steal, o = document.getElementById('stealshow');
     if (!st || !o) return 0;
     var quick = showKind(st) === 'short', L = quick ? (opt.quickMs || SHORT_MS) : (opt.fullMs || FULL_MS);
+    var film = !quick && st.thief && window['CCSteal2_' + st.thief];
+    if (film) return playFilm(o, st, film, wait);
     (window._ssT || []).forEach(clearTimeout); window._ssT = [];
     var startAt = performance.now() + Math.max(0, wait);   // the shared beat, on this phone's clock
     var T = function (fn, ms) { window._ssT.push(setTimeout(fn, Math.max(0, startAt + ms - performance.now()))); };
@@ -331,6 +335,45 @@
     choreograph(o, st, quick, L, startAt, T);
     T(function () { o.classList.add('out'); }, L - (quick ? 300 : 450));
     T(close, L);
+    return Math.max(0, wait) + L;
+  }
+
+  /* The full show is one of the short films (steals.js), dealt by the server (state.steal.thief). The table it draws is
+     this table: the captions with chips on them, in order (3–5 rows, up to 3 chips a row, the stolen one always shown). */
+  function filmOpts(st) {
+    var bets = state.bets || [], n = (state.openCaptions || []).length, dId = dealerId();
+    var targets = []; for (var i = 0; i < n; i++) targets.push(i); targets.push('closed');
+    var first = function (pid) { return String(nameOf(pid) || '?').trim().split(/\s+/)[0] || '?'; };
+    var rows = targets.map(function (tg) { return { t: tg, label: tg === 'closed' ? 'CC' : String(tg + 1), chips: [] }; });
+    bets.forEach(function (b, bi) {
+      if (!b || b.target === 'pass') return;
+      var r = rows.find(function (x) { return String(x.t) === String(b.target); }); if (!r) return;
+      var k = (b.count || 0) + (b.stolen || 0);
+      for (var j = 0; j < k; j++) r.chips.push({ name: first(b.playerId), color: colourOf(b.playerId), target: bi === st.betIndex && j === k - 1 });
+    });
+    var tr = rows.find(function (x) { return x.chips.some(function (c) { return c.target; }); });
+    var pick = rows.filter(function (r) { return r.chips.length; });
+    if (pick.length > 5) { var rest = pick.filter(function (r) { return r !== tr; }).sort(function (a, b) { return b.chips.length - a.chips.length; }).slice(0, 4); pick = rows.filter(function (r) { return r === tr || rest.indexOf(r) >= 0; }); }
+    for (var e = 0; pick.length < 3 && e < rows.length; e++) if (pick.indexOf(rows[e]) < 0) pick.push(rows[e]);
+    pick.sort(function (a, b) { return rows.indexOf(a) - rows.indexOf(b); });
+    var cards = pick.map(function (r) {
+      var cs = r.chips;
+      if (cs.length > 3) { var keep = cs.filter(function (c) { return c.target; }); cs = cs.filter(function (c) { return !c.target; }).slice(0, 3 - keep.length).concat(keep); }
+      return { label: r.label, chips: cs };
+    });
+    return { dealer: first(dId), victim: first(st.victimId), dealerColor: colourOf(dId), victimColor: colourOf(st.victimId), cards: cards };
+  }
+  function playFilm(o, st, film, wait) {
+    var L = Math.min(FILM_MS, (film.duration || 10000) + 300);
+    (window._ssT || []).forEach(clearTimeout); window._ssT = [];
+    var close = function () { (window._ssT || []).forEach(clearTimeout); window._ssT = []; o.classList.remove('on', 'out', 'quick', 'st-film'); o.innerHTML = ''; };
+    o.innerHTML = '<div class="st-film-box"></div>'; o.classList.remove('out', 'quick'); o.classList.add('on', 'st-film');
+    o.onclick = function () { close(); if (window._answerGo) window._answerGo(); };
+    var box = o.firstChild, opts = filmOpts(st);
+    var go = function () { try { if (window.ccBeat) window.ccBeat('steal:full'); film.play(box, opts); } catch (e) { console.error('steal film', e); } try { if (st.victimId === myPlayerId) buzz([40]); } catch (e) {} };
+    if (wait > 0) window._ssT.push(setTimeout(go, wait)); else go();
+    window._ssT.push(setTimeout(function () { o.classList.add('out'); }, Math.max(0, wait) + L - 350));
+    window._ssT.push(setTimeout(close, Math.max(0, wait) + L));
     return Math.max(0, wait) + L;
   }
 

@@ -529,11 +529,11 @@ function dealNight(game, name, list) {
 // A room deals the thieves like a deck for the night. The show's lines never hint at the answer (#39): the closing
 // caption is neutral (thief.X.closing, then steal.closing); the thief's own line comes AFTER the reveal only (on the
 // reel, keyed to where the chip was: thief.X.real / thief.X.fake). Lines: public/lines.js.
-const HEISTS = [['claw', 'The Claw']].map(([id, name]) => ({ id, name }));
+const HEISTS = [['chameleon', 'The Chameleon'], ['octopus', 'The Octopus'], ['laundry', 'The One Red Sock'], ['sunbather', 'The Tan'], ['blush', 'The Charmer'], ['titration', 'The Endpoint'], ['shellgame', 'The Shell Game'], ['contraption', 'The Machine']].map(([id, name]) => ({ id, name }));
 // A chip stolen off a fake caption pays its owner this much (the steal's cost)
 const STEAL_CAUGHT_PTS = 1;
 // How long each steal show runs on the phones (public/steal.js FULL_MS / SHORT_MS); the flip waits for it
-const STEAL_FULL_MS = 11500, STEAL_SHORT_MS = 4500, STEAL_FULL_SHARE = 0.25;   // (Oct 22: two more beats on the paint and the set-down)
+const STEAL_FULL_MS = 10300, STEAL_SHORT_MS = 4500, STEAL_FULL_SHARE = 0.25;   // (Oct 22: two more beats on the paint and the set-down)
 // Blind bets: everyone at once. The clock catches anyone idle; the last chip in gets a beat (to take it back),
 // then every chip drops onto the table together and the table gets a look before the steal (or the flip).
 const BLIND_MS = 45000, ALL_IN_BEAT_MS = 1500, DROP_HOLD_MS = 3200;
@@ -1656,9 +1656,7 @@ function stealChip(game, betIndex) {
   // (or a callback, for a repeat victim); the short one on a receipt. The thief's gloat waits for the reveal.
   const act = nextHeist(game), thief = HEISTS[act].id, actName = HEISTS[act].name;
   // full: a closing caption held under the show (a repeat victim gets a callback instead); short: the thief's tag
-  const gloat = stealShow === 'full'
-    ? (robbed >= 2 ? pickLine(game, ['steal.again3', 'steal.again'], v) : robbedBefore ? pickLine(game, 'steal.again', v) : pickLine(game, [`thief.${thief}.closing`, 'steal.closing'], v))
-    : pickLine(game, `thief.${thief}.tag`);
+  const gloat = '';   // (Oct 22 2026: the shows say only who stole whose chip)
   const at = Date.now();
   game.steal = { victimId: bet.playerId, target: bet.target, stage: bet.stage, betIndex: Number(betIndex), onCorrect, act, thief, actName, gloat, again: robbedBefore, robbed, stealShow, seed: Math.floor(Math.random() * 1e9), at, show: game.stealShows };
   return startFlip(game, at + (stealShow === 'full' ? STEAL_FULL_MS : STEAL_SHORT_MS) + 300);
@@ -1821,7 +1819,7 @@ function reelLines(game) {
   // The thief's own line, now that it can't give anything away (on the caption the chip came off): after a full
   // show, in character and keyed to where the chip was; after a short one, the paperwork
   // (The Claw, Oct 22 2026: no line after the reveal either — the show's own "Nick stole Nate's chip." is all it says)
-  if (st && st.victimId && st.thief !== 'claw' && R[keyOf(st.target)]) {
+  if (false && st && st.victimId && R[keyOf(st.target)]) {   // (Oct 22: no line after the reveal; the films end on "Nick stole Nate's chip.")
     const vn = firstNameOf(game, st.victimId);
     R[keyOf(st.target)].gloat = st.stealShow === 'full' && st.thief
       ? { who: st.actName, text: pickLine(game, [`thief.${st.thief}.${st.onCorrect ? 'real' : 'fake'}`, 'steal.receipt'], { name: vn }) }

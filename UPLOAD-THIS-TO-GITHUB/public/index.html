@@ -59,7 +59,7 @@
    that is still fetching them skips that moment's animation instead of breaking. window.ccShowReady() -> Promise. */
 (function () {
   var V = '__V__';
-  var SHOW = ['hof', 'gallery', 'steal', 'recap', 'finale'];   // (steal.js: The Claw; skips.js, the 50 skip gags, is fetched once you have a seat: loadSkips)
+  var SHOW = ['hof', 'gallery', 'steal', 'steals', 'recap', 'finale'];   // (steal.js: The Claw; skips.js, the 50 skip gags, is fetched once you have a seat: loadSkips)
   var started = false, done = false, waiters = [];
   window.ccShowReady = function () { return new Promise(function (res) { if (done) res(); else waiters.push(res); }); };
   function src(n) { return '/' + n + '.js?v=' + V; }
