@@ -499,3 +499,10 @@ Left: credit epilogues are 17–32 words (target ~20; copy work); the night's fi
   GOOD — roast for last place ("Bob is in last place, but he's in last place with real conviction.").
   NO — a plain sports stat jab ("found the real caption zero times. A club record."); compliment-then-sting about
   captions ("funniest captions… nobody believed one"); the cartoonist as a character ("has asked for privacy").
+
+## STEAL → FLIP BOOK (Nick, Oct 21 2026, night)
+The old steal shows ended too abruptly ("you don't really know what the heck happened"). New direction: an old-school
+pencil flip book (pages thumbed, line boil), structure SETUP ("Nick is stealing…", ~1 s) → the BIT (3–4 s) → PAYOFF held
+~2 s ("Bob's chip → Nick." + one dry line). Samples rated: B Gone Fishing (victim jumps for it, just short; "He'll say it
+was bigger.") LOVE · C The Magician ("Is this your chip?" / "It was.") LOVE · A The Sneak (IOU note) GOOD.
+Wants drama, sportsmanship and razzing; a funny little bit, not long enough to annoy. Did you know? shipped (ac56b43).
