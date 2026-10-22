@@ -506,3 +506,9 @@ pencil flip book (pages thumbed, line boil), structure SETUP ("Nick is stealing�
 ~2 s ("Bob's chip → Nick." + one dry line). Samples rated: B Gone Fishing (victim jumps for it, just short; "He'll say it
 was bigger.") LOVE · C The Magician ("Is this your chip?" / "It was.") LOVE · A The Sneak (IOU note) GOOD.
 Wants drama, sportsmanship and razzing; a funny little bit, not long enough to annoy. Did you know? shipped (ac56b43).
+- (later) Nick: the flip-book steals (branch flipsteal, 8 gags) are "awful — cheap, not funny, end too quick". NOT shipped.
+  New direction: ULTRA-VIOLENT comedy gore, cartoon-show style (a tame, nerdy game where a steal is a Viking warrior
+  moment): the round's own pencil cartoon animates and something absurdly violent happens, apropos of nothing; red is the
+  only color and it goes everywhere; the other characters stay deadpan. Every payoff needs a couple of seconds of
+  stillness to digest and laugh. 5 samples (scratchpad gore/: cork 118, pop 238, anvil 133, saw 327, monster 152) sent
+  for rating; payoff hold extended to ~4.5 s.
