@@ -811,6 +811,7 @@ textarea.caption-input.mag:focus { box-shadow: none; border-top-color: var(--yel
 textarea.caption-input.mag::placeholder { color: #B3A898; font-style: italic; }
 .rd-meta { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; font-weight: 900; font-size: 13px; color: var(--ink-2); }
 .rd-dots { display: inline-flex; gap: 5px; }
+.rd-rx .rx { justify-content: center; }
 .rd-dots i { width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--ink); background: transparent; }
 .rd-dots i.on { background: var(--ink); }
 .rd-dots i.now { background: var(--yellow); }
@@ -2850,7 +2851,7 @@ function renderReadOne(step) {
   return `${header({ sticker: '<span class="sticker white">The captions</span>', thumb: false })}
     ${bigToon(false, false, `<p class="mag-cap${fresh ? ' mag-in' : ''}">“${esc(list[i] || '')}”${capNote(i)}</p>`)}
     <div class="rd-meta"><span class="rd-n">Caption ${step} of ${n}</span><span class="rd-dots" aria-hidden="true">${dots}</span></div>
-    ${rxHtml(i)}
+    <div class="rd-rx">${rxHtml(i)}</div>
     ${step === n ? `<p class="center small" style="margin-top:8px;">Plus one face-down. It turns over after the first bets.</p>` : ''}
     ${nav}`;
 }

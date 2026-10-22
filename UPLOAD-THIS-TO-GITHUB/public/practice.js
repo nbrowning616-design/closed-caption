@@ -86,8 +86,8 @@
   function hdr(label) {
     return '<div class="pr-hdr"><span class="sticker">Practice</span><span class="pr-hdr-s">' + E(label || '') + '</span><button class="btn-link pr-x" onclick="Practice.home()">Home</button></div>';
   }
-  function toon() {
-    return '<div class="toon-big compact pr-toon"><button class="toon-hit" onclick="Practice.zoom()" aria-label="' + E(P.card.title || 'The cartoon') + '. See it full-screen"><img src="/images/' + E(P.card.image) + '" alt=""></button><span class="zoom" aria-hidden="true">Tap to zoom</span></div>';
+  function toon(slot) {
+    return '<div class="toon-big ' + (slot ? 'mag' : 'compact') + ' pr-toon"><button class="toon-hit" onclick="Practice.zoom()" aria-label="' + E(P.card.title || 'The cartoon') + '. See it full-screen"><img src="/images/' + E(P.card.image) + '" alt=""></button><span class="zoom" aria-hidden="true">Tap to zoom</span>' + (slot || '') + '</div>';
   }
   function cardsHtml(mode) {
     var r = P.result;
@@ -118,9 +118,9 @@
         + '<button class="btn btn-yellow" ' + (P.busy ? 'disabled' : '') + ' onclick="Practice.start()">Start →</button></div>';
     } else if (P.step === 'write') {
       var ck = P.check;
-      h = hdr('Cartoon ' + P.card.n + ' of ' + P.card.total) + toon()
-        + '<div class="w-box"><label class="sr-only" for="pr-input">Your caption</label>'
-        + '<textarea id="pr-input" class="caption-input" placeholder="Write a caption that could pass for the real one…" maxlength="200" enterkeyhint="done" autocapitalize="sentences" autocorrect="on" autocomplete="off" spellcheck="true" oninput="Practice.typed(this)">' + E(P.draft || '') + '</textarea>'
+      h = hdr('Cartoon ' + P.card.n + ' of ' + P.card.total)
+        + toon('<label class="sr-only" for="pr-input">Your caption</label><textarea id="pr-input" class="caption-input mag" rows="2" placeholder="Your caption goes here…" maxlength="200" enterkeyhint="done" autocapitalize="sentences" autocorrect="on" autocomplete="off" spellcheck="true" oninput="Practice.typed(this)">' + E(P.draft || '') + '</textarea>')
+        + '<div class="w-box">'
         + '<p class="small pr-count" id="pr-count">' + (P.draft || '').length + ' / 200</p>'
         + (ck ? '<div class="panel flat pr-check" role="alert"><p class="eyebrow">Quick spelling check</p><p class="caption-text" style="margin:4px 0 10px;">“' + E(ck.fixed) + '”</p><div class="pr-row"><button class="btn btn-sm" onclick="Practice.submit(\'fix\')">Use the fix</button><button class="btn btn-sm" onclick="Practice.submit(\'keep\')">Keep mine</button></div></div>'
           : '<button class="btn btn-yellow" id="pr-submit" ' + (P.busy ? 'disabled' : '') + ' onclick="Practice.submit()">Lock it in ✓</button>')

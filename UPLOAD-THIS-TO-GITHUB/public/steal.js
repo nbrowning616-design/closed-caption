@@ -157,7 +157,7 @@
     '@keyframes stFade{from{opacity:0}to{opacity:1}}',
     '.st-stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(18px + var(--sat,0px)) 18px 22px;overflow:hidden;}',
     '.st-stage::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 85% 55% at 50% 58%,rgba(232,69,58,.16),transparent 70%),radial-gradient(rgba(255,248,234,.035) 1.2px,transparent 1.3px) 0 0/18px 18px;pointer-events:none;}',
-    '.st-head{position:relative;z-index:2;text-align:center;margin-bottom:108px;transition:opacity .35s;}',
+    '.st-head{position:relative;z-index:9;text-shadow:0 0 6px rgba(20,14,10,.9),0 0 14px rgba(20,14,10,.8);text-align:center;margin-bottom:108px;transition:opacity .35s;}',
     '.st-eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:#FFD23F;margin-bottom:6px;}',
     '.st-eyebrow::before,.st-eyebrow::after{content:"";width:26px;height:1.5px;background:linear-gradient(90deg,transparent,#FFD23F);}',
     '.st-eyebrow::after{transform:scaleX(-1);}',
