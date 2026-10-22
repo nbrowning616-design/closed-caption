@@ -1820,7 +1820,8 @@ function reelLines(game) {
   }
   // The thief's own line, now that it can't give anything away (on the caption the chip came off): after a full
   // show, in character and keyed to where the chip was; after a short one, the paperwork
-  if (st && st.victimId && R[keyOf(st.target)]) {
+  // (The Claw, Oct 22 2026: no line after the reveal either — the show's own "Nick stole Nate's chip." is all it says)
+  if (st && st.victimId && st.thief !== 'claw' && R[keyOf(st.target)]) {
     const vn = firstNameOf(game, st.victimId);
     R[keyOf(st.target)].gloat = st.stealShow === 'full' && st.thief
       ? { who: st.actName, text: pickLine(game, [`thief.${st.thief}.${st.onCorrect ? 'real' : 'fake'}`, 'steal.receipt'], { name: vn }) }

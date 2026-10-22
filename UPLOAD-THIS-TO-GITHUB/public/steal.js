@@ -91,6 +91,36 @@
     }
     return d + ' Z';
   }
+  /* Other paint tools (Nick, Oct 22: the variations must look really different and still make sense). Each is drawn with
+     its working end at (0,0) of the tool layer, like the can's nozzle. */
+  var TOOL_SVG = {
+    bucket: '<svg class="st-tool" viewBox="0 0 110 100" width="110" height="100" style="position:absolute;left:-55px;top:-16px;overflow:visible" aria-hidden="true">' +
+      '<path d="M12 18 Q55 -44 98 18" fill="none" stroke="' + INK + '" stroke-width="3.4" stroke-linecap="round"/>' +
+      '<path d="M12 16 L23 90 Q55 99 87 90 L98 16 Z" fill="url(#st-chrome)" stroke="' + INK + '" stroke-width="2.6" stroke-linejoin="round"/>' +
+      '<path d="M16 44 Q55 52 94 44 L92 60 Q55 68 18 60 Z" style="fill:var(--dc)" stroke="' + INK + '" stroke-width="1.8"/>' +
+      '<path d="M22 18 V34 A3 3 0 0 0 28 34 V18 Z M70 18 V28 A3 3 0 0 0 76 28 V18 Z" style="fill:var(--dc)" stroke="' + INK + '" stroke-width="1.6"/>' +
+      '<ellipse cx="55" cy="16" rx="43" ry="9.5" style="fill:var(--dc)" stroke="' + INK + '" stroke-width="2.6"/>' +
+      '<ellipse cx="47" cy="14" rx="14" ry="2.6" fill="#fff" opacity=".45"/></svg>',
+    roller: '<svg class="st-tool" viewBox="0 0 124 160" width="124" height="160" style="position:absolute;left:-58px;top:-15px;overflow:visible" aria-hidden="true">' +
+      '<path d="M112 15 H120 V44 L74 64 V156" fill="none" stroke="' + INK + '" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="M112 15 H120 V44 L74 64 V156" fill="none" stroke="#C9D1D8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<rect x="67" y="100" width="14" height="58" rx="6" fill="#B5482E" stroke="' + INK + '" stroke-width="2.4"/>' +
+      '<rect x="2" y="0" width="112" height="30" rx="12" style="fill:var(--dc)" stroke="' + INK + '" stroke-width="2.6"/>' +
+      '<path d="M10 8 H104" stroke="#fff" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M20 30 V37 A2.6 2.6 0 0 0 25 37 V30 Z M80 30 V34 A2.4 2.4 0 0 0 85 34 V30 Z" style="fill:var(--dc)" stroke="' + INK + '" stroke-width="1.5"/></svg>',
+    brush: '<svg class="st-tool" viewBox="0 0 44 176" width="44" height="176" style="position:absolute;left:-22px;top:-2px;overflow:visible" aria-hidden="true">' +
+      '<path d="M6 46 Q4 20 14 6 Q22 0 30 6 Q40 20 38 46 Z" style="fill:var(--dc)" stroke="' + INK + '" stroke-width="2.5" stroke-linejoin="round"/>' +
+      '<path d="M14 12 L13 40 M22 6 L22 40 M30 12 L31 40" stroke="' + INK + '" stroke-opacity=".35" stroke-width="1.4"/>' +
+      '<rect x="4" y="44" width="36" height="22" rx="3" fill="url(#st-chrome)" stroke="' + INK + '" stroke-width="2.5"/>' +
+      '<path d="M10 66 Q8 120 16 172 H28 Q36 120 34 66 Z" fill="#C27A43" stroke="' + INK + '" stroke-width="2.5" stroke-linejoin="round"/>' +
+      '<path d="M17 76 Q16 120 20 160" stroke="#fff" stroke-opacity=".35" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>',
+    pour: '<svg class="st-tool" viewBox="0 0 96 90" width="96" height="90" style="position:absolute;left:-6px;top:-10px;overflow:visible" aria-hidden="true">' +
+      '<rect x="6" y="10" width="84" height="74" rx="5" fill="url(#st-chrome)" stroke="' + INK + '" stroke-width="2.6"/>' +
+      '<rect x="6" y="30" width="84" height="34" style="fill:var(--dc)" stroke="' + INK + '" stroke-width="1.8"/>' +
+      '<path d="' + splat(48, 47, 11, 6, 8) + '" fill="#FFF8EA" stroke="' + INK + '" stroke-width="1.4"/>' +
+      '<rect x="2" y="6" width="92" height="8" rx="3" fill="url(#st-chrome)" stroke="' + INK + '" stroke-width="2.2"/>' +
+      '<path d="M4 10 Q0 14 4 20" style="fill:var(--dc)" stroke="' + INK + '" stroke-width="1.4"/></svg>'
+  };
   var CAN_SVG = '<svg class="st-cansvg" viewBox="0 0 64 150" width="' + (64 * CAN_K) + '" height="' + (150 * CAN_K) + '" aria-hidden="true">' +
     '<defs><linearGradient id="st-cyl" x1="0" x2="1" y1="0" y2="0">' +
       '<stop offset="0" stop-color="#000" stop-opacity=".42"/><stop offset=".16" stop-color="#fff" stop-opacity="0"/>' +
@@ -186,6 +216,8 @@
     '@keyframes stChase{0%{background-position:0 50%}50%{background-position:7px 50%}}',
     '.st-g-eye{font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:#FFE38A;}',
     '.st-g-head{font-family:var(--display);font-weight:700;font-size:21px;line-height:1.15;margin-top:6px;}',
+    '.st-done{position:absolute;left:18px;right:18px;top:calc(46px + var(--sat,0px));z-index:9;text-align:center;opacity:0;pointer-events:none;}',
+    '.st-done-t{margin:0;font-family:var(--display);font-weight:700;font-size:28px;line-height:1.15;color:#FFF8EA;text-shadow:0 2px 0 rgba(0,0,0,.45);}',
     '.st-quote{font-family:var(--display);font-weight:700;font-size:29px;line-height:1.12;margin:14px 0 8px;text-shadow:0 2px 0 rgba(31,26,23,.35);}',
     '.st-by{font-size:13px;font-weight:800;color:#FFD9D4;}',
     '.st-quake{animation:stQuake .5s cubic-bezier(.36,.07,.19,.97);}',
@@ -315,7 +347,9 @@
     }).join('');
     var me = state.isDealer, dealer = me ? 'You' : esc(state.dealerName), isVictim = st.victimId === myPlayerId;
     var title = quick ? dealer + (me ? ' strike' : ' strikes') + ' again' : (me ? 'You’re' : dealer + ' is') + ' at the controls<span class="dots"></span>';
-    var head = isVictim ? 'That was YOUR chip.' : dealer + ' stole ' + esc(nameOf(st.victimId)) + '’s chip';
+    // the ending is one plain line (Nick, Oct 22: "Don't need the rigged comment or card after. Just say Nick stole Nate's.")
+    var vName = esc(nameOf(st.victimId)), doneLine = me ? 'You stole ' + vName + '’s chip.' : esc(state.dealerName) + ' stole ' + (isVictim ? 'your' : vName + '’s') + ' chip.';
+    var tool = (!quick && TOOL_SVG[st.tool]) ? st.tool : 'can';
     var rnd = seeded((st.seed || 7) + 99), N = quick ? 30 : 70, mist = '';
     for (var i = 0; i < N; i++) mist += '<i></i>';
     var dots = [];   // overspray speckle, in the dealer's colour
@@ -327,13 +361,11 @@
       '<div class="st-fog" id="st-fog"></div>' +
       '<div class="st-rig" id="st-rig"><div class="st-swing" id="st-swing"><div class="st-cable"></div>' + BACK_SVG + '<div class="st-held" id="st-held"></div>' + FRONT_SVG + '</div></div>' +
       '<div class="st-can" id="st-can"><div class="st-canflip"><div class="st-canshake">' +
-        '<div class="st-conewrap"><div class="st-cone"></div></div><div class="st-mist">' + mist + '</div>' + CAN_SVG +
+        (TOOL_SVG[tool] ? TOOL_SVG[tool] : '<div class="st-conewrap"><div class="st-cone"></div></div><div class="st-mist">' + mist + '</div>' + CAN_SVG) +
+        (tool === 'pour' ? '' : '') +
       '</div></div></div>' +
       '<div class="st-veil" id="st-veil"></div>' +
-      '<div class="st-gloat" id="st-gloat"><i class="st-bulbs t"></i><i class="st-bulbs b"></i>' +
-        '<p class="st-g-eye">Stolen</p><p class="st-g-head">' + head + '</p>' +
-        '<p class="st-quote">“' + esc(st.gloat || 'Mine now.') + '”</p><p class="st-by">— ' + (me ? 'you' : esc(state.dealerName)) + '</p>' +
-        '</div>' +
+      '<div class="st-done" id="st-gloat"><p class="st-done-t">' + doneLine + '</p></div>' +
       '</div>';
     o.querySelector('#st-stage').dataset.speck = dots.join(',');
   }
@@ -401,9 +433,8 @@
       T(function () { beat('steal:set'); if (victim) victim.classList.remove('st-doomed'); big(SND.clack); }, seR);
       T(function () {
         beat('steal:gloat'); head.style.opacity = '0';
-        veil.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, fill: 'forwards' });
         gl.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, fill: 'forwards' });
-        big(SND.gloat); if (isVictim) buzz([300, 100, 300]);
+        if (isVictim) buzz([300, 100, 300]);
       }, glR);
       return;
     }
@@ -418,7 +449,7 @@
       else sway.push({ t: t1 + 210, a: 0.26 * s, e: 'ease-in-out' }, { t: t1 + 400, a: 0, e: 'linear' });
     };
     var GLIDE = 'cubic-bezier(.45,0,.2,1)', DROP = 'cubic-bezier(.6,0,.9,.5)';
-    var side = 1, C, K, FIN = 'plain';   // where the chip is held for the paint job, and how close to the camera
+    var side = 1, C, K, FIN = 'plain', TOOL = (!quick && TOOL_SVG[st.tool]) ? st.tool : 'can';   // where the chip is held for the paint job, and how close to the camera
 
     if (quick) {
       // Quick: drop, CLUNK, lift a little, pssst, set it back down, gone
@@ -629,10 +660,12 @@
       /* the finish: what happens around the paint job. M = extra time after the spray, PS = extra time after the set-down.
          Every finish now holds the wet chip up in the light (~0.9 s), lowers it slowly, and the claw lifts off and waits a beat
          before it leaves (Nick: "that needs at least another 2 beats ... it doesn't pay off"). */
-      var M = { spin: 1050, twocoats: 1350, overspray: 650, twopass: 600 }[FIN] || 0, PS = { tag: 1500, wetpaint: 1000 }[FIN] || 0, CA = FIN === 'careful' ? 600 : 0;
+      var M = ({ spin: 1050, twocoats: 1350, overspray: 650, twopass: 600 }[FIN] || 0) + ({ bucket: 1000, roller: 700, brush: 650, pour: 900 }[TOOL] || 0), PS = { tag: 1500, wetpaint: 1000 }[FIN] || 0, CA = FIN === 'careful' ? 600 : 0;
       var sp1 = B(5180), lw = sp1 + M + 900, setT = lw + 650 + CA, r0 = setT + 650 + PS;
       tm = { snatch: A(2990), lift0: B(3260), lift1: B(3700), can0: B(3380), can1: B(3720), rattle0: B(3750), rattle1: B(4170), paint: B(4230), spray1: sp1, wipe0: B(4260), wipe1: sp1 - 20,
              out0: sp1 + M + 250, out1: sp1 + M + 700, lower0: lw, set: setT, open: setT + 120, rise0: r0, rise1: r0 + 560, gloat: r0 + 480, mid0: sp1, mid1: sp1 + M, post0: setT + 330 };
+      var WP = { bucket: [430, 500], roller: [0, 320], brush: [0, 990], pour: [330, 1050] }[TOOL];
+      if (WP) { tm.wipe0 = tm.paint + WP[0]; tm.wipe1 = tm.paint + WP[1]; }
       at(A(2760), V.x, V.y - HOVER, V.y, DROP);
       at(A(2920), V.x, V.y, V.y, 'linear');
       at(A(2990), V.x, V.y, V.y, 'cubic-bezier(.3,0,.5,1)');
@@ -652,6 +685,15 @@
       at(tm.lift0, V.x, V.y + 2, V.y, 'cubic-bezier(.3,0,.15,1)');   // …and up into the light
       at(tm.lift1, C.x, C.y - 8, V.y, 'ease-in-out', K, C.y + 4);
       at(tm.lift1 + 160, C.x, C.y, V.y, 'linear', K, C.y + 4);
+      if (TOOL === 'bucket') {   // down into the bucket, a good soak, back up dripping
+        at(tm.paint + 120, C.x, C.y, V.y, 'cubic-bezier(.55,0,.7,1)', K, C.y + 4);
+        at(tm.paint + 420, C.x, C.y + 62, V.y, 'ease-out', K, C.y + 4);
+        at(tm.paint + 560, C.x + 4, C.y + 66, V.y, 'ease-in-out', K, C.y + 4);
+        at(tm.paint + 700, C.x - 4, C.y + 62, V.y, 'ease-in-out', K, C.y + 4);
+        at(tm.paint + 860, C.x, C.y + 64, V.y, 'cubic-bezier(.3,0,.2,1)', K, C.y + 4);
+        at(tm.paint + 1250, C.x, C.y - 8, V.y, 'ease-in-out', K, C.y + 4);
+        at(tm.paint + 1420, C.x, C.y, V.y, 'linear', K, C.y + 4);
+      }
       at(tm.lower0, C.x, C.y, V.y, 'cubic-bezier(.5,0,.35,1)', K, C.y + 4);
       if (FIN === 'careful') {   // stops just above the spot, lines it up, then sets it down exactly
         at(tm.set - 620, V.x + 4, V.y - 16, V.y, 'ease-out');
@@ -711,11 +753,55 @@
 
     /* ── The paint job ── */
     var cx = C.x, cy = C.y, R = 23 * K, sx = function (dx) { return cx + side * dx; };
-    if (side < 0) can.querySelector('.st-canflip').style.transform = 'scaleX(-1)';
+    if (side < 0 && TOOL === 'can') can.querySelector('.st-canflip').style.transform = 'scaleX(-1)';
     var CP = [];   // can path {t, x, y, r, s, e}
     var cp = function (t, x, y, r, s, e) { CP.push({ t: t, x: x, y: y, r: r, s: s == null ? 1 : s, e: e }); };
     var NX = R + 62;   // nozzle distance from the chip's centre
-    if (quick) {
+    var Hh = o.clientHeight || innerHeight, P0 = tm.paint;
+    if (TOOL === 'bucket') {
+      cp(0, cx, Hh + 160, 0, 1, 'linear');
+      cp(P0 - 420, cx, Hh + 160, 0, 1, 'cubic-bezier(.2,.9,.3,1.1)');
+      cp(P0 + 40, cx, cy + 40, 0, 1, 'linear');
+      cp(P0 + 420, cx, cy + 40, 0, 1, 'ease-out');
+      cp(P0 + 480, cx, cy + 46, 0, 1, 'ease-in-out');   // it takes the weight
+      cp(P0 + 620, cx, cy + 40, 0, 1, 'linear');
+      cp(P0 + 1450, cx, cy + 40, 0, 1, 'cubic-bezier(.5,0,.8,.4)');
+      cp(P0 + 1850, cx, Hh + 160, 0, 1, 'linear');
+    } else if (TOOL === 'roller') {
+      cp(0, W + 120, cy - 170, 30, 1, 'linear');
+      cp(P0 - 380, W + 120, cy - 170, 30, 1, 'cubic-bezier(.2,.9,.3,1.05)');
+      cp(P0, cx, cy - R - 10, 0, 1, 'ease-in-out');
+      cp(P0 + 320, cx, cy + R + 8, 0, 1, 'ease-in-out');
+      cp(P0 + 640, cx, cy - R - 8, 0, 1, 'ease-in-out');
+      cp(P0 + 960, cx, cy + R + 8, 0, 1, 'ease-in-out');
+      cp(P0 + 1280, cx, cy - R - 8, 0, 1, 'ease-in-out');
+      cp(P0 + 1450, cx + 10, cy - R - 26, 8, 1, 'cubic-bezier(.5,0,.8,.4)');
+      cp(P0 + 1850, W + 140, cy - 180, 30, 1, 'linear');
+    } else if (TOOL === 'brush') {
+      var bx0 = cx - R - 14, bx1 = cx + R + 8;
+      cp(0, -120, cy - 160, -40, 1, 'linear');
+      cp(P0 - 380, -120, cy - 160, -40, 1, 'cubic-bezier(.2,.9,.3,1.05)');
+      cp(P0, bx0, cy - R * 0.6, -62, 1, 'cubic-bezier(.4,0,.3,1)');
+      cp(P0 + 230, bx1, cy - R * 0.62, -118, 1, 'ease-out');
+      cp(P0 + 380, bx0, cy - 2, -62, 1, 'cubic-bezier(.4,0,.3,1)');
+      cp(P0 + 610, bx1, cy - 2, -118, 1, 'ease-out');
+      cp(P0 + 760, bx0, cy + R * 0.58, -62, 1, 'cubic-bezier(.4,0,.3,1)');
+      cp(P0 + 990, bx1, cy + R * 0.56, -118, 1, 'ease-out');
+      cp(P0 + 1180, cx + R * 0.2, cy - R * 0.1, -90, 1, 'ease-in-out');   // one last dab in the middle
+      cp(P0 + 1300, cx + R * 0.2 + 4, cy - R * 0.1 - 6, -84, 1, 'ease-in-out');
+      cp(P0 + 1400, cx + R * 0.2, cy - R * 0.1, -90, 1, 'cubic-bezier(.5,0,.8,.4)');
+      cp(P0 + 1800, -140, cy - 180, -40, 1, 'linear');
+    } else if (TOOL === 'pour') {
+      var lx = cx + R + 22, ly = cy - R - 34;   // off to the side, clear of the claw
+      cp(0, W + 120, ly - 60, 0, 1, 'linear');
+      cp(P0 - 420, W + 120, ly - 60, 0, 1, 'cubic-bezier(.2,.9,.3,1.05)');
+      cp(P0 - 40, lx, ly, 0, 1, 'cubic-bezier(.4,0,.2,1)');
+      cp(P0 + 280, lx, ly, -112, 1, 'ease-in-out');   // tips it…
+      cp(P0 + 1050, lx, ly, -116, 1, 'cubic-bezier(.4,0,.2,1)');
+      cp(P0 + 1300, lx, ly, -10, 1, 'ease-out');   // …and back, with a little shake for the last drop
+      cp(P0 + 1420, lx, ly - 4, 6, 1, 'cubic-bezier(.5,0,.8,.4)');
+      cp(P0 + 1800, W + 140, ly - 80, 10, 1, 'linear');
+    } else if (quick) {
       cp(0, sx(NX + 4), cy - 22, -18, 0, 'linear');
       cp(tm.can0, sx(NX + 4), cy - 22, -18, 0, 'cubic-bezier(.3,1.5,.5,1)');
       cp(tm.can1, sx(NX), cy - 14, -4, 1, 'linear');
@@ -755,14 +841,15 @@
         cp(tm.post0 + 1450, W + 120, V.y - 200, 30, 0.8, 'linear');
       }
     }
-    whole(can, CP, function (p) { return { transform: 'translate3d(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px,0) rotate(' + (side * p.r) + 'deg) scale(' + p.s + ')' }; });
+    var rs = TOOL === 'can' ? side : 1;
+    whole(can, CP, function (p) { return { transform: 'translate3d(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px,0) rotate(' + (rs * p.r) + 'deg) scale(' + p.s + ')' }; });
     // the shake: the mixing ball knocking about
-    if (!quick) {
+    if (!quick && TOOL === 'can') {
       anim(can.querySelector('.st-canshake'), [{ transform: 'translateY(0) rotate(0)' }, { transform: 'translateY(-9px) rotate(-7deg)', offset: 0.25 }, { transform: 'translateY(6px) rotate(6deg)', offset: 0.75 }, { transform: 'translateY(0) rotate(0)' }],
         84, tm.rattle0, 'ease-in-out', { iterations: 5, fill: 'none' });
     }
     // the cone: bursts on, flickers with the valve, cuts off
-    var cone = can.querySelector('.st-conewrap'), sprayMs = tm.spray1 - tm.paint, ck = [{ t: 0, o: 0 }, { t: tm.paint, o: 0 }, { t: tm.paint + 40, o: 0.95 }];
+    var cone = can.querySelector('.st-conewrap') || document.createElement('i'), sprayMs = tm.spray1 - tm.paint, ck = [{ t: 0, o: 0 }, { t: tm.paint, o: 0 }, { t: tm.paint + 40, o: 0.95 }];
     for (var f = tm.paint + 110; f < tm.spray1 - 40; f += 95) ck.push({ t: f, o: 0.62 + ((f / 95) % 2) * 0.2 });
     ck.push({ t: tm.spray1, o: 0.8 }, { t: tm.spray1 + 70, o: 0 });
     if (!quick && FIN === 'twopass') { ck.pop(); ck.pop(); for (var f4 = tm.spray1 - 40; f4 < tm.spray1 + 560; f4 += 95) ck.push({ t: f4, o: 0.62 + ((f4 / 95) % 2) * 0.2 }); ck.push({ t: tm.spray1 + 600, o: 0.8 }, { t: tm.spray1 + 670, o: 0 }); }
@@ -772,7 +859,7 @@
     whole(cone, ck, function (p) { return { opacity: p.o }; });
     // the mist: fine droplets flying out along the cone, landing on (and around) the chip
     var prnd = seeded((st.seed || 7) * 3 + 1);
-    [].slice.call(can.querySelectorAll('.st-mist i')).forEach(function (el, i, all) {
+    if (TOOL === 'can') [].slice.call(can.querySelectorAll('.st-mist i')).forEach(function (el, i, all) {
       var t = tm.paint + (i / all.length) * (sprayMs - 120) + prnd() * 60, d = 220 + prnd() * 160;
       var ang = (prnd() - 0.5) * 0.62, dist = NX - R * 0.4 + prnd() * R * 1.9, s = 0.6 + prnd() * 1.4;
       anim(el, [{ transform: 'translate(0,0) scale(.35)', opacity: 0 }, { opacity: 0.95, offset: 0.12 }, { opacity: 0.85, offset: 0.7 },
@@ -780,7 +867,7 @@
     });
     // a cloud of paint hanging in the light around the chip
     fog.style.transform = 'translate3d(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px,0)';
-    whole(fog, [{ t: tm.paint, o: 0, k: 0.5 }, { t: tm.paint + 300, o: quick ? 0.4 : 0.5, k: 1, e: 'ease-out' }, { t: tm.spray1 + 120, o: quick ? 0.34 : 0.42, k: 1.25, e: 'ease-in' }, { t: tm.spray1 + (quick ? 450 : 900), o: 0, k: 1.6 }],
+    if (TOOL === 'can') whole(fog, [{ t: tm.paint, o: 0, k: 0.5 }, { t: tm.paint + 300, o: quick ? 0.4 : 0.5, k: 1, e: 'ease-out' }, { t: tm.spray1 + 120, o: quick ? 0.34 : 0.42, k: 1.25, e: 'ease-in' }, { t: tm.spray1 + (quick ? 450 : 900), o: 0, k: 1.6 }],
       function (p) { return { opacity: p.o, transform: 'translate3d(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px,0) scale(' + p.k + ')' }; });
     // on the chip: speckle, then the coat wipes down behind the spray, then the wet sheen and the drips
     var speck = held.querySelector('.st-speck'), coat = held.querySelector('.st-coat'), sheen = held.querySelector('.st-sheen');
@@ -859,13 +946,35 @@
       anim(wet, [{ transform: 'rotate(-2deg)' }, { transform: 'rotate(2deg)' }], 600, tm.post0 + 700, 'ease-in-out', { iterations: 3, direction: 'alternate', fill: 'none' });
       S(tm.post0 + 140, SND.pop); S(tm.post0 + 420, SND.clack);
     }
+    if (TOOL === 'bucket') {
+      S(tm.paint + 420, SND.drop);
+      for (var bs = 0; bs < 9; bs++) {
+        var sd = addEl('<i style="position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;background:' + dcol + ';border:1.5px solid ' + INK + ';z-index:7;opacity:0;pointer-events:none"></i>');
+        var ba = -Math.PI * (0.15 + 0.7 * bs / 8), bd = 40 + (bs % 3) * 14;
+        anim(sd, [{ transform: 'translate(' + cx.toFixed(1) + 'px,' + (cy + 40).toFixed(1) + 'px) scale(.5)', opacity: 0 }, { opacity: 1, offset: 0.15 },
+          { transform: 'translate(' + (cx + Math.cos(ba) * bd).toFixed(1) + 'px,' + (cy + 40 + Math.sin(ba) * bd * 0.9).toFixed(1) + 'px) scale(1)', opacity: 1, offset: 0.5 },
+          { transform: 'translate(' + (cx + Math.cos(ba) * bd * 1.3).toFixed(1) + 'px,' + (cy + 46).toFixed(1) + 'px) scale(.7)', opacity: 0 }], 520, tm.paint + 400 + bs * 8, 'cubic-bezier(.2,.6,.5,1)');
+      }
+      S(tm.paint + 1250, function () { SND.lift(260); });
+    }
+    if (TOOL === 'roller') { [0, 320, 640, 960].forEach(function (d0, k) { S(tm.paint + d0, function () { SND.whir(300, k % 2 === 0); }); }); }
+    if (TOOL === 'brush') { [0, 380, 760].forEach(function (d0) { S(tm.paint + d0, SND.swoosh); }); S(tm.paint + 1180, SND.pop); }
+    if (TOOL === 'pour') {
+      // a thick ribbon of paint from the lip straight down onto the chip
+      var lx2 = cx + R + 22, ly2 = cy - R - 34, tx2 = cx + R * 0.15, ty2 = cy - R * 0.35;
+      var sLen = Math.hypot(tx2 - lx2, ty2 - ly2), sAng = Math.atan2(tx2 - lx2, ty2 - ly2) * -180 / Math.PI;
+      var ribbon = addEl('<i style="position:absolute;left:' + (lx2 - 6).toFixed(1) + 'px;top:' + ly2.toFixed(1) + 'px;width:12px;height:' + sLen.toFixed(1) + 'px;border-radius:6px;background:' + dcol + ';box-shadow:inset -3px 0 0 rgba(0,0,0,.18),inset 3px 0 0 rgba(255,255,255,.25);transform-origin:50% 0;transform:rotate(' + sAng.toFixed(1) + 'deg) scaleY(0);z-index:7;pointer-events:none"></i>');
+      var rot = 'rotate(' + sAng.toFixed(1) + 'deg) ';
+      anim(ribbon, [{ transform: rot + 'scaleY(0)', easing: 'cubic-bezier(.5,0,.9,.6)' }, { transform: rot + 'scaleY(1)', offset: 0.18 }, { transform: rot + 'scaleY(1)', offset: 0.78, easing: 'ease-in' },
+        { transform: rot + 'translateY(' + sLen.toFixed(1) + 'px) scaleY(0)' }], 1050, tm.paint + 230, 'linear');
+      S(tm.paint + 300, function () { SND.lower(700); }); S(tm.paint + 1300, SND.clack);
+    }
     // the set-down: a ring on the felt
     ripple.style.transform = 'translate3d(' + V.x.toFixed(1) + 'px,' + (V.y + 20).toFixed(1) + 'px,0)';
     anim(ripple, [{ opacity: 0.9, transform: 'translate3d(' + V.x.toFixed(1) + 'px,' + (V.y + 20).toFixed(1) + 'px,0) scale(.5)' }, { opacity: 0, transform: 'translate3d(' + V.x.toFixed(1) + 'px,' + (V.y + 20).toFixed(1) + 'px,0) scale(1.5)' }], 420, tm.set, 'ease-out', { fill: 'forwards' });
 
-    // the gloat card: veil, then a sprung entrance with a slight tilt
-    anim(veil, [{ opacity: 0 }, { opacity: 1 }], 320, tm.gloat - 60, 'ease-out');
-    anim(gl, [{ opacity: 0, transform: 'translateY(-50%) scale(.55) rotate(4deg)' }, { opacity: 1, transform: 'translateY(-50%) scale(1.06) rotate(-2.5deg)', offset: 0.55 }, { opacity: 1, transform: 'translateY(-50%) scale(1) rotate(-2deg)' }], 520, tm.gloat, 'cubic-bezier(.2,.8,.3,1)');
+    // the line: no card, no veil; the table stays in view with the repainted chip on it
+    anim(gl, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], 420, tm.gloat, 'cubic-bezier(.2,.8,.3,1)');
 
     /* The beats */
     T(function () { stage.style.visibility = ''; beat(quick ? 'steal:quick' : 'steal:full'); buzz(30); }, 0);
@@ -880,7 +989,7 @@
     }, tm.snatch);
     T(function () {   // pssssst
       beat('steal:paint');
-      big(function () { hiss(sprayMs + (FIN === 'twopass' ? 600 : 0) + 40); });
+      if (TOOL === 'can') big(function () { hiss(sprayMs + (FIN === 'twopass' ? 600 : 0) + 40); });
       buzz(isVictim ? [60, 30, 60, 30, 60] : 20);
     }, tm.paint);
     T(function () {   // clack: the dealer's chip, back in its spot
@@ -893,8 +1002,6 @@
     }, tm.set);
     T(function () {
       beat('steal:gloat');
-      if (window.ccPunch) window.ccPunch(gl.querySelector('.st-quote'));
-      big(SND.gloat);
       if (isVictim) { document.body.classList.remove('quake'); void document.body.offsetWidth; document.body.classList.add('quake'); buzz([300, 100, 300, 100, 600]); setTimeout(function () { document.body.classList.remove('quake'); }, 1300); }
     }, tm.gloat);
   }
