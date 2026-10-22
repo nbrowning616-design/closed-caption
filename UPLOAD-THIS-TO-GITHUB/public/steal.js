@@ -453,7 +453,7 @@
       /* ── The recipe: how this claw goes about it. The server doesn't choose (state.steal.recipe can, for the demo
          page); most steals are the classic dip or the fumble, now and then something sillier. ── */
       var R = seeded((st.seed || 7) + 5), roll = R(), others = [].slice.call(o.querySelectorAll('[data-st="other"]'));
-      var rec = st.recipe || (roll < 0.6 ? 'classic' : 'fumble');   // (until Nick picks from the ten on the demo page)
+      var rec = st.recipe || 'classic';   // Nick, Oct 22: "The first one is the best" and every steal has to make sense: the classic claw, every time (the others stay for demos only)
       var RECIPES = {
         classic: { decoy: 'dip', approach: 'drift', grab: 'clean' }, fumble: { decoy: 'fumble', approach: 'drift', grab: 'clean' },
         double: { decoy: 'double', approach: 'drift', grab: 'clean' }, toss: { decoy: 'toss', approach: 'drift', grab: 'clean' },
