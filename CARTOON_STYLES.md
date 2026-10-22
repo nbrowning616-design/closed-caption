@@ -13,6 +13,13 @@ interesting things (a strange prop, a second character's quiet reaction, a detai
 it in more than one direction. If the picture has only one possible joke line, it's out. Test before drawing: name
 three different captions that each use a different thing in the picture.
 
+## Visual interest in every one (Nick, Oct 22 2026 — overrides "almost always bare" below)
+"Eliminate really bare ones. All should have some visual interest." 43 too-bare cards were pulled from the deal
+(game.js PULLED). From now on no cartoon is a few small figures in an empty frame: characters drawn large, a real
+sense of place (a room, a street, a shore — a few confident lines and one or two textured objects), and at least 2–3
+interesting details. Still black and white, still a gag cartoon, still room for the caption; just never barren.
+Style 4 (deadpan minimal) and style 2 only with a full setting.
+
 ## Rules for every cartoon
 - Black ink on plain white paper. No color. (Soft pencil may use grey pencil tone; nothing else uses grey.)
 - Draw only what the joke needs: one to three characters, one or two props.

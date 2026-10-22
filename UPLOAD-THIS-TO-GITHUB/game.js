@@ -1122,8 +1122,11 @@ function kidsToggle(game, on) {
 // Never deal a cartoon whose picture isn't on the server (checked once at start)
 const HAS_IMAGE = (() => { const fs = require('fs'), path = require('path'), dir = path.join(__dirname, 'public', 'images'); const ok = new Set(); for (const c of CARTOONS) { try { if (c.image && fs.statSync(path.join(dir, c.image)).size > 0) ok.add(c.id); } catch (e) {} } return ok; })();
 // The live deck for a deck choice ({ family, spicy }), cartoons with a drawing only (solo practice uses it too)
-const liveCartoons = (s) => CARTOONS.filter(c => HAS_IMAGE.has(c.id) && !isRetiredId(c.id) && !(s.family && (c.adult || c.spicy)) && !(c.spicy && !s.spicy));
-const allowed = (game) => CARTOONS.filter(c => HAS_IMAGE.has(c.id) && !isRetiredId(c.id) && !(game.settings.family && (c.adult || c.spicy)) && !(c.spicy && !game.settings.spicy));
+// Pulled from the deal for being too bare (Nick, Oct 22 2026: "eliminate really bare ones. All should have some visual
+// interest"). Not retired: a frame already in The Gallery keeps its place; they are just never dealt again.
+const PULLED = new Set([116, 121, 126, 136, 146, 151, 157, 197, 213, 235, 240, 245, 255, 275, 280, 285, 290, 300, 305, 310, 315, 320, 330, 332, 337, 339, 346, 349, 354, 356, 362, 369, 379, 389, 394, 399, 402, 407, 412, 417, 427, 438, 442]);
+const liveCartoons = (s) => CARTOONS.filter(c => HAS_IMAGE.has(c.id) && !isRetiredId(c.id) && !PULLED.has(c.id) && !(s.family && (c.adult || c.spicy)) && !(c.spicy && !s.spicy));
+const allowed = (game) => CARTOONS.filter(c => HAS_IMAGE.has(c.id) && !isRetiredId(c.id) && !PULLED.has(c.id) && !(game.settings.family && (c.adult || c.spicy)) && !(c.spicy && !game.settings.spicy));
 function dealNormal(game, currentId) {
   // Never twice in one game; of the rest, the ones the fewest people at the table have seen.
   // Nobody sees a repeat until they've seen the whole deck.

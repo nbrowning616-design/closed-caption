@@ -5,7 +5,7 @@
    Then the next cartoon. The buttons sit over the bottom of the picture. No sound. No hidden text.
    Still picture (the real one stamped) under Reduce Motion.
 
-   The cartoons are drawn for this screen only (images/demo_*.jpg): never dealt, and the captions below
+   The cartoons are drawn for this screen only (images/home_*.jpg): never dealt, and the captions below
    are written for this screen only, so the home screen never gives an answer away.
 
    window.Home = { start(), stop() }
@@ -15,10 +15,10 @@
 
   /* Demo-only cartoons and captions. real = index of the true one. */
   var SEQ = [
-    { img: 'demo_snowman.jpg',  caps: ['Any history of spring?', 'Have you tried Canada?', 'Let’s get you on ice.'], real: 1 },
-    { img: 'demo_penguin.jpg',  caps: ['Members only, kid.', 'Try the other cooler.', 'He came with the ice.'], real: 2 },
-    { img: 'demo_goldfish.jpg', caps: ['His ex. She looks happy.', 'Must be nice.', 'Just one more episode.'], real: 0 },
-    { img: 'demo_robot.jpg',    caps: ['I feel so programmed.', 'Same dream. The toaster.', 'They upgraded my brother.'], real: 2 }
+    { img: 'home_snowman.jpg',  caps: ['Any history of spring?', 'Have you tried Canada?', 'Let’s get you on ice.'], real: 1 },
+    { img: 'home_penguin.jpg',  caps: ['Members only, kid.', 'Try the other cooler.', 'He came with the ice.'], real: 2 },
+    { img: 'home_goldfish.jpg', caps: ['His ex. She looks happy.', 'Must be nice.', 'Just one more episode.'], real: 0 },
+    { img: 'home_robot.jpg',    caps: ['I feel so programmed.', 'Same dream. The toaster.', 'They upgraded my brother.'], real: 2 }
   ];
 
   var CASLON = 'https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap';
@@ -32,8 +32,8 @@
     '#home-mount{flex:1 1 auto;display:flex;flex-direction:column;}',
 
     /* the cartoon, behind everything: as wide as the phone column, down to just under the caption */
-    '.home-bg{position:fixed;z-index:0;top:0;left:50%;width:min(100vw,480px);height:min(calc(100dvh - var(--home-foot,250px) + 70px),calc(min(100vw,480px) * 1.6));transform:translateX(-50%);overflow:hidden;background:#fff;pointer-events:none;}',
-    '.home-bg img{position:absolute;inset:-3%;width:106%;height:106%;object-fit:cover;object-position:0% 50%;opacity:0;transition:opacity 1.1s ease;filter:contrast(1.45) brightness(.97) sepia(.1);}',
+    '.home-bg{position:fixed;z-index:0;top:0;left:50%;width:min(100vw,480px);height:min(calc(100dvh - var(--home-foot,250px) + 70px),calc(min(100vw,480px) * 1.6));transform:translateX(-50%);overflow:hidden;background:var(--paper);pointer-events:none;}',
+    '.home-bg img{position:absolute;inset:-3%;width:106%;height:106%;object-fit:cover;object-position:0% 50%;opacity:0;transition:opacity 1.1s ease;filter:none;}',
     '.home-bg img.home-on{opacity:1;}',
     '.home-bg img.home-pan-r{animation:homePanR 14s cubic-bezier(.45,0,.55,1) forwards;}',
     '.home-bg img.home-pan-l{animation:homePanL 14s cubic-bezier(.45,0,.55,1) forwards;}',
