@@ -798,6 +798,23 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .toon-big .toon-hit img { display: block; width: 100%; max-height: 52dvh; object-fit: contain; border-radius: 6px; background: #fff; transition: max-height .25s var(--ease-out); }
 .toon-big.compact .toon-hit img { max-height: 34dvh; }
 .w-box { margin-top: 16px; }
+/* The magazine line: the caption set under the cartoon like the printed thing (writing, locked in, the reading) */
+.toon-big.mag { padding-bottom: 4px; }
+.toon-big.mag .zoom { bottom: auto; top: 12px; }
+.toon-big.mag .toon-hit img { max-height: 56dvh; }
+.mag-cap { margin: 0; padding: 12px 10px 10px; text-align: center; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 21px; line-height: 1.3; color: var(--ink); text-wrap: balance; overflow-wrap: anywhere; }
+.mag-cap .tag { font-style: normal; vertical-align: middle; }
+.mag-in { animation: magIn .55s var(--ease-out) both; }
+@keyframes magIn { from { opacity: 0; transform: translateY(10px); filter: blur(2px); } to { opacity: 1; transform: none; filter: none; } }
+textarea.caption-input.mag { display: block; min-height: 0; margin: 8px 0 2px; padding: 10px 10px 8px; border: 0; border-top: 2px dashed #D9CFC0; border-radius: 0; background: transparent; text-align: center; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 21px; line-height: 1.3; color: var(--ink); }
+textarea.caption-input.mag:focus { box-shadow: none; border-top-color: var(--yellow-d); background: var(--yellow-bg); border-radius: 0 0 8px 8px; }
+textarea.caption-input.mag::placeholder { color: #B3A898; font-style: italic; }
+.rd-meta { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; font-weight: 900; font-size: 13px; color: var(--ink-2); }
+.rd-dots { display: inline-flex; gap: 5px; }
+.rd-dots i { width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--ink); background: transparent; }
+.rd-dots i.on { background: var(--ink); }
+.rd-dots i.now { background: var(--yellow); }
+@media (prefers-reduced-motion: reduce) { .mag-in { animation: none; } }
 body.typing .toon-big .toon-hit img { max-height: 160px; }
 body.typing .toon-big .zoom { display: none; }
 body.typing .w-box { margin-top: 10px; }
@@ -1960,6 +1977,7 @@ const noTimer = () => !!state && !state.timerDuration;
 function screenKey() {
   const s = state;
   if (s.phase === 'writing') return ['writing', s.round, s.cartoon && s.cartoon.id, s.hasSubmitted ? 1 : 0].join('|');
+  if (s.phase === 'reading') return ['reading', s.round, s.readStep || 0, canRun() ? 1 : 0].join('|');
   if (s.phase === 'answer') return ['answer', s.round, s.reel ? s.reel.step : 0, canRun() ? 1 : 0, reelDriver() ? 1 : 0].join('|');
   if (s.phase === 'scores' && s.finale) return ['scores', s.round, 'fin', s.finale.at, s.finale.winner ? 1 : 0, (s.finale.decided || []).length, s.finale.myVote || '', canRun() ? 1 : 0].join('|');
   return s.phase + '|' + s.round + (s.phase === 'scores' && s.gameOver ? '|over' : '');   // (the game ending on a scoreboard mid-count must redraw)
@@ -2171,8 +2189,8 @@ function header({ sticker, sub = '', ring = false, thumb = true }) {
   return `<div class="hdr${pin ? ' pin' : ''}${ring ? ' ringed' : ''}">${ring ? ringHtml() : t}<div class="mid"><div class="hdr-top">${stage ? stagePill() : sticker}${ring ? '' : code}</div><span class="hdr-sub">${line}</span></div>${window.Voice && Voice.isOn && Voice.isOn() && voiceAllowed() ? Voice.button() : ''}<button class="menu-btn" onclick="openMenu()" aria-label="Menu${ring ? '. Room code ' + esc(state.code) : ''}">☰</button>${big}</div>`;
 }
 // The writing screen's cartoon: big while you look at it, a small copy right above the caption box while you type
-function bigToon(compact = false, mull = false) {
-  return state.cartoon ? `<div class="toon-big ${compact ? 'compact' : ''}" id="w-toon"><button class="toon-hit" onclick="openViewer()" aria-label="${esc(toonAlt())}. See it full-screen"><img src="/images/${esc(state.cartoon.image)}" alt=""></button><span class="zoom" aria-hidden="true">Tap to zoom</span>${mull ? mullPillHtml() : ''}</div>` : '';
+function bigToon(compact = false, mull = false, slot = '') {
+  return state.cartoon ? `<div class="toon-big ${compact ? 'compact' : ''}${slot ? ' mag' : ''}" id="w-toon"><button class="toon-hit" onclick="openViewer()" aria-label="${esc(toonAlt())}. See it full-screen"><img src="/images/${esc(state.cartoon.image)}" alt=""></button><span class="zoom" aria-hidden="true">Tap to zoom</span>${mull ? mullPillHtml() : ''}${slot}</div>` : '';
 }
 let typingOff = null;
 function onCaptionFocus() {
@@ -2513,21 +2531,18 @@ function mulliganHtml() {
 function renderWriting() {
   if (state.hasSubmitted) {
     return `${header({ sticker: '<span class="sticker teal">Locked in</span>', sub: state.isDealer ? roundLabel() : `${roundLabel()} · ${dealerLine()}`, ring: true })}
-      ${bigToon(true, true)}
-      <div class="center" style="margin:22px 0 16px;">
+      ${bigToon(true, true, `<p class="mag-cap">“${esc(state.myCaption || '')}”</p>`)}
+      <div class="center" style="margin:18px 0 16px;">
         <div class="stamp">Locked in</div>
-        <div class="panel flat" style="margin-top:16px; text-align:left;"><p class="eyebrow">Your caption, as everyone sees it</p><p class="caption-text" style="margin-top:4px;">“${esc(state.myCaption || '')}”</p></div>
         ${noteHtml(true)}
         ${callHtml(false)}
       </div>
       ${writingStatusHtml()}`;
   }
   return `${header({ sticker: `<span class="sticker">${state.isDealer ? 'Your deal' : 'Write'}</span>`, sub: state.isDealer ? roundLabel() : `${roundLabel()} · ${dealerLine()}`, ring: true })}
-    ${bigToon(false, true)}
+    ${bigToon(false, true, `<label class="sr-only" for="caption-input">Your caption</label><textarea id="caption-input" class="caption-input mag" rows="2" placeholder="Your caption goes here…" maxlength="200" oninput="onCaptionInput()" onfocus="onCaptionFocus()" onblur="onCaptionBlur()" enterkeyhint="done" autocapitalize="sentences" autocorrect="on" autocomplete="off" spellcheck="true"></textarea>`)}
     <div class="w-box">
       ${noteHtml(false)}
-      <label class="sr-only" for="caption-input">Your caption</label>
-      <textarea id="caption-input" class="caption-input" placeholder="Write a caption that could pass for the real one…" maxlength="200" oninput="onCaptionInput()" onfocus="onCaptionFocus()" onblur="onCaptionBlur()" enterkeyhint="done" autocapitalize="sentences" autocorrect="on" autocomplete="off" spellcheck="true"></textarea>
       <div class="lenmeter" id="len-meter" style="margin-top:8px;"><i id="len-fill"></i></div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin:2px 2px 12px; gap:8px;"><span class="small" id="len-note"></span><span class="small" id="cap-count" style="white-space:nowrap;">0 / 200</span></div>
       ${state.isDealer ? `<p class="do" style="margin:-6px 2px 12px;">${dealerMode() === 'bet' ? 'You deal: you write too, and you bet.' : dealerMode() === 'both' ? 'You deal: you write too, you bet, then you steal one chip.' : 'You deal: you write too, you don’t bet, and you steal one chip.'}</p>` : ''}
@@ -2819,13 +2834,34 @@ function clockHtml(start, due, held) {
   return `<div class="rd-clock run" aria-hidden="true"><i style="--from:${from.toFixed(3)}; animation-duration:${left}ms;"></i></div>`;
 }
 function sendHold(on) { send({ action: 'hold', on: !!on, phase: state.phase, round: state.round }); }
+/* The reading, one at a time: each caption printed under the big cartoon like the finished thing. The dealer moves it
+   on (read_next); after the last one they all go face up on the table below a smaller cartoon (tap it to zoom). */
+let readShown = '';
+function readNextTap(dir) { if (send({ action: 'read_next', dir: dir || 'next' })) { buzz(12); sfx.tap(); } }
+function renderReadOne(step) {
+  const list = state.openCaptions || [], n = list.length, i = step - 1, key = state.round + '|' + step;
+  const fresh = readShown !== key; readShown = key;
+  const runs = state.isDealer || canRun(), dn = esc(firstName(state.dealerName));
+  const dots = list.map((_, k) => `<i class="${k < step ? 'on' : ''}${k === i ? ' now' : ''}"></i>`).join('');
+  const nav = runs
+    ? `<button class="btn btn-yellow" style="margin-top:16px;" onclick="readNextTap()">${step < n ? 'Next caption →' : 'Lay them all out →'}</button>
+       ${step > 1 ? `<button class="btn-link" style="display:block; margin:8px auto 0;" onclick="readNextTap('prev')">◀ Back one</button>` : ''}`
+    : `<p class="center small" style="margin-top:14px;">${dn} is reading them aloud</p>`;
+  return `${header({ sticker: '<span class="sticker white">The captions</span>', thumb: false })}
+    ${bigToon(false, false, `<p class="mag-cap${fresh ? ' mag-in' : ''}">“${esc(list[i] || '')}”${capNote(i)}</p>`)}
+    <div class="rd-meta"><span class="rd-n">Caption ${step} of ${n}</span><span class="rd-dots" aria-hidden="true">${dots}</span></div>
+    ${rxHtml(i)}
+    ${step === n ? `<p class="center small" style="margin-top:8px;">Plus one face-down. It turns over after the first bets.</p>` : ''}
+    ${nav}`;
+}
 function renderReading(animate) {
+  { const n = (state.openCaptions || []).length, step = state.readStep || n + 1; if (step <= n) return renderReadOne(step); }
   const L = state.lines || {};
   const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked ${animate ? 'deal-in' : ''}" style="animation-delay:${i * 0.14}s;"><span class="num">${i + 1}</span><p class="caption-text">“${esc(c)}”${capNote(i)}</p>${rxHtml(i)}</div>`).join('');   // Love It from the reading on
   const nOpen = (state.openCaptions || []).length;
   return `${header({ sticker: '<span class="sticker white">The captions</span>' })}
     <div class="center" style="margin-bottom:16px;">
-      <h2 class="h2">${state.isDealer ? 'Read them aloud' : `${esc(firstName(state.dealerName))} reads them aloud`}</h2>
+      <h2 class="h2">All on the table</h2>
       <p class="sub">${plural(nOpen, 'caption')} out in the open, one face-down. One of them is real.</p>
       ${noteHtml(true)}
     </div>
@@ -2834,7 +2870,7 @@ function renderReading(animate) {
       <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p><p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'It’s yours. Keep a straight face.' : 'It turns over after the first bets.'}</p>
     </div>
     ${callHtml(true)}
-    ${state.isDealer ? `<button class="btn" style="margin-top:18px;" onclick="openReadAloud()">Read them big</button><button class="btn btn-yellow" style="margin-top:12px;" onclick="send({action:'advance'})">Done reading — start the betting</button>`
+    ${state.isDealer ? `<button class="btn btn-yellow" style="margin-top:18px;" onclick="send({action:'advance'})">Start the betting →</button><button class="btn-link" style="display:block; margin:8px auto 0;" onclick="readNextTap('prev')">◀ Read the last one again</button>`
       : canRun() ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'advance'})">Start the betting →</button>`
       : `<p class="center small" style="margin-top:16px;">Betting starts when ${esc(firstName(state.dealerName))} is done reading</p>`}`;
 }

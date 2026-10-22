@@ -1373,8 +1373,17 @@ function finishWriting(game) {
   roundLine(game, 'betDown', 'bet.down');
   roundLine(game, 'flipLead', 'flip.lead');
   roundLine(game, 'flipUp', 'flip.up');
+  game.readStep = 1;   // the reading: one caption at a time on the cartoon (the dealer moves it on); n+1 = all face up
   setPhase(game, PHASES.READING);
   return { ok: true };
+}
+// The dealer reads them one at a time, each printed under the cartoon like the finished thing; after the last, they all
+// go face up on the table. 'prev' steps back. (Starting the betting is still the 'advance' at any point.)
+function readNext(game, dir) {
+  if (game.phase !== PHASES.READING) return { error: 'Too late — the game moved on' };
+  const n = game.openCaptions.length, cur = game.readStep || 1;
+  game.readStep = Math.max(1, Math.min(n + 1, cur + (dir === 'prev' ? -1 : 1)));
+  return { ok: true, step: game.readStep };
 }
 
 /* Cut 8 NEWCOMERS: a phone in its first game (it reported no finished games when the game began, or when it
@@ -2777,6 +2786,7 @@ function getPlayerView(game, playerId) {
       out[k] = v && typeof v === 'object' ? JSON.parse(JSON.stringify(v)) : v;
     }
     base.lines = out; }
+  if (game.phase === PHASES.READING) base.readStep = game.readStep || (game.openCaptions.length + 1);
   // R11: your own call (secret), until the reveal says how it went
   if (game.phase === PHASES.WRITING || game.phase === PHASES.READING) base.myCall = (game.calls || {})[playerId] || null;
   if (ANSWERED.includes(game.phase)) base.callResults = (game.callResults || []).map(c => ({ ...c }));
@@ -2924,7 +2934,7 @@ module.exports = {
   openFinale, voteFinale, resolveFinale, finaleAllIn,
   setVoice, clearVoice,
   stealChip, revealAnswer, moveToScoreboard, isGameOver, liveOver, finishIfOver, resetForNewGame, isPresent,
-  REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer, OPEN_MS,
+  REACTION_KINDS, react, readNext, reelStep, reelOrder, votesOn, awardBadges, setCareer, OPEN_MS,
   currentBetterId, pendingBetters, nextDealerIndex, getPlayerView, generateRoomCode,
   HOUSE_CAST, HOUSE_MAX, houseWanted, isHouseId, liveCartoons, CARD_META_OF: (id) => CARD_META[String(id)] || null, polish, nearlySame,
 };

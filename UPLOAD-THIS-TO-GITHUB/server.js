@@ -604,6 +604,13 @@ wss.on('connection', (ws, req) => {
         broadcast(code);
         return;
       }
+      case 'read_next': {
+        // the reading, one caption at a time (the dealer, the host, or anyone once the dealer has wandered off)
+        if (!canRun) return sendError(ws, 'The dealer reads them');
+        if (fail(G.readNext(game, msg.dir))) return;
+        broadcast(code);
+        return;
+      }
       case 'react': {
         // #26 Ha / Groan: on any caption but your own; nobody sees a count until the answer
         if (fail(G.react(game, playerId, msg.target, msg.kind, msg.on))) return;
