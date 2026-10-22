@@ -529,7 +529,7 @@ function dealNight(game, name, list) {
 // A room deals the thieves like a deck for the night. The show's lines never hint at the answer (#39): the closing
 // caption is neutral (thief.X.closing, then steal.closing); the thief's own line comes AFTER the reveal only (on the
 // reel, keyed to where the chip was: thief.X.real / thief.X.fake). Lines: public/lines.js.
-const HEISTS = [['chameleon', 'The Chameleon'], ['octopus', 'The Octopus'], ['laundry', 'The One Red Sock'], ['sunbather', 'The Tan'], ['blush', 'The Charmer'], ['titration', 'The Endpoint'], ['shellgame', 'The Shell Game'], ['contraption', 'The Machine']].map(([id, name]) => ({ id, name }));
+const HEISTS = [['chameleon', 'The Chameleon'], ['octopus', 'The Octopus'], ['laundry', 'The One Red Sock'], ['sunbather', 'The Tan'], ['blush', 'The Charmer'], ['titration', 'The Endpoint'], ['shellgame', 'The Shell Game'], ['contraption', 'The Machine'], ['pollen', 'The Bumblebee'], ['bubblegum', 'The Bubble'], ['fondue', 'The Fondue'], ['auntie', 'The Auntie'], ['raincloud', 'The Little Cloud'], ['highlighter', 'The Highlighter'], ['crayon', 'The Colouring Book'], ['bathbomb', 'The Bath Bomb'], ['paintball', 'High Noon'], ['frosting', 'The Baker'], ['magichat', 'The Magician'], ['polaroid', 'The Snapshot'], ['cottoncandy', 'The Fair']].map(([id, name]) => ({ id, name }));
 // A chip stolen off a fake caption pays its owner this much (the steal's cost)
 const STEAL_CAUGHT_PTS = 1;
 // How long each steal show runs on the phones (public/steal.js FULL_MS / SHORT_MS); the flip waits for it
@@ -1575,6 +1575,7 @@ function afterBlinds(game) {
   const dealer = dealerOf(game);
   if (stealOn(game) && dealer && othersChipsOnTable(game, dealer) > 0) {
     game.steal = null;
+    game.nextThief = HEISTS[nextHeist(game)].id;   // dealt now, so phones can load that film while the dealer chooses
     setPhase(game, PHASES.STEAL);
     return { ok: true };
   }
@@ -1654,7 +1655,8 @@ function stealChip(game, betIndex) {
   const v = { name: firstNameOf(game, bet.playerId), count: robbed + 1, ordinal: ordinal(robbed + 1) };
   // #39: nothing said during the show may hint where the chip was. The full show ends on a neutral closing caption
   // (or a callback, for a repeat victim); the short one on a receipt. The thief's gloat waits for the reveal.
-  const act = nextHeist(game), thief = HEISTS[act].id, actName = HEISTS[act].name;
+  const pre = HEISTS.findIndex(h => h.id === game.nextThief), act = pre >= 0 ? pre : nextHeist(game), thief = HEISTS[act].id, actName = HEISTS[act].name;
+  game.nextThief = null;
   // full: a closing caption held under the show (a repeat victim gets a callback instead); short: the thief's tag
   const gloat = '';   // (Oct 22 2026: the shows say only who stole whose chip)
   const at = Date.now();
@@ -1776,6 +1778,7 @@ function revealAnswer(game) {
     closedPlayerName: game.closedPlayerId ? nameOfPlayer(game, game.closedPlayerId) : null,
     bets: game.bets.map(b => ({ ...b })),
     steal: game.steal ? { ...game.steal } : null,
+    nextThief: game.nextThief || null,
     roundScores: { ...scores },
     roundScoreDetails: JSON.parse(JSON.stringify(details)),
     dealerBonusAwarded: game.dealerBonusAwarded,
