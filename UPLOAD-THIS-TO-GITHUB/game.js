@@ -690,7 +690,7 @@ function createGame(hostId, hostName, timerDuration = DEFAULT_TIMER, seenIds = [
 
 // Every phase change is stamped with the server clock: phones start the big moments from it, together
 function setPhase(game, phase) { game.phase = phase; game.phaseAt = Date.now(); }
-function setReelStep(game, step) { game.reel.step = step; game.stepAt = Date.now(); game.reel.dueAt = reelDue(game); if (step > game.reel.order.length) settleTvc(game); }
+function setReelStep(game, step) { game.reel.step = step; game.stepAt = Date.now(); game.reel.dueAt = reelDue(game); if (step > game.reel.order.length) settleTvc(game); loveFrames(game); }
 // R10 is settled once per round, when the reel reaches the recap (the blind Ha's on the fakes are all in by then)
 function settleTvc(game) {
   const tag = (game.gameNo || 0) + '|' + game.round + '|' + (game.phaseAt || 0);   // (a re-dealt round settles again)
@@ -2287,7 +2287,7 @@ function resolveFinale(game) {
    Each player can Ha and/or Groan each caption once (tap again to take it back), never their own. Nothing is shown
    before the answer (only your own taps, on your phone): a laugh count would hint at what's real. From the answer on,
    the counts per caption. A tap made before the answer is 'blind' (1), after it 'open' (2): R10 counts blind Ha's. ── */
-const REACTION_KINDS = ['ha', 'groan'];
+const REACTION_KINDS = ['ha'];   // 'ha' is Love It (Groan retired)
 const REACT_PHASES = [PHASES.READING, PHASES.FIRST_BETS, PHASES.STEAL, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.ANSWER];
 function react(game, playerId, target, kind, on) {
   if (!REACT_PHASES.includes(game.phase)) return { error: 'Reactions close with the round' };
@@ -2307,7 +2307,27 @@ function react(game, playerId, target, kind, on) {
   if (want && !has) mine[kind] = realUp ? 2 : 1;
   else if (!want && has) delete mine[kind];
   if (!Object.keys(mine).length) delete map[playerId];
+  if (kind === 'ha') loveFrames(game);
   return { ok: true };
+}
+/* Love It frames it: once a fake is revealed on the reel (its writer is out), when a majority of the other players
+   love it (inductNeed), it's framed on the spot. Loves given earlier (reading, bets) count the moment it's shown.
+   Never the real one, never a house caption. Mirrors the loves into framePicks/flags so The Gallery knows who. */
+function loveFrames(game) {
+  if (game.phase !== PHASES.ANSWER || !game.reel) return;
+  const shown = revealedKeys(game), need = inductNeed(game), real = realKey(game);
+  game.flags = game.flags || [];
+  const picks = (game.framePicks = game.framePicks || {});
+  for (const key of shown) {
+    if (key === real) continue;
+    const target = key === 'closed' ? 'closed' : Number(key), author = authorOf(game, target);
+    if (!author || isHouseId(author)) continue;
+    const lovers = Object.entries((game.reactions || {})[key] || {}).filter(([id, r]) => r && typeof r === 'object' && r.ha && id !== author).map(([id]) => id);
+    picks[key] = lovers;
+    game.flags = game.flags.filter(f => !(f.round === game.round && String(f.target) === key && !lovers.includes(f.fromId)));
+    for (const id of lovers) if (!game.flags.some(f => f.round === game.round && String(f.target) === key && f.fromId === id)) game.flags.push({ fromId: id, round: game.round, target, at: Date.now() });
+    if (lovers.length >= need && !(game.inducted || []).includes(game.round + '|' + target)) frameNow(game, target);
+  }
 }
 // { [targetKey]: { ha, groan, haBlind } } — never who (it would give away who wrote what)
 function reactionCounts(game) {

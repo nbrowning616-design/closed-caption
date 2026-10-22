@@ -962,6 +962,11 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .rx-b, .fr-b { position: relative; display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 12px; border: 2px solid var(--ink); border-radius: 999px; background: var(--card); font-family: var(--sans); font-weight: 900; font-size: 13px; line-height: 1; color: var(--ink-2); cursor: pointer; white-space: nowrap; }
 .rx-b::after, .fr-b::after { content: ''; position: absolute; inset: -7px -3px; }
 .rx-b[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.rx-b.love { border-color: #C2185B; color: #A3134B; background: #FFF4F8; animation: loveGlow 2.4s ease-in-out infinite; }
+.rx-b.love .rx-h { font-size: 15px; line-height: 1; }
+.rx-b.love[aria-pressed="true"] { background: #D81B60; border-color: #A3134B; color: #fff; animation: none; box-shadow: 0 0 0 3px rgba(216,27,96,.22), 0 0 14px rgba(216,27,96,.45); }
+@keyframes loveGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(216,27,96,0); } 50% { box-shadow: 0 0 0 3px rgba(216,27,96,.18), 0 0 12px rgba(216,27,96,.38); } }
+@media (prefers-reduced-motion: reduce) { .rx-b.love { animation: none; box-shadow: 0 0 8px rgba(216,27,96,.3); } }
 .rx-b .rx-n { font-variant-numeric: tabular-nums; color: inherit; opacity: .85; }
 .rx-b:disabled { cursor: default; opacity: 1; }
 .rx-quiet { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 13px; color: var(--muted); }
@@ -1141,10 +1146,9 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 
   <details class="box" id="rules-extras" style="margin-bottom: 22px;"><summary>The extras <span class="arrow">▾</span></summary><div class="body">
     <ul class="rules-extras">
-      <li><b>Frame It.</b> On the reveal, tap Frame on any caption that beat the real one (never your own). Frame as many as deserve it. When <span class="frame-need">most of the other players</span> frame the same one, it hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
-      <li><b>Ha and Groan.</b> Two quiet buttons on every caption as it's revealed. No points. Nobody sees a count until the answer. A caption with no chips and three or more Groans gets a rejection slip from The Editors (menu ☰, Rejections).</li>
+      <li><b>Love It.</b> Every caption but your own has a glowing Love It button, from the reading until the next deal. Love as many as you like; tap again to take it back. Nobody sees a count until the answer. Once a fake's writer is revealed, if <span class="frame-need">most of the other players</span> love it, it's framed and hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
       <li><b>Call your shot.</b> Once your caption is in, name the one person you think will fall for it. If they put a chip on it, +3. The reveal says how it went either way.</li>
-      <li><b>The table vs. the cartoonist.</b> On the reveal, the Ha’s a fake gets before the real caption is turned over, against the Ha’s the real one gets: the table’s best fake against the cartoonist, one point a round.</li>
+      <li><b>The table vs. the cartoonist.</b> On the reveal, the Love Its a fake gets before the real caption is turned over, against the Love Its the real one gets: the table’s best fake against the cartoonist, one point a round.</li>
       <li><b>The Late Edition.</b> In a game that goes around the table more than once, the last trip around pays double. First to 20: when someone gets there, the trip around the table is finished (everyone deals the same number of times), at double points. Then the leader wins.</li>
       <li><b>A tie for first</b> goes to whoever fooled the most people. Still level: more captions framed. Still level: a tie.</li>
       <li><b>Did you know?</b> Between games, a short public-service announcement: two or three facts about tonight’s players, from how they actually played. The dealer taps on.</li>
@@ -2747,14 +2751,18 @@ function rxMine(key) {
   const m = { ...(((state.myReactions || {})[String(key)]) || {}) }, l = rxLocal[rTag() + '|' + key];
   return l ? Object.assign(m, l) : m;
 }
-const rxWords = (c) => [c.ha ? `Ha ${c.ha}` : '', c.groan ? `Groan ${c.groan}` : ''].filter(Boolean).join(' · ');
+const rxWords = (c) => c.ha ? `Loved by ${c.ha}` : '';
+/* Love It: one glowing button on every caption but your own. Tap again to take it back. As many captions as you like.
+   Open from the reading until the next deal; counts stay hidden until the answer. A majority of the other players
+   loving a revealed fake frames it (the server does it). */
 function rxHtml(key, o = {}) {
   key = String(key);
   const counts = (state.reactionCounts || {})[key] || null, fr = o.frame ? frHtml(key) : '';
-  if (isMineKey(key)) return counts || fr ? `<div class="rx" data-rx="${key}" data-rxf="${o.frame ? 1 : 0}">${counts ? `<span class="rx-quiet">${rxWords(counts)}</span>` : ''}${fr ? `<span class="rx-sp"></span>${fr}` : ''}</div>` : '';
-  const mine = rxMine(key);
-  const b = (kind, label) => { const n = counts ? counts[kind] || 0 : 0; return `<button class="rx-b" aria-pressed="${mine[kind] ? 'true' : 'false'}" onclick="event.stopPropagation(); tapReact('${key}','${kind}')" aria-label="${label}${counts ? `. ${n} so far` : ''}">${label}${n ? ` <span class="rx-n">${n}</span>` : ''}</button>`; };
-  return `<div class="rx" data-rx="${key}" data-rxf="${o.frame ? 1 : 0}">${b('ha', 'Ha')}${b('groan', 'Groan')}${fr ? `<span class="rx-sp"></span>${fr}` : ''}</div>`;
+  const wrap = (inner) => `<div class="rx" data-rx="${key}" data-rxf="${o.frame ? 1 : 0}">${inner}</div>`;
+  if (isMineKey(key)) return counts || fr ? wrap(`${counts ? `<span class="rx-quiet">${rxWords(counts)}</span>` : ''}${fr ? `<span class="rx-sp"></span>${fr}` : ''}`) : '';
+  const on = !!rxMine(key).ha, n = counts ? counts.ha || 0 : 0;
+  const btn = `<button class="rx-b love" aria-pressed="${on ? 'true' : 'false'}" onclick="event.stopPropagation(); tapReact('${key}','ha')" aria-label="${on ? 'You love it. Tap to take it back' : 'Love it'}${counts ? `. ${n} so far` : ''}"><span class="rx-h" aria-hidden="true">♥</span>${on ? 'Loved' : 'Love It'}${n ? ` <span class="rx-n">${n}</span>` : ''}</button>`;
+  return wrap(`${btn}${fr ? `<span class="rx-sp"></span>${fr}` : ''}`);
 }
 function refreshRx() {
   document.querySelectorAll('#game-content [data-rx]').forEach(el => { const h = rxHtml(el.dataset.rx, { frame: el.dataset.rxf === '1' }); if (el.outerHTML !== h) el.outerHTML = h || '<span hidden></span>'; });
@@ -2774,13 +2782,8 @@ function frMine(key) {
 }
 function frHtml(key) {
   key = String(key);
-  const f = state.framing; if (state.phase !== 'answer' || !f) return '';
-  const c = capByKey(key); if (!c || c.isCorrect || !c.playerId || c.house) return '';
-  const done = (f.framed || []).includes(key);
-  if (done) return `<span class="fr-b done" role="img" aria-label="Framed">${inkIcon('frame', 14)}Framed</span>`;
-  if (c.playerId === myPlayerId || !(f.revealed || []).includes(key)) return '';
-  const mine = frMine(key), n = (f.counts || {})[key] || 0, need = frameNeed();
-  return `<button class="fr-b" aria-pressed="${mine ? 'true' : 'false'}" onclick="event.stopPropagation(); tapFrame('${key}')" aria-label="${mine ? 'You framed it. Tap to take it back' : 'Frame it'}${n ? `. ${n} of ${need} so far` : ''}">${inkIcon('frame', 14)}${mine ? 'Frame ✓' : 'Frame'}${n ? ` <span class="fr-n">${n}/${need}</span>` : ''}</button>`;
+  const f = state.framing; if (!f) return '';
+  return (f.framed || []).includes(key) ? `<span class="fr-b done" role="img" aria-label="Framed">${inkIcon('frame', 14)}Framed</span>` : '';
 }
 function tapFrame(key) {
   if (!state || state.phase !== 'answer') return;
@@ -2818,7 +2821,7 @@ function clockHtml(start, due, held) {
 function sendHold(on) { send({ action: 'hold', on: !!on, phase: state.phase, round: state.round }); }
 function renderReading(animate) {
   const L = state.lines || {};
-  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked ${animate ? 'deal-in' : ''}" style="animation-delay:${i * 0.14}s;"><span class="num">${i + 1}</span><p class="caption-text">“${esc(c)}”${capNote(i)}</p></div>`).join('');   // (cut 8: Ha / Groan on the reveal only)
+  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked ${animate ? 'deal-in' : ''}" style="animation-delay:${i * 0.14}s;"><span class="num">${i + 1}</span><p class="caption-text">“${esc(c)}”${capNote(i)}</p>${rxHtml(i)}</div>`).join('');   // Love It from the reading on
   const nOpen = (state.openCaptions || []).length;
   return `${header({ sticker: '<span class="sticker white">The captions</span>' })}
     <div class="center" style="margin-bottom:16px;">
@@ -2888,9 +2891,9 @@ function renderBetting(stage) {
   };
   const cards = (state.openCaptions || []).map((c, i) => `
     <div role="button" tabindex="0" class="${cls(i)}" data-target="${i}" onclick="selectBet(${i})"><span class="num">${i + 1}</span>${trayHtml(i, { showStolen: true })}
-      <p class="caption-text">“${esc(c)}”${capNote(i)}</p>${already(i)}</div>`).join('');
+      <p class="caption-text">“${esc(c)}”${capNote(i)}</p>${already(i)}${rxHtml(i)}</div>`).join('');
   const closedCard = `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')"><span class="num"><span class="cc-badge" style="margin:0;">CC</span></span>${trayHtml('closed', { showStolen: true })}
-        <p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption · turned over</p><p class="caption-text">“${esc(state.closedCaption)}”${state.iWroteClosed ? ' <span class="tag mine">Yours</span>' : ''}</p>${already('closed')}</div>`;
+        <p class="eyebrow" style="color:var(--ink-2); margin-top:4px;">Closed Caption · turned over</p><p class="caption-text">“${esc(state.closedCaption)}”${state.iWroteClosed ? ' <span class="tag mine">Yours</span>' : ''}</p>${already('closed')}${rxHtml('closed')}</div>`;
 
   // Cut 3: the last chips go down at once, in secret (a tick once someone's in, never where), then drop together
   const dropped = !!state.lateDropAt, inSet = new Set(state.lateIn || []);
@@ -2926,7 +2929,7 @@ function renderBlind() {
   const note = (t) => !dropped && mine && String(mine.target) === String(t) ? `<p class="note">${mine.count === 2 ? 'Both your chips go here' : 'Your chip goes here'}. Nobody else can see it.</p>` : '';
   const cards = (state.openCaptions || []).map((c, i) => `
     <div role="button" tabindex="0" class="${cls(i)}" data-target="${i}" onclick="selectBet(${i})"><span class="num">${i + 1}</span>${dropped ? trayHtml(i) : ''}
-      <p class="caption-text">“${esc(c)}”${capNote(i)}</p>${note(i)}</div>`).join('');
+      <p class="caption-text">“${esc(c)}”${capNote(i)}</p>${note(i)}${rxHtml(i)}</div>`).join('');
   const closedCard = `<div role="button" tabindex="0" class="${cls('closed')}" data-target="closed" onclick="selectBet('closed')" style="text-align:center; padding:18px 16px;">${dropped ? trayHtml('closed') : ''}
       <div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · face-down</p>
       <p class="small" style="color:var(--ink-2);">${state.iWrote && state.myOpenIndex === -1 ? 'Yours. Keep a straight face.' : `Bet that the real one is hiding here. ${plural(s.pointsClosedBet || 5, 'point')} a chip if it is.`}</p>${note('closed')}</div>`;
@@ -3043,7 +3046,7 @@ function flyMyChips(betIdx) {
 
 /* ── STEAL ── #8: before the flip. The face-down card is still face-down. */
 function renderSteal() {
-  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked"><span class="num">${i + 1}</span>${trayHtml(i, { grab: state.isDealer })}<p class="caption-text">“${esc(c)}”${capNote(i)}</p></div>`).join('')
+  const cards = (state.openCaptions || []).map((c, i) => `<div class="cap locked"><span class="num">${i + 1}</span>${trayHtml(i, { grab: state.isDealer })}<p class="caption-text">“${esc(c)}”${capNote(i)}</p>${rxHtml(i)}</div>`).join('')
     + `<div class="cap closed locked" style="text-align:center; padding:18px 16px;">${trayHtml('closed', { grab: state.isDealer })}<div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · still face-down</p></div>`;
   if (state.isDealer) {
     return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
@@ -3442,9 +3445,9 @@ function recapFramesHtml() {
   if (!caps.length) return '';
   const items = caps.map(c => {
     const k = String(c.idx), counts = (state.reactionCounts || {})[k], framed = ((state.framing || {}).framed || []).includes(k);
-    return `<li class="rc-fi${framed ? ' framed' : ''}">${chipHtml(c.playerId, 'sm')}<div class="rc-ft"><p class="rc-fc">“${esc(c.caption)}”</p><p class="rc-fw">${c.house ? esc(c.playerName || nameOf(c.playerId)) + ' ' + houseTag : esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}${counts ? ' · ' + rxWords(counts) : ''}</p></div>${frHtml(k)}</li>`;
+    return `<li class="rc-fi${framed ? ' framed' : ''}">${chipHtml(c.playerId, 'sm')}<div class="rc-ft"><p class="rc-fc">“${esc(c.caption)}”</p><p class="rc-fw">${c.house ? esc(c.playerName || nameOf(c.playerId)) + ' ' + houseTag : esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}</p>${rxHtml(k, { frame: true })}</div></li>`;
   }).join('');
-  return `<section class="rc-frames" aria-label="Frame It"><p class="rc-fh">Did anyone beat the real one?</p><p class="rc-fs">Frame it. When most of the table does, it hangs in The Gallery.</p><ul class="rc-fl">${items}</ul></section>`;
+  return `<section class="rc-frames" aria-label="Frame It"><p class="rc-fh">Did anyone beat the real one?</p><p class="rc-fs">Love it. When most of the table does, it hangs in The Gallery.</p><ul class="rc-fl">${items}</ul></section>`;
 }
 /* #28: why each point was scored, in plain words, from the server's own list (state.roundScoreDetails):
    "+2 found the real one", "+2 fooled Margaret", "+1 your chip was stolen off a fake". Same reasons add up. */
