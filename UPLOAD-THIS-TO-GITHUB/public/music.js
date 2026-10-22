@@ -445,6 +445,37 @@
 
     isPlaying() { return isPlaying; },
 
+    /* "Did you know?" (ending.js): the station-break chime, our own. A bright two-operator FM bell (the 1980s
+       electric-piano sound) rising F–A–C–F, then a soft major-seventh pad underneath, about two seconds.
+       next: true = the small two-note blip between facts. The music ducks under it. Uses the shared context. */
+    psa(next) {
+      const ctx = ensureContext(); if (!ctx) return;
+      const out = ctx.createGain(); out.gain.value = next ? 0.05 : 0.07; out.connect(ctx.destination);
+      const t0 = ctx.currentTime + 0.03;
+      const bell = (freq, when, dur, vol) => {
+        const car = ctx.createOscillator(), mod = ctx.createOscillator(), mg = ctx.createGain(), g = ctx.createGain();
+        car.type = 'sine'; car.frequency.value = freq;
+        mod.type = 'sine'; mod.frequency.value = freq * 3.5;   // the bell ratio
+        mg.gain.setValueAtTime(freq * 1.6, when); mg.gain.exponentialRampToValueAtTime(freq * 0.05, when + dur * 0.6);
+        mod.connect(mg); mg.connect(car.frequency);
+        g.gain.setValueAtTime(0.0001, when); g.gain.exponentialRampToValueAtTime(vol, when + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+        car.connect(g); g.connect(out);
+        car.start(when); mod.start(when); car.stop(when + dur + 0.05); mod.stop(when + dur + 0.05);
+      };
+      if (next) { bell(note('C', 1), t0, 0.5, 0.7); bell(note('F', 1), t0 + 0.09, 0.7, 0.6); return; }
+      if (isPlaying) this.duck(2400);
+      [note('F', 1), note('A', 1), note('C', 2), note('F', 2)].forEach((f, i) => bell(f, t0 + i * 0.11, 1.1 - i * 0.1, 0.8));
+      bell(note('A', 2), t0 + 0.55, 1.4, 0.35);   // the sparkle on top
+      [note('F'), note('A'), note('C', 1), note('E', 1)].forEach((f) => {   // the pad
+        const o = ctx.createOscillator(), o2 = ctx.createOscillator(), lp = ctx.createBiquadFilter(), g = ctx.createGain();
+        o.type = 'sawtooth'; o2.type = 'sawtooth'; o.frequency.value = f; o2.frequency.value = f * 1.006;
+        lp.type = 'lowpass'; lp.frequency.setValueAtTime(600, t0 + 0.3); lp.frequency.linearRampToValueAtTime(1400, t0 + 1.2);
+        g.gain.setValueAtTime(0.0001, t0 + 0.3); g.gain.linearRampToValueAtTime(0.06, t0 + 0.7); g.gain.linearRampToValueAtTime(0.0001, t0 + 2.2);
+        o.connect(lp); o2.connect(lp); lp.connect(g); g.connect(out);
+        o.start(t0 + 0.3); o2.start(t0 + 0.3); o.stop(t0 + 2.3); o2.stop(t0 + 2.3);
+      });
+    },
+
     currentTrack() { return currentTrack; },
 
     setVolume(v) {

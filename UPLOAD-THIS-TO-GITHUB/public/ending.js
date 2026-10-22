@@ -3,10 +3,11 @@
      1. The winner: the name, the points, the Remote changing hands ("Bob, hand over the remote."), and each
         player's rating change on one line.
      2. One awards slide: Best Lie and Nobody Bit (quoted), Best Liar, Most Groans, Sharpest Eye.
-     3. The final scores (and the table vs. the cartoonist). At the night's end (Last Call, or "Call it a night") the
+     3. "Did you know?" (the intermission between games, every game of 2+ rounds): 2–3 facts about the players, one
+        beat each, as an old-school TV public-service announcement (dykHtml; the chime is GameMusic.psa in music.js).
+     4. The final scores (and the table vs. the cartoonist). At the night's end (Last Call, or "Call it a night") the
         dealer's tap opens Caption of the Night (finale.js); nothing framed tonight, the night ends there.
-        No end credits and no cast list (cut, Oct 2026). Beats the server adds before 'final' at the night's end
-        (night.js nightCloseBeats: a between-games intermission) need a branch in draw().
+        No end credits and no cast list (cut, Oct 2026).
    A sealed game (R18: the Late Edition seals the scoreboard) opens the ending by reading the standings from last
    place up, one name a beat, then holds the top two together before the winner lands.
    Also here: HEADING OUT (R28: leave the game; the phone says goodbye), LAST CALL (R30: the host's "one more trip around"),
@@ -174,6 +175,45 @@
     '#mycredit.on{display:block;animation:enFade .4s ease-out;}',
     '#mycredit .en-foot{position:static;margin-top:22px;padding:0;background:none;gap:10px;}',
     '#mycredit .en-foot .btn{flex:1;}',
+    /* "Did you know?" — the intermission between games: an old-school TV public-service announcement (our own
+       look: a soft CRT, scanlines, a little color bleed; the title in a chunky retro face) */
+    '#ending.dyk{background:#07081A;color:#F4F1E8;}',
+    '#ending.dyk .en-foot{background:linear-gradient(to top,#07081A 70%,rgba(7,8,26,0));}',
+    '#ending.dyk .en-bar{background:rgba(244,241,232,.16);}',
+    '#ending.dyk .en-next{border-color:#F4F1E8;}',
+    '.dyk-scr{position:relative;overflow:hidden;border-radius:26px/22px;padding:26px 20px 24px;min-height:min(64vh,520px);display:flex;flex-direction:column;justify-content:center;gap:18px;',
+    'background:radial-gradient(120% 90% at 50% 38%,#2C3C9A 0%,#1B2470 46%,#0C1040 78%,#05061A 100%);box-shadow:0 0 0 3px #1A1630,0 0 0 9px #0E0C1C,0 18px 50px rgba(0,0,0,.6),inset 0 0 40px rgba(120,160,255,.18);}',
+    '.dyk-scr::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,rgba(255,255,255,0) 1px 3px);mix-blend-mode:multiply;}',
+    '.dyk-scr::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:4;border-radius:inherit;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 58%,rgba(0,0,0,.5) 100%);}',
+    '.dyk-trk{position:absolute;left:0;right:0;top:-20%;height:14%;z-index:2;pointer-events:none;background:linear-gradient(rgba(255,255,255,0),rgba(200,220,255,.10),rgba(255,255,255,0));animation:dykTrk 2.4s linear .1s 1 both;}',
+    '@keyframes dykTrk{from{transform:translateY(0);}to{transform:translateY(900%);}}',
+    '.dyk-glow{animation:dykFlick 5s steps(1) infinite;}',
+    '@keyframes dykFlick{0%,100%{filter:none;}47%{filter:brightness(1.06);}48%{filter:none;}83%{filter:brightness(.96);}84%{filter:none;}}',
+    '.dyk-t{position:relative;z-index:1;text-align:center;}',
+    '.dyk-eye{font-family:var(--sans);font-size:11px;font-weight:900;letter-spacing:.32em;text-transform:uppercase;color:#9FB2FF;margin:0 0 8px;text-shadow:-1px 0 rgba(255,70,110,.5),1px 0 rgba(70,220,255,.4);}',
+    '.dyk-h{font-family:Bungee,"Arial Black",Impact,sans-serif;font-weight:400;font-size:clamp(34px,11.5vw,48px);line-height:.98;letter-spacing:.01em;margin:0;color:#FFD23F;transform:skewX(-6deg);',
+    'text-shadow:-1.5px 0 rgba(255,60,100,.55),1.5px 0 rgba(60,220,255,.45),3px 3px 0 #E8562A,6px 6px 0 #B0287A,9px 9px 0 #3B1460,10px 12px 14px rgba(0,0,0,.55);filter:blur(.25px);}',
+    '.dyk-bars{display:flex;flex-direction:column;gap:4px;width:62%;max-width:230px;margin:16px auto 0;transform:skewX(-18deg);}',
+    '.dyk-bars i{display:block;height:5px;border-radius:1px;}',
+    '.dyk-bars i:nth-child(1){background:#FF9A3C;} .dyk-bars i:nth-child(2){background:#F2457E;width:86%;} .dyk-bars i:nth-child(3){background:#8C4BE8;width:72%;}',
+    '.dyk-t.small .dyk-h{font-size:clamp(26px,8vw,32px);} .dyk-t.small .dyk-bars{margin-top:10px;width:46%;} .dyk-t.small .dyk-eye{display:none;}',
+    '.dyk-card{position:relative;z-index:1;margin:0 2px;padding:16px 16px 14px;border-radius:12px;background:rgba(6,8,30,.55);border:1.5px solid rgba(159,178,255,.32);box-shadow:0 0 18px rgba(80,120,255,.18) inset;}',
+    '.dyk-f{margin:0;font-family:var(--sans);font-weight:800;font-size:clamp(19px,5.9vw,23px);line-height:1.34;color:#F4F1E8;text-wrap:pretty;overflow-wrap:anywhere;text-shadow:-1px 0 rgba(255,70,110,.45),1px 0 rgba(70,220,255,.38),0 0 8px rgba(160,190,255,.25);}',
+    '.dyk-f mark{background:#FFD23F;color:#1F1A17;padding:0 .2em;border-radius:3px;-webkit-box-decoration-break:clone;box-decoration-break:clone;text-shadow:none;}',
+    '.dyk-f b{color:#FFE48A;font-weight:900;}',
+    '.dyk-dots{position:relative;z-index:1;display:flex;gap:7px;justify-content:center;margin:0;}',
+    '.dyk-dots i{width:7px;height:7px;border-radius:50%;background:rgba(244,241,232,.25);} .dyk-dots i.on{background:#FFD23F;box-shadow:0 0 6px rgba(255,210,63,.7);}',
+    '.dyk-bug{position:absolute;right:18px;bottom:12px;z-index:1;font-family:Bungee,"Arial Black",sans-serif;font-size:12px;color:rgba(244,241,232,.42);letter-spacing:.06em;}',
+    /* the intro (the first fact): the title rolls in, then the fact; later facts: just the card */
+    '.dyk-intro .dyk-t{animation:dykIn .7s cubic-bezier(.2,.9,.3,1.2) both;}',
+    '@keyframes dykIn{0%{opacity:0;transform:translateY(-10px) scaleY(1.6);filter:blur(3px);}60%{opacity:1;filter:blur(.6px);}100%{opacity:1;transform:none;filter:none;}}',
+    '.dyk-card{animation:dykCard .55s ease-out both;}',
+    '.dyk-intro .dyk-card,.dyk-intro .dyk-dots{animation-delay:1.6s;}',
+    '.dyk-dots{animation:enFade .4s ease-out both;}',
+    '@keyframes dykCard{from{opacity:0;transform:translateY(10px);filter:blur(2px);}to{opacity:1;transform:none;filter:none;}}',
+    '.dyk-late .dyk-t,.dyk-late .dyk-card,.dyk-late .dyk-dots,.dyk-late .dyk-trk,.dyk-rm .dyk-t,.dyk-rm .dyk-card,.dyk-rm .dyk-dots{animation:none !important;opacity:1;}',
+    '.dyk-rm .dyk-trk,.dyk-late .dyk-trk{display:none;} .dyk-rm .dyk-glow{animation:none;} .dyk-rm .dyk-h{filter:none;}',
+    '@media (max-height:680px){.dyk-scr{min-height:0;padding:20px 16px 18px;gap:14px;} .dyk-h{font-size:clamp(30px,10vw,40px);} .dyk-f{font-size:19px;}}',
     '@media (prefers-reduced-motion: reduce){#ending *,#prev *{animation-duration:.01s !important;transition-duration:.01s !important;}}',
   ].join('\n');
   try { var st = document.createElement('style'); st.id = 'cc-ending-css'; st.textContent = CSS; (document.head || document.documentElement).appendChild(st); } catch (e) {}
@@ -358,26 +398,46 @@
   function nameOfId(id) { try { return nameOf(id); } catch (e) { return ''; } }
   function draw(e, c, b) {
     var o = el(), s = S(), fresh = !o.className;
-    o.className = 'on paper';
+    o.className = b.k === 'dyk' ? 'on dyk' : 'on paper';
     var html = '';
     if (b.k === 'stand') html = standHtml(e, b);
     else if (b.k === 'top') html = topHtml(e, b);
     else if (b.k === 'winner') html = winnerHtml(e);
     else if (b.k === 'awards') html = awardsHtml(e);
-    // (an intermission beat from the server, night.js nightCloseBeats, gets its own branch here)
+    else if (b.k === 'dyk') html = dykHtml(e, c, b);   // "Did you know?" (night.js intermission)
     else html = finalHtml(e);
     var last = b.k === 'final' || c.i >= e.beats.length - 1;
     o.innerHTML = '<div class="en-in">' + html + '</div>' + footHtml(e, c, b, last);
     o.scrollTop = 0;
     o.onclick = function (ev) { if ((run() || local) && !last && !(ev.target.closest && ev.target.closest('button'))) next(c.i); };
-    sound(b.k, fresh);
+    sound(b.k, fresh, b, c);
+    if (b.k === 'dyk') say('Did you know? ' + (b.text || ''));
     try { var f = o.querySelector('.en-in'); if (f && f.focus) { f.setAttribute('tabindex', '-1'); f.focus({ preventScroll: true }); } } catch (x) {}
   }
-  function sound(k, fresh) {
+  function sound(k, fresh, b, c) {
+    if (k === 'dyk') { if (now() - c.start < 2500) snd(function () { if (window.GameMusic && window.GameMusic.psa) window.GameMusic.psa(b.i > 0); }); return; }
     if (k === 'winner') { snd(function () { tone(784, 0.2, 0, 'triangle', 0.05); tone(1047, 0.35, 120, 'triangle', 0.045); }); vib([60, 40, 120]); }
     else if (k === 'awards') snd(function () { noise(0.3, 0, 0.18, 1800); tone(880, 0.25, 0, 'sine', 0.04, 260); });
     else if (k === 'stand') snd(function () { tone(392, 0.12, 0, 'triangle', 0.035); });
     else if (k === 'top') snd(function () { noise(0.6, 0, 0.06, 700, 'lowpass'); tone(196, 1.2, 0, 'sine', 0.05); tone(247, 1.2, 0, 'sine', 0.035); });
+  }
+
+  /* "Did you know?": one fact a beat, the player's name highlighted (the first beat carries the title card) */
+  function dykText(b) {
+    var t = E(b.text || '');
+    var mark = function (name, tag) { if (!name) return; var n = E(name), re = new RegExp('(^|[^\\w>])(' + n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')(?![\\w<])'); t = t.replace(re, '$1<' + tag + '>$2</' + tag + '>'); };
+    mark(b.who, 'mark'); if (b.other && b.other !== b.who) mark(b.other, 'b');
+    return t;
+  }
+  function dykHtml(e, c, b) {
+    var first = !b.i, late = now() - c.start > (first ? 2200 : 900);
+    var cls = 'dyk-scr dyk-glow' + (first ? ' dyk-intro' : '') + (late ? ' dyk-late' : '') + (reduced() ? ' dyk-rm' : '');
+    var dots = ''; for (var k = 0; k < (b.of || 1); k++) dots += '<i' + (k === b.i ? ' class="on"' : '') + '></i>';
+    return '<div class="' + cls + '" role="group" aria-label="Did you know?">' +
+      '<div class="dyk-trk" aria-hidden="true"></div><span class="dyk-bug" aria-hidden="true">CC</span>' +
+      '<div class="dyk-t' + (first ? '' : ' small') + '"><p class="dyk-eye">A message between games</p><h2 class="dyk-h">Did you know?</h2><div class="dyk-bars" aria-hidden="true"><i></i><i></i><i></i></div></div>' +
+      '<div class="dyk-card"><p class="dyk-f">' + dykText(b) + '</p></div>' +
+      '<div class="dyk-dots" aria-hidden="true">' + dots + '</div></div>';
   }
 
   /* 1. The winner, the Remote, the ratings */

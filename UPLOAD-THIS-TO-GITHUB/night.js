@@ -1,10 +1,10 @@
 // night.js — the end of the night (and the night before), worked out on the server so every phone shows the same.
 //
 //   THE ENDING (game over): the winner (with each player's rating change, and the Remote changing hands), one awards
-//   slide, the final scores, then (at the night's end: Last Call, or the host's "Call it a night") Caption of the
-//   Night. No end credits and no cast list any more (Nick, Oct 2026): credits.js keeps its words, nothing plays them.
-//   The beats that may follow the scores at the night's end come from nightCloseBeats() (none today): the one place
-//   a between-games intermission slots in.
+//   slide, "Did you know?" (the intermission between games: 2–3 facts about the players, words in dyk.js; not after
+//   a game of fewer than 2 rounds), the final scores, then (at the night's end: Last Call, or the host's "Call it a
+//   night") Caption of the Night. No end credits and no cast list any more (Nick, Oct 2026): credits.js keeps its
+//   words, nothing plays them.
 //   game.ending = { at, step, stepAt, beats, done, ... }: phones work out the beat on screen from the server clock;
 //   'ending_next' (the dealer or host) moves to the next beat at once.
 //
@@ -35,6 +35,7 @@
 const crypto = require('crypto');
 const Rating = require('./rating');
 const W = require('./credits');
+const D = require('./dyk');
 let G = null;
 const game_ = () => G || (G = require('./game'));   // (late: game.js is still loading when this file is first read)
 
@@ -551,16 +552,18 @@ function buildEnding(game) {
   }
   beats.push({ k: 'winner', ms: WINNER_MS });
   if (aw.length) beats.push({ k: 'awards', ms: AWARDS_MS });
-  // Every game ends on the final scores. The night's last game (Last Call, or the host's "Call it a night" at game
-  // over: callNight) then plays nightCloseBeats() (none today), and the final scores' tap opens Caption of the Night
-  // (or, with nothing framed tonight, the night ends there). No credits, no cast list (credits.js is unplayed).
+  // Every game: "Did you know?" (the intermission), then the final scores. At the night's end (Last Call, or the
+  // host's "Call it a night": callNight) the final scores' tap opens Caption of the Night (or, with nothing framed
+  // tonight, the night ends there). No credits, no cast list (credits.js is unplayed).
   const full = !!game.lastCall;
-  if (full) for (const b of nightCloseBeats(game)) beats.push(b);
+  const remote = remoteChange(game, stand);
+  let dyk = [];
+  try { dyk = intermission(game, X, stand, remote); } catch (x) { console.error('intermission failed', x); dyk = []; }
+  for (const b of dyk) beats.push(b);
   beats.push({ k: 'final' });
   void roll; void keys;
-  const remote = remoteChange(game, stand);
   const e = {
-    gameId: gid, at, step: 0, stepAt: at, beats, done: false, full, credits, awards: aw, monkey, keys: [], remote,
+    gameId: gid, at, step: 0, stepAt: at, beats, done: false, full, credits, awards: aw, monkey, keys: dyk.map(b => b.key), remote,
     cast: ids.map(id => ({ id, name: X.F[id].name, role: credits[id].role, absentia: !!credits[id].absentia })),
     scores: Object.fromEntries(ids.map(id => [id, X.F[id].score])),
     summary: summaryFacts(game, X, stand, pick, monkey),
@@ -653,11 +656,188 @@ function tableRecord(game) {
   };
 }
 
-/* ── INTERMISSION SLOT: the beats played at the night's end, after the final scores' awards and before Caption of
-   the Night. None today (the end credits and the cast list were cut). A between-games intermission goes HERE: return
-   e.g. [{ k: 'intermission', ms: 8000 }] and teach public/ending.js draw() to show that k. buildEnding (Last Call)
-   puts them just before the closing 'final' beat; callNight plays them, then 'final'. ── */
-function nightCloseBeats(game) { void game; return []; }
+/* ── INTERMISSION SLOT: the beats played before the closing 'final' beat. Every game's ending already carries
+   "Did you know?" (buildEnding), so "Call it a night" adds nothing after it; only an ending without one (a restored
+   room's older ending) gets it here. callNight plays these, then 'final'. ── */
+function nightCloseBeats(game) {
+  const e = game.ending;
+  if (e && Array.isArray(e.beats) && e.beats.some(b => b && b.k === 'dyk')) return [];   // (it played after this game already)
+  try { const X = facts(game), stand = standingOf(game); return intermission(game, X, stand, remoteChange(game, stand)); } catch (x) { console.error('intermission failed', x); return []; }
+}
+
+/* ── "DID YOU KNOW?" (Nick, Oct 21 2026): the intermission between games. After every game's winner and awards,
+   before the final scores (so at the night's end it plays just before Caption of the Night): 2–3 facts about the
+   players from how they actually played, as an old-school public-service announcement (public/ending.js draws it).
+   Each fact is one beat: reading time (words ÷ 3 s) and a held beat of 2 s; the first carries the title card; the
+   dealer taps on. Never in a game with fewer than 2 finished rounds. The words are in dyk.js; a room never repeats
+   a line tonight (game.dykUsed, kept across games), and the phones' seen lines keep the next night fresh. ── */
+const DYK_TITLE_MS = 1800, DYK_IN_MS = 700, DYK_HOLD_MS = 2000, DYK_MIN_MS = 6000, DYK_MAX_WORDS = 34, DYK_USED_MAX = 300;
+const pctOf = (a, b) => (b > 0 ? Math.round((100 * a) / b) : 0);
+const roundWord = (r) => 'round ' + num(r);
+// Everything a line can need, per player (game behavior only; never a caption's words)
+function dykStats(game, X, stand, remote) {
+  const H = (game.history || []).filter(h => h && Array.isArray(h.openCaptions)).sort((a, b) => a.round - b.round);
+  const ps = (game.players || []).filter(p => X.F[p.id] && !p.gone);
+  const S = {};
+  for (const p of ps) {
+    const f = X.F[p.id];
+    if (!f.wrote && !f.bet && !f.dealt) continue;   // (joined at the very end: nothing to say yet)
+    S[p.id] = { id: p.id, name: firstWord(p.name), f, believed: (f.caps || []).filter(c => c.chips > 0).length, fellRounds: 0, betOwn: 0, haGiven: 0, groanGiven: 0, run: 0, runWith: null, fellBy: [] };
+  }
+  let tableHa = 0;
+  H.forEach((h, i) => {
+    const fell = {};
+    for (const b of h.bets || []) {
+      if (!b || b.target === 'pass' || !S[b.playerId] || (b.count || 0) + (b.stolen || 0) < 1) continue;
+      const c = capOf(h, String(b.target));
+      if (c.playerId === b.playerId) { (S[b.playerId].ownR = S[b.playerId].ownR || new Set()).add(h.round); continue; }
+      if (!c.isCorrect && c.playerId) (fell[b.playerId] = fell[b.playerId] || new Set()).add(c.playerId);
+    }
+    for (const [pid, set] of Object.entries(fell)) { S[pid].fellRounds++; S[pid].fellBy[i] = set; }
+    for (const m of Object.values(h.reactions || {})) {
+      if (!m || typeof m !== 'object') continue;
+      for (const [pid, r] of Object.entries(m)) {
+        if (!r || typeof r !== 'object') continue;
+        if (r.ha) tableHa++;
+        if (!S[pid]) continue;
+        if (r.ha) S[pid].haGiven++;
+        if (r.groan) S[pid].groanGiven++;
+      }
+    }
+  });
+  for (const s of Object.values(S)) {
+    s.betOwn = s.ownR ? s.ownR.size : 0; delete s.ownR;
+    // the longest run of consecutive rounds falling for the same writer
+    for (const w of Object.keys(S)) {
+      if (w === s.id) continue;
+      let cur = 0;
+      for (let i = 0; i < H.length; i++) { cur = s.fellBy[i] && s.fellBy[i].has(w) ? cur + 1 : 0; if (cur > s.run) { s.run = cur; s.runWith = w; } }
+    }
+    delete s.fellBy;
+    s.tableHa = tableHa - s.haGiven;
+  }
+  // the standings: the winner (alone), by how much, the Remote streak; last place (alone, at a table of 3+)
+  const list = Object.values(S), score = (s) => s.f.score;
+  const win = stand && stand.winners && stand.winners.length === 1 ? S[stand.winners[0]] : null;
+  if (win) {
+    win.winner = true;
+    const rest = list.filter(s => s !== win).map(score);
+    win.margin = rest.length ? score(win) - Math.max(...rest) : 0;
+    if (remote && remote.streak >= 2 && remote.after && remote.after.length === 1 && norm(remote.after[0]) === norm((game.players.find(p => p.id === win.id) || {}).name)) win.streak = remote.streak;
+  }
+  if (list.length >= 3) {
+    const lo = Math.min(...list.map(score)), hi = Math.max(...list.map(score)), lasts = list.filter(s => score(s) === lo);
+    if (lo < hi && lasts.length === 1 && lasts[0] !== win) lasts[0].last = true;
+  }
+  S._rounds = H.length;
+  return S;
+}
+// Is this fact true for this player tonight? Returns what the line fills in ({ n, other, pct }) or null
+function dykTrig(need, s, S) {
+  if (!s) return null;
+  const f = s.f, nm = (id) => (S[id] ? S[id].name : null);
+  const topVictim = () => { const [vid, vn] = Object.entries(f.victims || {}).filter(([v]) => S[v]).sort((a, b) => b[1] - a[1])[0] || []; return vid ? { other: nm(vid), n: vn } : null; };
+  const topRobbed = () => { const [vid, vn] = Object.entries(f.stoleFrom || {}).filter(([v]) => S[v]).sort((a, b) => b[1] - a[1])[0] || []; return vid ? { other: nm(vid), n: vn } : null; };
+  let t;
+  switch (need) {
+    case 'liar': return s.believed >= 2 ? { n: s.believed } : null;
+    case 'liarVictim': return (t = topVictim()) && t.n >= 2 ? t : null;
+    case 'bigLiar': return (t = topVictim()) && t.n >= 3 ? t : null;
+    case 'allBelieved': return f.wrote >= 3 && s.believed === f.wrote ? { n: f.wrote } : null;
+    case 'liePct': return f.wrote >= 2 && s.believed * 2 >= f.wrote ? { pct: pctOf(s.believed, f.wrote) } : null;
+    case 'gullible': return f.gotFooled >= 2 ? { n: f.gotFooled } : null;
+    case 'gullBig': return f.gotFooled >= 3 ? { n: f.gotFooled } : null;
+    case 'gullPct': return f.bet >= 2 && s.fellRounds * 2 >= f.bet ? { pct: pctOf(s.fellRounds, f.bet) } : null;
+    case 'sameRun': return s.run >= 2 && S[s.runWith] ? { n: s.run, other: nm(s.runWith) } : null;
+    case 'sharp': return f.found >= 2 ? { n: f.found } : null;
+    case 'sharpPct': return f.bet >= 2 && f.found >= 2 && pctOf(f.found, f.bet) >= 60 ? { pct: pctOf(f.found, f.bet), n: f.found } : null;
+    case 'allFound': return f.bet >= 3 && f.found === f.bet ? { n: f.found } : null;
+    case 'dullPct': return f.bet >= 3 && pctOf(f.found, f.bet) <= 34 ? { pct: pctOf(f.found, f.bet) } : null;
+    case 'betOwn': return s.betOwn >= 1 ? { n: s.betOwn } : null;
+    case 'betOwn2': return s.betOwn >= 2 ? { n: s.betOwn } : null;
+    case 'blind': return f.blindClosed >= 2 ? { n: f.blindClosed } : null;
+    case 'blindPct': return f.bet >= 2 && f.blindClosed >= 2 && f.blindClosed * 2 >= f.bet ? { pct: pctOf(f.blindClosed, f.bet) } : null;
+    case 'thief': return f.steals >= 1 ? { n: f.steals } : null;
+    case 'stealPct': return f.dealt >= 2 && f.steals >= 1 && f.steals * 2 >= f.dealt ? { pct: pctOf(f.steals, f.dealt) } : null;
+    case 'robbedSame': return (t = topRobbed()) && t.n >= 2 ? t : null;
+    case 'robbed': return f.stolen >= 1 ? { n: f.stolen } : null;
+    case 'robbed2': return f.stolen >= 2 ? { n: f.stolen } : null;
+    case 'framer': return f.framedOthers >= 2 ? { n: f.framedOthers } : null;
+    case 'framer3': return f.framedOthers >= 3 ? { n: f.framedOthers } : null;
+    case 'haGiven': return s.haGiven >= 4 ? { n: s.haGiven } : null;
+    case 'haBig': return s.haGiven >= 6 ? { n: s.haGiven } : null;
+    case 'noHa': return S._rounds >= 3 && s.haGiven === 0 && s.tableHa >= 3 ? { n: 0 } : null;
+    case 'groaner': return s.groanGiven >= 2 ? { n: s.groanGiven } : null;
+    case 'groanBig': return s.groanGiven >= 3 ? { n: s.groanGiven } : null;
+    case 'firstIn': return f.first >= 2 ? { n: f.first } : null;
+    case 'firstBig': return f.first >= 3 ? { n: f.first } : null;
+    case 'firstPct': return f.subRounds >= 2 && f.first >= 2 && f.first * 2 >= f.subRounds ? { pct: pctOf(f.first, f.subRounds) } : null;
+    case 'lastIn': return f.last >= 2 ? { n: f.last } : null;
+    case 'lastPct': return f.subRounds >= 2 && f.last >= 2 && f.last * 2 >= f.subRounds ? { pct: pctOf(f.last, f.subRounds) } : null;
+    case 'skipper': return f.skips >= 1 ? { n: f.skips } : null;
+    case 'skipper2': return f.skips >= 2 ? { n: f.skips } : null;
+    case 'winner': return s.winner ? { n: s.f.score } : null;
+    case 'margin': return s.winner && s.margin >= 1 ? { n: s.margin } : null;
+    case 'streak': return s.winner && s.streak >= 2 ? { n: s.streak } : null;
+    case 'last': return s.last ? { n: s.f.score } : null;
+    case 'any': return { n: 0 };
+    default: return null;
+  }
+}
+function intermission(game, X, stand, remote) {
+  if (!X || X.rounds < 2) return [];
+  const S = dykStats(game, X, stand, remote), ids = Object.keys(S).filter(k => k !== '_rounds');
+  if (ids.length < 2) return [];
+  const rnd = rngFrom('dyk|' + (game.gameId || game.code || '') + '|' + (game.dykUsed || []).length);
+  const used = new Set(Array.isArray(game.dykUsed) ? game.dykUsed : []), seen = seenAt(game);
+  const adultOk = !!(game.settings && game.settings.spicy && !game.settings.family);
+  const all = [];
+  for (const [kind, list] of Object.entries(D.LINES)) for (const l of list) {
+    if (l.adult && !adultOk) continue;
+    if (/\{r\}/.test(l.text) && X.rounds < 3) continue;
+    const key = Rating.lineKey(l.text);
+    for (const id of ids) {
+      const c = dykTrig(l.need, S[id], S);
+      if (!c || (/\{other\}/.test(l.text) && !c.other)) continue;
+      const strength = kind === 'nonsequitur' ? 0 : Math.min(0.3, 0.06 * (c.n || 0)) + (c.pct >= 75 || (c.pct !== undefined && c.pct <= 20) ? 0.15 : 0);
+      all.push({ kind, l, key, id, c, score: rnd() + strength - (seen.has(key) ? 0.6 * seen.get(key) : 0) });
+    }
+  }
+  // Never a line this room has shown tonight (only when there's nothing else does an old one come back)
+  let pool = all.filter(x => !used.has(x.key));
+  if (new Set(pool.map(x => x.id)).size < 2 || pool.length < 2) pool = all;
+  pool.sort((a, b) => b.score - a.score);
+  const picked = [], hasKind = (k) => picked.some(p => p.kind === k), hasId = (id) => picked.some(p => p.id === id), hasKey = (k) => picked.some(p => p.key === k);
+  const take = (ok) => {
+    const fit = pool.filter(x => ok(x) && !hasKind(x.kind) && !hasKey(x.key));
+    const x = fit.find(y => !hasId(y.id)) || null;   // (2–3 different players)
+    if (x) picked.push(x);
+    return x;
+  };
+  // 1. real play; 2. real play again, or the standings; 3. the closer: the leader, a non-sequitur or last place
+  const standing = (k) => k === 'leader' || k === 'last';
+  take(x => D.PLAY_KINDS.includes(x.kind)) || take(x => standing(x.kind));
+  take(x => D.PLAY_KINDS.includes(x.kind) || (rnd() < 0.5 && standing(x.kind)));
+  const r = rnd(), want = r < 0.45 ? 'nonsequitur' : r < 0.8 ? 'leader' : 'last';
+  take(x => x.kind === want && !(standing(x.kind) && picked.some(p => standing(p.kind)))) ||
+    take(x => (D.CLOSE_KINDS.includes(x.kind) || D.PLAY_KINDS.includes(x.kind)) && !(standing(x.kind) && picked.some(p => standing(p.kind))));
+  if (picked.length < 2) take(() => true);
+  if (picked.length < 2) return [];
+  // the closer goes last; about 15 seconds: a third fact only when all three are short
+  picked.sort((a, b) => (D.CLOSE_KINDS.includes(a.kind) ? 1 : 0) - (D.CLOSE_KINDS.includes(b.kind) ? 1 : 0));
+  const rWord = roundWord(2 + Math.floor(rnd() * Math.max(1, X.rounds - 2)));
+  const out = picked.map(x => {
+    const text = fill(x.l.text, { name: S[x.id].name, other: x.c.other || '', n: x.c.n || 0, pct: x.c.pct !== undefined ? String(x.c.pct) : '', r: rWord });
+    return { x, text, words: wordsIn(text) };
+  });
+  while (out.length > 2 && out.reduce((a, o) => a + o.words, 0) > DYK_MAX_WORDS) out.splice(out.length === 3 && D.CLOSE_KINDS.includes(out[2].x.kind) ? 1 : 2, 1);
+  game.dykUsed = Array.from(used).concat(out.map(o => o.x.key)).slice(-DYK_USED_MAX);
+  return out.map((o, i) => ({
+    k: 'dyk', i, of: out.length, kind: o.x.kind, need: o.x.l.need, key: o.x.key,
+    id: o.x.id, who: S[o.x.id].name, other: o.x.c.other || null, text: o.text,
+    ms: Math.max(DYK_MIN_MS, (i === 0 ? DYK_TITLE_MS : 0) + DYK_IN_MS + Math.round((o.words * 1000) / 3) + DYK_HOLD_MS),
+  }));
+}
 // The night is over: the ending closes, and Caption of the Night opens (nothing framed tonight: the final page)
 function endNight(game, e) {
   e.done = true; e.doneAt = Date.now();
@@ -829,5 +1009,6 @@ module.exports = {
   decorateView, headOut, returned, lastCall, callNight, sealedNow,
   // for tests
   facts, candidates, assign, monkeyRounds, monkeyLine, awards, fill, cleanTable, matchTable, tableRecord, tallyIn,
+  dykStats, dykTrig, intermission, nightCloseBeats,
   WINNER_MS, AWARDS_MS, CREDIT_MS, PREV_MS,
 };
