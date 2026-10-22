@@ -61,7 +61,7 @@
       var bluffs = [];
       hist.forEach(function (r) {
         var v = {}, real = function (t) { return t === 'closed' ? !!r.closedIsCorrect : !!(r.openCaptions[t] || {}).isCorrect; };
-        var author = function (t) { return t === 'closed' ? r.closedPlayerId : (r.openCaptions[t] || {}).playerId; };
+        var author = function (t) { if (t === 'closed') return r.closedPlayerId; var o = r.openCaptions[t] || {}; return o.house ? null : o.playerId; };   // (a house fake is nobody's bluff)
         (r.bets || []).forEach(function (b) {
           if (b.target === 'pass' || real(b.target)) return;
           var a = author(b.target), n = b.count + (b.stolen || 0);

@@ -98,6 +98,21 @@ app.get('/stats', (req, res, next) => {
   if (!want || !crypto.timingSafeEqual(a, b)) return next();   // (falls through to the plain 404)
   res.set('Cache-Control', 'no-store').set('X-Robots-Tag', 'noindex').json(Stats.report());
 });
+// Solo practice (practice.js): one phone, six cartoons. The real captions stay here until each guess is in.
+const Practice = require('./practice');
+const pracHits = new Map();   // ip -> [times] of new practice sessions (30 a minute is plenty for a whole Wi-Fi)
+setInterval(() => { const now = Date.now(); for (const [ip, l] of pracHits) if (!l.length || now - l[l.length - 1] > 60000) pracHits.delete(ip); }, 60000).unref();
+const pracJson = express.json({ limit: '8kb' });
+const pracSend = (res, r) => res.set('Cache-Control', 'no-store').status(r && r.error ? (r.gone ? 410 : 400) : 200).json(r || { error: 'That didn’t take. Try again.' });
+app.post('/practice/start', pracJson, (req, res) => {
+  const ip = clientIp(req), l = pracHits.get(ip) || [], now = Date.now();
+  while (l.length && now - l[0] > 60000) l.shift();
+  if (l.length >= 30) return pracSend(res, { error: TOO_MANY });
+  l.push(now); pracHits.set(ip, l);
+  try { pracSend(res, Practice.start(req.body || {})); } catch (e) { console.error('practice start', e); pracSend(res, null); }
+});
+app.post('/practice/write', pracJson, (req, res) => { try { pracSend(res, Practice.write(req.body || {})); } catch (e) { console.error('practice write', e); pracSend(res, null); } });
+app.post('/practice/guess', pracJson, (req, res) => { try { pracSend(res, Practice.guess(req.body || {})); } catch (e) { console.error('practice guess', e); pracSend(res, null); } });
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
 
 const games = {};    // code -> game
@@ -503,7 +518,8 @@ wss.on('connection', (ws, req) => {
       case 'start': {
         if (!isHost) return sendError(ws, 'Only the host can start');
         if (game.phase !== PHASES.LOBBY) return sendError(ws, 'Game already in progress');
-        if (game.players.filter(p => p.connected).length < 3) return sendError(ws, 'Need at least 3 players');
+        { const here = game.players.filter(p => p.connected).length, house = G.houseWanted(game);   // two people can play with at least one house player
+          if (here < 2 || (here < 3 && house < 1)) return sendError(ws, here < 2 ? 'Need at least 2 players' : 'Need a third player, or a house player'); }
         { const c = G.startCheck(game); if (c.error) return sendError(ws, c.error); }   // the new deck is still being drawn: never start a game that would run out
         if (fail(G.startRound(game))) return;
         Night.beginGame(game);   // "Previously on Closed Caption" when most of this table played last time
