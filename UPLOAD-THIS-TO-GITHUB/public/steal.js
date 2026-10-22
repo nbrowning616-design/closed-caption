@@ -279,7 +279,7 @@
   };
 
   /* ── The show ── */
-  var FULL_MS = 9000, SHORT_MS = 3500;   // game.js STEAL_FULL_MS / STEAL_SHORT_MS (the flip waits for these); the full show's
+  var FULL_MS = 11500, SHORT_MS = 4500;   // (Nick, Oct 22: the spray and the set-down get at least two more beats)   // game.js STEAL_FULL_MS / STEAL_SHORT_MS (the flip waits for these); the full show's
   // gloat card lands at 6.25 s and is held to the end, so the table can see what happened
   function showKind(st) { var k = (st && st.stealShow) || (typeof state !== 'undefined' && state && state.stealShow); return k === 'short' ? 'short' : 'full'; }
   function lengthFor(st) { return showKind(st) === 'short' ? SHORT_MS : FULL_MS; }
@@ -418,14 +418,14 @@
       else sway.push({ t: t1 + 210, a: 0.26 * s, e: 'ease-in-out' }, { t: t1 + 400, a: 0, e: 'linear' });
     };
     var GLIDE = 'cubic-bezier(.45,0,.2,1)', DROP = 'cubic-bezier(.6,0,.9,.5)';
-    var side = 1, C, K;   // where the chip is held for the paint job, and how close to the camera
+    var side = 1, C, K, FIN = 'plain';   // where the chip is held for the paint job, and how close to the camera
 
     if (quick) {
       // Quick: drop, CLUNK, lift a little, pssst, set it back down, gone
       K = 1.3; C = { x: clamp(V.x + (W / 2 - V.x) * 0.3, 70, W - 70), y: Math.min(V.y - 82, top.y - 105) };   // up off the felt, into the light
       side = C.x > W * 0.56 ? -1 : 1;
-      tm = { snatch: 400, lift0: 470, lift1: 740, can0: 600, can1: 720, paint: 745, spray1: 1070, wipe0: 760, wipe1: 1040, out0: 1110, out1: 1220,
-             lower0: 1170, set: 1440, open: 1470, rise0: 1620, rise1: 2000, gloat: 1650 };
+      tm = { snatch: 400, lift0: 470, lift1: 740, can0: 600, can1: 720, paint: 745, spray1: 1250, wipe0: 760, wipe1: 1230, out0: 1350, out1: 1500,
+             lower0: 1450, set: 1800, open: 1830, rise0: 2250, rise1: 2650, gloat: 2350 };
       at(0, V.x, -190, V.y, 'linear');
       at(70, V.x, -190, V.y, DROP);
       at(340, V.x, V.y, V.y, 'ease-out');
@@ -462,6 +462,7 @@
         miss: { decoy: 'none', approach: 'drift', grab: 'miss' }, disaster: { decoy: 'double', approach: 'swing', grab: 'tug' }
       };
       var rcp = RECIPES[rec] || RECIPES.classic;
+      FIN = st.finish || 'plain';   // spray-paint finishes: plain, spin, twocoats, overspray, tag, wetpaint (until Nick picks)
       if (st.fumble === true && !st.recipe) rcp = RECIPES.fumble;
       if (!others.length && rcp.decoy !== 'none') rcp = { decoy: 'dip', approach: rcp.approach, grab: rcp.grab };   // nothing to fumble but an empty spot
       // the decoys: other chips (two different ones for the double, all of them for the shopper), else an empty spot on the felt
@@ -606,8 +607,13 @@
         sh += 860; at(A(2650), V.x, V.y - HOVER, V.y, 'linear');
       }
       var o3 = rcp.grab === 'tug' ? 700 : 0, B = function (t) { return t + sh + o3; };
-      tm = { snatch: A(2990), lift0: B(3260), lift1: B(3700), can0: B(3380), can1: B(3720), rattle0: B(3750), rattle1: B(4170), paint: B(4230), spray1: B(4980), wipe0: B(4260), wipe1: B(4960),
-             out0: B(5060), out1: B(5400), lower0: B(5260), set: B(5740), open: B(5790), rise0: B(5960), rise1: B(6500), gloat: B(6250) };
+      /* the finish: what happens around the paint job. M = extra time after the spray, PS = extra time after the set-down.
+         Every finish now holds the wet chip up in the light (~0.9 s), lowers it slowly, and the claw lifts off and waits a beat
+         before it leaves (Nick: "that needs at least another 2 beats ... it doesn't pay off"). */
+      var M = { spin: 1050, twocoats: 1350, overspray: 650 }[FIN] || 0, PS = { tag: 1500, wetpaint: 1000 }[FIN] || 0;
+      var sp1 = B(5180), lw = sp1 + M + 900, setT = lw + 650, r0 = setT + 650 + PS;
+      tm = { snatch: A(2990), lift0: B(3260), lift1: B(3700), can0: B(3380), can1: B(3720), rattle0: B(3750), rattle1: B(4170), paint: B(4230), spray1: sp1, wipe0: B(4260), wipe1: sp1 - 20,
+             out0: sp1 + M + 250, out1: sp1 + M + 700, lower0: lw, set: setT, open: setT + 120, rise0: r0, rise1: r0 + 560, gloat: r0 + 480, mid0: sp1, mid1: sp1 + M, post0: setT + 330 };
       at(A(2760), V.x, V.y - HOVER, V.y, DROP);
       at(A(2920), V.x, V.y, V.y, 'linear');
       at(A(2990), V.x, V.y, V.y, 'cubic-bezier(.3,0,.5,1)');
@@ -631,7 +637,9 @@
       at(tm.set - 20, V.x, V.y - 3, V.y, 'ease-out');
       at(tm.set + 20, V.x, V.y + 3, V.y, 'ease-in-out');
       at(tm.set + 100, V.x, V.y, V.y, 'linear');
-      at(tm.rise0, V.x, V.y, V.y, 'cubic-bezier(.55,0,.8,.4)');
+      at(tm.open + 60, V.x, V.y, V.y, 'cubic-bezier(.3,0,.2,1)');
+      at(tm.open + 330, V.x, V.y - 46, V.y, 'ease-in-out');   // lets go, backs off, admires its work…
+      at(tm.rise0, V.x, V.y - 46, V.y, 'cubic-bezier(.55,0,.8,.4)');
       at(tm.rise1, V.x, -330, V.y, 'linear');
       glideSway(tm.lift0, tm.lift1, C.x - V.x);
       glideSway(tm.lower0, tm.set, V.x - C.x, true);
@@ -695,9 +703,30 @@
       cp(tm.can1, sx(NX + 10), cy - 30, -8, 1, 'linear');
       cp(tm.paint - 50, sx(NX + 10), cy - 30, -8, 1, 'cubic-bezier(.4,0,.2,1)');
       cp(tm.paint, sx(NX), cy - R * 0.85, -5, 1, 'cubic-bezier(.45,0,.55,1)');
-      cp(tm.spray1, sx(NX), cy + R * 0.85, 5, 1, 'linear');
+      if (FIN === 'overspray') {   // gets carried away: the spray wanders up over the claw
+        cp(tm.paint + (tm.spray1 - tm.paint) * 0.55, sx(NX), cy + R * 0.6, 4, 1, 'ease-in-out');
+        cp(tm.spray1, sx(NX - 6), cy - R * 2.4, -26, 1, 'ease-in-out');
+        cp(tm.spray1 + 260, sx(NX + 8), cy - R * 2.2, -22, 1, 'ease-in-out');
+      } else cp(tm.spray1, sx(NX), cy + R * 0.85, 5, 1, 'linear');
+      if (FIN === 'twocoats') {   // steps back, squints, shakes again, second coat
+        cp(tm.spray1 + 300, sx(NX + 46), cy - 6, -16, 1, 'ease-in-out');
+        cp(tm.spray1 + 520, sx(NX + 46), cy - 6, -24, 1, 'ease-in-out');
+        cp(tm.spray1 + 700, sx(NX + 46), cy - 6, -10, 1, 'cubic-bezier(.4,0,.2,1)');
+        cp(tm.spray1 + 980, sx(NX), cy - R * 0.85, -5, 1, 'cubic-bezier(.45,0,.55,1)');
+        cp(tm.spray1 + 1330, sx(NX), cy + R * 0.85, 5, 1, 'linear');
+      }
       cp(tm.out0, sx(NX + 4), cy + R * 0.7, 2, 1, 'cubic-bezier(.5,0,.8,.4)');
       cp(tm.out1, sx(W / 2 + 150), cy - 140, 42, 1, 'linear');
+      if (FIN === 'tag') {   // comes back down to the felt and signs it
+        var tx0 = clamp((function () { var row = victim && victim.closest('.st-chips'), last = row && row.lastElementChild; return last ? c(last).x + 30 : V.x + 30; })() + 44, 40, W - 20);
+        cp(tm.post0, sx(W / 2 + 150), cy - 140, 42, 1, 'cubic-bezier(.3,0,.2,1)');
+        cp(tm.post0 + 320, tx0 + 40, V.y - 26, -30, 0.8, 'ease-in-out');
+        cp(tm.post0 + 520, tx0 + 52, V.y - 12, -40, 0.8, 'ease-in-out');
+        cp(tm.post0 + 720, tx0 + 36, V.y - 30, -34, 0.8, 'ease-in-out');
+        cp(tm.post0 + 920, tx0 + 58, V.y - 10, -42, 0.8, 'ease-in-out');
+        cp(tm.post0 + 1100, tx0 + 50, V.y - 22, -36, 0.8, 'cubic-bezier(.5,0,.8,.4)');
+        cp(tm.post0 + 1450, W + 120, V.y - 200, 30, 0.8, 'linear');
+      }
     }
     whole(can, CP, function (p) { return { transform: 'translate3d(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px,0) rotate(' + (side * p.r) + 'deg) scale(' + p.s + ')' }; });
     // the shake: the mixing ball knocking about
@@ -709,6 +738,9 @@
     var cone = can.querySelector('.st-conewrap'), sprayMs = tm.spray1 - tm.paint, ck = [{ t: 0, o: 0 }, { t: tm.paint, o: 0 }, { t: tm.paint + 40, o: 0.95 }];
     for (var f = tm.paint + 110; f < tm.spray1 - 40; f += 95) ck.push({ t: f, o: 0.62 + ((f / 95) % 2) * 0.2 });
     ck.push({ t: tm.spray1, o: 0.8 }, { t: tm.spray1 + 70, o: 0 });
+    if (!quick && FIN === 'overspray') { ck.pop(); ck.push({ t: tm.spray1 + 240, o: 0.8 }, { t: tm.spray1 + 300, o: 0 }); }
+    if (!quick && FIN === 'twocoats') { ck.push({ t: tm.spray1 + 980, o: 0 }, { t: tm.spray1 + 1010, o: 0.95 }); for (var f2 = tm.spray1 + 1090; f2 < tm.spray1 + 1300; f2 += 95) ck.push({ t: f2, o: 0.62 + ((f2 / 95) % 2) * 0.2 }); ck.push({ t: tm.spray1 + 1330, o: 0.8 }, { t: tm.spray1 + 1400, o: 0 }); }
+    if (!quick && FIN === 'tag') { ck.push({ t: tm.post0 + 330, o: 0 }, { t: tm.post0 + 360, o: 0.7 }); for (var f3 = tm.post0 + 440; f3 < tm.post0 + 1080; f3 += 95) ck.push({ t: f3, o: 0.5 + ((f3 / 95) % 2) * 0.2 }); ck.push({ t: tm.post0 + 1100, o: 0 }); }
     whole(cone, ck, function (p) { return { opacity: p.o }; });
     // the mist: fine droplets flying out along the cone, landing on (and around) the chip
     var prnd = seeded((st.seed || 7) * 3 + 1);
@@ -732,6 +764,73 @@
     if (drips[0]) anim(drips[0], [{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)', offset: 0.55 }, { transform: 'scaleY(1.15)' }], quick ? 420 : 820, tm.wipe1 - 40, 'cubic-bezier(.3,.1,.4,1)');
     if (drips[1]) anim(drips[1], [{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], quick ? 360 : 700, tm.wipe1 + (quick ? 40 : 160), 'cubic-bezier(.3,.1,.4,1)');
     if (drop && !quick) anim(drop, [{ transform: 'translateY(0) scale(.6)', opacity: 0 }, { transform: 'translateY(0) scale(1)', opacity: 1, offset: 0.25 }, { transform: 'translateY(70px) scale(1,1.2)', opacity: 0 }], 560, tm.wipe1 + 420, 'cubic-bezier(.5,0,.9,.6)');
+    /* ── The finishes ── */
+    var addEl = function (html, parent) { var w = document.createElement('div'); w.innerHTML = html; var e = w.firstChild; (parent || stage).appendChild(e); return e; };
+    var dcol = colourOf(dId);
+    // the free felt at the end of the victim's row (past the last chip), for the signature and the sign
+    var rowEnd = (function () { var row = victim && victim.closest('.st-chips'), last = row && row.lastElementChild; return last ? c(last).x + 30 : V.x + 30; })();
+    if (!quick && FIN === 'spin') {
+      // spin-dry: the claw twirls the chip like a coin, flinging paint off it
+      var sk = [], m0 = tm.mid0 + 60, md = tm.mid1 - 120 - m0, turns = 7;
+      for (var q = 0; q <= turns * 2; q++) { var u = q / (turns * 2), uu = u < 0.5 ? 2 * u * u : 1 - 2 * (1 - u) * (1 - u); sk.push({ transform: 'scaleX(' + (q % 2 ? -0.08 : (q % 4 === 0 ? 1 : -1)) + ')', offset: uu }); }
+      sk[sk.length - 1] = { transform: 'scaleX(1)', offset: 1 };
+      anim(held, sk, md, m0, 'linear', { fill: 'none' });
+      S(m0, function () { SND.whir(md, true); });
+      var fr = seeded((st.seed || 7) + 11);
+      for (var fl = 0; fl < 12; fl++) {
+        var dropEl = addEl('<i style="position:absolute;left:-4px;top:-4px;width:8px;height:8px;border-radius:50%;background:' + dcol + ';z-index:7;opacity:0;pointer-events:none"></i>');
+        var a = fr() * Math.PI * 2, dd = 60 + fr() * 70, t0 = m0 + 120 + fr() * (md - 300);
+        anim(dropEl, [{ transform: 'translate(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px) scale(.6)', opacity: 0 }, { opacity: 1, offset: 0.1 },
+          { transform: 'translate(' + (cx + Math.cos(a) * dd).toFixed(1) + 'px,' + (cy + Math.sin(a) * dd * 0.6 + 50).toFixed(1) + 'px) scale(1.1,.8)', opacity: 0 }], 520, t0, 'cubic-bezier(.2,.6,.5,1)');
+      }
+    }
+    if (!quick && FIN === 'twocoats') {
+      anim(can.querySelector('.st-canshake'), [{ transform: 'translateY(0) rotate(0)' }, { transform: 'translateY(-9px) rotate(-7deg)', offset: 0.25 }, { transform: 'translateY(6px) rotate(6deg)', offset: 0.75 }, { transform: 'translateY(0) rotate(0)' }],
+        84, tm.spray1 + 720, 'ease-in-out', { iterations: 3, fill: 'none' });
+      S(tm.spray1 + 300, SND.nope); S(tm.spray1 + 720, function () { SND.rattle(3, 84); });
+      T(function () { big(function () { hiss(360); }); }, tm.spray1 + 1000);
+      [].slice.call(can.querySelectorAll('.st-mist i')).forEach(function (el, i, all) {
+        var t2 = tm.spray1 + 1000 + (i / all.length) * 260 + prnd() * 40, ang2 = (prnd() - 0.5) * 0.62, dist2 = NX - R * 0.4 + prnd() * R * 1.9;
+        anim(el, [{ transform: 'translate(0,0) scale(.35)', opacity: 0 }, { opacity: 0.95, offset: 0.12 }, { transform: 'translate(' + (-dist2 * Math.cos(ang2)).toFixed(1) + 'px,' + (dist2 * Math.sin(ang2)).toFixed(1) + 'px) scale(1.2)', opacity: 0 }], 300, t2, 'cubic-bezier(.2,.6,.4,1)');
+      });
+      if (sheen) anim(sheen, [{ transform: 'translateX(-120%)' }, { transform: 'translateX(120%)' }], 520, tm.spray1 + 1330, 'cubic-bezier(.4,0,.3,1)', { fill: 'none' });
+      if (coat) anim(coat.querySelector('.chip'), [{ filter: 'saturate(1.6) brightness(1.2)' }, { filter: 'none' }], 900, tm.spray1 + 1050, 'ease-in', { fill: 'none' });
+    }
+    if (!quick && FIN === 'overspray') {
+      // the claw gets a coat too, and shakes itself off
+      var splat = addEl('<i style="position:absolute;left:-34px;top:-92px;width:68px;height:46px;border-radius:40%;z-index:9;pointer-events:none;opacity:0;background:' + stage.dataset.speck.replace(/var\(--dc\)/g, dcol) + ',radial-gradient(ellipse at 50% 60%,' + dcol + ' 0 30%,transparent 62%)"></i>', swing);
+      anim(splat, [{ opacity: 0 }, { opacity: 1 }], 380, tm.spray1 - 120, 'ease-out');
+      anim(swing, [{ transform: 'rotate(0)' }, { transform: 'rotate(6deg)', offset: 0.2 }, { transform: 'rotate(-6deg)', offset: 0.4 }, { transform: 'rotate(5deg)', offset: 0.6 }, { transform: 'rotate(-3deg)', offset: 0.8 }, { transform: 'rotate(0)' }], 480, tm.spray1 + 320, 'ease-in-out', { fill: 'none' });
+      S(tm.spray1 + 320, function () { SND.rattle(4, 70); });
+      for (var dk = 0; dk < 3; dk++) {
+        var cd = addEl('<i style="position:absolute;left:' + (-16 + dk * 14) + 'px;top:-52px;width:6px;height:9px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;z-index:9;opacity:0;pointer-events:none;background:' + dcol + '"></i>', swing);
+        anim(cd, [{ transform: 'translateY(0) scale(.5)', opacity: 0 }, { transform: 'translateY(0) scale(1)', opacity: 1, offset: 0.3 }, { transform: 'translateY(60px) scale(1,1.3)', opacity: 0 }], 650, tm.spray1 + 420 + dk * 170, 'cubic-bezier(.5,0,.9,.6)');
+      }
+    }
+    if (!quick && FIN === 'tag') {
+      // signs the felt next to the chip: a squiggle, an underline, a star, in the dealer's colour
+      var tgx = clamp(rowEnd, 30, W - 90), tgy = V.y - 26;
+      var tag = addEl('<svg viewBox="0 0 84 52" width="84" height="52" style="position:absolute;left:' + tgx.toFixed(0) + 'px;top:' + tgy.toFixed(0) + 'px;z-index:4;pointer-events:none;overflow:visible" aria-hidden="true">' +
+        '<path d="M6 36 C10 14 18 10 20 24 C22 38 28 40 32 22 C35 10 40 12 40 26 C40 36 46 38 50 26 C53 18 58 18 60 28" fill="none" stroke="' + dcol + '" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>' +
+        '<path d="M4 46 Q36 40 66 44" fill="none" stroke="' + dcol + '" stroke-width="3.5" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>' +
+        '<path d="M74 10 L76.5 16 L83 16.5 L78 20.5 L79.8 27 L74 23.3 L68.2 27 L70 20.5 L65 16.5 L71.5 16 Z" fill="' + dcol + '" opacity="0"/></svg>');
+      var tp = tag.querySelectorAll('path');
+      anim(tp[0], [{ strokeDashoffset: 100 }, { strokeDashoffset: 0 }], 560, tm.post0 + 380, 'ease-in-out');
+      anim(tp[1], [{ strokeDashoffset: 100 }, { strokeDashoffset: 0 }], 220, tm.post0 + 960, 'ease-out');
+      anim(tp[2], [{ opacity: 0, transform: 'scale(.2)', transformOrigin: '74px 18px' }, { opacity: 1, transform: 'scale(1.25)', transformOrigin: '74px 18px', offset: 0.6 }, { opacity: 1, transform: 'scale(1)', transformOrigin: '74px 18px' }], 320, tm.post0 + 1120, 'ease-out');
+      T(function () { big(function () { hiss(720); }); }, tm.post0 + 360);
+      S(tm.post0 + 1130, SND.pop);
+    }
+    if (!quick && FIN === 'wetpaint') {
+      // a little WET PAINT sign pops up out of the felt beside it
+      var wx = clamp(rowEnd, 20, W - 60), wy = V.y - 50;
+      var wet = addEl('<div style="position:absolute;left:' + wx.toFixed(0) + 'px;top:' + wy.toFixed(0) + 'px;z-index:4;pointer-events:none;transform-origin:50% 100%;opacity:0" aria-hidden="true">' +
+        '<div style="background:#FFF8EA;border:2.5px solid ' + INK + ';border-radius:6px;padding:3px 7px;font:900 11px/1.05 Nunito,system-ui,sans-serif;letter-spacing:.06em;color:' + INK + ';text-align:center;box-shadow:2px 2px 0 ' + INK + '">WET<br>PAINT</div>' +
+        '<div style="width:4px;height:22px;background:#B98A4E;border:2px solid ' + INK + ';border-top:0;margin:0 auto"></div></div>');
+      anim(wet, [{ opacity: 0, transform: 'translateY(26px) scale(.4)' }, { opacity: 1, transform: 'translateY(-6px) scale(1.08) rotate(-4deg)', offset: 0.55 }, { opacity: 1, transform: 'translateY(0) scale(1) rotate(3deg)', offset: 0.8 }, { opacity: 1, transform: 'rotate(-2deg)' }], 520, tm.post0 + 120, 'cubic-bezier(.2,.8,.3,1)');
+      anim(wet, [{ transform: 'rotate(-2deg)' }, { transform: 'rotate(2deg)' }], 600, tm.post0 + 700, 'ease-in-out', { iterations: 3, direction: 'alternate', fill: 'none' });
+      S(tm.post0 + 140, SND.pop); S(tm.post0 + 420, SND.clack);
+    }
     // the set-down: a ring on the felt
     ripple.style.transform = 'translate3d(' + V.x.toFixed(1) + 'px,' + (V.y + 20).toFixed(1) + 'px,0)';
     anim(ripple, [{ opacity: 0.9, transform: 'translate3d(' + V.x.toFixed(1) + 'px,' + (V.y + 20).toFixed(1) + 'px,0) scale(.5)' }, { opacity: 0, transform: 'translate3d(' + V.x.toFixed(1) + 'px,' + (V.y + 20).toFixed(1) + 'px,0) scale(1.5)' }], 420, tm.set, 'ease-out', { fill: 'forwards' });

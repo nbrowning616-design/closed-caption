@@ -533,7 +533,7 @@ const HEISTS = [['claw', 'The Claw']].map(([id, name]) => ({ id, name }));
 // A chip stolen off a fake caption pays its owner this much (the steal's cost)
 const STEAL_CAUGHT_PTS = 1;
 // How long each steal show runs on the phones (public/steal.js FULL_MS / SHORT_MS); the flip waits for it
-const STEAL_FULL_MS = 9000, STEAL_SHORT_MS = 3500, STEAL_FULL_SHARE = 0.25;
+const STEAL_FULL_MS = 11500, STEAL_SHORT_MS = 4500, STEAL_FULL_SHARE = 0.25;   // (Oct 22: two more beats on the paint and the set-down)
 // Blind bets: everyone at once. The clock catches anyone idle; the last chip in gets a beat (to take it back),
 // then every chip drops onto the table together and the table gets a look before the steal (or the flip).
 const BLIND_MS = 45000, ALL_IN_BEAT_MS = 1500, DROP_HOLD_MS = 3200;
