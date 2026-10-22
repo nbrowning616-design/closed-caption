@@ -31,7 +31,7 @@ Style 4 (deadpan minimal) and style 2 only with a full setting.
 - Simple faces, calm deadpan reactions (a straight face gives the caption room; a big reaction tells the joke for you).
 - No text, no caption, no speech or thought bubbles, no signature. (A sign only if the sign IS the setup, ~1 in 10.)
 - No Disney, anime, comic-book, painterly, 3D, photo or poster looks. Classic New Yorker gag-cartoon tradition only.
-- Square.
+- Tall portrait, 2:3 (Nick, Oct 22 2026: "yes to drawn tall" — it fills the phone like the opening screen). Use the extra height for the setting; characters large.
 - The scene description is short (about 20–40 words): the odd situation and who's in it. Nothing decorative.
 - Never a scene that's already in the deck or in CARTOON_PROGRESS.md.
 
@@ -52,7 +52,7 @@ Style 4 (deadpan minimal) and style 2 only with a full setting.
 Create an image: SCENE (20–40 words). Style: single-panel gag cartoon in the classic New Yorker tradition, STYLE SENTENCE.
 Draw only what is described; BACKGROUND NOTE (e.g. "no background except one floor line" / "the room is suggested by a
 few lines"). Lots of empty white space. Simple faces, calm deadpan expressions. No text, no caption, no speech bubbles,
-no signature. Square.
+no signature. Tall portrait format (2:3).
 
 ## The approved samples (Oct 19 2026)
 1 man with a briefcase on the high dive · 2 two snowmen and a hair dryer · 3 octopus at the piano for an audience of one ·

@@ -6,7 +6,7 @@
 
   Every id below 113 is retired for good (Nick, Oct 19 2026): new cards start at 113.
   Redraw of an existing card: pass --id of that card and --redraw (keeps its title, rating and caption
-  unless you pass new ones). Writes public/images/card_N.jpg (720x720 JPEG) and the CARTOONS line in game.js.
+  unless you pass new ones). Writes public/images/card_N.jpg (720x720 JPEG, or 720x1080 when drawn tall) and the CARTOONS line in game.js.
   (--spots and --check are still accepted from old commands but ignored: no heads are marked any more.)
 Never print the caption anywhere Nick can see it.
 """
@@ -26,7 +26,13 @@ def load_image(path):
         if txt.startswith('data:'): txt = txt.split(',', 1)[1]
         raw = base64.b64decode(txt)
     im = Image.open(io.BytesIO(raw)).convert('RGB')
-    w, h = im.size; s = min(w, h)
+    w, h = im.size
+    if h / w >= 1.3:   # drawn tall (Nick, Oct 22 2026: "yes to drawn tall"): keep it 2:3, 720x1080
+        t = int(w * 1.5)
+        if h > t: im = im.crop((0, (h - t) // 2, w, (h - t) // 2 + t))
+        else: nw = int(h / 1.5); im = im.crop(((w - nw) // 2, 0, (w - nw) // 2 + nw, h))
+        return im.resize((720, 1080), Image.LANCZOS)
+    s = min(w, h)
     im = im.crop(((w - s) // 2, (h - s) // 2, (w - s) // 2 + s, (h - s) // 2 + s))
     return im.resize((720, 720), Image.LANCZOS)
 
