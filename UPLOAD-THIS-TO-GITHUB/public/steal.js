@@ -347,7 +347,7 @@
     var W = o.clientWidth || innerWidth;
     var lag = Math.max(0, performance.now() - startAt);
     var beat = function (n) { if (window.ccBeat) window.ccBeat(n); };
-    var c = function (el) { var r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, el: el }; };
+    var c = function (el) { var r = el.getBoundingClientRect(), b = o.getBoundingClientRect(); return { x: r.left - b.left + r.width / 2, y: r.top - b.top + r.height / 2, el: el }; };   // (relative to the show; the same thing on a phone, where it fills the screen)
     var dId = dealerId(), dChip = dId ? chipHtml(dId, 'lg') : (victim ? victim.outerHTML : '');
     // the dealer's chip laid over the victim's on the felt (the repainted chip, back in its spot)
     var paintInPlace = function (ms) {
@@ -449,38 +449,59 @@
       S(tm.rise0, function () { SND.rise(350); });
     } else {
       K = 1.5; C = { x: W / 2, y: Math.max(150, top.y - 170) };
-      tm = { snatch: 2990, lift0: 3260, lift1: 3700, can0: 3380, can1: 3720, rattle0: 3750, rattle1: 4170, paint: 4230, spray1: 4980, wipe0: 4260, wipe1: 4960,
-             out0: 5060, out1: 5400, lower0: 5260, set: 5740, open: 5790, rise0: 5960, rise1: 6500, gloat: 6250 };
-      // pick the decoy: another chip first, else an empty spot on the felt
-      var rnd = seeded(st.seed || 7), others = [].slice.call(o.querySelectorAll('[data-st="other"]')), dec = [];
-      if (others.length) dec.push(others[Math.floor(rnd() * others.length)]);
-      else { var lb = [].slice.call(o.querySelectorAll('.st-none, .st-lbl')); if (lb.length) dec.push(lb[Math.floor(rnd() * lb.length)]); }
+      tm = {};   // set once the path is known (the decoy business can run long; everything after it slides along)
+      /* ── The recipe: how this claw goes about it. The server doesn't choose (state.steal.recipe can, for the demo
+         page); most steals are the classic dip or the fumble, now and then something sillier. ── */
+      var R = seeded((st.seed || 7) + 5), roll = R(), others = [].slice.call(o.querySelectorAll('[data-st="other"]'));
+      var rec = st.recipe || (roll < 0.6 ? 'classic' : 'fumble');   // (until Nick picks from the ten on the demo page)
+      var RECIPES = {
+        classic: { decoy: 'dip', approach: 'drift', grab: 'clean' }, fumble: { decoy: 'fumble', approach: 'drift', grab: 'clean' },
+        double: { decoy: 'double', approach: 'drift', grab: 'clean' }, toss: { decoy: 'toss', approach: 'drift', grab: 'clean' },
+        pendulum: { decoy: 'none', approach: 'swing', grab: 'clean' }, tug: { decoy: 'dip', approach: 'drift', grab: 'tug' },
+        fumbletug: { decoy: 'fumble', approach: 'drift', grab: 'tug' }, shopper: { decoy: 'shopper', approach: 'drift', grab: 'clean' },
+        miss: { decoy: 'none', approach: 'drift', grab: 'miss' }, disaster: { decoy: 'double', approach: 'swing', grab: 'tug' }
+      };
+      var rcp = RECIPES[rec] || RECIPES.classic;
+      if (st.fumble === true && !st.recipe) rcp = RECIPES.fumble;
+      if (!others.length && rcp.decoy !== 'none') rcp = { decoy: 'dip', approach: rcp.approach, grab: rcp.grab };   // nothing to fumble but an empty spot
+      // the decoys: other chips (two different ones for the double, all of them for the shopper), else an empty spot on the felt
+      var rnd = seeded(st.seed || 7), dec = [], pool = others.slice();
+      var takeOne = function () { return pool.length ? pool.splice(Math.floor(rnd() * pool.length), 1)[0] : null; };
+      if (rcp.decoy === 'double') { var a1 = takeOne(), a2 = takeOne() || a1; if (a1) dec.push(a1, a2); }
+      else if (rcp.decoy === 'shopper') { dec = others.slice(0, 3); }
+      else if (rcp.decoy !== 'none') { var a0 = takeOne(); if (a0) dec.push(a0); else { var lb = [].slice.call(o.querySelectorAll('.st-none, .st-lbl')); if (lb.length) dec.push(lb[Math.floor(rnd() * lb.length)]); } }
       dec = dec.map(c);
       var x0 = W * (rnd() < 0.5 ? 0.24 : 0.76);
       at(0, x0, -190, top.y, 'cubic-bezier(.22,1.18,.36,1)');
       at(620, x0, top.y - HOVER, top.y, 'linear');
       prong.push({ t: 0, a: 7 });
       var cur = { t: 760, x: x0, y: top.y - HOVER, sy: top.y };
-      // Now and then (about two full shows in five) it actually grabs the decoy, lifts it, fumbles it and drops it
-      var fumble = !!(dec[0] && dec[0].el && dec[0].el.getAttribute('data-st') === 'other') && (st.fumble != null ? !!st.fumble : seeded((st.seed || 7) + 5)() < 0.4);
-      if (fumble) dec.forEach(function (d) {
-        var t = cur.t, g = 380, l = 220;
-        at(t, cur.x, cur.y, cur.sy, GLIDE);
-        glideSway(t, t + g, d.x - cur.x);
-        S(t, function () { SND.whir(g, d.x > cur.x); });
-        t += g; at(t, d.x, d.y - HOVER, d.y, 'linear');
-        t += 50; at(t, d.x, d.y - HOVER, d.y, DROP);
-        prong.push({ t: t - 40, a: 7, e: 'cubic-bezier(.3,0,.3,1.3)' }, { t: t + 120, a: 28 });
-        S(t - 40, SND.servo); S(t, SND.drop);
-        t += l; at(t, d.x, d.y, d.y, 'ease-out');
-        var g0 = t;   // got it (the wrong one)
-        prong.push({ t: g0, a: 28, e: 'ease-out' }, { t: g0 + 60, a: 0 });
-        at(g0 + 60, d.x, d.y + 2, d.y, 'cubic-bezier(.3,0,.2,1)');
-        at(g0 + 280, d.x, d.y - 42, d.y, 'ease-in-out');   // up it comes, very pleased with itself
-        at(g0 + 340, d.x, d.y - 40, d.y, 'ease-in-out');
-        prong.push({ t: g0 + 300, a: 0, e: 'ease-out' }, { t: g0 + 345, a: 17, e: 'ease-in-out' }, { t: g0 + 520, a: 9 });   // …and the grip goes
-        at(g0 + 650, d.x, d.y - HOVER, d.y, 'linear');
-        if (d.el) anim(d.el, [
+      var glideTo = function (d, g) {   // over to a spot, hovering
+        var t = cur.t; at(t, cur.x, cur.y, cur.sy, GLIDE); glideSway(t, t + g, d.x - cur.x);
+        var gx = d.x > cur.x; S(t, function () { SND.whir(g, gx); });
+        at(t + g, d.x, d.y - HOVER, d.y, 'linear'); return t + g;
+      };
+      var chipKf = function (el, kf, ms, at0) { if (el) anim(el, kf, ms, at0, 'linear', { fill: 'none' }); };
+      /* the grab-and-lift of a wrong chip; k scales the timing. Returns when it has it up (g0 + 280k). */
+      var grabWrong = function (d, k, g) {
+        var t = glideTo(d, g * k) + 50 * k;
+        at(t, d.x, d.y - HOVER, d.y, DROP);
+        prong.push({ t: t - 40 * k, a: 7, e: 'cubic-bezier(.3,0,.3,1.3)' }, { t: t + 120 * k, a: 28 });
+        S(t - 40 * k, SND.servo); S(t, SND.drop);
+        t += 220 * k; at(t, d.x, d.y, d.y, 'ease-out');
+        var g0 = t;
+        prong.push({ t: g0, a: 28, e: 'ease-out' }, { t: g0 + 60 * k, a: 0 });
+        at(g0 + 60 * k, d.x, d.y + 2, d.y, 'cubic-bezier(.3,0,.2,1)');
+        at(g0 + 280 * k, d.x, d.y - 42, d.y, 'ease-in-out');   // up it comes, very pleased with itself
+        S(g0 + 40 * k, SND.servo); S(g0 + 70 * k, function () { SND.lift(220 * k); });
+        return g0;
+      };
+      var fumbleOne = function (d, k, g) {
+        var g0 = grabWrong(d, k, g);
+        at(g0 + 340 * k, d.x, d.y - 40, d.y, 'ease-in-out');
+        prong.push({ t: g0 + 300 * k, a: 0, e: 'ease-out' }, { t: g0 + 345 * k, a: 17, e: 'ease-in-out' }, { t: g0 + 520 * k, a: 9 });   // …and the grip goes
+        at(g0 + 650 * k, d.x, d.y - HOVER, d.y, 'linear');
+        chipKf(d.el, [
           { transform: 'none', easing: 'cubic-bezier(.3,0,.2,1)' },
           { transform: 'translateY(-42px) rotate(-4deg)', offset: 0.36, easing: 'ease-in-out' },
           { transform: 'translateY(-43px) rotate(7deg)', offset: 0.44, easing: 'ease-in-out' },
@@ -488,12 +509,43 @@
           { transform: 'translateY(0) rotate(14deg)', offset: 0.72, easing: 'ease-out' },
           { transform: 'translateY(-9px) rotate(-6deg)', offset: 0.84, easing: 'ease-in' },
           { transform: 'translateY(0) rotate(3deg)', offset: 0.94, easing: 'ease-out' },
-          { transform: 'none' }], 640, g0 + 50, 'linear', { fill: 'none' });
-        S(g0 + 40, SND.servo); S(g0 + 70, function () { SND.lift(220); });
-        T(function () { beat('steal:fake'); }, g0 + 350);
-        S(g0 + 350, SND.nope); S(g0 + 510, SND.clack);
-        if (st.victimId !== myPlayerId) T(function () { buzz(20); }, g0 + 510);
-        cur = { t: g0 + 650, x: d.x, y: d.y - HOVER, sy: d.y };
+          { transform: 'none' }], 640 * k, g0 + 50 * k);
+        T(function () { beat('steal:fake'); }, g0 + 350 * k);
+        S(g0 + 350 * k, SND.nope); S(g0 + 510 * k, SND.clack);
+        if (st.victimId !== myPlayerId) T(function () { buzz(20); }, g0 + 510 * k);
+        cur = { t: g0 + 650 * k, x: d.x, y: d.y - HOVER, sy: d.y };
+      };
+      if (rcp.decoy === 'fumble') dec.forEach(function (d) { fumbleOne(d, 1, 380); });
+      else if (rcp.decoy === 'double') dec.forEach(function (d) { fumbleOne(d, 0.72, 380); });
+      else if (rcp.decoy === 'toss') dec.forEach(function (d) {
+        /* it gets the wrong one, holds it up to the light, shakes its head, and lobs it back where it was */
+        var g0 = grabWrong(d, 1, 380), hy = d.y - 42;
+        at(g0 + 360, d.x, hy - 4, d.y, 'ease-in-out');
+        sway.push({ t: g0 + 380, a: 0, e: 'ease-in-out' }, { t: g0 + 450, a: 7, e: 'ease-in-out' }, { t: g0 + 530, a: -7, e: 'ease-in-out' }, { t: g0 + 610, a: 6, e: 'ease-in-out' }, { t: g0 + 690, a: -5, e: 'ease-in-out' }, { t: g0 + 760, a: 0, e: 'linear' });
+        S(g0 + 400, SND.nope);
+        prong.push({ t: g0 + 780, a: 0, e: 'ease-out' }, { t: g0 + 830, a: 24 }, { t: g0 + 1050, a: 9 });
+        at(g0 + 800, d.x, hy - 10, d.y, 'ease-out');   // a little flick
+        at(g0 + 1050, d.x, d.y - HOVER, d.y, 'linear');
+        chipKf(d.el, [
+          { transform: 'none', easing: 'cubic-bezier(.3,0,.2,1)' },
+          { transform: 'translateY(-42px)', offset: 0.22, easing: 'ease-in-out' },
+          { transform: 'translateY(-46px) rotate(0deg)', offset: 0.58, easing: 'cubic-bezier(.2,.6,.4,1)' },
+          { transform: 'translateY(-80px) rotate(200deg)', offset: 0.74, easing: 'cubic-bezier(.55,0,1,.45)' },
+          { transform: 'translateY(0) rotate(360deg)', offset: 0.9, easing: 'ease-out' },
+          { transform: 'translateY(-6px) rotate(366deg)', offset: 0.95, easing: 'ease-in' },
+          { transform: 'rotate(360deg)' }], 1250, g0 + 50);
+        S(g0 + 820, SND.swoosh); S(g0 + 1170, SND.clack);
+        T(function () { beat('steal:fake'); }, g0 + 400);
+        cur = { t: g0 + 1050, x: d.x, y: d.y - HOVER, sy: d.y };
+      });
+      else if (rcp.decoy === 'shopper') dec.forEach(function (d) {
+        /* browses every chip on the table like a man in a sweater shop */
+        var t = glideTo(d, 230);
+        at(t + 70, d.x, d.y - HOVER + 12, d.y, 'ease-in-out'); at(t + 170, d.x, d.y - HOVER, d.y, 'ease-in-out');
+        prong.push({ t: t, a: 7, e: 'ease-in-out' }, { t: t + 80, a: 18, e: 'ease-in-out' }, { t: t + 170, a: 7 });
+        S(t + 60, SND.servo);
+        T(function () { if (d.el) d.el.animate([{ transform: 'none' }, { transform: 'translateY(-3px) rotate(-8deg)' }, { transform: 'rotate(5deg)' }, { transform: 'none' }], { duration: 300, easing: 'ease-out' }); }, t + 60);
+        cur = { t: t + 230, x: d.x, y: d.y - HOVER, sy: d.y };
       });
       else dec.forEach(function (d) {
         var p = { g: 460, l: 290, h: 220, r: 240, d: 10 }, t = cur.t;
@@ -515,19 +567,63 @@
         t += p.r; cur = { t: t + 40, x: d.x, y: d.y - HOVER, sy: d.y };
         at(t, cur.x, cur.y, cur.sy, 'linear');
       });
-      // drift past the victim before committing
-      var px = clamp(V.x + (V.x > W / 2 ? -90 : 90), 50, W - 50), t1 = Math.min(cur.t, 2060);
-      at(t1, cur.x, cur.y, cur.sy, GLIDE); glideSway(t1, 2400, px - cur.x);
-      at(2400, px, V.y - HOVER, V.y, 'cubic-bezier(.35,0,.25,1.12)');
-      glideSway(2400, 2650, V.x - px, true);
-      S(2400, function () { SND.whir(250, V.x > px); });
-      at(2650, V.x, V.y - HOVER, V.y, 'linear');
-      at(2760, V.x, V.y - HOVER, V.y, DROP);
-      at(2920, V.x, V.y, V.y, 'linear');
-      at(2990, V.x, V.y, V.y, 'cubic-bezier(.3,0,.5,1)');
-      at(3050, V.x, V.y + 4, V.y, 'ease-out');
-      at(3130, V.x, V.y, V.y, 'ease-in-out');
-      at(3200, V.x, V.y - 6, V.y, 'ease-in-out');   // strain…
+      /* everything after the decoys slides by however long they ran */
+      var sh = Math.max(0, cur.t - 2060), A = function (t) { return t + sh; };
+      var t1 = Math.min(cur.t, A(2060)), dir = V.x > W / 2 ? -1 : 1;
+      if (rcp.approach === 'swing') {
+        /* over it, past it, back past it, settle: a claw on a long cable */
+        var ox = clamp(V.x + dir * -1 * 80, 40, W - 40), ox2 = clamp(V.x + dir * 50, 40, W - 40);
+        at(t1, cur.x, cur.y, cur.sy, GLIDE); glideSway(t1, A(2330), ox - cur.x);
+        S(t1, function () { SND.whir(270, ox > cur.x); });
+        at(A(2330), ox, V.y - HOVER, V.y, 'cubic-bezier(.45,0,.4,1)'); glideSway(A(2330), A(2500), ox2 - ox);
+        S(A(2330), function () { SND.whir(170, ox2 > ox); });
+        at(A(2500), ox2, V.y - HOVER, V.y, 'cubic-bezier(.45,0,.4,1)'); glideSway(A(2500), A(2600), V.x - ox2, true);
+        at(A(2600), V.x - dir * 10, V.y - HOVER, V.y, 'ease-out');
+      } else {
+        // drift past the victim before committing
+        var px = clamp(V.x + (V.x > W / 2 ? -90 : 90), 50, W - 50);
+        at(t1, cur.x, cur.y, cur.sy, GLIDE); glideSway(t1, A(2400), px - cur.x);
+        at(A(2400), px, V.y - HOVER, V.y, 'cubic-bezier(.35,0,.25,1.12)');
+        glideSway(A(2400), A(2650), V.x - px, true);
+        S(A(2400), function () { SND.whir(250, V.x > px); });
+      }
+      at(A(2650), V.x, V.y - HOVER, V.y, 'linear');
+      if (rcp.grab === 'miss') {
+        /* drops a hair to one side, closes on nothing, comes up with nothing, scoots over, tries again */
+        var mx = clamp(V.x + dir * 34, 30, W - 30), m0 = A(2650);
+        at(m0 + 40, mx, V.y - HOVER, V.y, 'ease-in-out');
+        at(m0 + 140, mx, V.y - HOVER, V.y, DROP);
+        at(m0 + 300, mx, V.y + 2, V.y, 'linear');
+        prong.push({ t: m0 + 20, a: 8, e: 'cubic-bezier(.3,0,.3,1.3)' }, { t: m0 + 150, a: 30 }, { t: m0 + 300, a: 30, e: 'cubic-bezier(.7,0,1,.6)' }, { t: m0 + 360, a: -3, e: 'ease-out' }, { t: m0 + 420, a: 0 }, { t: m0 + 640, a: 0, e: 'ease-in-out' }, { t: m0 + 760, a: 8 });
+        S(m0 + 140, SND.drop); S(m0 + 360, SND.servo);
+        at(m0 + 380, mx, V.y + 2, V.y, 'cubic-bezier(.3,0,.2,1)');
+        at(m0 + 600, mx, V.y - 46, V.y, 'ease-in-out');   // nothing in it
+        at(m0 + 680, mx, V.y - 46, V.y, 'ease-in-out');
+        sway.push({ t: m0 + 600, a: 0, e: 'ease-in-out' }, { t: m0 + 660, a: 5, e: 'ease-in-out' }, { t: m0 + 720, a: -4, e: 'ease-in-out' }, { t: m0 + 780, a: 0, e: 'linear' });
+        S(m0 + 620, SND.nope);
+        at(m0 + 860, V.x, V.y - HOVER, V.y, 'cubic-bezier(.4,0,.2,1)');
+        S(m0 + 700, function () { SND.whir(160, V.x > mx); });
+        sh += 860; at(A(2650), V.x, V.y - HOVER, V.y, 'linear');
+      }
+      var o3 = rcp.grab === 'tug' ? 700 : 0, B = function (t) { return t + sh + o3; };
+      tm = { snatch: A(2990), lift0: B(3260), lift1: B(3700), can0: B(3380), can1: B(3720), rattle0: B(3750), rattle1: B(4170), paint: B(4230), spray1: B(4980), wipe0: B(4260), wipe1: B(4960),
+             out0: B(5060), out1: B(5400), lower0: B(5260), set: B(5740), open: B(5790), rise0: B(5960), rise1: B(6500), gloat: B(6250) };
+      at(A(2760), V.x, V.y - HOVER, V.y, DROP);
+      at(A(2920), V.x, V.y, V.y, 'linear');
+      at(A(2990), V.x, V.y, V.y, 'cubic-bezier(.3,0,.5,1)');
+      at(A(3050), V.x, V.y + 4, V.y, 'ease-out');
+      if (o3) {
+        /* it's stuck: heave, snaps back, heave, snaps back, one big heave… */
+        [[3140, -10], [3240, 2], [3360, -14], [3460, 2], [3600, -20], [3700, 3]].forEach(function (h, i) {
+          at(A(h[0]), V.x + (i % 2 ? 0 : (i % 4 ? -2 : 2)), V.y + h[1], V.y, h[1] < 0 ? 'cubic-bezier(.5,0,.6,1)' : 'cubic-bezier(.2,1.6,.4,1)');
+          if (h[1] < 0) S(A(h[0]) - 60, SND.servo); else S(A(h[0]), SND.clack);
+        });
+        sway.push({ t: A(3540), a: 0, e: 'ease-in-out' }, { t: A(3600), a: 3, e: 'ease-in-out' }, { t: A(3660), a: -3, e: 'ease-in-out' }, { t: A(3720), a: 0, e: 'linear' });
+        if (victim) T(function () { victim.animate([{ transform: 'translate(1px,0)' }, { transform: 'translate(-1px,0)' }], { duration: 60, iterations: 8, direction: 'alternate' }); }, A(3120));
+        S(B(3240), SND.pop);
+      }
+      at(B(3130), V.x, V.y, V.y, 'ease-in-out');
+      at(B(3200), V.x, V.y - 6, V.y, 'ease-in-out');   // strain…
       at(tm.lift0, V.x, V.y + 2, V.y, 'cubic-bezier(.3,0,.15,1)');   // …and up into the light
       at(tm.lift1, C.x, C.y - 8, V.y, 'ease-in-out', K, C.y + 4);
       at(tm.lift1 + 160, C.x, C.y, V.y, 'linear', K, C.y + 4);
@@ -539,10 +635,10 @@
       at(tm.rise1, V.x, -330, V.y, 'linear');
       glideSway(tm.lift0, tm.lift1, C.x - V.x);
       glideSway(tm.lower0, tm.set, V.x - C.x, true);
-      prong.push({ t: 2630, a: 8, e: 'cubic-bezier(.3,0,.3,1.3)' }, { t: 2770, a: 30 }, { t: 2920, a: 30, e: 'cubic-bezier(.7,0,1,.6)' }, { t: 2990, a: -3, e: 'ease-out' }, { t: 3070, a: 0 },
+      prong.push({ t: A(2630), a: 8, e: 'cubic-bezier(.3,0,.3,1.3)' }, { t: A(2770), a: 30 }, { t: A(2920), a: 30, e: 'cubic-bezier(.7,0,1,.6)' }, { t: A(2990), a: -3, e: 'ease-out' }, { t: A(3070), a: 0 },
                  { t: tm.open, a: 0, e: 'cubic-bezier(.3,0,.3,1.3)' }, { t: tm.open + 130, a: 27 });
-      T(function () { if (victim) victim.classList.add('st-doomed'); if (victim) victim.animate([{ transform: 'translate(1px,0) rotate(.6deg)' }, { transform: 'translate(-1px,1px) rotate(-.6deg)' }], { duration: 90, iterations: 4, direction: 'alternate' }); }, 2650);
-      S(2630, SND.servo); S(2760, SND.drop);
+      T(function () { if (victim) victim.classList.add('st-doomed'); if (victim) victim.animate([{ transform: 'translate(1px,0) rotate(.6deg)' }, { transform: 'translate(-1px,1px) rotate(-.6deg)' }], { duration: 90, iterations: 4, direction: 'alternate' }); }, A(2650));
+      S(A(2630), SND.servo); S(A(2760), SND.drop);
       S(tm.lift0, function () { SND.lift(440); });
       S(tm.can0, SND.swoosh);
       S(tm.rattle0, function () { SND.rattle(5, 84); });
@@ -551,7 +647,7 @@
       T(function () { beat('steal:hover'); }, 620);
       T(function () { head.style.opacity = '.55'; }, 300);
       T(function () { head.style.opacity = '0'; }, tm.lift0);
-      S(0, function () { hum(5600); arcadeTune(2700); });
+      S(0, function () { hum(Math.min(L - 1500, tm.lower0 + 400)); arcadeTune(Math.min(4000, A(2700))); });
     }
     P.sort(function (a, b) { return a.t - b.t; });
 
