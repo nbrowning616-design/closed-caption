@@ -1,98 +1,92 @@
 /* ═══════════════════════════════════════════════════════════
    Closed Caption — THE OPENING SCREEN (home.js)
-   Simple, clean, obvious: the logo, one line, one picture, three buttons.
+   The cartoon IS the screen. A big cartoon fills the phone behind everything; the camera drifts slowly
+   across it. Under it, the magazine caption: one at a time, each gets a rubber stamp. LIE. LIE. REAL.
+   Then the next cartoon. The buttons sit over the bottom of the picture. No sound. No hidden text.
+   Still picture (the real one stamped) under Reduce Motion.
 
-   The picture shows the game at a glance and says nothing:
-     a cartoon card, three caption slips under it,
-     chips drop onto the slips (people betting),
-     one slip turns over: REAL. The others were lies.
-   Slow, with holds. No sound. Still picture under Reduce Motion.
+   The cartoons are drawn for this screen only (images/demo_*.jpg): never dealt, and the captions below
+   are written for this screen only, so the home screen never gives an answer away.
 
-   The cartoons are drawn for this screen only (images/demo_*.jpg): they are
-   never dealt, and the captions below are written for this screen only,
-   so the home screen never gives an answer away.
-
-   window.Home = {
-     start()  -> renders into #home-mount and runs the loop
-     stop()   -> stops every timer
-   }
+   window.Home = { start(), stop() }
    ═══════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  /* Demo-only cartoons and captions. real = index of the true one; chips = the slip each chip lands on. */
+  /* Demo-only cartoons and captions. real = index of the true one. */
   var SEQ = [
-    { img: 'demo_snowman.jpg',  caps: ['Any history of spring?', 'Have you tried Canada?', 'Let’s get you on ice.'], real: 1, chips: [0, 1, 2, 0] },
-    { img: 'demo_penguin.jpg',  caps: ['He came with the ice.', 'Members only, kid.', 'Try the other cooler.'], real: 0, chips: [2, 0, 1, 2] },
-    { img: 'demo_goldfish.jpg', caps: ['Must be nice.', 'Just one more episode.', 'His ex. She looks happy.'], real: 2, chips: [1, 2, 1, 0] },
-    { img: 'demo_robot.jpg',    caps: ['I feel so programmed.', 'They upgraded my brother.', 'Same dream. The toaster.'], real: 1, chips: [0, 2, 1, 0] }
+    { img: 'demo_snowman.jpg',  caps: ['Any history of spring?', 'Have you tried Canada?', 'Let’s get you on ice.'], real: 1 },
+    { img: 'demo_penguin.jpg',  caps: ['Members only, kid.', 'Try the other cooler.', 'He came with the ice.'], real: 2 },
+    { img: 'demo_goldfish.jpg', caps: ['His ex. She looks happy.', 'Must be nice.', 'Just one more episode.'], real: 0 },
+    { img: 'demo_robot.jpg',    caps: ['I feel so programmed.', 'Same dream. The toaster.', 'They upgraded my brother.'], real: 2 }
   ];
-  var CHIP = ['#E8453A', '#12A587', '#6E4CF5', '#2F6FE0'];
-  var LINE = 'One caption is real. The rest are lies.';
 
   var CASLON = 'https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap';
   var SERIF = "'Libre Caslon Text',Georgia,'Times New Roman',serif";
-  var RED = '#D7372C';
+  var RED = '#D7372C', GREEN = '#0E8A6F';
 
   var CSS = [
-    /* the page: a column that fills the phone; if a small phone runs out of room it scrolls, nothing overlaps */
-    '#screen-home.active{display:flex;flex-direction:column;min-height:100dvh;padding-bottom:calc(10px + var(--sab,0px));}',
-    '.home-root{flex:1 1 auto;display:flex;flex-direction:column;text-align:center;}',
+    /* the screen: no side padding (the picture goes edge to edge); the content column keeps its gutters */
+    '#screen-home.active{display:flex;flex-direction:column;min-height:100dvh;padding:0;position:relative;isolation:isolate;}',
+    '.home-root{position:relative;z-index:1;flex:1 1 auto;display:flex;flex-direction:column;text-align:center;padding:calc(14px + var(--sat,0px)) 16px calc(10px + var(--sab,0px));}',
     '#home-mount{flex:1 1 auto;display:flex;flex-direction:column;}',
 
-    /* logo + the one line */
-    '.home-mast{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:9px;margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:34px;line-height:1;letter-spacing:-1px;color:var(--ink);}',
-    '.home-mast .home-w1{display:inline-block;transform:rotate(-3deg);background:var(--yellow);padding:4px 10px 5px;border:3px solid var(--ink);border-radius:10px;box-shadow:var(--shadow-sm);}',
-    '.home-line{flex:0 0 auto;margin:14px auto 0;padding:0 8px;font-family:' + SERIF + ';font-style:italic;font-size:16px;line-height:1.3;color:var(--ink-2);}',
+    /* the cartoon, behind everything: as wide as the phone column, down to just under the caption */
+    '.home-bg{position:fixed;z-index:0;top:0;left:50%;width:min(100vw,480px);height:min(calc(100dvh - var(--home-foot,250px) + 70px),calc(min(100vw,480px) * 1.6));transform:translateX(-50%);overflow:hidden;background:#fff;pointer-events:none;}',
+    '.home-bg img{position:absolute;inset:-3%;width:106%;height:106%;object-fit:cover;object-position:0% 50%;opacity:0;transition:opacity 1.1s ease;filter:contrast(1.45) brightness(.97) sepia(.1);}',
+    '.home-bg img.home-on{opacity:1;}',
+    '.home-bg img.home-pan-r{animation:homePanR 14s cubic-bezier(.45,0,.55,1) forwards;}',
+    '.home-bg img.home-pan-l{animation:homePanL 14s cubic-bezier(.45,0,.55,1) forwards;}',
+    '@keyframes homePanR{from{object-position:0% 50%;transform:scale(1);}to{object-position:100% 50%;transform:scale(1.06);}}',
+    '@keyframes homePanL{from{object-position:100% 50%;transform:scale(1.06);}to{object-position:0% 50%;transform:scale(1);}}',
+    /* soft paper at the top (for the logo) and a long fade into paper at the bottom (for the caption and buttons) */
+    '.home-bg::before{content:"";position:absolute;z-index:2;left:0;right:0;top:0;height:130px;background:linear-gradient(var(--paper) 0%,rgba(255,248,234,.75) 35%,rgba(255,248,234,0));}',
+    '.home-bg::after{content:"";position:absolute;z-index:2;left:0;right:0;bottom:0;height:46%;background:linear-gradient(rgba(255,248,234,0),rgba(255,248,234,.82) 55%,var(--paper));}',
 
-    /* the picture */
-    '.home-stage{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-top:18px;}',
-    '.home-cardbox{position:relative;flex:1 1 0;width:100%;min-height:120px;max-height:350px;container-type:size;}',
-    '.home-card{position:absolute;top:50%;left:50%;height:calc(100% - 8px);height:min(100cqh - 8px,340px,(100cqw - 12px) * 1.125);aspect-ratio:640/720;transform:translate(-50%,-50%) rotate(-1.5deg);background:#fff;border:3px solid var(--ink);border-radius:14px;box-shadow:var(--shadow);padding:5px;overflow:hidden;}',
-    '.home-card img{position:absolute;inset:5px;width:calc(100% - 10px);height:calc(100% - 10px);object-fit:contain;border-radius:7px;background:#fff;opacity:0;transition:opacity .9s ease;}',
-    '.home-card img.home-on{opacity:1;}',
+    /* the logo: two stickers slapped on the cartoon */
+    '.home-mast{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:8px;margin:2px 0 0;font-family:var(--display);font-weight:700;font-size:32px;line-height:1;letter-spacing:-1px;color:var(--ink);}',
+    '.home-mast span{display:inline-block;padding:4px 10px 5px;border:3px solid var(--ink);border-radius:10px;box-shadow:var(--shadow-sm);}',
+    '.home-mast .home-w1{transform:rotate(-3deg);background:var(--yellow);}',
+    '.home-mast .home-w2{transform:rotate(2deg);background:#fff;}',
 
-    '.home-slips{flex:0 0 auto;width:min(100%,340px);margin-top:16px;display:flex;flex-direction:column;gap:9px;list-style:none;padding:0;}',
-    '.home-slip{position:relative;display:flex;align-items:center;height:40px;padding:0 66px 0 14px;background:#fff;border:2.5px solid var(--ink);border-radius:11px;box-shadow:2px 2px 0 var(--ink);text-align:left;opacity:0;transform:translateY(8px);transition:opacity .6s ease,transform .6s var(--ease-out),background-color .3s;}',
-    '.home-slip.home-in{opacity:1;transform:none;}',
-    '.home-slips{transition:opacity .7s ease;}.home-slips.home-out{opacity:0;}',
-    '.home-slip.home-dim{opacity:.42;}',
-    '.home-slip.home-real{background:var(--yellow-bg);}',
-    '.home-slip.home-turn{animation:homeTurn .9s cubic-bezier(.45,0,.25,1);}',
-    '@keyframes homeTurn{0%{transform:rotateX(0);}50%{transform:perspective(500px) rotateX(90deg);}100%{transform:perspective(500px) rotateX(0);}}',
-    '.home-cap{flex:1 1 auto;min-width:0;font-family:' + SERIF + ';font-style:italic;font-size:14.5px;line-height:1.2;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
-    '.home-chips{position:absolute;right:10px;top:50%;margin-top:-11px;display:flex;flex-direction:row-reverse;}',
-    '.home-chip{display:block;width:22px;height:22px;margin-left:-8px;border-radius:50%;border:2px solid var(--ink);background:radial-gradient(circle,var(--c) 0 56%,transparent 57%),repeating-conic-gradient(from 8deg,var(--c) 0deg 28deg,#fff 28deg 60deg);box-shadow:0 2px 0 rgba(31,26,23,.9);animation:homeChip .7s cubic-bezier(.2,.8,.3,1) both;}',
-    '@keyframes homeChip{0%{opacity:0;transform:translateY(-26px);}60%{opacity:1;}100%{opacity:1;transform:none;}}',
-    '.home-mark{position:absolute;right:8px;top:-14px;padding:2px 7px 1px;font-family:var(--display);font-weight:700;font-size:11px;line-height:1.2;letter-spacing:2px;color:' + RED + ';background:#FFFBF2;border:2px solid ' + RED + ';border-radius:5px;transform:rotate(-4deg);opacity:0;transition:opacity .5s ease;}',
-    '.home-slip.home-real .home-mark{opacity:1;}',
+    '.home-gap{flex:1 1 auto;min-height:160px;}',
+
+    /* the caption, magazine style, and its rubber stamp */
+    '.home-capbox{position:relative;flex:0 0 auto;height:92px;display:flex;align-items:center;justify-content:center;}',
+    '.home-cap{position:relative;margin:0;padding:0 12px;max-width:100%;font-family:' + SERIF + ';font-style:italic;font-size:24px;line-height:1.25;color:var(--ink);text-wrap:balance;opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .45s var(--ease-out),color .3s;}',
+    '.home-cap.home-in{opacity:1;transform:none;}',
+    '.home-cap.home-gone{opacity:0;transform:translateY(-8px);}',
+    '.home-cap.home-lie{color:rgba(31,26,23,.5);}',
+    '.home-stamp{position:absolute;right:4%;top:-6px;padding:2px 10px 0;font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:4px;line-height:1.15;border:3.5px solid currentColor;border-radius:8px;background:rgba(255,251,242,.6);opacity:0;pointer-events:none;transform:rotate(-9deg) scale(2.2);}',
+    '.home-stamp.home-hit{animation:homeStamp .32s cubic-bezier(.3,1.6,.5,1) forwards;}',
+    '.home-stamp.home-lie{color:' + RED + ';}',
+    '.home-stamp.home-real{color:' + GREEN + ';}',
+    '.home-stamp.home-off{transition:opacity .35s ease;opacity:0 !important;animation:none;transform:rotate(-9deg) scale(1);}',
+    '@keyframes homeStamp{0%{opacity:0;transform:rotate(-9deg) scale(2.2);}100%{opacity:1;transform:rotate(-9deg) scale(1);}}',
+    '.home-capbox.home-thud{animation:homeThud .25s ease;}',
+    '@keyframes homeThud{30%{transform:translateY(2px);}}',
 
     /* actions (static markup in index.html) */
-    '.home-actions{flex:0 0 auto;margin-top:22px;}',
+    '.home-actions{position:relative;z-index:1;flex:0 0 auto;margin-top:10px;}',
     '.home-actions #rejoin-box:not(:empty){margin-bottom:10px;}',
     '.home-actions #rejoin-box .rejoin-sub{margin:2px 0 0;}.home-actions #rejoin-box .rejoin-sub .btn-link{min-height:40px;}',
-    '#screen-home:has(#rejoin-box:not(:empty)) .home-cardbox{min-height:84px;}',
     '.home-actions .btn + .btn{margin-top:10px;}',
     '.home-actions .home-host{font-size:18px;}',
-    '.home-foot{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:8px;}',
+    '.home-foot{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:6px;}',
     '.home-foot .btn-link{display:inline-flex;align-items:center;min-height:36px;line-height:1;padding:0 6px;font-size:13px;color:var(--muted);text-decoration-thickness:1.5px;}',
     '.home-foot .home-dot{color:var(--muted);font-weight:900;}',
 
     /* shorter phones: tighten, never hide */
-    '@media (max-height:700px){.home-mast{font-size:30px;margin-top:0;}.home-line{margin-top:10px;font-size:15px;}.home-stage{margin-top:12px;}.home-slips{margin-top:12px;gap:7px;}.home-slip{height:36px;}.home-actions{margin-top:14px;}.home-actions .btn{padding-top:13px;padding-bottom:13px;}.home-actions .btn + .btn{margin-top:9px;}.home-foot{margin-top:2px;}}',
-    '@media (max-height:600px){.home-cardbox{min-height:96px;}}',
-    '@media (max-width:350px){.home-cap{font-size:13.5px;}.home-slip{padding-right:60px;}}',
+    '@media (max-height:700px){.home-mast{font-size:28px;}.home-gap{min-height:110px;}.home-capbox{height:78px;}.home-cap{font-size:21px;}.home-actions .btn{padding-top:13px;padding-bottom:13px;}.home-actions .btn + .btn{margin-top:9px;}.home-foot{margin-top:2px;}}',
+    '@media (max-width:350px){.home-cap{font-size:20px;}.home-mast{font-size:27px;}}',
 
-    /* landscape phones: the picture on the left, everything else on the right */
+    /* landscape phones: the cartoon fills the left, everything else on the right */
     '@media (orientation:landscape) and (max-height:520px){' +
-      '#screen-home.active{max-width:860px;padding-left:calc(20px + env(safe-area-inset-left,0px));padding-right:calc(20px + env(safe-area-inset-right,0px));}' +
-      '.home-root,#home-mount{display:contents;}' +
-      '#screen-home.active > .home-root{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-rows:1fr auto auto auto 1fr;grid-template-areas:"stage ." "stage mast" "stage line" "stage actions" "stage .";column-gap:28px;}' +
-      '.home-mast{grid-area:mast;margin-top:4px;}.home-line{grid-area:line;}' +
-      '.home-stage{grid-area:stage;margin-top:0;height:calc(100dvh - 30px - var(--sat,0px) - var(--sab,0px));min-height:290px;}' +
-      '.home-cardbox{max-height:none;min-height:110px;}' +
-      '.home-slips{margin-top:12px;gap:7px;}.home-slip{height:34px;}' +
-      '.home-actions{grid-area:actions;margin-top:14px;}' +
+      '#screen-home.active{max-width:none;}' +
+      '.home-bg{left:0;transform:none;width:55vw;height:100dvh;}' +
+      '.home-bg::after{top:0;left:auto;right:0;bottom:0;width:40%;height:auto;background:linear-gradient(90deg,rgba(255,248,234,0),var(--paper));}' +
+      '.home-root{margin-left:48vw;max-width:440px;padding-left:12px;padding-right:calc(16px + env(safe-area-inset-right,0px));justify-content:center;}' +
+      '#home-mount{flex:0 0 auto;}.home-gap{display:none;}.home-capbox{height:70px;}.home-cap{font-size:19px;}' +
     '}'
   ].join('\n');
 
@@ -116,7 +110,6 @@
   }
   injectCss();
 
-  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function reduced() { try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; } }
   function imgUrl(src) { return '/images/' + src; }
 
@@ -124,108 +117,103 @@
   function later(ms, fn) { var t = setTimeout(function () { timers = timers.filter(function (x) { return x !== t; }); fn(); }, ms); timers.push(t); return t; }
   function wait(ms) { var my = token; return new Promise(function (res) { later(ms, function () { if (my === token) res(); }); }); }
 
-  /* ── markup ── */
-  function lineText() {
-    // a returning player gets their name instead of the pitch: still one quiet line
-    var name = '';
-    try { name = (localStorage.getItem('cc_name') || '').trim().slice(0, 24); } catch (e) {}
-    return name ? 'Welcome back, ' + esc(name) + '.' : LINE;
+  /* the picture stops where the buttons start: measure them */
+  function fitBg() {
+    try {
+      var a = document.querySelector('#screen-home .home-actions'), r = document.getElementById('screen-home');
+      if (a && r) r.style.setProperty('--home-foot', Math.round(a.getBoundingClientRect().height + 16) + 'px');
+    } catch (e) {}
   }
 
+  /* ── markup ── */
   function render() {
-    var mount = document.getElementById('home-mount');
-    if (!mount) return false;
+    var mount = document.getElementById('home-mount'), screen = document.getElementById('screen-home');
+    if (!mount || !screen) return false;
+    var old = screen.querySelector(':scope > .home-bg'); if (old) old.remove();
+    var bg = document.createElement('div');
+    bg.className = 'home-bg'; bg.setAttribute('aria-hidden', 'true');
+    bg.innerHTML = '<img alt="" draggable="false"><img alt="" draggable="false">';
+    screen.insertBefore(bg, screen.firstChild);
     mount.innerHTML =
-      '<h1 class="home-mast"><span class="home-w1">CLOSED</span><span>CAPTION</span></h1>' +
-      '<p class="home-line">' + lineText() + '</p>' +
-      '<div class="home-stage" aria-hidden="true">' +
-        '<div class="home-cardbox"><div class="home-card"><img alt="" draggable="false"><img alt="" draggable="false"></div></div>' +
-        '<ul class="home-slips">' +
-          [0, 1, 2].map(function () { return '<li class="home-slip"><span class="home-mark">REAL</span><span class="home-cap"></span><span class="home-chips"></span></li>'; }).join('') +
-        '</ul>' +
-      '</div>';
+      '<h1 class="home-mast" aria-label="Closed Caption"><span class="home-w1">CLOSED</span><span class="home-w2">CAPTION</span></h1>' +
+      '<div class="home-gap"></div>' +
+      '<div class="home-capbox" aria-hidden="true"><p class="home-cap"></p><span class="home-stamp"></span></div>';
     els = {
-      imgs: mount.querySelectorAll('.home-card img'),
-      slips: mount.querySelectorAll('.home-slip'),
-      caps: mount.querySelectorAll('.home-cap'),
-      chips: mount.querySelectorAll('.home-chips'),
-      list: mount.querySelector('.home-slips')
+      imgs: bg.querySelectorAll('img'),
+      box: mount.querySelector('.home-capbox'),
+      cap: mount.querySelector('.home-cap'),
+      stamp: mount.querySelector('.home-stamp')
     };
+    fitBg();
     return true;
   }
 
-  function chip(slot, color) {
-    var c = document.createElement('i');
-    c.className = 'home-chip'; c.style.setProperty('--c', color);
-    els.chips[slot].appendChild(c);
-    return c;
-  }
-
-  function setCartoon(s, instant) {
+  function setCartoon(n, still) {
     var next = els.imgs[imgFlip], prev = els.imgs[1 - imgFlip];
     imgFlip = 1 - imgFlip;
-    if (instant) next.style.transition = 'none';
-    next.src = imgUrl(s.img);
+    next.classList.remove('home-pan-r', 'home-pan-l');
+    void next.offsetWidth;   // restart the drift
+    if (still) next.style.objectPosition = '50% 50%';
+    else next.classList.add(n % 2 ? 'home-pan-l' : 'home-pan-r');
     next.classList.add('home-on');
-    if (instant) later(50, function () { next.style.transition = ''; });
     prev.classList.remove('home-on');
   }
 
-  function resetSlips(s) {
-    for (var i = 0; i < 3; i++) {
-      els.slips[i].className = 'home-slip';
-      els.caps[i].textContent = s.caps[i];
-      els.chips[i].innerHTML = '';
-    }
+  function showCap(text) {
+    els.cap.className = 'home-cap';
+    els.cap.textContent = '“' + text + '”';
+    void els.cap.offsetWidth;
+    els.cap.classList.add('home-in');
+  }
+  function stamp(real) {
+    els.stamp.className = 'home-stamp';
+    els.stamp.textContent = real ? 'REAL' : 'LIE';
+    void els.stamp.offsetWidth;
+    els.stamp.classList.add(real ? 'home-real' : 'home-lie', 'home-hit');
+    els.box.classList.remove('home-thud'); void els.box.offsetWidth; els.box.classList.add('home-thud');
+  }
+  function clearCap() {
+    els.cap.classList.add('home-gone');
+    els.stamp.classList.add('home-off');
   }
 
-  /* one round of the picture, ~11 s */
-  async function round(s, first) {
-    resetSlips(s);
-    els.list.classList.remove('home-out');
-    try { var pre = els.imgs[imgFlip]; pre.src = imgUrl(s.img); if (pre.decode) await Promise.race([pre.decode().catch(function () {}), wait(1200)]); } catch (e) {}
-    setCartoon(s, first);
-    await wait(first ? 500 : 900);
-    // the captions come in, one by one
-    for (var i = 0; i < 3; i++) { els.slips[i].classList.add('home-in'); await wait(260); }
-    await wait(1300);
-    // the bets: a chip at a time
-    for (var k = 0; k < s.chips.length; k++) { chip(s.chips[k], CHIP[k % CHIP.length]); await wait(620); }
-    await wait(1100);
-    // the real one turns over
-    var real = els.slips[s.real];
-    real.classList.add('home-turn');
-    await wait(450);
-    real.classList.add('home-real');
-    for (var j = 0; j < 3; j++) if (j !== s.real) els.slips[j].classList.add('home-dim');
-    await wait(450);
-    real.classList.remove('home-turn');
-    await wait(3400);
-    // clear the table
-    els.list.classList.add('home-out');
-    await wait(800);
+  /* one cartoon, ~12 s: three captions, each stamped. LIE, LIE, REAL (in whatever order) */
+  async function round(s, n) {
+    var next = els.imgs[imgFlip];
+    try { next.src = imgUrl(s.img); if (next.decode) await Promise.race([next.decode().catch(function () {}), wait(1500)]); } catch (e) {}
+    setCartoon(n);
+    await wait(n === 0 ? 700 : 1300);
+    for (var i = 0; i < 3; i++) {
+      var real = i === s.real;
+      showCap(s.caps[i]);
+      await wait(1500);
+      stamp(real);
+      if (!real) els.cap.classList.add('home-lie');
+      await wait(real ? 2600 : 1150);
+      clearCap();
+      await wait(450);
+    }
   }
 
   async function loop() {
     var my = token;
     while (my === token) {
-      var first = seqIdx === 0;
-      var s = SEQ[seqIdx % SEQ.length]; seqIdx++;
-      await round(s, first);
+      var n = seqIdx; seqIdx++;
+      await round(SEQ[n % SEQ.length], n);
     }
   }
 
-  /* Reduce Motion: one finished picture, still */
+  /* Reduce Motion: one still picture, the real caption stamped */
   function staticScene() {
     var s = SEQ[0];
-    resetSlips(s);
-    setCartoon(s, true);
-    for (var i = 0; i < 3; i++) {
-      els.slips[i].style.transition = 'none';
-      els.slips[i].classList.add('home-in');
-      if (i === s.real) els.slips[i].classList.add('home-real'); else els.slips[i].classList.add('home-dim');
-    }
-    s.chips.forEach(function (slot, k) { chip(slot, CHIP[k % CHIP.length]).style.animation = 'none'; });
+    els.imgs[0].src = imgUrl(s.img);
+    setCartoon(0, true);
+    els.cap.style.transition = 'none';
+    showCap(s.caps[s.real]);
+    els.stamp.textContent = 'REAL';
+    els.stamp.className = 'home-stamp home-real';
+    els.stamp.style.opacity = '1';
+    els.stamp.style.transform = 'rotate(-9deg) scale(1)';
   }
 
   function start() {
@@ -234,6 +222,7 @@
       if (!render()) return;
       started = true;
       imgFlip = 0; seqIdx = 0;
+      later(300, fitBg); later(1200, fitBg);
       if (reduced()) { staticScene(); return; }
       loop().catch(function () {});
     } catch (e) {}
@@ -245,8 +234,12 @@
     timers.forEach(function (t) { clearTimeout(t); }); timers = [];
   }
 
-  // pause in the background, resume on return (only if home is the active screen)
   try {
+    window.addEventListener('resize', function () { if (started) fitBg(); });
+    // the rejoin box can fill in after start: keep the picture's bottom edge right
+    var rb = document.getElementById('rejoin-box');
+    if (rb && window.MutationObserver) new MutationObserver(function () { if (started) fitBg(); }).observe(rb, { childList: true, subtree: true });
+    // pause in the background, resume on return (only if home is the active screen)
     document.addEventListener('visibilitychange', function () {
       var home = document.getElementById('screen-home');
       if (document.hidden) { if (started) { stop(); started = 'paused'; } }
