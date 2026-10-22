@@ -459,16 +459,21 @@
         double: { decoy: 'double', approach: 'drift', grab: 'clean' }, toss: { decoy: 'toss', approach: 'drift', grab: 'clean' },
         pendulum: { decoy: 'none', approach: 'swing', grab: 'clean' }, tug: { decoy: 'dip', approach: 'drift', grab: 'tug' },
         fumbletug: { decoy: 'fumble', approach: 'drift', grab: 'tug' }, shopper: { decoy: 'shopper', approach: 'drift', grab: 'clean' },
-        miss: { decoy: 'none', approach: 'drift', grab: 'miss' }, disaster: { decoy: 'double', approach: 'swing', grab: 'tug' }
+        miss: { decoy: 'none', approach: 'drift', grab: 'miss' }, disaster: { decoy: 'double', approach: 'swing', grab: 'tug' },
+        // variations on the classic (Nick, Oct 22: "just variations on that")
+        twodips: { decoy: 'dip2', approach: 'drift', grab: 'clean' }, direct: { decoy: 'none', approach: 'drift', grab: 'clean' },
+        tease: { decoy: 'dip', approach: 'tease', grab: 'clean' }, careful: { decoy: 'dip', approach: 'drift', grab: 'clean', fin: 'careful' },
+        twopass: { decoy: 'dip', approach: 'drift', grab: 'clean', fin: 'twopass' }
       };
       var rcp = RECIPES[rec] || RECIPES.classic;
-      FIN = st.finish || 'plain';   // spray-paint finishes: plain, spin, twocoats, overspray, tag, wetpaint (until Nick picks)
+      FIN = st.finish || rcp.fin || 'plain';   // spray-paint finishes: plain, spin, twocoats, overspray, tag, wetpaint (until Nick picks)
       if (st.fumble === true && !st.recipe) rcp = RECIPES.fumble;
       if (!others.length && rcp.decoy !== 'none') rcp = { decoy: 'dip', approach: rcp.approach, grab: rcp.grab };   // nothing to fumble but an empty spot
       // the decoys: other chips (two different ones for the double, all of them for the shopper), else an empty spot on the felt
       var rnd = seeded(st.seed || 7), dec = [], pool = others.slice();
       var takeOne = function () { return pool.length ? pool.splice(Math.floor(rnd() * pool.length), 1)[0] : null; };
-      if (rcp.decoy === 'double') { var a1 = takeOne(), a2 = takeOne() || a1; if (a1) dec.push(a1, a2); }
+      if (rcp.decoy === 'dip2') { var b1 = takeOne(), b2 = takeOne(); if (b1) dec.push(b1); if (b2) dec.push(b2); }
+      else if (rcp.decoy === 'double') { var a1 = takeOne(), a2 = takeOne() || a1; if (a1) dec.push(a1, a2); }
       else if (rcp.decoy === 'shopper') { dec = others.slice(0, 3); }
       else if (rcp.decoy !== 'none') { var a0 = takeOne(); if (a0) dec.push(a0); else { var lb = [].slice.call(o.querySelectorAll('.st-none, .st-lbl')); if (lb.length) dec.push(lb[Math.floor(rnd() * lb.length)]); } }
       dec = dec.map(c);
@@ -589,6 +594,20 @@
         S(A(2400), function () { SND.whir(250, V.x > px); });
       }
       at(A(2650), V.x, V.y - HOVER, V.y, 'linear');
+      if (rcp.approach === 'tease') {
+        /* comes down halfway on the right chip, stops, goes back up and drifts off as if it's changed its mind… then comes back */
+        var e0 = A(2650), ex = clamp(V.x + (V.x > W / 2 ? -70 : 70), 40, W - 40);
+        at(e0 + 260, V.x, V.y - HOVER + 34, V.y, 'cubic-bezier(.4,0,.2,1)');
+        at(e0 + 520, V.x, V.y - HOVER + 34, V.y, 'ease-in-out');
+        at(e0 + 760, V.x, V.y - HOVER, V.y, 'ease-in-out');
+        at(e0 + 1100, ex, V.y - HOVER - 6, V.y, 'ease-in-out'); glideSway(e0 + 760, e0 + 1100, ex - V.x);
+        at(e0 + 1350, ex, V.y - HOVER - 6, V.y, 'cubic-bezier(.35,0,.25,1.12)');
+        glideSway(e0 + 1350, e0 + 1650, V.x - ex, true);
+        prong.push({ t: e0 + 40, a: 8, e: 'ease-in-out' }, { t: e0 + 260, a: 22, e: 'ease-in-out' }, { t: e0 + 700, a: 22, e: 'ease-in-out' }, { t: e0 + 900, a: 8 });
+        S(e0 + 30, function () { SND.lower(230); }); S(e0 + 560, SND.nope); S(e0 + 760, function () { SND.whir(340, ex > V.x); }); S(e0 + 1350, function () { SND.whir(300, V.x > ex); });
+        T(function () { if (victim) victim.animate([{ transform: 'none' }, { transform: 'translateY(-3px) rotate(-6deg)' }, { transform: 'rotate(4deg)' }, { transform: 'none' }], { duration: 360, easing: 'ease-out' }); }, e0 + 260);
+        sh += 1650; at(A(2650), V.x, V.y - HOVER, V.y, 'linear');
+      }
       if (rcp.grab === 'miss') {
         /* drops a hair to one side, closes on nothing, comes up with nothing, scoots over, tries again */
         var mx = clamp(V.x + dir * 34, 30, W - 30), m0 = A(2650);
@@ -610,8 +629,8 @@
       /* the finish: what happens around the paint job. M = extra time after the spray, PS = extra time after the set-down.
          Every finish now holds the wet chip up in the light (~0.9 s), lowers it slowly, and the claw lifts off and waits a beat
          before it leaves (Nick: "that needs at least another 2 beats ... it doesn't pay off"). */
-      var M = { spin: 1050, twocoats: 1350, overspray: 650 }[FIN] || 0, PS = { tag: 1500, wetpaint: 1000 }[FIN] || 0;
-      var sp1 = B(5180), lw = sp1 + M + 900, setT = lw + 650, r0 = setT + 650 + PS;
+      var M = { spin: 1050, twocoats: 1350, overspray: 650, twopass: 600 }[FIN] || 0, PS = { tag: 1500, wetpaint: 1000 }[FIN] || 0, CA = FIN === 'careful' ? 600 : 0;
+      var sp1 = B(5180), lw = sp1 + M + 900, setT = lw + 650 + CA, r0 = setT + 650 + PS;
       tm = { snatch: A(2990), lift0: B(3260), lift1: B(3700), can0: B(3380), can1: B(3720), rattle0: B(3750), rattle1: B(4170), paint: B(4230), spray1: sp1, wipe0: B(4260), wipe1: sp1 - 20,
              out0: sp1 + M + 250, out1: sp1 + M + 700, lower0: lw, set: setT, open: setT + 120, rise0: r0, rise1: r0 + 560, gloat: r0 + 480, mid0: sp1, mid1: sp1 + M, post0: setT + 330 };
       at(A(2760), V.x, V.y - HOVER, V.y, DROP);
@@ -634,6 +653,13 @@
       at(tm.lift1, C.x, C.y - 8, V.y, 'ease-in-out', K, C.y + 4);
       at(tm.lift1 + 160, C.x, C.y, V.y, 'linear', K, C.y + 4);
       at(tm.lower0, C.x, C.y, V.y, 'cubic-bezier(.5,0,.35,1)', K, C.y + 4);
+      if (FIN === 'careful') {   // stops just above the spot, lines it up, then sets it down exactly
+        at(tm.set - 620, V.x + 4, V.y - 16, V.y, 'ease-out');
+        at(tm.set - 420, V.x - 3, V.y - 15, V.y, 'ease-in-out');
+        at(tm.set - 240, V.x, V.y - 14, V.y, 'ease-in-out');
+        at(tm.set - 120, V.x, V.y - 14, V.y, 'cubic-bezier(.5,0,.6,1)');
+        S(tm.set - 620, SND.servo); S(tm.set - 300, SND.servo);
+      }
       at(tm.set - 20, V.x, V.y - 3, V.y, 'ease-out');
       at(tm.set + 20, V.x, V.y + 3, V.y, 'ease-in-out');
       at(tm.set + 100, V.x, V.y, V.y, 'linear');
@@ -708,6 +734,7 @@
         cp(tm.spray1, sx(NX - 6), cy - R * 2.4, -26, 1, 'ease-in-out');
         cp(tm.spray1 + 260, sx(NX + 8), cy - R * 2.2, -22, 1, 'ease-in-out');
       } else cp(tm.spray1, sx(NX), cy + R * 0.85, 5, 1, 'linear');
+      if (FIN === 'twopass') cp(tm.spray1 + 600, sx(NX), cy - R * 0.85, -5, 1, 'linear');   // and back up: a proper even coat
       if (FIN === 'twocoats') {   // steps back, squints, shakes again, second coat
         cp(tm.spray1 + 300, sx(NX + 46), cy - 6, -16, 1, 'ease-in-out');
         cp(tm.spray1 + 520, sx(NX + 46), cy - 6, -24, 1, 'ease-in-out');
@@ -738,6 +765,7 @@
     var cone = can.querySelector('.st-conewrap'), sprayMs = tm.spray1 - tm.paint, ck = [{ t: 0, o: 0 }, { t: tm.paint, o: 0 }, { t: tm.paint + 40, o: 0.95 }];
     for (var f = tm.paint + 110; f < tm.spray1 - 40; f += 95) ck.push({ t: f, o: 0.62 + ((f / 95) % 2) * 0.2 });
     ck.push({ t: tm.spray1, o: 0.8 }, { t: tm.spray1 + 70, o: 0 });
+    if (!quick && FIN === 'twopass') { ck.pop(); ck.pop(); for (var f4 = tm.spray1 - 40; f4 < tm.spray1 + 560; f4 += 95) ck.push({ t: f4, o: 0.62 + ((f4 / 95) % 2) * 0.2 }); ck.push({ t: tm.spray1 + 600, o: 0.8 }, { t: tm.spray1 + 670, o: 0 }); }
     if (!quick && FIN === 'overspray') { ck.pop(); ck.push({ t: tm.spray1 + 240, o: 0.8 }, { t: tm.spray1 + 300, o: 0 }); }
     if (!quick && FIN === 'twocoats') { ck.push({ t: tm.spray1 + 980, o: 0 }, { t: tm.spray1 + 1010, o: 0.95 }); for (var f2 = tm.spray1 + 1090; f2 < tm.spray1 + 1300; f2 += 95) ck.push({ t: f2, o: 0.62 + ((f2 / 95) % 2) * 0.2 }); ck.push({ t: tm.spray1 + 1330, o: 0.8 }, { t: tm.spray1 + 1400, o: 0 }); }
     if (!quick && FIN === 'tag') { ck.push({ t: tm.post0 + 330, o: 0 }, { t: tm.post0 + 360, o: 0.7 }); for (var f3 = tm.post0 + 440; f3 < tm.post0 + 1080; f3 += 95) ck.push({ t: f3, o: 0.5 + ((f3 / 95) % 2) * 0.2 }); ck.push({ t: tm.post0 + 1100, o: 0 }); }
@@ -852,7 +880,7 @@
     }, tm.snatch);
     T(function () {   // pssssst
       beat('steal:paint');
-      big(function () { hiss(sprayMs + 40); });
+      big(function () { hiss(sprayMs + (FIN === 'twopass' ? 600 : 0) + 40); });
       buzz(isVictim ? [60, 30, 60, 30, 60] : 20);
     }, tm.paint);
     T(function () {   // clack: the dealer's chip, back in its spot
