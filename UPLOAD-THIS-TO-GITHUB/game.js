@@ -548,7 +548,7 @@ const REEL_LEAD_MS = 400, REEL_TAP_MS = 10000;   // (the dealer's tap, or this l
 const FRAME_FULL_MS = 9000, FRAME_PLAQUE_MS = 3200, FRAME_LEAD_MS = 600;
 // R11 a called shot that comes in; R1 a rejection slip needs this many groans (and no chips)
 const CALL_PTS = 3, SLIP_GROANS = 3;
-const firstNameOf = (game, pid) => { const p = game.players.find(q => q.id === pid); return (String(p ? p.name : '').trim().split(/\s+/)[0]) || 'you'; };
+const firstNameOf = (game, pid) => { const h = houseOf(game, pid); if (h) return h.name; const p = game.players.find(q => q.id === pid); return (String(p ? p.name : '').trim().split(/\s+/)[0]) || 'you'; };
 // Next thief off the night's deck (an index into HEISTS)
 function nextHeist(game) {
   const id = dealNight(game, 'thieves', HEISTS.map(h => h.id));
@@ -592,6 +592,7 @@ const DEFAULT_SETTINGS = {
   spicy: false,                  // 'After dark': mixes in the PG-13 cartoons
   direction: 'left',             // which way the deal and the betting go around the table
   expert: false,                 // Expert Mode: the real answer comes from the Hall of Fame deck
+  house: null,                   // house players (write-only fill-ins): null = suggested for the table's size, else 0–5
 };
 
 // [settings] Writing timer: 0 = no timer (nobody is rushed; the dealer or host ends writing), else 30 s to 10 min.
@@ -765,6 +766,12 @@ function updateSettings(game, partial) {
       if (val && deckCartoons(game) < 3) return { error: 'The Gallery opens once 3 cartoons have a framed caption' };
       s.expert = val; continue;
     }
+    if (key === 'house') {
+      if (val === null) { s.house = null; continue; }
+      const n = Number(val);
+      if (!Number.isInteger(n) || n < 0 || n > HOUSE_MAX) return { error: 'That didn’t take. Try again.' };
+      s.house = n; continue;
+    }
     if (key === 'direction') { if (val !== 'left' && val !== 'right') return { error: 'That didn’t take. Try again.' }; s.direction = val; continue; }
     if (key === 'autoCloseProbability') {
       const n = Number(val);
@@ -812,7 +819,49 @@ function moveSeat(game, hostId, targetId, dir) {
 
 const connectedPlayers = (game) => game.players.filter(p => p.connected);
 const dealerOf = (game) => game.players[game.dealerIndex] || null;
-const nameOfPlayer = (game, pid) => (game.players.find(p => p.id === pid) || {}).name || '?';
+const nameOfPlayer = (game, pid) => (game.players.find(p => p.id === pid) || houseOf(game, pid) || {}).name || '?';
+
+/* ── House players (Nick, Oct 21 2026): virtual, named, write-only. Each adds one pre-written fake caption from the
+   bank (card_meta.json "decoys") to bluff among. They never bet, score, deal or steal; a chip on a house fake just
+   misses. The host picks 0–5 in the lobby (null = suggested: enough to make ~6 fakes at a small table). They are not
+   in game.players, so every count, the deal, the scores, the rating and the stats ignore them by construction. ── */
+const HOUSE_CAST = ['Aunt Judy', 'The Intern', 'Uncle Ray', 'Mrs. Pruitt', 'Cousin Dale', 'Dr. Feld', 'The Notary', 'Gloria'];
+const HOUSE_MAX = 5;
+const isHouseId = (id) => typeof id === 'string' && id.startsWith('house:');
+const houseOf = (game, id) => (isHouseId(id) && (game.house || []).find(h => h.id === id)) || null;
+const houseSuggested = (n) => (n >= 4 ? 0 : Math.min(HOUSE_MAX, Math.max(0, 6 - n)));
+// How many the lobby has set (or suggests) for the people here now
+function houseWanted(game) {
+  const h = game.settings.house;
+  return Number.isInteger(h) ? Math.max(0, Math.min(HOUSE_MAX, h)) : houseSuggested(game.players.filter(p => p.connected).length);
+}
+// The house players for a table: the room's shuffled cast, skipping any name a real player has
+function houseCast(game, n) {
+  if (!Array.isArray(game.houseOrder) || game.houseOrder.length !== HOUSE_CAST.length) game.houseOrder = shuffleArray(HOUSE_CAST.map((_, i) => i));
+  const taken = new Set(game.players.map(p => p.name.toLowerCase()));
+  return game.houseOrder.map(i => HOUSE_CAST[i]).filter(nm => !taken.has(nm.toLowerCase())).slice(0, n).map((name, i) => ({ id: 'house:' + (i + 1), name }));
+}
+// This round's house fakes: a different bank decoy each, the closest ones first (shuffled within a score), never one
+// that breaks the Editor's note (it would give itself away), never one too like the real caption or a player's
+function houseFakes(game) {
+  const cast = game.house || [];
+  if (!cast.length || !game.cartoon) return [];
+  const bank = ((CARD_META[String(game.cartoon.id)] || {}).decoys || []).filter(d => d && typeof d.t === 'string' && d.t.trim());
+  const ranked = shuffleArray(bank).sort((a, b) => (Number(b.s) || 0) - (Number(a.s) || 0));
+  const out = [], used = [game.correctCaption, ...game.submissions.map(x => x.caption)];
+  for (const d of ranked) {
+    if (out.length >= cast.length) break;
+    const text = polish(d.t).text;
+    if (!text || noteRefusal(game, text) || used.some(u => nearlySame(u, text))) continue;
+    used.push(text); out.push(text);
+  }
+  const who = shuffleArray(cast).slice(0, out.length);
+  return out.map((caption, i) => ({ caption, isCorrect: false, playerId: who[i].id, house: true }));
+}
+function houseView(game) {
+  if (game.phase === PHASES.LOBBY) return { list: houseCast(game, houseWanted(game)), auto: !Number.isInteger(game.settings.house), max: HOUSE_MAX };
+  return { list: (game.house || []).map(h => ({ ...h })), auto: false, max: HOUSE_MAX };
+}
 
 const stepOf = (game) => (game.settings.direction === 'right' ? -1 : 1);
 const seatAt = (n, i) => ((i % n) + n) % n;
@@ -1072,6 +1121,8 @@ function kidsToggle(game, on) {
 
 // Never deal a cartoon whose picture isn't on the server (checked once at start)
 const HAS_IMAGE = (() => { const fs = require('fs'), path = require('path'), dir = path.join(__dirname, 'public', 'images'); const ok = new Set(); for (const c of CARTOONS) { try { if (c.image && fs.statSync(path.join(dir, c.image)).size > 0) ok.add(c.id); } catch (e) {} } return ok; })();
+// The live deck for a deck choice ({ family, spicy }), cartoons with a drawing only (solo practice uses it too)
+const liveCartoons = (s) => CARTOONS.filter(c => HAS_IMAGE.has(c.id) && !isRetiredId(c.id) && !(s.family && (c.adult || c.spicy)) && !(c.spicy && !s.spicy));
 const allowed = (game) => CARTOONS.filter(c => HAS_IMAGE.has(c.id) && !isRetiredId(c.id) && !(game.settings.family && (c.adult || c.spicy)) && !(c.spicy && !game.settings.spicy));
 function dealNormal(game, currentId) {
   // Never twice in one game; of the rest, the ones the fewest people at the table have seen.
@@ -1125,6 +1176,7 @@ function startRound(game, options = {}) {
   }
   if (!options.sameRound) chooseNote(game);   // R22
   if (game.round === 1 && !options.sameRound) { game.startedFamily = !!game.settings.family; game.kidsInBed = false; game.kidsCard = null; }   // R16
+  if (game.round === 1 && !options.sameRound) game.house = houseCast(game, houseWanted(game));   // the house players sit in for the whole game
   if (!dealCartoon(game)) {
     // Nobody wrote anything and the deck has nothing new: the same cartoon again, fresh clock
     game.submissions = []; game.mulliganVotes = [];
@@ -1277,11 +1329,12 @@ function finishWriting(game) {
   if (game.submissions.length === 0) return { ok: true, empty: true };
 
   const subs = shuffleArray(game.submissions);
+  const house = houseFakes(game);   // (always out in the open: the face-down one is a player's or the real one)
   if (game.autoClose) {
     game.closedCaption = game.correctCaption;
     game.closedIsCorrect = true;
     game.closedPlayerId = null;
-    game.openCaptions = subs.map(s => ({ caption: s.caption, isCorrect: false, playerId: s.playerId }));
+    game.openCaptions = shuffleArray(subs.map(s => ({ caption: s.caption, isCorrect: false, playerId: s.playerId })).concat(house));
   } else {
     const chosen = subs[0];
     game.closedCaption = chosen.caption;
@@ -1289,7 +1342,7 @@ function finishWriting(game) {
     game.closedPlayerId = chosen.playerId;
     const opens = subs.slice(1).map(s => ({ caption: s.caption, isCorrect: false, playerId: s.playerId }));
     opens.push({ caption: game.correctCaption, isCorrect: true, playerId: null });
-    game.openCaptions = shuffleArray(opens);
+    game.openCaptions = shuffleArray(opens.concat(house));
   }
   game.mulliganVotes = [];
   spendNote(game);   // R22
@@ -1718,7 +1771,7 @@ function revealAnswer(game) {
     dealerName: dealer ? dealer.name : '',
     double: mult > 1,   // The Late Edition
     autoClose: game.autoClose,
-    openCaptions: game.openCaptions.map(c => ({ caption: c.caption, isCorrect: c.isCorrect, playerId: c.playerId, playerName: c.playerId ? nameOfPlayer(game, c.playerId) : null })),
+    openCaptions: game.openCaptions.map(c => ({ caption: c.caption, isCorrect: c.isCorrect, playerId: c.playerId, playerName: c.playerId ? nameOfPlayer(game, c.playerId) : null, ...(c.house ? { house: true } : {}) })),
     closedCaption: game.closedCaption,
     closedIsCorrect: game.closedIsCorrect,
     closedPlayerId: game.closedPlayerId,
@@ -1805,7 +1858,7 @@ function endLines(game, mult) {
   for (const b of game.bets) {
     if (b.stage !== 1 || chipsOf(b) !== 2 || keyOf(b.target) === real) continue;
     const w = writerOfKey(game, keyOf(b.target));
-    if (w && w !== b.playerId) { add('end.moonMiss', { name: fn(b.playerId), writer: fn(w) }); break; }
+    if (w && w !== b.playerId && !isHouseId(w)) { add('end.moonMiss', { name: fn(b.playerId), writer: fn(w) }); break; }
   }
   if (!game.closedIsCorrect && game.closedPlayerId && ccRiders.length) add('end.ccFakeRiders', { writer: fn(game.closedPlayerId), riders: nameList(ccRiders.map(fn)) });
   const minds = (game.roundBadges || []).find(b => b.kind === 'great_minds');
@@ -1814,7 +1867,7 @@ function endLines(game, mult) {
   const maxChips = Math.max(0, ...fk.map(f => f.chips)), tops = fk.filter(f => f.chips === maxChips && maxChips >= 2), tw = [...new Set(tops.map(f => f.w))];
   if (tops.length && tw.length === 1 && tops[0].people >= 2) add('end.bluff', { writer: fn(tw[0]), n: tops[0].people });
   else if (tops.length && tw.length === 2 && tops.every(f => f.people === tops[0].people) && tops[0].people >= 2) add('end.bluff2', { writers: nameList(tw.map(fn)), n: tops[0].people });
-  if (fakes.length && !fk.some(f => f.chips > 0) && game.bets.some(b => keyOf(b.target) === real && chipsOf(b) > 0)) add('end.honest', { n: fakes.length });
+  if (fakes.length && !fakeKeys(game).some(k => votesOn(game, k) > 0) && game.bets.some(b => keyOf(b.target) === real && chipsOf(b) > 0)) add('end.honest', { n: fakes.length });
   const own = game.bets.find(b => b.target !== 'pass' && chipsOf(b) > 0 && writerOfKey(game, keyOf(b.target)) === b.playerId);
   if (own) add('end.betOwn', { name: fn(own.playerId) });
   const rs = game.roundScores || {}, top = Math.max(0, ...Object.values(rs));
@@ -2087,6 +2140,7 @@ function pickFrame(game, playerId, target, on) {
   if (!revealedKeys(game).includes(key)) return { error: 'Not yet. Wait for it.' };
   if (authorOf(game, v.target) === playerId) return { error: 'You can’t frame your own caption' };
   if (isBetOnCorrect(game, { target: v.target })) return { error: 'The real caption can’t be framed' };
+  if (isHouseId(authorOf(game, v.target))) return { error: 'House captions don’t go in The Gallery' };
   const picks = (game.framePicks = game.framePicks || {}), list = picks[key] || (picks[key] = []);
   const has = list.includes(playerId), want = on === undefined || on === null ? !has : !!on;
   if (want === has) return { ok: true, noop: true };
@@ -2281,10 +2335,15 @@ const writerOfKey = (game, key) => (key === 'closed' ? game.closedPlayerId : (ga
 const realKey = (game) => (game.closedIsCorrect ? 'closed' : keyOf(game.openCaptions.findIndex(c => c.isCorrect)));
 const captionOfKey = (game, key) => (key === 'closed' ? game.closedCaption : (game.openCaptions[Number(key)] || {}).caption) || '';
 // Every caption a player wrote this round (the Closed Caption included when it's theirs)
+// (house fakes are not a player's: they earn nothing, win no badges and get no lines about their writer)
 function playerKeys(game) {
-  const keys = game.openCaptions.map((c, i) => (c.playerId ? keyOf(i) : null)).filter(k => k !== null);
+  const keys = game.openCaptions.map((c, i) => (c.playerId && !isHouseId(c.playerId) ? keyOf(i) : null)).filter(k => k !== null);
   if (game.closedPlayerId) keys.push('closed');
   return keys;
+}
+// Every fake on the table, the house's too (the reveal shows them all)
+function fakeKeys(game) {
+  return playerKeys(game).concat(game.openCaptions.map((c, i) => (isHouseId(c.playerId) ? keyOf(i) : null)).filter(k => k !== null));
 }
 // Chips other players put on a caption (the writer's own don't count)
 function votesOn(game, key) {
@@ -2293,7 +2352,7 @@ function votesOn(game, key) {
 }
 // Fakes from fewest votes to most (ties in random order), the real caption last
 function reelOrder(game) {
-  const fakes = shuffleArray(playerKeys(game)).map(k => ({ k, v: votesOn(game, k) })).sort((a, b) => a.v - b.v).map(x => x.k);
+  const fakes = shuffleArray(fakeKeys(game)).map(k => ({ k, v: votesOn(game, k) })).sort((a, b) => a.v - b.v).map(x => x.k);
   const real = realKey(game);
   return real === '-1' ? fakes : [...fakes, real];
 }
@@ -2470,6 +2529,7 @@ function resetForNewGame(game) {
   game.inductionCount = game.lastInduction ? game.lastInduction.n : (game.inductionCount || 0);
   game.lastInduction = null;
   game.closePlan = [];
+  game.house = [];
   game.round = 0;
   game.dealerIndex = -1;
   game.dealCount = {};   // [settings]
@@ -2567,6 +2627,7 @@ function getPlayerView(game, playerId) {
     lastInduction: game.lastInduction ? { ...game.lastInduction, flaggers: [...game.lastInduction.flaggers], list: (game.lastInduction.list || []).map(x => ({ ...x, flaggers: [...x.flaggers] })) } : null,   // the latest framing (#5: the moment it's framed, on the reveal)
     hofDeck: deckCartoons(game),
     hofTotal: deckOf(game).count(),
+    house: houseView(game),          // the house players: names only (never which caption is theirs before the answer)
   };
   // #3: in Expert games the Gallery holds the real answers, so every cartoon still to be dealt is kept out of sight
   // (and the one on the table until its answer is out). Phones hide these from the Gallery they carry, too.
@@ -2697,7 +2758,7 @@ function getPlayerView(game, playerId) {
     base.roundScores = game.roundScores;
     base.roundScoreDetails = game.roundScoreDetails || {};
     base.dealerBonusAwarded = !!game.dealerBonusAwarded;
-    base.openCaptionDetails = game.openCaptions.map(c => ({ caption: c.caption, isCorrect: c.isCorrect, playerId: c.playerId, playerName: c.playerId ? nameOfPlayer(game, c.playerId) : null }));
+    base.openCaptionDetails = game.openCaptions.map(c => ({ caption: c.caption, isCorrect: c.isCorrect, playerId: c.playerId, playerName: c.playerId ? nameOfPlayer(game, c.playerId) : null, ...(c.house ? { house: true } : {}) }));
     base.closedPlayerId = game.closedPlayerId;
     base.flags = game.flags.filter(f => f.round === game.round).map(f => ({ ...f }));
     base.allFlags = game.flags.map(f => ({ ...f }));
@@ -2829,4 +2890,5 @@ module.exports = {
   stealChip, revealAnswer, moveToScoreboard, isGameOver, liveOver, finishIfOver, resetForNewGame, isPresent,
   REACTION_KINDS, react, reelStep, reelOrder, votesOn, awardBadges, setCareer, OPEN_MS,
   currentBetterId, pendingBetters, nextDealerIndex, getPlayerView, generateRoomCode,
+  HOUSE_CAST, HOUSE_MAX, houseWanted, isHouseId, liveCartoons, CARD_META_OF: (id) => CARD_META[String(id)] || null, polish, nearlySame,
 };

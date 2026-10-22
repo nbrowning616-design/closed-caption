@@ -523,3 +523,36 @@ right one … creative, funny, whimsical."
 Built: public/steal.js = the Oct 17 Claw (c0b5b16), full show 9 s (gloat card from 6.25 s held to the end), short 3.5 s;
 about 2 full shows in 5 it grabs the decoy, lifts it, fumbles and drops it (seeded; state.steal.fumble overrides).
 game.js deals one act, The Claw (thief.claw.* lines in lines.js); thieves.js no longer loaded.
+
+## HOUSE PLAYERS + SOLO PRACTICE — BUILT (Oct 22 2026, branch house-players)
+HOUSE PLAYERS (game.js, server.js, index.html, recap.js):
+- A cast of 8 dry names (Aunt Judy, The Intern, Uncle Ray, Mrs. Pruitt, Cousin Dale, Dr. Feld, The Notary, Gloria); a room
+  shuffles the cast once, skips any name a real player has. They are NOT in game.players, so every count, the deal, bets,
+  steal, scores, rating, awards, Did you know and stats ignore them by construction.
+- Host sets 0–5 with a −/+ stepper right under the lobby's player list (not hidden in Room options). Default is "suggested":
+  2 people → 4 house, 3 → 3, 4+ → 0; the host's tap overrides. Everyone sees the house players in the seat list in a quieter
+  style (dashed paper token, no chip, "house · writes a fake, doesn't bet"). Fixed for the whole game at round 1.
+- Start: 2 real people may start if at least 1 house player is set (otherwise 3 as before). Home says "2–8 players".
+- Each round, each house player adds a different bank decoy (card_meta "decoys"), highest score first, shuffled within a
+  score; never one that breaks the Editor's note, nor one nearly the same as the real caption or a player's. Decoys are
+  tidied with polish() (the bank uses straight apostrophes, the real captions curly: unpolished they'd be a tell).
+  House fakes are always out in the open (never the face-down Closed Caption).
+- During betting they look exactly like player fakes (phones get caption text only). A chip on one just misses: no points
+  to anyone, no badges/odds/headlines/slips/Caption-of-the-Night/best-bluff about them; they can't be framed (no Frame
+  button; server refuses). After the reveal: "Written by Aunt Judy [HOUSE]" on the reel, the nobody-bit group, the recap
+  list and the history; no "+N" for them. Ha/Groan still work on them.
+SOLO PRACTICE (practice.js server + public/practice.js; endpoints POST /practice/start, /write, /guess):
+- Home → "Practice alone" → one-line intro + deck choice (Family / Standard default / Everything, remembered) → 6 cartoons
+  (unseen by this phone first; reuses the cc_seen list, and adds to it) → write a fake (same tidy rules + spelling check as
+  the game) → five shuffled captions (yours marked, the real one, 3 house fakes rated 4–5, topped up with the next best) →
+  tap one, "That one" → "Found it" / "Not that one", credits, "N of M so far" → end: "You spotted the real one N of 6
+  times." Play again / Home. No rating, nothing saved.
+- Security: the server keeps which is which; the phone gets the cartoon (image/title/id) to write on, then the five texts
+  unlabeled, and learns the answer only in the guess reply. Sessions in memory, 2 h, start rate-limited per address.
+TESTED (Playwright, Chromium, through the app): classic 3 phones, house 0: full round incl. bet, steal, reveal, recap,
+scores — zero page errors. 2 phones + 3 house: 2 full rounds to the winner screen; 5 captions in betting; scores only for
+the 2 real players; house fakes credited on the reveal ("Written by …", HOUSE tag) and in the nobody-bit group/recap.
+3 phones + 2 house, 3 rounds; 2 phones + suggested 4 house at 360×640. Solo: 6 cartoons start to finish at 390×844 and
+360×640, five captions each time, 3 house credits, score shown, no horizontal scroll, zero errors; every network response
+and the page while writing checked: the real caption never arrives before the five are shown, and the five come unlabeled.
+Open for Nick: house fakes never go face-down (simpler and avoids any tell); 3 real players get 3 house by default — fine?

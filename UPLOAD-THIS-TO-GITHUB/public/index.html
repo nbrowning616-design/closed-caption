@@ -51,6 +51,7 @@
 <script src="/guide.js?v=__V__"></script>
 <script src="/verdicts.js?v=__V__"></script>
 <script src="/ending.js?v=__V__"></script>
+<script src="/practice.js?v=__V__"></script>
 <script>
 /* The show scripts (Gallery + share card, the steal and its thieves, recap, finale) aren't needed until the middle
    of a round, so they no longer hold up the first screen. Once the page has loaded (or 4 s after the app is up,
@@ -162,6 +163,41 @@ textarea.caption-input::placeholder { color: #A99F93; }
 .chip { --c: var(--blue); --s: 34px; width: var(--s); height: var(--s); border-radius: 50%; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 700; font-size: calc(var(--s) * 0.36); color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.25); border: 2px solid var(--ink); background: radial-gradient(circle, var(--c) 0 58%, transparent 59%), repeating-conic-gradient(from 8deg, var(--c) 0deg 28deg, #fff 28deg 60deg); box-shadow: 0 2px 0 rgba(31,26,23,.9), inset 0 0 0 1.5px rgba(255,255,255,.35); position: relative; padding: 0; }
 .chip.lg { --s: 46px; } .chip.sm { --s: 28px; } .chip.xs { --s: 20px; border-width: 1.5px; }
 .chip.dim { filter: grayscale(.9); opacity: .45; }
+/* House players: a plain paper token, not a chip (they hold none) */
+.chip.house { background: var(--paper); color: var(--ink-2); text-shadow: none; border: 2px dashed var(--ink-2); box-shadow: none; }
+.house-tag { display: inline-block; vertical-align: middle; margin-left: 4px; padding: 1px 6px; border: 1.5px solid currentColor; border-radius: 6px; font-family: var(--sans); font-style: normal; font-size: 11px; font-weight: 900; letter-spacing: .6px; text-transform: uppercase; line-height: 1.4; color: var(--ink-2); }
+.wname .house-tag { font-size: 12px; transform: translateY(-3px); }
+.lb-p.house { opacity: .78; }
+.lb-p.house .lb-l1 { font-weight: 700; }
+.house-field { margin: -4px 0 16px; padding: 10px 12px; border: 2px dashed var(--ink-2); border-radius: 12px; }
+.hf-row { display: flex; align-items: center; gap: 10px; }
+.hf-t { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 15px; line-height: 1.25; }
+.hf-s { font-size: 13px; font-weight: 800; color: var(--ink-2); }
+.hf-step { display: flex; align-items: center; gap: 8px; flex: none; }
+.hf-step .btn { width: 44px; min-height: 44px; padding: 0; }
+.hf-step b { min-width: 18px; text-align: center; font-size: 18px; }
+/* Solo practice (practice.js) */
+.pr-hdr { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; min-height: 44px; }
+.pr-hdr-s { flex: 1; min-width: 0; font-size: 14px; font-weight: 800; color: var(--ink-2); }
+.pr-x { flex: none; min-height: 44px; padding: 0 4px; }
+.pr-intro { margin-top: 6vh; }
+.pr-intro .sub { margin-top: 8px; }
+.pr-count { text-align: right; margin: 4px 2px 12px; }
+.pr-check { text-align: left; margin-bottom: 4px; }
+.pr-row { display: flex; gap: 8px; } .pr-row .btn { flex: 1; }
+.pr-q { text-align: center; margin: 18px 0 16px; }
+.pr-list { margin-bottom: 18px; }
+.pr-list .cap { font: inherit; color: inherit; }
+.pr-cap.pr-mine { background: var(--paper-2); border-style: dashed; box-shadow: none; }
+.pr-cap.pr-miss { background: var(--red-bg); }
+.pr-who { margin-top: 6px; font-size: 13px; font-weight: 800; color: var(--ink-2); }
+.stamp.pr-stamp-miss { border-color: var(--red); color: var(--red); }
+.pr-go { margin-bottom: 8px; }
+.pr-end { text-align: center; margin-top: 10vh; }
+.pr-big { font-size: 56px; margin: 6px 0 10px; }
+.pr-zoom { position: fixed; inset: 0; z-index: 90; background: rgba(31,26,23,.92); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; gap: 14px; }
+.pr-zoom img { max-width: 100%; max-height: 80vh; object-fit: contain; background: #fff; border-radius: 8px; }
+.pr-zoom .pr-zoom-x { width: auto; }
 .chip .check { position: absolute; right: -5px; bottom: -5px; width: 16px; height: 16px; border-radius: 50%; background: var(--teal); border: 2px solid var(--ink); color: #fff; font-size: 9px; display: flex; align-items: center; justify-content: center; font-weight: 900; }
 .chip.pop { animation: chipPop .5s var(--spring) both; }
 @keyframes chipPop { from { transform: scale(0) rotate(-40deg); } to { transform: none; } }
@@ -1069,8 +1105,9 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
       <div id="rejoin-box"></div>
       <button class="btn btn-yellow home-host" onclick="showScreen('screen-create')">Host a game</button>
       <button class="btn" onclick="showScreen('screen-join')">Join a game</button>
+      <button class="btn home-solo" onclick="window.Practice && Practice.open()">Practice alone</button>
       <p class="home-free">Free. No app, no sign-up. 30 seconds to join.</p>
-      <div class="home-foot"><button class="btn-link" onclick="showScreen('screen-rules')">How to play</button><span class="home-dot">·</span><span class="small">3–8 players · a phone each</span><span class="home-dot">·</span><a class="btn-link small" href="/privacy.html">Privacy</a><!-- #18: privacy page (public/privacy.html) --></div>
+      <div class="home-foot"><button class="btn-link" onclick="showScreen('screen-rules')">How to play</button><span class="home-dot">·</span><span class="small">2–8 players · a phone each</span><span class="home-dot">·</span><a class="btn-link small" href="/privacy.html">Privacy</a><!-- #18: privacy page (public/privacy.html) --></div>
       <p class="home-call">Playing over FaceTime or Zoom? Works great — everyone uses their own phone.</p>
     </div>
   </div>
@@ -1152,6 +1189,8 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 
 <!-- ═══════ GAME (drawn by script) ═══════ -->
 <div id="screen-game" class="screen"><div id="game-content"></div></div>
+<!-- Solo practice (public/practice.js) -->
+<div id="screen-practice" class="screen"><div id="practice-root"></div></div>
 <div id="action-bar-root"></div>
 
 <script>
@@ -1201,12 +1240,17 @@ const initials = (name) => { const p = state && state.players.find(x => x.name =
 function playerColor(idx) { return COLORS[((idx % COLORS.length) + COLORS.length) % COLORS.length]; }
 function getPlayerIndex(id) { return state ? state.players.findIndex(p => p.id === id) : -1; }
 function playerById(id) { return state ? state.players.find(p => p.id === id) : null; }
-function nameOf(id) { const p = playerById(id); return p ? p.name : '?'; }
+// House players (write-only fill-ins): names only, never in state.players
+const isHouseId = (id) => typeof id === 'string' && id.startsWith('house:');
+function houseById(id) { return isHouseId(id) && state && state.house ? (state.house.list || []).find(h => h.id === id) || null : null; }
+function nameOf(id) { const p = playerById(id) || houseById(id); return p ? p.name : '?'; }
+const houseTag = '<span class="house-tag">house</span>';
 function seatStyle(idx) {
   const c = playerColor(idx), k = ((idx % 8) + 8) % 8;
   return `--c:${c};--p:${360 / SEAT_SPOTS[k % 4]}deg;${LIGHT_SEATS.has(c) ? '--fg:#1F1A17;--ts:none;' : ''}`;
 }
 function chipHtml(pid, cls = '', extra = '', attrs = '') {
+  if (isHouseId(pid)) { const h = houseById(pid), nm = h ? h.name : 'House'; return `<span class="chip house ${cls}" role="img" aria-label="${esc(nm)} (house player)" title="${esc(nm)}" ${attrs}>${esc(baseInitials(nm))}${extra}</span>`; }
   const p = playerById(pid), idx = getPlayerIndex(pid), k = ((idx % 8) + 8) % 8;
   const label = /aria-label=/.test(attrs) ? '' : ` role="img" aria-label="${esc(p ? p.name : 'A player')}"`;
   return `<span class="chip ${cls}${idx >= 0 && k >= 4 ? ' seat-ring' : ''}" style="${seatStyle(idx)}" title="${esc(p ? p.name : '')}" data-voice-pid="${esc(pid)}"${label} ${attrs}>${esc(p ? (initialsMap().get(pid) || baseInitials(p.name)) : '?')}${extra}</span>`;
@@ -1282,7 +1326,7 @@ function firstName(name) {
   const clash = state.players.some(p => p.name !== full && (p.name.trim().split(/\s+/)[0] || '').toLowerCase() === first.toLowerCase());
   return clash ? full : first;
 }
-const fnameOf = (id) => firstName(nameOf(id));
+const fnameOf = (id) => isHouseId(id) ? nameOf(id) : firstName(nameOf(id));
 function toggleFullRules() {
   const fr = $('rules-full'); if (!fr) return;
   const open = fr.style.display === 'none'; fr.style.display = open ? '' : 'none';
@@ -2316,19 +2360,35 @@ function renderLobby() {
     ${codeCard}
     ${demoCardHtml()}
     <h2 class="lb-at">At the table · ${connected}${watched}</h2>
-    <ul class="lb-names">${names}</ul>
+    <ul class="lb-names">${names}${houseRowsHtml()}</ul>
+    ${houseFieldHtml(connected)}
     ${window.Ending ? Ending.lobbyHtml() : ''}
     ${played ? ratingCardHtml() : ''}
     ${deckNote}
     ${options}
     <button class="btn-link" style="display:block; margin:12px auto 0;" onclick="showScreen('screen-rules')">How to play</button>`;
 }
+/* House players (write-only fill-ins): the host picks 0–5. Shown at the table in a quieter style: no chips, no score. */
+const houseList = () => (state && state.house && state.house.list) || [];
+const houseCount = () => houseList().length;
+function houseRowsHtml() {
+  return houseList().map(h => `<li class="lb-p house">${chipHtml(h.id, 'lg')}<span class="lb-nm"><span class="lb-l1">${esc(h.name)}</span><span class="lb-sub">house · writes a fake, doesn’t bet</span></span></li>`).join('');
+}
+function houseFieldHtml(here) {
+  if (!state.isHost) return '';
+  const h = state.house || {}, n = houseCount(), max = h.max || 5;
+  return `<div class="house-field"><div class="hf-row"><span class="hf-t" id="hf-l"><b>House players</b><span class="hf-s">Each writes one fake. No bets, no points.</span></span>
+    <span class="hf-step" role="group" aria-labelledby="hf-l"><button class="btn btn-sm" aria-label="One fewer house player" ${n <= 0 ? 'disabled' : ''} onclick="setHouse(${n - 1})">−</button><b aria-live="polite">${n}</b><button class="btn btn-sm" aria-label="One more house player" ${n >= max ? 'disabled' : ''} onclick="setHouse(${n + 1})">+</button></span></div>
+    ${h.auto && n > 0 && here < 4 ? '<p class="lb-hint">Suggested for a small table.</p>' : ''}</div>`;
+}
+function setHouse(n) { setHostSettings({ house: Math.max(0, Math.min(5, n)) }); }
 // #16: the Start button sits at the bottom of the host's screen, always in reach
 function lobbyBarHtml() {
   if (!state.isHost) return '';
   const connected = state.players.filter(p => p.connected).length, dk = state.deck || null, deckShort = !!(dk && !dk.ok);
   if (deckShort) return `<button class="btn btn-yellow" disabled>Not enough cartoons yet</button>`;
-  if (connected < 3) return `<button class="btn btn-yellow" disabled>Need ${plural(3 - connected, 'more player')} · ${connected} here</button>`;
+  const house = houseCount(), need = house > 0 ? 2 : 3;   // two people can play with a house player in
+  if (connected < need) return `<button class="btn btn-yellow" disabled>Need ${plural(need - connected, 'more player')} · ${connected} here</button>`;
   return `<button class="btn btn-yellow" onclick="this.disabled=true; send({action:'start'})">Start the game · ${connected} here</button>`;
 }
 // #16: the rating (and the round-1 rating card) only for a phone that has finished a game
@@ -2706,7 +2766,7 @@ function frMine(key) {
 function frHtml(key) {
   key = String(key);
   const f = state.framing; if (state.phase !== 'answer' || !f) return '';
-  const c = capByKey(key); if (!c || c.isCorrect || !c.playerId) return '';
+  const c = capByKey(key); if (!c || c.isCorrect || !c.playerId || c.house) return '';
   const done = (f.framed || []).includes(key);
   if (done) return `<span class="fr-b done" role="img" aria-label="Framed">${inkIcon('frame', 14)}Framed</span>`;
   if (c.playerId === myPlayerId || !(f.revealed || []).includes(key)) return '';
@@ -3373,7 +3433,7 @@ function recapFramesHtml() {
   if (!caps.length) return '';
   const items = caps.map(c => {
     const k = String(c.idx), counts = (state.reactionCounts || {})[k], framed = ((state.framing || {}).framed || []).includes(k);
-    return `<li class="rc-fi${framed ? ' framed' : ''}">${chipHtml(c.playerId, 'sm')}<div class="rc-ft"><p class="rc-fc">“${esc(c.caption)}”</p><p class="rc-fw">${esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}${counts ? ' · ' + rxWords(counts) : ''}</p></div>${frHtml(k)}</li>`;
+    return `<li class="rc-fi${framed ? ' framed' : ''}">${chipHtml(c.playerId, 'sm')}<div class="rc-ft"><p class="rc-fc">“${esc(c.caption)}”</p><p class="rc-fw">${c.house ? esc(c.playerName || nameOf(c.playerId)) + ' ' + houseTag : esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}${counts ? ' · ' + rxWords(counts) : ''}</p></div>${frHtml(k)}</li>`;
   }).join('');
   return `<section class="rc-frames" aria-label="Frame It"><p class="rc-fh">Did anyone beat the real one?</p><p class="rc-fs">Frame it. When most of the table does, it hangs in The Gallery.</p><ul class="rc-fl">${items}</ul></section>`;
 }
@@ -3505,7 +3565,7 @@ const reelNobody = () => { const r = state.reel, k = r && Number.isInteger(r.nob
 function nobodyGroupHtml(k) {
   const { order, n } = reelInfo(), L = state.lines || {};
   const rows = order.slice(0, k).map(capByKey).filter(Boolean).map(c => {
-    return `<div class="nb-row">${chipHtml(c.playerId, 'sm')}<div class="nb-txt"><p class="nb-cap">“${esc(c.caption)}”</p><p class="nb-who">${esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}${c.isClosed ? ' · the face-down one' : ''}</p>${rxHtml(c.idx, { frame: true })}</div></div>`;
+    return `<div class="nb-row">${chipHtml(c.playerId, 'sm')}<div class="nb-txt"><p class="nb-cap">“${esc(c.caption)}”</p><p class="nb-who">${c.house ? esc(c.playerName || nameOf(c.playerId)) + ' ' + houseTag : esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}${c.isClosed ? ' · the face-down one' : ''}</p>${rxHtml(c.idx, { frame: true })}</div></div>`;
   }).join('');
   return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `1–${k} of ${n}` })}
     <div class="reel-dots">${order.map((_, i) => `<i class="${i < k ? 'on' : ''} ${i === n - 1 ? 'last' : ''}"></i>`).join('')}</div>
@@ -3530,9 +3590,9 @@ function spotlightHtml() {
   const chipsOf = (pid) => backers.filter(b => b.playerId === pid).reduce((s, b) => s + b.count + (b.stolen || 0), 0);
   const fell = people.length ? `<div class="fell"><p class="eyebrow" style="margin-bottom:8px;">${real ? 'Found the real one' : 'Fell for it'}</p><div class="fell-row">${people.map(pid => `<span class="fell-p">${chipHtml(pid, 'sm')}${esc(pid === myPlayerId ? 'You' : nameOf(pid))}${chipsOf(pid) > 1 ? ` <i>×${chipsOf(pid)}</i>` : ''}</span>`).join('')}</div></div>`
     : `<p class="nobody">${real ? 'Nobody found it.' : 'Nobody bit.'}</p>`;
-  const pts = !real && c.playerId ? backers.reduce((s, b) => s + b.count + (b.stolen || 0), 0) * (state.settings.pointsPerFool || 0) * (lateOn() ? 2 : 1) : 0;   // stolen chips still fooled them; The Late Edition doubles it
+  const pts = !real && c.playerId && !c.house ? backers.reduce((s, b) => s + b.count + (b.stolen || 0), 0) * (state.settings.pointsPerFool || 0) * (lateOn() ? 2 : 1) : 0;   // stolen chips still fooled them; The Late Edition doubles it
   const who = real ? `<div class="stamp real-stamp" id="spot-stamp">The real caption</div>`
-    : `<div class="writer-stamp" id="spot-stamp">${chipHtml(c.playerId, 'lg')}<div><p class="eyebrow">Written by</p><div class="wname">${esc(c.playerId === myPlayerId ? 'You' : c.playerName || '?')}</div></div>${pts ? `<span class="plus" style="margin-left:auto; font-size:26px;">+${pts}</span>` : ''}</div>`;
+    : `<div class="writer-stamp" id="spot-stamp">${chipHtml(c.playerId, 'lg')}<div><p class="eyebrow">Written by</p><div class="wname">${esc(c.playerId === myPlayerId ? 'You' : c.playerName || '?')}${c.house ? ' ' + houseTag : ''}</div></div>${pts ? `<span class="plus" style="margin-left:auto; font-size:26px;">+${pts}</span>` : ''}</div>`;
   // the real one's single line: the odds when something rare happened (kept), otherwise the server's one line
   const realLine = real ? (state.odds && state.odds.line ? `<p class="odds-line">${esc(state.odds.line)}</p>` : RL.line ? `<p class="real-line">${esc(RL.line)}</p>` : '') : '';
   return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `${step} of ${n}` })}
@@ -4303,7 +4363,7 @@ function renderHistory(idx) {
     return `<div class="cap locked ${c.isCorrect ? 'correct' : ''} ${c.isClosed ? 'closed' : ''}"><div class="chip-tray">${chips}</div>
       <p class="eyebrow" style="color:var(--ink-2);">${c.label}${c.isCorrect ? ' · ✓ real' : ''}</p>
       <p class="caption-text" style="font-size:15px;">“${esc(c.caption)}”</p>
-      <p class="small" style="margin-top:4px;">${c.playerName ? '— ' + esc(c.playerName) : '— the real caption'}</p></div>`;
+      <p class="small" style="margin-top:4px;">${c.playerName ? '— ' + esc(c.playerName) + (c.house ? ' ' + houseTag : '') : '— the real caption'}</p></div>`;
   }).join('');
   const pts = Object.entries(r.roundScores || {}).filter(([, p]) => p > 0).sort((a, b) => b[1] - a[1]).map(([pid, p]) => playerById(pid) ? `<div class="pt-row in">${chipHtml(pid, 'sm')}<span style="flex:1; font-weight:800;">${esc(nameOf(pid))}</span><span class="plus" style="font-size:20px;">+${p}</span></div>` : '').join('');
   const st = r.steal && r.steal.victimId ? `<p class="center small" style="margin-bottom:12px; color:var(--red);">${esc(r.dealerName)} stole ${esc(nameOf(r.steal.victimId))}’s chip</p>` : '';
