@@ -522,13 +522,14 @@ function dealNight(game, name, list) {
   return x;
 }
 
-// The steal shows (Nick, Oct 21 2026: the hand-drawn thieves, public/thieves.js CCSteal). 'full' (~6.5 s): the night's
+// The steal show (Nick, Oct 22 2026: back to The Claw, public/steal.js; it sometimes fumbles a decoy first).
+// (Oct 21 2026 it was the hand-drawn thieves, public/thieves.js CCSteal; no longer dealt.) 'full' (~6.5 s): the night's
 // first steal, then about one in four, at random — never decided by where the chip was, so the show can't hint at the
 // answer; the closing caption is held ~2.5 s. Every other steal is 'short' (~2 s), ending on the thief's one-word tag.
 // A room deals the thieves like a deck for the night. The show's lines never hint at the answer (#39): the closing
 // caption is neutral (thief.X.closing, then steal.closing); the thief's own line comes AFTER the reveal only (on the
 // reel, keyed to where the chip was: thief.X.real / thief.X.fake). Lines: public/lines.js.
-const HEISTS = [['cat', 'The Cat'], ['fisherman', 'The Fisherman'], ['bellhop', 'The Bellhop'], ['burglar', 'The Burglar'], ['painter', 'The Painter'], ['pickpocket', 'The Pickpocket']].map(([id, name]) => ({ id, name }));
+const HEISTS = [['claw', 'The Claw']].map(([id, name]) => ({ id, name }));
 // A chip stolen off a fake caption pays its owner this much (the steal's cost)
 const STEAL_CAUGHT_PTS = 1;
 // How long each steal show runs on the phones (public/steal.js FULL_MS / SHORT_MS); the flip waits for it

@@ -271,6 +271,26 @@ const ccLines = {
   "We used to be a quiet table.",
   "Should we tell the host, or is the host in on it?"
  ],
+ "thief.claw.closing": [
+  "Nobody has ever won anything from one of those machines.",
+  "Somebody check that machine. I think it’s rigged.",
+  "And they say you can’t win at those.",
+  "Still warm.",
+  "Should we tell the arcade, or is the arcade in on it?"
+ ],
+ "thief.claw.tag": [
+  "Winner.",
+  "Prize.",
+  "Ding."
+ ],
+ "thief.claw.real": [
+  "(Rigged machine. It went straight for the good one.)",
+  "(First prize. Nobody ever wins first prize.)"
+ ],
+ "thief.claw.fake": [
+  "(Won a prize nobody wanted. The classic claw machine experience.)",
+  "(Spray-painted a dud. In the arcade that still counts.)"
+ ],
  "thief.cat.closing": [
   "She does it slower when you’re watching.",
   "Don’t chase her. You’ll only make it a game.",

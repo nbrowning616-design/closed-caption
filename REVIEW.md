@@ -512,3 +512,14 @@ Wants drama, sportsmanship and razzing; a funny little bit, not long enough to a
   only color and it goes everywhere; the other characters stay deadpan. Every payoff needs a couple of seconds of
   stillness to digest and laugh. 5 samples (scratchpad gore/: cork 118, pop 238, anvil 133, saw 327, monster 152) sent
   for rating; payoff hold extended to ~4.5 s.
+
+## STEAL → THE CLAW IS BACK (Nick, Oct 22 2026)
+Samples Nick turned down today: cartoon gore on the round's cartoon ("doesn't make sense": the steal itself must be
+shown), paint can / rubber stamp ("right idea but how is this clever"), coin flip / disguise ("too simple"), The Heist
+stick figures (too sloppy, then "no way" for the elegant cut). The rule he set: the dealer spots the chip, it becomes
+the dealer's chip ON THE SAME CAPTION (scoring already does this). His pick: the original Oct 17 Claw ("logical,
+straightforward, and kind of fun"), plus: "occasionally pick up the wrong chip, fumble it, let it drop, then grab the
+right one … creative, funny, whimsical."
+Built: public/steal.js = the Oct 17 Claw (c0b5b16), full show 9 s (gloat card from 6.25 s held to the end), short 3.5 s;
+about 2 full shows in 5 it grabs the decoy, lifts it, fumbles and drops it (seeded; state.steal.fumble overrides).
+game.js deals one act, The Claw (thief.claw.* lines in lines.js); thieves.js no longer loaded.
