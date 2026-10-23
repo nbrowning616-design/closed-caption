@@ -389,7 +389,7 @@
     if (last) {
       var s = S(), fr = s && s.framedTonight;
       if (local) return '<div class="en-foot"><button class="btn btn-yellow en-go" onclick="Ending.next(' + c.i + ')">Done</button></div>';
-      if (run()) return '<div class="en-foot"><button class="btn btn-yellow en-go" onclick="Ending.next(' + c.i + ')">' + (e.full && fr && !(s.finale) ? 'Caption of the Night →' : e.full ? 'Done' : 'Final scores →') + '</button></div>';
+      if (run()) return '<div class="en-foot"><button class="btn btn-yellow en-go" onclick="Ending.next(' + c.i + ')">' + (e.full && fr && !(s.finale) ? 'Caption of the Night →' : e.full ? 'Done' : 'Continue →') + '</button></div>';
       var who = s ? first(s.dealerName || nameOfId(s.hostId)) : '';
       return '<div class="en-foot"><p class="en-who">' + E(who) + ' moves things along<span class="dots"></span></p></div>';
     }
@@ -493,7 +493,7 @@
   // R10 the table vs. the cartoonist (the round's blind laughs): tonight's score, and the table's best to beat
   function vsLine(e) {
     var v = e && e.vs; if (!v || !(v.table + v.cartoonist > 0)) return null;
-    var line = 'The table ' + v.table + ', the cartoonist ' + v.cartoonist + '.';
+    var line = 'The table vs. the cartoonist: ' + v.table + '–' + v.cartoonist + '.';
     if (v.record) line += ' A new best for this table.';
     else if (v.best) line += ' This table’s best: ' + v.best.table + ' to ' + v.best.cartoonist + '.';
     return line;

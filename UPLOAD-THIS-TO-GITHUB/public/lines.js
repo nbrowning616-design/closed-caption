@@ -840,24 +840,24 @@ const ccLines = {
   "A slip from The Editors for {name}. {n} groans, no takers."
  ],
  "tvc.table": [
-  "Blind laughs: {writer} {n}, the cartoonist {m}. The table takes it.",
-  "Before anyone knew which was real: {writer} {n}, the cartoonist {m}.",
-  "On laughs alone, {writer} outwrote the magazine, {n} to {m}.",
+  "Love Its before the answer: {writer} {n}, the cartoonist {m}. The table takes it.",
+  "Before anyone knew which was real: {writer} {n} Love Its, the cartoonist {m}.",
+  "On Love Its alone, {writer} outwrote the magazine, {n} to {m}.",
   "Judged blind, the table wins this one. {writer} {n}, the professional {m}.",
   "The table, {n}. The cartoonist, {m}. Somebody tell the magazine.",
-  "{writer} got the bigger laugh, {n} to {m}, back when it could have been real."
+  "{writer} got more love, {n} to {m}, back when it could have been real."
  ],
  "tvc.cartoonist": [
-  "Blind laughs: the cartoonist {m}, the table’s best {n}. The professional takes it.",
-  "Judged blind, the printed one got the bigger laugh, {m} to {n}.",
+  "Love Its before the answer: the cartoonist {m}, the table’s best {n}. The professional takes it.",
+  "Judged blind, the printed one got more love, {m} to {n}.",
   "The cartoonist, {m}. Everyone else, at best, {n}. Experience counts.",
   "Point to the cartoonist, {m} to {n}, before anyone knew whose it was.",
-  "The real one won the laugh, {m} to {n}. The table will regroup."
+  "The real one won the love, {m} to {n}. The table will regroup."
  ],
  "tvc.draw": [
-  "Blind laughs: {n} each. The table and the cartoonist split it.",
-  "Level on laughs, {n} apiece. Nobody gets the point.",
-  "A draw on laughs, {n} to {n}. Everyone keeps their dignity."
+  "Love Its: {n} each. The table and the cartoonist split it.",
+  "Level on Love Its, {n} apiece. Nobody gets the point.",
+  "A draw on Love Its, {n} to {n}. Everyone keeps their dignity."
  ],
  "odds.allBlind": [
   "Every first bet found the real one. Guessing, that’s about 1 in {odds}.",

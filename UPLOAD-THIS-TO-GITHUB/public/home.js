@@ -32,7 +32,7 @@
     '#home-mount{flex:1 1 auto;display:flex;flex-direction:column;}',
 
     /* the cartoon, behind everything: as wide as the phone column, down to just under the caption */
-    '.home-bg{position:fixed;z-index:0;top:0;left:50%;width:min(100vw,480px);height:min(calc(100dvh - var(--home-foot,250px) + 70px),calc(min(100vw,480px) * 1.6));transform:translateX(-50%);overflow:hidden;background:var(--paper);pointer-events:none;}',
+    '.home-bg{position:fixed;z-index:0;top:0;left:50%;width:min(100vw,480px);height:min(calc(100dvh - var(--home-foot,250px) + 70px),calc(min(100vw,480px) * 2.1));transform:translateX(-50%);overflow:hidden;background:var(--paper);pointer-events:none;}',
     '.home-bg img{position:absolute;inset:-3%;width:106%;height:106%;object-fit:cover;object-position:0% 50%;opacity:0;transition:opacity 1.1s ease;filter:none;}',
     '.home-bg img.home-on{opacity:1;}',
     '.home-bg img.home-pan-r{animation:homePanR 14s cubic-bezier(.45,0,.55,1) forwards;}',
@@ -86,7 +86,8 @@
       '.home-bg{left:0;transform:none;width:55vw;height:100dvh;}' +
       '.home-bg::after{top:0;left:auto;right:0;bottom:0;width:40%;height:auto;background:linear-gradient(90deg,rgba(255,248,234,0),var(--paper));}' +
       '.home-root{margin-left:48vw;max-width:440px;padding-left:12px;padding-right:calc(16px + env(safe-area-inset-right,0px));justify-content:center;}' +
-      '#home-mount{flex:0 0 auto;}.home-gap{display:none;}.home-capbox{height:70px;}.home-cap{font-size:19px;}' +
+      '#home-mount{flex:0 0 auto;}.home-gap{display:none;}.home-capbox{height:70px;margin-top:16px;}.home-cap{font-size:19px;}' +
+      '.home-bg img,.home-bg img.home-pan-r,.home-bg img.home-pan-l{inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 50%;animation:none;transform:none;}' +
     '}'
   ].join('\n');
 
@@ -179,8 +180,9 @@
 
   /* one cartoon, ~12 s: three captions, each stamped. LIE, LIE, REAL (in whatever order) */
   async function round(s, n) {
-    var next = els.imgs[imgFlip];
+    var my = token, next = els.imgs[imgFlip];
     try { next.src = imgUrl(s.img); if (next.decode) await Promise.race([next.decode().catch(function () {}), wait(1500)]); } catch (e) {}
+    if (my !== token) return;   // stopped (or restarted) while the picture was loading: this loop is over
     setCartoon(n);
     await wait(n === 0 ? 700 : 1300);
     for (var i = 0; i < 3; i++) {

@@ -99,11 +99,11 @@
 
   function initialsFn(opts) {
     var d = opts.dealer || '', v = opts.victim || '';
-    var same = d && v && d[0].toUpperCase() === v[0].toUpperCase();
+    var same = d && v && Array.from(d)[0].toUpperCase() === Array.from(v)[0].toUpperCase();
     return function (name) {
       name = name || '?';
-      if (same && (name === d || name === v)) return name.slice(0, 2);
-      return name[0].toUpperCase();
+      if (same && (name === d || name === v)) return Array.from(name).slice(0, 2).join("");
+      return Array.from(name)[0].toUpperCase();
     };
   }
 

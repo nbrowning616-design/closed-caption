@@ -87,7 +87,7 @@
     return '<div class="pr-hdr"><span class="sticker">Practice</span><span class="pr-hdr-s">' + E(label || '') + '</span><button class="btn-link pr-x" onclick="Practice.home()">Home</button></div>';
   }
   function toon(slot) {
-    return '<div class="toon-big ' + (slot ? 'mag' : 'compact') + ' pr-toon"><button class="toon-hit" onclick="Practice.zoom()" aria-label="' + E(P.card.title || 'The cartoon') + '. See it full-screen"><img src="/images/' + E(P.card.image) + '" alt=""></button><span class="zoom" aria-hidden="true">Tap to zoom</span>' + (slot || '') + '</div>';
+    return '<div class="toon-big ' + (slot ? 'mag' : 'compact') + ' pr-toon"><button class="toon-hit" onclick="Practice.zoom()" aria-label="The cartoon. See it full-screen"><img src="/images/' + E(P.card.image) + '" alt=""></button><span class="zoom" aria-hidden="true">Tap to zoom</span>' + (slot || '') + '</div>';
   }
   function cardsHtml(mode) {
     var r = P.result;
@@ -139,12 +139,14 @@
     } else if (P.step === 'end') {
       var rr = P.result || { score: P.score, total: P.total, played: P.total };
       h = hdr('') + '<div class="pr-end"><div class="h-display pr-big">' + rr.score + ' of ' + rr.played + '</div>'
-        + '<p class="sub">You spotted the real one ' + rr.score + ' of ' + rr.played + ' times.</p>'
-        + '<div class="stack" style="margin-top:22px;"><button class="btn btn-yellow" onclick="Practice.start()">Play again</button><button class="btn" onclick="Practice.home()">Home</button></div></div>';
+        + '<p class="sub">real captions spotted</p>'
+        + '<div class="stack" style="margin-top:22px;"><button class="btn btn-yellow" onclick="Practice.start()">Play again</button></div></div>';
     }
     root.innerHTML = h;
+    if (P.step === 'write' && P.check) { var pc = root.querySelector('.pr-check'); if (pc && pc.scrollIntoView) pc.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+    var pi = document.getElementById('pr-input'); if (pi && pi.value) { pi.style.height = 'auto'; pi.style.height = (pi.scrollHeight + 2) + 'px'; }
   }
-  function typed(t) { if (!P) return; if (t.value.length > 200) t.value = t.value.slice(0, 200); P.draft = t.value; P.check = null; var c = document.getElementById('pr-count'); if (c) c.textContent = t.value.length + ' / 200'; if (!document.getElementById('pr-submit')) { var pos = t.selectionStart; draw(); var n = document.getElementById('pr-input'); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} } } }
+  function typed(t) { if (!P) return; if (t.value.length > 200) t.value = t.value.slice(0, 200); t.style.height = 'auto'; t.style.height = (t.scrollHeight + 2) + 'px'; P.draft = t.value; P.check = null; var c = document.getElementById('pr-count'); if (c) c.textContent = t.value.length + ' / 200'; if (!document.getElementById('pr-submit')) { var pos = t.selectionStart; draw(); var n = document.getElementById('pr-input'); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} } } }
 
   window.Practice = { open: open, home: home, setDeck: setDeck, start: start, submit: submit, choose: choose, guess: guess, next: next, zoom: zoom, typed: typed };
 })();

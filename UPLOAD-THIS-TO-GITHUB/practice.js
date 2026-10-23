@@ -63,7 +63,7 @@ function write(body) {
   const c = s.cards[s.i], raw = String((body && body.caption) || '');
   if (raw.length > 400) return { error: 'Too long. The real ones are short.' };
   const p = G.polish(raw);
-  if (!p.text || !/[A-Za-z0-9]/.test(p.text)) return { error: 'Write something first' };
+  if (!p.text || !/[\p{L}\p{N}]/u.test(p.text)) return { error: 'Write something first.' };
   if (p.text.length > 220) return { error: 'Too long. The real ones are short.' };
   const mode = body.mode === 'fix' || body.mode === 'keep' ? body.mode : 'check';
   if (mode === 'check' && p.typos.length) return { ok: true, check: { polished: p.text, fixed: p.fixed, typos: p.typos } };

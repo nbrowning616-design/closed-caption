@@ -719,7 +719,7 @@ function cleanSeen(ids) {
 function setSeen(game, ids) { game.seenIds = cleanSeen(ids); (game.seenBy = game.seenBy || {})[game.hostId] = game.seenIds; }
 // A phone tells us which cartoons it has already seen (on joining, and back in the lobby)
 function setPlayerSeen(game, playerId, ids) {
-  if (!game.players.some(p => p.id === playerId)) return { error: 'Player not in game' };
+  if (!game.players.some(p => p.id === playerId)) return { error: 'You’re not in this game.' };
   if (!Array.isArray(ids)) return { error: 'That didn’t take. Try again.' };
   (game.seenBy = game.seenBy || {})[playerId] = cleanSeen(ids.slice(0, 200));
   return { ok: true };
@@ -812,7 +812,7 @@ function kickPlayer(game, hostId, targetPlayerId) {
   if (game.hostId !== hostId) return { error: 'Only the host can remove players' };
   if (hostId === targetPlayerId) return { error: 'You can’t remove yourself' };
   const target = game.players.find(p => p.id === targetPlayerId);
-  if (!target) return { error: 'Player not in game' };
+  if (!target) return { error: 'You’re not in this game.' };
   game.players = game.players.filter(p => p.id !== targetPlayerId);
   return { ok: true, kickedName: target.name };
 }
@@ -822,7 +822,7 @@ function moveSeat(game, hostId, targetId, dir) {
   if (game.phase !== PHASES.LOBBY) return { error: 'Seats can only be changed in the lobby' };
   if (game.hostId !== hostId) return { error: 'Only the host can arrange the seats' };
   const i = game.players.findIndex(p => p.id === targetId), j = i + (dir < 0 ? -1 : 1);
-  if (i < 0) return { error: 'Player not in game' };
+  if (i < 0) return { error: 'You’re not in this game.' };
   if (j < 0 || j >= game.players.length) return { ok: true };
   [game.players[i], game.players[j]] = [game.players[j], game.players[i]];
   return { ok: true };
@@ -1274,12 +1274,12 @@ function allCaptionsIn(game) {
 function submitCaption(game, playerId, caption, mode = 'check') {
   if (game.phase !== PHASES.WRITING) return { error: 'Writing time is over' };
   const player = game.players.find(p => p.id === playerId);
-  if (!player) return { error: 'Player not in game' };
+  if (!player) return { error: 'You’re not in this game.' };
   if (game.submissions.some(s => s.playerId === playerId)) return { error: 'Already submitted' };
   const raw = (caption || '').toString();
   if (raw.length > 400) return { error: 'Too long. The real ones are short.' };
   const p = polish(raw);
-  if (!p.text || !/[A-Za-z0-9]/.test(p.text)) return { error: 'Write something first' };
+  if (!p.text || !/[\p{L}\p{N}]/u.test(p.text)) return { error: 'Write something first.' };
   if (p.text.length > 220) return { error: 'Too long. The real ones are short.' };
   if (mode === 'check' && p.typos.length) return { ok: true, check: { polished: p.text, fixed: p.fixed, typos: p.typos } };
   const finalText = mode === 'keep' ? p.text : p.fixed;
@@ -1314,8 +1314,8 @@ function mulliganThreshold(game) {
   return c < 2 ? 1 : Math.max(2, Math.ceil(c / 2));
 }
 function voteMulligan(game, playerId) {
-  if (game.phase !== PHASES.WRITING) return { error: 'You can only mulligan while writing' };
-  if (!game.players.some(p => p.id === playerId)) return { error: 'Player not in game' };
+  if (game.phase !== PHASES.WRITING) return { error: 'You can only skip a cartoon while writing.' };
+  if (!game.players.some(p => p.id === playerId)) return { error: 'You’re not in this game.' };
   const i = game.mulliganVotes.indexOf(playerId);
   if (i >= 0) { game.mulliganVotes.splice(i, 1); return { ok: true, triggered: false }; }
   game.mulliganVotes.push(playerId);
@@ -1435,7 +1435,7 @@ const LATE_BET_MS = 30000, BET_MORE_MS = 20000;
 function moreBetTime(game, pid) {
   const who = firstNameOf(game, pid);
   if (game.phase === PHASES.FIRST_BETS && !game.dropAt && game.blindEnd) {
-    if (game.betMore) return { error: 'Already stretched once this round' };
+    if (game.betMore) return { error: 'Already added time once this round.' };
     game.blindEnd += BET_MORE_MS; game.betMore = who; return { ok: true, stage: 1 };
   }
   if (game.phase === PHASES.SECOND_BETS && !game.lateDropAt && game.lateEnd) {
@@ -2157,8 +2157,8 @@ function revealedKeys(game) {
   return r.order.slice(0, shown);
 }
 function pickFrame(game, playerId, target, on) {
-  if (game.phase !== PHASES.ANSWER) return { error: 'Framing happens on the reveal' };
-  if (!game.players.some(p => p.id === playerId)) return { error: 'Player not in game' };
+  if (game.phase !== PHASES.ANSWER) return { error: 'Not now.' };
+  if (!game.players.some(p => p.id === playerId)) return { error: 'You’re not in this game.' };
   const v = validateTarget(game, target);
   if (v.error) return v;
   const key = keyOf(v.target);
@@ -2313,8 +2313,8 @@ function resolveFinale(game) {
 const REACTION_KINDS = ['ha'];   // 'ha' is Love It (Groan retired)
 const REACT_PHASES = [PHASES.READING, PHASES.FIRST_BETS, PHASES.STEAL, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.ANSWER];
 function react(game, playerId, target, kind, on) {
-  if (!REACT_PHASES.includes(game.phase)) return { error: 'Reactions close with the round' };
-  if (!game.players.some(p => p.id === playerId)) return { error: 'Player not in game' };
+  if (!REACT_PHASES.includes(game.phase)) return { error: 'Love It closes with the round.' };
+  if (!game.players.some(p => p.id === playerId)) return { error: 'You’re not in this game.' };
   if (!REACTION_KINDS.includes(kind)) return { error: 'That didn’t take. Try again.' };
   const v = validateTarget(game, target);
   if (v.error) return v;
@@ -2491,7 +2491,7 @@ const OPEN_MS = 3500;   // the opening card before the first cartoon (round 1's 
 const FULL_RATING_ROUNDS = 8;   // #38: games this long (or longer) move the rating the full amount; shorter ones, in proportion
 function setCareer(game, playerId, msg) {
   const p = game.players.find(x => x.id === playerId);
-  if (!p) return { error: 'Player not in game' };
+  if (!p) return { error: 'You’re not in this game.' };
   msg = msg || {};
   const bad = { error: 'That didn’t take. Try again.' };
   if (msg.rating !== undefined && msg.rating !== null && !Rating.validRating(msg.rating)) return bad;

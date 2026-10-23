@@ -59,9 +59,9 @@ window.CCSteal2_contraption = (function () {
 
   function initials(name, opts) {
     var d = opts.dealer || 'Nick', v = opts.victim || 'Nate';
-    var share = d.charAt(0).toUpperCase() === v.charAt(0).toUpperCase();
-    if (share && (name === d || name === v)) return name.charAt(0).toUpperCase() + name.slice(1, 2).toLowerCase();
-    return name.charAt(0).toUpperCase();
+    var share = Array.from(d)[0].toUpperCase() === Array.from(v)[0].toUpperCase();
+    if (share && (name === d || name === v)) return Array.from(name)[0].toUpperCase() + name.slice(1, 2).toLowerCase();
+    return Array.from(name)[0].toUpperCase();
   }
 
   // ---------- chip ----------

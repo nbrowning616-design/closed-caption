@@ -125,8 +125,8 @@
   function initials(opts) {
     var d = opts.dealer || 'Dealer', v = opts.victim || 'Player', same = d.charAt(0).toLowerCase() === v.charAt(0).toLowerCase();
     return function (name) {
-      if (same && (name === d || name === v)) return name.slice(0, 2);
-      return name.charAt(0).toUpperCase();
+      if (same && (name === d || name === v)) return Array.from(name).slice(0, 2).join("");
+      return Array.from(name)[0].toUpperCase();
     };
   }
   function layout(opts) {
@@ -307,7 +307,7 @@
     while (el.firstChild) el.removeChild(el.firstChild);
     var g = layout(opts), ini = initials(opts), dCol = opts.dealerColor || '#E8559E', vCol = opts.victimColor || '#2F6FE0';
     var svg = E('svg', { viewBox: '0 0 390 700', preserveAspectRatio: 'xMidYMid meet', width: '100%', height: '100%', style: 'display:block;width:100%;height:100%;overflow:hidden' });
-    svg.setAttribute('aria-label', (opts.dealer || '') + ' stole ' + (opts.victim || '') + "'s chip");
+    svg.setAttribute('aria-label', (opts.dealer || '') + ' stole ' + (opts.victim || '') + '’s chip');
     el.appendChild(svg);
     E('rect', { x: -400, y: -400, width: 1190, height: 1500, fill: PAPER }, svg);
     var cam = E('g', {}, svg);
@@ -357,7 +357,7 @@
     var ticks = [];
     for (var i = 0; i < 12; i++) ticks.push(E('line', { stroke: INK, 'stroke-width': 2.6, 'stroke-linecap': 'round' }, fxL));
     var txt = E('text', { x: 195, y: 652, 'text-anchor': 'middle', 'font-family': FONT, 'font-weight': 600, fill: INK }, svg);
-    var line = (opts.dealer || 'Dealer') + ' stole ' + (opts.victim || 'Player') + "'s chip.";
+    var line = (opts.dealer || 'Dealer') + ' stole ' + (opts.victim || 'Player') + '’s chip.';
     txt.textContent = line;
     txt.setAttribute('font-size', r2(Math.min(30, 355 / (line.length * .5))));
     return { g: g, opts: opts, svg: svg, cam: cam, rowG: rowG, tOthers: tOthers, groundL: groundL, airL: airL, cupL: cupL,

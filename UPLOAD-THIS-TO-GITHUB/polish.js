@@ -209,6 +209,7 @@ function looksBuilt(lw) {
 }
 function suggestFor(word) {
   const lw = word.toLowerCase();
+  if (lw.length > 16) return null;   // a made-up mega-word: leave it be (two-edit search grows with the square of the length)
   if (COMMON_TYPOS[lw]) return COMMON_TYPOS[lw];
   const known = FREQ.get(lw) || 0;
   if (known) {
@@ -219,7 +220,7 @@ function suggestFor(word) {
   if (looksBuilt(lw)) return null;
   let c = best(edits1(lw), lw[0]);
   if (c && c.freq < 25) c = null;
-  if (!c && lw.length >= 6) {
+  if (!c && lw.length >= 6 && lw.length <= 9) {
     const two = new Set(); for (const e of edits1(lw)) for (const e2 of edits1(e)) two.add(e2);
     c = best(two, lw[0]);
     if (c && c.freq < 35) c = null;

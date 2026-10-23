@@ -126,7 +126,7 @@ function broadcast(code, sealTo = null) {
   // #2: and whenever a caption, a bet, the steal or a frame pick lands, so a restart never loses the last one.
   const tag = game.phase + '|' + game.round + '|' + (game.reel ? game.reel.step : '') + '|' + game.players.length + '|' + (game.roundFrames || []).length + '|' + (game.finale ? (game.finale.winner || 'v') + Object.keys(game.finale.votes || {}).length : '')
     + '|' + (game.submissions || []).length + '|' + (game.bets || []).length + '|' + Object.keys(game.blind || {}).length + '|' + (game.dropAt || '') + '|' + Object.keys(game.lateBlind || {}).length + (game.lateDropAt || '') + '|' + (game.steal ? (game.steal.victimId ? 's' : 'p') : '') + '|' + Object.values(game.framePicks || {}).reduce((n, l) => n + (l || []).length, 0) + '|' + Object.keys(game.calls || {}).length + '|' + (game.reel && game.reel.paused ? 'h' : '') + (game.flipHold ? 'h' : '') + '|' + (game.actN || 0)
-    + '|' + (game.ending ? game.ending.step + (game.ending.done ? 'd' : '') : '') + '|' + (game.lastCall ? 'lc' : '') + Object.keys(game.departed || {}).length;
+    + '|' + (game.ending ? game.ending.step + (game.ending.done ? 'd' : '') : '') + '|' + (game.lastCall ? 'lc' : '') + Object.keys(game.departed || {}).length + '|' + (game.readStep || '');
   // #41: a game reached its final scoreboard (counted once per game)
   if (game.phase === PHASES.SCORES && game.gameNo && game._statDone !== game.gameNo && G.isGameOver(game)) { game._statDone = game.gameNo; Stats.finished(); }
   // The end of the night is worked out once, when the final scoreboard lands (night.js)
@@ -608,6 +608,7 @@ wss.on('connection', (ws, req) => {
       case 'read_next': {
         // the reading, one caption at a time (the dealer, the host, or anyone once the dealer has wandered off)
         if (!canRun) return sendError(ws, 'The dealer reads them');
+        if (msg.step !== undefined && Number(msg.step) !== (game.readStep || 1)) return;   // a double tap, or two phones at once: once
         if (fail(G.readNext(game, msg.dir))) return;
         broadcast(code);
         return;
