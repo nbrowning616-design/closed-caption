@@ -2432,6 +2432,7 @@ function renderLobby() {
         <div class="qr-wrap" style="margin:4px auto 8px;" role="img" aria-label="QR code that opens this room">${qrSvg(joinUrl('qr'), 148)}</div>
         <p class="do" style="margin-bottom:12px;">Friends point their camera here, or send them the link.</p>
         <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">Send the invite link</button>
+        <p style="margin-top:10px;"><button class="btn-link" onclick="shareGame()">Just tell someone about the game (no room code)</button></p>
       </div>`
     : `<button class="lb-invite" onclick="openInvite()"><span>Room <b>${esc(state.code)}</b></span><span class="lb-invite-r">Invite someone ›</span></button>`;
   const hello = state.isHost ? '' : `<div class="lb-hello" role="status"><p class="lb-hello-1">You’re in, ${esc(me ? firstName(me.name) : '')}.</p><p class="lb-hello-2">${esc(host)} starts when everyone’s here.</p></div>`;
