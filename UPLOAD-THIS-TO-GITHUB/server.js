@@ -118,7 +118,8 @@ app.post('/practice/write', pracJson, (req, res) => {
   if (l.length >= 40) return pracSend(res, { error: TOO_MANY });
   l.push(now); pracWrites.set(ip, l);
   try { pracSend(res, Practice.write(req.body || {})); } catch (e) { console.error('practice write', e); pracSend(res, null); } });
-app.post('/practice/guess', pracJson, (req, res) => { try { pracSend(res, Practice.guess(req.body || {})); } catch (e) { console.error('practice guess', e); pracSend(res, null); } });
+app.post('/practice/bet', pracJson, (req, res) => { try { pracSend(res, Practice.bet(req.body || {})); } catch (e) { console.error('practice bet', e); pracSend(res, null); } });
+app.post('/practice/late', pracJson, (req, res) => { try { pracSend(res, Practice.late(req.body || {})); } catch (e) { console.error('practice late', e); pracSend(res, null); } });
 app.use('/images', (req, res, next) => { res.set('Access-Control-Allow-Origin', '*'); next(); });   // the cartoons are public pictures: lets the drawing session fetch one to have it redrawn tall
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
 

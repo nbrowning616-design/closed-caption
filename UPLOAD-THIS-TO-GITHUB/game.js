@@ -6,7 +6,7 @@
 //   2. READING      The app secretly picks the Closed Caption (usually a random player's
 //                   caption; sometimes the real one). The rest are shown. The dealer reads aloud.
 //   3. FIRST_BETS   Blind bets, everyone at once and in secret (a clock catches anyone idle).
-//                   The dealer does not bet. 1 chip, or both (Half-Moon / Shoot the Moon).
+//                   The dealer does not bet. 1 chip, or both (Double Down / Blind Double Down).
 //                   When the last one is in, every chip drops onto the table together (dropAt).
 //   4. STEAL        The dealer may take one chip off the table, before the face-down card flips.
 //   5. REVEAL       The Closed Caption is turned face-up (flipAt: after the steal show).
@@ -587,7 +587,7 @@ const DEFAULT_SETTINGS = {
   rounds: null,                  // null = everyone deals once; else fixed number
   targetScore: null,             // null = play the rounds; else first to X points
   pointsOpenBet: 2,              // blind chip on the real caption, out in the open
-  pointsClosedBet: 5,            // blind chip on the Closed Caption when it's the real one: the long shot (Shoot the Moon = 10)
+  pointsClosedBet: 5,            // blind chip on the Closed Caption when it's the real one: the long shot (Blind Double Down = 10)
   pointsOpenLate: 1,             // late chip (after the reveal) on the real caption, anywhere
   pointsClosedLate: 1,           // kept equal to pointsOpenLate
   pointsPerFool: 2,              // to the writer, for each chip someone else puts on their caption (writing pays like spotting)
@@ -603,7 +603,7 @@ const DEFAULT_SETTINGS = {
   spicy: false,                  // 'After dark': mixes in the PG-13 cartoons
   direction: 'left',             // which way the deal and the betting go around the table
   expert: false,                 // Expert Mode: the real answer comes from the Hall of Fame deck
-  house: null,                   // house players (write-only fill-ins): null = suggested for the table's size, else 0–5
+  house: null,                   // house players (write-only fill-ins): null = none (humans only by default), else 0–5
 };
 
 // [settings] Writing timer: 0 = no timer (nobody is rushed; the dealer or host ends writing), else 30 s to 10 min.
@@ -834,13 +834,13 @@ const nameOfPlayer = (game, pid) => (game.players.find(p => p.id === pid) || hou
 
 /* ── House players (Nick, Oct 21 2026): virtual, named, write-only. Each adds one pre-written fake caption from the
    bank (card_meta.json "decoys") to bluff among. They never bet, score, deal or steal; a chip on a house fake just
-   misses. The host picks 0–5 in the lobby (null = suggested: enough to make ~6 fakes at a small table). They are not
+   misses. The host picks 0–5 in the lobby (null = none: only humans by default, Nick Oct 23 2026). They are not
    in game.players, so every count, the deal, the scores, the rating and the stats ignore them by construction. ── */
 const HOUSE_CAST = ['Aunt Judy', 'The Intern', 'Uncle Ray', 'Mrs. Pruitt', 'Cousin Dale', 'Dr. Feld', 'The Notary', 'Gloria'];
 const HOUSE_MAX = 5;
 const isHouseId = (id) => typeof id === 'string' && id.startsWith('house:');
 const houseOf = (game, id) => (isHouseId(id) && (game.house || []).find(h => h.id === id)) || null;
-const houseSuggested = (n) => (n >= 4 ? 0 : Math.min(HOUSE_MAX, Math.max(0, 6 - n)));
+const houseSuggested = () => 0;   // Nick, Oct 23 2026: no house players unless the host adds them (only humans by default)
 // How many the lobby has set (or suggests) for the people here now
 function houseWanted(game) {
   const h = game.settings.house;
@@ -1718,8 +1718,8 @@ function revealAnswer(game) {
       if (!dealerNow || bet.playerId !== dealerNow.id) anyoneRight = true;
       const per = blind ? (onClosed ? s.pointsClosedBet : s.pointsOpenBet) : s.pointsOpenLate;
       let reason;
-      if (blind && onClosed && both) reason = 'Shoot the Moon';
-      else if (blind && both) reason = 'Half-Moon on the real caption';
+      if (blind && onClosed && both) reason = 'Blind Double Down';
+      else if (blind && both) reason = 'Double Down on the real caption';
       else if (blind && onClosed) reason = 'Blind chip on the Closed Caption';
       else if (blind) reason = 'Blind chip on the real caption';
       else reason = 'Late chip on the real caption';
@@ -2447,11 +2447,11 @@ function awardBadges(game) {
   const real = realKey(game);
   const fakes = playerKeys(game);
   const order = (game.reel && game.reel.order) || [];
-  const bothBlind = (b) => b.stage === 1 && b.count === 2;   // (a chip the dealer took is no Moon)
+  const bothBlind = (b) => b.stage === 1 && b.count === 2;   // (a chip the dealer took is no Double Down)
   const betsOn = (key) => game.bets.filter(b => keyOf(b.target) === key && chipsOf(b) > 0);
   const othersOn = (key, test = () => true) => [...new Set(betsOn(key).filter(b => b.playerId !== writerOfKey(game, key) && test(b)).map(b => b.playerId))];
 
-  // Moon: both chips blind on the real caption (Shoot the Moon if it was face-down)
+  // Double Down: both chips blind on the real caption (Blind Double Down if it was face-down)
   for (const b of game.bets) if (bothBlind(b) && keyOf(b.target) === real) give('moon', [b.playerId], real, { shot: real === 'closed' ? 'moon' : 'half' });
 
   for (const key of fakes) {

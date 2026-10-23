@@ -530,13 +530,13 @@ const ccLines = {
   "Both chips on a card nobody could read, and right.",
   "Didn’t read it. Didn’t need to.",
   "Two chips, face-down, real.",
-  "Shot the moon — both chips, face-down, dead on."
+  "Blind Double Down — both chips on the face-down one, dead on."
  ],
  "badge.half": [
   "Both chips, before the flip, on the real one.",
   "Went double before anyone knew anything, and was right.",
   "Two chips on the truth, first try.",
-  "Half-Moon — both chips blind on the real one."
+  "Double Down — both chips on the real one, first try."
  ],
  "badge.three": [
   "{names} each put both chips on it.",
@@ -667,13 +667,13 @@ const ccLines = {
   "That’s every cartoon. What happened, happened."
  ],
  "end.moonHit": [
-  "{name} shot the moon and it held.",
+  "{name} went Blind Double Down and it held.",
   "{name} put both chips on a card nobody could see. Correct.",
   "{name} bet everything on the face-down card. The card agreed."
  ],
  "end.moonMiss": [
   "{name} went both chips on a fake. Commitment, at least.",
-  "{name} shot for the moon and hit {writer}.",
+  "{name} doubled down on {writer}.",
   "{name} went all in. {writer} sends thanks.",
   "Both of {name}’s chips, both on {writer}."
  ],

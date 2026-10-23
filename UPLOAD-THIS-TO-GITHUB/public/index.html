@@ -200,6 +200,13 @@ textarea.caption-input::placeholder { color: #7A7066; }
 .pr-zoom { position: fixed; inset: 0; z-index: 90; background: rgba(31,26,23,.92); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; gap: 14px; }
 .pr-zoom img { max-width: 100%; max-height: 80vh; object-fit: contain; background: #fff; border-radius: 8px; }
 .pr-zoom .pr-zoom-x { width: auto; }
+.pr-tip { margin-top: 6px; font-size: 14px; }
+.pr-chips { display: inline-block; margin-top: 8px; padding: 3px 10px; border-radius: 999px; background: var(--ink); color: var(--paper, #fff); font-size: 12px; font-weight: 800; }
+.pr-pts { margin-top: 10px; } .pr-pts p { margin: 2px 0; font-size: 15px; }
+.pr-bar { position: sticky; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 5; margin-top: 14px; padding: 10px; background: var(--paper, #fff); border-radius: 14px; box-shadow: var(--shadow); }
+.pr-bar .pr-go { position: static; margin: 0; }
+.pr-pass { display: block; width: 100%; min-height: 44px; margin-top: 6px; text-align: center; }
+.pr-warn { color: var(--red); margin-bottom: 6px; }
 .chip .check { position: absolute; right: -5px; bottom: -5px; width: 16px; height: 16px; border-radius: 50%; background: var(--teal); border: 2px solid var(--ink); color: #fff; font-size: 9px; display: flex; align-items: center; justify-content: center; font-weight: 900; }
 .chip.pop { animation: chipPop .5s var(--spring) both; }
 @keyframes chipPop { from { transform: scale(0) rotate(-40deg); } to { transform: none; } }
@@ -1189,7 +1196,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
       <li><b>Did you know?</b> Between games, a short public-service announcement: two or three facts about tonight’s players, from how they actually played. The dealer taps on.</li>
       <li><b>The Remote.</b> Every table has one: a 1980s TV remote with one button, held by the last winner. Each winner adds a strip of masking tape with their name and the date.</li>
       <li><b>Your rating.</b> Ranked like chess, but judged by friends. Everyone starts at 1,200; after each game you gain points from everyone you finished above and lose them to everyone who finished above you. Beating higher-rated players moves it more; a short game moves it less. Titles: Candidate 1,400, Master 1,600, Senior Master 1,800, Grandmaster 2,000. Your phone keeps it.</li>
-      <li><b>Badges.</b> Rare moments earn badges: Moon Landing, Three Bagger, Clean Sweep, Great Minds, Pickpocket. Your phone keeps those too.</li>
+      <li><b>Badges.</b> Rare moments earn badges: Double Down, Three Bagger, Clean Sweep, Great Minds, Pickpocket. Your phone keeps those too.</li>
       <li><b>Good to know.</b> Bet on your own caption to bluff — it scores nothing. Captions are tidied the same way, the real one too. The real one isn’t always the funniest. Tap the cartoon to zoom.</li>
     </ul>
   </div></details>
@@ -1397,8 +1404,8 @@ function renderRulesScoring() {
     <div class="score-line"><span>Blind chip on the face-down one, and it’s real (${faceDownOdds(s.autoCloseProbability)})</span><span class="v">+${s.pointsClosedBet}</span></div>
     <div class="score-line"><span>Late chip (after the flip) on the real caption</span><span class="v">+${s.pointsOpenLate}</span></div>
     <div class="score-line"><span>Each chip someone puts on <i>your</i> fake</span><span class="v">+${s.pointsPerFool}</span></div>
-    <div class="score-line"><span><b>Half-Moon</b>: both chips blind on the real one (open)</span><span class="v">+${s.pointsOpenBet * 2}</span></div>
-    <div class="score-line"><span><b>Shoot the Moon</b>: both chips blind on the real one, face-down</span><span class="v">+${s.pointsClosedBet * 2}</span></div>
+    <div class="score-line"><span><b>Double Down</b>: both chips blind on the real one (open)</span><span class="v">+${s.pointsOpenBet * 2}</span></div>
+    <div class="score-line"><span><b>Blind Double Down</b>: both chips blind on the real one, face-down</span><span class="v">+${s.pointsClosedBet * 2}</span></div>
     ${steals ? '<div class="score-line"><span>Your chip stolen off a fake caption (caught you)</span><span class="v">+1</span></div>' : ''}
     <div class="score-line"><span><b>Dealer’s revenge</b>: no chip ends up on the real caption</span><span class="v">+${s.dealerBonus}</span></div>${dBets ? '<div class="score-line"><span class="sub">The dealer’s own chips don’t count for the revenge — and a dealer chip on the real one still scores.</span></div>' : ''}
     <div class="score-line"><span><b>The Late Edition</b>: the last trip around the table</span><span class="v">×2</span></div>`;
@@ -3109,7 +3116,7 @@ function renderBetBar() {
   const warnMine = mine ? '<p class="center small" style="margin-bottom:6px; color:var(--red);">That’s your own caption — it can’t score for you</p>' : '';
   if (stage === 1) setActionBar(`${warnMine}<p class="center small" style="margin-bottom:8px;">${where} — how many chips?</p><div class="btn-row">
       <button class="btn btn-blue" onclick="placeBet(1)">1 chip</button>
-      <button class="btn ${t === 'closed' ? 'btn-yellow' : 'btn-violet'}" onclick="placeBet(2)">Both chips — double</button></div>`);
+      <button class="btn ${t === 'closed' ? 'btn-yellow' : 'btn-violet'}" onclick="placeBet(2)">Both chips — ${t === 'closed' ? 'Blind Double Down' : 'Double Down'}</button></div>`);
   else setActionBar(`${warnMine}<button class="btn btn-blue" onclick="placeBet(1)">${state.myFirstBet && String(state.myFirstBet.target) === String(t) ? 'Stack my last chip on ' : 'Last chip on '}${where.replace(/^The /, 'the ')} →</button>`);
 }
 function placeBet(count) {
@@ -3563,8 +3570,8 @@ function pointReasons(pid) {
     let m;
     if ((m = r.match(/^Fooled (.+)$/i))) return { fooled: firstName(m[1]) };
     if ((m = r.match(/^Called shot: (.+) bit$/i))) return `called it: ${firstName(m[1])} bit`;
-    if (/shot the moon/i.test(r)) return 'both chips on the face-down one, and it was real';
-    if (/half-?moon/i.test(r)) return 'both chips on the real one';
+    if (/blind double down|shot the moon/i.test(r)) return 'both chips on the face-down one, and it was real';
+    if (/double down|half-?moon/i.test(r)) return 'both chips on the real one';
     if (/stole/i.test(r) && /real/i.test(r)) return 'stole a chip off the real one';
     if (/caught you|stolen off a fake/i.test(r)) return mine ? 'your chip was stolen off a fake' : 'had a chip stolen off a fake';
     if (/revenge|no chip on the real/i.test(r)) return 'nobody found the real one';
@@ -3649,7 +3656,7 @@ function badgeLine(b) {
   const d = b.detail || {};
   if (d.line) return d.line;
   switch (b.kind) {
-    case 'moon': return d.shot === 'moon' ? 'Shoot the Moon — both chips, face-down, dead on.' : 'Half-Moon — both chips blind on the real one.';
+    case 'moon': return d.shot === 'moon' ? 'Blind Double Down — both chips on the face-down one, dead on.' : 'Double Down — both chips blind on the real one.';
     case 'three_bagger': return `${listNames((d.by || []).map(nameOf))} all went both chips.`;
     case 'clean_sweep': return 'Every single player bet on it.';
     case 'great_minds': return 'Two of you wrote nearly the same thing.';
@@ -3722,7 +3729,7 @@ function spotlightHtml() {
     </div>
     <div style="margin-top:18px;" id="reel-ctl" class="${reelDriver() ? '' : 'note-only'}">${reelCtlHtml()}</div>`;
 }
-// A +6 round or a Shoot the Moon: the people at the table do the screaming. The phone says "Noted."
+// A +6 round or a Blind Double Down: the people at the table do the screaming. The phone says "Noted."
 function notedHtml() {
   const rs = state.roundScores || {};
   const ids = [...new Set([...Object.keys(rs).filter(id => rs[id] >= 6), ...(state.roundBadges || []).filter(b => b.kind === 'moon' && (b.detail || {}).shot === 'moon').flatMap(b => b.playerIds)])].filter(playerById);

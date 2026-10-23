@@ -90,10 +90,10 @@
     });
     var best = function (o) { var m = 0, ids = []; Object.keys(o).forEach(function (k) { if (o[k] > m) { m = o[k]; ids = [k]; } else if (o[k] === m && m > 0) ids.push(k); }); return m ? { ids: ids, n: m } : null; };
     var stats = [], t;
-    if (moons) { t = best(moonBy); stats.push({ kind: 'moon', big: String(moons), label: moons === 1 ? 'moon landing' : 'moon landings', sub: t ? 'Led by ' + joinNames(t.ids.map(nm)) + (t.n > 1 ? ' (' + t.n + (t.ids.length > 1 ? ' each)' : ')') : '') : '' }); }
+    if (moons) { t = best(moonBy); stats.push({ kind: 'moon', big: String(moons), label: moons === 1 ? 'double down' : 'double downs', sub: t ? 'Led by ' + joinNames(t.ids.map(nm)) + (t.n > 1 ? ' (' + t.n + (t.ids.length > 1 ? ' each)' : ')') : '') : '' }); }
     if ((t = best(robbed))) stats.push({ kind: 'robbed', ids: t.ids, big: joinNames(t.ids.map(nm)), label: 'most robbed', sub: 'Lost ' + plural(t.n, 'chip') + ' to the dealer' });
     if (stats.length < 2 && (t = best(sharp))) stats.push({ kind: 'sharp', ids: t.ids, big: joinNames(t.ids.map(nm)), label: 'sharpest eye', sub: plural(t.n, 'chip') + ' on the real caption' });
-    if (stats.length < 2 && !moons) stats.push({ kind: 'moon', big: '0', label: 'moon landings', sub: 'Nobody shot the moon tonight' });
+    if (stats.length < 2 && !moons) stats.push({ kind: 'moon', big: '0', label: 'double downs', sub: 'Nobody doubled down tonight' });
     if (stats.length < 2) stats.push({ kind: 'rounds', big: String(hist.length || s.round || 0), label: hist.length === 1 ? 'round played' : 'rounds played', sub: plural(players.length, 'player') + ' at the table' });
     return {
       date: new Date(),
