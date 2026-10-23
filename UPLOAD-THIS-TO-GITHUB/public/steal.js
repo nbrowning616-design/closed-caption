@@ -367,7 +367,9 @@
     var L = Math.min(FILM_MS, (film.duration || 10000) + 300);
     (window._ssT || []).forEach(clearTimeout); window._ssT = [];
     var close = function () { (window._ssT || []).forEach(clearTimeout); window._ssT = []; o.classList.remove('on', 'out', 'quick', 'st-film'); o.innerHTML = ''; };
-    o.innerHTML = '<div class="st-film-box"></div>'; o.classList.remove('out', 'quick'); o.classList.add('on', 'st-film');
+    o.innerHTML = '<div class="st-film-box" aria-hidden="true"></div>'; o.classList.remove('out', 'quick'); o.classList.add('on', 'st-film');
+    var vN = nameOf(st.victimId), said = dealerId() === myPlayerId ? 'You stole ' + vN + '’s chip.' : state.dealerName + ' stole ' + (st.victimId === myPlayerId ? 'your' : vN + '’s') + ' chip.';
+    window._ssT.push(setTimeout(function () { try { srSay(said); } catch (e) {} }, Math.max(0, wait) + Math.round(L * 0.72)));   // said once the film has shown it
     o.onclick = function () { close(); if (window._answerGo) window._answerGo(); };
     var box = o.firstChild, opts = filmOpts(st);
     var go = function () { try { if (window.ccBeat) window.ccBeat('steal:full'); film.play(box, opts); } catch (e) { console.error('steal film', e); } try { if (st.victimId === myPlayerId) buzz([40]); } catch (e) {} };
@@ -389,7 +391,7 @@
       return '<div class="st-row"><span class="st-lbl">' + (t === 'closed' ? '<span class="cc-badge">CC</span>' : t + 1) + '</span><div class="st-chips">' + (chips.join('') || '<span class="st-none">no chips</span>') + '</div></div>';
     }).join('');
     var me = state.isDealer, dealer = me ? 'You' : esc(state.dealerName), isVictim = st.victimId === myPlayerId;
-    var title = quick ? dealer + (me ? ' strike' : ' strikes') + ' again' : (me ? 'You’re' : dealer + ' is') + ' at the controls<span class="dots"></span>';
+    var title = quick ? (me ? 'You reach' : dealer + ' reaches') + ' for a chip' : (me ? 'You’re' : dealer + ' is') + ' at the controls<span class="dots"></span>';
     // the ending is one plain line (Nick, Oct 22: "Don't need the rigged comment or card after. Just say Nick stole Nate's.")
     var vName = esc(nameOf(st.victimId)), doneLine = me ? 'You stole ' + vName + '’s chip.' : esc(state.dealerName) + ' stole ' + (isVictim ? 'your' : vName + '’s') + ' chip.';
     var tool = (!quick && TOOL_SVG[st.tool]) ? st.tool : 'can';
@@ -408,7 +410,7 @@
         (tool === 'pour' ? '' : '') +
       '</div></div></div>' +
       '<div class="st-veil" id="st-veil"></div>' +
-      '<div class="st-done" id="st-gloat"><p class="st-done-t">' + doneLine + '</p></div>' +
+      '<div class="st-done" id="st-gloat" aria-hidden="true"><p class="st-done-t">' + doneLine + '</p></div>' +
       '</div>';
     o.querySelector('#st-stage').dataset.speck = dots.join(',');
   }
@@ -476,7 +478,7 @@
       T(function () { beat('steal:set'); if (victim) victim.classList.remove('st-doomed'); big(SND.clack); }, seR);
       T(function () {
         beat('steal:gloat'); head.style.opacity = '0';
-        gl.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, fill: 'forwards' });
+        gl.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, fill: 'forwards' }); gl.removeAttribute('aria-hidden'); try { srSay(gl.textContent); } catch (e) {}
         if (isVictim) buzz([300, 100, 300]);
       }, glR);
       return;

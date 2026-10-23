@@ -193,6 +193,7 @@ textarea.caption-input::placeholder { color: #7A7066; }
 .pr-cap.pr-miss { background: var(--red-bg); }
 .pr-who { margin-top: 6px; font-size: 13px; font-weight: 800; color: var(--ink-2); }
 .stamp.pr-stamp-miss { border-color: var(--red); color: var(--red); }
+.pr-go:disabled { opacity: 1; background: var(--paper-2); color: var(--muted); box-shadow: var(--shadow); }
 .pr-go { margin-bottom: 8px; position: sticky; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 5; margin-top: 14px; }
 .pr-end { text-align: center; margin-top: 10vh; }
 .pr-big { font-size: 56px; margin: 6px 0 10px; }
@@ -223,6 +224,7 @@ textarea.caption-input::placeholder { color: #7A7066; }
 .cap { position: relative; display: block; background: #fff; border: var(--bw) solid var(--ink); border-radius: var(--r-lg); padding: 15px 16px 14px 18px; box-shadow: var(--shadow-sm); text-align: left; width: 100%; cursor: pointer; transition: transform .1s, background .15s, box-shadow .1s, opacity .3s; }
 .cap .num { position: absolute; top: -12px; left: 12px; min-width: 26px; height: 26px; padding: 0 7px; border-radius: 13px; background: var(--ink); color: var(--paper); font-family: var(--display); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
 .cap .caption-text { margin-top: 4px; }
+.cap:has(.chip-tray.steal) .caption-text { padding-right: 72px; }
 .cap.picked { background: var(--blue-bg); box-shadow: var(--shadow); transform: translate(-1px,-1px); }
 .cap.closed { background: var(--yellow-bg); } .cap.closed.picked { background: var(--yellow); }
 .cap.locked { cursor: default; }
@@ -380,6 +382,10 @@ body.has-bar .screen { padding-bottom: calc(160px + var(--sab)); }
 
 /* ── Steal ── */
 .steal-hero { text-align: center; margin-bottom: 14px; }
+.steal-hero.row { display: flex; align-items: center; gap: 12px; text-align: left; margin-bottom: 4px; }
+.steal-hero.row .em { font-size: 34px; flex: 0 0 auto; }
+.steal-hero.row .h2 { font-size: 22px; }
+.steal-hero.row .sub { margin-top: 2px; font-size: 14px; }
 .steal-hero .em { font-size: 52px; display: inline-block; animation: wobble 1.2s ease-in-out infinite; }
 .steal-news { border: var(--bw) solid var(--ink); border-radius: var(--r-lg); background: var(--red); color: #fff; padding: 14px 16px; text-align: center; box-shadow: var(--shadow); margin-bottom: 16px; animation: dealIn .5s var(--ease-out) both; }
 .steal-news .sub { color: #FFE3E0; }
@@ -587,9 +593,9 @@ body.quake { animation: quake .12s linear 10; }
 .writer-stamp { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 10px 12px; border: 2px dashed var(--ink); border-radius: 14px; background: var(--paper); }
 .spot:not(.pending) .writer-stamp { animation: stampIn .5s var(--spring) both; }
 .writer-stamp .wname { font-family: var(--display); font-weight: 700; font-size: 26px; line-height: 1; }
-.fn-goodnight { margin: 18px 0 4px; text-align: center; font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--ink); }
+.fn-goodnight { margin: 18px 0 16px; text-align: center; font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--ink); }
 .real-stamp { margin-top: 16px; margin-bottom: 16px; font-size: 22px; }
-.fell { margin-top: 14px; }
+.fell { margin-top: 26px; }
 .fell-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .fell-p { display: inline-flex; align-items: center; gap: 6px; font-weight: 900; font-size: 15px; padding: 4px 12px 4px 4px; border-radius: 999px; border: 2px solid var(--ink); background: #fff; box-shadow: 2px 2px 0 var(--ink); }
 .fell-p i { font-style: normal; color: var(--violet); }
@@ -806,6 +812,9 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .mag-cap { margin: 0; padding: 12px 10px 10px; text-align: center; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 21px; line-height: 1.3; color: var(--ink); text-wrap: balance; overflow-wrap: anywhere; }
 .mag-cap .tag { font-style: normal; vertical-align: middle; }
 .mag-in { animation: magIn .55s var(--ease-out) both; }
+#game-content h2[tabindex="-1"]:focus, #game-content .h2[tabindex="-1"]:focus { outline: none; }
+.rd-nav { position: sticky; bottom: calc(6px + env(safe-area-inset-bottom, 0px)); z-index: 20; margin: 0 -6px; padding: 12px 6px 0; background: linear-gradient(rgba(255,248,234,0), var(--paper) 14px); }
+@media (max-height: 700px) { .toon-big.mag .toon-hit img { max-height: 32dvh; } .rd-nav { padding-top: 8px; } }
 @keyframes magIn { from { opacity: 0; transform: translateY(10px); filter: blur(2px); } to { opacity: 1; transform: none; filter: none; } }
 textarea.caption-input.mag { display: block; min-height: 0; margin: 8px 0 2px; padding: 10px 10px 8px; border: 0; border-top: 2px dashed #D9CFC0; border-radius: 0; background: transparent; text-align: center; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 21px; line-height: 1.3; color: var(--ink); }
 textarea.caption-input.mag:focus { box-shadow: none; border-top-color: var(--yellow-d); background: var(--yellow-bg); border-radius: 0 0 8px 8px; }
@@ -1037,7 +1046,8 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .flip-riders.on { opacity: 1; }
 #flip-ctl { margin-top: 16px; opacity: 0; transition: opacity .4s; }
 /* the dealer's controls on the flip and the reveal stay in reach on short phones */
-#flip-ctl, #reel-ctl { position: sticky; bottom: calc(6px + env(safe-area-inset-bottom, 0px)); z-index: 20; padding-top: 12px; background: linear-gradient(rgba(255,248,234,0), var(--paper) 14px); }
+#flip-ctl, #reel-ctl, .rc-go { position: sticky; bottom: 0; z-index: 20; margin-left: -16px; margin-right: -16px; padding: 12px 16px calc(8px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(rgba(255,248,234,0), var(--paper) 14px); }
+#reel-ctl.note-only { position: static; margin: 0; padding: 0; background: none; }
 #flip-ctl:empty, #reel-ctl:empty { padding: 0; }
 #flip-ctl.on { opacity: 1; }
 /* #5 the quick plaque (every framing after the night's first) */
@@ -1117,8 +1127,8 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 <canvas id="confetti"></canvas>
 <div id="sr-live" class="sr-only" role="status" aria-live="assertive" aria-atomic="true"></div>
 <div id="warn"><div class="msg">20 seconds.<span>Lock in your caption</span></div></div>
-<div id="viewer"><button class="close" onclick="closeViewer()" aria-label="Close">✕</button><img id="viewer-img" src="" alt="cartoon" draggable="false"><div class="hint">Pinch or double-tap to zoom</div></div>
-<div id="sheet"><div class="back" onclick="closeMenu()"></div><div class="body" id="sheet-body"></div></div>
+<div id="viewer" role="dialog" aria-modal="true" aria-label="The cartoon, full screen"><button class="close" onclick="closeViewer()" aria-label="Close">✕</button><img id="viewer-img" src="" alt="cartoon" draggable="false"><div class="hint">Pinch or double-tap to zoom</div></div>
+<div id="sheet" role="dialog" aria-modal="true" aria-label="Menu"><div class="back" onclick="closeMenu()"></div><div class="body" id="sheet-body"></div></div>
 <div id="boom"></div>
 <div id="stealshow"></div>
 <div id="induct" onclick="if (event.target === this) closeInduction()"></div>
@@ -1369,8 +1379,8 @@ function goBackFromRules() {
 function faceDownOdds(p) {
   p = typeof p === 'number' ? p : 0.15;
   if (p <= 0) return 'never, this game';
-  const n = Math.round(1 / p);
-  return Math.abs(1 / p - n) < 0.05 ? `one round in ${n}` : `about one round in ${n}`;
+  const n = Math.round(1 / p), W = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'], w = W[n] || String(n);
+  return Math.abs(1 / p - n) < 0.05 ? `one round in ${w}` : `about one round in ${w}`;
 }
 function renderRulesScoring() {
   const s = (state && state.settings) || { pointsOpenBet: 2, pointsClosedBet: 5, pointsOpenLate: 1, pointsPerFool: 2, dealerBonus: 4, stealEnabled: true, direction: 'left', dealerMode: 'steal', autoCloseProbability: 0.15 };
@@ -1863,7 +1873,7 @@ function _send(obj) {
 function flushPreSeat() { const p = preSeat; preSeat = null; if (p && Date.now() - p.at < 30000 && ws && ws.readyState === 1) ws.send(JSON.stringify(p.obj)); }
 function showToast(message, type = 'error') {
   let t = $('app-toast');
-  if (!t) { t = document.createElement('div'); t.id = 'app-toast'; document.body.appendChild(t); }
+  if (!t) { t = document.createElement('div'); t.id = 'app-toast'; t.setAttribute('role', 'status'); t.setAttribute('aria-live', 'polite'); document.body.appendChild(t); }
   t.style.background = type === 'error' ? 'var(--ink)' : 'var(--teal)'; t.textContent = message;
   // #38: in a game the toast drops in just under the header — never over the action bar, the main button or the timer
   const hdr = $('screen-game').classList.contains('active') && document.querySelector('#game-content .hdr');
@@ -1959,7 +1969,23 @@ function openMenu() {
     <button class="btn btn-ink" style="margin-top:6px;" onclick="closeMenu()">Close</button>`;
   $('sheet').classList.add('on');
 }
-function closeMenu() { $('sheet').classList.remove('on', 'top'); if (window.Gallery && Gallery.isZoomed && Gallery.isZoomed()) Gallery.zoomClose(); }
+function closeMenu() { const sh = $('sheet'); const was = sh.classList.contains('on'); sh.classList.remove('on', 'top'); if (window.Gallery && Gallery.isZoomed && Gallery.isZoomed()) Gallery.zoomClose(); if (was && sheetOpener && document.contains(sheetOpener)) { try { sheetOpener.focus(); } catch (e) {} } sheetOpener = null; }
+let sheetOpener = null;
+// Whenever the sheet opens: remember what opened it, move focus inside, and keep Tab inside it
+new MutationObserver(() => {
+  const sh = $('sheet'); if (!sh) return;
+  if (sh.classList.contains('on')) { if (!sheetOpener) sheetOpener = document.activeElement; const f = sh.querySelector('button, [href], input, [tabindex]:not([tabindex="-1"])'); if (f && !sh.contains(document.activeElement)) setTimeout(() => { try { f.focus({ preventScroll: true }); } catch (e) {} }, 30); }
+}).observe(document.getElementById('sheet'), { attributes: true, attributeFilter: ['class'] });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { if ($('viewer') && $('viewer').classList.contains('on')) { closeViewer(); return; } if ($('sheet').classList.contains('on')) { closeMenu(); return; } }
+  if (e.key === 'Tab' && $('sheet').classList.contains('on')) {
+    const f = [...$('sheet').querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(x => !x.disabled && x.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && (document.activeElement === first || !$('sheet').contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (document.activeElement === last || !$('sheet').contains(document.activeElement))) { e.preventDefault(); first.focus(); }
+  }
+});
 function toggleTrack(key) { if (!window.GameMusic) return; if (window.GameMusic.currentTrack() === key) window.GameMusic.stop(); else window.GameMusic.play(key); openMenu(); }
 function joinAddress() { const local = ['localhost', '127.0.0.1'].includes(location.hostname); return local && state && state.lanUrl ? state.lanUrl.replace(/^https?:\/\//, '') : location.host; }
 function shareRoom() {
@@ -2063,6 +2089,7 @@ function render(force = false) {
     if (state.phase === 'writing') restoreDraft();
   }
   if (state.phase === 'writing') { startTimer(); const ci = $('caption-input'); if (ci && !state.hasSubmitted) updateLengthMeter(ci.value); }
+  if (phaseChanged || !document.activeElement || document.activeElement === document.body) focusScreen();
   afterRender(phaseChanged);
   syncOpening(); syncLate(); syncKids();
   if (focusMark) focusRestore(focusMark);
@@ -2208,9 +2235,9 @@ function onCaptionFocus() {
 function onCaptionBlur() { clearTimeout(typingOff); typingOff = setTimeout(() => document.body.classList.remove('typing'), 150); }
 // Small cartoon at the top of what you can see, the caption box right under it (the phone's keyboard below)
 function keepToonInView() {
-  const t = $('w-toon'), i = $('caption-input');
+  const t = $('w-toon') || document.querySelector('.pr-toon'), i = $('caption-input') || $('pr-input');
   if (!t || !i || document.activeElement !== i) return;
-  const hdr = document.querySelector('#game-content .hdr'), vv = window.visualViewport;
+  const hdr = document.querySelector('#game-content .hdr, .pr-hdr'), vv = window.visualViewport;
   const top = (vv ? vv.offsetTop : 0) + (hdr ? hdr.getBoundingClientRect().height : 0) + 8;
   const dy = t.getBoundingClientRect().top - top;
   if (Math.abs(dy) > 4) window.scrollBy(0, dy);
@@ -2465,7 +2492,7 @@ function stepTimer(d) {
 }
 function setHostSettings(partial) { send({ action: 'update_settings', settings: partial }); }
 function moveSeat(id, dir) { send({ action: 'move_seat', targetPlayerId: id, dir }); }
-function confirmKick(id) { if (confirm(`Remove ${nameOf(id)} from the game?`)) send({ action: 'kick_player', targetPlayerId: id }); }
+function confirmKick(id) { if (confirm(`Remove ${nameOf(id)} from the game? They can’t rejoin this room for 10 minutes.`)) send({ action: 'kick_player', targetPlayerId: id }); }
 
 /* ── WRITING ── */
 // Drafts survive re-draws, reconnects and page refreshes (per round + cartoon)
@@ -2651,11 +2678,13 @@ function startTimer() {
 function warnAt(n) {
   const L = state.lines || {}, w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `${n} seconds.<span>${n <= 10 ? 'Send it now.' : 'Lock in your caption.'}</span>`;
   w.classList.remove('on'); void w.offsetWidth; w.classList.add('on');
+  srSay(`${n} seconds left. ${n <= 10 ? 'Send it now.' : 'Lock in your caption.'}`);
   sfx.warn(); buzz(40);
 }
 function warn20() {
   const w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `20 seconds.<span>Lock in your caption.</span>`;
   w.classList.remove('on'); void w.offsetWidth; w.classList.add('on');
+  srSay('20 seconds left. Lock in your caption.');
   sfx.warn(); buzz(60);
 }
 
@@ -2852,11 +2881,12 @@ function readNextTap(dir) { const now = Date.now(); if (now - readTapAt < 450) r
 function renderReadOne(step) {
   const list = state.openCaptions || [], n = list.length, i = step - 1, key = state.round + '|' + step;
   const fresh = readShown !== key; readShown = key;
+  if (fresh) srSay(`Caption ${step} of ${n}: ${list[i] || ''}`);
   const runs = state.isDealer || canRun(), dn = esc(firstName(state.dealerName));
   const dots = list.map((_, k) => `<i class="${k < step ? 'on' : ''}${k === i ? ' now' : ''}"></i>`).join('');
   const nav = runs
-    ? `<button class="btn btn-yellow" style="margin-top:16px;" onclick="readNextTap()">${step < n ? 'Next caption →' : 'Lay them all out →'}</button>
-       ${step > 1 ? `<button class="btn-link" style="display:block; margin:8px auto 0;" onclick="readNextTap('prev')">◀ Back one</button>` : ''}`
+    ? `<div class="rd-nav"><button class="btn btn-yellow" onclick="readNextTap()">${step < n ? 'Next caption →' : 'Lay them all out →'}</button>
+       ${step > 1 ? `<button class="btn-link" style="display:block; margin:8px auto 0;" onclick="readNextTap('prev')">◀ Back one</button>` : ''}</div>`
     : `<p class="center small" style="margin-top:14px;">${dn} is reading them aloud</p>`;
   return `${header({ sticker: '<span class="sticker white">The captions</span>', thumb: false })}
     ${bigToon(false, false, `<p class="mag-cap${fresh ? ' mag-in' : ''}">“${esc(list[i] || '')}”${capNote(i)}</p>`)}
@@ -2901,7 +2931,7 @@ function trayHtml(t, opts = {}) {
     const live = Array.from({ length: b.count }, () => {
       const canGrab = opts.grab && b.playerId !== state.dealerId;   // [settings] kitchen sink: the dealer's own chips can't be stolen
       const grab = canGrab ? ` grab${grabbedBet === b.i ? ' grabbed' : ''}` : '';
-      const attrs = `data-bet="${b.i}"${canGrab ? ` onclick="event.stopPropagation(); grabChip(${b.i})" role="button" tabindex="0" aria-label="Steal ${esc(nameOf(b.playerId))}'s chip"` : ''}`;
+      const attrs = `data-bet="${b.i}"${canGrab ? ` onclick="event.stopPropagation(); grabChip(${b.i})" role="button" tabindex="0" aria-label="Steal ${esc(nameOf(b.playerId))}’s chip on ${t === 'closed' ? 'the face-down caption' : 'Caption ' + (Number(t) + 1)}"` : ''}`;
       return chipHtml(b.playerId, 'sm' + grab, '', attrs);
     });
     const gone = opts.showStolen ? Array.from({ length: b.stolen || 0 }, () => window.ccPaintedChip ? window.ccPaintedChip(state.dealerId, 'sm', b.playerId) : chipHtml(b.playerId, 'sm stolen')) : [];   // repainted in the dealer's colour (steal.js)
@@ -2952,7 +2982,7 @@ function renderBetting(stage) {
   }).join('');
   const waitOn = dropped ? [] : [...eligible2].filter(pid => !inSet.has(pid));
   const waitWords = waitOn.length ? `Waiting on ${esc(listNames(waitOn.map(pid => pid === myPlayerId ? 'you' : fnameOf(pid))))}.` : 'Everyone’s in.';
-  const clock = !dropped && state.lateEnd ? '<p class="blind-clock" id="blind-clock" aria-hidden="true"></p>' + betMoreHtml() : '';
+  const clock = !dropped && state.lateEnd ? '<p class="blind-clock" id="blind-clock" aria-hidden="true"></p>' + (canPick || (state.isMyTurn && !myBet) ? betMoreHtml() : '') : '';
   let banner;
   const BL = state.lines || {};
   if (dropped) banner = `<div class="turn-banner"><div class="h2">${esc(BL.betDown || 'All chips are down')}</div><p class="sub">Here comes the answer…</p></div>`;
@@ -2990,7 +3020,7 @@ function renderBlind() {
   }).join('');
   const waitOn = order.filter(pid => !inSet.has(pid));
   const waitWords = waitOn.length ? `Waiting on ${esc(listNames(waitOn.map(pid => pid === myPlayerId ? 'you' : fnameOf(pid))))}.` : 'Everyone’s in.';
-  const clock = !dropped && state.blindEnd ? '<p class="blind-clock" id="blind-clock" aria-hidden="true"></p>' + betMoreHtml() : '';
+  const clock = !dropped && state.blindEnd ? '<p class="blind-clock" id="blind-clock" aria-hidden="true"></p>' + (canPick ? betMoreHtml() : '') : '';
   let banner;
   const BL = state.lines || {};
   if (dropped) banner = `<div class="turn-banner"><div class="h2">Bets are closed.</div><p class="sub">${dealerSteals() && othersHaveChips() ? `${state.isDealer ? 'Your' : esc(firstName(state.dealerName)) + '’s'} steal, before the flip…` : 'Turning the Closed Caption over…'}</p></div>`;
@@ -3099,20 +3129,31 @@ function renderSteal() {
     + `<div class="cap closed locked" style="text-align:center; padding:18px 16px;">${trayHtml('closed', { grab: state.isDealer })}<div class="ccard mini"><div class="cc">CC</div></div><p class="eyebrow" style="color:var(--ink-2); margin-top:8px;">Closed Caption · still face-down</p></div>`;
   if (state.isDealer) {
     return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
-      <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">Steal one chip</h2><p class="sub steal-line">Before the flip. Tap ${dealerMode() === 'both' ? 'another player’s' : 'a'} chip to steal it. Off the real one = their points become yours. Off a fake, they get +1.</p></div>
-      <div class="stack" style="margin-top:18px;">${cards}</div>`;
+      <div class="steal-hero row"><span class="em">${inkIcon('mask', 34)}</span><div><h2 class="h2">Steal one chip</h2><p class="sub steal-line">Tap ${dealerMode() === 'both' ? 'another player’s' : 'a'} chip. Off the real one, their points become yours. Off a fake, they get +1.</p></div></div>
+      <div class="stack" style="margin-top:12px;">${cards}</div>`;
   }
   const canPass = state.canTakeover || state.isHost;   // #28: the host can pass for a dealer who's wandered off
   return `${header({ sticker: '<span class="sticker red">The steal</span>' })}
-    <div class="steal-hero"><span class="em">${inkIcon('mask', 46)}</span><h2 class="h2" style="margin-top:6px;">${esc(firstName(state.dealerName))} is choosing a chip to steal<span class="dots"></span></h2><p class="sub">Before the flip. Any chip on the table could go.</p></div>
-    <div class="stack" style="margin-top:18px;">${cards}</div>
-    ${state.canTakeover ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'steal', betIndex:null})">Skip the steal and flip the card →</button>` : canPass ? `<button class="btn-link" style="display:block; margin:16px auto 0; font-size:14px;" onclick="send({action:'steal', betIndex:null})">Dealer stuck? Skip the steal</button>` : ''}`;
+    <div class="steal-hero row"><span class="em">${inkIcon('mask', 34)}</span><div><h2 class="h2">${esc(firstName(state.dealerName))} is choosing a chip to steal<span class="dots"></span></h2><p class="sub">Any chip on the table could go.</p></div></div>
+    <div class="stack" style="margin-top:12px;">${cards}</div>
+    ${state.canTakeover ? `<button class="btn" style="margin-top:18px;" onclick="send({action:'steal', betIndex:null})">Skip the steal and flip the card →</button>` : canPass ? `<button class="btn-link" style="display:block; margin:16px auto 0; font-size:14px;" onclick="skipStealAsk()">Dealer stuck? Skip the steal</button>` : ''}`;
 }
 function grabChip(i) {
   grabbedBet = grabbedBet === i ? null : i; sfx.tap();
   document.querySelectorAll('.chip.grab').forEach(c => c.classList.toggle('grabbed', Number(c.dataset.bet) === grabbedBet));
   renderStealBar();
 }
+// Keyboard and screen-reader players: after a screen changes, focus goes to its heading (never to the page body)
+function focusScreen() {
+  try {
+    if ($('sheet').classList.contains('on') || document.body.classList.contains('typing')) return;
+    const el = document.querySelector('#game-content h2, #game-content .h2, #game-content [role="status"]');
+    if (!el) return;
+    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+    el.focus({ preventScroll: true });
+  } catch (e) {}
+}
+function skipStealAsk() { if (!state || state.phase !== 'steal') return; if (confirm(`Skip the steal for ${firstName(state.dealerName)}? The card flips with nothing stolen.`)) send({ action: 'steal', betIndex: null }); }
 function renderStealBar() {
   if (!state.isDealer || state.phase !== 'steal') return;
   if (grabbedBet === null) { setActionBar(`<button class="btn" onclick="doSteal(null)">Keep the peace — no steal</button>`); return; }
@@ -3209,7 +3250,7 @@ function playRevealSequence() {
   const faceUp = () => { if (lead) lead.textContent = 'The Closed Caption is…'; };
   const rest = () => {
     const n = (state.eligibleSecondBetters || []).length;
-    if (hint) { hint.textContent = n ? `${plural(n, 'player still has', 'players still have')} a chip. Everyone at once, in secret.` : 'Every chip is already down.'; hint.style.opacity = '1'; }
+    if (hint) { hint.textContent = n ? `${plural(n, 'player still has', 'players still have')} a chip.${n === 1 ? '' : ' Everyone at once, in secret.'}` : 'Every chip is already down.'; hint.style.opacity = '1'; }
     if (riders) riders.classList.add('on');
     if (ctl) ctl.classList.add('on');
   };
@@ -3259,7 +3300,7 @@ function roundFacts() {
 /* Frame It (#5: on the reveal): a frame on any fake once its writer is out, as many as deserve it (internally 'flags').
    A majority of the other players (everyone but the writer; state.inductNeed) and it's FRAMED: it hangs in The Gallery. */
 const frameNeed = () => (state && state.inductNeed) || 2;
-const frameNeedWords = () => { const n = state && state.players ? state.players.length : 0; return n > 1 ? `most of the other players (${frameNeed()} of ${n - 1})` : 'most of the other players'; };
+const frameNeedWords = () => { const n = state && state.players ? state.players.filter(p => !p.gone).length : 0; return n > 1 ? `most of the other players (${frameNeed()} of ${n - 1})` : 'most of the other players'; };
 const pubMark = (p) => p && p.published > 0 ? `<span class="pub-mark" title="${plural(p.published, 'caption')} in The Gallery">${inkIcon('frame', 11)}×${p.published}</span>` : '';
 /* The framing moment: the server's lastInduction, played once on every phone while it's fresh.
    The first state only sets the baseline, so a reconnect never replays an old one. */
@@ -3401,7 +3442,7 @@ function openGallery() {
   if (window.Gallery && typeof window.Gallery.archiveHtml === 'function') { try { body = window.Gallery.archiveHtml(list); } catch (e) { body = ''; } }
   if (!body) body = list.length
     ? `<div class="panel hof-panel">${list.map(e => `<div class="hof-item"><img src="/images/${esc(e.image)}" alt=""><div style="flex:1; min-width:0;"><p class="caption-text" style="font-size:15px;">“${esc(e.caption)}”</p><p class="small">— ${esc(e.author)} · framed ${esc(e.month)}</p></div></div>`).join('')}</div>`
-    : `<div class="panel flat center"><p class="sub">Nothing framed yet. When ${frameNeedWords()} frame the same caption, it hangs here.</p></div>`;
+    : `<div class="panel flat center"><p class="sub">Nothing framed yet. When ${frameNeedWords()} love the same caption, it hangs here.</p></div>`;
   $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin-bottom:10px;">The Gallery</p>${body}<button class="btn btn-ink" style="margin-top:14px;" onclick="closeMenu()">Close</button>`;
   $('sheet').classList.add('on');
 }
@@ -3476,7 +3517,7 @@ function renderRecap() {
     ${recapExtrasHtml()}
     ${tvc}
     <div id="rc-frames">${recapFramesHtml()}</div>
-    <div id="answer-continue">${answerContinueHtml(isLastRound())}</div>
+    <div id="answer-continue" class="rc-go">${answerContinueHtml(isLastRound())}</div>
     </div>`;
 }
 // Cut 1: what used to crowd the reveal cards lands here, plainly: called shots, then the round's badges
@@ -3496,7 +3537,7 @@ function recapFramesHtml() {
     const k = String(c.idx), counts = (state.reactionCounts || {})[k], framed = ((state.framing || {}).framed || []).includes(k);
     return `<li class="rc-fi${framed ? ' framed' : ''}">${chipHtml(c.playerId, 'sm')}<div class="rc-ft"><p class="rc-fc">“${esc(c.caption)}”</p><p class="rc-fw">${c.house ? esc(c.playerName || nameOf(c.playerId)) + ' ' + houseTag : esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}</p>${rxHtml(k, { frame: true })}</div></li>`;
   }).join('');
-  return `<section class="rc-frames" aria-label="Frame It"><p class="rc-fh">Did anyone beat the real one?</p><p class="rc-fs">Love it. When most of the table does, it hangs in The Gallery.</p><ul class="rc-fl">${items}</ul></section>`;
+  return `<section class="rc-frames" aria-label="Love It"><p class="rc-fh">Did anyone beat the real one?</p><p class="rc-fs">Love it. When most of the table does, it hangs in The Gallery.</p><ul class="rc-fl">${items}</ul></section>`;
 }
 /* #28: why each point was scored, in plain words, from the server's own list (state.roundScoreDetails):
    "+2 found the real one", "+2 fooled Margaret", "+1 your chip was stolen off a fake". Same reasons add up. */
@@ -3574,7 +3615,7 @@ function answerLive() {
   if (oldAway && newAway) oldAway.replaceWith(newAway); else if (oldAway) oldAway.remove(); else if (newAway) el.prepend(newAway);
   const put = (id, h) => { const c = $(id); if (c && c.dataset.h !== h) { c.innerHTML = h; c.dataset.h = h; } };
   put('answer-continue', answerContinueHtml(isLastRound()));
-  put('reel-ctl', reelCtlHtml());
+  put('reel-ctl', reelCtlHtml()); { const rc = $('reel-ctl'); if (rc) rc.classList.toggle('note-only', !reelDriver()); }
   put('reel-clock', reelClockHtml());
   put('rc-frames', recapFramesHtml());
   refreshRx();
@@ -3595,7 +3636,7 @@ function badgeLine(b) {
   const d = b.detail || {};
   if (d.line) return d.line;
   switch (b.kind) {
-    case 'moon': return d.shot === 'moon' ? 'Shot the moon — both chips, face-down, dead on.' : 'Half-Moon — both chips blind on the real one.';
+    case 'moon': return d.shot === 'moon' ? 'Shoot the Moon — both chips, face-down, dead on.' : 'Half-Moon — both chips blind on the real one.';
     case 'three_bagger': return `${listNames((d.by || []).map(nameOf))} all went both chips.`;
     case 'clean_sweep': return 'Every single player bet on it.';
     case 'great_minds': return 'Two of you wrote nearly the same thing.';
@@ -3635,7 +3676,7 @@ function nobodyGroupHtml(k) {
       <p class="eyebrow">${plural(k, 'caption')} nobody bet on</p>
       <div class="spot-reveal"><div class="stamp nb-stamp" id="spot-stamp">Nobody bit</div><div class="nb-list">${rows}</div></div>
     </div>
-    <div style="margin-top:18px;" id="reel-ctl">${reelCtlHtml()}</div>`;
+    <div style="margin-top:18px;" id="reel-ctl" class="${reelDriver() ? '' : 'note-only'}">${reelCtlHtml()}</div>`;
 }
 // A thief's line after the reveal (#39: never during the steal). The Mime speaks in stage directions.
 const gloatText = (t) => /^\(.*\)$/.test(String(t).trim()) ? esc(t) : `“${esc(t)}”`;
@@ -3666,7 +3707,7 @@ function spotlightHtml() {
       <p class="spot-text">“${esc(c.caption)}”</p>
       <div class="spot-reveal">${who}${real && !people.length && realLine ? '' : fell}${realLine}${rxHtml(key, { frame: true })}</div>
     </div>
-    <div style="margin-top:18px;" id="reel-ctl">${reelCtlHtml()}</div>`;
+    <div style="margin-top:18px;" id="reel-ctl" class="${reelDriver() ? '' : 'note-only'}">${reelCtlHtml()}</div>`;
 }
 // A +6 round or a Shoot the Moon: the people at the table do the screaming. The phone says "Noted."
 function notedHtml() {
@@ -4228,7 +4269,7 @@ function againHtml(primary, small) {
     return `${count}<button class="btn ${primary ? 'btn-yellow fn-deal' : 'btn-sm'}" onclick="this.disabled=true; send({action:'play_again', seen:getSeen()})">${primary ? 'Deal again' : small || 'Skip the Gallery · deal again'}</button>`;
   }
   const host = esc(fnameOf(state.hostId));
-  if (want.has(myPlayerId)) return `<p class="fn-again-in" role="status">You’re in for another. ${host} deals.</p><button class="btn-link fn-link" onclick="send({action:'again', on:false})">Take it back</button>`;
+  if (want.has(myPlayerId)) return `<p class="fn-again-in" role="status">You’re in for another. ${host} starts the next game.</p><button class="btn-link fn-link" onclick="send({action:'again', on:false})">Take it back</button>`;
   return `<button class="btn ${primary ? 'btn-yellow fn-deal' : ''}" onclick="send({action:'again', on:true}); buzz(20)">I’m in for another</button>`;
 }
 

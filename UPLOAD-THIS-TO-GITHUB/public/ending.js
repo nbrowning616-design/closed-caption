@@ -616,7 +616,8 @@
   function askLastCall() {
     try { closeMenu(); } catch (x) {}
     var s = S(), adds = !(s && s.lastCallAdds === false);
-    if (!confirm(adds ? 'Last call? One more trip around the table, then the winner and Caption of the Night.' : 'Last call? This trip around the table is the last one, then the winner and Caption of the Night.')) return;
+    var fr = (s && s.framedTonight) ? ', then the winner and Caption of the Night.' : ', then the winner.';
+    if (!confirm(adds ? 'Last call? One more trip around the table' + fr : 'Last call? This trip around the table is the last one' + fr)) return;
     try { send({ action: 'last_call' }); } catch (x) {}
   }
   function askHeadOut() {

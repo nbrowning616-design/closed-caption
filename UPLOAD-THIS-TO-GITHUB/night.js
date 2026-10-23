@@ -211,7 +211,8 @@ function facts(game) {
   for (const [pid, list] of Object.entries(L.skips)) if (F[pid] && Array.isArray(list)) F[pid].skips = list.length;
   // Frame picks for other people's captions (whatever screen Frame It lives on, game.flags keeps them)
   const picks = {};
-  for (const f of game.flags || []) if (f && F[f.fromId]) (picks[f.fromId] = picks[f.fromId] || new Set()).add(f.round + '|' + f.target);
+  const hung = new Set(game.inducted || []);   // only a caption that actually got framed counts as a framing
+  for (const f of game.flags || []) if (f && F[f.fromId] && hung.has(f.round + '|' + f.target)) (picks[f.fromId] = picks[f.fromId] || new Set()).add(f.round + '|' + f.target);
   for (const [pid, s] of Object.entries(picks)) F[pid].framedOthers = s.size;
   const rows = (game.ratingResult && game.ratingResult.rows) || {};
   for (const p of ps) { const r = rows[p.id]; F[p.id].delta = r && Number.isFinite(r.delta) ? r.delta : null; }
@@ -563,7 +564,7 @@ function buildEnding(game) {
   beats.push({ k: 'final' });
   void roll; void keys;
   const e = {
-    gameId: gid, at, step: 0, stepAt: at, beats, done: false, full, credits, awards: aw, monkey, keys: dyk.map(b => b.key), remote,
+    gameId: gid, at, step: 0, stepAt: at, beats, done: false, full, night: full, credits, awards: aw, monkey, keys: dyk.map(b => b.key), remote,
     cast: ids.map(id => ({ id, name: X.F[id].name, role: credits[id].role, absentia: !!credits[id].absentia })),
     scores: Object.fromEntries(ids.map(id => [id, X.F[id].score])),
     summary: summaryFacts(game, X, stand, pick, monkey),
@@ -957,7 +958,7 @@ function decorateView(game, view, pid) {
 function headOut(game, pid) {
   const g = game_();
   const p = (game.players || []).find(x => x.id === pid);
-  if (!p) return { error: 'Player not in game' };
+  if (!p) return { error: 'You’re not in this game.' };
   if (game.phase === 'lobby') return { error: 'The game hasn’t started yet.' };
   if (game.phase === 'scores' && g.isGameOver(game)) return { error: 'The game is over.' };
   game.departed = game.departed || {};

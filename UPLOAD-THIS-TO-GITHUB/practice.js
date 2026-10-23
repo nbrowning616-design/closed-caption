@@ -61,7 +61,7 @@ function write(body) {
   if (!s) return { error: 'That practice ended. Start a new one.', gone: true };
   if (s.stage !== 'write') return { error: 'Already in.' };
   const c = s.cards[s.i], raw = String((body && body.caption) || '');
-  if (raw.length > 400) return { error: 'Too long. The real ones are short.' };
+  if (raw.length > 260) return { error: 'Too long. The real ones are short.' };
   const p = G.polish(raw);
   if (!p.text || !/[\p{L}\p{N}]/u.test(p.text)) return { error: 'Write something first.' };
   if (p.text.length > 220) return { error: 'Too long. The real ones are short.' };

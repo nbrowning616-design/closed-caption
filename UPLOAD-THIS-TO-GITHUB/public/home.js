@@ -239,8 +239,8 @@
   try {
     window.addEventListener('resize', function () { if (started) fitBg(); });
     // the rejoin box can fill in after start: keep the picture's bottom edge right
-    var rb = document.getElementById('rejoin-box');
-    if (rb && window.MutationObserver) new MutationObserver(function () { if (started) fitBg(); }).observe(rb, { childList: true, subtree: true });
+    var hookRejoin = function () { var rb = document.getElementById('rejoin-box'); if (rb && window.MutationObserver && !rb.__ccHome) { rb.__ccHome = 1; new MutationObserver(function () { if (started) fitBg(); }).observe(rb, { childList: true, subtree: true }); } };
+    hookRejoin(); document.addEventListener('DOMContentLoaded', hookRejoin);
     // pause in the background, resume on return (only if home is the active screen)
     document.addEventListener('visibilitychange', function () {
       var home = document.getElementById('screen-home');

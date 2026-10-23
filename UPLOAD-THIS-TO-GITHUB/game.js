@@ -1277,7 +1277,7 @@ function submitCaption(game, playerId, caption, mode = 'check') {
   if (!player) return { error: 'You’re not in this game.' };
   if (game.submissions.some(s => s.playerId === playerId)) return { error: 'Already submitted' };
   const raw = (caption || '').toString();
-  if (raw.length > 400) return { error: 'Too long. The real ones are short.' };
+  if (raw.length > 260) return { error: 'Too long. The real ones are short.' };
   const p = polish(raw);
   if (!p.text || !/[\p{L}\p{N}]/u.test(p.text)) return { error: 'Write something first.' };
   if (p.text.length > 220) return { error: 'Too long. The real ones are short.' };
@@ -1439,7 +1439,7 @@ function moreBetTime(game, pid) {
     game.blindEnd += BET_MORE_MS; game.betMore = who; return { ok: true, stage: 1 };
   }
   if (game.phase === PHASES.SECOND_BETS && !game.lateDropAt && game.lateEnd) {
-    if (game.betMore) return { error: 'Already stretched once' };
+    if (game.betMore) return { error: 'Already added time once this round.' };
     game.lateEnd += BET_MORE_MS; game.betMore = who; return { ok: true, stage: 2 };
   }
   return { error: 'No clock to stretch right now' };
@@ -1718,7 +1718,7 @@ function revealAnswer(game) {
       if (!dealerNow || bet.playerId !== dealerNow.id) anyoneRight = true;
       const per = blind ? (onClosed ? s.pointsClosedBet : s.pointsOpenBet) : s.pointsOpenLate;
       let reason;
-      if (blind && onClosed && both) reason = 'Shot the Moon';
+      if (blind && onClosed && both) reason = 'Shoot the Moon';
       else if (blind && both) reason = 'Half-Moon on the real caption';
       else if (blind && onClosed) reason = 'Blind chip on the Closed Caption';
       else if (blind) reason = 'Blind chip on the real caption';
@@ -1894,9 +1894,9 @@ function endLines(game, mult) {
   else if (tops.length && tw.length === 2 && tops.every(f => f.people === tops[0].people) && tops[0].people >= 2) add('end.bluff2', { writers: nameList(tw.map(fn)), n: tops[0].people });
   if (fakes.length && !fakeKeys(game).some(k => votesOn(game, k) > 0) && game.bets.some(b => keyOf(b.target) === real && chipsOf(b) > 0)) add('end.honest', { n: fakes.length });
   const own = game.bets.find(b => b.target !== 'pass' && chipsOf(b) > 0 && writerOfKey(game, keyOf(b.target)) === b.playerId);
-  if (own) add('end.betOwn', { name: fn(own.playerId) });
+  if (own && !game.bets.some(b => b.playerId !== own.playerId && b.target !== 'pass' && chipsOf(b) > 0 && keyOf(b.target) === keyOf(own.target))) add('end.betOwn', { name: fn(own.playerId) });   // (only when nobody else believed it either)
   const rs = game.roundScores || {}, top = Math.max(0, ...Object.values(rs));
-  if (top > 0 && Object.values(rs).filter(v => v === top).length >= 2) add('end.tie');
+  if (top > 0 && Object.values(rs).filter(v => v === top).length === 2) add('end.tie');
   if (lapsOf(game) && game.round >= totalRounds(game)) add('end.last');
   if (isLate(game)) add('end.late');
   if (game.round === 1) add('end.first');
@@ -1959,7 +1959,7 @@ function oddsLine(game) {
   }
   if (swept && pAny > 0) ev.push({ kind: 'sweep', p: pAny, vars: { writer: firstNameOf(game, swept) } });
   const pc = Math.min(1, Math.max(0, Number(game.settings.autoCloseProbability) || 0.15));
-  for (const b of blind) if (b.target === 'closed' && game.closedIsCorrect && chipsOf(b) === 2) { ev.push({ kind: 'moon', p: pc / choices(b.playerId), vars: { name: firstNameOf(game, b.playerId) } }); break; }
+  for (const b of blind) if (b.target === 'closed' && game.closedIsCorrect && b.count === 2) { ev.push({ kind: 'moon', p: pc / choices(b.playerId), vars: { name: firstNameOf(game, b.playerId) } }); break; }
   const rare = ev.filter(e => e.p > 0 && e.p < 1 / 20).sort((a, b) => a.p - b.p)[0];
   if (!rare) return;
   const odds = fmtOdds(1 / rare.p);
@@ -2202,7 +2202,8 @@ function frameNow(game, target) {
   return it;
 }
 // Framed = a majority of the OTHER players (the writer can't frame their own): 3 players -> 2, 4 -> 2, 5 -> 3, 6 -> 3, 8 -> 4
-const inductNeed = (game) => Math.floor(Math.max(1, game.players.length - 1) / 2) + 1;
+// (a seat that has headed out for the night doesn't count: a caption stays frameable by the people still here)
+const inductNeed = (game) => Math.floor(Math.max(1, game.players.filter(p => !p.gone).length - 1) / 2) + 1;
 // A caption was just framed: player-written fakes join the permanent deck. Returns the celebration (at = when it plays)
 function induct(game, target, fl, count, at = Date.now()) {
   const h = game.history.find(x => x.round === game.round);
@@ -2319,7 +2320,7 @@ function react(game, playerId, target, kind, on) {
   const v = validateTarget(game, target);
   if (v.error) return v;
   if (v.target === 'closed' && !REVEALED.includes(game.phase)) return { error: 'The Closed Caption is still face-down' };
-  if (authorOf(game, v.target) === playerId) return { error: 'Not your own' };
+  if (authorOf(game, v.target) === playerId) return { error: 'Not your own.' };
   const key = String(v.target);
   const map = game.reactions[key] || (game.reactions[key] = {});
   const mine = map[playerId] && typeof map[playerId] === 'object' ? map[playerId] : (map[playerId] = {});
@@ -2446,7 +2447,7 @@ function awardBadges(game) {
   const real = realKey(game);
   const fakes = playerKeys(game);
   const order = (game.reel && game.reel.order) || [];
-  const bothBlind = (b) => b.stage === 1 && chipsOf(b) === 2;
+  const bothBlind = (b) => b.stage === 1 && b.count === 2;   // (a chip the dealer took is no Moon)
   const betsOn = (key) => game.bets.filter(b => keyOf(b.target) === key && chipsOf(b) > 0);
   const othersOn = (key, test = () => true) => [...new Set(betsOn(key).filter(b => b.playerId !== writerOfKey(game, key) && test(b)).map(b => b.playerId))];
 
@@ -2643,7 +2644,7 @@ function getPlayerView(game, playerId) {
     notice: game.notice || null,     // #26: a table announcement { text, at }
     // #30: someone at the door says they're a player whose seat is on another phone: the host decides
     seatClaim: game.seatClaim && game.hostId === playerId ? { ...game.seatClaim } : null,
-    players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: p.connected, watched: !!p.watched, rating: Rating.validRating(p.rating) ? p.rating : null, provisional: !Rating.validRating(p.rating) || (p.games || 0) < Rating.PROVISIONAL_GAMES, title: ratingTitle(p), published: published.get(p.name.toLowerCase()) || 0 })),
+    players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: p.connected, gone: !!p.gone, watched: !!p.watched, rating: Rating.validRating(p.rating) ? p.rating : null, provisional: !Rating.validRating(p.rating) || (p.games || 0) < Rating.PROVISIONAL_GAMES, title: ratingTitle(p), published: published.get(p.name.toLowerCase()) || 0 })),
     round: game.round,
     totalRounds: lapsOf(game) ? totalRounds(game, seatedP) : null,   // (a phone that's only away still counts: the count doesn't wobble)
     // #11 The Late Edition: when it began, whether this round pays double, and (first to N) who got there
@@ -2696,6 +2697,7 @@ function getPlayerView(game, playerId) {
     const d = deckStatus(game);   // only the live deck counts (retired ids a phone has seen are ignored)
     base.freshCount = d.fresh; base.poolCount = d.pool;
     base.deck = { ...d, line: deckLine(d) };
+    base.gameNo = game.gameNo || 0;
     return base;
   }
 
@@ -2850,9 +2852,10 @@ function getPlayerView(game, playerId) {
       const laps = lapsOf(game);
       base.nextLate = game.lateFrom === game.round + 1 || (!game.lateFrom && !s.targetScore && laps >= 2 && !!nd && ((game.dealCount || {})[nd.id] || 0) + 1 >= laps);
     }
+    base.framedTonight = game.nightFrames || 0;   // (frames tonight so far; exact on game over below)
     if (base.gameOver) {
-      base.standing = standing(game);   // the winner(s), with the tie-break that decided it
       base.framedTonight = finaleEntries(game).length;
+      base.standing = standing(game);   // the winner(s), with the tie-break that decided it
       settleRating(game);   // (a room restored from before the rating: worked out now, once)
       if (game.ratingResult && !game.ratingResult.none) base.rating = JSON.parse(JSON.stringify(game.ratingResult));
       const f = game.finale;
@@ -2871,7 +2874,7 @@ function getPlayerView(game, playerId) {
 function addTime(game) {
   if (game.phase !== PHASES.WRITING) return { error: 'Only while writing' };
   if (!game.timerEnd) return { error: 'No timer this game' };   // [settings] no timer: nothing to add to
-  if ((game.timeAdds || 0) >= 3) return { error: 'That’s all the extra time this round' };
+  if ((game.timeAdds || 0) >= 3) return { error: 'Already added time once this round.' };
   game.timeAdds = (game.timeAdds || 0) + 1;
   game.timerEnd = Math.max(game.timerEnd, Date.now()) + 30000;
   game.timerToken = (game.timerToken || 0) + 1;
@@ -2880,7 +2883,11 @@ function addTime(game) {
 
 /* #6: a restart (every update restarts the server) used to wipe every room. The host's phone keeps a sealed copy
    of the room (encrypted and signed by the server, unreadable on the phone) and hands it back after a restart. */
-const SEAL_KEY = crypto.createHash('sha256').update('seal|' + (process.env.RESTORE_KEY || process.env.GALLERY_KEY || 'closed-caption/restore/v1')).digest();
+// A phone's sealed copy holds the whole room (the real caption included), so the key must be a real secret in production:
+// RESTORE_KEY (render.yaml generates one). Without it, a per-boot random key: seals then survive a phone reload but not a
+// server restart, which beats a public key anyone could decrypt.
+if (!process.env.RESTORE_KEY && !process.env.GALLERY_KEY && (process.env.RENDER || process.env.NODE_ENV === 'production')) console.warn('RESTORE_KEY is not set: room copies will not survive a server restart');
+const SEAL_KEY = crypto.createHash('sha256').update('seal|' + (process.env.RESTORE_KEY || process.env.GALLERY_KEY || (process.env.RENDER || process.env.NODE_ENV === 'production' ? crypto.randomBytes(32).toString('hex') : 'closed-caption/restore/v1'))).digest();
 const SKIP = new Set(['deck', '_trusted', '_advAt', '_sealTag', '_sealAt', 'voice']);
 function sealGame(game) {
   const plain = {};

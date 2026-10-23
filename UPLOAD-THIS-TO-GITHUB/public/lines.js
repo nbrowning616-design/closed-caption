@@ -17,19 +17,19 @@ const ccLines = {
   "Finish the sentence.",
   "Good enough is good enough.",
   "Last chance to fix it.",
-  "Lock in your caption"
+  "Lock in your caption."
  ],
  "write.warn10": [
   "Send it.",
   "Now would be good.",
-  "Send it now"
+  "Send it now."
  ],
  "write.timesUp": [
   "Time’s up. Yours went in as it was.",
   "Time’s up. Sent as written.",
   "Sent. Whatever was in the box is now a caption.",
   "The buzzer took it. It’s in.",
-  "Time’s up — your caption was sent"
+  "Time’s up — your caption was sent."
  ],
  "write.lockedIn": [
   "It’s in. No changes now.",
@@ -289,7 +289,7 @@ const ccLines = {
  ],
  "thief.claw.fake": [
   "(Won a prize nobody wanted. The classic claw machine experience.)",
-  "(Spray-painted a dud. In the arcade that still counts.)"
+  "(Grabbed a dud. In the arcade that still counts.)"
  ],
  "thief.cat.closing": [
   "She does it slower when you’re watching.",
@@ -542,7 +542,7 @@ const ccLines = {
   "{names} each put both chips on it.",
   "{names} went all in on it, all of them.",
   "{names} were convinced. Both chips each.",
-  "{names} all went both chips."
+  "{names} each went both chips."
  ],
  "badge.sweep": [
   "Every other player bet on it.",
@@ -589,7 +589,7 @@ const ccLines = {
  ],
  "end.revenge": [
   "Nobody found the real one. {dealer} found that delightful.",
-  "The real caption sat there the whole round. Nobody visited.",
+  "Everyone walked past the real one. {dealer} says thank you.",
   "Not one chip on the truth. {dealer} collects.",
   "The real one was right there, wearing a name tag.",
   "Everyone was wrong in their own way. {dealer} takes {pts}.",

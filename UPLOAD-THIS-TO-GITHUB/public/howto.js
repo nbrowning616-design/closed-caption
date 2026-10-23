@@ -25,18 +25,18 @@
 
   var CSS = [
     '.ht{position:relative;user-select:none;-webkit-user-select:none;}',
-    '.ht-stage{position:relative;height:min(560px,calc(100dvh - 210px));min-height:470px;border:3px solid ' + INK + ';border-radius:18px;background:var(--paper-2);box-shadow:var(--shadow);overflow:hidden;cursor:pointer;}',
+    '.ht-stage{position:relative;height:min(560px,calc(100dvh - 210px));min-height:min(470px,calc(100dvh - 250px));border:3px solid ' + INK + ';border-radius:18px;background:var(--paper-2);box-shadow:var(--shadow);overflow:hidden;cursor:pointer;}',
     '.ht-stage::before{content:"";position:absolute;inset:0;background:radial-gradient(rgba(31,26,23,.06) 1.2px,transparent 1.3px) 0 0/16px 16px;pointer-events:none;}',
     '.ht-head{position:absolute;left:12px;right:12px;top:12px;z-index:30;text-align:center;min-height:62px;}',
     '.ht-h{font-family:var(--display);font-weight:700;font-size:27px;line-height:1.05;letter-spacing:-.4px;color:' + INK + ';transition:opacity .25s,transform .25s;}',
     '.ht-h.swap{opacity:0;transform:translateY(8px);}',
-    '.ht-note{font-family:' + HAND + ';font-weight:700;font-size:22px;color:' + RED + ';line-height:1;margin-top:4px;transform:rotate(-2deg);transition:opacity .25s;min-height:22px;}',
+    '.ht-note{font-family:' + HAND + ';font-weight:700;font-size:20px;color:' + RED + ';line-height:1;margin-top:4px;transform:rotate(-2deg);transition:opacity .25s;min-height:22px;}',
     '.ht-note.swap{opacity:0;}',
     /* things on the stage */
     '.ht-it{position:absolute;transition:transform .55s cubic-bezier(.3,1.2,.5,1),opacity .35s,width .5s,height .5s,left .5s,top .5s;}',
     '.ht-toon{left:50%;top:92px;width:220px;height:220px;margin-left:-110px;border:3px solid ' + INK + ';border-radius:12px;background:#fff center/cover no-repeat;box-shadow:var(--shadow-sm);z-index:5;}',
-    '.ht-toon.small{top:84px;width:116px;height:116px;margin-left:-58px;}',
-    '.ht-toon.tiny{top:84px;width:84px;height:84px;margin-left:-42px;}',
+    '.ht-toon.small{top:96px;width:104px;height:104px;margin-left:-52px;}',
+    '.ht-toon.tiny{top:96px;width:84px;height:84px;margin-left:-42px;}',
     '.ht-toon .ht-q{position:absolute;inset:auto 0 -2px 0;background:#fff;border-top:2.5px solid ' + INK + ';font-family:' + SERIF + ';font-style:italic;font-size:13px;padding:5px 6px;text-align:center;color:#888;}',
     '.ht-toon.small .ht-q,.ht-toon.tiny .ht-q{display:none;}',
     '.ht-phones{left:0;right:0;top:330px;display:flex;justify-content:center;gap:12px;z-index:6;}',
@@ -54,8 +54,8 @@
     '.ht-btn.press{transform:translate(3px,3px);box-shadow:0 0 0 ' + INK + ';}',
     '.ht-btn.done{background:var(--teal);color:#fff;}',
     /* the captions */
-    '.ht-caps{left:12px;right:12px;top:212px;z-index:8;display:flex;flex-direction:column;gap:8px;}',
-    '.ht-cap{position:relative;display:flex;align-items:center;gap:8px;min-height:52px;padding:7px 9px;border:2.5px solid ' + INK + ';border-radius:11px;background:#fff;box-shadow:2px 2px 0 ' + INK + ';opacity:0;transform:translateX(-30px) rotate(-2deg);transition:opacity .3s,transform .45s cubic-bezier(.3,1.4,.5,1),background .3s,box-shadow .3s;}',
+    '.ht-caps{left:12px;right:12px;top:206px;z-index:8;display:flex;flex-direction:column;gap:6px;}',
+    '.ht-cap{position:relative;display:flex;align-items:center;gap:8px;min-height:46px;padding:5px 9px;border:2.5px solid ' + INK + ';border-radius:11px;background:#fff;box-shadow:2px 2px 0 ' + INK + ';opacity:0;transform:translateX(-30px) rotate(-2deg);transition:opacity .3s,transform .45s cubic-bezier(.3,1.4,.5,1),background .3s,box-shadow .3s;}',
     '.ht-cap.on{opacity:1;transform:none;}',
     '.ht-cap .n{width:24px;height:24px;flex-shrink:0;border-radius:50%;background:var(--paper);border:2px solid ' + INK + ';font-family:var(--display);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;}',
     '.ht-cap .n.cc{font-size:9px;background:' + INK + ';color:var(--yellow);border-radius:6px;width:28px;}',
@@ -69,8 +69,9 @@
     '.ht-cap.real{background:var(--teal-bg);box-shadow:0 0 0 3px var(--teal),3px 3px 0 ' + INK + ';}',
     '.ht-cap.dim{opacity:.38;}',
     '.ht-cap.tap{box-shadow:0 0 0 4px var(--yellow),2px 2px 0 ' + INK + ';}',
-    '.ht-stamp{position:absolute;right:46px;top:50%;transform:translateY(-50%) rotate(-8deg) scale(2.2);opacity:0;font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border:2.5px solid currentColor;border-radius:6px;background:rgba(255,255,255,.92);white-space:nowrap;transition:transform .25s cubic-bezier(.3,1.6,.5,1),opacity .15s;}',
-    '.ht-stamp.on{opacity:1;transform:translateY(-50%) rotate(-8deg) scale(1);}',
+    '.ht-cap.stamped{flex-wrap:wrap;row-gap:0;}.ht-cap.stamped .t{flex-basis:calc(100% - 70px);}',
+    '.ht-stamp{display:inline-block;margin:1px 0 -2px 32px;transform:rotate(-3deg) scale(2.2);opacity:0;font-family:var(--display);font-weight:700;font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:0 6px;line-height:1.5;border:2px solid currentColor;border-radius:6px;background:rgba(255,255,255,.92);white-space:nowrap;transition:transform .25s cubic-bezier(.3,1.6,.5,1),opacity .15s;}',
+    '.ht-stamp.on{opacity:1;transform:rotate(-3deg) scale(1);}',
     '.ht-pts{position:absolute;right:-4px;top:-12px;z-index:3;font-family:var(--display);font-weight:700;font-size:15px;color:#fff;background:var(--teal);border:2px solid ' + INK + ';border-radius:999px;padding:0 7px;opacity:0;transform:scale(.3);transition:transform .3s cubic-bezier(.3,1.8,.5,1),opacity .2s;}',
     '.ht-pts.on{opacity:1;transform:none;}',
     '.ht-frame{position:absolute;inset:-9px;border:7px solid #C9A24A;border-radius:6px;box-shadow:inset 0 0 0 2px #7a5a00,0 0 0 2px #7a5a00,0 6px 18px rgba(0,0,0,.35);opacity:0;transform:scale(1.4) rotate(3deg);transition:transform .45s cubic-bezier(.3,1.5,.5,1),opacity .2s;pointer-events:none;}',
@@ -148,7 +149,7 @@
     f.style.transform = 'translate(' + (tr.right - sr.left - 26) + 'px,' + (tr.top - sr.top + (tr.height - 24) / 2) + 'px) scale(1)';
     setTimeout(function () { f.remove(); c.querySelector('.chips').insertAdjacentHTML('beforeend', chip(who)); plink(i); }, 560);
   }
-  function stamp(k, text, color) { var c = cap(k); if (!c) return; var s = document.createElement('span'); s.className = 'ht-stamp'; s.style.color = color; s.textContent = text; c.appendChild(s); void s.offsetWidth; s.classList.add('on'); thunk(); }
+  function stamp(k, text, color) { var c = cap(k); if (!c) return; var s = document.createElement('span'); s.className = 'ht-stamp'; s.style.color = color; s.textContent = text; c.classList.add('stamped'); c.appendChild(s); void s.offsetWidth; s.classList.add('on'); thunk(); }
   function pts(k, text) { var c = cap(k); if (!c) return; var s = document.createElement('span'); s.className = 'ht-pts'; s.textContent = text; c.appendChild(s); void s.offsetWidth; s.classList.add('on'); ding(); }
 
   var SCENES = [
@@ -177,7 +178,7 @@
       at(2300, function () { var c = cap('cc'); c.classList.add('tap'); head('One goes face-down.', 'the Closed Caption — could be anyone’s. even the real one.'); });
       at(5400, function () { cap('cc').classList.remove('tap'); });
     } },
-    { h: 'Bet chips on the real one.', note: '1 or 2 chips · everyone at once, in secret', ms: 7600, go: function () {
+    { h: 'Bet chips on the real one.', note: '1 or 2 chips, in secret', ms: 7600, go: function () {
       var sr = stage.getBoundingClientRect(), W = sr.width;
       var hand = $('.ht-hand'), c3 = cap('3');
       // You tap caption 3 and lock in; nobody sees anyone's chips until they all drop together
@@ -191,7 +192,7 @@
       });
       at(5400, function () { head('Bet chips on the real one.', 'first bets pay more. the face-down one pays most'); });
     } },
-    { h: 'The dealer steals one chip.', note: 'before the flip. Dan, the dealer, is a menace', ms: 5000, go: function () {
+    { h: 'The dealer steals one chip.', note: 'before the flip. Dan is a menace', ms: 5000, go: function () {
       var sr = stage.getBoundingClientRect(), c3 = cap('3'), target = c3.querySelectorAll('.ht-chip')[1], claw = $('.ht-claw');
       if (!target) return;
       var tr = target.getBoundingClientRect(), x = tr.left - sr.left - 8, y = tr.top - sr.top - 30;
@@ -200,7 +201,7 @@
       at(1100, function () { thunk(); target.style.transition = 'transform .5s cubic-bezier(.4,0,.2,1)'; claw.style.transform = 'translate(' + x + 'px,-140px)'; target.style.transform = 'translateY(-' + (y + 170) + 'px)'; });
       at(1700, function () { target.outerHTML = chip('dan'); plink(2); head('The dealer steals one chip.', 'it’s Dan’s chip now. on the real one? Dan scores. on a fake? Cat gets +1.'); });
     } },
-    { h: 'The face-down one flips.', note: 'a last chip, if you’ve got one · in turn', ms: 5200, go: function () {
+    { h: 'The face-down one flips.', note: 'last chips, everyone at once', ms: 5200, go: function () {
       var c = cap('cc'), sr = stage.getBoundingClientRect();
       at(500, function () { c.classList.add('flip'); thunk(); });
       at(800, function () { c.classList.remove('down'); c.querySelector('.t').textContent = CAPS[3].t; });
@@ -216,13 +217,13 @@
       at(4800, function () { var c = cap('3'); c.classList.add('real'); stamp('3', '✓ The real one', 'var(--teal)'); snd(function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.25, i * 90, 'square', 0.04); }); }); });
       at(5500, function () { pts('3', '+3 You · +2 Dan'); });
     } },
-    { h: 'Love the good ones.', note: 'tap Love It. most of the table loves one, it hangs in The Gallery.', ms: 5200, go: function () {
+    { h: 'Love the good ones.', note: 'most of the table loves it? The Gallery.', ms: 5200, go: function () {
       $$('.ht-pts,.ht-stamp').forEach(function (e) { e.style.opacity = 0; });
       $$('.ht-cap').forEach(function (c) { if (c.dataset.k !== 'cc') c.classList.add('dim'); else c.classList.remove('dim'); });
       at(900, function () { var f = document.createElement('span'); f.className = 'ht-frame'; cap('cc').appendChild(f); void f.offsetWidth; f.classList.add('on'); thunk(); });
       at(1500, function () { snd(function () { [784, 988, 1175, 1568].forEach(function (f, i) { tone(f, 0.3, i * 110, 'triangle', 0.06); }); }); });
     } },
-    { h: 'Most points wins.', note: 'the winner takes the remote. until next time.', ms: 5200, go: function () {
+    { h: 'Most points wins.', note: 'the winner takes the remote', ms: 5200, go: function () {
       $$('.ht-cap').forEach(function (c) { c.classList.remove('on', 'dim', 'real'); c.style.opacity = 0; });
       $('.ht-toon').style.opacity = 0;
       $('.ht-board').classList.add('on');

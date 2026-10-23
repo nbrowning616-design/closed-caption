@@ -25,7 +25,7 @@
   // Only the five badges that tell a story. Old careers on a phone may still count removed kinds
   // (ice_cold, better_than_real, less_is_more, crowd_favorite and two retired hat badges): the badge case ignores them.
   var KINDS = {
-    moon:             { name: 'Moon Landing',               desc: 'Bet both chips blind on the real caption — and hit.' },
+    moon:             { name: 'Moon Landing',               desc: 'Both chips blind on the real one, and hit. Face-down: Shoot the Moon.' },
     three_bagger:     { name: 'Three Bagger',               desc: 'Three players bet both chips on your caption.' },
     clean_sweep:      { name: 'Clean Sweep',                desc: 'Every other player bet on your caption.' },
     great_minds:      { name: 'Great Minds',                desc: 'Two of you wrote nearly the same caption.' },

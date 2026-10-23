@@ -6,3 +6,6 @@ services:
     buildCommand: npm install
     startCommand: node server.js
     healthCheckPath: /
+    envVars:
+      - key: RESTORE_KEY        # seals each phone's copy of its room; a random secret, never the source default
+        generateValue: true

@@ -467,6 +467,7 @@ wss.on('connection', (ws, req) => {
         return send(ws, { type: 'same_name', name: existing.name, code, playing: game.phase !== PHASES.LOBBY });
       }
       if (game.locked) return sendError(ws, 'The host has locked this room');
+      if ((game.shownOut || {})[name.toLowerCase()] > Date.now()) return sendError(ws, 'The host showed you out of this room. Ask them to let you back in.');   // (the host's ✕ holds for 10 minutes)
       const id = crypto.randomUUID();
       const r = G.addPlayer(game, id, name);
       if (r.error) return sendError(ws, r.error);
@@ -532,7 +533,8 @@ wss.on('connection', (ws, req) => {
       }
       case 'kick_player': {
         const targetId = msg.targetPlayerId;
-        if (fail(G.kickPlayer(game, playerId, targetId))) return;
+        const kr = G.kickPlayer(game, playerId, targetId); if (fail(kr)) return;
+        (game.shownOut = game.shownOut || {})[String(kr.kickedName || '').toLowerCase()] = Date.now() + 10 * 60000;
         G.clearVoice(game, targetId);
         const kc = clients[targetId];
         if (kc) { send(kc.ws, { type: 'kicked', message: 'The host has shown you out.' }); try { kc.ws.close(); } catch (e) {} delete clients[targetId]; }

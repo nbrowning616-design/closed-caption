@@ -207,7 +207,7 @@ function looksBuilt(lw) {
     return false;
   }
 }
-function suggestFor(word) {
+function suggestFor(word, deep = true) {
   const lw = word.toLowerCase();
   if (lw.length > 16) return null;   // a made-up mega-word: leave it be (two-edit search grows with the square of the length)
   if (COMMON_TYPOS[lw]) return COMMON_TYPOS[lw];
@@ -220,7 +220,7 @@ function suggestFor(word) {
   if (looksBuilt(lw)) return null;
   let c = best(edits1(lw), lw[0]);
   if (c && c.freq < 25) c = null;
-  if (!c && lw.length >= 6 && lw.length <= 9) {
+  if (!c && deep && lw.length >= 6 && lw.length <= 9) {
     const two = new Set(); for (const e of edits1(lw)) for (const e2 of edits1(e)) two.add(e2);
     c = best(two, lw[0]);
     if (c && c.freq < 35) c = null;
@@ -231,6 +231,7 @@ function suggestFor(word) {
 function findTypos(s) {
   if (!FREQ.size) return [];
   const typos = [];
+  let slow = 0;   // the two-edit search is the costly part: at most a few words per caption get it
   const re = /[A-Za-z]+(?:’[A-Za-z]+)?/g;
   let m;
   while ((m = re.exec(s))) {
@@ -241,7 +242,9 @@ function findTypos(s) {
     if (w.length <= 5 && w === w.toUpperCase()) continue;               // acronyms
     const sentenceStart = at === 0 || /[.!?…]\s*[‘’"]?\s*$/.test(s.slice(0, at)) || /^[^A-Za-z]*$/.test(s.slice(0, at));
     if (/^[A-Z]/.test(w) && !sentenceStart) continue;                   // names
-    const fix = suggestFor(w);
+    const unknown = !FREQ.has(w.toLowerCase()) && !COMMON_TYPOS[w.toLowerCase()];
+    const fix = suggestFor(w, slow < 3);
+    if (unknown) slow++;
     if (fix) typos.push({ at, word: w, fix: matchCase(w, fix) });
   }
   return typos;
