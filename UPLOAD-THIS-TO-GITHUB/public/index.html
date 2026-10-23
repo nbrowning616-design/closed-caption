@@ -201,6 +201,8 @@ textarea.caption-input::placeholder { color: #7A7066; }
 .pr-zoom img { max-width: 100%; max-height: 80vh; object-fit: contain; background: #fff; border-radius: 8px; }
 .pr-zoom .pr-zoom-x { width: auto; }
 .pr-tip { margin-top: 6px; font-size: 14px; }
+.cc-tilt { animation: ccTilt 2s cubic-bezier(.3,1.4,.5,1) both; transform-origin: 50% 100%; }
+@keyframes ccTilt { 0% { transform: rotate(0); } 18% { transform: rotate(-4deg); } 70% { transform: rotate(-4deg); } 100% { transform: rotate(0); } }
 .pr-chips { display: inline-block; margin-top: 8px; padding: 3px 10px; border-radius: 999px; background: var(--ink); color: var(--paper, #fff); font-size: 12px; font-weight: 800; }
 .pr-pts { margin-top: 10px; } .pr-pts p { margin: 2px 0; font-size: 15px; }
 .pr-bar { position: sticky; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 5; margin-top: 14px; padding: 10px; background: var(--paper, #fff); border-radius: 14px; box-shadow: var(--shadow); }
@@ -1197,7 +1199,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
       <li><b>The Remote.</b> Every table has one: a 1980s TV remote with one button, held by the last winner. Each winner adds a strip of masking tape with their name and the date.</li>
       <li><b>Your rating.</b> Ranked like chess, but judged by friends. Everyone starts at 1,200; after each game you gain points from everyone you finished above and lose them to everyone who finished above you. Beating higher-rated players moves it more; a short game moves it less. Titles: Candidate 1,400, Master 1,600, Senior Master 1,800, Grandmaster 2,000. Your phone keeps it.</li>
       <li><b>Badges.</b> Rare moments earn badges: Double Down, Three Bagger, Clean Sweep, Great Minds, Pickpocket. Your phone keeps those too.</li>
-      <li><b>Good to know.</b> Bet on your own caption to bluff — it scores nothing. Captions are tidied the same way, the real one too. The real one isn’t always the funniest. Tap the cartoon to zoom.</li>
+      <li><b>Good to know.</b> Bet on your own caption to bluff — it scores nothing. Captions are tidied the same way, the real one too. Join late and you start level with last place. Step away during the blind bets and the Monkey bets one chip for you. The real one isn’t always the funniest. Tap the cartoon to zoom.</li>
     </ul>
   </div></details>
   <button class="btn btn-yellow" onclick="goBackFromRules()">Got it →</button>
@@ -3700,6 +3702,12 @@ function nobodyGroupHtml(k) {
 }
 // A thief's line after the reveal (#39: never during the steal). The Mime speaks in stage directions.
 const gloatText = (t) => /^\(.*\)$/.test(String(t).trim()) ? esc(t) : `“${esc(t)}”`;
+const tilted = new Set();
+function tiltOnce(id) {
+  if (tilted.has(id)) return; tilted.add(id);
+  try { if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) {}
+  setTimeout(() => { const g = $('game-content') || document.body; const sc = g.parentElement; if (sc) sc.style.overflowX = 'clip'; g.classList.remove('cc-tilt'); void g.offsetWidth; g.classList.add('cc-tilt'); setTimeout(() => { g.classList.remove('cc-tilt'); if (sc) sc.style.overflowX = ''; }, 2100); }, 900);
+}
 function spotlightHtml() {
   const { order, step, n } = reelInfo(), key = order[step - 1], c = capByKey(key);
   if (!c) return '';
@@ -3710,11 +3718,13 @@ function spotlightHtml() {
   const backers = real ? bets : bets.filter(b => b.playerId !== c.playerId);
   const people = [...new Set(backers.map(b => b.playerId))];
   const chipsOf = (pid) => backers.filter(b => b.playerId === pid).reduce((s, b) => s + b.count + (b.stolen || 0), 0);
-  const fell = people.length ? `<div class="fell"><p class="eyebrow" style="margin-bottom:8px;">${real ? 'Found the real one' : 'Fell for it'}</p><div class="fell-row">${people.map(pid => `<span class="fell-p">${chipHtml(pid, 'sm')}${esc(pid === myPlayerId ? 'You' : nameOf(pid))}${chipsOf(pid) > 1 ? ` <i>×${chipsOf(pid)}</i>` : ''}</span>`).join('')}</div></div>`
+  const fell = people.length ? `<div class="fell"><p class="eyebrow" style="margin-bottom:8px;">${real ? 'Found the real one' : 'Fell for it'}</p><div class="fell-row">${people.map(pid => `<span class="fell-p">${chipHtml(pid, 'sm')}${esc(pid === myPlayerId ? 'You' : nameOf(pid))}${chipsOf(pid) > 1 ? ` <i>×${chipsOf(pid)}</i>` : ''}${backers.some(b => b.playerId === pid && b.monkey) ? ' <i>(the Monkey’s pick)</i>' : ''}</span>`).join('')}</div></div>`
     : `<p class="nobody">${real ? 'Nobody found it.' : 'Nobody bit.'}</p>`;
   const pts = !real && c.playerId && !c.house ? backers.reduce((s, b) => s + b.count + (b.stolen || 0), 0) * (state.settings.pointsPerFool || 0) * (lateOn() ? 2 : 1) : 0;   // stolen chips still fooled them; The Late Edition doubles it
   const who = real ? `<div class="stamp real-stamp" id="spot-stamp">The real caption</div>`
     : `<div class="writer-stamp" id="spot-stamp">${chipHtml(c.playerId, 'lg')}<div><p class="eyebrow">Written by</p><div class="wname">${esc(c.playerId === myPlayerId ? 'You' : c.playerName || '?')}${c.house ? ' ' + houseTag : ''}</div></div>${pts ? `<span class="plus" style="margin-left:auto; font-size:26px;">+${pts}</span>` : ''}</div>`;
+  // R3-19 (Nick, Oct 23 2026): the whole table fell for one fake (3+ bettors, every one of them on it): the page tips for 2 s
+  if (!real) { const all = [...new Set((state.bets || []).filter(b => b.target !== 'pass' && b.playerId !== c.playerId && !b.monkey).map(b => b.playerId))]; if (all.length >= 3 && all.every(pid => people.includes(pid))) tiltOnce(state.round + ':' + key); }
   // the real one's single line: the odds when something rare happened (kept), otherwise the server's one line
   const realLine = real ? (state.odds && state.odds.line ? `<p class="odds-line">${esc(state.odds.line)}</p>` : RL.line ? `<p class="real-line">${esc(RL.line)}</p>` : '') : '';
   return `${header({ sticker: '<span class="sticker teal">The reveal</span>', sub: `${step} of ${n}` })}

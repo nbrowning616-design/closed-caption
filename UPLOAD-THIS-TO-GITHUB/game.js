@@ -802,8 +802,10 @@ function addPlayer(game, playerId, playerName) {
   if (game.players.length >= MAX_PLAYERS) return { error: `The table’s full (${MAX_PLAYERS} max)` };
   if (game.players.some(p => p.name.toLowerCase() === playerName.toLowerCase())) return { error: 'Someone here already has that name' };
   // Late joiners are added at the end of the table, so the deal order of everyone else is unchanged.
-  // They score from zero and join in from the current writing phase or the next round.
-  game.players.push({ id: playerId, name: playerName, score: 0, connected: true, joinedRound: game.round });
+  // They join in from the current writing phase or the next round. R3-11 (Nick, Oct 23 2026): mid-game they start
+  // level with last place, so they're still in it (0 in the lobby or before anyone has scored).
+  const start = game.phase !== PHASES.LOBBY && game.players.length ? Math.max(0, Math.min(...game.players.map(p => p.score || 0))) : 0;
+  game.players.push({ id: playerId, name: playerName, score: start, connected: true, joinedRound: game.round });
   return { ok: true, midGame: game.phase !== PHASES.LOBBY };
 }
 
@@ -1564,6 +1566,12 @@ function dropLate(game) {
   return { ok: true };
 }
 
+// The Monkey's dart for an away player: any caption on the table but their own (null if there's none)
+function monkeyPick(game, pid) {
+  const keys = game.openCaptions.map((c, i) => (c.playerId === pid ? null : i)).filter(k => k !== null);
+  if (game.closedPlayerId !== pid) keys.push('closed');
+  return keys.length ? keys[Math.floor(Math.random() * keys.length)] : null;
+}
 // Every blind chip lands at once, in seat order. Anyone who didn't bet sits the blind bet out: still here, they
 // keep one chip for after the flip; phone gone, nothing.
 function dropBlind(game) {
@@ -1577,8 +1585,11 @@ function dropBlind(game) {
       game.bets.push({ playerId: pid, target: b.target, count: b.count, stage: 1, at });
       game.firstBets[pid] = { target: b.target, count: b.count };
     } else {
-      const p = game.players.find(x => x.id === pid);
-      game.bets.push({ playerId: pid, target: 'pass', count: 0, stage: 1, late: !!(p && p.connected), at });
+      const p = game.players.find(x => x.id === pid), m = !(p && p.connected) && monkeyPick(game, pid);
+      // R3-7 (Nick, Oct 23 2026): someone who stepped away doesn't fall behind: the Monkey bets one chip for them, at
+      // random, never on their own caption. It can find the real one for them; on a fake it fools nobody (no points).
+      if (m !== null && m !== false) { game.bets.push({ playerId: pid, target: m, count: 1, stage: 1, monkey: true, at }); game.firstBets[pid] = { target: m, count: 1 }; }
+      else game.bets.push({ playerId: pid, target: 'pass', count: 0, stage: 1, late: !!(p && p.connected), at });
     }
   }
   game.blind = {};
@@ -1727,7 +1738,7 @@ function revealAnswer(game) {
     }
     const author = onClosed ? game.closedPlayerId : (game.openCaptions[bet.target] || {}).playerId;
     const fooled = bet.count + (bet.stolen || 0);   // a stolen chip still fooled them: the writer keeps that point
-    if (author && author !== bet.playerId) add(author, s.pointsPerFool * fooled, `Fooled ${nameOfPlayer(game, bet.playerId)}`);
+    if (author && author !== bet.playerId && !bet.monkey) add(author, s.pointsPerFool * fooled, `Fooled ${nameOfPlayer(game, bet.playerId)}`);
   }
 
   const dealer = dealerOf(game);
