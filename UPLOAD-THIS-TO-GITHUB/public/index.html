@@ -1156,7 +1156,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
       <button class="btn btn-yellow home-host" onclick="showScreen('screen-create')">Host a game</button>
       <button class="btn" onclick="showScreen('screen-join')">Join a game</button>
       <button class="btn home-solo" onclick="window.Practice && Practice.open()">Practice alone</button>
-      <div class="home-foot"><button class="btn-link" onclick="showScreen('screen-rules')">How to play</button><span class="home-dot" aria-hidden="true">·</span><a class="btn-link" href="/privacy.html">Privacy</a></div>
+      <div class="home-foot"><button class="btn-link" onclick="showScreen('screen-rules')">How to play</button><span class="home-dot" aria-hidden="true">·</span><button class="btn-link" onclick="shareGame()">Share the game</button><span class="home-dot" aria-hidden="true">·</span><a class="btn-link" href="/privacy.html">Privacy</a></div>
     </div>
   </div>
 </div>
@@ -2004,6 +2004,13 @@ document.addEventListener('keydown', (e) => {
 });
 function toggleTrack(key) { if (!window.GameMusic) return; if (window.GameMusic.currentTrack() === key) window.GameMusic.stop(); else window.GameMusic.play(key); openMenu(); }
 function joinAddress() { const local = ['localhost', '127.0.0.1'].includes(location.hostname); return local && state && state.lanUrl ? state.lanUrl.replace(/^https?:\/\//, '') : location.host; }
+// Home: the plain link, no room code (Nick, Oct 23 2026: testers should host their own game, not try to join one)
+function shareGame() {
+  const url = location.origin + '/', text = `Closed Caption. ${INVITE_PITCH} Free, no app. Tap Host a game:`;
+  if (navigator.share) navigator.share({ title: 'Closed Caption', text, url }).catch(() => {});
+  else if (navigator.clipboard) navigator.clipboard.writeText(`${text} ${url}`).then(() => showToast('Link copied', 'ok')).catch(() => showToast(url, 'ok'));
+  else showToast(url, 'ok');
+}
 function shareRoom() {
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
   const url = joinUrl('link'), text = `Closed Caption tonight. ${INVITE_PITCH} Free, no app. Room ${state.code}:`;   // #23: the invite says what it is; #41: counted as an invite link
