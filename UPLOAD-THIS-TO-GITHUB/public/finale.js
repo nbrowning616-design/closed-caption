@@ -202,7 +202,7 @@
   }
   function myVote(f) { return localVote && localVote.tag === state.code + '|' + f.at && !f.winner ? localVote.key : f.myVote; }
   function cardHtml(e, on, own, clickable) {
-    var by = (own ? 'Yours' : E(e.writerName || nm(e.writerId))) + ' · ' + (e.frames === 1 ? '1 frame' : e.frames + ' frames');
+    var by = (own ? 'Yours' : E(e.writerName || nm(e.writerId))) + ' · ' + (e.frames === 1 ? '1 Love It' : e.frames + ' Love Its');
     return '<button class="fp-card' + (on ? ' on' : '') + (own ? ' own' : '') + '" ' + (clickable ? 'onclick="ccFinale.vote(\'' + E(e.key) + '\')"' : 'disabled') + ' aria-pressed="' + (on ? 'true' : 'false') + '">' +
       '<span class="fp-tick">✓ Your vote</span><img src="/images/' + E(e.image) + '" alt="" loading="lazy"><span class="fp-c">“' + E(e.caption) + '”</span><span class="fp-by">' + by + '</span></button>';
   }

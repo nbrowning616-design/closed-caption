@@ -14,7 +14,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Closed Caption">
 <meta property="og:title" content="Closed Caption">
-<meta property="og:description" content="A bluffing game, not a joke contest. Everyone gets the same cartoon: write a caption that passes for the real one, then bet on which one is. 3–8 players, a phone each.">
+<meta property="og:description" content="A bluffing game, not a joke contest. Everyone gets the same cartoon: write a caption that passes for the real one, then bet on which one is. 2–8 players, a phone each.">
 <meta property="og:image" content="https://closed-caption.onrender.com/og-image.png">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
@@ -22,7 +22,7 @@
 <meta property="og:image:alt" content="Closed Caption — A bluffing game, not a joke contest.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Closed Caption">
-<meta name="twitter:description" content="A bluffing game, not a joke contest. 3–8 players, a phone each.">
+<meta name="twitter:description" content="A bluffing game, not a joke contest. 2–8 players, a phone each.">
 <meta name="twitter:image" content="https://closed-caption.onrender.com/og-image.png">
 <!-- Icons: browser tab, home screen (iOS and Android) -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='12' width='56' height='40' rx='9' fill='%231F1A17'/%3E%3Crect x='10' y='18' width='44' height='28' rx='6' fill='none' stroke='%23FFD23F' stroke-width='4'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-family='Arial Black,Arial' font-weight='900' font-size='18' fill='%23FFD23F'%3ECC%3C/text%3E%3C/svg%3E" type="image/svg+xml">
@@ -337,7 +337,7 @@ textarea.caption-input::placeholder { color: #7A7066; }
 .chip.fly { pointer-events: none; box-shadow: 0 10px 18px rgba(0,0,0,.3); }
 
 /* ── Bottom action bar ── */
-.action-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; padding: 14px 16px calc(14px + var(--sab)); background: linear-gradient(to top, var(--paper) 72%, rgba(255,248,234,0)); }
+.action-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; padding: 14px 16px calc(14px + var(--sab)); background: linear-gradient(to top, var(--paper) calc(100% - 14px), rgba(255,248,234,0)); }
 .action-bar .inner { max-width: 480px; margin: 0 auto; }
 .action-bar.up { animation: barUp .35s var(--ease-out); }
 @keyframes barUp { from { transform: translateY(100%);} to { transform: none;} }
@@ -812,7 +812,7 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .mag-cap { margin: 0; padding: 12px 10px 10px; text-align: center; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 21px; line-height: 1.3; color: var(--ink); text-wrap: balance; overflow-wrap: anywhere; }
 .mag-cap .tag { font-style: normal; vertical-align: middle; }
 .mag-in { animation: magIn .55s var(--ease-out) both; }
-#game-content h2[tabindex="-1"]:focus, #game-content .h2[tabindex="-1"]:focus { outline: none; }
+#game-content h2[tabindex="-1"]:focus, #game-content .h2[tabindex="-1"]:focus, #game-content .hdr [tabindex="-1"]:focus, #game-content .hdr[tabindex="-1"]:focus { outline: none; }
 .rd-nav { position: sticky; bottom: calc(6px + env(safe-area-inset-bottom, 0px)); z-index: 20; margin: 0 -6px; padding: 12px 6px 0; background: linear-gradient(rgba(255,248,234,0), var(--paper) 14px); }
 @media (max-height: 700px) { .toon-big.mag .toon-hit img { max-height: 32dvh; } .rd-nav { padding-top: 8px; } }
 @keyframes magIn { from { opacity: 0; transform: translateY(10px); filter: blur(2px); } to { opacity: 1; transform: none; filter: none; } }
@@ -1048,6 +1048,9 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 /* the dealer's controls on the flip and the reveal stay in reach on short phones */
 #flip-ctl, #reel-ctl, .rc-go { position: sticky; bottom: 0; z-index: 20; margin-left: -16px; margin-right: -16px; padding: 12px 16px calc(8px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(rgba(255,248,234,0), var(--paper) 14px); }
 #reel-ctl.note-only { position: static; margin: 0; padding: 0; background: none; }
+#reel-ctl:not(.note-only) { margin-top: 10px; }
+.spot { scroll-margin-top: 140px; }
+.cap { scroll-margin-top: 150px; scroll-margin-bottom: 190px; }
 #flip-ctl:empty, #reel-ctl:empty { padding: 0; }
 #flip-ctl.on { opacity: 1; }
 /* #5 the quick plaque (every framing after the night's first) */
@@ -1182,7 +1185,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
       <li><b>Call your shot.</b> Once your caption is in, name the one person you think will fall for it. If they put a chip on it, +3. The reveal says how it went either way.</li>
       <li><b>The table vs. the cartoonist.</b> Each round, the best-loved fake (Love Its given before the answer) takes on the real caption. Whoever has more Love Its wins the round for their side. Just for fun: it isn’t in anyone’s score.</li>
       <li><b>The Late Edition.</b> In a game that goes around the table more than once, the last trip around pays double. First to 20: when someone gets there, the trip around the table is finished (everyone deals the same number of times), at double points. Then the leader wins.</li>
-      <li><b>A tie for first</b> goes to whoever fooled the most people. Still level: more captions framed. Still level: a tie.</li>
+      <li><b>A tie for first</b> goes to whoever fooled the most chips (every chip a fake of yours took in). Still level: more captions framed. Still level: a tie.</li>
       <li><b>Did you know?</b> Between games, a short public-service announcement: two or three facts about tonight’s players, from how they actually played. The dealer taps on.</li>
       <li><b>The Remote.</b> Every table has one: a 1980s TV remote with one button, held by the last winner. Each winner adds a strip of masking tape with their name and the date.</li>
       <li><b>Your rating.</b> Ranked like chess, but judged by friends. Everyone starts at 1,200; after each game you gain points from everyone you finished above and lose them to everyone who finished above you. Beating higher-rated players moves it more; a short game moves it less. Titles: Candidate 1,400, Master 1,600, Senior Master 1,800, Grandmaster 2,000. Your phone keeps it.</li>
@@ -1317,6 +1320,7 @@ const BUILD = '__BUILD__';
    ═══════════════════════════════════════════════════════════ */
 let rulesReturn = 'screen-home';
 function showScreen(id) {
+  try { if (window.Voice && Voice._cancel) Voice._cancel(); } catch (e) {}   // a 'Playing apart?' card never outlives its screen
   if (id === 'screen-rules') { const cur = document.querySelector('.screen.active'); rulesReturn = cur && cur.id !== 'screen-rules' ? cur.id : rulesReturn; renderRulesScoring(); }
   if (window.HowTo) { if (id === 'screen-rules') { const fr = $('rules-full'); if (fr) fr.style.display = 'none'; setTimeout(() => HowTo.start($('howto-mount')), 30); } else HowTo.stop(); }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1419,9 +1423,11 @@ function openViewer(src) {
   if (!src) return;
   const img = $('viewer-img'); img.src = src;
   V.scale = 1; V.x = 0; V.y = 0; applyViewer();
-  $('viewer').classList.add('on'); sfx.tap();
+  viewerOpener = document.activeElement; $('viewer').classList.add('on'); sfx.tap();
+  setTimeout(() => { try { $('viewer').querySelector('.close').focus({ preventScroll: true }); } catch (e) {} }, 30);
 }
-function closeViewer() { $('viewer').classList.remove('on'); V.pts.clear(); }
+let viewerOpener = null;
+function closeViewer() { const was = $('viewer').classList.contains('on'); $('viewer').classList.remove('on'); V.pts.clear(); if (was && viewerOpener && document.contains(viewerOpener)) { try { viewerOpener.focus({ preventScroll: true }); } catch (e) {} } viewerOpener = null; }
 function applyViewer() {
   const img = $('viewer-img');
   // Fit the image to the screen first, then apply the zoom
@@ -1978,12 +1984,13 @@ new MutationObserver(() => {
 }).observe(document.getElementById('sheet'), { attributes: true, attributeFilter: ['class'] });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') { if ($('viewer') && $('viewer').classList.contains('on')) { closeViewer(); return; } if ($('sheet').classList.contains('on')) { closeMenu(); return; } }
-  if (e.key === 'Tab' && $('sheet').classList.contains('on')) {
-    const f = [...$('sheet').querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(x => !x.disabled && x.offsetParent !== null);
+  const trap = $('viewer').classList.contains('on') ? $('viewer') : $('sheet').classList.contains('on') ? $('sheet') : null;
+  if (e.key === 'Tab' && trap) {
+    const f = [...trap.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(x => !x.disabled && x.offsetParent !== null);
     if (!f.length) return;
     const first = f[0], last = f[f.length - 1];
-    if (e.shiftKey && (document.activeElement === first || !$('sheet').contains(document.activeElement))) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && (document.activeElement === last || !$('sheet').contains(document.activeElement))) { e.preventDefault(); first.focus(); }
+    if (e.shiftKey && (document.activeElement === first || !trap.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (document.activeElement === last || !trap.contains(document.activeElement))) { e.preventDefault(); first.focus(); }
   }
 });
 function toggleTrack(key) { if (!window.GameMusic) return; if (window.GameMusic.currentTrack() === key) window.GameMusic.stop(); else window.GameMusic.play(key); openMenu(); }
@@ -2033,6 +2040,7 @@ function render(force = false) {
   checkInduction();   // the framing moment: every phone, once, while it's fresh
 
   if (phaseChanged) {
+    try { if (window.Voice && Voice._cancel) Voice._cancel(); } catch (e) {}
     selectedBetTarget = null; grabbedBet = null; phaseSeqPlayed = false; seenBets = 0; wasMyTurn = false;
     // #9: no sheet (menu, past rounds…) outlives the screen it opened on — except a picture someone is sharing right now
     if (!$('sheet-body').querySelector('[onclick^="shareHofCard"]')) closeMenu();
@@ -2277,9 +2285,9 @@ function syncClaim() {
   if (!c) { if (el) el.remove(); return; }
   if (el && el.dataset.id === c.id) return;
   if (!el) { el = document.createElement('div'); el.id = 'claim-bar'; el.setAttribute('role', 'alertdialog'); document.body.appendChild(el); sfx.notify(); buzz([40, 60, 40]); }
-  const n = esc(firstName(c.name)), when = c.oldLive ? 'is still at the table' : c.awaySecs >= 60 ? `dropped ${Math.round(c.awaySecs / 60)} min ago` : `dropped ${Math.max(1, c.awaySecs)} seconds ago`;
+  const n = esc(firstName(c.name)), when = c.oldLive ? 'is still at the table' : c.gone ? 'headed out' : c.awaySecs >= 60 ? `dropped ${Math.round(c.awaySecs / 60)} min ago` : `dropped ${Math.max(1, c.awaySecs)} seconds ago`;
   el.dataset.id = c.id;
-  el.innerHTML = `<div class="h2">Someone’s asking for ${n}’s seat</div><p class="small">${n}’s phone ${when}. Is it ${n}, on another phone?</p>
+  el.innerHTML = `<div class="h2">Someone’s asking for ${n}’s seat</div><p class="small">${c.gone ? `${n} headed out` : `${n}’s phone ${when}`}. Is it ${n}, on another phone?</p>
     <div class="btn-row"><button class="btn" onclick="claimAnswer('${esc(c.id)}', false)">No</button><button class="btn btn-yellow" onclick="claimAnswer('${esc(c.id)}', true)">Let them in</button></div>`;
 }
 function claimAnswer(id, ok) { send({ action: 'claim_answer', id, ok }); const el = $('claim-bar'); if (el) el.remove(); }
@@ -2347,7 +2355,7 @@ function renderLobby() {
   const timerWords = !td ? 'No timer' : td % 60 ? `${td}-second timer` : `${td / 60}-min timer`;
   const dealerWords = dm === 'bet' ? 'Dealer bets, no steal' : dm === 'both' ? 'Dealer bets + steals' : (s.stealEnabled === false ? 'No steal' : 'Dealer steals');
   const endCondition = s.targetScore ? `First to ${s.targetScore}` : s.rounds ? plural(s.rounds, 'round') : laps === 2 ? 'Everyone deals twice' : laps === 3 ? 'Everyone deals 3 times' : 'Everyone deals once';
-  const summary = `${timerWords} · ${dealerWords} · ${endCondition} · ${s.family ? 'Family deck' : s.spicy ? 'Everything deck' : 'Standard deck'}`;
+  const summary = `${timerWords} · ${dealerWords} · ${endCondition}${right ? ' · Deal goes right' : ''} · ${s.family ? 'Family deck' : s.spicy ? 'Everything deck' : 'Standard deck'}`;
   const customOn = lobbyCustomTimer || (td !== 90 && td !== 0);
   const tmin = Math.max(1, Math.round((td || 120) / 60));
   const fresh = state.freshCount, pool = state.poolCount, dk = state.deck || null, deckShort = !!(dk && !dk.ok);
@@ -2551,7 +2559,7 @@ function writingStatusHtml() {
   return `<div data-live="status" class="panel flat center" style="padding:12px;">
       ${last && last.id !== myPlayerId ? Guide.waitHtml(last) : ''}<p class="do">${n} of ${here.length} captions in</p>
       <div class="order" style="margin:8px 0 0;">${here.map(p => chipHtml(p.id, submitted.has(p.id) ? '' : last && p.id === last.id ? 'dim gd-spot' : 'dim', submitted.has(p.id) ? '<span class="check">✓</span>' : '')).join('')}</div>
-      ${canRun() && n > 0 && n < here.length ? (noTimer() ? `<button class="btn btn-yellow" id="end-writing-btn" style="margin-top:10px;" onclick="confirmEndWriting()">End writing — play ${n === 1 ? 'this one' : `these ${n}`}</button>` : `<button class="btn-link" style="margin-top:4px;" onclick="confirmEndWriting()">Stop waiting and play ${n === 1 ? 'this one' : `these ${n}`} →</button>`) : ''}
+      ${canRun() && n >= 2 && n < here.length ? (noTimer() ? `<button class="btn btn-yellow" id="end-writing-btn" style="margin-top:10px;" onclick="confirmEndWriting()">End writing — play ${n === 1 ? 'this one' : `these ${n}`}</button>` : `<button class="btn-link" style="margin-top:4px;" onclick="confirmEndWriting()">Stop waiting and play ${n === 1 ? 'this one' : `these ${n}`} →</button>`) : ''}
       ${!noTimer() && canRun() && n < here.length && (state.timeAdds || 0) < 3 ? `<button class="time-btn" onclick="send({action:'add_time'})">⏱ +30 seconds</button>` : ''}
       ${noTimer() && n === 0 ? `<p class="do" style="margin-top:6px;">No timer this game — ${canRun() ? 'you end writing when you’re ready' : 'the dealer ends writing'}.</p>` : ''}
     </div>`;
@@ -2819,7 +2827,9 @@ function rxHtml(key, o = {}) {
   return wrap(`${btn}${fr ? `<span class="rx-sp"></span>${fr}` : ''}`);
 }
 function refreshRx() {
+  const had = document.activeElement && document.activeElement.closest && document.activeElement.closest('[data-rx]'), hadKey = had ? had.dataset.rx : null;
   document.querySelectorAll('#game-content [data-rx]').forEach(el => { const h = rxHtml(el.dataset.rx, { frame: el.dataset.rxf === '1' }); if (el.outerHTML !== h) el.outerHTML = h || '<span hidden></span>'; });
+  if (hadKey !== null) { const b = document.querySelector(`#game-content [data-rx="${hadKey}"] .rx-b`); if (b) { try { b.focus({ preventScroll: true }); } catch (e) {} } }
 }
 function tapReact(key, kind) {
   if (!state || isMineKey(key)) return;
@@ -3081,7 +3091,9 @@ function selectBet(target) {
   document.querySelectorAll('.cap[data-target]').forEach(b => b.classList.toggle('picked', String(b.dataset.target) === String(target)));
   renderBetBar();
   // keep the picked caption in sight above the chip bar
-  requestAnimationFrame(() => { const c = document.querySelector('.cap.picked'), bar = $('action-bar-root'); if (!c) return; const r = c.getBoundingClientRect(), bh = bar ? bar.getBoundingClientRect().height : 0, room = window.innerHeight - bh - 12; if (r.bottom > room) window.scrollBy({ top: r.bottom - room, behavior: 'smooth' }); });
+  srSay(`${betLabel(target, 1).replace('1 chip on ', '')} picked. One chip or both, at the bottom.`);
+  document.querySelectorAll('.cap[data-target]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.target) === String(target) ? 'true' : 'false'));
+  requestAnimationFrame(() => { const c = document.querySelector('.cap.picked'), bar = document.querySelector('.action-bar'); if (!c) return; const r = c.getBoundingClientRect(), bh = bar ? bar.getBoundingClientRect().height : 0, room = window.innerHeight - bh - 12; if (r.bottom > room) window.scrollBy({ top: r.bottom - room, behavior: 'smooth' }); });
 }
 let undoUntil = 0, undoT = null;
 function renderBetBar() {
@@ -3142,12 +3154,13 @@ function grabChip(i) {
   grabbedBet = grabbedBet === i ? null : i; sfx.tap();
   document.querySelectorAll('.chip.grab').forEach(c => c.classList.toggle('grabbed', Number(c.dataset.bet) === grabbedBet));
   renderStealBar();
+  const g = document.querySelector('.chip.grabbed'); if (g) { const card = g.closest('.cap'); if (card && card.scrollIntoView) card.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); const b = (state.bets || [])[grabbedBet]; if (b) srSay(`${nameOf(b.playerId)}’s chip on ${b.target === 'closed' ? 'the face-down caption' : 'Caption ' + (Number(b.target) + 1)}. Steal it or cancel, at the bottom.`); }
 }
 // Keyboard and screen-reader players: after a screen changes, focus goes to its heading (never to the page body)
 function focusScreen() {
   try {
     if ($('sheet').classList.contains('on') || document.body.classList.contains('typing')) return;
-    const el = document.querySelector('#game-content h2, #game-content .h2, #game-content [role="status"]');
+    const el = document.querySelector('#game-content h2, #game-content .h2, #game-content [role="status"], #game-content .hdr .mid, #game-content .hdr');
     if (!el) return;
     if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
     el.focus({ preventScroll: true });
@@ -3213,7 +3226,7 @@ function flipCtlHtml() {
       <p class="rd-note">${held ? 'Held. Read it out, then go on.' : 'Read it out. It moves on by itself.'}</p>`;
   }
   const d = esc(firstName(state.dealerName || ''));
-  return `${clock}<p class="rd-note" id="reveal-continue">${held ? `${d} is holding it here.` : `${d} reads it out. ${n ? 'The last chips' : 'The answer'} come${n ? '' : 's'} up on their own.`}</p>${reelTakeOverHtml()}`;
+  return `${clock}<p class="rd-note" id="reveal-continue">${held ? `${d} is holding it here.` : `${d} reads it out. ${n ? 'The last chips come up on their own.' : 'The answer comes up on its own.'}`}</p>${reelTakeOverHtml()}`;
 }
 // A new state while the card is up: only the controls, the clock and your own taps change
 function revealLive() {
@@ -4213,7 +4226,7 @@ function tieWhyLine(stn) {
   if (!stn || !Array.isArray(stn.tied) || stn.tied.length < 2) return '';
   const nm = (ids) => esc(listNames(ids.map(id => id === myPlayerId ? 'you' : fnameOf(id))));
   const best = (o, ids) => Math.max(0, ...ids.map(id => (o || {})[id] || 0));
-  if (stn.by === 'fooled') { const o = stn.tied.filter(id => !stn.winners.includes(id)); return `Level on ${stn.top} with ${nm(o)}. Won on people fooled, ${best(stn.fooled, stn.winners)} to ${best(stn.fooled, o)}.`; }
+  if (stn.by === 'fooled') { const o = stn.tied.filter(id => !stn.winners.includes(id)); return `Level on ${stn.top} with ${nm(o)}. Won on chips fooled, ${best(stn.fooled, stn.winners)} to ${best(stn.fooled, o)}.`; }
   if (stn.by === 'framed') { const o = Object.keys(stn.framed || {}).filter(id => !stn.winners.includes(id)); return `Level on points and people fooled with ${nm(o)}. Won on captions framed, ${best(stn.framed, stn.winners)} to ${best(stn.framed, o)}.`; }
   if (stn.by === 'tie') return 'Level on points, people fooled and captions framed.';
   return '';
@@ -4232,7 +4245,7 @@ function renderFinal(sorted, animated, goal) {
   // Caption of the Night: the dealer's tap on the final scores (or "Call it a night") opens it; if it didn't, the button is here
   const nightBtn = shortEnd && ended && state.isHost ? `<button class="btn fn-night" onclick="this.disabled=true; send({action:'call_night'})" aria-describedby="fn-night-note">Call it a night</button><p class="fn-note" id="fn-night-note">${nFr ? 'Ends the night with Caption of the Night.' : 'Ends the night.'}</p>` : '';
   const galBtn = ended && !fin && nFr && !shortEnd && window.ccFinale ? (canRun()
-      ? `<button class="btn btn-yellow fn-gal" onclick="openFinale()">Caption of the Night (${plural(nFr, 'frame')}) →</button>`
+      ? `<button class="btn btn-yellow fn-gal" onclick="openFinale()">Caption of the Night (${plural(nFr, 'framed caption')}) →</button>`
       : `<p class="rc-wait">Next: Caption of the Night. ${esc(firstName(state.dealerName || nameOf(state.hostId)))} opens it<span class="dots"></span></p>`) : '';
   if (fin) return `${header({ sticker: '<span class="sticker">Tonight’s Gallery</span>', sub: goal, thumb: false })}
     ${ccFinale.screenHtml()}
@@ -4247,7 +4260,7 @@ function renderFinal(sorted, animated, goal) {
   return `${header({ sticker: '<span class="sticker">Final scores</span>', sub: goal, thumb: false })}
     <div class="fn-duo solo">${win}</div>
     <div class="fn-stand">${standings}</div>
-    ${nightDone ? `<p class="fn-goodnight" role="status">That’s the night. Thanks for playing.</p>` : ''}
+    ${nightDone ? `<p class="fn-goodnight" role="status">That’s the night. Thanks for playing.${state.isHost ? ' Changed your mind? One more is below.' : ''}</p>` : ''}
     <div class="stack fn-btns">
       ${galBtn}
       ${nightDone ? `<button class="btn btn-yellow" onclick="leaveGame()">Home</button>${againHtml(false, 'One more game')}` : againHtml(!galBtn)}
@@ -4312,7 +4325,7 @@ function playScoreboardCount(key) {
   const total = SB_LEAD + hits.length * SB_STEP + SB_SETTLE + SB_SORT;
   const elapsed = state.scoresAt ? Date.now() + clockOffset - state.scoresAt : 0;
   const finish = () => { scoreSeq = null; scoresAnimated = key; };
-  if (elapsed > total + 1500) { scoresAnimated = key; render(true); return; }   // walked in late: the finished board
+  if (elapsed > total + 1500) { scoresAnimated = key; lastPhase = state.phase; lastRound = state.round; render(true); return; }   // walked in late: the finished board (lastPhase set first, or the re-draw would start this again)
   const seq = scoreSeq = { key, timers: [] };
   const at = (ms, fn) => seq.timers.push(setTimeout(() => { if (scoreSeq === seq) fn(); }, Math.max(0, ms - elapsed)));
   hits.forEach((row, i) => at(SB_LEAD + i * SB_STEP, () => {
@@ -4473,7 +4486,7 @@ function renderHistory(idx) {
   const st = r.steal && r.steal.victimId ? `<p class="center small" style="margin-bottom:12px; color:var(--red);">${esc(r.dealerName)} stole ${esc(nameOf(r.steal.victimId))}’s chip</p>` : '';
   const img = r.cartoon ? '/images/' + r.cartoon.image : '';
   $('game-content').innerHTML = `
-    <div class="hdr">${img ? `<div class="thumb" onclick="openViewer('${esc(img)}')"><img src="${esc(img)}" alt="cartoon"></div>` : ''}<div class="mid"><span class="sticker white">Past round ${r.round}</span><span class="small">Dealer: ${esc(r.dealerName)}${r.closedIsCorrect ? ' · the real one was face-down' : ''}</span></div><button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
+    <div class="hdr">${img ? `<div class="thumb" onclick="openViewer('${esc(img)}')"><img src="${esc(img)}" alt="cartoon"></div>` : ''}<div class="mid"><span class="sticker white">Past round ${r.round}</span><span class="small" style="white-space:normal;">Dealer: ${esc(r.dealerName)}${r.closedIsCorrect ? ' · the real one was face-down' : ''}</span></div><button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
     ${st}<div class="stack" style="margin:16px 0;">${cards}</div>
     ${pts ? `<p class="eyebrow" style="margin-bottom:8px;">Points</p>${pts}` : '<p class="center sub">No points that round.</p>'}
     ${r.dealerBonusAwarded ? '<p class="center small" style="color:var(--red); margin-top:6px;">Dealer’s revenge: nobody found it</p>' : ''}

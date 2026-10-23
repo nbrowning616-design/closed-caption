@@ -1746,7 +1746,7 @@ function revealAnswer(game) {
   }
   game.dealerBonusAwarded = false;
   if (!anyoneRight && dealer && s.dealerBonus > 0) {
-    add(dealer.id, s.dealerBonus, 'Dealer’s revenge — no chip on the real caption');
+    add(dealer.id, s.dealerBonus, game.steal && game.steal.onCorrect ? 'Dealer’s revenge — the real caption ended up bare' : 'Dealer’s revenge — no chip on the real caption');
     game.dealerBonusAwarded = true;
   }
   // R11 called shots: did the person you named put a chip on your caption? (a stolen chip still counts: they bit)
@@ -1879,7 +1879,7 @@ function endLines(game, mult) {
   const betters = game.betOrder.filter(id => game.bets.some(b => b.playerId === id && b.target !== 'pass'));
   if (betters.length >= 2 && betters.every(id => game.bets.some(b => b.playerId === id && keyOf(b.target) === real && chipsOf(b) > 0))) add('end.allFound');
   if (game.closedIsCorrect && !game.bets.some(b => b.target === 'closed' && chipsOf(b) > 0)) add('end.ccRealAlone');
-  if (game.dealerBonusAwarded && dealer) add('end.revenge', { dealer: dn, pts: (game.settings.dealerBonus || 0) * mult });
+  if (game.dealerBonusAwarded && dealer) add(game.steal && game.steal.onCorrect ? 'end.revengeSteal' : 'end.revenge', { dealer: dn, pts: (game.settings.dealerBonus || 0) * mult, victim: game.steal && game.steal.victimId ? fn(game.steal.victimId) : '' });
   for (const b of game.bets) {
     if (b.stage !== 1 || chipsOf(b) !== 2 || keyOf(b.target) === real) continue;
     const w = writerOfKey(game, keyOf(b.target));
@@ -2578,7 +2578,7 @@ function resetForNewGame(game) {
   game.house = [];
   game.round = 0;
   game.dealerIndex = -1;
-  game.firstDealFrom = ((game.gameNo || 0) % Math.max(1, game.players.length)) - 1;   // the next game's first deal moves one seat on
+  game.firstDealFrom = seatAt(Math.max(1, game.players.length), (game.gameNo || 0) - stepOf(game));   // the next game's first deal moves one seat on (in the deal's direction): nextDealerIndex steps once from here
   game.dealCount = {};   // [settings]
   game.history = [];
   game.previousRank = {};

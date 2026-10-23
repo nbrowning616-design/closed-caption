@@ -69,12 +69,12 @@
     '.ht-cap.real{background:var(--teal-bg);box-shadow:0 0 0 3px var(--teal),3px 3px 0 ' + INK + ';}',
     '.ht-cap.dim{opacity:.38;}',
     '.ht-cap.tap{box-shadow:0 0 0 4px var(--yellow),2px 2px 0 ' + INK + ';}',
-    '.ht-cap.stamped{flex-wrap:wrap;row-gap:0;}.ht-cap.stamped .t{flex-basis:calc(100% - 70px);}',
+    '.ht-cap.stamped{flex-wrap:wrap;row-gap:0;}.ht-cap.stamped .t{flex-basis:calc(100% - 70px);padding-right:60px;}',
     '.ht-stamp{display:inline-block;margin:1px 0 -2px 32px;transform:rotate(-3deg) scale(2.2);opacity:0;font-family:var(--display);font-weight:700;font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:0 6px;line-height:1.5;border:2px solid currentColor;border-radius:6px;background:rgba(255,255,255,.92);white-space:nowrap;transition:transform .25s cubic-bezier(.3,1.6,.5,1),opacity .15s;}',
     '.ht-stamp.on{opacity:1;transform:rotate(-3deg) scale(1);}',
-    '.ht-pts{position:absolute;right:-4px;top:-12px;z-index:3;font-family:var(--display);font-weight:700;font-size:15px;color:#fff;background:var(--teal);border:2px solid ' + INK + ';border-radius:999px;padding:0 7px;opacity:0;transform:scale(.3);transition:transform .3s cubic-bezier(.3,1.8,.5,1),opacity .2s;}',
+    '.ht-pts{position:absolute;right:8px;top:-16px;z-index:3;font-family:var(--display);font-weight:700;font-size:15px;color:#fff;background:var(--teal);border:2px solid ' + INK + ';border-radius:999px;padding:0 7px;opacity:0;transform:scale(.3);transition:transform .3s cubic-bezier(.3,1.8,.5,1),opacity .2s;}',
     '.ht-pts.on{opacity:1;transform:none;}',
-    '.ht-frame{position:absolute;inset:-9px;border:7px solid #C9A24A;border-radius:6px;box-shadow:inset 0 0 0 2px #7a5a00,0 0 0 2px #7a5a00,0 6px 18px rgba(0,0,0,.35);opacity:0;transform:scale(1.4) rotate(3deg);transition:transform .45s cubic-bezier(.3,1.5,.5,1),opacity .2s;pointer-events:none;}',
+    '.ht-frame{position:absolute;inset:-5px;border:5px solid #C9A24A;border-radius:6px;box-shadow:inset 0 0 0 2px #7a5a00,0 0 0 2px #7a5a00,0 6px 18px rgba(0,0,0,.35);opacity:0;transform:scale(1.4) rotate(3deg);transition:transform .45s cubic-bezier(.3,1.5,.5,1),opacity .2s;pointer-events:none;}',
     '.ht-frame.on{opacity:1;transform:none;}',
     /* a flying chip, a hand, the claw */
     '.ht-fly{z-index:20;left:0;top:0;transition:transform .55s cubic-bezier(.4,0,.2,1),opacity .3s;}',
@@ -223,7 +223,7 @@
       at(900, function () { var f = document.createElement('span'); f.className = 'ht-frame'; cap('cc').appendChild(f); void f.offsetWidth; f.classList.add('on'); thunk(); });
       at(1500, function () { snd(function () { [784, 988, 1175, 1568].forEach(function (f, i) { tone(f, 0.3, i * 110, 'triangle', 0.06); }); }); });
     } },
-    { h: 'Most points wins.', note: 'the winner takes the remote', ms: 5200, go: function () {
+    { h: 'Most points wins.', note: 'the winner takes the Remote', ms: 5200, go: function () {
       $$('.ht-cap').forEach(function (c) { c.classList.remove('on', 'dim', 'real'); c.style.opacity = 0; });
       $('.ht-toon').style.opacity = 0;
       $('.ht-board').classList.add('on');

@@ -587,6 +587,11 @@ const ccLines = {
   "A clean round for the truth.",
   "Everyone found it. The liars are regrouping."
  ],
+ "end.revengeSteal": [
+  "{victim} found the real one. {dealer} took the chip off it and collected the rest.",
+  "The real one was found, then robbed. {dealer} takes {pts} for the bare card.",
+  "{dealer} stole the only chip on the truth. The house rules call that revenge."
+ ],
  "end.revenge": [
   "Nobody found the real one. {dealer} found that delightful.",
   "Everyone walked past the real one. {dealer} says thank you.",

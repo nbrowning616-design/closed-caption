@@ -87,7 +87,7 @@
     '@keyframes vcBlink{50%{opacity:.3}}',
     '.vc-talking{box-shadow:0 0 0 3px var(--teal,#12A587),0 0 12px 3px rgba(18,165,135,.7)!important;transition:box-shadow .12s;}',
     '.vc-audio{position:fixed;left:0;top:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;}',
-    '.vc-sheet{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(360px,calc(100vw - 24px));background:#fff;border:3px solid var(--ink,#1F1A17);border-radius:18px;box-shadow:5px 5px 0 var(--ink,#1F1A17);padding:14px;z-index:9000;color:var(--ink,#1F1A17);}',
+    '.vc-sheet{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(360px,calc(100vw - 24px));background:#fff;border:3px solid var(--ink,#1F1A17);border-radius:18px;box-shadow:5px 5px 0 var(--ink,#1F1A17);padding:14px;z-index:85;color:var(--ink,#1F1A17);}',
     '.vc-sheet h4{margin:0 0 8px;font-size:17px;font-weight:900;}',
     '.vc-row{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:12px;margin-bottom:4px;}',
     '.vc-row .nm{flex:1;min-width:0;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
@@ -239,7 +239,7 @@
       if (mine !== joinSeq) return;
       joining = false; refresh();
       var n = e && e.name;
-      if (n === 'NotAllowedError' || n === 'SecurityError' || n === 'PermissionDeniedError') toast('🎙 The microphone is blocked for this game.<br><span style="font-weight:600">iPhone: tap <b>aA</b> in the address bar → Website Settings → Microphone → Allow. Android: tap the lock icon → Permissions → Microphone. Then tap Join voice again.</span>', 14000);
+      if (n === 'NotAllowedError' || n === 'SecurityError' || n === 'PermissionDeniedError') toast('🎙 The microphone is blocked for this game.<br><span style="font-weight:600">iPhone: tap <b>aA</b> in the address bar → Website Settings → Microphone → Allow. Android: tap the lock icon → Permissions → Microphone. Then tap Join the call again.</span>', 14000);
       else if (n === 'NotFoundError' || n === 'OverconstrainedError') toast('No microphone found on this device.');
       else if (n === 'NotReadableError' || n === 'AbortError') toast('The microphone is busy. Hang up any other call (FaceTime, phone), then tap “Playing apart?” again.', 9000);
       else toast('Couldn’t start the microphone. Tap “Playing apart?” to try again.');
@@ -434,6 +434,8 @@
       '<p style="margin:0;font-weight:900;color:var(--red,#E8453A);">' + SAME_ROOM + '</p>' +
       '<div class="vc-foot"><button class="vc-b vc-leave" onclick="Voice._cancel()">Not now</button><button class="vc-b vc-join" onclick="Voice._cancel(); Voice.join()">🎙 Join the call</button></div>';
     document.body.appendChild(sh);
+    // the card goes away on its own: Escape, a tap outside it, the menu, the viewer, or a new screen
+    setTimeout(function () { try { document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { cancelAsk(); document.removeEventListener('keydown', esc); } }); document.addEventListener('pointerdown', function out(e) { var s2 = document.getElementById('vc-sheet'); if (!s2) { document.removeEventListener('pointerdown', out); return; } if (!s2.contains(e.target)) { cancelAsk(); document.removeEventListener('pointerdown', out); } }); } catch (e) {} }, 50);
   }
   function cancelAsk() { if (!on) { var sh = document.getElementById('vc-sheet'); if (sh) sh.remove(); sheetOpen = false; } }
   function button() { return '<span class="vc-ctl" data-vc-ctl>' + inner() + '</span>'; }

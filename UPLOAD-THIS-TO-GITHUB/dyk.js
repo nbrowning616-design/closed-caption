@@ -49,7 +49,7 @@
 const LINES = {
   // (1) The absurd consequence of real play
   consequence: [
-    { need: 'liarVictim', text: "Based on tonight’s lying, {name} could sell you the Brooklyn Bridge. Already sold {other} {n}." },
+    { need: 'liarVictim', text: "Based on tonight’s lying, {name} could sell you the Brooklyn Bridge. Already sold {other} {n} times." },
     { need: 'liar', text: "On the strength of tonight’s lying, {name} has been offered a used car lot. Two, actually." },
     { need: 'liar', text: "After tonight, {name} may no longer describe the weather without a witness present." },
     { need: 'liar', text: "Given tonight, {name} will be asked to swear on something heavier at the next family reunion." },

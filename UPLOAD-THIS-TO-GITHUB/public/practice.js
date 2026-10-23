@@ -29,7 +29,7 @@
   function open() { P = { step: 'intro', deck: deckGet() }; showScreen('screen-practice'); draw(); try { history.pushState({ cc: 'practice' }, ''); } catch (e) {} }
   function home(fromBack) { P = null; closeZoom(); showScreen('screen-home'); if (!fromBack) { try { if (history.state && history.state.cc === 'practice') history.back(); } catch (e) {} } }
   // the phone's Back button: closes the zoom, or leaves Practice for the home screen (never out of the app)
-  try { window.addEventListener('popstate', function () { if (!P) return; var z = document.getElementById('pr-zoom'); if (z) { closeZoom(); try { history.pushState({ cc: 'practice' }, ''); } catch (e) {} return; } home(true); }); } catch (e) {}
+  try { window.addEventListener('popstate', function () { if (!P) return; var st = history.state; if (st && st.cc === 'practice') { closeZoom(); return; } home(true); }); } catch (e) {}
   function setDeck(d) { if (!P) return; P.deck = d; deckSet(d); draw(); }
   function start() {
     if (!P || P.busy) return;
@@ -68,7 +68,7 @@
       try { buzz(r.right ? [15, 40, 15] : 30); } catch (e) {}
       draw(); window.scrollTo(0, 0);
       // the real one in view: the stamp at the top, then the answer
-      setTimeout(function () { var c = document.querySelector('.pr-cap.pr-real, .pr-cap.correct, .pr-cap.real'); if (c && c.scrollIntoView) c.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 700);
+      setTimeout(function () { var c = document.querySelector('.pr-cap.pr-real, .pr-cap.correct, .pr-cap.real'); if (c && c.scrollIntoView) c.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 700);
     });
   }
   function next() {
@@ -80,12 +80,13 @@
   // A plain full-screen look at the cartoon (tap anywhere to close)
   function zoom() {
     if (!P || !P.card) return;
+    if (typeof openViewer === 'function') { openViewer('/images/' + P.card.image); try { history.pushState({ cc: 'practice', zoom: 1 }, ''); } catch (e) {} return; }   // the game's own viewer: pinch, pan, Escape, focus
     closeZoom();
     var z = document.createElement('div'); z.id = 'pr-zoom'; z.className = 'pr-zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', 'The cartoon, full-screen. Tap to close');
     z.innerHTML = '<img src="/images/' + E(P.card.image) + '" alt=""><button class="btn btn-sm pr-zoom-x">Close</button>';
     z.onclick = closeZoom; document.body.appendChild(z);
   }
-  function closeZoom() { var z = document.getElementById('pr-zoom'); if (z) z.remove(); }
+  function closeZoom() { var z = document.getElementById('pr-zoom'); if (z) z.remove(); try { if (typeof closeViewer === 'function') closeViewer(); } catch (e) {} }
 
   function hdr(label) {
     return '<div class="pr-hdr"><span class="sticker">Practice</span><span class="pr-hdr-s">' + E(label || '') + '</span><button class="btn-link pr-x" onclick="Practice.home()">Home</button></div>';
@@ -147,6 +148,7 @@
         + '<div class="stack" style="margin-top:22px;"><button class="btn btn-yellow" onclick="Practice.start()">Play again</button></div></div>';
     }
     root.innerHTML = h;
+    try { if (!document.body.classList.contains('typing')) { var fe = root.querySelector('h2, .h2, .stamp[role="status"], .pr-hdr'); if (fe) { if (!fe.hasAttribute('tabindex')) fe.setAttribute('tabindex', '-1'); fe.focus({ preventScroll: true }); } } } catch (e) {}
     if (P.step === 'write' && P.check) { var pc = root.querySelector('.pr-check'); if (pc && pc.scrollIntoView) pc.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
     var pi = document.getElementById('pr-input'); if (pi && pi.value) { pi.style.height = 'auto'; pi.style.height = (pi.scrollHeight + 2) + 'px'; }
   }

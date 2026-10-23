@@ -273,9 +273,9 @@ const GROANS_LINE = ['Unrepentant.', 'No regrets.', 'Proud of every one.'];
 
 // The Remote: the table's traveling trophy, held by the last winner (Nick, Oct 20 2026)
 const REMOTE = {
-  first: 'First game at this table. The remote goes to {w}.',
-  retained: 'Retained. Nobody touches the remote.',
-  handover: '{h}, hand over the remote.',
+  first: 'First game at this table. The Remote goes to {w}.',
+  retained: 'Retained. Nobody touches the Remote.',
+  handover: '{h}, hand over the Remote.',
   jointKept: 'Joint custody. Nobody else touches the remote.',
   jointNew: '{h}, hand over the remote. Joint custody.',
 };

@@ -111,7 +111,13 @@ app.post('/practice/start', pracJson, (req, res) => {
   l.push(now); pracHits.set(ip, l);
   try { pracSend(res, Practice.start(req.body || {})); } catch (e) { console.error('practice start', e); pracSend(res, null); }
 });
-app.post('/practice/write', pracJson, (req, res) => { try { pracSend(res, Practice.write(req.body || {})); } catch (e) { console.error('practice write', e); pracSend(res, null); } });
+const pracWrites = new Map();   // per phone: the spell-check costs real CPU, so a few writes a minute is plenty
+app.post('/practice/write', pracJson, (req, res) => {
+  const ip = clientIp(req), l = pracWrites.get(ip) || [], now = Date.now();
+  while (l.length && now - l[0] > 60000) l.shift();
+  if (l.length >= 40) return pracSend(res, { error: TOO_MANY });
+  l.push(now); pracWrites.set(ip, l);
+  try { pracSend(res, Practice.write(req.body || {})); } catch (e) { console.error('practice write', e); pracSend(res, null); } });
 app.post('/practice/guess', pracJson, (req, res) => { try { pracSend(res, Practice.guess(req.body || {})); } catch (e) { console.error('practice guess', e); pracSend(res, null); } });
 app.use('/images', (req, res, next) => { res.set('Access-Control-Allow-Origin', '*'); next(); });   // the cartoons are public pictures: lets the drawing session fetch one to have it redrawn tall
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
@@ -427,7 +433,10 @@ wss.on('connection', (ws, req) => {
       const g = G.unsealGame(msg.data);
       const p = g && g.players.find(x => x.id === msg.playerId);
       if (!g || !p || (p.key && msg.key !== p.key) || (want && g.code !== want)) return backToSeat(want, msg.playerId, msg.key);   // a copy that won't open: the room may be back already
-      if (!games[g.code]) { games[g.code] = g; g._lastAct = Date.now(); console.log('room restored after restart', g.code, g.phase); resumeTimers(g.code); }
+      const cur = games[g.code];
+      // a newer copy replaces a restored one that nobody has acted on yet (a phone closed in round 1 shouldn't roll a table back)
+      const newer = cur && cur._restoredAt && !cur._actedSince && (g.sealedAt || 0) > (cur.sealedAt || 0) + 1000;
+      if (!cur || newer) { if (cur) console.log('room restore: newer copy', g.code, cur.phase, '->', g.phase); games[g.code] = g; g._lastAct = Date.now(); g._restoredAt = Date.now(); console.log('room restored after restart', g.code, g.phase); resumeTimers(g.code); }
       return backToSeat(g.code, p.id, msg.key);
     }
     if (msg.action === 'join') {
@@ -461,7 +470,7 @@ wss.on('connection', (ws, req) => {
           const cid = crypto.randomBytes(6).toString('hex');
           ws.claimId = cid;
           claims.set(cid, { ws, code, pid: existing.id, at: Date.now() });
-          if (hostLive) { game.seatClaim = { id: cid, pid: existing.id, name: existing.name, oldLive: live, awaySecs: Math.round(away / 1000), at: Date.now() }; broadcast(code); }
+          if (hostLive) { game.seatClaim = { id: cid, pid: existing.id, name: existing.name, oldLive: live, gone: !!existing.gone, awaySecs: Math.round(away / 1000), at: Date.now() }; broadcast(code); }
           return send(ws, { type: 'claim_wait', name: existing.name, host: hostLive ? host.name : null, oldLive: live, secs: !live && !game.locked ? Math.ceil((CLAIM_FREE_MS - away) / 1000) : null });
         }
         return send(ws, { type: 'same_name', name: existing.name, code, playing: game.phase !== PHASES.LOBBY });
@@ -488,6 +497,7 @@ wss.on('connection', (ws, req) => {
     const me = game.players.find(p => p.id === playerId);
     if (!me) return;
     game._lastAct = Date.now();
+    if (!/^(career|seen_sync|rtc|gallery_sync|demo_watched|tables|voice|voice_mode)$/.test(String(msg.action))) game._actedSince = true;   // (a restored room that has been played on stays; see 'restore')
     const dealer = game.players[game.dealerIndex];
     const isDealer = !!dealer && dealer.id === playerId;
     const isHost = game.hostId === playerId;

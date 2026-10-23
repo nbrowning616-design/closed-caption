@@ -220,7 +220,7 @@ function suggestFor(word, deep = true) {
   if (looksBuilt(lw)) return null;
   let c = best(edits1(lw), lw[0]);
   if (c && c.freq < 25) c = null;
-  if (!c && deep && lw.length >= 6 && lw.length <= 9) {
+  if (!c && deep && lw.length >= 6 && lw.length <= 8) {
     const two = new Set(); for (const e of edits1(lw)) for (const e2 of edits1(e)) two.add(e2);
     c = best(two, lw[0]);
     if (c && c.freq < 35) c = null;
@@ -232,6 +232,7 @@ function findTypos(s) {
   if (!FREQ.size) return [];
   const typos = [];
   let slow = 0;   // the two-edit search is the costly part: at most a few words per caption get it
+  const budget = Date.now() + 90;   // and never more than ~0.1 s of it per caption: the server has other tables to serve
   const re = /[A-Za-z]+(?:’[A-Za-z]+)?/g;
   let m;
   while ((m = re.exec(s))) {
@@ -243,7 +244,7 @@ function findTypos(s) {
     const sentenceStart = at === 0 || /[.!?…]\s*[‘’"]?\s*$/.test(s.slice(0, at)) || /^[^A-Za-z]*$/.test(s.slice(0, at));
     if (/^[A-Z]/.test(w) && !sentenceStart) continue;                   // names
     const unknown = !FREQ.has(w.toLowerCase()) && !COMMON_TYPOS[w.toLowerCase()];
-    const fix = suggestFor(w, slow < 3);
+    const fix = suggestFor(w, slow < 3 && Date.now() < budget);
     if (unknown) slow++;
     if (fix) typos.push({ at, word: w, fix: matchCase(w, fix) });
   }

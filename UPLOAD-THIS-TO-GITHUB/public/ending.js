@@ -610,7 +610,7 @@
   function playing() { var s = S(); return !!s && s.phase !== 'lobby' && !(s.phase === 'scores' && s.gameOver); }
   function menuRows() {
     var s = S(); if (!playing()) return '';
-    var lc = s.isHost && !s.lastCall && !s.late ? '<button class="menu-row" onclick="Ending.askLastCall()"><span class="ic">' + (typeof inkIcon === 'function' ? inkIcon('clock') : '') + '</span>Last call<span class="r">' + (s.lastCallAdds === false ? 'This trip is the last' : 'One more trip around') + '</span></button>' : '';
+    var lc = s.isHost && !s.lastCall && !s.late && s.lastCallAdds !== false ? '<button class="menu-row" onclick="Ending.askLastCall()"><span class="ic">' + (typeof inkIcon === 'function' ? inkIcon('clock') : '') + '</span>Last call<span class="r">' + (s.lastCallAdds === false ? 'This trip is the last' : 'One more trip around') + '</span></button>' : '';
     return lc + '<button class="menu-row" onclick="Ending.askHeadOut()"><span class="ic">' + (typeof inkIcon === 'function' ? inkIcon('door') : '') + '</span>Heading out<span class="r">Leave the game</span></button>';
   }
   function askLastCall() {

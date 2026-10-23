@@ -47,7 +47,7 @@
       (r.bets || []).forEach(function (b) {
         if (b.target === 'pass') return;
         var c = b.target === 'closed' ? { playerId: r.closedPlayerId, isCorrect: r.closedIsCorrect } : (r.openCaptions[b.target] || {}), n = b.count + (b.stolen || 0);
-        if (!c.isCorrect && c.playerId && c.playerId !== b.playerId && n > 0) lies[c.playerId] = (lies[c.playerId] || 0) + n;
+        if (!c.isCorrect && c.playerId && !c.house && !/^house:/.test(String(c.playerId)) && c.playerId !== b.playerId && n > 0) lies[c.playerId] = (lies[c.playerId] || 0) + n;
       });
     });
     var lm = 0; Object.keys(lies).forEach(function (k) { if (lies[k] > lm) lm = lies[k]; });
@@ -83,7 +83,7 @@
       (r.bets || []).forEach(function (b) {
         if (b.target === 'pass') return;
         var n = b.count + (b.stolen || 0);
-        if (b.stage === 1 && n === 2 && right(b.target)) { moons++; moonBy[b.playerId] = (moonBy[b.playerId] || 0) + 1; }
+        if (b.stage === 1 && b.count === 2 && right(b.target)) { moons++; moonBy[b.playerId] = (moonBy[b.playerId] || 0) + 1; }
         if (n > 0 && right(b.target)) sharp[b.playerId] = (sharp[b.playerId] || 0) + n;
       });
       if (r.steal && r.steal.victimId) robbed[r.steal.victimId] = (robbed[r.steal.victimId] || 0) + 1;

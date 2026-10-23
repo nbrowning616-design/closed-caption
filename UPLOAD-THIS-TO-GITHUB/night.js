@@ -360,7 +360,7 @@ function awards(game, X, rnd) {
   const liars = Object.values(F).filter(f => f.fooled >= 2), mf = Math.max(0, ...liars.map(f => f.fooled));
   if (mf >= 2) {
     const top = liars.filter(f => f.fooled === mf);
-    out.push({ k: 'bestLiar', title: 'Best Liar', who: listNames(top.map(f => f.name)), line: top.length === 1 ? `Lied ${times(top[0].wrote)}. Believed ${times(mf)}.` : `Believed ${times(mf)} each.` });
+    out.push({ k: 'bestLiar', title: 'Best Liar', who: listNames(top.map(f => f.name)), line: top.length === 1 ? `Lied ${times(top[0].wrote)}. Took in ${mf} ${mf === 1 ? 'chip' : 'chips'}.` : `${mf} ${mf === 1 ? 'chip' : 'chips'} each.` });
   }
   // Nobody Bit: a fake that drew no chips at all, quoted gently (framed ones first, then the ones people laughed at)
   const none = all.filter(c => c.chips === 0 && !(lies[0] && c === lies[0]));
