@@ -1968,6 +1968,7 @@ function openMenu() {
     </div>
     ${window.Voice && voiceAllowed() && !(Voice.isOn && Voice.isOn()) && state && state.phase !== 'lobby' ? `<button class="menu-row" onclick="closeMenu(); Voice.ask()"><span class="ic">${inkIcon('speaker')}</span>Playing apart?<span class="r">Voice call</span></button>` : ''}
     <button class="menu-row" onclick="openInvite()"><span class="ic">${inkIcon('invite')}</span>Invite someone<span class="r">QR + link</span></button>
+    <button class="menu-row" onclick="closeMenu(); shareGame()"><span class="ic">${inkIcon('invite')}</span>Tell a friend about the game<span class="r">No room code</span></button>
     <button class="menu-row" onclick="openGallery()"><span class="ic">${inkIcon('frame')}</span>The Gallery<span class="r">${galleryList().length ? plural(galleryList().length, 'caption') : ''}</span></button>
     <button class="menu-row" onclick="openRatingSheet()"><span class="ic">${inkIcon('trophy')}</span>My rating and badges<span class="r">${fmtRating(careerSummary().rating)}</span></button>
     ${state.kids && state.isHost && state.phase !== 'lobby' && !(state.phase === 'scores' && state.gameOver) ? `<button class="menu-row" onclick="closeMenu(); send({ action: 'kids', on: ${state.kids.inBed ? 'false' : 'true'} })"><span class="ic">${inkIcon('door')}</span>${state.kids.inBed ? 'One came back down' : 'The kids are in bed'}<span class="r">${state.kids.inBed ? 'Family cartoons' : 'Every cartoon'}</span></button>` : ''}
@@ -2006,7 +2007,7 @@ function toggleTrack(key) { if (!window.GameMusic) return; if (window.GameMusic.
 function joinAddress() { const local = ['localhost', '127.0.0.1'].includes(location.hostname); return local && state && state.lanUrl ? state.lanUrl.replace(/^https?:\/\//, '') : location.host; }
 // Home: the plain link, no room code (Nick, Oct 23 2026: testers should host their own game, not try to join one)
 function shareGame() {
-  const url = location.origin + '/', text = `Closed Caption. ${INVITE_PITCH} Free, no app. Tap Host a game:`;
+  const url = location.origin + '/', text = `Check out this game: Closed Caption. ${INVITE_PITCH} Free, no app. Tap Host a game to start your own:`;
   if (navigator.share) navigator.share({ title: 'Closed Caption', text, url }).catch(() => {});
   else if (navigator.clipboard) navigator.clipboard.writeText(`${text} ${url}`).then(() => showToast('Link copied', 'ok')).catch(() => showToast(url, 'ok'));
   else showToast(url, 'ok');
@@ -4136,7 +4137,7 @@ function openInvite() {
       <div class="h-display" style="font-size:56px; letter-spacing:8px; padding-left:8px; margin:2px 0 10px;">${esc(state.code)}</div>
       <div class="qr-wrap">${qrSvg(joinUrl('qr'), 196)}</div>
       <p class="small" style="margin:10px 0 14px;">Point a phone camera here to join — or send the link</p></div>
-    <div class="stack"><button class="btn btn-yellow" onclick="shareRoom()">Send the invite link</button><button class="btn btn-ink" onclick="closeMenu()">Close</button></div>`;
+    <div class="stack"><button class="btn btn-yellow" onclick="shareRoom()">Send the invite link</button><button class="btn" onclick="closeMenu(); shareGame()">Just tell someone about the game (no room code)</button><button class="btn btn-ink" onclick="closeMenu()">Close</button></div>`;
   $('sheet').classList.add('on');
 }
 // Opened from an invite link: straight to "join" with the code filled in
