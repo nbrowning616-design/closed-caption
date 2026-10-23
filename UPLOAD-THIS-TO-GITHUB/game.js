@@ -1179,7 +1179,7 @@ function startRound(game, options = {}) {
     game.round++;
     // #37: a fixed round count is played as whole trips around the table (frozen for this game)
     if (game.round === 1 && game.settings.rounds && !game.settings.targetScore) game.fixedLaps = Math.max(1, Math.ceil(game.settings.rounds / Math.max(1, game.players.filter(isPresent).length || game.players.length)));
-    game.dealerIndex = nextDealerIndex(game, game.dealerIndex);
+    game.dealerIndex = nextDealerIndex(game, game.dealerIndex < 0 && game.firstDealFrom >= 0 ? game.firstDealFrom : game.dealerIndex);
     // [settings] count the deal (game length 'everyone deals N times' reads this)
     const d = game.players[game.dealerIndex];
     if (d) { game.dealCount = game.dealCount || {}; game.dealCount[d.id] = (game.dealCount[d.id] || 0) + 1; }
@@ -2577,6 +2577,7 @@ function resetForNewGame(game) {
   game.house = [];
   game.round = 0;
   game.dealerIndex = -1;
+  game.firstDealFrom = ((game.gameNo || 0) % Math.max(1, game.players.length)) - 1;   // the next game's first deal moves one seat on
   game.dealCount = {};   // [settings]
   game.history = [];
   game.previousRank = {};

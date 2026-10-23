@@ -2298,7 +2298,7 @@ function showSeatMoved() {
 function renderLobby() {
   const s = state.settings || {};
   const connected = state.players.filter(p => p.connected).length;
-  const n = state.players.length, right = s.direction === 'right';
+  const n = state.players.length, right = s.direction === 'right', firstSeat = n ? (state.gameNo || 0) % n : 0;
   const segBtn = (on, onclick, label) => `<button class="${on ? 'on' : ''}" aria-pressed="${on ? 'true' : 'false'}" onclick="${onclick}">${label}</button>`;
   const played = playedGame();
   // #16: the names, nothing else (seat order, direction, lock, Gallery and settings live under "Room options")
@@ -2306,7 +2306,7 @@ function renderLobby() {
     <li class="lb-p${!p.connected ? ' off' : ''}">
       ${chipHtml(p.id, 'lg pop' + (!p.connected ? ' dim' : ''))}
       <span class="lb-nm"><span class="lb-l1"><b>${esc(p.name)}</b>${p.id === myPlayerId ? ' <span class="lb-you">(you)</span>' : ''}${pubMark(p)}</span>
-        <span class="lb-sub">${[p.id === state.hostId ? 'host' : '', i === 0 ? 'deals first' : '', !p.connected ? 'offline' : '', played ? ratingTag(p).replace(/<[^>]*>/g, '') : ''].filter(Boolean).join(' · ')}</span></span>
+        <span class="lb-sub">${[p.id === state.hostId ? 'host' : '', i === firstSeat ? 'deals first' : '', !p.connected ? 'offline' : '', played ? ratingTag(p).replace(/<[^>]*>/g, '') : ''].filter(Boolean).join(' · ')}</span></span>
     </li>`).join('');
   const seats = state.players.map((p, i) => `
     <div class="lb-seat${!p.connected ? ' off' : ''}">
@@ -2358,7 +2358,7 @@ function renderLobby() {
         </div></details>` : '';
   const optionsBody = state.isHost ? `
       <h3 class="lb-h">Seats, in order around the table</h3>
-      <p class="lb-hint" style="margin-top:0;">Line everyone up the way you’re sitting. Seat 1 deals first.</p>
+      <p class="lb-hint" style="margin-top:0;">Line everyone up the way you’re sitting. ${firstSeat ? `Seat ${firstSeat + 1} deals first this game.` : 'Seat 1 deals first.'}</p>
       <div class="lb-seats">${seats}</div>
       <div class="field" style="margin-top:12px;"><label class="eyebrow">The deal and the betting pass to the…</label><div class="seg">${segBtn(!right, "setHostSettings({direction:'left'})", '↓ Left (down the list)')}${segBtn(right, "setHostSettings({direction:'right'})", '↑ Right (up the list)')}</div></div>
       <button class="btn btn-sm lb-lock" onclick="send({action:'lock', on:${!state.locked}})" aria-pressed="${!!state.locked}">${state.locked ? 'Room locked · unlock it' : 'Everyone’s here? Lock the room'}</button>
@@ -2372,7 +2372,7 @@ function renderLobby() {
       ${lobbyGalleryHtml()}${galleryToggle}`;
   const options = `<details class="box lb-opts" id="room-options"><summary><span class="lb-opts-t"><b>Room options</b><span class="lb-opts-s">${esc(summary)}</span></span><span class="arrow" aria-hidden="true">▾</span></summary><div class="body">${optionsBody}</div></details>`;
   const me = playerById(myPlayerId), host = fnameOf(state.hostId);
-  const watched = state.isHost && n > 1 ? `<span class="lb-watch">${state.players.filter(p => p.watched).length} of ${n} watched the demo</span>` : '';
+  const watched = state.isHost && n > 1 && !(state.gameNo > 0) ? `<span class="lb-watch">${state.players.filter(p => p.watched).length} of ${n} watched the demo</span>` : '';
   const codeCard = state.isHost
     ? `<div class="panel yellow center lb-code">
         <p class="eyebrow" style="color:var(--ink-2);">Room code</p>
@@ -2418,7 +2418,7 @@ function lobbyBarHtml() {
   const connected = state.players.filter(p => p.connected).length, dk = state.deck || null, deckShort = !!(dk && !dk.ok);
   if (deckShort) return `<button class="btn btn-yellow" disabled>Not enough cartoons yet</button>`;
   const house = houseCount(), need = house > 0 ? 2 : 3;   // two people can play with a house player in
-  if (connected < need) return `<button class="btn btn-yellow" disabled>Need ${plural(need - connected, 'more player')} · ${connected} here</button>`;
+  if (connected < need) return `<button class="btn btn-yellow" disabled>Need ${plural(need - connected, 'more player')} · ${connected} here</button>${connected === 2 && !house ? '<p class="lb-hint center" style="margin-top:6px;">Or add a house player and start with two.</p>' : ''}`;
   return `<button class="btn btn-yellow" onclick="this.disabled=true; send({action:'start'})">Start the game · ${connected} here</button>`;
 }
 // #16: the rating (and the round-1 rating card) only for a phone that has finished a game

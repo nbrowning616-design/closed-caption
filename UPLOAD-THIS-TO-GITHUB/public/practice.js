@@ -26,8 +26,10 @@
       .catch(function () { return { error: 'No connection. Try again.' }; });
   }
 
-  function open() { P = { step: 'intro', deck: deckGet() }; showScreen('screen-practice'); draw(); }
-  function home() { P = null; closeZoom(); showScreen('screen-home'); }
+  function open() { P = { step: 'intro', deck: deckGet() }; showScreen('screen-practice'); draw(); try { history.pushState({ cc: 'practice' }, ''); } catch (e) {} }
+  function home(fromBack) { P = null; closeZoom(); showScreen('screen-home'); if (!fromBack) { try { if (history.state && history.state.cc === 'practice') history.back(); } catch (e) {} } }
+  // the phone's Back button: closes the zoom, or leaves Practice for the home screen (never out of the app)
+  try { window.addEventListener('popstate', function () { if (!P) return; var z = document.getElementById('pr-zoom'); if (z) { closeZoom(); try { history.pushState({ cc: 'practice' }, ''); } catch (e) {} return; } home(true); }); } catch (e) {}
   function setDeck(d) { if (!P) return; P.deck = d; deckSet(d); draw(); }
   function start() {
     if (!P || P.busy) return;

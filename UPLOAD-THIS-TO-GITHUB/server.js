@@ -952,7 +952,10 @@ setInterval(() => {
     if (g.phase === PHASES.WRITING && G.connectedAllIn(g)) { if (!g._allOnAt) g._allOnAt = now; else if (now - g._allOnAt >= G.AWAY_WRITER_MS) { g._allOnAt = 0; endWriting(g); changed = true; } }
     else g._allOnAt = 0;
     // #28: a dealer who wanders off doesn't freeze the steal: it passes by itself after 45 s
-    if (g.phase === PHASES.STEAL && g.phaseAt && now - g.phaseAt > 45000) { G.stealChip(g, null); changed = true; }
+    if (g.phase === PHASES.STEAL && g.phaseAt) {   // nobody steals: 45 s, or sooner when the dealer was already gone (15 s on screen, 30 s away)
+      const dl = g.players[g.dealerIndex], gone = dl && !dl.connected && dl.disconnectedAt && now - dl.disconnectedAt > 30000;
+      if (now - g.phaseAt > 45000 || (gone && now - g.phaseAt > 15000)) { G.stealChip(g, null); changed = true; }
+    }
     // Bets: the only ones not in are phones that are off: a short wait (12 s), not the clock or the 45 s grace
     if ((g.phase === PHASES.FIRST_BETS && !g.dropAt) || (g.phase === PHASES.SECOND_BETS && !g.lateDropAt)) {
       if (G.onlyAwayPending(g)) { if (!g._betOnAt) g._betOnAt = now; else if (now - g._betOnAt >= G.AWAY_WRITER_MS) { g._betOnAt = 0; if (g.phase === PHASES.FIRST_BETS) dropNow(code); else lateDropNow(code); continue; } }
