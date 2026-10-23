@@ -1036,6 +1036,9 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .flip-riders { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 15px; color: var(--ink-2); margin-top: 12px; opacity: 0; transition: opacity .4s; }
 .flip-riders.on { opacity: 1; }
 #flip-ctl { margin-top: 16px; opacity: 0; transition: opacity .4s; }
+/* the dealer's controls on the flip and the reveal stay in reach on short phones */
+#flip-ctl, #reel-ctl { position: sticky; bottom: calc(6px + env(safe-area-inset-bottom, 0px)); z-index: 20; padding-top: 12px; background: linear-gradient(rgba(255,248,234,0), var(--paper) 14px); }
+#flip-ctl:empty, #reel-ctl:empty { padding: 0; }
 #flip-ctl.on { opacity: 1; }
 /* #5 the quick plaque (every framing after the night's first) */
 #rd-plaque { position: fixed; left: 50%; top: calc(10px + var(--sat)); z-index: 950; width: min(92vw, 380px); transform: translate(-50%, -140%); transition: transform .45s var(--ease-out); padding: 12px 16px 11px; border-radius: 4px; color: #2E2108; text-align: center; background: linear-gradient(180deg,#F2DC98 0%,#D7B25E 38%,#BF953F 62%,#D9BA6C 100%); box-shadow: 0 10px 22px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,250,220,.75), inset 0 -1px 0 rgba(70,45,5,.45); cursor: pointer; }
