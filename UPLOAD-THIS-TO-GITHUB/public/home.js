@@ -48,6 +48,7 @@
     '.home-mast span{display:inline-block;padding:4px 10px 5px;border:3px solid var(--ink);border-radius:10px;box-shadow:var(--shadow-sm);}',
     '.home-mast .home-w1{transform:rotate(-3deg);background:var(--yellow);}',
     '.home-mast .home-w2{transform:rotate(2deg);background:#fff;}',
+    '.home-tag{flex:0 0 auto;align-self:center;margin:12px 0 0;padding:3px 10px 4px;background:#fff;border:2px solid var(--ink);border-radius:8px;font-weight:700;font-size:15px;line-height:1.25;text-align:center;color:var(--ink);}',
 
     '.home-gap{flex:1 1 auto;min-height:160px;}',
 
@@ -137,6 +138,7 @@
     screen.insertBefore(bg, screen.firstChild);
     mount.innerHTML =
       '<h1 class="home-mast" aria-label="Closed Caption"><span class="home-w1">CLOSED</span><span class="home-w2">CAPTION</span></h1>' +
+      '<p class="home-tag">Get close enough to fool everyone.</p>' +   // the tagline (Nick, Oct 24 2026)
       '<div class="home-gap"></div>' +
       '<div class="home-capbox" aria-hidden="true"><p class="home-cap"></p><span class="home-stamp"></span></div>';
     els = {
