@@ -2630,6 +2630,20 @@ const REVEALED = [PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.ANSWER, PHASES.FRAMI
 const ANSWERED = [PHASES.ANSWER, PHASES.FRAMING, PHASES.SCORES];
 
 const TAKEOVER_SECS = 30;
+// A dealer whose phone is still on but untouched (a second screen left open, a phone set down) mustn't freeze the
+// table either (Nick, Oct 24 2026: the host's first screen sat open while she played on her phone, and the round
+// never reached the betting). After a minute of no taps since this stage began, anyone can keep the game moving.
+const DEALER_IDLE_SECS = 60;
+// How long the dealer has been away, in seconds: off the table, or (mid-game) on but untouched past DEALER_IDLE_SECS
+function dealerAwayOf(game, now = Date.now()) {
+  const dealer = dealerOf(game);
+  if (!dealer) return 0;
+  if (!dealer.connected) return dealer.disconnectedAt ? (now - dealer.disconnectedAt) / 1000 : 0;
+  if (game.phase === PHASES.LOBBY || !game.phaseAt) return 0;
+  const idle = (now - Math.max(dealer.lastAct || 0, game.phaseAt)) / 1000;
+  return idle >= DEALER_IDLE_SECS ? idle : 0;
+}
+const dealerIdle = (game, now = Date.now()) => { const d = dealerOf(game); return !!d && d.connected && dealerAwayOf(game, now) > 0; };
 const GAZETTE_SIZE = 40;
 
 // Voice chat: who's in the call and who's muted ({ playerId: { on, muted } }); the audio itself goes phone to phone
@@ -2644,7 +2658,7 @@ const clearVoice = (game, playerId) => { if (game && game.voice) delete game.voi
 function getPlayerView(game, playerId) {
   const dealer = dealerOf(game);
   const isDealer = !!dealer && dealer.id === playerId;
-  const dealerAwaySecs = dealer && !dealer.connected && dealer.disconnectedAt ? Math.floor((Date.now() - dealer.disconnectedAt) / 1000) : 0;
+  const dealerAwaySecs = Math.floor(dealerAwayOf(game));
   const s = game.settings;
   const published = deckOf(game).authorCounts();   // lowercase name -> captions in the Hall of Fame deck
 
@@ -2672,6 +2686,7 @@ function getPlayerView(game, playerId) {
     dealerAwaySecs,
     canTakeover: !isDealer && dealerAwaySecs >= TAKEOVER_SECS,
     takeoverSecs: TAKEOVER_SECS,
+    dealerIdle: !isDealer && dealerIdle(game),   // the dealer's phone is on but untouched: anyone can move things along
     isDealer,
     playerId,
     timerDuration: game.timerDuration,
@@ -2941,7 +2956,7 @@ function unsealGame(blob) {
 
 module.exports = {
   sealGame, unsealGame, tooCloseToReal, pickByLevel, tableKind, setPosition, levelOf, canDeal, deckStatus, startCheck, endForDeck, isRetiredId, FIRST_LIVE_ID,
-  PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS,
+  PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS, dealerAwayOf, dealerIdle,
   cleanTimer, DEFAULT_TIMER, totalRounds,   // [settings]
   addTime, undoBet, freshest, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, pickFrame, hallOfFame, planBlock, ensurePlan,
   callShot, setHold, reelDue, revealedKeys, pickLine, noteLastWriter, reactionCounts, FLIP_AUTO_MS, LINES,

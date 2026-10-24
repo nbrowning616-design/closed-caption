@@ -498,11 +498,11 @@ wss.on('connection', (ws, req) => {
     const me = game.players.find(p => p.id === playerId);
     if (!me) return;
     game._lastAct = Date.now();
-    if (!/^(career|seen_sync|rtc|gallery_sync|demo_watched|tables|voice|voice_mode)$/.test(String(msg.action))) game._actedSince = true;   // (a restored room that has been played on stays; see 'restore')
+    if (!/^(career|seen_sync|rtc|gallery_sync|demo_watched|tables|voice|voice_mode)$/.test(String(msg.action))) { game._actedSince = true; me.lastAct = Date.now(); }   // (a tap, not the phone's own chatter: an idle dealer's screen is noticed, G.dealerAwayOf)   // (a restored room that has been played on stays; see 'restore')
     const dealer = game.players[game.dealerIndex];
     const isDealer = !!dealer && dealer.id === playerId;
     const isHost = game.hostId === playerId;
-    const dealerAway = dealer && !dealer.connected && dealer.disconnectedAt ? (Date.now() - dealer.disconnectedAt) / 1000 : 0;
+    const dealerAway = G.dealerAwayOf(game);
     const canRun = isDealer || isHost || dealerAway >= G.TAKEOVER_SECS;   // may move the table along
     const fail = (r) => { if (r && r.error) { sendError(ws, r.error); return true; } return false; };
 
@@ -980,6 +980,8 @@ setInterval(() => {
     if (g.phase === PHASES.SECOND_BETS && !g.lateDropAt && !lateT.has(code)) scheduleLate(code);
     // #39: the one writer everyone is waiting on can change when a phone drops
     if (g.phase === PHASES.WRITING) { const before = g.lines && g.lines.waitLast ? g.lines.waitLast.pid : null; G.noteLastWriter(g); if ((g.lines && g.lines.waitLast ? g.lines.waitLast.pid : null) !== before) changed = true; }
+    // The dealer's phone is on but untouched for a minute: tell the table anyone can move things along (once per stage)
+    if (G.dealerIdle(g, now)) { const tag = g.round + '|' + g.phase + '|' + g.phaseAt; if (g._idleTag !== tag) { g._idleTag = tag; changed = true; } }
     // Keep "dealer is away" countdowns fresh
     if (changed || g.players.some(p => !p.connected && p.disconnectedAt && now - p.disconnectedAt < 120000)) broadcast(code);
   } catch (e) { console.error('housekeeping failed', code, e); }   // one bad room never stops the rest
