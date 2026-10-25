@@ -2499,6 +2499,17 @@ function awardBadges(game) {
 /* ── The rating (chess-style, rating.js): each phone keeps its own; the server does the arithmetic once a game ──
    The 'career' message: { rating, games, total, lines } — this phone's rating and games played, its badge count,
    and the short keys of the verdict lines it has already been shown (so nobody reads the same line twice). */
+// The Love It lesson: before the first cartoon of a room's first game, a short animated card shows a caption being
+// loved, framed and hung in The Gallery (Nick, Oct 25 2026). The opening cards wait for it; the writers get the time back.
+const FRAME_MS = 7000;
+function addFrameDemo(game) {
+  game.frameDemo = null;
+  if (game.gameNo !== 1 || game.round !== 1 || game.phase !== PHASES.WRITING) return;
+  game.frameDemo = { at: Date.now(), ms: FRAME_MS, gameId: game.gameId };
+  if (game.opening) game.opening.at += FRAME_MS;
+  if (game.previously) game.previously.at += FRAME_MS;
+  if (game.timerEnd) game.timerEnd += FRAME_MS;
+}
 const OPEN_MS = 3500;   // the opening card before the first cartoon (round 1's writing clock starts after it)
 const FULL_RATING_ROUNDS = 8;   // #38: games this long (or longer) move the rating the full amount; shorter ones, in proportion
 function setCareer(game, playerId, msg) {
@@ -2621,6 +2632,7 @@ function resetForNewGame(game) {
   game.stepAt = null;
   game.ratingSnap = null;
   game.opening = null;
+  game.frameDemo = null;
   game.ratingResult = null;
 }
 
@@ -2744,6 +2756,7 @@ function getPlayerView(game, playerId) {
   base.note = game.note ? { ...game.note } : null;   // R22 the Editor's note (every phone, the whole round)
   base.kids = game.startedFamily ? { inBed: !!game.kidsInBed, card: game.kidsCard ? { ...game.kidsCard } : null } : null;   // R16
   if (game.opening && game.round === 1 && game.phase === PHASES.WRITING) base.opening = JSON.parse(JSON.stringify(game.opening));
+  if (game.frameDemo && game.round === 1 && game.phase === PHASES.WRITING) base.frameDemo = { ...game.frameDemo };
   const mine = game.submissions.find(x => x.playerId === playerId);
 
   if (game.phase === PHASES.WRITING) {
@@ -2955,7 +2968,7 @@ function unsealGame(blob) {
 }
 
 module.exports = {
-  sealGame, unsealGame, tooCloseToReal, pickByLevel, tableKind, setPosition, levelOf, canDeal, deckStatus, startCheck, endForDeck, isRetiredId, FIRST_LIVE_ID,
+  sealGame, unsealGame, tooCloseToReal, pickByLevel, tableKind, setPosition, levelOf, canDeal, deckStatus, startCheck, addFrameDemo, endForDeck, isRetiredId, FIRST_LIVE_ID,
   PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, TAKEOVER_SECS, dealerAwayOf, dealerIdle,
   cleanTimer, DEFAULT_TIMER, totalRounds,   // [settings]
   addTime, undoBet, freshest, createGame, updateSettings, addPlayer, kickPlayer, moveSeat, setSeen, pickFrame, hallOfFame, planBlock, ensurePlan,

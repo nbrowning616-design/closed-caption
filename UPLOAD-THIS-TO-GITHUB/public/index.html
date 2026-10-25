@@ -975,6 +975,38 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .rt-trow:first-child { border-top: 0; }
 .rt-trow b { font-weight: 700; }
 .rt-trow.on { background: var(--yellow-bg); }
+/* The Love It lesson (Nick, Oct 25 2026): before a room's first cartoon, a caption is loved, framed and hung for good */
+#framedemo { position: fixed; inset: 0; z-index: 780; display: none; align-items: center; justify-content: center; padding: calc(20px + var(--sat)) 18px calc(20px + var(--sab)); background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 14px 14px; }
+#framedemo.on { display: flex; animation: fadeIn .3s ease-out; }
+.fd-in { width: 100%; max-width: 360px; text-align: center; }
+.fd-h { font-family: var(--serif); font-weight: 700; font-size: 26px; line-height: 1.15; color: var(--ink); opacity: 0; animation: fdUp .5s ease-out .1s forwards; }
+.fd-stage { position: relative; margin: 26px auto 0; width: 290px; }
+.fd-card { position: relative; padding: 18px 16px 14px; border: 3px solid var(--ink); border-radius: 14px; background: var(--card); box-shadow: var(--shadow-sm); opacity: 0; animation: fdUp .5s ease-out .5s forwards; transition: border-color .4s, border-radius .4s; }
+.fd-q { font-family: var(--serif); font-style: italic; font-size: 20px; line-height: 1.3; color: var(--ink); }
+.fd-row { display: flex; justify-content: center; margin-top: 12px; height: 32px; }
+.fd-pill { position: relative; display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 13px; border: 2px solid #C2185B; border-radius: 999px; background: #FFF4F8; color: #A3134B; font-family: var(--sans); font-weight: 900; font-size: 13px; animation: loveGlow 2.4s ease-in-out infinite; }
+.fd-pill .h { font-size: 15px; line-height: 1; }
+.fd-pill.loved { background: #D81B60; border-color: #A3134B; color: #fff; animation: none; box-shadow: 0 0 0 3px rgba(216,27,96,.22), 0 0 14px rgba(216,27,96,.45); }
+.fd-pill.framed { background: linear-gradient(180deg,#F2DC98,#D7B25E 55%,#BF953F); color: #2E2108; border-color: #5a3f0c; box-shadow: none; }
+.fd-heart { position: absolute; left: 50%; top: 4px; color: #D81B60; font-size: 18px; opacity: 0; pointer-events: none; }
+.fd-heart.go { animation: fdHeart 1s ease-out forwards; }
+.fd-frame { position: absolute; inset: -16px; border-radius: 6px; border: 12px solid #3b2a12; box-shadow: inset 0 0 0 3px #BF953F, 0 0 0 3px #BF953F, 0 8px 0 rgba(0,0,0,.18); opacity: 0; transform: scale(1.18); pointer-events: none; }
+.fd-frame.on { animation: fdFrame .55s cubic-bezier(.2,1.3,.4,1) forwards; }
+.fd-plaque { display: inline-block; margin-top: 26px; padding: 6px 14px; border: 2px solid #5a3f0c; border-radius: 4px; background: linear-gradient(180deg,#F2DC98,#D7B25E 55%,#BF953F); color: #2E2108; font-family: var(--serif); font-size: 13px; letter-spacing: .02em; opacity: 0; }
+.fd-plaque.on { animation: fdUp .45s ease-out forwards; }
+.fd-p { margin-top: 18px; font-size: 15px; line-height: 1.45; color: var(--ink-2); opacity: 0; }
+.fd-p.on { animation: fdUp .45s ease-out forwards; }
+.fd-ok { margin-top: 18px; opacity: 0; }
+.fd-ok.on { animation: fdUp .4s ease-out forwards; }
+.fd-tap { position: absolute; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; background: rgba(31,26,23,.28); border: 2px solid rgba(31,26,23,.55); left: 85%; top: 140%; opacity: 0; pointer-events: none; transition: left .7s cubic-bezier(.3,.7,.3,1), top .7s cubic-bezier(.3,.7,.3,1), opacity .25s, transform .15s; }
+.fd-tap.on { opacity: 1; }
+.fd-tap.press { transform: scale(.72); background: rgba(31,26,23,.45); }
+.fd-tap.press::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid rgba(216,27,96,.7); animation: fdRing .5s ease-out forwards; }
+@keyframes fdUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes fdFrame { to { opacity: 1; transform: none; } }
+@keyframes fdHeart { 0% { opacity: 0; transform: translate(var(--dx), 0) scale(.6); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), -46px) scale(1.15); } }
+@keyframes fdRing { from { transform: scale(1); opacity: 1; } to { transform: scale(2.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { #framedemo *, #framedemo { animation-duration: .01s !important; animation-delay: 0s !important; transition: none !important; } }
 #opening { position: fixed; inset: 0; z-index: 770; display: none; align-items: center; justify-content: center; padding: calc(20px + var(--sat)) 16px calc(20px + var(--sab)); background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 18px 18px; }
 #opening.on { display: flex; animation: fadeIn .35s ease-out; }
 .op-card { width: 100%; max-width: 380px; max-height: 100%; overflow-y: auto; text-align: center; }
@@ -3951,11 +3983,50 @@ function openRatingSheet() {
   $('sheet').classList.add('on');
 }
 
+/* ── The Love It lesson (Nick, Oct 25 2026): before the first cartoon of a room's first game, every phone watches a
+   caption get a Love It, get framed, and hang in The Gallery. ~7 s, the same on every phone; tap to skip. The
+   opening cards wait for it, and the server gave the writing clock the time back. ── */
+let fdShown = null, fdT = [], fdOpen = false;
+function closeFrameDemo() { fdT.forEach(clearTimeout); fdT = []; fdOpen = false; const o = $('framedemo'); if (o) { o.className = ''; o.innerHTML = ''; } syncOpening(); }
+function syncFrameDemo() {
+  const d = state && state.phase === 'writing' && state.round === 1 ? state.frameDemo : null;
+  if (!d || !d.gameId) { if (fdOpen) closeFrameDemo(); return false; }
+  if (fdShown === d.gameId) return fdOpen;
+  fdShown = d.gameId;
+  const left = d.at + d.ms - (Date.now() + clockOffset);
+  if (left < 1500) return false;   // walked in late: straight on
+  let o = $('framedemo');
+  if (!o) { o = document.createElement('div'); o.id = 'framedemo'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Great captions live forever'); document.body.appendChild(o); }
+  o.innerHTML = `<div class="fd-in" onclick="closeFrameDemo()">
+    <h2 class="fd-h">Great captions live forever.</h2>
+    <div class="fd-stage"><div class="fd-card" id="fd-card"><p class="fd-q">“I told you the map was upside down.”</p>
+      <div class="fd-row"><span class="fd-pill" id="fd-pill"><span class="h" aria-hidden="true">♥</span><span id="fd-pt">Love it</span></span></div>
+      <span class="fd-heart" style="--dx:-38px">♥</span><span class="fd-heart" style="--dx:30px">♥</span><span class="fd-heart" style="--dx:-4px">♥</span>
+      <div class="fd-frame" id="fd-frame"></div></div>
+      <span class="fd-tap" id="fd-tap"></span></div>
+    <div class="fd-plaque" id="fd-plaque">Caption by You · Hung in The Gallery</div>
+    <p class="fd-p" id="fd-p">When a caption beats the real one, tap <b style="color:#A3134B;">♥ Love it</b>. If most of the table agrees, it’s framed and hangs in The Gallery for good.</p>
+    <button class="btn btn-sm fd-ok" id="fd-ok" onclick="event.stopPropagation(); closeFrameDemo()">Got it</button></div>`;
+  o.className = 'on'; fdOpen = true;
+  const gone = Math.max(0, d.ms - left), at = (t, fn) => fdT.push(setTimeout(() => { if (fdOpen) fn(); }, Math.max(0, t - gone)));
+  const q = (id) => document.getElementById(id);
+  at(1300, () => { const t = q('fd-tap'), p = q('fd-pill'); if (t) t.classList.add('on'); if (t && p) { const st = t.parentElement.getBoundingClientRect(), r = p.getBoundingClientRect(); t.style.left = (r.left - st.left + r.width / 2) + 'px'; t.style.top = (r.top - st.top + r.height / 2) + 'px'; } });
+  at(2150, () => { const t = q('fd-tap'), p = q('fd-pill'); if (t) t.classList.add('press'); if (p) { p.classList.add('loved'); q('fd-pt').textContent = 'Loved'; } try { sfx.tap(); } catch (e) {} });
+  at(2450, () => { const t = q('fd-tap'); if (t) { t.classList.remove('press'); t.classList.remove('on'); } document.querySelectorAll('#framedemo .fd-heart').forEach((h, i) => setTimeout(() => h.classList.add('go'), i * 180)); });
+  at(3300, () => { const f = q('fd-frame'), p = q('fd-pill'); if (f) f.classList.add('on'); if (p) { p.classList.remove('loved'); p.classList.add('framed'); p.innerHTML = inkIcon('frame', 14) + 'Framed'; } try { sfx.notify(); } catch (e) {} });
+  at(3900, () => { const e = q('fd-plaque'); if (e) e.classList.add('on'); });
+  at(4400, () => { const e = q('fd-p'); if (e) e.classList.add('on'); });
+  at(5000, () => { const e = q('fd-ok'); if (e) e.classList.add('on'); });
+  fdT.push(setTimeout(closeFrameDemo, left));
+  return true;
+}
+
 /* ── The opening card: ~3.5 s before the first cartoon of each game, the same on every phone.
    The writing clock was given the time back by the server, so nobody loses a second to it. ── */
 let openingShown = null, openingT = null;
 function closeOpening() { clearTimeout(openingT); const o = $('opening'); if (o) { o.className = ''; o.innerHTML = ''; } }
 function syncOpening() {
+  if (syncFrameDemo()) return;   // the Love It lesson first; the cards below wait for it
   if (window.Ending && Ending.syncPrev()) { if ($('opening').className) closeOpening(); return; }   // a returning table: "Previously on Closed Caption" instead
   const o = state && state.phase === 'writing' && state.round === 1 ? state.opening : null;
   if (!o || !o.gameId) { if ($('opening').className) closeOpening(); return; }
