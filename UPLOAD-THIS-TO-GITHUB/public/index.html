@@ -1321,7 +1321,7 @@ function buzz(pattern) {
 
 let lastGazette = null, lastIndN = null;   // The Gallery: last list the server sent; the last framing moment seen
 let myKey = null, serverBoot = null, lastTry = null, restoring = false, lastNoticeAt = 0, otherDevice = false;   // #2 seat key, #6 restart
-let ws = null, state = null, myPlayerId = null, gameCode = null, selectedTimer = 90 /* [settings] 90 s default (cut 4) */, timerInterval = null, wasKicked = false, clockOffset = 0;
+let ws = null, state = null, myPlayerId = null, gameCode = null, selectedTimer = 120 /* [settings] 2 min default (Nick, Oct 25 2026) */, timerInterval = null, wasKicked = false, clockOffset = 0;
 const BUILD = '__BUILD__';
 
 /* ═══════════════════════════════════════════════════════════
@@ -1396,7 +1396,7 @@ function faceDownOdds(p) {
   return Math.abs(1 / p - n) < 0.05 ? `one round in ${w}` : `about one round in ${w}`;
 }
 function renderRulesScoring() {
-  const s = (state && state.settings) || { pointsOpenBet: 2, pointsClosedBet: 5, pointsOpenLate: 1, pointsPerFool: 2, dealerBonus: 4, stealEnabled: true, direction: 'left', dealerMode: 'steal', autoCloseProbability: 0.15 };
+  const s = (state && state.settings) || { pointsOpenBet: 2, pointsClosedBet: 5, pointsOpenLate: 1, pointsPerFool: 2, dealerBonus: 4, stealEnabled: true, direction: 'left', dealerMode: 'both', autoCloseProbability: 0.15 };
   // [settings] Dealer mode: what the dealer does this game
   const dm = s.dealerMode || 'steal', dBets = dm === 'bet' || dm === 'both', steals = s.stealEnabled !== false && dm !== 'bet';
   const rdb = $('rules-dealer-bets');
@@ -2374,7 +2374,7 @@ function renderLobby() {
   const dealerWords = dm === 'bet' ? 'Dealer bets, no steal' : dm === 'both' ? 'Dealer bets + steals' : (s.stealEnabled === false ? 'No steal' : 'Dealer steals');
   const endCondition = s.targetScore ? `First to ${s.targetScore}` : s.rounds ? plural(s.rounds, 'round') : laps === 2 ? 'Everyone deals twice' : laps === 3 ? 'Everyone deals 3 times' : 'Everyone deals once';
   const summary = `${timerWords} · ${dealerWords} · ${endCondition}${right ? ' · Deal goes right' : ''} · ${s.family ? 'Family deck' : s.spicy ? 'Everything deck' : 'Standard deck'}`;
-  const customOn = lobbyCustomTimer || (td !== 90 && td !== 0);
+  const customOn = lobbyCustomTimer || (td !== 120 && td !== 0);
   const tmin = Math.max(1, Math.round((td || 120) / 60));
   const fresh = state.freshCount, pool = state.poolCount, dk = state.deck || null, deckShort = !!(dk && !dk.ok);
   // The new deck is still being drawn: say so plainly; the host can't start a game the deck can't finish
@@ -2392,7 +2392,7 @@ function renderLobby() {
         <p class="lb-hint">${vm === 'call' ? 'FaceTime or Zoom does the talking. The game’s own voice is off.' : vm === 'game' ? 'Everyone taps the microphone button at the top to join the call. Two phones in one room? Headphones, or they echo.' : 'Everyone in one room? Leave both off.'}</p></div>`
     : vm ? `<p class="lb-hint">${vm === 'call' ? 'This table is on a call, so the game’s own voice is off.' : 'This table talks through the game’s voice. Tap the microphone button at the top to join.'}</p>` : '';
   const settings = state.isHost ? `
-        <div class="field"><label class="eyebrow">Writing timer</label><div class="seg">${segBtn(td === 90 && !lobbyCustomTimer, 'setHostTimer(90)', '90 s')}${segBtn(customOn, 'openCustomTimer()', 'Custom')}${segBtn(td === 0 && !lobbyCustomTimer, 'setHostTimer(0)', 'No timer')}</div>
+        <div class="field"><label class="eyebrow">Writing timer</label><div class="seg">${segBtn(td === 120 && !lobbyCustomTimer, 'setHostTimer(120)', '2 min')}${segBtn(customOn, 'openCustomTimer()', 'Custom')}${segBtn(td === 0 && !lobbyCustomTimer, 'setHostTimer(0)', 'No timer')}</div>
           ${customOn ? `<div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:8px;"><button class="btn btn-sm" style="width:48px;" aria-label="One minute less" ${td && td <= 60 ? 'disabled' : ''} onclick="stepTimer(-1)">−</button><b style="font-size:18px;min-width:80px;text-align:center;">${td ? (td % 60 ? td + ' s' : tmin + ' min') : '—'}</b><button class="btn btn-sm" style="width:48px;" aria-label="One minute more" ${td >= 600 ? 'disabled' : ''} onclick="stepTimer(1)">+</button></div>` : ''}
           ${td === 0 && !lobbyCustomTimer ? '<p class="lb-hint">No countdown. Writing ends when everyone’s in, or the dealer taps “End writing”.</p>' : ''}</div>
         <div class="field"><label class="eyebrow">Game length</label><div class="seg">
@@ -2407,7 +2407,7 @@ function renderLobby() {
         <details class="box" id="adv-details"><summary>Points <span class="arrow" aria-hidden="true">▾</span></summary><div class="body">
           ${[['pointsOpenBet', 'Blind chip · real caption in the open', [1, 2, 3, 4]], ['pointsClosedBet', 'Blind chip · face-down caption', [2, 3, 4, 5, 6]], ['pointsOpenLate', 'Late chip (after the flip)', [0, 1, 2, 3]], ['pointsPerFool', 'Each chip that lands on your caption', [0, 1, 2, 3]], ['dealerBonus', 'Dealer’s revenge', [0, 2, 3, 4, 5, 6]]]
             .map(([k, label, opts]) => `<div class="field"><label class="small">${label}</label><div class="seg">${opts.map(v => segBtn(s[k] === v, `setHostSettings({${k}:${v}${k === 'pointsOpenLate' ? ',pointsClosedLate:' + v : ''}})`, v)).join('')}</div></div>`).join('')}
-          <button class="btn-link" onclick="setHostSettings({pointsOpenBet:2,pointsClosedBet:5,pointsOpenLate:1,pointsClosedLate:1,pointsPerFool:2,dealerBonus:4,pointsStealCorrect:1,autoCloseProbability:0.15,stealEnabled:true,rounds:null,targetScore:null,dealerMode:'steal',laps:1})">Reset points and rules</button>
+          <button class="btn-link" onclick="setHostSettings({pointsOpenBet:2,pointsClosedBet:5,pointsOpenLate:1,pointsClosedLate:1,pointsPerFool:2,dealerBonus:4,pointsStealCorrect:1,autoCloseProbability:0.15,stealEnabled:true,rounds:null,targetScore:null,dealerMode:'both',laps:2})">Reset points and rules</button>
         </div></details>` : '';
   const optionsBody = state.isHost ? `
       <h3 class="lb-h">Seats, in order around the table</h3>
@@ -2671,8 +2671,8 @@ function showSpellCheck(c) {
     <p class="small" style="margin-bottom:6px;">With the fix, everyone sees:</p>
     <div class="panel teal flat" style="margin-bottom:16px;"><p class="caption-text">“${esc(c.fixed)}”</p></div>
     <div class="stack">
-      <button class="btn btn-yellow" onclick="sendCaption('fix')">Use the fix ✓</button>
-      <button class="btn" onclick="sendCaption('keep')">Keep my spelling — it’s on purpose</button>
+      <button class="btn btn-yellow" onclick="sendCaption('fix')">Yes, fix it ✓</button>
+      <button class="btn" onclick="sendCaption('keep')">No, keep mine as typed</button>
       <button class="btn-link" style="display:block; margin:0 auto;" onclick="closeMenu(); const i = $('caption-input'); if (i) i.focus();">Let me edit it</button>
     </div>`;
   $('sheet').classList.add('on'); sfx.notify();

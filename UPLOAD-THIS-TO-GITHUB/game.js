@@ -596,18 +596,18 @@ const DEFAULT_SETTINGS = {
   autoCloseProbability: 0.15,    // share of rounds where the real caption is the Closed Caption
   stealEnabled: true,            // dealer may knock one chip off the table before the answer
   // [settings] Lobby settings (Nick, Oct 18 2026)
-  dealerMode: 'steal',           // 'steal' = dealer doesn't bet, steals one chip (default); 'bet' = no steal, the dealer bets 2 chips like everyone;
+  dealerMode: 'both',            // default 'both' (Nick, Oct 25 2026). 'steal' = dealer doesn't bet, steals one chip (default); 'bet' = no steal, the dealer bets 2 chips like everyone;
                                  // 'both' = "kitchen sink": the dealer bets 2 chips AND then steals one (never their own)
-  laps: 1,                       // game length when rounds/targetScore are null: everyone deals once (1), twice (2) or three times (3)
+  laps: 2,                       // default: everyone deals twice (Nick, Oct 25 2026). Game length when rounds/targetScore are null: everyone deals once (1), twice (2) or three times (3)
   family: false,                 // family cartoons only (skips the few grown-up ones)
-  spicy: false,                  // 'After dark': mixes in the PG-13 cartoons
+  spicy: true,                   // default: the Everything deck (Nick, Oct 25 2026). 'After dark': mixes in the PG-13 cartoons
   direction: 'left',             // which way the deal and the betting go around the table
   expert: false,                 // Expert Mode: the real answer comes from the Hall of Fame deck
   house: null,                   // house players (write-only fill-ins): null = none (humans only by default), else 0–5
 };
 
 // [settings] Writing timer: 0 = no timer (nobody is rushed; the dealer or host ends writing), else 30 s to 10 min.
-const DEFAULT_TIMER = 90;   // new rooms: 90 seconds (cut 4; the dealer can add 30 s)
+const DEFAULT_TIMER = 120;   // new rooms: 2 minutes (Nick, Oct 25 2026; the dealer can add 30 s)
 function cleanTimer(t) {
   const n = Number(t);
   if (t === null || t === undefined || t === '' || !Number.isInteger(n)) return null;
