@@ -7,7 +7,8 @@ const os = require('os');
 const path = require('path');
 const { WebSocketServer } = require('ws');
 const G = require('./game');
-const Stats = require('./stats');   // #41: a private tally (counts only)
+const Stats = require('./stats');
+const Polish = require('./polish');   // the writing bar's live spelling chips   // #41: a private tally (counts only)
 const Night = require('./night');   // the end of the night: the ending, the Remote, the monkey, "Previously on"
 const { PHASES } = G;
 
@@ -483,6 +484,14 @@ wss.on('connection', (ws, req) => {
       if (r.error) return sendError(ws, r.error);
       Stats.joined(msg.via);   // #41: by QR, invite link or typed code
       return seat(id, code);
+    }
+    if (msg.action === 'spell') {
+      // The writing bar's live spelling chips (Nick, Oct 25 2026): the same check as on sending, a few times a second at most
+      const now = Date.now(); if (now - (ws.spellAt || 0) < 350) return; ws.spellAt = now;
+      const text = String(msg.text || '').slice(0, 200);
+      let typos = [];
+      if (text.trim()) { try { typos = (Polish.polish(text).typos || []).slice(0, 4); } catch (e) {} }
+      return send(ws, { type: 'spell', n: Number(msg.n) || 0, text, typos });
     }
     if (msg.action === 'tally') {
       // #41: a recap picture or a Gallery card was shared from this phone (a handful per connection at most)

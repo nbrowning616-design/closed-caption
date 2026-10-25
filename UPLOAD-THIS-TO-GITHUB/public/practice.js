@@ -171,11 +171,11 @@
     } else if (P.step === 'write') {
       var ck = P.check;
       h = hdr('Cartoon ' + P.card.n + ' of ' + P.card.total)
-        + toon('<label class="sr-only" for="pr-input">Your caption</label><textarea id="pr-input" class="caption-input mag" rows="2" placeholder="Your caption goes here…" maxlength="200" enterkeyhint="done" autocapitalize="sentences" autocorrect="on" autocomplete="off" spellcheck="true" oninput="Practice.typed(this)" onfocus="onCaptionFocus()" onblur="onCaptionBlur()">' + E(P.draft || '') + '</textarea>')
+        + toon('<label class="sr-only" for="pr-input">Your caption</label><textarea id="pr-input" class="caption-input mag" rows="2" placeholder="Your caption goes here…" maxlength="200" enterkeyhint="send" autocapitalize="sentences" autocorrect="on" autocomplete="off" spellcheck="true" oninput="Practice.typed(this)" onfocus="onCaptionFocus()" onblur="onCaptionBlur()">' + E(P.draft || '') + '</textarea>')
         + '<div class="w-box">'
         + '<p class="small pr-count" id="pr-count">' + (P.draft || '').length + ' / 200</p>'
         + (ck ? '<div class="panel flat pr-check" role="alert"><p class="eyebrow">Quick spelling check</p><p class="caption-text" style="margin:4px 0 10px;">“' + E(ck.fixed) + '”</p><div class="pr-row"><button class="btn btn-sm" onclick="Practice.submit(\'fix\')">Use the fix</button><button class="btn btn-sm" onclick="Practice.submit(\'keep\')">Keep mine</button></div></div>'
-          : '<button class="btn btn-yellow" id="pr-submit" ' + (P.busy ? 'disabled' : '') + ' onclick="Practice.submit()">Lock it in ✓</button>')
+          : '<button class="btn btn-yellow" id="pr-submit" ' + (P.busy ? 'disabled' : '') + ' onclick="Practice.submit()">Send my caption ↑</button>')
         + '</div>';
     } else if (P.step === 'blind') {
       var has = P.pick !== null && P.pick !== undefined, pts = P.pts;

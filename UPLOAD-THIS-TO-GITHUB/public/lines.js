@@ -17,7 +17,7 @@ const ccLines = {
   "Finish the sentence.",
   "Good enough is good enough.",
   "Last chance to fix it.",
-  "Lock in your caption."
+  "Send your caption."
  ],
  "write.warn10": [
   "Send it.",

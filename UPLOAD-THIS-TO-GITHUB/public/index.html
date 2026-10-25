@@ -835,6 +835,23 @@ textarea.caption-input.mag::placeholder { color: #7A7066; font-style: italic; }
 .rd-dots i.on { background: var(--ink); }
 .rd-dots i.now { background: var(--yellow); }
 @media (prefers-reduced-motion: reduce) { .mag-in { animation: none; } }
+/* The writing bar (Nick, Oct 25 2026: "Lock it in", Enter and the keyboard's check mark were confusing): type like a
+   text message, one round send button (or the keyboard's Send key), spelling fixes as chips you can tap or ignore */
+.wbar-wrap { margin-top: 12px; }
+.spell-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0 2px 8px; }
+.spell-chips:empty { display: none; }
+.spell-chips .sc-l { font-weight: 800; font-size: 13px; color: var(--ink-2); }
+.spell-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 12px; border: 2px solid var(--ink); border-radius: 999px; background: #fff; font-family: var(--sans); font-weight: 800; font-size: 14px; color: var(--ink); cursor: pointer; }
+.spell-chip s { color: var(--ink-2); text-decoration-color: var(--red); }
+.spell-chip b { color: var(--teal, #0E8A72); }
+.spell-chips .sc-hint { flex-basis: 100%; font-size: 13px; font-weight: 700; color: var(--ink-2); }
+.wbar { display: flex; align-items: flex-end; gap: 10px; }
+textarea.caption-input.wbar-in { flex: 1; min-height: 52px; max-height: 140px; padding: 13px 16px; border-radius: 26px; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 18px; line-height: 1.35; overflow-y: auto; }
+textarea.caption-input.wbar-in::placeholder { font-style: italic; }
+.wbar-send { flex: 0 0 auto; width: 54px; height: 54px; border-radius: 50%; border: var(--bw) solid var(--ink); background: var(--yellow); box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--ink); }
+.wbar-send:active { transform: translate(2px, 2px); box-shadow: none; }
+.wbar-send:disabled { background: #EDE6DA; opacity: .7; cursor: default; }
+.wbar-meta { display: flex; justify-content: space-between; gap: 8px; margin: 6px 6px 0; font-size: 13px; font-weight: 700; color: var(--ink-2); }
 body.typing .toon-big .toon-hit img { max-height: 160px; }
 body.typing .toon-big .zoom { display: none; }
 body.typing .w-box { margin-top: 10px; }
@@ -1170,7 +1187,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 
 <canvas id="confetti"></canvas>
 <div id="sr-live" class="sr-only" role="status" aria-live="assertive" aria-atomic="true"></div>
-<div id="warn"><div class="msg">20 seconds.<span>Lock in your caption</span></div></div>
+<div id="warn"><div class="msg">20 seconds.<span>Send your caption</span></div></div>
 <div id="viewer" role="dialog" aria-modal="true" aria-label="The cartoon, full screen"><button class="close" onclick="closeViewer()" aria-label="Close">✕</button><img id="viewer-img" src="" alt="cartoon" draggable="false"><div class="hint">Pinch or double-tap to zoom</div></div>
 <div id="sheet" role="dialog" aria-modal="true" aria-label="Menu"><div class="back" onclick="closeMenu()"></div><div class="body" id="sheet-body"></div></div>
 <div id="boom"></div>
@@ -1855,7 +1872,8 @@ function onServer(msg) {
       sfx.error();
     }
     else if (msg.type === 'credit') { if (window.Ending) Ending.showOwnCredit(msg.data); }   // R28 heading out: your own credit, now
-    else if (msg.type === 'caption_check') { if (msg.cid) settle(msg.cid, false); submitting = false; showSpellCheck(msg); }
+    else if (msg.type === 'caption_check') { if (msg.cid) settle(msg.cid, false); submitting = false; const ci = $('caption-input'); if (ci) { lastSpell = { text: ci.value, typos: msg.typos || [] }; spellAsked = ci.value; renderSpellChips(); } else showSpellCheck(msg); }
+    else if (msg.type === 'spell') { const ci = $('caption-input'); if (ci && msg.text === ci.value.slice(0, 200) && (msg.n || 0) >= spellGot) { spellGot = msg.n || 0; lastSpell = { text: ci.value, typos: msg.typos || [] }; renderSpellChips(); } }
     // #30: the same name at the door, a seat being handed back, a seat that moved to another phone
     else if (msg.type === 'same_name') { if (!myPlayerId) askSameName(msg); }
     else if (msg.type === 'claim_wait') { if (!myPlayerId) showClaimWait(msg); }
@@ -1981,7 +1999,8 @@ document.addEventListener('keydown', (e) => {
   if (e.target.id === 'create-name') createGame();
   if (e.target.id === 'join-code') $('join-name').focus();
   if (e.target.id === 'join-name') joinGame();
-  if ((e.target.id === 'pr-input' || e.target.id === 'caption-input') && !e.shiftKey) { e.preventDefault(); e.target.blur(); }   // "done": a caption is one line
+  if (e.target.id === 'caption-input' && !e.shiftKey) { e.preventDefault(); submitCaption(); }   // the keyboard's Send key sends, like the round button
+  if (e.target.id === 'pr-input' && !e.shiftKey) { e.preventDefault(); if (window.Practice && Practice.submit) Practice.submit(); else e.target.blur(); }   // Practice: the Send key sends too
 });
 
 /* ═══════════════════════════════════════════════════════════
@@ -2559,20 +2578,21 @@ function draftKey() { return state && state.cartoon ? `${gameCode}|${state.round
 let draft = { key: '', text: '' };
 try { draft = JSON.parse(sessionStorage.getItem('cc_draft') || 'null') || draft; } catch (e) {}
 function saveDraftNow() { try { sessionStorage.setItem('cc_draft', JSON.stringify(draft)); } catch (e) {} }
-function fitCaptionBox(i) { if (!i || !i.classList.contains('mag')) return; i.style.height = 'auto'; i.style.height = (i.scrollHeight + 2) + 'px'; }   // the printed line grows with the caption
+function fitCaptionBox(i) { if (!i || !(i.classList.contains('mag') || i.classList.contains('wbar-in'))) return; i.style.height = 'auto'; i.style.height = (i.scrollHeight + 2) + 'px'; }   // the printed line grows with the caption
 function onCaptionInput() {
   const i = $('caption-input'); if (!i) return;
   fitCaptionBox(i);
   draft = { key: draftKey(), text: i.value }; saveDraftNow();
   const c = $('cap-count'); if (c) c.textContent = `${i.value.length} / 200`;
   updateLengthMeter(i.value);
+  spellSoon();
 }
 // A plain word count (no colour, no advice: it must never hint at what the real caption looks like).
 // R22 with an Editor's note: the count against the note (or the word), and Lock it in waits until it fits.
 function updateLengthMeter(text) {
-  const m = $('len-meter'), f = $('len-fill'), n = $('len-note'); if (!m || !f || !n) return;
+  const f = $('len-fill'), n = $('len-note'); if (!n) return;
   const words = noteWordCount(text), nt = state && state.note;
-  f.style.width = Math.min(100, (words / 18) * 100) + '%';
+  if (f) f.style.width = Math.min(100, (words / 18) * 100) + '%';
   if (nt && nt.kind === 'count') n.textContent = `${words} of ${nt.n} words${words === nt.n ? ' ✓' : ''}`;
   else if (nt && nt.kind === 'word') n.textContent = noteUses(text, nt.word) ? `Uses “${nt.word}” ✓` : `Needs “${nt.word}”`;
   else n.textContent = !words ? '' : `${plural(words, 'word')}.`;   // neutral: never a hint about what the real caption looks like
@@ -2636,15 +2656,15 @@ function renderWriting() {
       ${writingStatusHtml()}`;
   }
   return `${header({ sticker: `<span class="sticker">${state.isDealer ? 'Your deal' : 'Write'}</span>`, sub: state.isDealer ? roundLabel() : `${roundLabel()} · ${dealerLine()}`, ring: true })}
-    ${bigToon(false, true, `<label class="sr-only" for="caption-input">Your caption</label><textarea id="caption-input" class="caption-input mag" rows="2" placeholder="Your caption goes here…" maxlength="200" oninput="onCaptionInput()" onfocus="onCaptionFocus()" onblur="onCaptionBlur()" enterkeyhint="done" autocapitalize="sentences" autocorrect="on" autocomplete="off" spellcheck="true"></textarea>`)}
-    <div class="w-box">
+    ${bigToon(false, true)}
+    <div class="w-box wbar-wrap">
       ${noteHtml(false)}
-      <div class="lenmeter" id="len-meter" style="margin-top:8px;"><i id="len-fill"></i></div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin:2px 2px 12px; gap:8px;"><span class="small" id="len-note"></span><span class="small" id="cap-count" style="white-space:nowrap;">0 / 200</span></div>
-      ${state.isDealer ? `<p class="do" style="margin:-6px 2px 12px;">${dealerMode() === 'bet' ? 'You deal: you write too, and you bet.' : dealerMode() === 'both' ? 'You deal: you write too, you bet, then you steal one chip.' : 'You deal: you write too, you don’t bet, and you steal one chip.'}</p>` : ''}
+      <div id="spell-chips" class="spell-chips" aria-live="polite"></div>
+      <div class="wbar"><label class="sr-only" for="caption-input">Your caption</label><textarea id="caption-input" class="caption-input wbar-in" rows="1" placeholder="Write your caption…" maxlength="200" oninput="onCaptionInput()" onfocus="onCaptionFocus()" onblur="onCaptionBlur()" enterkeyhint="send" autocapitalize="sentences" autocorrect="on" autocomplete="off" spellcheck="true"></textarea><button class="wbar-send" id="submit-btn" onclick="submitCaption()" aria-label="Send your caption"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
+      <div class="wbar-meta"><span id="len-note"></span><span id="cap-count">0 / 200</span></div>
+      ${state.isDealer ? `<p class="do" style="margin:10px 2px 0;">${dealerMode() === 'bet' ? 'You deal: you write too, and you bet.' : dealerMode() === 'both' ? 'You deal: you write too, you bet, then you steal one chip.' : 'You deal: you write too, you don’t bet, and you steal one chip.'}</p>` : ''}
       <div id="nudge-box" class="nudge"></div>
-      <button class="btn btn-yellow" id="submit-btn" onclick="submitCaption()">Lock it in ✓</button>
-      <button class="btn-link" style="display:block; margin:6px auto 0;" onclick="nextNudge()">Need a nudge?</button>
+      <button class="btn-link" style="display:block; margin:8px auto 0;" onclick="nextNudge()">Need a nudge?</button>
     </div>
     <div data-tip-slot style="margin-top:12px;"></div>
     <div style="margin-top:12px;">${writingStatusHtml()}</div>`;
@@ -2681,9 +2701,34 @@ function submitCaption(auto = false) {
     return;
   }
   submitting = true; setTimeout(() => { submitting = false; }, 3000);
-  // Auto-send at the buzzer takes the spelling fixes; otherwise the server may ask "did you mean…?" first
-  const mode = auto ? 'fix' : 'check';
+  // Auto-send at the buzzer takes the spelling fixes. Otherwise: the chips for this exact text were on screen, so it
+  // goes as typed; if they weren't checked yet, the server may hand back chips first (tap send again to go as typed)
+  const mode = auto ? 'fix' : (lastSpell && lastSpell.text === i.value ? 'keep' : 'check');
   if (send({ action: 'submit_caption', caption, mode })) { if (auto) { closeMenu(); sfx.submitSelf(); buzz(30); showToast('Time’s up. Your caption was sent.', 'ok'); } }
+}
+/* The writing bar's spelling chips: checked a moment after typing stops; tap one to fix that word, or just send */
+let lastSpell = null, spellT = null, spellN = 0, spellGot = 0, spellAsked = null;   // spellAsked: the text the send button already stopped once
+function spellSoon() {
+  clearTimeout(spellT);
+  const i = $('caption-input'); if (!i) return;
+  if (lastSpell && lastSpell.text !== i.value) { lastSpell = null; renderSpellChips(); }
+  if (!i.value.trim()) return;
+  spellT = setTimeout(() => { const j = $('caption-input'); if (j && j.value.trim()) send({ action: 'spell', text: j.value.slice(0, 200), n: ++spellN }); }, 700);
+}
+function renderSpellChips() {
+  const box = $('spell-chips'), ci = $('caption-input'); if (!box) return;
+  const asked = !!ci && spellAsked === ci.value;
+  const t = lastSpell && lastSpell.typos && lastSpell.typos.length ? lastSpell.typos : [];
+  box.innerHTML = t.length ? `<span class="sc-l">Fix spelling?</span>${t.map((x, k) => `<button class="spell-chip" onclick="applySpell(${k})" aria-label="Change ${esc(x.word)} to ${esc(x.fix)}"><s>${esc(x.word)}</s> → <b>${esc(x.fix)}</b></button>`).join('')}${asked ? '<span class="sc-hint">Tap a fix, or tap the arrow again to send it as you typed it.</span>' : ''}` : '';
+}
+function applySpell(k) {
+  const i = $('caption-input'), x = lastSpell && lastSpell.typos && lastSpell.typos[k]; if (!i || !x) return;
+  const re = new RegExp('(^|[^\\p{L}\\p{N}\'’])' + x.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![\\p{L}\\p{N}])', 'u');
+  const v = i.value.replace(re, (m, pre) => pre + x.fix);
+  if (v === i.value) return;
+  const rest = lastSpell.typos.filter((_, n) => n !== k);
+  i.value = v; buzz(10); onCaptionInput(); lastSpell = { text: i.value, typos: rest }; renderSpellChips();
+  try { i.focus({ preventScroll: true }); } catch (e) {}
 }
 function sendCaption(mode) {
   const i = $('caption-input'); closeMenu();
@@ -2735,15 +2780,15 @@ function startTimer() {
   tick(); timerInterval = setInterval(tick, 250);
 }
 function warnAt(n) {
-  const L = state.lines || {}, w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `${n} seconds.<span>${n <= 10 ? 'Send it now.' : 'Lock in your caption.'}</span>`;
+  const L = state.lines || {}, w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `${n} seconds.<span>${n <= 10 ? 'Send it now.' : 'Send your caption.'}</span>`;
   w.classList.remove('on'); void w.offsetWidth; w.classList.add('on');
-  srSay(`${n} seconds left. ${n <= 10 ? 'Send it now.' : 'Lock in your caption.'}`);
+  srSay(`${n} seconds left. ${n <= 10 ? 'Send it now.' : 'Send your caption.'}`);
   sfx.warn(); buzz(40);
 }
 function warn20() {
-  const w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `20 seconds.<span>Lock in your caption.</span>`;
+  const w = $('warn'); const m = w.querySelector('.msg'); if (m) m.innerHTML = `20 seconds.<span>Send your caption.</span>`;
   w.classList.remove('on'); void w.offsetWidth; w.classList.add('on');
-  srSay('20 seconds left. Lock in your caption.');
+  srSay('20 seconds left. Send your caption.');
   sfx.warn(); buzz(60);
 }
 

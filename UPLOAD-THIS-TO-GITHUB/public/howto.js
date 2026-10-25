@@ -162,13 +162,13 @@
       $$('.ht-ph').forEach(function (p) { p.classList.remove('on'); });
       $('.ht-toon').classList.add('small');
       var w = $('.ht-write'), box = w.querySelector('.ht-box'), btn = w.querySelector('.ht-btn');
-      w.style.top = '226px'; w.classList.add('on'); btn.classList.remove('done', 'press'); btn.textContent = 'Lock it in ✓';
+      w.style.top = '226px'; w.classList.add('on'); btn.classList.remove('done', 'press'); btn.textContent = 'Send ↑';
       var txt = CAPS[1].t, n = 0;
       box.innerHTML = '<span class="cur"></span>';
       for (var i = 1; i <= txt.length; i++) (function (i) { at(600 + i * 70, function () { box.innerHTML = txt.slice(0, i) + '<span class="cur"></span>'; if (i % 3 === 0) click(); }); })(i);
       n = 600 + txt.length * 70;
       at(n + 500, function () { btn.classList.add('press'); click(); });
-      at(n + 650, function () { btn.classList.remove('press'); btn.classList.add('done'); btn.textContent = '✓ Locked in'; ding(); });
+      at(n + 650, function () { btn.classList.remove('press'); btn.classList.add('done'); btn.textContent = '✓ Sent'; ding(); });
       at(n + 1100, function () { head('Everyone writes one.', 'even the dealer'); });
     } },
     { h: 'The real one hides among them.', note: 'one of these is real. which?', ms: 6200, go: function () {
@@ -248,7 +248,7 @@
     return '<div class="ht-head"><div class="ht-h"></div><div class="ht-note"></div></div>' +
       '<div class="ht-it ht-toon" style="background-image:url(' + IMG + ')"><div class="ht-q">&nbsp;</div></div>' +
       '<div class="ht-it ht-phones">' + phones + '</div>' +
-      '<div class="ht-it ht-write"><div class="ht-box"></div><div class="ht-btn">Lock it in ✓</div></div>' +
+      '<div class="ht-it ht-write"><div class="ht-box"></div><div class="ht-btn">Send ↑</div></div>' +
       '<div class="ht-it ht-caps">' + caps + '</div>' +
       '<div class="ht-it ht-hand">👆</div><div class="ht-it ht-claw">🦾</div>' +
       '<div class="ht-it ht-board">' + rows + '</div>' +
