@@ -7555,30 +7555,30 @@
 ]
 },
 "291":{
-"style":5,
+"style":1,
 "voice":"house7",
 "tags":[
-"medical",
+"giant",
 "street"
 ],
 "odd":[
 {
-"q":"Why does the dinosaur need an umbrella?",
-"x":67,
-"y":22,
-"r":9
+"q":"Whose footprint is that in the puddle?",
+"x":42,
+"y":82,
+"r":20
 },
 {
-"q":"Has the woman noticed who's behind her?",
-"x":47,
+"q":"Will the dinosaur even fit on that bus?",
+"x":81,
 "y":47,
-"r":7
+"r":16
 },
 {
-"q":"Why is nobody sitting on the bench?",
-"x":20,
-"y":66,
-"r":9
+"q":"Why does it need an umbrella?",
+"x":43,
+"y":24,
+"r":12
 }
 ],
 "decoys":[
@@ -7656,31 +7656,32 @@
 ]
 },
 "293":{
-"style":2,
+"style":3,
 "voice":"house7",
 "tags":[
 "church",
 "couple",
+"road",
 "sky"
 ],
 "odd":[
 {
-"q":"Where did the groom find a ladder?",
-"x":63,
-"y":32,
-"r":7
+"q":"Who is waiting by the little car?",
+"x":86,
+"y":76,
+"r":12
 },
 {
-"q":"Is the bride waiting for him?",
-"x":45,
-"y":18,
-"r":9
+"q":"Where did the rope ladder come from?",
+"x":50,
+"y":52,
+"r":12
 },
 {
-"q":"How far has he already climbed?",
-"x":66,
-"y":55,
-"r":7
+"q":"Does the bride on top know yet?",
+"x":32,
+"y":11,
+"r":10
 }
 ],
 "decoys":[
@@ -7707,29 +7708,30 @@
 ]
 },
 "294":{
-"style":3,
+"style":2,
 "voice":"house7",
 "tags":[
+"bug",
 "mountain"
 ],
 "odd":[
 {
-"q":"What is the chameleon watching?",
-"x":62,
-"y":50,
-"r":6
-},
-{
-"q":"What is the bald player studying?",
-"x":15,
-"y":30,
-"r":9
-},
-{
-"q":"Has the man in glasses noticed yet?",
-"x":85,
-"y":28,
+"q":"Is the fly about to make a move?",
+"x":67,
+"y":64,
 "r":8
+},
+{
+"q":"Where did all the chess pieces go?",
+"x":58,
+"y":72,
+"r":20
+},
+{
+"q":"What is the man in glasses thinking?",
+"x":88,
+"y":34,
+"r":12
 }
 ],
 "decoys":[
@@ -7756,30 +7758,31 @@
 ]
 },
 "295":{
-"style":4,
+"style":5,
 "voice":"house7",
 "tags":[
 "airport",
+"dog",
 "road",
 "sky"
 ],
 "odd":[
 {
-"q":"What's he searching for on that map?",
-"x":50,
-"y":43,
-"r":13
+"q":"Who's flying the plane right now?",
+"x":69,
+"y":30,
+"r":11
 },
 {
-"q":"What's the man in glasses thinking?",
-"x":75,
-"y":47,
-"r":7
+"q":"Where on that map are they?",
+"x":42,
+"y":40,
+"r":14
 },
 {
-"q":"What are the folks on the left whispering?",
-"x":14,
-"y":50,
+"q":"What is the man by the window thinking?",
+"x":92,
+"y":42,
 "r":10
 }
 ],
@@ -7807,29 +7810,30 @@
 ]
 },
 "296":{
-"style":5,
+"style":1,
 "voice":"house7",
 "tags":[
+"forest",
 "sky"
 ],
 "odd":[
 {
-"q":"What's he peeking at over the paper?",
-"x":48.7,
-"y":12.4,
-"r":7.0
+"q":"Is the man on the right asleep in there?",
+"x":84,
+"y":38,
+"r":12
 },
 {
-"q":"What's the woman behind the paper doing?",
-"x":17.3,
-"y":22.1,
-"r":10.5
+"q":"What story is she reading?",
+"x":22,
+"y":42,
+"r":12
 },
 {
-"q":"Can the man on the right see anything?",
-"x":81.2,
-"y":20.7,
-"r":10.5
+"q":"Has anyone told the flight attendant?",
+"x":77,
+"y":28,
+"r":8
 }
 ],
 "word":"news",
@@ -7857,31 +7861,32 @@
 ]
 },
 "297":{
-"style":1,
+"style":3,
 "voice":"house7",
 "tags":[
 "giant",
+"rodent",
 "shop",
 "sky"
 ],
 "odd":[
 {
-"q":"How high did the salesman have to climb?",
-"x":75,
-"y":34,
-"r":9
+"q":"Who's living in the old shoe?",
+"x":42,
+"y":78,
+"r":14
 },
 {
-"q":"Whose shoes are those on the floor?",
-"x":16,
-"y":72,
-"r":9
+"q":"How tall is that ladder, anyway?",
+"x":79,
+"y":20,
+"r":12
 },
 {
-"q":"What sizes are on that shelf?",
-"x":94,
-"y":52,
-"r":7
+"q":"Will they have his size in stock?",
+"x":93,
+"y":67,
+"r":10
 }
 ],
 "decoys":[
@@ -7908,30 +7913,32 @@
 ]
 },
 "298":{
-"style":2,
+"style":5,
 "voice":"house7",
 "tags":[
+"bird",
+"dog",
 "fantasy",
 "park"
 ],
 "odd":[
 {
-"q":"What's the robot doing with the oil can?",
-"x":46,
-"y":51,
-"r":7
+"q":"Is the robot dog winding down?",
+"x":65,
+"y":81,
+"r":11
 },
 {
-"q":"Who winds up the robot on the left?",
-"x":18,
-"y":43,
-"r":6
+"q":"Why does a robot need a cane?",
+"x":85,
+"y":52,
+"r":10
 },
 {
-"q":"Where is that drip going to land?",
-"x":54,
-"y":58,
-"r":6
+"q":"What's that gauge on his chest measuring?",
+"x":32,
+"y":45,
+"r":8
 }
 ],
 "decoys":[
@@ -8008,30 +8015,31 @@
 ]
 },
 "300":{
-"style":4,
+"style":1,
 "voice":"house7",
 "tags":[
+"fish",
 "sea",
 "space"
 ],
 "odd":[
 {
-"q":"What's caught in that loop?",
-"x":80,
-"y":17,
-"r":10
+"q":"What's he planning to do with the stars?",
+"x":60,
+"y":71,
+"r":11
 },
 {
-"q":"How much rope does he have left?",
-"x":31,
-"y":68,
-"r":6
+"q":"How does she feel about this date?",
+"x":14,
+"y":63,
+"r":11
 },
 {
-"q":"How far from shore is that little boat?",
-"x":29,
-"y":75,
-"r":12
+"q":"Does the lighthouse keeper see this?",
+"x":88,
+"y":52,
+"r":8
 }
 ],
 "word":"moon",
@@ -8110,29 +8118,31 @@
 ]
 },
 "305":{
-"style":4,
+"style":3,
 "voice":"house7",
 "tags":[
+"rodent",
+"sky",
 "sports"
 ],
 "odd":[
 {
-"q":"Where did that extra ball come from?",
-"x":17.9,
-"y":63.8,
-"r":7.0
+"q":"What will the squirrel do with that ball?",
+"x":80,
+"y":83,
+"r":12
 },
 {
-"q":"What is the other golfer looking at?",
-"x":52.7,
-"y":37.5,
-"r":9.3
+"q":"What's so interesting up in the sky?",
+"x":68,
+"y":13,
+"r":10
 },
 {
-"q":"How far is the hole from here?",
-"x":93.2,
-"y":29.8,
-"r":8.1
+"q":"How many balls are up that trouser leg?",
+"x":38,
+"y":66,
+"r":10
 }
 ],
 "decoys":[
@@ -8159,27 +8169,27 @@
 ]
 },
 "306":{
-"style":5,
+"style":2,
 "voice":"house7",
 "tags":[],
 "odd":[
 {
-"q":"What exactly are they fighting over?",
-"x":49,
-"y":40,
-"r":7
+"q":"Whose toupee is that on the floor?",
+"x":40,
+"y":86,
+"r":11
 },
 {
-"q":"Who is going to let go first?",
-"x":20,
-"y":27,
-"r":8
-},
-{
-"q":"How long have they been at this?",
-"x":52,
-"y":75,
+"q":"What's the hair dryer for?",
+"x":46,
+"y":30,
 "r":9
+},
+{
+"q":"Why is this happening in a bathroom?",
+"x":20,
+"y":30,
+"r":13
 }
 ],
 "decoys":[
@@ -8206,27 +8216,29 @@
 ]
 },
 "307":{
-"style":1,
+"style":5,
 "voice":"house7",
-"tags":[],
+"tags":[
+"bird"
+],
 "odd":[
 {
-"q":"What forecast belongs on the blank screen?",
-"x":77,
-"y":40,
-"r":15
+"q":"Where did the duck come from?",
+"x":72,
+"y":76,
+"r":10
 },
 {
-"q":"What does the camera operator see?",
-"x":8,
+"q":"Why is the cameraman dressed for rain?",
+"x":15,
 "y":45,
-"r":10
+"r":14
 },
 {
-"q":"How big is that puddle getting?",
-"x":44,
-"y":77,
-"r":10
+"q":"Where is the rain coming from indoors?",
+"x":57,
+"y":28,
+"r":12
 }
 ],
 "decoys":[
@@ -8353,7 +8365,7 @@
 ]
 },
 "310":{
-"style":4,
+"style":1,
 "voice":"house7",
 "tags":[
 "mountain",
@@ -8361,22 +8373,22 @@
 ],
 "odd":[
 {
-"q":"Who is the monk trying to reach up here?",
-"x":61.9,
-"y":6.8,
-"r":11.2
+"q":"What is the yak's satellite dish for?",
+"x":30,
+"y":55,
+"r":15
 },
 {
-"q":"How long did the climb to this peak take?",
-"x":50.7,
-"y":63.7,
-"r":30
+"q":"What's the meditating monk plugged into?",
+"x":82,
+"y":87,
+"r":11
 },
 {
-"q":"What is he hoping to see on the screen?",
-"x":50.7,
-"y":12.8,
-"r":16.1
+"q":"Who's he trying to reach up there?",
+"x":86,
+"y":10,
+"r":9
 }
 ],
 "decoys":[
@@ -8452,7 +8464,7 @@
 ]
 },
 "312":{
-"style":1,
+"style":3,
 "voice":"house7",
 "tags":[
 "forest",
@@ -8460,22 +8472,22 @@
 ],
 "odd":[
 {
-"q":"Where did the squirrel get a roll of tape?",
-"x":67,
-"y":42,
-"r":6
+"q":"Why does every fallen leaf have tape on it?",
+"x":60,
+"y":85,
+"r":16
 },
 {
-"q":"Why does this one leaf matter so much?",
-"x":82,
-"y":44,
-"r":9
+"q":"How much tape is left on that roll?",
+"x":49,
+"y":70,
+"r":8
 },
 {
-"q":"What happened to all the other leaves?",
-"x":28,
-"y":16,
-"r":18
+"q":"Will that last leaf hold?",
+"x":78,
+"y":23,
+"r":8
 }
 ],
 "decoys":[
@@ -8502,29 +8514,29 @@
 ]
 },
 "313":{
-"style":2,
+"style":5,
 "voice":"house7",
 "tags":[
 "office"
 ],
 "odd":[
 {
-"q":"What's brewing in the machine everyone is waiting for?",
-"x":90,
-"y":47,
-"r":10
+"q":"What's in his green drink?",
+"x":82,
+"y":37,
+"r":8
 },
 {
-"q":"How long has the guy at the back been waiting?",
-"x":9,
-"y":52,
-"r":11
+"q":"How long has she been at the machine?",
+"x":15,
+"y":45,
+"r":12
 },
 {
-"q":"Why does this one look so wide-eyed?",
-"x":57,
-"y":31,
-"r":7
+"q":"Who's going to sit at that empty table?",
+"x":75,
+"y":90,
+"r":14
 }
 ],
 "word":"decaf",
@@ -8552,30 +8564,31 @@
 ]
 },
 "314":{
-"style":3,
+"style":1,
 "voice":"house7",
 "tags":[
 "couple",
-"giant"
+"giant",
+"restaurant"
 ],
 "odd":[
 {
-"q":"What is he adding up in the middle of dinner?",
-"x":64,
-"y":43,
-"r":15
+"q":"What is she hiding under the table?",
+"x":62,
+"y":56,
+"r":13
 },
 {
-"q":"What is she waiting for him to say?",
-"x":21,
+"q":"How long has the waiter been standing there?",
+"x":87,
 "y":30,
-"r":10
+"r":12
 },
 {
-"q":"Has either of them touched the wine yet?",
-"x":44,
-"y":50,
-"r":11
+"q":"What's he adding up so carefully?",
+"x":32,
+"y":35,
+"r":12
 }
 ],
 "decoys":[
@@ -8602,30 +8615,29 @@
 ]
 },
 "315":{
-"style":4,
+"style":3,
 "voice":"house7",
 "tags":[
-"bug",
-"office"
+"bug"
 ],
 "odd":[
 {
-"q":"Who is the spider talking to on that headset?",
-"x":47,
-"y":33,
-"r":7
+"q":"How long has the fly been on hold?",
+"x":17,
+"y":57,
+"r":13
 },
 {
-"q":"Why is the web completely empty?",
-"x":47,
+"q":"Is the spider with the mug on break?",
+"x":88,
 "y":24,
-"r":20
+"r":11
 },
 {
-"q":"Where does that long thread down the wall lead?",
-"x":34,
-"y":72,
-"r":8
+"q":"What's on the spider's laptop?",
+"x":48,
+"y":60,
+"r":9
 }
 ],
 "decoys":[
@@ -8652,7 +8664,7 @@
 ]
 },
 "316":{
-"style":5,
+"style":2,
 "voice":"house7",
 "tags":[
 "museum",
@@ -8660,22 +8672,22 @@
 ],
 "odd":[
 {
-"q":"Why is the father in the painting staring at him?",
-"x":67,
-"y":19,
+"q":"Why is the father pointing at him?",
+"x":30,
+"y":20,
+"r":11
+},
+{
+"q":"Has the guard noticed anything?",
+"x":90,
+"y":32,
+"r":10
+},
+{
+"q":"What does the painted dog think?",
+"x":62,
+"y":28,
 "r":8
-},
-{
-"q":"What is the little boy glaring at?",
-"x":47,
-"y":43,
-"r":7
-},
-{
-"q":"Why does the older girl look so unimpressed?",
-"x":79,
-"y":30,
-"r":9
 }
 ],
 "decoys":[
@@ -8702,29 +8714,30 @@
 ]
 },
 "318":{
-"style":2,
+"style":5,
 "voice":"house7",
 "tags":[
+"couple",
 "dinner"
 ],
 "odd":[
 {
-"q":"Where did he get a sword at dinner?",
-"x":13,
-"y":29,
+"q":"What is the boy trying with that breadstick?",
+"x":80,
+"y":46,
 "r":11
 },
 {
-"q":"What is his wife thinking right now?",
-"x":49,
-"y":41,
-"r":8
+"q":"How does she feel about dinner tonight?",
+"x":55,
+"y":40,
+"r":11
 },
 {
-"q":"Are the kids used to this by now?",
-"x":77,
-"y":49,
-"r":15
+"q":"Who's sitting in the empty chair?",
+"x":30,
+"y":86,
+"r":13
 }
 ],
 "word":"circus",
@@ -8752,30 +8765,31 @@
 ]
 },
 "319":{
-"style":3,
+"style":1,
 "voice":"house7",
 "tags":[
 "bar",
-"beach"
+"beach",
+"bigbeast"
 ],
 "odd":[
 {
-"q":"What's tucked into his shirt pocket?",
-"x":76.2,
-"y":31.7,
-"r":8.9
+"q":"Whose red suit is hanging on the umbrella?",
+"x":90,
+"y":30,
+"r":12
 },
 {
-"q":"What's in the fancy drink with the umbrella?",
-"x":37.0,
-"y":28.4,
-"r":10.1
+"q":"What is the reindeer drinking?",
+"x":62,
+"y":48,
+"r":10
 },
 {
-"q":"When did he last wear boots instead of sandals?",
-"x":58.5,
-"y":87.8,
-"r":17.7
+"q":"Who's sailing that little boat?",
+"x":52,
+"y":39,
+"r":7
 }
 ],
 "word":"elves",
@@ -8803,7 +8817,7 @@
 ]
 },
 "320":{
-"style":4,
+"style":3,
 "voice":"house8",
 "tags":[
 "bird",
@@ -8811,16 +8825,22 @@
 ],
 "odd":[
 {
-"q":"Why is this bird wearing boots?",
-"x":55,
-"y":43,
-"r":6
+"q":"Why is the bird on the left wearing gloves?",
+"x":21,
+"y":40,
+"r":11
 },
 {
-"q":"What does the other bird think of the footwear?",
-"x":45,
-"y":42,
-"r":6
+"q":"Who's offering the spare boots?",
+"x":72,
+"y":13,
+"r":12
+},
+{
+"q":"Whose house is that power line feeding?",
+"x":18,
+"y":92,
+"r":12
 }
 ],
 "decoys":[
@@ -8898,7 +8918,7 @@
 ]
 },
 "322":{
-"style":1,
+"style":5,
 "voice":"house8",
 "tags":[
 "couple",
@@ -8908,22 +8928,22 @@
 ],
 "odd":[
 {
-"q":"What happens every time she rings that bell?",
-"x":48.6,
-"y":41.1,
-"r":6.9
+"q":"What's she holding in her hand?",
+"x":53,
+"y":38,
+"r":8
 },
 {
-"q":"Who is all this tea really for?",
-"x":70.4,
-"y":40.0,
-"r":11.5
+"q":"Who are the treats in that jar for?",
+"x":9,
+"y":47,
+"r":9
 },
 {
-"q":"How does he feel about that little bell?",
-"x":79.6,
-"y":12.1,
-"r":9.2
+"q":"Why does the dog look so put out?",
+"x":63,
+"y":72,
+"r":13
 }
 ],
 "word":"kettle",
@@ -8951,7 +8971,7 @@
 ]
 },
 "324":{
-"style":3,
+"style":1,
 "voice":"house8",
 "tags":[
 "kitchen",
@@ -8959,22 +8979,22 @@
 ],
 "odd":[
 {
-"q":"What's in the garbage bag?",
-"x":81,
-"y":58,
-"r":11
+"q":"Where is that old trash bag headed?",
+"x":91,
+"y":22,
+"r":9
 },
 {
-"q":"Who is still inside the ship?",
-"x":18,
-"y":40,
-"r":14
+"q":"Why is there a recycling bin in space?",
+"x":78,
+"y":50,
+"r":10
 },
 {
-"q":"Why does he look so relaxed out here?",
-"x":68,
-"y":33,
-"r":6
+"q":"Who's pointing out the window?",
+"x":20,
+"y":23,
+"r":13
 }
 ],
 "decoys":[
@@ -9001,30 +9021,31 @@
 ]
 },
 "326":{
-"style":5,
+"style":3,
 "voice":"house8",
 "tags":[
+"cat",
 "rodent",
 "sports"
 ],
 "odd":[
 {
-"q":"Where did the mouse get a lifting belt?",
-"x":45.0,
-"y":82.3,
-"r":11.8
+"q":"What is the cat timing?",
+"x":82,
+"y":27,
+"r":12
 },
 {
-"q":"Who took the bites out of the cheese?",
-"x":50.2,
-"y":14.9,
-"r":13.1
+"q":"Are those barbells made of cheese?",
+"x":24,
+"y":89,
+"r":14
 },
 {
-"q":"How long can he hold it up?",
-"x":48.9,
-"y":63.2,
-"r":9.2
+"q":"Is the spotter actually helping?",
+"x":72,
+"y":63,
+"r":10
 }
 ],
 "decoys":[
@@ -9058,22 +9079,22 @@
 ],
 "odd":[
 {
-"q":"Whose feet are sticking out from under the table?",
-"x":32.0,
-"y":87.9,
-"r":13.0
+"q":"Whose shoes are sticking out under the table?",
+"x":25,
+"y":72,
+"r":10
 },
 {
-"q":"Who is the waiter handing the menu to?",
-"x":46.3,
-"y":33.6,
-"r":9.5
+"q":"Why is she lifting the tablecloth?",
+"x":80,
+"y":40,
+"r":12
 },
 {
-"q":"Who was sitting in that empty chair?",
-"x":86.6,
-"y":56.3,
-"r":14.2
+"q":"What's the man behind her looking at?",
+"x":84,
+"y":28,
+"r":8
 }
 ],
 "decoys":[
@@ -9152,31 +9173,33 @@
 ]
 },
 "330":{
-"style":4,
+"style":5,
 "voice":"house8",
 "tags":[
 "bathroom",
+"bird",
+"couple",
 "fish",
-"medical"
+"home"
 ],
 "odd":[
 {
-"q":"What is he hoping to catch in there?",
-"x":61.5,
-"y":54.5,
-"r":8.7
+"q":"Is the rubber duck the catch of the day?",
+"x":31,
+"y":59,
+"r":8
 },
 {
-"q":"Who's in charge of the faucets?",
-"x":87.5,
-"y":46.8,
-"r":8.7
+"q":"How long has she been waiting for the tub?",
+"x":84,
+"y":30,
+"r":12
 },
 {
-"q":"Why did he wear his fishing hat?",
-"x":16.8,
-"y":16.0,
-"r":8.7
+"q":"What's on his fishing hat?",
+"x":59,
+"y":30,
+"r":8
 }
 ],
 "word":"Tuesday",
@@ -9213,22 +9236,22 @@
 ],
 "odd":[
 {
-"q":"Why is one of the sheep floating?",
-"x":74,
-"y":53,
-"r":8
+"q":"How did that sheep end up in the sky?",
+"x":64,
+"y":19,
+"r":11
 },
 {
-"q":"Who exactly is the shepherd pointing at?",
-"x":22,
-"y":43,
-"r":6
+"q":"Which one in the flock isn't a sheep?",
+"x":65,
+"y":75,
+"r":11
 },
 {
-"q":"Has the last sheep noticed what's ahead?",
-"x":89,
-"y":54,
-"r":7
+"q":"What is the shepherd writing down?",
+"x":21,
+"y":55,
+"r":9
 }
 ],
 "decoys":[
@@ -9255,30 +9278,31 @@
 ]
 },
 "333":{
-"style":2,
+"style":3,
 "voice":"house8",
 "tags":[
 "bird",
-"park"
+"park",
+"rodent"
 ],
 "odd":[
 {
-"q":"Why is nobody touching the crumbs?",
-"x":66,
-"y":72,
+"q":"What's in the pigeons' newspapers?",
+"x":23,
+"y":54,
+"r":14
+},
+{
+"q":"Who is the pigeon on the hat feeding?",
+"x":67,
+"y":21,
 "r":10
 },
 {
-"q":"What's in the man's little paper bag?",
-"x":84,
-"y":45,
-"r":6
-},
-{
-"q":"What's in today's paper that's so gripping?",
-"x":17,
-"y":55,
-"r":8
+"q":"What does the squirrel want?",
+"x":90,
+"y":72,
+"r":9
 }
 ],
 "decoys":[
@@ -9457,7 +9481,7 @@
 ]
 },
 "339":{
-"style":4,
+"style":5,
 "voice":"satirist",
 "tags":[
 "kids",
@@ -9466,22 +9490,22 @@
 ],
 "odd":[
 {
-"q":"Why is the little girl just standing there?",
-"x":93,
-"y":55,
-"r":7
+"q":"Whose project is this, really?",
+"x":19,
+"y":58,
+"r":12
 },
 {
-"q":"How many volcanoes does one science fair need?",
-"x":24,
+"q":"What is he brewing in that flask?",
+"x":69,
 "y":52,
-"r":20
+"r":10
 },
 {
-"q":"Who is the grown-up in the safety goggles?",
-"x":73,
-"y":40,
-"r":8
+"q":"What do the other kids think?",
+"x":35,
+"y":35,
+"r":13
 }
 ],
 "decoys":[
@@ -9563,22 +9587,22 @@
 ],
 "odd":[
 {
-"q":"How long has the bird been knocking?",
-"x":61,
-"y":35,
-"r":8
+"q":"How long has the woodpecker been at it?",
+"x":63,
+"y":38,
+"r":10
 },
 {
-"q":"Has he even finished his first coffee?",
-"x":40,
-"y":40,
-"r":6
+"q":"Why does the man look so calm?",
+"x":30,
+"y":28,
+"r":11
 },
 {
-"q":"What time of morning is it, judging by those slippers?",
-"x":37,
-"y":76,
-"r":9
+"q":"Is the doormat still welcoming?",
+"x":55,
+"y":93,
+"r":12
 }
 ],
 "decoys":[
@@ -9605,29 +9629,29 @@
 ]
 },
 "342":{
-"style":2,
+"style":3,
 "voice":"satirist",
 "tags":[
-"farmanimal",
-"office"
+"office",
+"sky"
 ],
 "odd":[
 {
-"q":"Where did he find such a short table?",
-"x":45,
-"y":70,
-"r":14
-},
-{
-"q":"Has the man in glasses noticed yet?",
-"x":21,
-"y":34,
+"q":"How did her desk get that high?",
+"x":68,
+"y":24,
 "r":12
 },
 {
-"q":"What does the coworker with the mug want?",
-"x":72,
-"y":40,
+"q":"Why is his desk on the floor?",
+"x":30,
+"y":62,
+"r":12
+},
+{
+"q":"Who's using all those empty chairs?",
+"x":50,
+"y":53,
 "r":10
 }
 ],
@@ -18918,6 +18942,318 @@
 }
 ]
 },
+"542":{
+"style":5,
+"voice":"dry",
+"tags":[
+"farm"
+],
+"odd":[
+{
+"q":"What is the man at the front waiting for?",
+"x":12,
+"y":45,
+"r":13
+},
+{
+"q":"Why did the latecomer bring a sleeping bag?",
+"x":92,
+"y":42,
+"r":10
+},
+{
+"q":"What is she hoping to see?",
+"x":27,
+"y":46,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"He's been first since Tuesday. He won't say for what.",
+"s":4
+},
+{
+"t":"Don't ask him. The last guy who asked lost his spot.",
+"s":4
+},
+{
+"t":"Whatever it is, it opens at nine.",
+"s":4
+},
+{
+"t":"My husband saved my place in 1987.",
+"s":3
+},
+{
+"t":"I hear the people at the back get a better view.",
+"s":3
+}
+]
+},
+"544":{
+"style":5,
+"voice":"surreal",
+"tags":[
+"bird",
+"farmanimal",
+"fish",
+"office"
+],
+"odd":[
+{
+"q":"Who is the upside-down coworker talking to?",
+"x":82,
+"y":17,
+"r":15
+},
+{
+"q":"How is the goldfish handling this?",
+"x":62,
+"y":45,
+"r":10
+},
+{
+"q":"Where is that coffee going to land?",
+"x":21,
+"y":27,
+"r":9
+}
+],
+"decoys":[
+{
+"t":"Gary's been on hold with the landlord since Tuesday.",
+"s":4
+},
+{
+"t":"Whatever you do, don't let go of the desk.",
+"s":4
+},
+{
+"t":"The fish is adjusting better than any of us.",
+"s":4
+},
+{
+"t":"I'm sure it's in the handbook somewhere.",
+"s":3
+},
+{
+"t":"This is the most work Dave has done all year.",
+"s":3
+}
+]
+},
+"545":{
+"style":1,
+"voice":"latenight",
+"tags":[
+"bird",
+"couple",
+"farm",
+"farmanimal",
+"home",
+"kitchen"
+],
+"odd":[
+{
+"q":"Whose cow is that in the kitchen?",
+"x":89,
+"y":56,
+"r":10
+},
+{
+"q":"What is the contractor about to do?",
+"x":59,
+"y":58,
+"r":10
+},
+{
+"q":"How is one post holding all that up?",
+"x":49,
+"y":45,
+"r":9
+}
+],
+"decoys":[
+{
+"t":"The cow came with the house.",
+"s":4
+},
+{
+"t":"The listing said 'lots of natural light.'",
+"s":4
+},
+{
+"t":"We're told the neighbors are very quiet.",
+"s":3
+},
+{
+"t":"Property taxes are much lower now.",
+"s":3
+},
+{
+"t":"Where do you think the piano should go?",
+"s":3
+}
+]
+},
+"546":{
+"style":3,
+"voice":"dry",
+"tags":[
+"bathroom",
+"bedroom",
+"elderly",
+"garden"
+],
+"odd":[
+{
+"q":"What happened to the garden gnome?",
+"x":57,
+"y":76,
+"r":10
+},
+{
+"q":"Why is the neighbor still in his bathrobe?",
+"x":81,
+"y":17,
+"r":11
+},
+{
+"q":"Which rose is she going to cut?",
+"x":24,
+"y":53,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"Third one this summer. I think it's the roses.",
+"s":4
+},
+{
+"t":"Don't touch it, Walt. That's next year's mulch.",
+"s":3
+},
+{
+"t":"The gnome had it coming.",
+"s":4
+},
+{
+"t":"You should see what it did to my tomatoes.",
+"s":3
+},
+{
+"t":"I told the garden club the soil here was special.",
+"s":4
+}
+]
+},
+"547":{
+"style":2,
+"voice":"smalltown",
+"tags":[
+"bird",
+"church",
+"home"
+],
+"odd":[
+{
+"q":"Who's sneaking in the side door?",
+"x":14,
+"y":30,
+"r":11
+},
+{
+"q":"Why are all the dishes exactly the same?",
+"x":40,
+"y":55,
+"r":15
+},
+{
+"q":"Will the pastor try a little of each?",
+"x":45,
+"y":30,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"Thirteen. That's a new parish record.",
+"s":4
+},
+{
+"t":"Pastor, you'll have to taste every one. It's politics.",
+"s":4
+},
+{
+"t":"Same recipe since 1962. She keeps hoping we'll notice.",
+"s":4
+},
+{
+"t":"Nobody tell Marjorie the theme was 'anything else.'",
+"s":3
+},
+{
+"t":"I think it's time we retired the recipe card.",
+"s":3
+}
+],
+"word":"chicken"
+},
+"548":{
+"style":1,
+"voice":"surreal",
+"tags":[
+"airport",
+"bedroom",
+"couple",
+"dog",
+"home"
+],
+"odd":[
+{
+"q":"Why is the couch packed too?",
+"x":78,
+"y":31,
+"r":12
+},
+{
+"q":"What is the dog bringing along?",
+"x":58,
+"y":71,
+"r":11
+},
+{
+"q":"What's in the suitcase strapped on top?",
+"x":63,
+"y":42,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"The couch is going with it. That's how you know it's serious.",
+"s":4
+},
+{
+"t":"Even the dog's picked a side.",
+"s":4
+},
+{
+"t":"It said it needed space. So did I.",
+"s":4
+},
+{
+"t":"Maybe if you hadn't brought the laptop into it.",
+"s":3
+},
+{
+"t":"Is this a separation or a sleepover?",
+"s":3
+}
+]
+},
 "654":{
 "style":5,
 "voice":"science",
@@ -19936,6 +20272,56 @@
 }
 ]
 },
+"674":{
+"style":5,
+"voice":"science",
+"tags":[
+"medical",
+"shop"
+],
+"odd":[
+{
+"q":"What does the prescription actually say?",
+"x":62,
+"y":28,
+"r":9
+},
+{
+"q":"How long has this customer been waiting?",
+"x":13,
+"y":45,
+"r":14
+},
+{
+"q":"Who still uses a mortar and pestle?",
+"x":89,
+"y":55,
+"r":8
+}
+],
+"decoys":[
+{
+"t":"It'll be about twenty minutes, or one war.",
+"s":4
+},
+{
+"t":"Did he mean milligrams or Tuesdays?",
+"s":4
+},
+{
+"t":"We'll call you when it's decrypted.",
+"s":4
+},
+{
+"t":"Your doctor trained in naval intelligence.",
+"s":3
+},
+{
+"t":"The generic version is a little slower.",
+"s":3
+}
+]
+},
 "693":{
 "style":5,
 "voice":"chemist",
@@ -20088,6 +20474,366 @@
 },
 {
 "t":"Is the bird on the roof yours as well?",
+"s":3
+}
+]
+},
+"696":{
+"style":2,
+"voice":"resident",
+"tags":[
+"park",
+"rodent"
+],
+"odd":[
+{
+"q":"What's on the little TV?",
+"x":92,
+"y":54,
+"r":9
+},
+{
+"q":"What is that mouse staring at?",
+"x":45,
+"y":55,
+"r":10
+},
+{
+"q":"Where did the pizza come from?",
+"x":76,
+"y":64,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"We're measuring stress. Mostly his.",
+"s":4
+},
+{
+"t":"The grant only covered one of the cages.",
+"s":4
+},
+{
+"t":"Those two used to be on the wheel.",
+"s":4
+},
+{
+"t":"He's asked about transferring twice this week.",
+"s":3
+},
+{
+"t":"Results are promising, if you're a mouse.",
+"s":3
+}
+]
+},
+"697":{
+"style":5,
+"voice":"chemist",
+"tags":[
+"cat",
+"elderly",
+"medical"
+],
+"odd":[
+{
+"q":"Why is the assistant wearing a welding mask?",
+"x":89,
+"y":26,
+"r":11
+},
+{
+"q":"Is the carrier really empty?",
+"x":11,
+"y":66,
+"r":11
+},
+{
+"q":"Who's going to weigh this patient?",
+"x":85,
+"y":87,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"She's on her third assistant this year.",
+"s":4
+},
+{
+"t":"The good news is her heart is very strong.",
+"s":4
+},
+{
+"t":"Next time, the vet comes to the house.",
+"s":3
+},
+{
+"t":"She was a rescue. We're still not sure who rescued whom.",
+"s":3
+},
+{
+"t":"We'll try the liquid. Can you hold her?",
+"s":4
+}
+]
+},
+"698":{
+"style":1,
+"voice":"culdesac",
+"tags":[
+"cat",
+"home",
+"kids",
+"kitchen",
+"mountain"
+],
+"odd":[
+{
+"q":"Where is the baby going with those keys?",
+"x":82,
+"y":84,
+"r":12
+},
+{
+"q":"Why is the cat up on the fridge?",
+"x":19,
+"y":10,
+"r":10
+},
+{
+"q":"What's behind all those chains and padlocks?",
+"x":46,
+"y":22,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"Don't panic. She can't reach the car.",
+"s":4
+},
+{
+"t":"The cat saw this coming in March.",
+"s":3
+},
+{
+"t":"On the bright side, nothing in here can hurt us.",
+"s":4
+},
+{
+"t":"Call your mother. No, wait. The phone's out there.",
+"s":4
+},
+{
+"t":"We have to stop leaving the keys in the stroller.",
+"s":3
+}
+]
+},
+"699":{
+"style":3,
+"voice":"footnote",
+"tags":[
+"bedroom",
+"cat",
+"couple",
+"office"
+],
+"odd":[
+{
+"q":"What's in all those little sketches?",
+"x":34,
+"y":66,
+"r":12
+},
+{
+"q":"Why has the cat turned its back?",
+"x":15,
+"y":27,
+"r":9
+},
+{
+"q":"What does she want to say to him?",
+"x":85,
+"y":28,
+"r":11
+}
+],
+"decoys":[
+{
+"t":"You could at least tell me what's so fascinating.",
+"s":3
+},
+{
+"t":"He's naming them. All of them.",
+"s":4
+},
+{
+"t":"The cat stopped speaking to him in March.",
+"s":3
+},
+{
+"t":"Come to bed. They'll still be wriggling in the morning.",
+"s":4
+},
+{
+"t":"Some husbands collect stamps.",
+"s":4
+}
+]
+},
+"700":{
+"style":2,
+"voice":"resident",
+"tags":[
+"church",
+"park"
+],
+"odd":[
+{
+"q":"Why is the other dish walled in?",
+"x":80,
+"y":82,
+"r":14
+},
+{
+"q":"What's in her dropper?",
+"x":64,
+"y":46,
+"r":8
+},
+{
+"q":"Who is that tiny figure waving at?",
+"x":53,
+"y":60,
+"r":8
+}
+],
+"decoys":[
+{
+"t":"The other dish has been building that wall all week.",
+"s":4
+},
+{
+"t":"I think they're worshipping the incubator.",
+"s":4
+},
+{
+"t":"Put the dropper down. They've started a choir.",
+"s":3
+},
+{
+"t":"Now they've applied for a grant to study us.",
+"s":4
+},
+{
+"t":"Let's just call it a contaminated sample.",
+"s":3
+}
+]
+},
+"701":{
+"style":5,
+"voice":"chemist",
+"tags":[
+"couple",
+"office",
+"park"
+],
+"odd":[
+{
+"q":"Whose photo is in the locker?",
+"x":20,
+"y":26,
+"r":8
+},
+{
+"q":"Who is the welder fixing her lipstick for?",
+"x":61,
+"y":38,
+"r":11
+},
+{
+"q":"What is printed on the front of the mask?",
+"x":64,
+"y":47,
+"r":8
+}
+],
+"decoys":[
+{
+"t":"Did you wear this to the company picnic?",
+"s":3
+},
+{
+"t":"That's not on the approved list of contaminants.",
+"s":4
+},
+{
+"t":"Let me guess. She also does your weekly inspection.",
+"s":4
+},
+{
+"t":"That's not your wife's shade, Frank.",
+"s":4
+},
+{
+"t":"I'll need to see your backup mask, too.",
+"s":3
+}
+]
+},
+"702":{
+"style":4,
+"voice":"culdesac",
+"tags":[
+"bird",
+"bug",
+"court",
+"dog",
+"home"
+],
+"odd":[
+{
+"q":"What is the beagle sniffing for?",
+"x":71,
+"y":57,
+"r":10
+},
+{
+"q":"Why is she hiding in the cushions?",
+"x":25,
+"y":67,
+"r":13
+},
+{
+"q":"Are the cookies a trick?",
+"x":65,
+"y":36,
+"r":8
+}
+],
+"decoys":[
+{
+"t":"Don't mind the dog. He's just a formality.",
+"s":4
+},
+{
+"t":"Your parents' names, and the last three girls you dated.",
+"s":4
+},
+{
+"t":"We do this with everyone. The last one's still on the fridge.",
+"s":4
+},
+{
+"t":"Have a cookie. It's not a bribe, it's a test.",
+"s":3
+},
+{
+"t":"Smile, son. Or don't. Both are fine for the file.",
 "s":3
 }
 ]
@@ -20348,6 +21094,790 @@
 },
 {
 "t":"She's been knitting since Albany without a peep.",
+"s":3
+}
+]
+},
+"829":{
+"style":5,
+"voice":"greenroom",
+"tags":[
+"elderly",
+"kitchen",
+"restaurant"
+],
+"odd":[
+{
+"q":"Why is the grandpa smiling like that?",
+"x":84,
+"y":50,
+"r":14
+},
+{
+"q":"Who invited the camera crew?",
+"x":12,
+"y":28,
+"r":13
+},
+{
+"q":"How tall does that hat need to be?",
+"x":40,
+"y":15,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"He's been eating it without commentary for fifty-two years.",
+"s":4
+},
+{
+"t":"Keep rolling. She's about to say 'Is that so.'",
+"s":4
+},
+{
+"t":"He wants to know where the walk-in freezer is.",
+"s":3
+},
+{
+"t":"We agreed to the show if he'd stay for dinner.",
+"s":4
+},
+{
+"t":"The producer promised she'd cry by the second segment.",
+"s":3
+}
+]
+},
+"830":{
+"style":3,
+"voice":"commuter",
+"tags":[
+"bird",
+"dinner",
+"mountain",
+"restaurant",
+"sea"
+],
+"odd":[
+{
+"q":"Why is that one passenger out in a lifeboat?",
+"x":12,
+"y":37,
+"r":11
+},
+{
+"q":"Where is the waiter headed with those shrimp?",
+"x":42,
+"y":34,
+"r":11
+},
+{
+"q":"What is the captain measuring?",
+"x":86,
+"y":24,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"Tell the band to play something on the other side.",
+"s":4
+},
+{
+"t":"The one in the lifeboat has done this cruise before.",
+"s":4
+},
+{
+"t":"Engine room says we're doing nine knots sideways.",
+"s":3
+},
+{
+"t":"Nobody leaves that room until the prime rib is gone.",
+"s":3
+},
+{
+"t":"Ask the man in the lifeboat if he'd come in for dessert.",
+"s":4
+}
+]
+},
+"831":{
+"style":5,
+"voice":"greenroom",
+"tags":[
+"bird",
+"farmanimal",
+"office",
+"park",
+"rodent"
+],
+"odd":[
+{
+"q":"Why is the lab rat wearing a cape?",
+"x":88,
+"y":69,
+"r":11
+},
+{
+"q":"Who drew that costume?",
+"x":79,
+"y":45,
+"r":11
+},
+{
+"q":"Will the safety officer get there in time?",
+"x":85,
+"y":21,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"The rat had the same accident in March. Look at him now.",
+"s":4
+},
+{
+"t":"Don't let Dennis wash it off. He's jealous.",
+"s":3
+},
+{
+"t":"Can you fly yet, or is that still loading?",
+"s":4
+},
+{
+"t":"Legal says we can't call you Captain Spill.",
+"s":4
+},
+{
+"t":"HR needs your measurements by Friday.",
+"s":3
+}
+]
+},
+"832":{
+"style":5,
+"voice":"commuter",
+"tags":[
+"airport",
+"bathroom",
+"elderly",
+"sky"
+],
+"odd":[
+{
+"q":"Why is the toddler reaching for the handle?",
+"x":66,
+"y":38,
+"r":10
+},
+{
+"q":"Has the old man been briefed?",
+"x":17,
+"y":31,
+"r":13
+},
+{
+"q":"Is the chihuahua paying attention?",
+"x":61,
+"y":46,
+"r":9
+}
+],
+"decoys":[
+{
+"t":"Great. Which one of you can lift forty pounds?",
+"s":4
+},
+{
+"t":"The dog has the most flight experience.",
+"s":4
+},
+{
+"t":"We'll be landing in Denver, or wherever she opens it.",
+"s":4
+},
+{
+"t":"Just nod if you understand. Or bark.",
+"s":3
+},
+{
+"t":"In the unlikely event of a water landing, good luck.",
+"s":3
+}
+]
+},
+"833":{
+"style":3,
+"voice":"pricetag",
+"tags":[
+"dog",
+"elderly",
+"home",
+"kids",
+"school",
+"shop"
+],
+"odd":[
+{
+"q":"How long has the manager been standing there?",
+"x":10,
+"y":29,
+"r":10
+},
+{
+"q":"Why is the dog sleeping on frozen peas?",
+"x":42,
+"y":78,
+"r":15
+},
+{
+"q":"What's on the TV in the frozen aisle?",
+"x":92,
+"y":57,
+"r":11
+}
+],
+"decoys":[
+{
+"t":"This aisle is for paying customers, sir.",
+"s":3
+},
+{
+"t":"We tried the ice machine, but the kids complained.",
+"s":3
+},
+{
+"t":"Our air conditioner's in the shop until Thursday.",
+"s":4
+},
+{
+"t":"He's buying the peas one at a time.",
+"s":4
+},
+{
+"t":"Is the deli open yet? The kids are getting hungry.",
+"s":4
+}
+]
+},
+"834":{
+"style":5,
+"voice":"commuter",
+"tags":[
+"airport",
+"bathroom",
+"bedroom",
+"cat",
+"couple"
+],
+"odd":[
+{
+"q":"What is the luggage scale doing up there?",
+"x":58,
+"y":10,
+"r":9
+},
+{
+"q":"Did the cat claim that empty spot on purpose?",
+"x":75,
+"y":73,
+"r":11
+},
+{
+"q":"Why measure a sock with calipers?",
+"x":35,
+"y":42,
+"r":9
+}
+],
+"decoys":[
+{
+"t":"Airline says fifty pounds. He's taking it personally.",
+"s":4
+},
+{
+"t":"He started Thursday. We leave in an hour.",
+"s":4
+},
+{
+"t":"Leave room for souvenirs, dear.",
+"s":3
+},
+{
+"t":"Don't. He's within four grams.",
+"s":4
+},
+{
+"t":"The cat goes in the carry-on. He's run the numbers.",
+"s":3
+}
+]
+},
+"835":{
+"style":3,
+"voice":"sideline",
+"tags":[
+"sports"
+],
+"odd":[
+{
+"q":"What happened to all the cups on that shelf?",
+"x":77,
+"y":28,
+"r":13
+},
+{
+"q":"Why are the engineers standing like that?",
+"x":25,
+"y":30,
+"r":14
+},
+{
+"q":"Is the camera fast enough for this?",
+"x":56,
+"y":35,
+"r":9
+}
+],
+"decoys":[
+{
+"t":"Write down 'acceptable' and let's go to lunch.",
+"s":4
+},
+{
+"t":"Somebody tell marketing 'shatterproof' is still on the box.",
+"s":4
+},
+{
+"t":"Okay. Now let's try a slider.",
+"s":4
+},
+{
+"t":"His agent says he wants a raise.",
+"s":3
+},
+{
+"t":"That's the ninth one this morning.",
+"s":3
+}
+]
+},
+"836":{
+"style":5,
+"voice":"commuter",
+"tags":[
+"bird",
+"dog",
+"giant",
+"party",
+"road"
+],
+"odd":[
+{
+"q":"Whose birthday is it?",
+"x":82,
+"y":17,
+"r":10
+},
+{
+"q":"Whose dog is down there?",
+"x":81,
+"y":57,
+"r":8
+},
+{
+"q":"Will the people on the platform fit too?",
+"x":9,
+"y":40,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"The dog has a monthly pass.",
+"s":4
+},
+{
+"t":"Sir, the next train is in ninety seconds.",
+"s":3
+},
+{
+"t":"Nobody move. We're one breath from closing.",
+"s":4
+},
+{
+"t":"Everybody exhale. On three.",
+"s":4
+},
+{
+"t":"First class is the car behind.",
+"s":3
+}
+]
+},
+"837":{
+"style":5,
+"voice":"greenroom",
+"tags":[
+"office",
+"stage"
+],
+"odd":[
+{
+"q":"What is she hiding by her seat?",
+"x":21,
+"y":65,
+"r":8
+},
+{
+"q":"Why does HR need a coconut?",
+"x":12,
+"y":24,
+"r":11
+},
+{
+"q":"What's already packed in his box?",
+"x":41,
+"y":44,
+"r":11
+}
+],
+"decoys":[
+{
+"t":"Your exit interview is with the woman holding the coconut.",
+"s":4
+},
+{
+"t":"This used to just be an email.",
+"s":4
+},
+{
+"t":"Please return your badge and your torch to HR.",
+"s":4
+},
+{
+"t":"You were voted out in the first quarter, Dan.",
+"s":3
+},
+{
+"t":"Your 401(k) does not follow you off the island.",
+"s":3
+}
+]
+},
+"838":{
+"style":3,
+"voice":"commuter",
+"tags":[
+"airport",
+"elderly",
+"sky",
+"space"
+],
+"odd":[
+{
+"q":"What happened to the driver's flowers?",
+"x":32,
+"y":38,
+"r":10
+},
+{
+"q":"Who are the people with balloons?",
+"x":14,
+"y":30,
+"r":13
+},
+{
+"q":"Why is there a rocket out on the tarmac?",
+"x":86,
+"y":20,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"Kids, this is Aunt Ruth. She's the younger one now.",
+"s":4
+},
+{
+"t":"The flowers were fresh when we got here.",
+"s":4
+},
+{
+"t":"We kept your room exactly the way you left it.",
+"s":3
+},
+{
+"t":"Did you at least bring back a souvenir?",
+"s":3
+},
+{
+"t":"Next time, take the bus.",
+"s":4
+}
+]
+},
+"839":{
+"style":5,
+"voice":"pricetag",
+"tags":[
+"bathroom",
+"dog",
+"garden",
+"giant",
+"kids",
+"road"
+],
+"odd":[
+{
+"q":"Why are the neighbors holding gas cans?",
+"x":75,
+"y":30,
+"r":15
+},
+{
+"q":"What is the dog nodding along to?",
+"x":84,
+"y":66,
+"r":9
+},
+{
+"q":"Where does that hose lead?",
+"x":12,
+"y":63,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"The homeowners' association sent three letters. I framed them.",
+"s":4
+},
+{
+"t":"Turns out the kids were digging for China.",
+"s":4
+},
+{
+"t":"We're putting a second one where the pool was.",
+"s":3
+},
+{
+"t":"He's been unbearable since the first barrel.",
+"s":3
+},
+{
+"t":"The dog does the morning shift.",
+"s":3
+}
+]
+},
+"840":{
+"style":3,
+"voice":"commuter",
+"tags":[
+"airport",
+"couple",
+"elderly",
+"space"
+],
+"odd":[
+{
+"q":"Whose veil is on the luggage rack?",
+"x":30,
+"y":8,
+"r":10
+},
+{
+"q":"Will the upper bunk hold?",
+"x":40,
+"y":40,
+"r":13
+},
+{
+"q":"Should the conductor come back later?",
+"x":88,
+"y":30,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"Tickets, please. Don't get up. Any of you.",
+"s":4
+},
+{
+"t":"Married this morning. I can tell from down here.",
+"s":4
+},
+{
+"t":"Ma'am, the upper bunk is rated for one honeymoon.",
+"s":4
+},
+{
+"t":"Next stop, the marriage counselor's.",
+"s":3
+},
+{
+"t":"Is there a dining car? I'll take my chances.",
+"s":3
+}
+]
+},
+"841":{
+"style":5,
+"voice":"sideline",
+"tags":[
+"dinner",
+"dog",
+"forest",
+"kids"
+],
+"odd":[
+{
+"q":"Why is the dog glaring at her?",
+"x":82,
+"y":66,
+"r":11
+},
+{
+"q":"Who hired a ball girl for dinner?",
+"x":15,
+"y":55,
+"r":13
+},
+{
+"q":"How many peas are left in that bowl?",
+"x":45,
+"y":39,
+"r":8
+}
+],
+"decoys":[
+{
+"t":"Biscuit used to have this job.",
+"s":4
+},
+{
+"t":"Quiet, please. He's serving.",
+"s":4
+},
+{
+"t":"She's very fast. He's very committed.",
+"s":4
+},
+{
+"t":"We booked her through the end of teething.",
+"s":3
+},
+{
+"t":"Grandma wants to know if she does birthdays.",
+"s":3
+}
+]
+},
+"842":{
+"style":5,
+"voice":"commuter",
+"tags":[
+"couple",
+"dog",
+"forest",
+"kids",
+"sky"
+],
+"odd":[
+{
+"q":"Whose dog is under the seat?",
+"x":50,
+"y":76,
+"r":9
+},
+{
+"q":"Who's sharing the trail mix?",
+"x":60,
+"y":46,
+"r":9
+},
+{
+"q":"How did the baby end up on his lap?",
+"x":47,
+"y":52,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"I've been adopted at thirty thousand feet.",
+"s":4
+},
+{
+"t":"She'll need changing somewhere over Denver.",
+"s":4
+},
+{
+"t":"I think I'm their emergency contact now.",
+"s":4
+},
+{
+"t":"This is the last time I take the middle on purpose.",
+"s":3
+},
+{
+"t":"The dog has asked if we could switch seats.",
+"s":3
+}
+]
+},
+"843":{
+"style":3,
+"voice":"greenroom",
+"tags":[
+"bird",
+"couple",
+"dog",
+"home",
+"party"
+],
+"odd":[
+{
+"q":"Who's in the photo on the side table?",
+"x":94,
+"y":35,
+"r":8
+},
+{
+"q":"Why has the dog chosen him?",
+"x":45,
+"y":43,
+"r":11
+},
+{
+"q":"Who's holding the remote now?",
+"x":36,
+"y":38,
+"r":7
+}
+],
+"decoys":[
+{
+"t":"The dog remembers him. That's the worrying part.",
+"s":4
+},
+{
+"t":"He brought his own remote. That's never a good sign.",
+"s":4
+},
+{
+"t":"Should we tell him the party ended in 1999?",
+"s":4
+},
+{
+"t":"We said 'drop by anytime.' He took it literally.",
+"s":3
+},
+{
+"t":"He was only supposed to return a sweatshirt.",
 "s":3
 }
 ]
@@ -20617,6 +22147,787 @@
 }
 ]
 },
+"958":{
+"style":2,
+"voice":"fieldguide",
+"tags":[
+"court"
+],
+"odd":[
+{
+"q":"What's that leaf doing on the floor?",
+"x":64,
+"y":51,
+"r":8
+},
+{
+"q":"What is she trying to remember?",
+"x":78,
+"y":66,
+"r":14
+},
+{
+"q":"How did the man on the right end up here?",
+"x":77,
+"y":33,
+"r":13
+}
+],
+"decoys":[
+{
+"t":"Take your time. He's been asleep for most of the lineup.",
+"s":4
+},
+{
+"t":"The guy on the right has a much better lawyer.",
+"s":3
+},
+{
+"t":"I only saw him from behind, and he was adorable.",
+"s":4
+},
+{
+"t":"Number two has asked for his one call to Brisbane.",
+"s":4
+},
+{
+"t":"Before you answer, remember he's endangered.",
+"s":3
+}
+]
+},
+"959":{
+"style":1,
+"voice":"county",
+"tags":[
+"bathroom",
+"bigbeast",
+"couple",
+"forest",
+"home",
+"museum"
+],
+"odd":[
+{
+"q":"Why is the deer so relaxed out there?",
+"x":20,
+"y":17,
+"r":13
+},
+{
+"q":"How long has she been standing in the doorway?",
+"x":88,
+"y":22,
+"r":12
+},
+{
+"q":"Who brought the scented candle?",
+"x":43,
+"y":77,
+"r":8
+}
+],
+"decoys":[
+{
+"t":"You said you wanted us to try new things.",
+"s":4
+},
+{
+"t":"Your mother said this would happen eventually.",
+"s":3
+},
+{
+"t":"We bagged nothing, but look at these cuticles.",
+"s":4
+},
+{
+"t":"Twenty years, Carol, and you never once knocked.",
+"s":3
+},
+{
+"t":"Grab a stool. Dale does a beautiful French tip.",
+"s":4
+}
+]
+},
+"960":{
+"style":2,
+"voice":"romance",
+"tags":[
+"bedroom",
+"home",
+"medical",
+"road"
+],
+"odd":[
+{
+"q":"Who is the box of chocolates for?",
+"x":92,
+"y":45,
+"r":10
+},
+{
+"q":"Whose scooter has the fuzzy dice?",
+"x":53,
+"y":53,
+"r":12
+},
+{
+"q":"Should the nurse knock?",
+"x":10,
+"y":45,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"Don't knock. Last time it was mahjong with the lights off.",
+"s":4
+},
+{
+"t":"Visiting hours ended at eight, and so did my patience.",
+"s":3
+},
+{
+"t":"Somebody's getting a noise complaint and a new hip.",
+"s":4
+},
+{
+"t":"I'm not saying it's serious, but those dice are new.",
+"s":4
+},
+{
+"t":"Valet parking was a mistake.",
+"s":3
+}
+]
+},
+"961":{
+"style":4,
+"voice":"helpdesk",
+"tags":[
+"bar",
+"couple",
+"elderly",
+"medical"
+],
+"odd":[
+{
+"q":"What is the patient trying not to do?",
+"x":17,
+"y":28,
+"r":10
+},
+{
+"q":"What's on the laptop screen?",
+"x":73,
+"y":45,
+"r":11
+},
+{
+"q":"Why is his wife so calm?",
+"x":87,
+"y":65,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"He's at forty-two percent. Nobody sneeze.",
+"s":4
+},
+{
+"t":"Have you tried turning him off and on again?",
+"s":4
+},
+{
+"t":"She's waited forty years for him to update.",
+"s":4
+},
+{
+"t":"We're just installing the new rhythm.",
+"s":3
+},
+{
+"t":"It says he has to accept the new terms first.",
+"s":3
+}
+]
+},
+"962":{
+"style":1,
+"voice":"county",
+"tags":[
+"couple",
+"dog",
+"farm",
+"road"
+],
+"odd":[
+{
+"q":"Why is the dog keeping up so easily?",
+"x":33,
+"y":68,
+"r":10
+},
+{
+"q":"Can the farmer hear anything at all?",
+"x":81,
+"y":40,
+"r":11
+},
+{
+"q":"How far back does that line of cars go?",
+"x":17,
+"y":28,
+"r":13
+}
+],
+"decoys":[
+{
+"t":"We could name the baby after him. He's been here for all of it.",
+"s":4
+},
+{
+"t":"Breathe. There's a passing lane in October.",
+"s":4
+},
+{
+"t":"Maybe the dog can run ahead and tell the hospital.",
+"s":3
+},
+{
+"t":"I told you we should have taken the tractor.",
+"s":3
+},
+{
+"t":"Wave back. Maybe that's how it works out here.",
+"s":4
+}
+]
+},
+"963":{
+"style":2,
+"voice":"romance",
+"tags":[
+"bug",
+"church",
+"couple",
+"elderly"
+],
+"odd":[
+{
+"q":"Why is that old man straightening his tie?",
+"x":92,
+"y":40,
+"r":10
+},
+{
+"q":"Why are the bridesmaids standing so far back?",
+"x":43,
+"y":38,
+"r":12
+},
+{
+"q":"Where did she get a butterfly net?",
+"x":70,
+"y":24,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"Walter's been waiting forty years for this toss.",
+"s":4
+},
+{
+"t":"The bridesmaids voted. They'd like her to have it.",
+"s":4
+},
+{
+"t":"She told the DJ to play something slow afterward.",
+"s":3
+},
+{
+"t":"Somebody please tell her it isn't a bird.",
+"s":3
+},
+{
+"t":"Nobody tell her the garter's next.",
+"s":4
+}
+]
+},
+"964":{
+"style":1,
+"voice":"helpdesk",
+"tags":[
+"dog",
+"elderly",
+"giant",
+"home",
+"kids"
+],
+"odd":[
+{
+"q":"What is the little one inspecting so closely?",
+"x":64,
+"y":40,
+"r":10
+},
+{
+"q":"Why is the dog barking at the screen?",
+"x":28,
+"y":38,
+"r":11
+},
+{
+"q":"Who left the ceiling fan running?",
+"x":53,
+"y":13,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"He says he can see us just fine.",
+"s":4
+},
+{
+"t":"That's the most we've seen of him since Easter.",
+"s":4
+},
+{
+"t":"Wave to the ceiling fan, kids.",
+"s":3
+},
+{
+"t":"The dog still doesn't trust the new grandpa.",
+"s":3
+},
+{
+"t":"He's been holding it like that since Christmas.",
+"s":3
+}
+]
+},
+"965":{
+"style":2,
+"voice":"romance",
+"tags":[
+"couple",
+"garden",
+"road",
+"sky"
+],
+"odd":[
+{
+"q":"What's the heart balloon celebrating?",
+"x":43,
+"y":13,
+"r":9
+},
+{
+"q":"Whose feet are those sticking out?",
+"x":12,
+"y":47,
+"r":9
+},
+{
+"q":"Did he really just need the mower?",
+"x":89,
+"y":44,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"Put the mower back where you found it, dear.",
+"s":4
+},
+{
+"t":"Fifty years ago tonight, in this exact car.",
+"s":4
+},
+{
+"t":"Knock next time. It's a garage, not a library.",
+"s":3
+},
+{
+"t":"We'll talk about your inheritance later.",
+"s":3
+},
+{
+"t":"You said you'd be back at four.",
+"s":4
+}
+]
+},
+"966":{
+"style":4,
+"voice":"county",
+"tags":[
+"farm",
+"farmanimal",
+"garden"
+],
+"odd":[
+{
+"q":"Has the cow already found the water?",
+"x":87,
+"y":51,
+"r":11
+},
+{
+"q":"What is the radar screen showing?",
+"x":54,
+"y":61,
+"r":9
+},
+{
+"q":"Who is the landowner going to pay?",
+"x":36,
+"y":43,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"The stick has better reviews.",
+"s":4
+},
+{
+"t":"I'll pay whichever one of you digs.",
+"s":4
+},
+{
+"t":"The cow's been trying to tell me for a week.",
+"s":4
+},
+{
+"t":"Funny, the stick never needed a grant.",
+"s":3
+},
+{
+"t":"My father used the stick. My son wants the robot.",
+"s":3
+}
+]
+},
+"967":{
+"style":1,
+"voice":"romance",
+"tags":[
+"couple",
+"forest",
+"garden",
+"mountain",
+"road",
+"therapy"
+],
+"odd":[
+{
+"q":"Why did she bring a meatloaf?",
+"x":26,
+"y":62,
+"r":10
+},
+{
+"q":"What's the neighbor watering so slowly?",
+"x":17,
+"y":22,
+"r":12
+},
+{
+"q":"What's on the TV in the garage?",
+"x":75,
+"y":24,
+"r":9
+}
+],
+"decoys":[
+{
+"t":"Gary, the meatloaf is still warm. It won't be for long.",
+"s":4
+},
+{
+"t":"He's asking for a ride to his mother's and a six-pack.",
+"s":4
+},
+{
+"t":"In our last session, he said he felt unheard.",
+"s":4
+},
+{
+"t":"After ten minutes I bill it as a hostage situation.",
+"s":3
+},
+{
+"t":"The neighbor says this happens every football season.",
+"s":3
+}
+]
+},
+"968":{
+"style":2,
+"voice":"county",
+"tags":[
+"bird",
+"farm",
+"kids",
+"street"
+],
+"odd":[
+{
+"q":"Who's actually steering the tractor?",
+"x":48,
+"y":18,
+"r":9
+},
+{
+"q":"Can the boy keep his line straight?",
+"x":88,
+"y":59,
+"r":10
+},
+{
+"q":"Why is the farmer watching from the curb?",
+"x":20,
+"y":75,
+"r":13
+}
+],
+"decoys":[
+{
+"t":"The dog got the float. I got the curb.",
+"s":4
+},
+{
+"t":"Straightest line in the county, and he's not even in it.",
+"s":4
+},
+{
+"t":"Next year the tractor wants to be grand marshal.",
+"s":4
+},
+{
+"t":"Don't tell anybody, but the dog never got his license.",
+"s":3
+},
+{
+"t":"He's teaching the boy. The tractor's teaching the dog.",
+"s":3
+}
+]
+},
+"969":{
+"style":1,
+"voice":"fieldguide",
+"tags":[
+"church",
+"couple",
+"home",
+"road"
+],
+"odd":[
+{
+"q":"Whose glasses is the ferret wearing?",
+"x":38,
+"y":20,
+"r":9
+},
+{
+"q":"What's she missing from her pockets?",
+"x":87,
+"y":20,
+"r":11
+},
+{
+"q":"What else is in that pile?",
+"x":50,
+"y":32,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"We should have gotten the goldfish.",
+"s":4
+},
+{
+"t":"He's been very relaxed since we got him.",
+"s":4
+},
+{
+"t":"The keys were right here when I fell asleep.",
+"s":3
+},
+{
+"t":"Next time, we leave him with your mother.",
+"s":3
+},
+{
+"t":"Have you seen my other shoe? Or my ring?",
+"s":3
+}
+]
+},
+"970":{
+"style":2,
+"voice":"county",
+"tags":[
+"airport",
+"bug",
+"elderly",
+"mountain",
+"shop"
+],
+"odd":[
+{
+"q":"Why is the guard waving?",
+"x":10,
+"y":36,
+"r":11
+},
+{
+"q":"Who knitted that ski mask?",
+"x":57,
+"y":36,
+"r":9
+},
+{
+"q":"Who is the lady with her arms folded?",
+"x":30,
+"y":50,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"Small bills, Kevin. Your mother can't break a fifty.",
+"s":4
+},
+{
+"t":"Would you like a lollipop with that, dear?",
+"s":4
+},
+{
+"t":"His mother drives. He just does the talking.",
+"s":4
+},
+{
+"t":"I'll still need two forms of ID. I know, I know.",
+"s":3
+},
+{
+"t":"He's been coming in every Friday since kindergarten.",
+"s":3
+}
+]
+},
+"971":{
+"style":4,
+"voice":"helpdesk",
+"tags":[
+"cat",
+"garden",
+"office",
+"rodent"
+],
+"odd":[
+{
+"q":"Is the cat about to derail the train?",
+"x":85,
+"y":49,
+"r":11
+},
+{
+"q":"Who's out there in the hammock?",
+"x":47,
+"y":24,
+"r":14
+},
+{
+"q":"Why is the mouse riding the train?",
+"x":44,
+"y":60,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"The cat has been promoted twice.",
+"s":4
+},
+{
+"t":"He's in back-to-back meetings until four.",
+"s":4
+},
+{
+"t":"He calls it working asynchronously.",
+"s":4
+},
+{
+"t":"IT says the mouse logs more hours than anyone.",
+"s":3
+},
+{
+"t":"The train is salaried. The cat is a contractor.",
+"s":3
+}
+]
+},
+"972":{
+"style":1,
+"voice":"romance",
+"tags":[
+"bar",
+"couple",
+"party"
+],
+"odd":[
+{
+"q":"Why is that man's arm being pulled?",
+"x":45,
+"y":43,
+"r":9
+},
+{
+"q":"Which way is the husband's tie pointing?",
+"x":88,
+"y":33,
+"r":11
+},
+{
+"q":"Who else at the party has noticed?",
+"x":72,
+"y":33,
+"r":11
+}
+],
+"decoys":[
+{
+"t":"Whatever you do, keep her away from the silverware.",
+"s":4
+},
+{
+"t":"She works at the magnet factory. She can't turn it off.",
+"s":4
+},
+{
+"t":"Hold my drink. My watch wants to introduce itself.",
+"s":4
+},
+{
+"t":"Gerald's pacemaker just asked for her number.",
+"s":3
+},
+{
+"t":"I married her for her personality.",
+"s":3
+}
+]
+},
 "1081":{
 "style":1,
 "voice":"pass",
@@ -20874,6 +23185,777 @@
 },
 {
 "t":"The cone is just for show.",
+"s":3
+}
+]
+},
+"1086":{
+"style":1,
+"voice":"number",
+"tags":[
+"couple",
+"home",
+"medical",
+"road",
+"sky",
+"street"
+],
+"odd":[
+{
+"q":"Why is the man on crutches reaching for his wallet?",
+"x":9,
+"y":33,
+"r":12
+},
+{
+"q":"How long has she been waiting out there?",
+"x":86,
+"y":33,
+"r":13
+},
+{
+"q":"Who sent the balloon?",
+"x":21,
+"y":33,
+"r":9
+}
+],
+"decoys":[
+{
+"t":"Do you have your validation from the cardiologist?",
+"s":4
+},
+{
+"t":"She's been circling since your gallbladder came out.",
+"s":4
+},
+{
+"t":"It takes cash, cards, or one of your kidneys.",
+"s":3
+},
+{
+"t":"Keep the balloon. It was in the room rate.",
+"s":3
+},
+{
+"t":"If it doesn't lift, we'll have to readmit you.",
+"s":4
+}
+]
+},
+"1087":{
+"style":2,
+"voice":"pass",
+"tags":[
+"bar",
+"couple"
+],
+"odd":[
+{
+"q":"What's gotten into that potted palm?",
+"x":89,
+"y":52,
+"r":13
+},
+{
+"q":"Why are those two staring?",
+"x":84,
+"y":21,
+"r":12
+},
+{
+"q":"How many has the shucker opened tonight?",
+"x":30,
+"y":20,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"Pace yourself, Gerald. The babysitter leaves at ten.",
+"s":4
+},
+{
+"t":"He read one article and now we're here every Friday.",
+"s":4
+},
+{
+"t":"That's the shucker's third shift tonight.",
+"s":3
+},
+{
+"t":"Don't stare, honey. That's what twenty-six looks like.",
+"s":4
+},
+{
+"t":"The doctor said one a day. He heard one a minute.",
+"s":3
+}
+]
+},
+"1088":{
+"style":1,
+"voice":"trailhead",
+"tags":[
+"dog",
+"forest"
+],
+"odd":[
+{
+"q":"What are those tracks circling the fire?",
+"x":78,
+"y":72,
+"r":14
+},
+{
+"q":"Where did he get swim goggles?",
+"x":89,
+"y":48,
+"r":8
+},
+{
+"q":"Why does the dog get the best spot?",
+"x":61,
+"y":42,
+"r":11
+}
+],
+"decoys":[
+{
+"t":"Don't bother moving again, Ron. It'll only follow you.",
+"s":4
+},
+{
+"t":"The dog figured it out in about four seconds.",
+"s":4
+},
+{
+"t":"He says it's cheaper than a sauna.",
+"s":3
+},
+{
+"t":"He packed the goggles. We packed the marshmallows.",
+"s":3
+},
+{
+"t":"Pass him a marshmallow. He's basically a ham by now.",
+"s":4
+}
+]
+},
+"1089":{
+"style":2,
+"voice":"number",
+"tags":[
+"bug",
+"death",
+"kids",
+"party",
+"shop"
+],
+"odd":[
+{
+"q":"Who's hiding under the sheet?",
+"x":50,
+"y":45,
+"r":17
+},
+{
+"q":"Why are all those photos on the wall?",
+"x":88,
+"y":14,
+"r":13
+},
+{
+"q":"Is the rattle helping?",
+"x":72,
+"y":30,
+"r":8
+}
+],
+"decoys":[
+{
+"t":"Could the gentleman under the sheet breathe a little quieter?",
+"s":4
+},
+{
+"t":"It has to look like him for the next ten years.",
+"s":3
+},
+{
+"t":"He's got a tight connection in Frankfurt. This matters.",
+"s":4
+},
+{
+"t":"Sir, your sneakers are in the shot.",
+"s":4
+},
+{
+"t":"Six tries, same face. We'll take the third one.",
+"s":3
+}
+]
+},
+"1090":{
+"style":4,
+"voice":"pass",
+"tags":[
+"bird",
+"cat",
+"couple",
+"home",
+"kitchen",
+"mountain"
+],
+"odd":[
+{
+"q":"What is the cat waiting for?",
+"x":33,
+"y":19,
+"r":10
+},
+{
+"q":"Why is she up with a flashlight?",
+"x":8,
+"y":50,
+"r":10
+},
+{
+"q":"What's he writing in that notebook?",
+"x":45,
+"y":43,
+"r":10
+}
+],
+"decoys":[
+{
+"t":"Your father is doing science. Go back to bed.",
+"s":4
+},
+{
+"t":"The leftovers can sit on the counter tonight.",
+"s":3
+},
+{
+"t":"He gets like this right before a grant deadline.",
+"s":4
+},
+{
+"t":"Tell the cat it's a long experiment.",
+"s":3
+},
+{
+"t":"Third night this week. He says he's getting close.",
+"s":4
+}
+]
+},
+"1091":{
+"style":1,
+"voice":"trailhead",
+"tags":[
+"couple",
+"sea"
+],
+"odd":[
+{
+"q":"What does the seagull think of all this?",
+"x":12,
+"y":13,
+"r":9
+},
+{
+"q":"Why is the captain still holding the rope?",
+"x":12,
+"y":50,
+"r":11
+},
+{
+"q":"Why won't the boatbuilder look?",
+"x":92,
+"y":40,
+"r":11
+}
+],
+"decoys":[
+{
+"t":"The brochure did say 'built for calm waters.'",
+"s":4
+},
+{
+"t":"Good news: the bottle's fine.",
+"s":4
+},
+{
+"t":"Try the other end. Maybe that one floats.",
+"s":3
+},
+{
+"t":"Keep the hat, Gerald. You earned it.",
+"s":3
+},
+{
+"t":"She did ask whether it was fiberglass.",
+"s":4
+}
+]
+},
+"1092":{
+"style":2,
+"voice":"number",
+"tags":[
+"court",
+"office"
+],
+"odd":[
+{
+"q":"Why does the prisoner look so alarmed?",
+"x":72,
+"y":28,
+"r":12
+},
+{
+"q":"What's in the picnic baskets?",
+"x":41,
+"y":63,
+"r":13
+},
+{
+"q":"Has the guard looked up yet?",
+"x":86,
+"y":47,
+"r":11
+}
+],
+"decoys":[
+{
+"t":"He's been a model prisoner. Until about four seconds ago.",
+"s":4
+},
+{
+"t":"Sign here, ma'am. And you sign right under her.",
+"s":4
+},
+{
+"t":"Visiting hours are one at a time, ladies.",
+"s":3
+},
+{
+"t":"He did mention he had a type.",
+"s":4
+},
+{
+"t":"I'll need to search the baskets. Both baskets.",
+"s":3
+}
+]
+},
+"1093":{
+"style":1,
+"voice":"pass",
+"tags":[
+"couple",
+"restaurant"
+],
+"odd":[
+{
+"q":"Why is the busboy crying too?",
+"x":78,
+"y":24,
+"r":11
+},
+{
+"q":"Where does her husband need to be?",
+"x":88,
+"y":45,
+"r":11
+},
+{
+"q":"What's on that menu he's holding?",
+"x":60,
+"y":40,
+"r":9
+}
+],
+"decoys":[
+{
+"t":"We'll have whatever doesn't make you cry.",
+"s":4
+},
+{
+"t":"He does this every night for the veal.",
+"s":4
+},
+{
+"t":"And the soup of the day was his mother's.",
+"s":3
+},
+{
+"t":"Take your time. We have a sitter until eleven.",
+"s":4
+},
+{
+"t":"Maybe we just do the tasting menu.",
+"s":3
+}
+]
+},
+"1094":{
+"style":2,
+"voice":"trailhead",
+"tags":[
+"bedroom",
+"couple",
+"dog"
+],
+"odd":[
+{
+"q":"Why is there a tick framed over the bed?",
+"x":35,
+"y":15,
+"r":14
+},
+{
+"q":"Is the dog waiting for its turn?",
+"x":78,
+"y":72,
+"r":13
+},
+{
+"q":"Who brought the wine?",
+"x":10,
+"y":45,
+"r":8
+}
+],
+"decoys":[
+{
+"t":"This is the most thorough you've been in years.",
+"s":4
+},
+{
+"t":"The dog's next, then maybe the wine.",
+"s":4
+},
+{
+"t":"'Romantic cabin getaway,' the website said.",
+"s":3
+},
+{
+"t":"Found one. No, wait, I've had that freckle since college.",
+"s":3
+},
+{
+"t":"Twenty-five years, and you still miss a spot.",
+"s":4
+}
+]
+},
+"1095":{
+"style":4,
+"voice":"number",
+"tags":[
+"bathroom",
+"bird",
+"garden",
+"home",
+"museum"
+],
+"odd":[
+{
+"q":"What does the homeowner make of this?",
+"x":90,
+"y":25,
+"r":11
+},
+{
+"q":"What's on the pirate's map?",
+"x":49,
+"y":43,
+"r":9
+},
+{
+"q":"What's buried under all these flags?",
+"x":75,
+"y":75,
+"r":14
+}
+],
+"decoys":[
+{
+"t":"That X has a gas main under it.",
+"s":4
+},
+{
+"t":"Your map is from 1702. Ours is from Tuesday.",
+"s":4
+},
+{
+"t":"Technically, the treasure is in the easement.",
+"s":4
+},
+{
+"t":"The last fellow dug up the cable line and wept.",
+"s":3
+},
+{
+"t":"You'll need a separate permit for the plank.",
+"s":3
+}
+]
+},
+"1096":{
+"style":1,
+"voice":"pass",
+"tags":[
+"fantasy"
+],
+"odd":[
+{
+"q":"What's coming down in that basket?",
+"x":34,
+"y":36,
+"r":9
+},
+{
+"q":"Why is the catapult just sitting there?",
+"x":82,
+"y":50,
+"r":12
+},
+{
+"q":"Which side is each knight on?",
+"x":77,
+"y":72,
+"r":14
+}
+],
+"decoys":[
+{
+"t":"He's been feeding both sides since the spring.",
+"s":4
+},
+{
+"t":"Hold the catapult. He takes cards now.",
+"s":4
+},
+{
+"t":"The basket's for the king. He's still not coming out.",
+"s":4
+},
+{
+"t":"Two mutton pies and whatever the gate guards want.",
+"s":3
+},
+{
+"t":"Exact change, please. It's a siege.",
+"s":3
+}
+]
+},
+"1097":{
+"style":2,
+"voice":"trailhead",
+"tags":[
+"bigbeast",
+"farmanimal",
+"garden",
+"kids"
+],
+"odd":[
+{
+"q":"What is the neighbor doing with tweezers?",
+"x":80,
+"y":28,
+"r":12
+},
+{
+"q":"Whose side is the goat on?",
+"x":60,
+"y":75,
+"r":14
+},
+{
+"q":"Where are all those seeds headed?",
+"x":50,
+"y":21,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"He's been at that one since Memorial Day.",
+"s":4
+},
+{
+"t":"He offered her twenty dollars to switch to bubbles.",
+"s":4
+},
+{
+"t":"Third week of the standoff. Neither side will blink.",
+"s":4
+},
+{
+"t":"The goat is under contract with the town.",
+"s":3
+},
+{
+"t":"Our yard has never looked happier.",
+"s":3
+}
+]
+},
+"1098":{
+"style":1,
+"voice":"number",
+"tags":[
+"bird"
+],
+"odd":[
+{
+"q":"How did a fly get into the vault?",
+"x":48,
+"y":44,
+"r":7
+},
+{
+"q":"What is the guard so worried about?",
+"x":92,
+"y":31,
+"r":10
+},
+{
+"q":"Why so many glass covers?",
+"x":8,
+"y":55,
+"r":11
+}
+],
+"decoys":[
+{
+"t":"Nobody breathe. The world's groceries depend on this.",
+"s":4
+},
+{
+"t":"Note the time. Everything on Earth just got lighter.",
+"s":4
+},
+{
+"t":"Leave it. We'll call it a rounding error.",
+"s":4
+},
+{
+"t":"Call Paris. Gently.",
+"s":3
+},
+{
+"t":"This is why we don't eat lunch in here.",
+"s":3
+}
+]
+},
+"1099":{
+"style":2,
+"voice":"pass",
+"tags":[
+"beach",
+"bird",
+"couple",
+"home",
+"kitchen",
+"mountain",
+"shop"
+],
+"odd":[
+{
+"q":"What's she brought home in that bag?",
+"x":88,
+"y":36,
+"r":10
+},
+{
+"q":"How many bowls are piled in the sink?",
+"x":20,
+"y":40,
+"r":11
+},
+{
+"q":"What's he actually making on that board?",
+"x":48,
+"y":62,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"Don't touch anything. They're in order.",
+"s":4
+},
+{
+"t":"Your mother gave him the apron. This is on her.",
+"s":4
+},
+{
+"t":"I'll put the takeout in the fridge, if there's room.",
+"s":4
+},
+{
+"t":"We're going to need more cabinets.",
+"s":3
+},
+{
+"t":"He watched one cooking show.",
+"s":3
+}
+]
+},
+"1100":{
+"style":4,
+"voice":"trailhead",
+"tags":[
+"beach",
+"sky",
+"street"
+],
+"odd":[
+{
+"q":"Why is the mail carrier dressed for two seasons?",
+"x":49,
+"y":60,
+"r":12
+},
+{
+"q":"Will the man shoveling ever reach the road?",
+"x":15,
+"y":49,
+"r":11
+},
+{
+"q":"Who gets the sunny side of the street?",
+"x":80,
+"y":46,
+"r":12
+}
+],
+"decoys":[
+{
+"t":"Neither rain nor snow, and apparently both.",
+"s":4
+},
+{
+"t":"The HOA approved his weather, not mine.",
+"s":4
+},
+{
+"t":"Property values are very different on that side.",
+"s":3
+},
+{
+"t":"His sister lives on this side. She's furious.",
+"s":3
+},
+{
+"t":"We've asked to switch sides at noon.",
 "s":3
 }
 ]
