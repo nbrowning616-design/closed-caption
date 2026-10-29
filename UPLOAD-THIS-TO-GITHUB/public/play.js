@@ -35,6 +35,8 @@
     if (W.visualViewport) { W.visualViewport.addEventListener('resize', () => { syncViewport(); fitSoon(); }); W.visualViewport.addEventListener('scroll', syncViewport); }
     W.addEventListener('resize', () => { syncViewport(); fitSoon(); });
     W.addEventListener('orientationchange', () => setTimeout(() => { syncViewport(); fitSoon(); }, 300));
+    // (a web font arriving late changes how much room the words take: fit again)
+    if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => fitSoon());
   } catch (e) {}
 
   /* ── Fit: nothing scrolls. The cartoon takes whatever room is left. If the middle doesn't fit beside it, the type
@@ -63,11 +65,12 @@
     const pg = document.querySelector('#game-content .pg');
     if (!pg) return;
     pg.classList.remove('scroll-mid');
+    if (pg.querySelector('.pg-wall')) { fitWall(pg); return; }
     const mids = [...pg.querySelectorAll('.pg-mid')];
     const toon = pg.querySelector('.pg-toon');
     const phase = state && state.phase;
     const goal = toon ? goalFor(phase, pg.clientHeight) : 0;
-    const thumbOk = !!toon && phase !== 'reading' && phase !== 'writing';
+    const thumbOk = !!toon && ['first_bets', 'second_bets', 'reveal', 'answer'].includes(phase) && !toon.classList.contains('framed');
     const tryStep = (i) => {
       applyStep(pg, STEPS[i]);
       if (toon) sizeToon(toon);
@@ -122,7 +125,8 @@
   // (Safari is shaky with percentage heights inside flex boxes: the picture gets the box's height in pixels)
   function sizeToon(toon) {
     const img = toon.querySelector('img'); if (!img) return;
-    const h = Math.max(40, toon.clientHeight - 8), w = Math.max(40, toon.clientWidth);
+    const inset = toon.classList.contains('framed') ? 26 : 8;   // (the gold frame is drawn around the picture)
+    const h = Math.max(40, toon.clientHeight - inset), w = Math.max(40, toon.clientWidth - (inset - 8));
     img.style.maxHeight = h + 'px'; img.style.maxWidth = w + 'px';
   }
 
@@ -135,9 +139,11 @@
     const thumb = state.cartoon ? `<button class="pg-thumb" onclick="openViewer()" aria-label="The cartoon. Tap to zoom"><img src="/images/${esc(state.cartoon.image)}" alt=""></button>` : '';
     return `<header class="pg-hd"><span class="pg-rd">${over ? 'Final' : 'Round ' + r}</span><span class="pg-dl">${who}</span><span class="pg-clk" id="pg-clk" aria-live="off"></span>${thumb}<button class="pg-menu" onclick="openMenu()" aria-label="Menu">☰</button></header>`;
   }
-  function toonHtml() {
-    if (!state.cartoon) return '<div class="pg-fill"></div>';
-    return `<button class="pg-toon" onclick="openViewer()" aria-label="The cartoon. Tap to zoom"><span class="pg-pic"><img src="/images/${esc(state.cartoon.image)}" alt="" onload="ccPlay.fit()"><span class="pg-zoom" aria-hidden="true">⤢</span></span></button>`;
+  // The cartoon (this round's, or with src another one: the Caption of the Night's, in its gold frame). Tap to zoom.
+  function toonHtml(src) {
+    if (!src && !state.cartoon) return '<div class="pg-fill"></div>';
+    const url = src ? esc(src) : '/images/' + esc(state.cartoon.image);
+    return `<button class="pg-toon${src ? ' framed' : ''}" onclick="openViewer(${src ? `'${url}'` : ''})" aria-label="The cartoon. Tap to zoom"><span class="pg-pic"><img src="${url}" alt="" onload="ccPlay.fit()"><span class="pg-zoom" aria-hidden="true">⤢</span></span></button>`;
   }
   const btn = (label, onclick, cls = 'btn-yellow', attrs = '') => `<button class="btn ${cls}" onclick="${onclick}" ${attrs}>${label}</button>`;
   const waitLine = (html) => `<p class="pg-wait" role="status">${html}</p>`;
@@ -479,17 +485,38 @@
     if (!f) return ratingsHtml();
     if (W.ccFinale && f.winner) safe(() => W.ccFinale.sync());   // the ceremony, once, on every phone together
     if (f.winner) {
+      // The last screen of the game: the framed card (tap the picture to zoom), and one button: the host's Play again
+      // (everyone else: Save the card, and who they're waiting for)
       const e = (f.entries || []).find(x => x.key === f.winner) || {};
-      return page('final', header() + `<h2 class="pg-title">Caption of the Night</h2><div class="pg-mid grow"><div class="pg-memo"><img src="/images/${esc(e.image || '')}" alt="" onload="ccPlay.fit()"><p class="pg-big" style="text-align:center">“${esc(e.caption || '')}”</p><p class="pg-tip">${e.writerId === myPlayerId ? 'You' : esc(e.writerName || first(e.writerId))} · ${esc(f.best || 'Caption of the Night')}</p></div></div><div class="pg-act">${state.isHost ? btn('Play again', 'ccPlay.again()') : waitLine(`Waiting for <b>${hostName()}</b><span class="dots"></span>`)}</div>`, 'f3|' + tagOf(state));
+      const who = e.writerId === myPlayerId ? 'by you' : 'by ' + esc(e.writerName || first(e.writerId));
+      const act = state.isHost
+        ? `${btn('Play again', 'ccPlay.again()')}<button class="btn-link pg-save" onclick="ccFinale.saveClean()">Save the card</button>`
+        : `${btn('Save the card', 'ccFinale.saveClean()', '')}${waitLine(`Waiting for <b>${hostName()}</b> to play again<span class="dots"></span>`)}`;
+      return page('final pg-cotn', header() +`<h2 class="pg-title">Caption of the Night</h2>` + toonHtml('/images/' + (e.image || '')) +
+        `<div class="pg-mid"><p class="pg-big pg-memo-c">“${esc(e.caption || '')}”</p><p class="pg-tip">${who}</p></div><div class="pg-act">${act}</div>`, 'f3|' + tagOf(state));
     }
+    // The vote: one row per framed caption, the whole caption always there to read (the type shrinks to fit, never cut)
     const mine = localVote.tag === state.code + '|' + f.at ? localVote.key : f.myVote;
-    const n = (f.entries || []).length, cols = n <= 1 ? 1 : n <= 6 ? 2 : 3, rows = Math.max(1, Math.ceil(n / cols));
     const cards = (f.entries || []).map(e => { const own = e.writerId === myPlayerId; const can = f.canVote && !own;
-      return `<button class="pg-fr${mine === e.key ? ' on' : ''}" ${can ? `onclick="ccPlay.vote('${esc(e.key)}')"` : 'disabled'} aria-pressed="${mine === e.key}"><img src="/images/${esc(e.image)}" alt="" onload="ccPlay.fit()"><span class="pg-fc">“${esc(e.caption)}”</span><span class="pg-fb">${own ? 'Yours' : esc(e.writerName || first(e.writerId))}</span></button>`; }).join('');
+      return `<button class="pg-fr${mine === e.key ? ' on' : ''}" ${can ? `onclick="ccPlay.vote('${esc(e.key)}')"` : 'disabled'} aria-pressed="${mine === e.key}"><span class="pg-fpic"><img src="/images/${esc(e.image)}" alt="" onload="ccPlay.fit()"></span><span class="pg-ftx"><span class="pg-fc">“${esc(e.caption)}”</span><span class="pg-fb">${own ? 'Yours' : esc(e.writerName || first(e.writerId))}${mine === e.key ? ' · your vote' : ''}</span></span></button>`; }).join('');
     const voters = (f.voters || []).length, decided = (f.decided || []).length;
     const tip = f.canVote ? (mine ? 'Voted. Tap another to change it.' : 'Tap the best one. Not your own.') : 'They’re all yours. The table is voting.';
     const act = state.isHost ? `${waitLine(`${decided} of ${voters} voted`)}${decided ? btn('Count the votes', "ccPlay.countVotes()", '') : ''}` : waitLine(`${decided} of ${voters} voted`);
-    return page('final', header() + `<h2 class="pg-title">Caption of the Night?</h2><p class="pg-tip">${tip}</p><div class="pg-mid grow"><div class="pg-wall" style="--cols:${cols};--rows:${rows}">${cards}</div></div><div class="pg-act">${act}</div>`, 'f2|' + tagOf(state));
+    return page('final', header() + `<h2 class="pg-title">Caption of the Night?</h2><p class="pg-tip">${tip}</p><div class="pg-mid grow"><div class="pg-wall">${cards}</div></div><div class="pg-act">${act}</div>`, 'f2|' + tagOf(state));
+  }
+  /* The vote's rows: the biggest picture and the biggest type that let every caption show in full */
+  const WALL = (() => { const c = []; for (const f of [1, 0.92, 0.85]) for (const th of [150, 128, 108, 92, 80]) c.push([th, f]); for (const th of [68, 58]) for (const f of [0.85, 0.78, 0.72]) c.push([th, f]); return c; })();
+  function fitWall(pg) {
+    const wall = pg.querySelector('.pg-wall'); if (!wall) return false;
+    pg.classList.toggle('dense', pg.clientHeight < 760);
+    const rows = [...wall.querySelectorAll('.pg-fr')];
+    const fits = () => pg.scrollHeight <= pg.clientHeight + 1 && wall.scrollHeight <= wall.clientHeight + 1 && rows.every(r => r.scrollHeight <= r.clientHeight + 1);
+    for (const [th, f] of WALL) {
+      pg.style.setProperty('--th', th + 'px'); pg.style.setProperty('--fs', String(f));
+      if (fits()) return true;
+    }
+    pg.classList.add('scroll-mid');
+    return true;
   }
   function endingHtml() {
     const step = (state.ending && state.ending.step) || 0;
@@ -542,7 +569,10 @@
 
   /* ── Render: the lobby is the other screen family (it scrolls); every in-game screen is one fixed page ── */
   function render(force = false) {
-    if (!state || !$('screen-game').classList.contains('active')) return;
+    if (!state) return;
+    // The Caption of the Night ceremony belongs to the end of the game: once the game moves on it's gone, on every phone
+    if (!(state.phase === 'scores' && state.gameOver && state.finale && state.finale.winner) && W.ccFinale) safe(() => W.ccFinale.close());
+    if (!$('screen-game').classList.contains('active')) return;
     const el = $('game-content');
     const phaseChanged = lastPhase !== state.phase || lastRound !== state.round;
     if (state.phase === 'lobby') {
