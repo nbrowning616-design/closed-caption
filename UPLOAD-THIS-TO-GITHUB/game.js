@@ -905,15 +905,6 @@ function removePlayer(game, hostId, targetId) {
   p.gone = true; p.connected = false; p.disconnectedAt = p.disconnectedAt || Date.now();
   return { ok: true, name: p.name, midGame: true };
 }
-function moveSeat(game, hostId, targetId, dir) {
-  if (game.phase !== PHASES.LOBBY) return { error: 'Seats can only be changed in the lobby' };
-  if (game.hostId !== hostId) return { error: 'Only the host can arrange the seats' };
-  const i = game.players.findIndex(p => p.id === targetId), j = i + (dir < 0 ? -1 : 1);
-  if (i < 0) return { error: 'You’re not in this game.' };
-  if (j < 0 || j >= game.players.length) return { ok: true };
-  [game.players[i], game.players[j]] = [game.players[j], game.players[i]];
-  return { ok: true };
-}
 
 const dealerOf = (game) => game.players[game.dealerIndex] || null;
 const nameOfPlayer = (game, pid) => (game.players.find(p => p.id === pid) || {}).name || '?';
@@ -1777,7 +1768,7 @@ function getPlayerView(game, playerId) {
     locked: !!game.locked,
     notice: game.notice || null,
     seatClaim: game.seatClaim && game.hostId === playerId ? { ...game.seatClaim } : null,
-    players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: !!p.connected, gone: isGone(p, now), watched: !!p.watched, rating: Rating.validRating(p.rating) ? p.rating : null, provisional: !Rating.validRating(p.rating) || (p.games || 0) < Rating.PROVISIONAL_GAMES, title: ratingTitle(p), published: published.get(p.name.toLowerCase()) || 0 })),
+    players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: !!p.connected, gone: isGone(p, now), rating: Rating.validRating(p.rating) ? p.rating : null, provisional: !Rating.validRating(p.rating) || (p.games || 0) < Rating.PROVISIONAL_GAMES, title: ratingTitle(p), published: published.get(p.name.toLowerCase()) || 0 })),
     round: game.round,
     totalRounds: lapsOf(game) ? totalRounds(game) : null,
     settings: { ...s },
@@ -1959,7 +1950,7 @@ module.exports = {
   PHASES, CARTOONS, DEFAULT_SETTINGS, MAX_PLAYERS, CAPTION_MAX, GONE_MS, STANDIN_MS, AWAY_WAIT_MS,
   sealGame, unsealGame, tooCloseToReal, pickByLevel, tableKind, setPosition, levelOf, canDeal, deckStatus, startCheck, endForDeck, isRetiredId, FIRST_LIVE_ID,
   cleanTimer, DEFAULT_TIMER, totalRounds, lapsOf, nextDealerIndex, freshest, planBlock, ensurePlan,
-  createGame, updateSettings, addPlayer, kickPlayer, removePlayer, moveSeat, setSeen, setPlayerSeen, seenCounts, store, syncGallery, dealCartoon,
+  createGame, updateSettings, addPlayer, kickPlayer, removePlayer, setSeen, setPlayerSeen, seenCounts, store, syncGallery, dealCartoon,
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn, connectedAllIn, onlyAwayPending, waitingWriters,
   moveToFirstBets, placeBet, undoBet, dropBlind, dropLate, moreBetTime, afterBlinds, eligibleSecondBetters, pendingBetters,
   stealChip, randomSteal, stealable, flip, revealAnswer, reelNext, reelOrder, votesOn, moveToScoreboard, isGameOver, liveOver, finishIfOver, resetForNewGame,

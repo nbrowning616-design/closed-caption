@@ -529,7 +529,6 @@ wss.on('connection', (ws, req) => {
         broadcast(code);
         return;
       }
-      case 'demo_watched': { if (!me.watched) { me.watched = true; broadcast(code); } return; }
       case 'update_settings': {
         if (!isHost) return sendError(ws, 'Only the host can change settings');
         if (fail(G.updateSettings(game, msg.settings || {}))) return;
@@ -553,7 +552,6 @@ wss.on('connection', (ws, req) => {
         if (r.added) broadcast(code);
         return;
       }
-      case 'move_seat': { if (fail(G.moveSeat(game, playerId, msg.targetPlayerId, Number(msg.dir)))) return; broadcast(code); return; }
       case 'react': {
         // Bravo! on any caption but your own; nobody sees a count. A majority frames a revealed fake.
         if (fail(G.react(game, playerId, msg.target, msg.kind, msg.on))) return;
