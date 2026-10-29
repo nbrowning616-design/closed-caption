@@ -2549,10 +2549,10 @@ function resolveFinale(game) {
    Each player can Ha and/or Groan each caption once (tap again to take it back), never their own. Nothing is shown
    before the answer (only your own taps, on your phone): a laugh count would hint at what's real. From the answer on,
    the counts per caption. A tap made before the answer is 'blind' (1), after it 'open' (2): R10 counts blind Ha's. ── */
-const REACTION_KINDS = ['ha'];   // 'ha' is Love It (Groan retired)
+const REACTION_KINDS = ['ha'];   // 'ha' is Bravo! (was Love It; Groan retired)
 const REACT_PHASES = [PHASES.READING, PHASES.FIRST_BETS, PHASES.STEAL, PHASES.REVEAL, PHASES.SECOND_BETS, PHASES.ANSWER];
 function react(game, playerId, target, kind, on) {
-  if (!REACT_PHASES.includes(game.phase)) return { error: 'Love It closes with the round.' };
+  if (!REACT_PHASES.includes(game.phase)) return { error: 'Too late for a Bravo: the round’s over.' };
   if (!game.players.some(p => p.id === playerId)) return { error: 'You’re not in this game.' };
   if (!REACTION_KINDS.includes(kind)) return { error: 'That didn’t take. Try again.' };
   const v = validateTarget(game, target);
@@ -2726,7 +2726,7 @@ function awardBadges(game) {
 /* ── The rating (chess-style, rating.js): each phone keeps its own; the server does the arithmetic once a game ──
    The 'career' message: { rating, games, total, lines } — this phone's rating and games played, its badge count,
    and the short keys of the verdict lines it has already been shown (so nobody reads the same line twice). */
-// The Love It lesson: before the first cartoon of a room's first game, a short animated card shows a caption being
+// The Bravo! lesson: before the first cartoon of a room's first game, a short animated card shows a caption being
 // loved, framed and hung in The Gallery (Nick, Oct 25 2026). The opening cards wait for it; the writers get the time back.
 const FRAME_MS = 7000;
 function addFrameDemo(game) {

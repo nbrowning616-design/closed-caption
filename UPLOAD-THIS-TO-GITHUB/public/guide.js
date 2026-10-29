@@ -17,7 +17,7 @@
     first_bets: { icon: '', text: 'Bet on the caption you think is real. Early chips pay more.' },
     steal: { icon: '', text: 'The dealer steals one chip before the flip.' },
     answer: { icon: '', text: 'Who wrote what, and who fell for it.' },
-    frame: { icon: '', text: 'Loved a caption? When most of the table does, it hangs in The Gallery.' }
+    frame: { icon: '', text: 'Great caption? Tap Bravo! If most of the table does, it’s framed.' }
   };
   // How long after the moment arrives before the tip slides in (let the screen's own show land first)
   var DELAY = { writing: 2600, facedown: 2400, first_bets: 1200, steal: 1800, answer: 5200, frame: 2200 };   // after the moment lands, never on top of it

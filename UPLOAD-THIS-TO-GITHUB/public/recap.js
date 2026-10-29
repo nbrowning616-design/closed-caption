@@ -54,7 +54,7 @@
     var liar = lm ? { ids: Object.keys(lies).filter(function (k) { return lies[k] === lm; }), n: lm } : null;
     // The night's framed captions (up to 3), else the night's best bluffs
     var framed = (s.hallOfFame || []).slice(0, 3).map(function (e) {
-      return { image: e.image, caption: e.caption, credit: e.isReal || !e.writerName ? 'the real caption' : e.writerName, note: (e.flaggers && e.flaggers.length) ? 'loved by ' + joinNames(e.flaggers) : '' };
+      return { image: e.image, caption: e.caption, credit: e.isReal || !e.writerName ? 'the real caption' : e.writerName, note: (e.flaggers && e.flaggers.length) ? 'cheered by ' + joinNames(e.flaggers) : '' };
     });
     var capsTitle = 'Framed tonight';
     if (!framed.length) {

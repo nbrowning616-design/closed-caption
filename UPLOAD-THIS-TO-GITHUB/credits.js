@@ -268,7 +268,7 @@ const GRUDGE_ORDER = ['robbed', 'fooled', 'tie', 'monkey', 'collapse', 'comeback
 // The one awards slide (#27): Best Lie and Nobody Bit are quoted; Best Liar keeps what the old hat measured
 const NOBODY_BIT = ['Their loss.', 'It deserved better.', 'Still a fine sentence.', 'Ahead of its time.', 'A collector’s item.'];
 const NOBODY_BIT_FRAMED = 'The table framed it anyway.';
-const NOBODY_BIT_HA = 'Loved, and nobody bet on it.';
+const NOBODY_BIT_HA = 'Bravos all round, and nobody bet on it.';
 const GROANS_LINE = ['Unrepentant.', 'No regrets.', 'Proud of every one.'];
 
 // The Remote: the table's traveling trophy, held by the last winner (Nick, Oct 20 2026)

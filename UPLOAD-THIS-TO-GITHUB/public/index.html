@@ -992,7 +992,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .rt-trow:first-child { border-top: 0; }
 .rt-trow b { font-weight: 700; }
 .rt-trow.on { background: var(--yellow-bg); }
-/* The Love It lesson (Nick, Oct 25 2026): before a room's first cartoon, a caption is loved, framed and hung for good */
+/* The Bravo! lesson (Nick, Oct 25 2026; was Love It until Oct 29): before a room's first cartoon, a caption gets a Bravo!, is framed and hung for good */
 #framedemo { position: fixed; inset: 0; z-index: 780; display: none; align-items: center; justify-content: center; padding: calc(20px + var(--sat)) 18px calc(20px + var(--sab)); background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 14px 14px; }
 #framedemo.on { display: flex; animation: fadeIn .3s ease-out; }
 .fd-in { width: 100%; max-width: 360px; text-align: center; }
@@ -1001,11 +1001,11 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .fd-card { position: relative; padding: 18px 16px 14px; border: 3px solid var(--ink); border-radius: 14px; background: var(--card); box-shadow: var(--shadow-sm); opacity: 0; animation: fdUp .5s ease-out .5s forwards; transition: border-color .4s, border-radius .4s; }
 .fd-q { font-family: var(--serif); font-style: italic; font-size: 20px; line-height: 1.3; color: var(--ink); }
 .fd-row { display: flex; justify-content: center; margin-top: 12px; height: 32px; }
-.fd-pill { position: relative; display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 13px; border: 2px solid #C2185B; border-radius: 999px; background: #FFF4F8; color: #A3134B; font-family: var(--sans); font-weight: 900; font-size: 13px; animation: loveGlow 2.4s ease-in-out infinite; }
+.fd-pill { position: relative; display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 13px; border: 2px solid #C0322A; border-radius: 999px; background: #FFF5F3; color: #B02A22; font-family: var(--sans); font-weight: 900; font-size: 13px; animation: loveGlow 2.4s ease-in-out infinite; }
 .fd-pill .h { font-size: 15px; line-height: 1; }
-.fd-pill.loved { background: #D81B60; border-color: #A3134B; color: #fff; animation: none; box-shadow: 0 0 0 3px rgba(216,27,96,.22), 0 0 14px rgba(216,27,96,.45); }
+.fd-pill.loved { background: #D7372C; border-color: #B02A22; color: #fff; animation: none; box-shadow: 0 0 0 3px rgba(215,55,44,.22), 0 0 14px rgba(215,55,44,.45); }
 .fd-pill.framed { background: linear-gradient(180deg,#F2DC98,#D7B25E 55%,#BF953F); color: #2E2108; border-color: #5a3f0c; box-shadow: none; }
-.fd-heart { position: absolute; left: 50%; top: 4px; color: #D81B60; font-size: 18px; opacity: 0; pointer-events: none; }
+.fd-heart { position: absolute; left: 50%; top: 4px; color: #D7372C; font-family: 'Caveat', var(--serif); font-weight: 700; white-space: nowrap; font-size: 20px; opacity: 0; pointer-events: none; }
 .fd-heart.go { animation: fdHeart 1s ease-out forwards; }
 .fd-frame { position: absolute; inset: -16px; border-radius: 6px; border: 12px solid #3b2a12; box-shadow: inset 0 0 0 3px #BF953F, 0 0 0 3px #BF953F, 0 8px 0 rgba(0,0,0,.18); opacity: 0; transform: scale(1.18); pointer-events: none; }
 .fd-frame.on { animation: fdFrame .55s cubic-bezier(.2,1.3,.4,1) forwards; }
@@ -1018,7 +1018,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .fd-tap { position: absolute; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; background: rgba(31,26,23,.28); border: 2px solid rgba(31,26,23,.55); left: 85%; top: 140%; opacity: 0; pointer-events: none; transition: left .7s cubic-bezier(.3,.7,.3,1), top .7s cubic-bezier(.3,.7,.3,1), opacity .25s, transform .15s; }
 .fd-tap.on { opacity: 1; }
 .fd-tap.press { transform: scale(.72); background: rgba(31,26,23,.45); }
-.fd-tap.press::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid rgba(216,27,96,.7); animation: fdRing .5s ease-out forwards; }
+.fd-tap.press::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid rgba(215,55,44,.7); animation: fdRing .5s ease-out forwards; }
 @keyframes fdUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes fdFrame { to { opacity: 1; transform: none; } }
 @keyframes fdHeart { 0% { opacity: 0; transform: translate(var(--dx), 0) scale(.6); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), -46px) scale(1.15); } }
@@ -1048,11 +1048,11 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .rx-b, .fr-b { position: relative; display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 12px; border: 2px solid var(--ink); border-radius: 999px; background: var(--card); font-family: var(--sans); font-weight: 900; font-size: 13px; line-height: 1; color: var(--ink-2); cursor: pointer; white-space: nowrap; }
 .rx-b::after, .fr-b::after { content: ''; position: absolute; inset: -7px -3px; }
 .rx-b[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
-.rx-b.love { border-color: #C2185B; color: #A3134B; background: #FFF4F8; animation: loveGlow 2.4s ease-in-out infinite; }
+.rx-b.love { border-color: #C0322A; color: #B02A22; background: #FFF5F3; animation: loveGlow 2.4s ease-in-out infinite; }
 .rx-b.love .rx-h { font-size: 15px; line-height: 1; }
-.rx-b.love[aria-pressed="true"] { background: #D81B60; border-color: #A3134B; color: #fff; animation: none; box-shadow: 0 0 0 3px rgba(216,27,96,.22), 0 0 14px rgba(216,27,96,.45); }
-@keyframes loveGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(216,27,96,0); } 50% { box-shadow: 0 0 0 3px rgba(216,27,96,.18), 0 0 12px rgba(216,27,96,.38); } }
-@media (prefers-reduced-motion: reduce) { .rx-b.love { animation: none; box-shadow: 0 0 8px rgba(216,27,96,.3); } }
+.rx-b.love[aria-pressed="true"] { background: #D7372C; border-color: #B02A22; color: #fff; animation: none; box-shadow: 0 0 0 3px rgba(215,55,44,.22), 0 0 14px rgba(215,55,44,.45); }
+@keyframes loveGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(215,55,44,0); } 50% { box-shadow: 0 0 0 3px rgba(215,55,44,.18), 0 0 12px rgba(215,55,44,.38); } }
+@media (prefers-reduced-motion: reduce) { .rx-b.love { animation: none; box-shadow: 0 0 8px rgba(215,55,44,.3); } }
 .rx-b .rx-n { font-variant-numeric: tabular-nums; color: inherit; opacity: .85; }
 .rx-b:disabled { cursor: default; opacity: 1; }
 .rx-quiet { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 13px; color: var(--muted); }
@@ -1239,9 +1239,9 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 
   <details class="box" id="rules-extras" style="margin-bottom: 22px;"><summary>The extras <span class="arrow">▾</span></summary><div class="body">
     <ul class="rules-extras">
-      <li><b>Love It.</b> Every caption but your own has a glowing Love It button, from the reading until the next deal. Love as many as you like; tap again to take it back. Nobody sees a count until the answer. Once a fake's writer is revealed, if <span class="frame-need">most of the other players</span> love it, it's framed and hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
+      <li><b>Bravo!</b> Every caption but your own has a glowing Bravo! button, from the reading until the next deal. Give as many as you like; tap again to take it back. Nobody sees a count until the answer. Once a fake's writer is revealed, if <span class="frame-need">most of the other players</span> gave it a Bravo!, it's framed and hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
       <li><b>Call your shot.</b> Once your caption is in, name the one person you think will fall for it. If they put a chip on it, +3. The reveal says how it went either way.</li>
-      <li><b>The table vs. the cartoonist.</b> Each round, the best-loved fake (Love Its given before the answer) takes on the real caption. Whoever has more Love Its wins the round for their side. Just for fun: it isn’t in anyone’s score.</li>
+      <li><b>The table vs. the cartoonist.</b> Each round, the most-cheered fake (Bravos given before the answer) takes on the real caption. Whoever has more Bravos wins the round for their side. Just for fun: it isn’t in anyone’s score.</li>
       <li><b>The Late Edition.</b> In a game that goes around the table more than once, the last trip around pays double. First to 20: when someone gets there, the trip around the table is finished (everyone deals the same number of times), at double points. Then the leader wins.</li>
       <li><b>A tie for first</b> goes to whoever fooled the most chips (every chip a fake of yours took in). Still level: more captions framed. Still level: a tie.</li>
       <li><b>Did you know?</b> Between games, a short public-service announcement: two or three facts about tonight’s players, from how they actually played. The dealer taps on.</li>
@@ -1992,7 +1992,7 @@ function joinGame() {
 }
 document.addEventListener('keydown', (e) => {
   // #59: caption cards (and anything else drawn as role="button") work from a keyboard: Enter or Space
-  const native = e.target && /^(BUTTON|A|INPUT|TEXTAREA|SELECT|SUMMARY)$/.test(e.target.tagName);   // a real control does its own thing (Love It inside a caption card)
+  const native = e.target && /^(BUTTON|A|INPUT|TEXTAREA|SELECT|SUMMARY)$/.test(e.target.tagName);   // a real control does its own thing (Bravo! inside a caption card)
   const rb = !native && e.target && e.target.closest && e.target.closest('[role="button"]');
   if (rb && rb.tagName !== 'BUTTON' && (e.key === 'Enter' || e.key === ' ') && !e.repeat) { e.preventDefault(); rb.click(); return; }
   if (e.key !== 'Enter') return;
@@ -2207,7 +2207,7 @@ function stageSay() {
       case 'reveal': line = 'Flip. The face-down caption turns over. Then it moves on by itself.'; break;
       case 'second_bets': line = s.isMyTurn ? '' : s.lateDropAt ? '' : 'Flip. Last chips, everyone at once, in secret.'; break;
       case 'steal': line = me ? '' : `${d} is choosing a chip to steal, before the flip.`; break;
-      case 'answer': { const { step, n } = reelInfo(); line = step > n ? 'Score. Round recap: the real caption, the points, and a Love It for any caption that beat it.' : 'Score. The reveal: who wrote each caption, and who fell for it. It moves on by itself.'; break; }
+      case 'answer': { const { step, n } = reelInfo(); line = step > n ? 'Score. Round recap: the real caption, the points, and a Bravo! for any caption that beat it.' : 'Score. The reveal: who wrote each caption, and who fell for it. It moves on by itself.'; break; }
       case 'scores': line = s.gameOver ? 'Final scores.' : `Scoreboard. Next dealer: ${firstName(s.nextDealerName || '')}.`; break;
     }
     if (line) srSay(line);
@@ -2909,17 +2909,17 @@ function rxMine(key) {
   const m = { ...(((state.myReactions || {})[String(key)]) || {}) }, l = rxLocal[rTag() + '|' + key];
   return l ? Object.assign(m, l) : m;
 }
-const rxWords = (c) => c.ha ? `Loved by ${c.ha}` : '';
-/* Love It: one glowing button on every caption but your own. Tap again to take it back. As many captions as you like.
+const rxWords = (c) => c.ha ? `${c.ha} ${c.ha === 1 ? 'Bravo' : 'Bravos'}` : '';
+/* Bravo! (was Love It until Oct 29 2026): one glowing button on every caption but your own. Tap again to take it back. As many captions as you like.
    Open from the reading until the next deal; counts stay hidden until the answer. A majority of the other players
-   loving a revealed fake frames it (the server does it). */
+   giving a revealed fake a Bravo! frames it (the server does it). */
 function rxHtml(key, o = {}) {
   key = String(key);
   const counts = (state.reactionCounts || {})[key] || null, fr = o.frame ? frHtml(key) : '';
   const wrap = (inner) => `<div class="rx" data-rx="${key}" data-rxf="${o.frame ? 1 : 0}">${inner}</div>`;
   if (isMineKey(key)) return counts || fr ? wrap(`${counts ? `<span class="rx-quiet">${rxWords(counts)}</span>` : ''}${fr ? `<span class="rx-sp"></span>${fr}` : ''}`) : '';
   const on = !!rxMine(key).ha, n = counts ? counts.ha || 0 : 0;
-  const btn = `<button class="rx-b love" aria-pressed="${on ? 'true' : 'false'}" onclick="event.stopPropagation(); tapReact('${key}','ha')" aria-label="${on ? 'You love it. Tap to take it back' : 'Love it'}${counts ? `. ${n} so far` : ''}"><span class="rx-h" aria-hidden="true">♥</span>${on ? 'Loved' : 'Love It'}${n ? ` <span class="rx-n">${n}</span>` : ''}</button>`;
+  const btn = `<button class="rx-b love" aria-pressed="${on ? 'true' : 'false'}" onclick="event.stopPropagation(); tapReact('${key}','ha')" aria-label="${on ? 'You said Bravo. Tap to take it back' : 'Bravo'}${counts ? `. ${n} so far` : ''}">${on ? '<span class="rx-h" aria-hidden="true">✓</span>' : ''}Bravo!${n ? ` <span class="rx-n">${n}</span>` : ''}</button>`;
   return wrap(`${btn}${fr ? `<span class="rx-sp"></span>${fr}` : ''}`);
 }
 function refreshRx() {
@@ -3482,7 +3482,7 @@ function playPlaque(it) {
   if (!o) { o = document.createElement('div'); o.id = 'rd-plaque'; o.setAttribute('role', 'status'); o.setAttribute('aria-live', 'polite'); document.body.appendChild(o); }
   const me = playerById(myPlayerId), mine = !!it.author && !!me && it.author.toLowerCase() === me.name.toLowerCase();
   const by = (it.flaggers || []).map(firstName);
-  o.innerHTML = `<p class="pq-e">${mine ? 'You’ve been framed' : 'Framed'}</p><p class="pq-c">“${esc(it.caption || '')}”</p><p class="pq-w">${esc(it.author || '')}${by.length ? ` · loved by ${esc(listNames(by.map(n => n === nameOf(myPlayerId) ? 'you' : n)))}` : ''}</p>${(mine ? it.lineMine : it.line) ? `<p class="pq-l">${esc(mine ? it.lineMine : it.line)}</p>` : ''}`;
+  o.innerHTML = `<p class="pq-e">${mine ? 'You’ve been framed' : 'Framed'}</p><p class="pq-c">“${esc(it.caption || '')}”</p><p class="pq-w">${esc(it.author || '')}${by.length ? ` · cheered by ${esc(listNames(by.map(n => n === nameOf(myPlayerId) ? 'you' : n)))}` : ''}</p>${(mine ? it.lineMine : it.line) ? `<p class="pq-l">${esc(mine ? it.lineMine : it.line)}</p>` : ''}`;
   o.onclick = closePlaque;
   void o.offsetWidth; o.classList.add('on');
   big(() => { tone(1318, 0.18, 0, 'sine', 0.04); tone(1976, 0.32, 110, 'sine', 0.03); noise(0.05, 0, 0.05, 5200, 'highpass'); });
@@ -3496,7 +3496,7 @@ function playInduction(e, onPrint) {
   const o = $('induct');
   const credit = e.isReal || !e.writerName ? 'The real caption' : `Caption by ${e.writerName}`;
   o.innerHTML = `<div class="induct-card"><p class="eyebrow" style="color:var(--yellow-d);">Into The Gallery</p><div class="h-display" style="font-size:38px; margin:2px 0 12px;">Framed</div>
-    <p class="hof-caption">“${esc(e.caption || '')}”</p><p class="small" style="margin-top:8px;">${esc(credit)}${e.flaggers && e.flaggers.length ? ` · loved by ${esc(listNames(e.flaggers))}` : ''}</p>
+    <p class="hof-caption">“${esc(e.caption || '')}”</p><p class="small" style="margin-top:8px;">${esc(credit)}${e.flaggers && e.flaggers.length ? ` · cheered by ${esc(listNames(e.flaggers))}` : ''}</p>
     <div class="stack" style="margin-top:16px;"><button class="btn btn-yellow" id="induct-print">Make the card</button><button class="btn btn-sm" onclick="closeInduction()">Back to the table</button></div></div>`;
   $('induct-print').onclick = (ev) => { ev.stopPropagation(); onPrint(); };
   o.classList.add('on');
@@ -3541,7 +3541,7 @@ function hofListHtml() {
   const list = state.hallOfFame || [];
   if (!list.length) return '';
   return `<div class="panel hof-panel" style="margin-top:16px;"><p class="eyebrow" style="color:var(--yellow-d); margin-bottom:8px;">Framed tonight</p>
-    ${list.map((e, i) => `<div class="hof-item"><img src="/images/${esc(e.image)}" alt=""><div style="flex:1; min-width:0;"><p class="caption-text" style="font-size:15px;">“${esc(e.caption)}”</p><p class="small">${e.isReal || !e.writerName ? 'The real caption' : '— ' + esc(e.writerName)} · loved by ${esc(listNames(e.flaggers || []))}</p></div><button class="btn btn-sm" style="width:auto;" onclick="makeHofCard(${i})">🖼 Card</button></div>`).join('')}</div>`;
+    ${list.map((e, i) => `<div class="hof-item"><img src="/images/${esc(e.image)}" alt=""><div style="flex:1; min-width:0;"><p class="caption-text" style="font-size:15px;">“${esc(e.caption)}”</p><p class="small">${e.isReal || !e.writerName ? 'The real caption' : '— ' + esc(e.writerName)} · cheered by ${esc(listNames(e.flaggers || []))}</p></div><button class="btn btn-sm" style="width:auto;" onclick="makeHofCard(${i})">🖼 Card</button></div>`).join('')}</div>`;
 }
 // The Gallery: every framed caption, newest first (the server sends it between rounds)
 function openGallery() {
@@ -3551,7 +3551,7 @@ function openGallery() {
   if (window.Gallery && typeof window.Gallery.archiveHtml === 'function') { try { body = window.Gallery.archiveHtml(list); } catch (e) { body = ''; } }
   if (!body) body = list.length
     ? `<div class="panel hof-panel">${list.map(e => `<div class="hof-item"><img src="/images/${esc(e.image)}" alt=""><div style="flex:1; min-width:0;"><p class="caption-text" style="font-size:15px;">“${esc(e.caption)}”</p><p class="small">— ${esc(e.author)} · framed ${esc(e.month)}</p></div></div>`).join('')}</div>`
-    : `<div class="panel flat center"><p class="sub">Nothing framed yet. When ${frameNeedWords()} love the same caption, it hangs here.</p></div>`;
+    : `<div class="panel flat center"><p class="sub">Nothing framed yet. When ${frameNeedWords()} give the same caption a Bravo!, it hangs here.</p></div>`;
   $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin-bottom:10px;">The Gallery</p>${body}<button class="btn btn-ink" style="margin-top:14px;" onclick="closeMenu()">Close</button>`;
   $('sheet').classList.add('on');
 }
@@ -3615,7 +3615,7 @@ function renderRecap() {
     const why = pointReasons(pid);
     return `<li class="rc-row${pid === myPlayerId ? ' me' : ''}">${chipHtml(pid, 'sm')}<span class="rc-who"><b>${esc(pid === myPlayerId ? 'You' : nameOf(pid))}</b>${why.length ? `<span class="rc-why">${why.map(w => `<span>${esc(w)}</span>`).join('')}</span>` : ''}</span><span class="rc-plus">+${p}</span></li>`;
   }).join('');
-  const t = state.tvc || {}, best = state.tvcRound ? tvcBest() : null, tvc =state.tvcRound ? `<p class="rc-tvc">${state.tvcRound.side === 'draw' ? `Love Its this round: a draw, ${state.tvcRound.best} each. ` : ''}The table vs. the cartoonist: ${t.table || 0}–${t.cartoonist || 0}.${tvcBestNote(best)}</p>` : '';
+  const t = state.tvc || {}, best = state.tvcRound ? tvcBest() : null, tvc =state.tvcRound ? `<p class="rc-tvc">${state.tvcRound.side === 'draw' ? `Bravos this round: a draw, ${state.tvcRound.best} each. ` : ''}The table vs. the cartoonist: ${t.table || 0}–${t.cartoonist || 0}.${tvcBestNote(best)}</p>` : '';
   return `${header({ sticker: '<span class="sticker teal">Round recap</span>', thumb: false })}
     <div id="answer-root" class="done">
     ${page}
@@ -3646,7 +3646,7 @@ function recapFramesHtml() {
     const k = String(c.idx), counts = (state.reactionCounts || {})[k], framed = ((state.framing || {}).framed || []).includes(k);
     return `<li class="rc-fi${framed ? ' framed' : ''}">${chipHtml(c.playerId, 'sm')}<div class="rc-ft"><p class="rc-fc">“${esc(c.caption)}”</p><p class="rc-fw">${c.house ? esc(c.playerName || nameOf(c.playerId)) + ' ' + houseTag : esc(c.playerId === myPlayerId ? 'You' : firstName(c.playerName || nameOf(c.playerId)))}</p>${rxHtml(k, { frame: true })}</div></li>`;
   }).join('');
-  return `<section class="rc-frames" aria-label="Love It"><p class="rc-fh">Did anyone beat the real one?</p><p class="rc-fs">Love it. When most of the table does, it hangs in The Gallery.</p><ul class="rc-fl">${items}</ul></section>`;
+  return `<section class="rc-frames" aria-label="Bravo!"><p class="rc-fh">Did anyone beat the real one?</p><p class="rc-fs">Say Bravo! When most of the table does, it hangs in The Gallery.</p><ul class="rc-fl">${items}</ul></section>`;
 }
 /* #28: why each point was scored, in plain words, from the server's own list (state.roundScoreDetails):
    "+2 found the real one", "+2 fooled Margaret", "+1 your chip was stolen off a fake". Same reasons add up. */
@@ -4028,8 +4028,8 @@ function openRatingSheet() {
   $('sheet').classList.add('on');
 }
 
-/* ── The Love It lesson (Nick, Oct 25 2026): before the first cartoon of a room's first game, every phone watches a
-   caption get a Love It, get framed, and hang in The Gallery. ~7 s, the same on every phone; tap to skip. The
+/* ── The Bravo! lesson (Nick, Oct 25 2026; renamed from Love It Oct 29): before the first cartoon of a room's first game, every phone watches a
+   caption get a Bravo!, get framed, and hang in The Gallery. ~7 s, the same on every phone; tap to skip. The
    opening cards wait for it, and the server gave the writing clock the time back. ── */
 let fdShown = null, fdT = [], fdOpen = false;
 function closeFrameDemo() { fdT.forEach(clearTimeout); fdT = []; fdOpen = false; const o = $('framedemo'); if (o) { o.className = ''; o.innerHTML = ''; } syncOpening(); }
@@ -4045,18 +4045,18 @@ function syncFrameDemo() {
   o.innerHTML = `<div class="fd-in" onclick="closeFrameDemo()">
     <h2 class="fd-h">Great captions live forever.</h2>
     <div class="fd-stage"><div class="fd-card" id="fd-card"><p class="fd-q">“I told you the map was upside down.”</p>
-      <div class="fd-row"><span class="fd-pill" id="fd-pill"><span class="h" aria-hidden="true">♥</span><span id="fd-pt">Love it</span></span></div>
-      <span class="fd-heart" style="--dx:-38px">♥</span><span class="fd-heart" style="--dx:30px">♥</span><span class="fd-heart" style="--dx:-4px">♥</span>
+      <div class="fd-row"><span class="fd-pill" id="fd-pill"><span id="fd-pt">Bravo!</span></span></div>
+      <span class="fd-heart" style="--dx:-70px">bravo!</span><span class="fd-heart" style="--dx:28px">bravo!!</span><span class="fd-heart" style="--dx:-22px">bravo!</span>
       <div class="fd-frame" id="fd-frame"></div></div>
       <span class="fd-tap" id="fd-tap"></span></div>
     <div class="fd-plaque" id="fd-plaque">Caption by You · Hung in The Gallery</div>
-    <p class="fd-p" id="fd-p">When a caption beats the real one, tap <b style="color:#A3134B;">♥ Love it</b>. If most of the table agrees, it’s framed and hangs in The Gallery for good.</p>
+    <p class="fd-p" id="fd-p">When a caption beats the real one, tap <b style="color:#B02A22;">Bravo!</b> If most of the table agrees, it’s framed and hangs in The Gallery for good.</p>
     <button class="btn btn-sm fd-ok" id="fd-ok" onclick="event.stopPropagation(); closeFrameDemo()">Got it</button></div>`;
   o.className = 'on'; fdOpen = true;
   const gone = Math.max(0, d.ms - left), at = (t, fn) => fdT.push(setTimeout(() => { if (fdOpen) fn(); }, Math.max(0, t - gone)));
   const q = (id) => document.getElementById(id);
   at(1300, () => { const t = q('fd-tap'), p = q('fd-pill'); if (t) t.classList.add('on'); if (t && p) { const st = t.parentElement.getBoundingClientRect(), r = p.getBoundingClientRect(); t.style.left = (r.left - st.left + r.width / 2) + 'px'; t.style.top = (r.top - st.top + r.height / 2) + 'px'; } });
-  at(2150, () => { const t = q('fd-tap'), p = q('fd-pill'); if (t) t.classList.add('press'); if (p) { p.classList.add('loved'); q('fd-pt').textContent = 'Loved'; } try { sfx.tap(); } catch (e) {} });
+  at(2150, () => { const t = q('fd-tap'), p = q('fd-pill'); if (t) t.classList.add('press'); if (p) { p.classList.add('loved'); q('fd-pt').textContent = '✓ Bravo!'; } try { sfx.tap(); } catch (e) {} });
   at(2450, () => { const t = q('fd-tap'); if (t) { t.classList.remove('press'); t.classList.remove('on'); } document.querySelectorAll('#framedemo .fd-heart').forEach((h, i) => setTimeout(() => h.classList.add('go'), i * 180)); });
   at(3300, () => { const f = q('fd-frame'), p = q('fd-pill'); if (f) f.classList.add('on'); if (p) { p.classList.remove('loved'); p.classList.add('framed'); p.innerHTML = inkIcon('frame', 14) + 'Framed'; } try { sfx.notify(); } catch (e) {} });
   at(3900, () => { const e = q('fd-plaque'); if (e) e.classList.add('on'); });
@@ -4071,7 +4071,7 @@ function syncFrameDemo() {
 let openingShown = null, openingT = null;
 function closeOpening() { clearTimeout(openingT); const o = $('opening'); if (o) { o.className = ''; o.innerHTML = ''; } }
 function syncOpening() {
-  if (syncFrameDemo()) return;   // the Love It lesson first; the cards below wait for it
+  if (syncFrameDemo()) return;   // the Bravo! lesson first; the cards below wait for it
   if (window.Ending && Ending.syncPrev()) { if ($('opening').className) closeOpening(); return; }   // a returning table: "Previously on Closed Caption" instead
   const o = state && state.phase === 'writing' && state.round === 1 ? state.opening : null;
   if (!o || !o.gameId) { if ($('opening').className) closeOpening(); return; }

@@ -102,6 +102,9 @@
     '.ht-pr .v{font-family:var(--display);font-weight:700;font-size:21px;color:#fff;background:var(--teal);border:2px solid ' + INK + ';border-radius:999px;min-width:46px;text-align:center;padding:0 8px;}',
     '.ht-pr .v.big{background:' + RED + ';}',
     '.ht-chip.pulse{animation:htPulse .9s ease-in-out 3;}',
+    '.ht-bravo{position:absolute;right:8px;top:-14px;z-index:4;padding:1px 10px;border:2px solid #C0322A;border-radius:999px;background:#FFF5F3;color:#B02A22;font-weight:900;font-size:13px;line-height:1.4;opacity:0;transform:scale(.4);transition:transform .3s cubic-bezier(.3,1.8,.5,1),opacity .2s,background .2s,color .2s;}',
+    '.ht-bravo.on{opacity:1;transform:none;}',
+    '.ht-bravo.lit{background:#D7372C;color:#fff;box-shadow:0 0 0 3px rgba(215,55,44,.22),0 0 12px rgba(215,55,44,.45);}',
     '@keyframes htPulse{50%{transform:scale(1.4)}}',
     /* end card */
     '.ht-end{left:16px;right:16px;top:120px;z-index:12;text-align:center;opacity:0;transform:scale(.9);}',
@@ -267,13 +270,17 @@
       at(6900, function () { var c = cap('3'); c.classList.add('real'); stamp('3', '✓ The real one', 'var(--teal)'); snd(function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.25, i * 90, 'square', 0.04); }); }); });
       at(7700, function () { pts('3', '+3 You · +2 Dan'); });
     } },
-    { h: 'Love the good ones.', note: 'most of the table loves it? The Gallery.', ms: 5200, ff: function () {
+    { h: 'Great one? Bravo!', note: 'most of the table agrees? The Gallery.', ms: 6500, ff: function () {
       $$('.ht-cap').forEach(function (c) { if (c.dataset.k !== 'cc') c.classList.add('dim'); });
     }, go: function () {
       $$('.ht-pts,.ht-stamp').forEach(function (e) { e.style.opacity = 0; });
       $$('.ht-cap').forEach(function (c) { if (c.dataset.k !== 'cc') c.classList.add('dim'); else c.classList.remove('dim'); });
-      at(900, function () { var f = document.createElement('span'); f.className = 'ht-frame'; cap('cc').appendChild(f); void f.offsetWidth; f.classList.add('on'); thunk(); });
-      at(1500, function () { snd(function () { [784, 988, 1175, 1568].forEach(function (f, i) { tone(f, 0.3, i * 110, 'triangle', 0.06); }); }); });
+      // the Bravo! button on the caption, tapped, then the frame (Oct 29 2026: Love It became Bravo!)
+      var bv = document.createElement('span'); bv.className = 'ht-bravo'; bv.textContent = 'Bravo!'; cap('cc').appendChild(bv);
+      at(400, function () { bv.classList.add('on'); plink(1); });
+      at(1300, function () { bv.classList.add('lit'); bv.textContent = '✓ Bravo!'; click(); });
+      at(2100, function () { var f = document.createElement('span'); f.className = 'ht-frame'; cap('cc').appendChild(f); void f.offsetWidth; f.classList.add('on'); thunk(); });
+      at(2700, function () { snd(function () { [784, 988, 1175, 1568].forEach(function (f, i) { tone(f, 0.3, i * 110, 'triangle', 0.06); }); }); });
     } },
     { h: 'Most points wins.', note: 'the winner takes the Remote', ms: 5200, ff: function () {
       $$('.ht-cap').forEach(function (c) { c.classList.remove('on', 'dim', 'real'); c.style.opacity = 0; }); $('.ht-toon').style.opacity = 0;

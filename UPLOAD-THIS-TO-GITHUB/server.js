@@ -545,7 +545,7 @@ wss.on('connection', (ws, req) => {
         { const c = G.startCheck(game); if (c.error) return sendError(ws, c.error); }   // the new deck is still being drawn: never start a game that would run out
         if (fail(G.startRound(game))) return;
         Night.beginGame(game);
-        G.addFrameDemo(game);   // the Love It lesson before the very first cartoon (the cards after it wait; the clock gets the time back)
+        G.addFrameDemo(game);   // the Bravo! lesson before the very first cartoon (the cards after it wait; the clock gets the time back)
         // (above) "Previously on Closed Caption" when most of this table played last time
         Stats.started(game.players.filter(G.isPresent).length);   // #41
         game.origHostId = null;   // #30: whoever started it hosts it

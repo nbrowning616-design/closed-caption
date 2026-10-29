@@ -394,7 +394,7 @@
 
       var title = mine ? 'You’ve been framed.' : isReal ? 'The original, framed.' : 'Framed.';
       var who = isReal ? 'The original caption' : esc(author);
-      var plaqueBy = framers ? 'Loved by ' + esc(framers) : 'Loved by the table';
+      var plaqueBy = framers ? 'Cheered by ' + esc(framers) : 'Cheered by the table';
       var now = opts.now ? String(opts.now) : isReal ? 'The classics hold up.' : mine ? 'You beat the real one. Hanging in The Gallery for good.' : 'Better than the real one. Now hanging in The Gallery.';   // #39: the server picks the line
 
       root.innerHTML =
@@ -424,7 +424,7 @@
             '<i class="gal-scr" style="left:6px;top:6px"></i><i class="gal-scr" style="right:6px;top:6px"></i><i class="gal-scr" style="left:6px;bottom:6px"></i><i class="gal-scr" style="right:6px;bottom:6px"></i>' +
             '<p class="gal-p-who">' + who + (month ? ', <span>' + esc(month) + '</span>' : '') + '</p>' +
             '<p class="gal-p-cap">“' + esc(caption) + '”</p>' +
-            '<p class="gal-p-by">' + plaqueBy + '&nbsp;·&nbsp;' + frames + (frames === 1 ? '&nbsp;Love&nbsp;It' : '&nbsp;Love&nbsp;Its') + '</p>' +
+            '<p class="gal-p-by">' + plaqueBy + '&nbsp;·&nbsp;' + frames + (frames === 1 ? '&nbsp;Bravo' : '&nbsp;Bravos') + '</p>' +
             '<div class="gal-p-rule"></div><p class="gal-p-now">' + esc(now) + '</p>' +
           '</div>' +
           '<div class="gal-btns' + (onPrint ? '' : ' gal-one') + '">' +
@@ -712,7 +712,7 @@
         '</' + B + '>' +
         '<' + L + ' class="gal-mlabel"><' + P + ' class="gal-mcap">“' + esc(cap) + '”</' + P + '>' +
           '<' + P + ' class="gal-mwho" title="' + esc(who) + '"><b>' + esc(who) + '</b></' + P + '>' + (month ? '<' + P + ' class="gal-mmo">' + esc(month) + '</' + P + '>' : '') +
-          (n > 0 ? '<span class="gal-mfr">' + n + (n === 1 ? ' Love It' : ' Love Its') + '</span>' : '') +
+          (n > 0 ? '<span class="gal-mfr">' + n + (n === 1 ? ' Bravo' : ' Bravos') + '</span>' : '') +
           (entry.best ? '<span class="gal-mfr" style="background:#D7261E;color:#fff;border-color:#8a1410;">🏅 ' + esc(entry.best) + '</span>' : '') +
         '</' + L + '>' + (tap ? '</button>' : '</figure>');
     } catch (e) { return ''; }
@@ -729,7 +729,7 @@
       wall = list;   // what zoomAt(i) opens, and what a swipe pages through
       var body = n
         ? '<div class="gal-grid">' + list.map(function (e, i) { return miniHtml(e, i); }).join('') + '</div>'
-        : '<div class="gal-empty"><div class="gal-eframe"></div><p class="gal-etext">Nothing on the walls yet. When enough of the table loves a caption, it’s hung here — and becomes the real caption in Gallery games.</p></div>';
+        : '<div class="gal-empty"><div class="gal-eframe"></div><p class="gal-etext">Nothing on the walls yet. When enough of the table gives a caption a Bravo!, it’s hung here — and becomes the real caption in Gallery games.</p></div>';
       return '<section class="gal-arch" aria-label="The Gallery"><div class="gal-plaster"></div>' + head + body + '</section>';
     } catch (e) { return ''; }
   }
@@ -750,8 +750,8 @@
     var W = Math.round(Math.min(VW - 48, 440));
     var TH = W >= 300 ? 18 : 15;
     var fs = len <= 50 ? 21 : len <= 90 ? 19 : len <= 140 ? 17 : 15.5;
-    var by = framers ? 'Loved by ' + esc(framers) : (n ? 'Loved by the table' : '');
-    if (n) by += (by ? '&nbsp;·&nbsp;' : '') + n + (n === 1 ? '&nbsp;Love&nbsp;It' : '&nbsp;Love&nbsp;Its');
+    var by = framers ? 'Cheered by ' + esc(framers) : (n ? 'Cheered by the table' : '');
+    if (n) by += (by ? '&nbsp;·&nbsp;' : '') + n + (n === 1 ? '&nbsp;Bravo' : '&nbsp;Bravos');
     return '<div class="gal-zpiece" style="width:' + W + 'px"><div class="gal-zshadow"></div>' +
         '<div class="gal-frame" style="--t:' + TH + 'px">' + sticksHtml(true) +
           '<div class="gal-liner"><div class="gal-mat">' +
