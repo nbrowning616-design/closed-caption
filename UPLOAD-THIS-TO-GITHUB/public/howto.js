@@ -18,7 +18,7 @@
   var RED = '#D7372C', INK = '#1F1A17';
   var SERIF = "'Libre Caslon Text',Georgia,'Times New Roman',serif", HAND = "'Caveat','Bradley Hand','Segoe Print',cursive";
   var IMG = '/images/demo_snowman.jpg';
-  var A_FULL = 640 / 720, A_CROP = 0.97;   // the picture's own shape; how far it may be cropped (top and bottom) on a short phone
+  var A_FULL = 640 / 720, A_CROP = 1.02;   // the picture's own shape; how wide it may go on a short phone (a little off the top and bottom, the clock and the puddle stay)
   var HEAD = 62;                            // the headline band; the cartoon starts under it
 
   // The cast. Dan deals (he bets 2 chips too, then steals one). Colours: the game's chip palette.
