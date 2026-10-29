@@ -793,7 +793,8 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   $(id).classList.add('active');
   window.scrollTo(0, 0);
-  if (id !== 'screen-game') setActionBar('');
+  // (the in-game screens lock the page still; the rules, the home screen and the rest scroll as usual)
+  if (id !== 'screen-game') { setActionBar(''); document.body.classList.remove('in-play', 'typing'); document.documentElement.classList.remove('in-play'); }
   if ((id === 'screen-home' || id === 'screen-create') && inviteCode) plainJoin();   // #23: leaving the invite: Join is the plain form again
   if (id === 'screen-home') offerRejoin();
   if (id === 'screen-create' || id === 'screen-join') prefillName(id === 'screen-create' ? 'create-name' : 'join-name');
