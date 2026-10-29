@@ -453,12 +453,6 @@ details.box .body { padding: 14px 4px 4px; }
 .lenmeter i { display: block; height: 100%; width: 0; background: var(--teal); transition: width .2s, background .3s; }
 .lenmeter.mid i { background: var(--yellow); } .lenmeter.long i { background: var(--red); }
 
-/* ── Seats (lobby) ── */
-.seat-n { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--ink); background: #fff; font-family: var(--display); font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.seat-mv { width: 34px; height: 34px; border-radius: 10px; border: 2px solid var(--ink); background: #fff; box-shadow: 2px 2px 0 var(--ink); font-weight: 900; font-size: 15px; cursor: pointer; padding: 0; }
-.seat-mv:disabled { opacity: .25; box-shadow: none; }
-.seat-mv:active:not(:disabled) { transform: translate(2px,2px); box-shadow: none; }
-
 /* ── Answer: sequence, bluff, who fooled whom, flags ── */
 .seq { opacity: 0; transition: opacity .5s; pointer-events: none; }
 .seq.show, #answer-root.done .seq { opacity: 1; pointer-events: auto; }
@@ -621,28 +615,8 @@ body.quake { animation: quake .12s linear 10; }
 .code-pill { font-family: var(--display); font-weight: 700; font-size: 14px; letter-spacing: 2px; padding: 3px 9px; border-radius: 8px; border: 2px solid var(--ink); background: #fff; cursor: pointer; color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
 .qr-wrap { display: inline-block; background: #fff; padding: 8px; border: 3px solid var(--ink); border-radius: 14px; box-shadow: var(--shadow-sm); line-height: 0; }
 .qr-wrap svg { display: block; }
-@media (max-height: 700px) { .lb-code .qr-wrap svg { width: 116px; height: 116px; } .lb-code .do { margin-bottom: 8px !important; } }
 .gallery-credit { margin-top: 12px; padding: 8px 12px; border: 2px solid #B8860B; border-radius: 12px; background: linear-gradient(135deg, #FFF3C4, #F6D77A 55%, #FFF0B8); color: #4A3500; font-family: Georgia, serif; font-style: italic; font-size: 15px; line-height: 1.35; box-shadow: inset 0 0 0 2px rgba(255,255,255,.55); }
 .pub-mark { display: inline-block; font-size: 11px; font-weight: 900; padding: 1px 6px; border-radius: 999px; border: 1.5px solid #B8860B; background: #FFF3C4; color: #4A3500; vertical-align: 2px; margin-left: 4px; white-space: nowrap; }
-.gal-toggle { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border: 2px solid var(--ink); border-radius: 14px; background: #fff; cursor: pointer; text-align: left; font-weight: 900; font-size: 15px; margin-bottom: 14px; }
-.gal-toggle.on { background: #FFF3C4; box-shadow: var(--shadow-sm); border-color: #7A5A00; }
-.gal-toggle:disabled { opacity: .55; cursor: default; }
-.gal-toggle .sw { margin-left: auto; width: 44px; height: 26px; border-radius: 13px; border: 2px solid var(--ink); background: #EADFCB; position: relative; flex-shrink: 0; transition: background .2s; }
-.gal-toggle .sw::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid var(--ink); transition: left .2s var(--spring); }
-.gal-toggle.on .sw { background: #E9B92A; } .gal-toggle.on .sw::after { left: 20px; }
-/* The Gallery in the lobby: a short wall of framed thumbnails; tap one and it zooms (gallery.js Gallery.zoom) */
-.lob-gal { position: relative; margin: 0 0 14px; padding: 12px 0 14px; border: var(--bw) solid var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow); overflow: hidden; color: #F3E6C8; background-color: #4A1A1E; background-image: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(255,214,150,.22), rgba(255,214,150,0) 70%), radial-gradient(ellipse 120% 100% at 50% 30%, rgba(0,0,0,0) 50%, rgba(12,3,4,.55) 100%); }
-.lob-gal-hd { display: flex; align-items: baseline; gap: 8px; padding: 0 14px; }
-.lob-gal-t { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 22px; line-height: 1.1; color: #F6E7C4; }
-.lob-gal-n { font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: rgba(243,230,200,.7); font-weight: 700; }
-.lob-gal-all { margin-left: auto; padding: 6px 2px 6px 10px; border: 0; background: none; color: #E9C46A; font-weight: 900; font-size: 13px; cursor: pointer; white-space: nowrap; }
-.lob-gal-row { display: flex; align-items: flex-start; gap: 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding: 0 14px; padding: 6px 14px 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-.lob-gal-row::-webkit-scrollbar { display: none; }
-.lob-gal-row > .gal-mini { flex: 0 0 124px; margin: 0; scroll-snap-align: start; }
-.lob-gal-row .gal-mini .gal-mimg { height: 84px; }
-.lob-gal-row .gal-mini .gal-mcap { -webkit-line-clamp: 4; }
-.lob-gal-empty { margin: 8px 14px 0; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 14px; line-height: 1.4; color: rgba(243,230,200,.85); }
-.lob-gal-note { margin: 8px 14px 0; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 12.5px; color: rgba(243,230,200,.66); }
 
 /* ── Read-aloud ── */
 #readaloud { position: fixed; inset: 0; z-index: 650; display: none; flex-direction: column; background: var(--paper); padding: calc(16px + var(--sat)) max(20px, env(safe-area-inset-right, 0px)) calc(20px + var(--sab)) max(20px, env(safe-area-inset-left, 0px)); }
@@ -662,8 +636,6 @@ button, .cap, [role="button"], a { touch-action: manipulation; }
 .btn-link { min-height: 44px; }
 .btn-sm { min-height: 44px; }
 .hdr .menu-btn { width: 44px; height: 44px; }
-.seat-mv { width: 44px; height: 44px; font-size: 17px; }
-.seat-kick { width: 44px !important; height: 44px; padding: 0 !important; font-size: 14px !important; flex-shrink: 0; }
 .time-btn.bet-more { display: block; margin: 10px auto 0; font-size: 17px; padding: 12px 26px; min-height: 48px; }
 .bet-more-note { margin-top: 8px; color: var(--ink-2); }
 .turn-banner.dealer .bet-more-note { color: inherit; opacity: .85; }
@@ -683,12 +655,6 @@ button, .cap, [role="button"], a { touch-action: manipulation; }
 .rules-extras { padding-left: 18px; line-height: 1.5; font-size: 14px; color: var(--ink-2); }
 .rules-extras li + li { margin-top: 8px; }
 .rules-extras b { color: var(--ink); }
-/* #36: the demo, for first-timers in the lobby */
-.demo-card { display: flex; align-items: center; gap: 14px; width: 100%; margin: 0 0 16px; padding: 14px 16px; border: var(--bw) solid var(--ink); border-radius: var(--r-lg); background: var(--card); color: var(--ink); box-shadow: var(--shadow); text-align: left; cursor: pointer; font-family: inherit; }
-.demo-card:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
-.demo-play { flex-shrink: 0; width: 52px; height: 52px; border-radius: 50%; background: var(--yellow); color: var(--ink); border: var(--bw) solid var(--ink); display: flex; align-items: center; justify-content: center; font-size: 22px; padding-left: 4px; box-shadow: 2px 2px 0 var(--ink); }
-.demo-txt b { display: block; font-family: var(--display); font-weight: 700; font-size: 20px; line-height: 1.12; }
-.demo-txt span { display: block; font-size: 13px; font-weight: 800; color: var(--ink-2); margin-top: 3px; }
 /* #40: the bettor order is one row that scrolls sideways; the captions start right under it */
 .order.bettors { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; gap: 2px; margin: -4px -16px 6px; padding: 8px 16px 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
 .order.bettors::-webkit-scrollbar { display: none; }
@@ -783,10 +749,6 @@ body .gd-nudge.on { transform: rotate(-1.5deg); }
 .seat-wait { text-align: center; padding: 28px 8px; }
 .seat-wait .h2 { margin: 10px 0 6px; }
 
-.rules-pitch { margin: 0 0 14px; }
-.rules-pitch .rp1 { font-family: var(--serif); font-weight: 700; font-size: 19px; line-height: 1.2; }
-.rules-pitch .rp2 { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 15px; color: var(--ink-2); margin-top: 2px; }
-.rules-pitch .rp3 { font-size: 14px; font-weight: 800; color: var(--ink-2); margin-top: 8px; line-height: 1.4; }
 /* ── Oct 20 2026 (#4 #15): the stage pill, and the cartoon that stays big ── */
 .stage-pill { display: inline-flex; align-items: center; padding: 2px; border: 2px solid var(--ink); border-radius: 999px; background: #fff; box-shadow: 2px 2px 0 var(--ink); font-family: var(--sans); font-weight: 900; font-size: 12.5px; line-height: 1; white-space: nowrap; }
 .stage-pill span { padding: 5px 7px 6px; border-radius: 999px; color: var(--ink-2); }
@@ -860,40 +822,6 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .mull-pill.on { background: var(--ink); color: var(--paper); }
 .mull-pill.on .mp-count { background: var(--yellow); color: var(--ink); }
 .do { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.35; }
-/* ── #16 the lobby: the code, the names, Start (everything else under "Room options") ── */
-.lb-hello { margin: 2px 0 16px; }
-.lb-hello-1 { font-family: var(--serif); font-weight: 700; font-size: 26px; line-height: 1.15; }
-.lb-hello-2 { font-family: var(--serif); font-style: italic; font-size: 17px; line-height: 1.35; color: var(--ink); margin-top: 4px; }
-.lb-code { margin-bottom: 16px; transform: rotate(-1deg); }
-.lb-code-big { font-size: 56px; letter-spacing: 8px; padding-left: 8px; margin: 2px 0 6px; }
-.lb-invite { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 52px; margin: 0 0 16px; padding: 10px 14px; border: 2px solid var(--ink); border-radius: 14px; background: #fff; font: inherit; font-size: 15px; font-weight: 800; color: var(--ink); cursor: pointer; text-align: left; }
-.lb-invite b { font-family: var(--display); font-weight: 700; letter-spacing: 2px; }
-.lb-invite-r { text-decoration: underline; text-underline-offset: 3px; }
-.lb-at { font-family: var(--sans); font-size: 13px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-2); margin: 4px 0 6px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
-.lb-watch { text-transform: none; letter-spacing: 0; font-weight: 800; color: var(--ink-2); }
-.lb-names { list-style: none; margin: 0 0 14px; padding: 0; }
-.lb-p { display: flex; align-items: center; gap: 12px; padding: 7px 0; }
-.lb-p.off { opacity: .6; }
-.lb-nm { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 17px; line-height: 1.2; }
-.lb-l1 { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lb-l1 > b { font-weight: 900; }
-.lb-you { font-size: 14px; font-weight: 800; color: var(--ink-2); }
-.lb-sub { font-size: 13px; font-weight: 800; color: var(--ink-2); }
-.lb-opts { margin-bottom: 8px; }
-.lb-opts > summary { min-height: 56px; }
-.lb-opts-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.lb-opts-t b { font-size: 16px; }
-.lb-opts-s { font-size: 13px; font-weight: 800; color: var(--ink-2); line-height: 1.3; }
-.lb-h { font-family: var(--serif); font-weight: 700; font-size: 18px; margin: 18px 0 6px; }
-.lb-h:first-child { margin-top: 2px; }
-.lb-hint { font-size: 13px; font-weight: 800; color: var(--ink-2); line-height: 1.4; margin-top: 6px; }
-.lb-seats { display: flex; flex-direction: column; gap: 4px; }
-.lb-seat { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
-.lb-seat.off { opacity: .6; }
-.lb-seat-nm { flex: 1; min-width: 0; font-weight: 900; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lb-lock { width: 100%; margin: 4px 0 14px; }
-.lb-opts .lob-gal { margin-top: 4px; }
-.lb-opts .field:last-child { margin-bottom: 0; }
 /* ── #23 the invite landing ── */
 .ji { text-align: center; margin: 4px 0 18px; }
 .ji-mast { display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--display); font-weight: 700; font-size: 28px; line-height: 1; letter-spacing: -1px; margin-bottom: 18px; }
@@ -907,6 +835,87 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .ji-tick { color: #0B6E59; font-size: 22px; font-weight: 900; }
 .ji-chg { font-size: 13px; padding: 0 4px; }
 .ji-btns { margin-top: 22px; text-align: left; }
+/* ═══════ OVERHAUL (Oct 29 2026): the front door — home, How to play, host and join, the lobby ═══════
+   Nick: few words, simple buttons, no scrolling. Home, host, join and How to play each fit one phone screen
+   (360×640 up to 430×932), with the name and code boxes and their buttons above the keyboard. The lobby and the
+   full rules are setup screens: they may scroll on the smallest phones; Start stays pinned. */
+/* Home: the name, a still cartoon, one line, Host a game, Join a game, How to play */
+#screen-home.active { display: flex; flex-direction: column; height: 100vh; height: 100dvh; padding: calc(14px + var(--sat)) 16px calc(10px + var(--sab)); }
+.hm { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; text-align: center; }
+.hm-mast { flex: none; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 0 0; padding-bottom: 18px; font-family: var(--display); font-weight: 700; font-size: 32px; line-height: 1; letter-spacing: -1px; color: var(--ink); }
+.hm-mast span { display: inline-block; padding: 4px 10px 5px; border: 3px solid var(--ink); border-radius: 10px; box-shadow: var(--shadow-sm); }
+.hm-w1 { transform: rotate(-3deg); background: var(--yellow); }
+.hm-w2 { transform: rotate(2deg); background: #fff; }
+/* the picture and its line sit together in the middle; the buttons stay at the bottom, in thumb reach */
+.hm-art { position: relative; flex: 0 1 auto; height: calc((min(100vw, 480px) - 32px) * 1.1); min-height: 0; margin-top: auto; }
+.hm-art img { position: absolute; inset: 0; margin: auto; height: 100%; max-width: 100%; aspect-ratio: 800 / 880; object-fit: cover; object-position: 50% 0; border: 3px solid var(--ink); border-radius: 14px; background: #fff; box-shadow: var(--shadow); }
+.hm-line { flex: none; margin: 14px auto auto; max-width: 330px; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 19px; line-height: 1.3; color: var(--ink); text-wrap: balance; }
+.hm-actions { flex: none; padding-top: 16px; }
+.hm-actions #rejoin-box:not(:empty) { margin-bottom: 10px; }
+.hm-actions #rejoin-box .rejoin-sub { margin: 2px 0 0; }
+.hm-actions .btn + .btn { margin-top: 10px; }
+.hm-actions .home-host { font-size: 18px; }
+.hm-foot { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 4px; }
+.hm-foot .btn-link { font-size: 16px; color: var(--ink); }
+.hm-foot .hm-priv { font-size: 13px; color: var(--muted); text-decoration-thickness: 1.5px; }
+@media (max-height: 700px) { .hm-mast { font-size: 28px; padding-bottom: 14px; } .hm-line { font-size: 17px; margin-top: 10px; } .hm-actions { padding-top: 12px; } .hm-actions .btn { padding-top: 13px; padding-bottom: 13px; } }
+/* How to play: the demo fills the phone; Got it and the full rules right under it (the overhead adds up to 170px) */
+#screen-rules { padding: calc(8px + var(--sat)) 16px calc(10px + var(--sab)); }
+.rl-top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 40px; margin-bottom: 6px; }
+.rl-top .back-link { justify-self: start; margin: 0; min-height: 40px; padding: 0 10px 0 0 !important; }
+.rl-h { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: -.3px; line-height: 40px; white-space: nowrap; }
+#screen-rules .ht-stage { height: clamp(380px, calc(100vh - 170px - var(--sat) - var(--sab)), 700px); height: clamp(380px, calc(100dvh - 170px - var(--sat) - var(--sab)), 700px); min-height: 0; }
+#screen-rules .ht-bar { height: 36px; margin-top: 8px; }
+.rl-btns { display: flex; gap: 10px; height: 50px; margin-top: 10px; }
+.rl-btns .btn { height: 50px; padding: 0 12px; flex: 1 1 0; }
+.rl-btns .btn-yellow { flex-grow: 1.5; }
+/* short phones: the title row goes (Got it does what Back did), and the cartoon gets its 46px */
+@media (max-height: 700px) { .rl-top { display: none; } #screen-rules .ht-stage { height: clamp(360px, calc(100vh - 124px - var(--sat) - var(--sab)), 700px); height: clamp(360px, calc(100dvh - 124px - var(--sat) - var(--sab)), 700px); } }
+/* Host and join: a back link, a title, the boxes, one button */
+#screen-create, #screen-join { padding-top: calc(8px + var(--sat)); }
+#screen-create .back-link, #screen-join .back-link { margin-bottom: 4px; }
+.fd-h { margin-bottom: 18px; }
+#screen-create .field, #screen-join .field { margin-bottom: 14px; }
+#screen-join .input.code { font-size: 30px; padding: 8px 8px 8px 18px; }
+#screen-join .ji { margin: 0 0 14px; }
+#screen-join .ji-mast { font-size: 24px; margin-bottom: 12px; }
+#screen-join .ji-h { font-size: 22px; }
+#screen-join .ji-pitch { font-size: 14px; margin-top: 6px; }
+#screen-join .ji-code { margin-top: 8px; }
+@media (max-height: 700px) { #screen-join .ji-mast, #screen-join .ji-pitch { display: none; } }
+/* The lobby: the code, the players, three rows of buttons (host) or "Waiting for Nick to start" */
+#screen-game:has(.lb2) { padding-bottom: calc(92px + var(--sab)); }
+.lb2-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.lb2-code { flex: 1; min-width: 0; padding: 8px 14px 10px; background: var(--yellow-bg); border: var(--bw) solid var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); }
+.lb2-code .eyebrow { color: var(--ink-2); }
+.lb2-code-big { font-size: 50px; letter-spacing: 8px; line-height: 1; margin-top: 2px; }
+.lb2-menu { width: 44px; height: 44px; flex: none; padding: 0; border-radius: 50%; border: 2px solid var(--ink); background: #fff; box-shadow: var(--shadow-sm); font-size: 20px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.lb2-menu:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+.lb2-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; margin-bottom: 6px; }
+.lb2-at { font-family: var(--sans); font-size: 13px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-2); }
+.lb2 .lb2-inv { width: auto; padding: 8px 20px; }
+.lb2-ps { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.lb2-p { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: 36px; padding: 4px 12px 4px 6px; border: 2px solid var(--ink); border-radius: 999px; background: #fff; font: inherit; font-size: 15px; font-weight: 900; color: var(--ink); }
+button.lb2-p { cursor: pointer; }
+.lb2-p.me { background: var(--yellow-bg); }
+.lb2-p.off { opacity: .55; border-style: dashed; }
+.lb2-nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb2-host { color: var(--yellow-d); font-size: 13px; }
+.lb2-rt { margin: -4px 0 12px; font-size: 13px; font-weight: 800; color: var(--muted); }
+.lb2-rt b { color: var(--ink); font-family: var(--display); font-weight: 700; }
+.lb2-note { margin: 0 0 12px; padding: 8px 12px; border: 2px solid var(--ink); border-radius: 12px; background: var(--card); text-align: center; font-size: 14px; font-weight: 800; }
+.lb2-set { margin-bottom: 10px; }
+.lb2-k { margin-bottom: 5px; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); }
+.lb2 .lb2-seg { flex-wrap: nowrap; gap: 6px; }
+.lb2 .lb2-seg button { flex: 1 1 0; min-width: 0; min-height: 46px; padding: 6px 4px; font-size: 14px; line-height: 1.15; color: var(--ink); }
+.lb2-wait { margin: 4px 0 14px; padding: 18px 14px; text-align: center; border: var(--bw) solid var(--ink); border-radius: var(--r-lg); background: var(--card); }
+.lb2-wait-t { margin-top: 8px; font-family: var(--display); font-weight: 700; font-size: 22px; line-height: 1.2; }
+.lb2-wait-s { margin-top: 6px; font-size: 13px; font-weight: 800; color: var(--muted); }
+.lb2-links { display: flex; justify-content: center; gap: 18px; }
+.lb2-inv-code { font-size: 56px; letter-spacing: 8px; padding-left: 8px; margin: 2px 0 10px; }
+/* short phones: a full table of eight still fits one screen above Start */
+@media (max-height: 700px) { .lb2-code { padding: 6px 14px 8px; } .lb2-code-big { font-size: 44px; } .lb2-row { min-height: 40px; margin-bottom: 4px; } .lb2 .lb2-inv { min-height: 40px; padding: 6px 18px; } .lb2-p { min-height: 32px; padding-top: 2px; padding-bottom: 2px; } .lb2-ps { gap: 6px; margin-bottom: 10px; } .lb2-k { margin-bottom: 3px; } .lb2-set { margin-bottom: 8px; } .lb2 .lb2-seg button { min-height: 44px; } }
+/* ═══════ (end of the front door) ═══════ */
 [hidden] { display: none !important; }
 /* ── #4 #28 the round recap: a printed page, then the points with their reasons ── */
 .rc-page { margin: 0 0 18px; }
@@ -1197,60 +1206,55 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 <label class="ios-haptic" id="haptic-label" aria-hidden="true"><input type="checkbox" switch id="haptic-input" tabindex="-1" aria-label="Haptic tap"></label>
 
 <!-- ═══════ HOME ═══════ -->
+<!-- Oct 29 2026 (Nick): the name, one line, Host a game, Join a game, How to play. A still cartoon, no show. -->
 <div id="screen-home" class="screen active">
-  <div class="home-root">
-    <div id="home-mount"><h1 class="home-mast"><span class="home-w1">CLOSED</span><span>CAPTION</span></h1></div>
-    <div class="home-actions">
+  <div class="hm">
+    <h1 class="hm-mast"><span class="hm-w1">CLOSED</span><span class="hm-w2">CAPTION</span></h1>
+    <div class="hm-art"><img src="/images/home_snowman.jpg" alt="A cartoon with no caption" draggable="false"></div>
+    <p class="hm-line">Write a fake caption. Bet on the real one.</p>
+    <div class="hm-actions">
       <div id="rejoin-box"></div>
       <button class="btn btn-yellow home-host" onclick="showScreen('screen-create')">Host a game</button>
       <button class="btn" onclick="showScreen('screen-join')">Join a game</button>
-      <button class="btn home-solo" onclick="window.Practice && Practice.open()">Practice alone</button>
-      <div class="home-foot"><button class="btn-link" onclick="showScreen('screen-rules')">How to play</button><span class="home-dot" aria-hidden="true">·</span><button class="btn-link" onclick="shareGame()">Share the game</button><span class="home-dot" aria-hidden="true">·</span><a class="btn-link" href="/privacy.html">Privacy</a></div>
+      <div class="hm-foot"><button class="btn-link" onclick="showScreen('screen-rules')">How to play</button><a class="btn-link hm-priv" href="/privacy.html">Privacy</a></div>
     </div>
   </div>
 </div>
 
 <!-- ═══════ RULES ═══════ -->
+<!-- The self-playing demo fills the phone (howto.js); the full rules sit one tap below it. -->
 <div id="screen-rules" class="screen">
-  <button class="btn-link back-link" onclick="goBackFromRules()">← Back</button>
-  <h2 class="h1" style="margin-bottom: 6px;">How to play</h2>
-  <div class="rules-pitch"><p class="rp1">One caption is real. Everyone else is lying.</p><p class="rp2">Ranked like chess, but judged by friends.</p><p class="rp3">Playing over FaceTime or Zoom? Works great — everyone uses their own phone.</p></div>
+  <div class="rl-top"><button class="btn-link back-link" onclick="goBackFromRules()">← Back</button><h2 class="rl-h">How to play</h2></div>
   <div id="howto-mount"></div>
-  <div class="stack" style="margin:14px 0 8px;">
-    <button class="btn btn-yellow" onclick="goBackFromRules()">Got it →</button>
-    <button class="btn" id="rules-full-btn" onclick="toggleFullRules()">The full rules</button>
-  </div>
-  <div id="rules-full" style="display:none; margin-top:18px;">
-  <p class="sub" style="margin-bottom: 18px;">Everyone gets the same cartoon, no caption. The game knows the real one. Write a fake that could pass for it — then bet chips on which caption is real.</p>
+  <div class="rl-btns"><button class="btn" id="rules-full-btn" onclick="toggleFullRules()">The rules</button><button class="btn btn-yellow" onclick="goBackFromRules()">Got it →</button></div>
+  <div id="rules-full" style="display:none; margin-top:22px;">
+  <p class="sub" style="margin-bottom: 18px;">Everyone gets the same cartoon, no caption. The game knows the real one. Write a fake that could pass for it, then bet chips on which caption is real.</p>
 
   <p class="eyebrow" style="margin-bottom: 10px;">Each round</p>
   <div class="stack" style="margin-bottom: 22px;">
     <div class="panel flat rule-step"><div class="n">1</div><div><b>Everyone writes.</b> <span class="sub">The dealer too. Hate the cartoon? Vote to skip it.</span></div></div>
     <div class="panel flat yellow rule-step"><div class="n">2</div><div><b>One goes face-down.</b> <span class="sub">The game turns one caption over: the <b>Closed Caption</b>. Usually a player’s. The real one <span class="odds-word">about one round in seven</span>.</span></div></div>
-    <div class="panel flat blue rule-step"><div class="n">3</div><div><b>Blind bets.</b> <span class="sub">The dealer reads the open ones aloud. Then everyone bets at once, in secret: 1 or 2 chips on any caption — the face-down one too. The chips drop together. <span id="rules-dealer-bets">The dealer doesn’t bet.</span></span></div></div>
-    <div class="panel flat red rule-step"><div class="n">4</div><div><b>The steal.</b> <span class="sub" id="rules-steal-pts">Before the flip, the dealer takes one chip off the table. Off the real one, its points go to the dealer. Off a fake, the chip’s owner gets +1: caught you.</span></div></div>
-    <div class="panel flat violet rule-step"><div class="n">5</div><div><b>The flip.</b> <span class="sub">The Closed Caption turns over. Anyone with a chip left puts it down: everyone at once, in secret.</span></div></div>
-    <div class="panel flat teal rule-step"><div class="n">6</div><div><b>The reveal.</b> <span class="sub">One caption at a time, every few seconds (the dealer can hold it): who wrote it, who fell for it. The real one comes last. Points are paid and the deal moves <span class="dir-word">left</span>.</span></div></div>
+    <div class="panel flat blue rule-step"><div class="n">3</div><div><b>Blind bets.</b> <span class="sub">The dealer reads the captions aloud. Then everyone bets at once, in secret: 1 or 2 chips on any caption, the face-down one too. The chips drop together. <span id="rules-dealer-bets">The dealer bets 2 chips too.</span></span></div></div>
+    <div class="panel flat red rule-step"><div class="n">4</div><div><b>The steal.</b> <span class="sub" id="rules-steal-pts">Before the flip, the dealer must steal one chip from another player. Off the real one, its points go to the dealer. Off a fake, the chip’s owner gets +1.</span></div></div>
+    <div class="panel flat violet rule-step"><div class="n">5</div><div><b>The flip.</b> <span class="sub">The dealer flips the Closed Caption. Anyone with a chip left puts it down: everyone at once, in secret.</span></div></div>
+    <div class="panel flat teal rule-step"><div class="n">6</div><div><b>The reveal.</b> <span class="sub">One caption at a time: who wrote it, who fell for it. The real one comes last. Points are paid and the deal moves <span class="dir-word">left</span>.</span></div></div>
   </div>
 
   <p class="eyebrow" style="margin-bottom: 10px;">Scoring</p>
   <div class="panel flat" style="margin-bottom: 10px; padding: 6px 16px;" id="rules-scoring"></div>
   <div class="stack" style="margin-bottom: 22px;" id="rules-specials"></div>
 
-  <details class="box" id="rules-extras" style="margin-bottom: 22px;"><summary>The extras <span class="arrow">▾</span></summary><div class="body">
+  <p class="eyebrow" style="margin-bottom: 10px;">Good to know</p>
+  <div class="panel flat" style="margin-bottom: 22px;">
     <ul class="rules-extras">
-      <li><b>Bravo!</b> Every caption but your own has a glowing Bravo! button, from the reading until the next deal. Give as many as you like; tap again to take it back. Nobody sees a count until the answer. Once a fake's writer is revealed, if <span class="frame-need">most of the other players</span> gave it a Bravo!, it's framed and hangs in <b>The Gallery</b> (menu ☰) for good. At the end of the night, the table votes one <b>Caption of the Night</b>.</li>
-      <li><b>Call your shot.</b> Once your caption is in, name the one person you think will fall for it. If they put a chip on it, +3. The reveal says how it went either way.</li>
-      <li><b>The table vs. the cartoonist.</b> Each round, the most-cheered fake (Bravos given before the answer) takes on the real caption. Whoever has more Bravos wins the round for their side. Just for fun: it isn’t in anyone’s score.</li>
-      <li><b>The Late Edition.</b> In a game that goes around the table more than once, the last trip around pays double. First to 20: when someone gets there, the trip around the table is finished (everyone deals the same number of times), at double points. Then the leader wins.</li>
-      <li><b>A tie for first</b> goes to whoever fooled the most chips (every chip a fake of yours took in). Still level: more captions framed. Still level: a tie.</li>
-      <li><b>Did you know?</b> Between games, a short public-service announcement: two or three facts about tonight’s players, from how they actually played. The dealer taps on.</li>
-      <li><b>The Remote.</b> Every table has one: a 1980s TV remote with one button, held by the last winner. Each winner adds a strip of masking tape with their name and the date.</li>
-      <li><b>Your rating.</b> Ranked like chess, but judged by friends. Everyone starts at 1,200; after each game you gain points from everyone you finished above and lose them to everyone who finished above you. Beating higher-rated players moves it more; a short game moves it less. Titles: Candidate 1,400, Master 1,600, Senior Master 1,800, Grandmaster 2,000. Your phone keeps it.</li>
-      <li><b>Badges.</b> Rare moments earn badges: Double Down, Three Bagger, Clean Sweep, Great Minds, Pickpocket. Your phone keeps those too.</li>
-      <li><b>Good to know.</b> Bet on your own caption to bluff — it scores nothing. Captions are tidied the same way, the real one too. Join late and you start level with last place. Step away during the blind bets and the Monkey bets one chip for you. The real one isn’t always the funniest. Tap the cartoon to zoom.</li>
+      <li><b>The dealer runs the game.</b> Only the dealer’s phone moves it on. Everyone else sees who they’re waiting for.</li>
+      <li><b>Bravo!</b> Every caption but your own has a Bravo! button. When <span class="frame-need">most of the other players</span> tap it on the same fake, that caption is framed and hangs in <b>The Gallery</b>. At the end of the game, the table votes one <b>Caption of the Night</b>.</li>
+      <li><b>Most points wins.</b> A tie goes to whoever fooled the most chips. Still level: more captions framed.</li>
+      <li><b>Your rating.</b> Ranked like chess. Everyone starts at 1,200. Finish above someone and you take points from them. Your phone keeps it.</li>
+      <li><b>Bluff.</b> Bet on your own caption: it scores nothing, but it might fool the table. The real one isn’t always the funniest.</li>
+      <li>Every caption is tidied the same way, the real one too. Join late and you start level with last place. Tap the cartoon to zoom.</li>
     </ul>
-  </div></details>
+  </div>
   <button class="btn btn-yellow" onclick="goBackFromRules()">Got it →</button>
   </div>
 </div>
@@ -1258,12 +1262,10 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 <!-- ═══════ CREATE ═══════ -->
 <div id="screen-create" class="screen">
   <button class="btn-link back-link" onclick="showScreen('screen-home')">← Back</button>
-  <h2 class="h1" style="margin-bottom: 4px;">Host a game</h2>
-  <p class="sub" style="margin-bottom: 22px;">You’ll get a 4-letter code for everyone to join with.</p>
-  <div class="field"><div class="name-lbl"><label class="eyebrow" for="create-name">Your name</label><span class="name-count" id="create-name-count" aria-hidden="true"></span></div><input type="text" id="create-name" class="input" placeholder="What do they call you?" maxlength="12" autocomplete="off" enterkeyhint="go" oninput="nameCount(this)"></div>
+  <h2 class="h1 fd-h">Host a game</h2>
+  <div class="field"><div class="name-lbl"><label class="eyebrow" for="create-name">Your name</label><span class="name-count" id="create-name-count" aria-hidden="true"></span></div><input type="text" id="create-name" class="input" placeholder="Your name" maxlength="12" autocomplete="off" enterkeyhint="go" oninput="nameCount(this)"></div>
   <div id="create-error" class="small" role="alert" style="color:var(--red-ink); text-align:center; margin-bottom:12px; display:none;"></div>
-  <button class="btn btn-yellow" onclick="createGame()">Create the room →</button>
-  <p class="small center" style="margin-top:12px;">Timer, game length and cartoons are in the lobby.</p>
+  <button class="btn btn-yellow" onclick="createGame()">Make the room →</button>
 </div>
 
 <!-- ═══════ JOIN ═══════ -->
@@ -1271,10 +1273,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
   <button class="btn-link back-link" onclick="showScreen('screen-home')">← Back</button>
   <!-- #23: opened from an invite link: whose table, a one-line pitch, the code already ticked -->
   <div id="join-invite" class="ji" hidden></div>
-  <div id="join-plain">
-    <h2 class="h1" style="margin-bottom: 4px;">Join a game</h2>
-    <p class="sub" style="margin-bottom: 22px;">Ask the host for the room code. You can join even if the game has started.</p>
-  </div>
+  <div id="join-plain"><h2 class="h1 fd-h">Join a game</h2></div>
   <div id="join-form">
   <div class="field" id="join-code-field"><label class="eyebrow" for="join-code">Room code</label><input type="text" id="join-code" class="input code" placeholder="ABCD" maxlength="4" autocapitalize="characters" autocomplete="off" enterkeyhint="next" oninput="clearJoinError()"></div>
   <div class="field"><div class="name-lbl"><label class="eyebrow" for="join-name">Your name</label><span class="name-count" id="join-name-count" aria-hidden="true"></span></div><input type="text" id="join-name" class="input" placeholder="Your name" maxlength="12" autocomplete="off" enterkeyhint="go" oninput="nameCount(this); joinLabel()"></div>
@@ -2398,149 +2397,75 @@ function showSeatMoved() {
     <button class="btn btn-ink" onclick="closeMenu()">OK</button>`);
 }
 
-/* ── LOBBY ── */
+/* ── LOBBY ──
+   Oct 29 2026 (Nick: "way too much words. It needs to be just simple buttons."). The room code, the players, and for
+   the host three rows of tap buttons (timer, length, cartoons), one Invite button and Start, pinned at the bottom.
+   Everyone else: the code, the players, "Waiting for Nick to start". The settings it sends: update_timer 60/120/180/0;
+   update_settings {rounds:null,targetScore:null,laps:1|2} or {rounds:null,targetScore:20,laps:1}; {family:true},
+   {family:false,spicy:false} or {spicy:true}. */
 function renderLobby() {
-  const s = state.settings || {};
+  const s = state.settings || {}, td = state.timerDuration, host = fnameOf(state.hostId);
   const connected = state.players.filter(p => p.connected).length;
-  const n = state.players.length, right = s.direction === 'right', firstSeat = n ? (state.gameNo || 0) % n : 0;
-  const segBtn = (on, onclick, label) => `<button class="${on ? 'on' : ''}" aria-pressed="${on ? 'true' : 'false'}" onclick="${onclick}">${label}</button>`;
-  const played = playedGame();
-  // #16: the names, nothing else (seat order, direction, lock, Gallery and settings live under "Room options")
-  const names = state.players.map((p, i) => `
-    <li class="lb-p${!p.connected ? ' off' : ''}">
-      ${chipHtml(p.id, 'lg pop' + (!p.connected ? ' dim' : ''))}
-      <span class="lb-nm"><span class="lb-l1"><b>${esc(p.name)}</b>${p.id === myPlayerId ? ' <span class="lb-you">(you)</span>' : ''}${pubMark(p)}</span>
-        <span class="lb-sub">${[p.id === state.hostId ? 'host' : '', i === firstSeat ? 'deals first' : '', !p.connected ? 'offline' : '', played ? ratingTag(p).replace(/<[^>]*>/g, '') : ''].filter(Boolean).join(' · ')}</span></span>
-    </li>`).join('');
-  const seats = state.players.map((p, i) => `
-    <div class="lb-seat${!p.connected ? ' off' : ''}">
-      <span class="seat-n" aria-hidden="true">${i + 1}</span>${chipHtml(p.id, 'sm')}
-      <span class="lb-seat-nm">${esc(p.name)}</span>
-      ${state.isHost && n > 1 ? `<button class="seat-mv" aria-label="Move ${esc(p.name)} up" ${i === 0 ? 'disabled' : ''} onclick="moveSeat('${p.id}',-1)">↑</button><button class="seat-mv" aria-label="Move ${esc(p.name)} down" ${i === n - 1 ? 'disabled' : ''} onclick="moveSeat('${p.id}',1)">↓</button>` : ''}
-      ${state.isHost && p.id !== myPlayerId ? `<button class="btn btn-sm seat-kick" onclick="confirmKick('${p.id}')" aria-label="Remove ${esc(p.name)}">✕</button>` : ''}
-    </div>`).join('');
-  // [settings] one-line summary everyone sees, e.g. "2-min timer · Dealer steals · Everyone deals twice · Everything deck"
-  const td = state.timerDuration, laps = s.laps || 1, dm = s.dealerMode || 'steal';
-  const timerWords = !td ? 'No timer' : td % 60 ? `${td}-second timer` : `${td / 60}-min timer`;
-  const dealerWords = dm === 'bet' ? 'Dealer bets, no steal' : dm === 'both' ? 'Dealer bets + steals' : (s.stealEnabled === false ? 'No steal' : 'Dealer steals');
-  const endCondition = s.targetScore ? `First to ${s.targetScore}` : s.rounds ? plural(s.rounds, 'round') : laps === 2 ? 'Everyone deals twice' : laps === 3 ? 'Everyone deals 3 times' : 'Everyone deals once';
-  const summary = `${timerWords} · ${dealerWords} · ${endCondition}${right ? ' · Deal goes right' : ''} · ${s.family ? 'Family deck' : s.spicy ? 'Everything deck' : 'Standard deck'}`;
-  const customOn = lobbyCustomTimer || (td !== 120 && td !== 0);
-  const tmin = Math.max(1, Math.round((td || 120) / 60));
-  const fresh = state.freshCount, pool = state.poolCount, dk = state.deck || null, deckShort = !!(dk && !dk.ok);
-  // The new deck is still being drawn: say so plainly; the host can't start a game the deck can't finish
-  const deckNote = dk && (dk.drawing || !dk.ok) ? `<div class="deck-note" role="status"><p class="deck-note-t">${esc(dk.line)}</p>${!dk.ok ? `<p class="deck-note-s">${dk.pool ? `This game needs ${dk.need} cartoons. This deck has ${dk.pool}.${s.family && dk.live > dk.pool ? ' Standard has more.' : s.targetScore || (laps > 1) ? ' A shorter game might fit.' : ''}` : 'Come back when a few are finished.'}</p>` : ''}</div>` : '';
-  const freshLine = deckShort ? '' : typeof fresh === 'number' ? `<p class="fresh-line${fresh < Math.max(3, state.players.length) ? ' low' : ''}">${fresh} of ${pool} cartoons nobody here has seen${fresh < Math.max(3, state.players.length) ? (s.family ? ' — try Standard for more' : ' — some repeats ahead') : ''}</p>` : '';
-  const deck = state.hofDeck || 0, galleryOpen = deck >= 3 || s.expert;
-  const galleryToggle = state.isHost
-    ? `<button class="gal-toggle ${s.expert ? 'on' : ''}" ${galleryOpen ? '' : 'disabled'} onclick="setHostSettings({expert:${!s.expert}})" aria-pressed="${!!s.expert}">
-        <span>${inkIcon('frame', 24)}</span><span style="flex:1;">Play from The Gallery<br><span class="small">${galleryOpen ? `${plural(deck, 'cartoon has', 'cartoons have')} framed captions` : 'Unlocks when 3 cartoons have a framed caption'}</span></span><span class="sw"></span></button>`
-    : s.expert ? `<div class="gal-toggle on" style="cursor:default;"><span>${inkIcon('frame', 24)}</span><span style="flex:1;">This game plays from The Gallery<br><span class="small">The table’s best captions are the real answers</span></span></div>` : '';
-  // #40: playing over FaceTime or Zoom? The host says so, and the game's own voice gets out of the way
-  const vm = s.voice || null;
-  const voiceField = state.isHost
-    ? `<div class="field"><label class="eyebrow" id="lb-voice-l">Playing apart?</label><div class="seg" role="group" aria-labelledby="lb-voice-l">${segBtn(vm === 'call', `setVoiceMode(${vm === 'call' ? 'null' : "'call'"})`, 'Already on a call')}${segBtn(vm === 'game', `setVoiceMode(${vm === 'game' ? 'null' : "'game'"})`, 'Use the game’s voice')}</div>
-        <p class="lb-hint">${vm === 'call' ? 'FaceTime or Zoom does the talking. The game’s own voice is off.' : vm === 'game' ? 'Everyone taps the microphone button at the top to join the call. Two phones in one room? Headphones, or they echo.' : 'Everyone in one room? Leave both off.'}</p></div>`
-    : vm ? `<p class="lb-hint">${vm === 'call' ? 'This table is on a call, so the game’s own voice is off.' : 'This table talks through the game’s voice. Tap the microphone button at the top to join.'}</p>` : '';
+  // The players: one pill each. The host taps someone else's pill to remove them (it asks first).
+  const pills = state.players.map(p => {
+    const me = p.id === myPlayerId, cls = `lb2-p${me ? ' me' : ''}${p.connected ? '' : ' off'}`;
+    const inner = `${chipHtml(p.id, 'xs' + (p.connected ? '' : ' dim'))}<span class="lb2-nm">${esc(p.name)}</span>${p.id === state.hostId ? '<span class="lb2-host" aria-label="host">★</span>' : ''}`;
+    return state.isHost && !me ? `<button class="${cls}" onclick="confirmKick('${p.id}')" aria-label="${esc(p.name)}${p.connected ? '' : ', offline'}. Tap to remove">${inner}</button>` : `<span class="${cls}">${inner}</span>`;
+  }).join('');
+  const seg = (on, fn, label) => `<button class="${on ? 'on' : ''}" aria-pressed="${on ? 'true' : 'false'}" onclick="${fn}">${label}</button>`;
+  const laps = s.laps || 1, byLaps = !s.rounds && !s.targetScore;
+  const len = s.targetScore ? `First to ${s.targetScore}` : s.rounds ? plural(s.rounds, 'round') : laps === 2 ? 'Twice around' : laps === 3 ? 'Three times around' : 'Once around';
+  const cartoons = s.family ? 'Family' : s.spicy ? 'Everything' : 'Standard';
+  const dk = state.deck || null;
+  // The deck can't finish this game: say so in one line (the Start button says "Not enough cartoons yet")
+  const deckNote = dk && !dk.ok ? `<p class="lb2-note" role="status">${dk.pool ? `This game needs ${dk.need} cartoons. ${cartoons} has ${dk.pool}.` : 'The cartoons are still being drawn.'}</p>` : '';
   const settings = state.isHost ? `
-        <div class="field"><label class="eyebrow">Writing timer</label><div class="seg">${segBtn(td === 120 && !lobbyCustomTimer, 'setHostTimer(120)', '2 min')}${segBtn(customOn, 'openCustomTimer()', 'Custom')}${segBtn(td === 0 && !lobbyCustomTimer, 'setHostTimer(0)', 'No timer')}</div>
-          ${customOn ? `<div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:8px;"><button class="btn btn-sm" style="width:48px;" aria-label="One minute less" ${td && td <= 60 ? 'disabled' : ''} onclick="stepTimer(-1)">−</button><b style="font-size:18px;min-width:80px;text-align:center;">${td ? (td % 60 ? td + ' s' : tmin + ' min') : '—'}</b><button class="btn btn-sm" style="width:48px;" aria-label="One minute more" ${td >= 600 ? 'disabled' : ''} onclick="stepTimer(1)">+</button></div>` : ''}
-          ${td === 0 && !lobbyCustomTimer ? '<p class="lb-hint">No countdown. Writing ends when everyone’s in, or the dealer taps “End writing”.</p>' : ''}</div>
-        <div class="field"><label class="eyebrow">Game length</label><div class="seg">
-          ${segBtn(!s.rounds && !s.targetScore && laps === 1, 'setHostSettings({rounds:null,targetScore:null,laps:1})', 'Everyone deals once')}
-          ${segBtn(!s.rounds && !s.targetScore && laps === 2, 'setHostSettings({rounds:null,targetScore:null,laps:2})', '2 times around')}
-          ${segBtn(!s.rounds && !s.targetScore && laps === 3, 'setHostSettings({rounds:null,targetScore:null,laps:3})', '3 times around')}
-          ${segBtn(s.targetScore === 20, 'setHostSettings({rounds:null,targetScore:20,laps:1})', 'First to 20')}
-        </div></div>
-        <div class="field"><label class="eyebrow">Cartoons</label><div class="seg">${segBtn(!!s.family, 'setHostSettings({family:true})', 'Family')}${segBtn(!s.family && !s.spicy, 'setHostSettings({family:false,spicy:false})', 'Standard')}${segBtn(!!s.spicy, 'setHostSettings({spicy:true})', 'Everything')}</div><p class="lb-hint">${s.family ? 'Family cartoons only.' : s.spicy ? 'Every cartoon in the game: Family, Standard and the After Dark (PG-13) ones.' : 'Family and Standard cartoons. No PG-13.'}</p></div>
-        <div class="field"><label class="eyebrow">The dealer</label><div class="seg">${segBtn(dm === 'steal', "setHostSettings({dealerMode:'steal'})", 'Steals a chip')}${segBtn(dm === 'bet', "setHostSettings({dealerMode:'bet'})", 'Bets, no steal')}${segBtn(dm === 'both', "setHostSettings({dealerMode:'both'})", 'Bets and steals')}</div><p class="lb-hint">${dm === 'bet' ? 'No steal. The dealer bets 2 chips like everyone else.' : dm === 'both' ? 'The dealer bets 2 chips like everyone else, then steals one of anyone else’s chips before the flip.' : 'The dealer doesn’t bet. Once the chips are down, the dealer steals one, before the flip.'}</p></div>
-        <div class="field"><label class="eyebrow">How often the real caption is the face-down one</label><div class="seg">${[0.1, 0.15, 0.2, 0.3].map(v => segBtn(Math.abs((s.autoCloseProbability ?? 0.15) - v) < 0.001, `setHostSettings({autoCloseProbability:${v}})`, Math.round(v * 100) + '%')).join('')}</div></div>
-        <details class="box" id="adv-details"><summary>Points <span class="arrow" aria-hidden="true">▾</span></summary><div class="body">
-          ${[['pointsOpenBet', 'Blind chip · real caption in the open', [1, 2, 3, 4]], ['pointsClosedBet', 'Blind chip · face-down caption', [2, 3, 4, 5, 6]], ['pointsOpenLate', 'Late chip (after the flip)', [0, 1, 2, 3]], ['pointsPerFool', 'Each chip that lands on your caption', [0, 1, 2, 3]], ['dealerBonus', 'Dealer’s revenge', [0, 2, 3, 4, 5, 6]]]
-            .map(([k, label, opts]) => `<div class="field"><label class="small">${label}</label><div class="seg">${opts.map(v => segBtn(s[k] === v, `setHostSettings({${k}:${v}${k === 'pointsOpenLate' ? ',pointsClosedLate:' + v : ''}})`, v)).join('')}</div></div>`).join('')}
-          <button class="btn-link" onclick="setHostSettings({pointsOpenBet:2,pointsClosedBet:5,pointsOpenLate:1,pointsClosedLate:1,pointsPerFool:2,dealerBonus:4,pointsStealCorrect:1,autoCloseProbability:0.15,stealEnabled:true,rounds:null,targetScore:null,dealerMode:'both',laps:2})">Reset points and rules</button>
-        </div></details>` : '';
-  const optionsBody = state.isHost ? `
-      <h3 class="lb-h">Seats, in order around the table</h3>
-      <p class="lb-hint" style="margin-top:0;">Line everyone up the way you’re sitting. ${firstSeat ? `Seat ${firstSeat + 1} deals first this game.` : 'Seat 1 deals first.'}</p>
-      <div class="lb-seats">${seats}</div>
-      <div class="field" style="margin-top:12px;"><label class="eyebrow">The deal and the betting pass to the…</label><div class="seg">${segBtn(!right, "setHostSettings({direction:'left'})", '↓ Left (down the list)')}${segBtn(right, "setHostSettings({direction:'right'})", '↑ Right (up the list)')}</div></div>
-      <button class="btn btn-sm lb-lock" onclick="send({action:'lock', on:${!state.locked}})" aria-pressed="${!!state.locked}">${state.locked ? 'Room locked · unlock it' : 'Everyone’s here? Lock the room'}</button>
-      ${voiceField}
-      <h3 class="lb-h">The game</h3>
-      ${settings}
-      ${freshLine}
-      ${lobbyGalleryHtml()}${galleryToggle}`
-    : `<p class="lb-hint" style="margin-top:0;">Seats go in order around the table. The deal passes ${right ? 'right ↑' : 'left ↓'}.${state.locked ? ' The host has locked the room.' : ''}</p>
-      ${voiceField}
-      ${lobbyGalleryHtml()}${galleryToggle}`;
-  const options = `<details class="box lb-opts" id="room-options"><summary><span class="lb-opts-t"><b>Room options</b><span class="lb-opts-s">${esc(summary)}</span></span><span class="arrow" aria-hidden="true">▾</span></summary><div class="body">${optionsBody}</div></details>`;
-  const me = playerById(myPlayerId), host = fnameOf(state.hostId);
-  const watched = state.isHost && n > 1 && !(state.gameNo > 0) ? `<span class="lb-watch">${state.players.filter(p => p.watched).length} of ${n} watched the demo</span>` : '';
-  const codeCard = state.isHost
-    ? `<div class="panel yellow center lb-code">
-        <p class="eyebrow" style="color:var(--ink-2);">Room code</p>
-        <div class="h-display lb-code-big" aria-label="Room code ${esc(state.code.split('').join(' '))}">${esc(state.code)}</div>
-        <div class="qr-wrap" style="margin:4px auto 8px;" role="img" aria-label="QR code that opens this room">${qrSvg(joinUrl('qr'), 148)}</div>
-        <p class="do" style="margin-bottom:12px;">Friends point their camera here, or send them the link.</p>
-        <button class="btn btn-sm" style="width:auto;" onclick="shareRoom()">Send the invite link</button>
-        <p style="margin-top:10px;"><button class="btn-link" onclick="shareGame()">Just tell someone about the game (no room code)</button></p>
-      </div>`
-    : `<button class="lb-invite" onclick="openInvite()"><span>Room <b>${esc(state.code)}</b></span><span class="lb-invite-r">Invite someone ›</span></button>`;
-  const hello = state.isHost ? '' : `<div class="lb-hello" role="status"><p class="lb-hello-1">You’re in, ${esc(me ? firstName(me.name) : '')}.</p><p class="lb-hello-2">${esc(host)} starts when everyone’s here.</p></div>`;
-  const voiceBtn = window.Voice && voiceAllowed() ? Voice.button() : '';
+    <div class="lb2-set"><p class="lb2-k" id="lb2-k1">Timer</p><div class="seg lb2-seg" role="group" aria-labelledby="lb2-k1">${seg(td === 60, 'setHostTimer(60)', '1 min')}${seg(td === 120, 'setHostTimer(120)', '2 min')}${seg(td === 180, 'setHostTimer(180)', '3 min')}${seg(td === 0, 'setHostTimer(0)', 'No timer')}</div></div>
+    <div class="lb2-set"><p class="lb2-k" id="lb2-k2">Length</p><div class="seg lb2-seg" role="group" aria-labelledby="lb2-k2">${seg(byLaps && laps === 1, 'setHostSettings({rounds:null,targetScore:null,laps:1})', 'Once around')}${seg(byLaps && laps === 2, 'setHostSettings({rounds:null,targetScore:null,laps:2})', 'Twice around')}${seg(s.targetScore === 20, 'setHostSettings({rounds:null,targetScore:20,laps:1})', 'First to 20')}</div></div>
+    <div class="lb2-set"><p class="lb2-k" id="lb2-k3">Cartoons</p><div class="seg lb2-seg" role="group" aria-labelledby="lb2-k3">${seg(!!s.family, 'setHostSettings({family:true})', 'Family')}${seg(!s.family && !s.spicy, 'setHostSettings({family:false,spicy:false})', 'Standard')}${seg(!s.family && !!s.spicy, 'setHostSettings({spicy:true})', 'Everything')}</div></div>`
+    : `<div class="lb2-wait" role="status"><span class="spin" aria-hidden="true"></span><p class="lb2-wait-t">Waiting for ${esc(host)} to start<span class="dots"></span></p>
+        <p class="lb2-wait-s">${!td ? 'No timer' : td % 60 ? `${td}-second timer` : `${td / 60}-min timer`} · ${esc(len)} · ${cartoons}</p></div>`;
+  const rating = playedGame() ? `<p class="lb2-rt">Your rating <b>${fmtRating(careerSummary().rating)}</b></p>` : '';
   return `
-    <div class="hdr"><div class="mid"><span class="stage-pill"><span class="on">Lobby</span></span><span class="hdr-sub">${plural(connected, 'player')} here</span></div>${voiceBtn}<button class="menu-btn" onclick="openMenu()" aria-label="Menu">☰</button></div>
-    ${hello}
-    ${codeCard}
-    ${demoCardHtml()}
-    <h2 class="lb-at">At the table · ${connected}${watched}</h2>
-    <ul class="lb-names">${names}${houseRowsHtml()}</ul>
-    ${houseFieldHtml(connected)}
-    ${window.Ending ? Ending.lobbyHtml() : ''}
-    ${played ? ratingCardHtml() : ''}
-    ${deckNote}
-    ${options}
-    <button class="btn-link" style="display:block; margin:12px auto 0;" onclick="showScreen('screen-rules')">How to play</button>`;
+    <div class="lb2">
+      <div class="lb2-top">
+        <div class="lb2-code"><p class="eyebrow">Room code</p><div class="h-display lb2-code-big" aria-label="Room code ${esc(state.code.split('').join(' '))}">${esc(state.code)}</div></div>
+        <button class="menu-btn lb2-menu" onclick="openMenu()" aria-label="Menu">☰</button>
+      </div>
+      <div class="lb2-row"><h2 class="lb2-at">Players · ${connected}</h2>${state.isHost ? '<button class="btn btn-sm lb2-inv" onclick="lobbyInvite()">Invite</button>' : ''}</div>
+      <div class="lb2-ps">${pills}</div>
+      ${rating}
+      ${deckNote}
+      ${settings}
+      <div class="lb2-links">${lobbyGalleryHtml()}<button class="btn-link" onclick="showScreen('screen-rules')">How to play</button></div>
+    </div>`;
 }
-/* House players (write-only fill-ins): the host picks 0–5. Shown at the table in a quieter style: no chips, no score. */
-const houseList = () => (state && state.house && state.house.list) || [];
-const houseCount = () => houseList().length;
-function houseRowsHtml() {
-  return houseList().map(h => `<li class="lb-p house">${chipHtml(h.id, 'lg')}<span class="lb-nm"><span class="lb-l1">${esc(h.name)}</span><span class="lb-sub">house · writes a fake, doesn’t bet</span></span></li>`).join('');
+// The one Invite button: the code, the QR code to scan, and the link to send
+function lobbyInvite() {
+  if (!state) return;
+  sheetOpen(`<div class="center"><p class="eyebrow">Room code</p><div class="h-display lb2-inv-code">${esc(state.code)}</div>
+      <div class="qr-wrap" role="img" aria-label="QR code that opens this room">${qrSvg(joinUrl('qr'), 188)}</div>
+      <p class="small" style="margin:10px 0 14px;">Point a phone camera here, or send the link.</p></div>
+    <div class="stack"><button class="btn btn-yellow" onclick="shareRoom()">Send the link</button><button class="btn btn-ink" onclick="closeMenu()">Close</button></div>`);
 }
-function houseFieldHtml(here) {
-  if (!state.isHost) return '';
-  const h = state.house || {}, n = houseCount(), max = h.max || 5;
-  return `<div class="house-field"><div class="hf-row"><span class="hf-t" id="hf-l"><b>House players</b><span class="hf-s">Each writes one fake. No bets, no points.</span></span>
-    <span class="hf-step" role="group" aria-labelledby="hf-l"><button class="btn btn-sm" aria-label="One fewer house player" ${n <= 0 ? 'disabled' : ''} onclick="setHouse(${n - 1})">−</button><b aria-live="polite">${n}</b><button class="btn btn-sm" aria-label="One more house player" ${n >= max ? 'disabled' : ''} onclick="setHouse(${n + 1})">+</button></span></div>
-    ${h.auto && n > 0 && here < 4 ? '<p class="lb-hint">Suggested for a small table.</p>' : ''}</div>`;
-}
-function setHouse(n) { setHostSettings({ house: Math.max(0, Math.min(5, n)) }); }
-// #16: the Start button sits at the bottom of the host's screen, always in reach
+// The Start button sits at the bottom of the host's screen, always in reach
 function lobbyBarHtml() {
   if (!state.isHost) return '';
-  const connected = state.players.filter(p => p.connected).length, dk = state.deck || null, deckShort = !!(dk && !dk.ok);
-  if (deckShort) return `<button class="btn btn-yellow" disabled>Not enough cartoons yet</button>`;
-  const house = houseCount(), need = house > 0 ? 2 : 3;   // two people can play with a house player in
-  if (connected < need) return `<button class="btn btn-yellow" disabled>Need ${plural(need - connected, 'more player')} · ${connected} here</button>${connected === 2 && !house ? '<p class="lb-hint center" style="margin-top:6px;">Or add a house player and start with two.</p>' : ''}`;
-  return `<button class="btn btn-yellow" onclick="this.disabled=true; send({action:'start'})">Start the game · ${connected} here</button>`;
+  const connected = state.players.filter(p => p.connected).length, dk = state.deck || null;
+  if (dk && !dk.ok) return `<button class="btn btn-yellow" disabled>Not enough cartoons yet</button>`;
+  if (connected < 3) return `<button class="btn btn-yellow" disabled>Need ${plural(3 - connected, 'more player')}</button>`;
+  return `<button class="btn btn-yellow" onclick="this.disabled=true; send({action:'start'})">Start the game</button>`;
 }
-// #16: the rating (and the round-1 rating card) only for a phone that has finished a game
+// The rating shows only on a phone that has finished a game
 function playedGame() { try { return careerGet().games > 0 || localStorage.getItem('cc_played_game') === '1'; } catch (e) { return false; } }
-// #40: 'call' = the table is on FaceTime/Zoom (the game's voice is off), 'game' = use the game's voice, null = one room
+// #40: 'call' = the table is on FaceTime/Zoom. (Voice is going; this stays until nothing asks for it.)
 const voiceAllowed = () => !(state && state.settings && state.settings.voice === 'call');
-function setVoiceMode(m) { send({ action: 'voice_mode', mode: m }); }
-/* #36: first-timers waiting in the lobby get pointed at the 90-second demo (How to play).
-   "Watched" lives on this phone; the game starting brings them straight back to the table. */
+/* #36: someone watching How to play when the game starts is brought straight back to the table.
+   "Watched" lives on this phone (and tells the server, which no longer shows a count). */
 let demoFrom = 0;
 function demoWatched() { try { return localStorage.getItem('cc_demo_watched') === '1' || localStorage.getItem('cc_played_game') === '1'; } catch (e) { return false; } }
 function demoMarkWatched() { try { localStorage.setItem('cc_demo_watched', '1'); } catch (e) {} if (myPlayerId) send({ action: 'demo_watched' }); }
 function watchDemo() { demoFrom = Date.now(); showScreen('screen-rules'); }
-function demoCardHtml() {
-  if (demoWatched()) return '';
-  return `<button class="demo-card" onclick="watchDemo()"><span class="demo-play" aria-hidden="true">▶</span><span class="demo-txt"><b>Watch the 90-second demo while you wait</b><span>${state.isHost ? 'A whole round, sped up. Start the game when you’re back.' : 'A whole round, sped up. If the game starts, you’re brought straight back.'}</span></span></button>`;
-}
 /* Every state, before drawing: the lobby -> game handoff, and #58 a late joiner adding a round */
 let lobbyPrev = null;
 function lobbyWatch() {
@@ -2560,16 +2485,8 @@ function lobbyWatch() {
     setTimeout(() => showToast(`${who} joined — ${more > 1 ? more + ' rounds' : 'one more round'} added. Now ${state.totalRounds}.`, 'ok'), 400);
   }
 }
-function setHostTimer(timer) { lobbyCustomTimer = false; send({ action: 'update_timer', timer }); }
-// [settings] Custom timer: a −/+ stepper in whole minutes, 1 to 10
-let lobbyCustomTimer = false;
-function openCustomTimer() { lobbyCustomTimer = true; if (!state.timerDuration) send({ action: 'update_timer', timer: 180 }); else render(true); }
-function stepTimer(d) {
-  const t = state.timerDuration || 120, m = Math.min(10, Math.max(1, d < 0 ? Math.ceil(t / 60) - 1 : Math.floor(t / 60) + 1));
-  lobbyCustomTimer = true; send({ action: 'update_timer', timer: m * 60 });
-}
+function setHostTimer(timer) { send({ action: 'update_timer', timer }); }
 function setHostSettings(partial) { send({ action: 'update_settings', settings: partial }); }
-function moveSeat(id, dir) { send({ action: 'move_seat', targetPlayerId: id, dir }); }
 function confirmKick(id) { if (confirm(`Remove ${nameOf(id)} from the game? They can’t rejoin this room for 10 minutes.`)) send({ action: 'kick_player', targetPlayerId: id }); }
 
 /* ── WRITING ── */
@@ -3564,22 +3481,8 @@ function galleryList() {
   return galleryGet().filter(e => !hide.has(Number(e.cartoonId))).reverse();
 }
 const galleryHiddenCount = () => { const hide = new Set(((state && state.galleryHidden) || []).map(Number)); return hide.size ? galleryGet().filter(e => hide.has(Number(e.cartoonId))).length : 0; };
-// The lobby's Gallery: a strip of framed thumbnails; tap one and it zooms, swipe through the rest
-let lobbyGal = [], lobbyGalX = 0, lobbyGalWait = false;
-function lobbyGalleryHtml() {
-  const list = galleryList(), hidden = galleryHiddenCount();
-  lobbyGal = list;
-  if (!window.Gallery || !Gallery.miniHtml) {   // gallery.js loads just after the first screen: draw the strip once it's here
-    if (!lobbyGalWait && window.ccShowReady) { lobbyGalWait = true; ccShowReady().then(() => { if (state && state.phase === 'lobby') render(true); }); }
-    if (!list.length) return '';
-  }
-  const thumbs = window.Gallery && Gallery.miniHtml ? list.slice(0, 24).map((e, i) => Gallery.miniHtml(e, i, 'lobbyZoom')).join('') : '';
-  const note = hidden ? `<p class="lob-gal-note">${plural(hidden, 'caption')} under a sheet until ${hidden === 1 ? 'its cartoon is' : 'their cartoons are'} dealt.</p>` : '';
-  queueMicrotask(() => { const r = document.querySelector('.lob-gal-row'); if (r && lobbyGalX) r.scrollLeft = lobbyGalX; });   // a new state redraws the lobby: keep the strip where it was
-  return `<section class="lob-gal" aria-label="The Gallery"><div class="lob-gal-hd"><span class="lob-gal-t">The Gallery</span><span class="lob-gal-n">${list.length || ''}</span>${list.length ? '<button class="lob-gal-all" onclick="openGallery()">See all ›</button>' : ''}</div>
-    ${list.length ? `<div class="lob-gal-row" onscroll="lobbyGalX=this.scrollLeft">${thumbs}</div>` : `<p class="lob-gal-empty">Nothing framed yet.</p>`}${note}</section>`;
-}
-function lobbyZoom(i) { if (window.Gallery && Gallery.zoom && lobbyGal[i]) Gallery.zoom(lobbyGal[i], lobbyGal, i, { from: '.lob-gal-row button.gal-mini' }); }
+// The lobby's way into The Gallery: one small button (Oct 29 2026: the thumbnail strip went with the lobby's clutter)
+function lobbyGalleryHtml() { return '<button class="btn-link" onclick="openGallery()">The Gallery</button>'; }
 function galleryCreditHtml() {
   const rc = state.realCredit;
   return rc && rc.author ? `<p class="gallery-credit">From The Gallery — caption by ${esc(rc.author)}, framed ${esc(rc.month || '')}</p>` : '';
