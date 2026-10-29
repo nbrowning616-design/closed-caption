@@ -84,7 +84,7 @@
   // The dealer's one button; everyone else waits for the dealer. The host's phone alone gets the fallback.
   function dealerAct(label, opts = {}) {
     if (state.isDealer) return btn(label, opts.onclick || 'ccPlay.next()', opts.cls || 'btn-yellow', opts.disabled ? 'disabled' : '');
-    if (state.canStandIn) return `${waitLine(`${dealerName()}’s phone is off.`)}${btn(`Move on without ${dealerName()}`, 'ccPlay.standIn()', 'btn-ink')}`;
+    if (state.canStandIn) return `${waitLine(`${dealerName()}’s phone is off.`)}${btn(`Move on without ${dealerName()}`, 'ccPlay.standIn()', 'btn-ink', opts.disabled ? 'disabled' : '')}`;
     return waitLine(`Waiting for <b>${dealerName()}</b>${state.dealerOff || !state.dealerConnected ? ' (phone off)' : ''}<span class="dots"></span>`);
   }
   const page = (cls, inner, key) => `<div class="pg pg-${cls}" data-key="${esc(key || '')}">${inner}</div>`;
@@ -574,7 +574,7 @@
   function countVotes() { send({ action: 'finale_close' }); }
   function again() { send({ action: 'play_again', seen: safe(() => getSeen().slice(-200)) || [] }); }
 
-  /* ── The menu: How to play, The Gallery, sound, leave; the host can move on without someone ── */
+  /* ── The menu: How to play, invite, The Gallery, sound, leave; the host can move on without someone ── */
   function openMenu() {
     if (!state) return;
     const inGame = state.phase !== 'lobby';
@@ -582,6 +582,7 @@
     const n = safe(() => galleryList().length) || 0;
     sheetOpen(`<p class="eyebrow center" style="margin-bottom:10px;">Room ${esc(state.code)}</p>
       <button class="menu-row" onclick="closeMenu(); showScreen('screen-rules')"><span class="ic">${safe(() => inkIcon('book')) || ''}</span>How to play</button>
+      <button class="menu-row" onclick="openInvite()"><span class="ic">${safe(() => inkIcon('invite')) || ''}</span>Invite someone<span class="r">QR + link</span></button>
       <button class="menu-row" onclick="openGallery()"><span class="ic">${safe(() => inkIcon('frame')) || ''}</span>The Gallery<span class="r">${n || ''}</span></button>
       <button class="menu-row" onclick="ccPlay.toggleSound()"><span class="ic">${safe(() => inkIcon(soundEnabled() ? 'sound' : 'mute')) || ''}</span>Sound<span class="r">${soundEnabled() ? 'On' : 'Off'}</span></button>
       ${hostRow}

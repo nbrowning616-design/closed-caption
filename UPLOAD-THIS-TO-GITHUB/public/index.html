@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
 <!-- The serif (Gallery, home plaque, share cards) and the hand (home screen): fetched without holding up the first paint.
-     Same URLs home.js / gallery.js / hof.js ask for, so they find these and don't load them twice. -->
+     Same URLs gallery.js / hof.js ask for, so they find these and don't load them twice. -->
 <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <!-- First screen: what the app script needs as soon as it runs. play.js draws every in-game screen (play.css). -->
@@ -43,7 +43,6 @@
 <script src="/moments.js?v=__V__"></script>
 <script src="/howto.js?v=__V__"></script>
 <script src="/qrcode.js?v=__V__"></script>
-<script src="/home.js?v=__V__"></script>
 <script src="/verdicts.js?v=__V__"></script>
 <script src="/play.js?v=__V__"></script>
 <script>
@@ -171,7 +170,6 @@ textarea.caption-input::placeholder { color: #7A7066; }
 .hf-step { display: flex; align-items: center; gap: 8px; flex: none; }
 .hf-step .btn { width: 44px; min-height: 44px; padding: 0; }
 .hf-step b { min-width: 18px; text-align: center; font-size: 18px; }
-/* Solo practice (practice.js) */
  .chip .check { position: absolute; right: -5px; bottom: -5px; width: 16px; height: 16px; border-radius: 50%; background: var(--teal); border: 2px solid var(--ink); color: #fff; font-size: 9px; display: flex; align-items: center; justify-content: center; font-weight: 900; }
 .chip.pop { animation: chipPop .5s var(--spring) both; }
 @keyframes chipPop { from { transform: scale(0) rotate(-40deg); } to { transform: none; } }
@@ -451,9 +449,6 @@ button, .cap, [role="button"], a { touch-action: manipulation; }
 .order.bettors { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; gap: 2px; margin: -4px -16px 6px; padding: 8px 16px 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
 .order.bettors::-webkit-scrollbar { display: none; }
 .order.bettors > :first-child { margin-left: auto; } .order.bettors > :last-child { margin-right: auto; }
-/* #38: the last writer's nudge clears the timer (tips sit in their own slot in the page: guide.js) */
-body .gd-nudge { left: 82px; right: 10px; width: auto; max-width: none; transform: translateY(-180%) rotate(-1.5deg); }
-body .gd-nudge.on { transform: rotate(-1.5deg); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
@@ -604,17 +599,10 @@ textarea.caption-input.mag::placeholder { color: #7A7066; font-style: italic; }
 .rt-trow:first-child { border-top: 0; }
 .rt-trow b { font-weight: 700; }
 .rt-trow.on { background: var(--yellow-bg); }
-/* The Bravo! lesson (Nick, Oct 25 2026; was Love It until Oct 29): before a room's first cartoon, a caption gets a Bravo!, is framed and hung for good */
-#opening { position: fixed; inset: 0; z-index: 770; display: none; align-items: center; justify-content: center; padding: calc(20px + var(--sat)) 16px calc(20px + var(--sab)); background: var(--paper); background-image: radial-gradient(rgba(31,26,23,0.06) 1.2px, transparent 1.2px); background-size: 18px 18px; }
-#opening.on { display: flex; animation: fadeIn .35s ease-out; }
 
-/* ═══ The round (Oct 21 2026): #26 Ha/Groan, #5 frames on the reveal, #6 the reel's clock, #18 the flip,
-       R11 called shots, R1 rejection slips, R10 the table vs. the cartoonist, R8 the odds ═══ */
+/* ═══ Older round styles still used by the How to play demo and the Gallery ═══ */
 /* Ha / Groan: two quiet pills; the hit area is 44 px even though the pill is small */
 .rx { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
-/* The reel's clock: it moves on by itself; held, it says so */
-/* R11 call your shot */
-.call { margin-top: 16px; text-align: left; }
 /* #18 the flip: a held second of silence, then the card turns on every phone at once; the blind chips on it light up */
 .flip.hero { perspective: 1100px; }
 .flip.hero .inner { transition: transform .46s cubic-bezier(.3,.7,.2,1); }
@@ -628,10 +616,6 @@ textarea.caption-input.mag::placeholder { color: #7A7066; font-style: italic; }
 /* the dealer's controls on the flip and the reveal stay in reach on short phones */
 .spot { scroll-margin-top: 140px; }
 .cap { scroll-margin-top: 150px; scroll-margin-bottom: 190px; }
-/* R1 the rejection slip: typed, from The Editors */
-.slip { position: relative; padding: 14px 16px 12px; background: #FDFBF5; background-image: repeating-linear-gradient(180deg, transparent 0 25px, rgba(47,111,224,.10) 25px 26px); border: 1px solid #CFC6B4; box-shadow: 0 10px 24px rgba(31,26,23,.25); font-family: 'Courier New', Courier, monospace; color: #2B2724; text-align: left; }
-   /* (room for the stamp: it never sits on the form line) */
-/* R15 the pencil circle on the cartoon (and its question) */
 </style>
 </head>
 <body>
@@ -785,7 +769,6 @@ function playerById(id) { return state ? state.players.find(p => p.id === id) : 
 const isHouseId = (id) => typeof id === 'string' && id.startsWith('house:');
 function houseById(id) { return isHouseId(id) && state && state.house ? (state.house.list || []).find(h => h.id === id) || null : null; }
 function nameOf(id) { const p = playerById(id) || houseById(id); return p ? p.name : '?'; }
-const houseTag = '<span class="house-tag">house</span>';
 function seatStyle(idx) {
   const c = playerColor(idx), k = ((idx % 8) + 8) % 8;
   return `--c:${c};--p:${360 / SEAT_SPOTS[k % 4]}deg;${LIGHT_SEATS.has(c) ? '--fg:#1F1A17;--ts:none;' : ''}`;
@@ -830,7 +813,7 @@ function showScreen(id) {
   window.scrollTo(0, 0);
   if (id !== 'screen-game') setActionBar('');
   if ((id === 'screen-home' || id === 'screen-create') && inviteCode) plainJoin();   // #23: leaving the invite: Join is the plain form again
-  if (id === 'screen-home') { startHeroLoop(); offerRejoin(); } else stopHeroLoop();
+  if (id === 'screen-home') offerRejoin();
   if (id === 'screen-create' || id === 'screen-join') prefillName(id === 'screen-create' ? 'create-name' : 'join-name');
 }
 // #39/#57: names are 12 characters at most, with a counter; the name this phone used last is filled in
@@ -887,34 +870,30 @@ function faceDownOdds(p) {
   const n = Math.round(1 / p), W = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'], w = W[n] || String(n);
   return Math.abs(1 / p - n) < 0.05 ? `one round in ${w}` : `about one round in ${w}`;
 }
-// The full rules' scoring table (the rules page may or may not have these spots: each one is filled only if it's there)
+// The full rules' scoring table (the rules page may or may not have these spots: each one is filled only if it's there).
+// The points are fixed now (Oct 29 2026); the rules text itself lives in the rules page.
 function renderRulesScoring() {
   try {
-    const s = Object.assign({ pointsOpenBet: 2, pointsClosedBet: 5, pointsOpenLate: 1, pointsPerFool: 2, dealerBonus: 4, autoCloseProbability: 0.15 }, (state && state.settings) || {});
+    const s = { pointsOpenBet: 2, pointsClosedBet: 5, pointsOpenLate: 1, pointsPerFool: 2, dealerBonus: 4, autoCloseProbability: 0.15 };
     const put = (id, html) => { const e = $(id); if (e) e.innerHTML = html; };
-    put('rules-dealer-bets', 'The dealer bets 2 chips too, then steals one.');
-    put('rules-scoring', `
-    <div class="score-line"><span>Blind chip on the real caption</span><span class="v">+${s.pointsOpenBet}</span></div>
-    <div class="score-line"><span>Blind chip on the face-down one, and it’s real (${faceDownOdds(s.autoCloseProbability)})</span><span class="v">+${s.pointsClosedBet}</span></div>
-    <div class="score-line"><span>Late chip (after the flip) on the real caption</span><span class="v">+${s.pointsOpenLate}</span></div>
-    <div class="score-line"><span>Each chip someone puts on <i>your</i> fake</span><span class="v">+${s.pointsPerFool}</span></div>
-    <div class="score-line"><span><b>Double Down</b>: both chips blind on the real one</span><span class="v">+${s.pointsOpenBet * 2}</span></div>
-    <div class="score-line"><span><b>Blind Double Down</b>: both chips blind on the face-down one, and it’s real</span><span class="v">+${s.pointsClosedBet * 2}</span></div>
-    <div class="score-line"><span>Your chip stolen off a fake</span><span class="v">+1</span></div>
-    <div class="score-line"><span>The dealer steals a chip off the real one</span><span class="v">its points</span></div>
-    <div class="score-line"><span><b>Dealer’s revenge</b>: nobody else’s chip ends up on the real caption</span><span class="v">+${s.dealerBonus}</span></div>`);
+    const row = (label, v) => `<div class="score-line"><span>${label}</span><span class="v">${v}</span></div>`;
+    put('rules-scoring', [
+      row('Blind chip on the real caption', '+' + s.pointsOpenBet),
+      row(`Blind chip on the face-down one, when it’s the real one (${faceDownOdds(s.autoCloseProbability)})`, '+' + s.pointsClosedBet),
+      row('Late chip (after the flip) on the real caption', '+' + s.pointsOpenLate),
+      row('Each chip someone puts on <i>your</i> fake', '+' + s.pointsPerFool),
+      row(`<b>Double Down</b>: both chips blind on the real one (+${s.pointsOpenBet * 2} open, +${s.pointsClosedBet * 2} face-down)`, '×2'),
+      row('Your chip stolen off a fake', '+1 to you'),
+      row('A chip stolen off the real one', 'its points go to the dealer'),
+      row('<b>Dealer’s revenge</b>: no chip ends up on the real caption (the dealer’s own chips don’t count)', '+' + s.dealerBonus),
+    ].join(''));
     put('rules-specials', '');
-    put('rules-steal-pts', 'Before the flip, the dealer must steal one other player’s chip. Off the real one, its points go to the dealer. Off a fake, the chip’s owner gets +1.');
     document.querySelectorAll('.odds-word').forEach(e => { e.textContent = faceDownOdds(s.autoCloseProbability); });
     document.querySelectorAll('.dir-word').forEach(e => { e.textContent = 'left'; });
     document.querySelectorAll('.frame-need').forEach(e => { e.textContent = frameNeedWords(); });
   } catch (e) { console.warn('rules', e); }
 }
 
-/* ── Home: typewriter demo (taglines only — never real captions) ── */
-// The opening screen lives in public/home.js (window.Home)
-function startHeroLoop() { try { if (window.Home) window.Home.start(); } catch (e) {} }
-function stopHeroLoop() { try { if (window.Home) window.Home.stop(); } catch (e) {} }
 
 /* ═══════════════════════════════════════════════════════════
    Cartoon viewer — full screen. Tap the picture to zoom in there (tap again to zoom out), pinch to zoom,
@@ -1072,7 +1051,6 @@ const SFX = {
 function soundEnabled() { try { const v = localStorage.getItem('cc_sound'); return v === null ? true : v === 'true'; } catch { return true; } }
 function setSoundEnabled(on) { try { localStorage.setItem('cc_sound', on ? 'true' : 'false'); } catch {} }
 const sfx = new Proxy({}, { get: (_, k) => (...a) => { if (soundEnabled() && typeof SFX[k] === 'function') SFX[k](...a); } });
-function toggleSound() { const on = !soundEnabled(); setSoundEnabled(on); if (on) sfx.notify(); openMenu(); }
 /* One speaker: the big-moment sounds (drumrolls, fanfares, the steal, the reveal) play on one phone
    (the host's by default — see moments.js); the rest play only their own taps, turns and chips. */
 const bigSound = () => !window.ccBigSound || window.ccBigSound();
@@ -1209,11 +1187,11 @@ function giveUpSeat(kind) {
   else if (kind === 'closed' || atTable) showToast('That table has closed.');
 }
 
-/* #2 The outbox: captions, bets (and taking one back), the steal and frame picks each carry an id (cid) and stay
+/* #2 The outbox: captions, bets (and taking one back), the steal and Bravos each carry an id (cid) and stay
    here until the server answers. Whatever wasn't answered goes again after a reconnect; after a server restart
    everything from the last few minutes goes again, and the room's own list of ids keeps any from landing twice.
    Kept on the phone, so a reload never loses a bet either. */
-const ACKED = new Set(['submit_caption', 'place_bet', 'undo_bet', 'steal', 'frame_pick', 'react', 'call_shot']);
+const ACKED = new Set(['submit_caption', 'place_bet', 'undo_bet', 'steal', 'react']);
 let outbox = [];
 try { const o = JSON.parse(localStorage.getItem('cc_outbox') || '[]'); if (Array.isArray(o)) outbox = o.filter(x => x && x.cid && x.obj && Date.now() - x.at < 15 * 60000); } catch (e) {}
 const saveOutbox = () => { try { localStorage.setItem('cc_outbox', JSON.stringify(outbox)); } catch (e) {} };
@@ -1358,7 +1336,7 @@ function send(obj) {
     if (k === _advKey && Date.now() - _advAt < 2500) return false;   // same stage: a retry is allowed after 2.5 s (e.g. if the server said "not yet")
     _advKey = k; _advAt = Date.now(); obj.phase = state.phase; obj.round = state.round;
   }
-  // #2: captions, bets, the steal and frame picks are kept until the server answers (sent now, or the moment we're back)
+  // #2: captions, bets, the steal and Bravos are kept until the server answers (sent now, or the moment we're back)
   if (obj && ACKED.has(obj.action) && myPlayerId && gameCode) {
     obj.cid = newCid();
     pruneOutbox(); outbox.push({ cid: obj.cid, obj, code: gameCode, pid: myPlayerId, at: Date.now() }); saveOutbox();
@@ -1401,8 +1379,6 @@ function showToast(message, type = 'error') {
   const hide = pgHd ? () => { t.style.opacity = '0'; } : hdr ? () => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(-14px)'; } : () => { t.style.transform = 'translateX(-50%) translateY(140px)'; };
   clearTimeout(window._toastTimer); window._toastTimer = setTimeout(hide, 2800);
 }
-/* #38 / #29: a first-game tip (guide.js) has its own slot in the page and pushes the screen down,
-   so it never sits on the cartoon, a caption, the action bar or the timer (it fades on its own). */
 function leaveGame() {
   closeMenu();
   const mid = state && state.phase !== 'lobby';
@@ -1450,7 +1426,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ═══════════════════════════════════════════════════════════
-   Menu (room code, sound, music, rules, leave)
+   Menu (room code, sound, rules, leave)
    ═══════════════════════════════════════════════════════════ */
 // (openMenu lives in play.js: How to play, The Gallery, sound, leave; the host can remove a player)
 function closeMenu() { const sh = $('sheet'); const was = sh.classList.contains('on'); sh.classList.remove('on', 'top'); if (window.Gallery && Gallery.isZoomed && Gallery.isZoomed()) Gallery.zoomClose(); if (was && sheetOpener && document.contains(sheetOpener)) { try { sheetOpener.focus(); } catch (e) {} } sheetOpener = null; }
@@ -1471,7 +1447,6 @@ document.addEventListener('keydown', (e) => {
     else if (!e.shiftKey && (document.activeElement === last || !trap.contains(document.activeElement))) { e.preventDefault(); first.focus(); }
   }
 });
-function joinAddress() { const local = ['localhost', '127.0.0.1'].includes(location.hostname); return local && state && state.lanUrl ? state.lanUrl.replace(/^https?:\/\//, '') : location.host; }
 // Home: the plain link, no room code (Nick, Oct 23 2026: testers should host their own game, not try to join one)
 function shareGame() {
   const url = location.origin + '/', text = `Check out this game: Closed Caption. ${INVITE_PITCH} Free, no app. Tap Host a game to start your own:`;
@@ -1511,7 +1486,7 @@ function syncClaim() {
 }
 function claimAnswer(id, ok) { send({ action: 'claim_answer', id, ok }); const el = $('claim-bar'); if (el) el.remove(); }
 let lastJoin = null, claimRetryT = null;
-function sheetOpen(html) { document.querySelectorAll('.gd-nudge.on').forEach(e => e.classList.remove('on')); $('sheet-body').innerHTML = `<div class="grip"></div>${html}`; $('sheet').classList.add('on'); }
+function sheetOpen(html) { $('sheet-body').innerHTML = `<div class="grip"></div>${html}`; $('sheet').classList.add('on'); }
 function askSameName(m) {
   const n = esc(m.name);
   sheetOpen(`<p class="eyebrow center" style="margin-bottom:6px;">Room ${esc(m.code)}</p>
@@ -1762,7 +1737,6 @@ function closeInduction() { if (window.Gallery && typeof window.Gallery.close ==
 
 // The share card for a framed caption (hof.js draws it)
 let hofBlob = null;
-function makeHofCard(i) { const e = (state.hallOfFame || [])[i]; if (e) makeCardFrom(e); }
 async function makeCardFrom(e) {
   if (!e || !window.HallCard) return;
   closeInduction();
@@ -1789,12 +1763,6 @@ async function shareHofCard() {
 }
 // #41: one count for the private tally (no names, no captions): a recap or a Gallery card left this phone
 function ccTally(what) { try { if (ws && ws.readyState === 1) ws.send(JSON.stringify({ action: 'tally', what })); } catch (e) {} }
-function hofListHtml() {
-  const list = state.hallOfFame || [];
-  if (!list.length) return '';
-  return `<div class="panel hof-panel" style="margin-top:16px;"><p class="eyebrow" style="color:var(--yellow-d); margin-bottom:8px;">Framed tonight</p>
-    ${list.map((e, i) => `<div class="hof-item"><img src="/images/${esc(e.image)}" alt=""><div style="flex:1; min-width:0;"><p class="caption-text" style="font-size:15px;">“${esc(e.caption)}”</p><p class="small">${e.isReal || !e.writerName ? 'The real caption' : '— ' + esc(e.writerName)} · cheered by ${esc(listNames(e.flaggers || []))}</p></div><button class="btn btn-sm" style="width:auto;" onclick="makeHofCard(${i})">🖼 Card</button></div>`).join('')}</div>`;
-}
 // The Gallery: every framed caption, newest first (the server sends it between rounds)
 function openGallery() {
   // This phone's whole collection, plus anything new the room has (newest first)
@@ -1832,22 +1800,6 @@ function lobbyGalleryHtml() {
     ${list.length ? `<div class="lob-gal-row" onscroll="lobbyGalX=this.scrollLeft">${thumbs}</div>` : `<p class="lob-gal-empty">Nothing framed yet.</p>`}${note}</section>`;
 }
 function lobbyZoom(i) { if (window.Gallery && Gallery.zoom && lobbyGal[i]) Gallery.zoom(lobbyGal[i], lobbyGal, i, { from: '.lob-gal-row button.gal-mini' }); }
-function galleryCreditHtml() {
-  const rc = state.realCredit;
-  return rc && rc.author ? `<p class="gallery-credit">From The Gallery — caption by ${esc(rc.author)}, framed ${esc(rc.month || '')}</p>` : '';
-}
-
-/* The steal show (steal.js drives thieves.js, the hand-drawn thieves). The server picks it (state.steal), so every
-   phone agrees: the thief, 'full' (~6.5 s: the night's first steal, then about one in four at random, never because
-   of where the chip was) or 'short' (~2 s), and the neutral line under it. It plays as the flip screen opens, on the
-   shared beat; the server times the flip (state.flipAt) for after it. */
-function playStealShow(wait = 0) {
-  if (!window.ccClaw) return 0;
-  return window.ccClaw.play(wait);
-}
-
-let answerSeqRound = null;
-const answerSeqDone = () => answerSeqRound === state.round + '|' + state.code;
 
 /* ═══════════════════════════════════════════════════════════
    Career: this phone's rating (chess-style, worked out by the server at
@@ -1938,7 +1890,7 @@ function openInvite() {
       <div class="h-display" style="font-size:56px; letter-spacing:8px; padding-left:8px; margin:2px 0 10px;">${esc(state.code)}</div>
       <div class="qr-wrap">${qrSvg(joinUrl('qr'), 196)}</div>
       <p class="small" style="margin:10px 0 14px;">Point a phone camera here to join — or send the link</p></div>
-    <div class="stack"><button class="btn btn-yellow" onclick="shareRoom()">Send the invite link</button><button class="btn" onclick="closeMenu(); shareGame()">Just tell someone about the game (no room code)</button><button class="btn btn-ink" onclick="closeMenu()">Close</button></div>`;
+    <div class="stack"><button class="btn btn-yellow" onclick="shareRoom()">Send the invite link</button><button class="btn btn-ink" onclick="closeMenu()">Close</button></div>`;
   $('sheet').classList.add('on');
 }
 // Opened from an invite link: straight to "join" with the code filled in
@@ -1997,7 +1949,6 @@ function inviteLanding(code) {
 }
 
 /* ── Init ── */
-startHeroLoop();
 // #2: a phone with a seat from tonight goes straight back to the table (never Home). An older seat waits on Home
 // behind 'Back to the game' while the phone checks whether that table is still going (if it is, straight in).
 (function straightBack() {
