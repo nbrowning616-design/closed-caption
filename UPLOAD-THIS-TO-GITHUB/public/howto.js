@@ -1,7 +1,8 @@
-/* Closed Caption — HOW TO PLAY, the one-minute version. A fake round plays itself, sped up, with the
+/* Closed Caption — HOW TO PLAY, the 90-second version. A fake round plays itself, with the
    real game's buttons and chips: same cartoon for everyone → write a fake caption → the real one hides
-   among them → everyone bets at once, the chips drop together → the dealer steals (before the flip) →
-   the face-down one flips, a last chip → the reveal (Frame It is on it) → points.
+   among them → everyone bets at once, the chips drop together → what scores → the dealer steals (before
+   the flip) → it's the dealer's chip now → the face-down one flips → a last chip → the reveal → points.
+   The betting runs at reading pace, one idea per screen (Oct 29 2026); the rest stays quick.
    Big short headlines, a red-pen note, almost no reading. Tap the stage to pause; ◀ ▶ to jump.
    The full rules sit one tap below (index.html #rules-full).
    window.HowTo = { start(mountEl), stop() }. The demo captions are written for this screen only, and the
@@ -89,6 +90,19 @@
     '.ht-row .nm{flex:1;text-align:left;}',
     '.ht-row .pl{font-family:var(--display);color:#fff;background:var(--teal);border:2px solid ' + INK + ';border-radius:999px;padding:0 8px;font-size:15px;}',
     '.ht-row .sc{font-family:var(--display);font-size:24px;min-width:26px;text-align:right;}',
+    /* what scores (Oct 29 2026: the betting gets its own screens, with time to take it in) */
+    '.ht-pay{left:14px;right:14px;top:198px;z-index:10;padding:10px 14px 6px;border:3px solid ' + INK + ';border-radius:14px;background:#fff;box-shadow:var(--shadow);opacity:0;transform:translateY(16px);}',
+    '.ht-pay.on{opacity:1;transform:none;}',
+    '.ht-pay .ttl{font-family:var(--display);font-weight:700;font-size:16px;text-align:left;margin-bottom:4px;}',
+    '.ht-pr{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:2px dashed var(--line);opacity:0;transform:translateX(-14px);transition:opacity .3s,transform .4s cubic-bezier(.3,1.4,.5,1);}',
+    '.ht-pr.on{opacity:1;transform:none;}',
+    '.ht-pr.gap{margin-top:6px;border-top:3px solid ' + INK + ';}',
+    '.ht-pr .lb{flex:1;text-align:left;font-weight:900;font-size:15px;line-height:1.2;}',
+    '.ht-pr .lb small{display:block;font-weight:700;font-size:12.5px;color:var(--ink-2);}',
+    '.ht-pr .v{font-family:var(--display);font-weight:700;font-size:21px;color:#fff;background:var(--teal);border:2px solid ' + INK + ';border-radius:999px;min-width:46px;text-align:center;padding:0 8px;}',
+    '.ht-pr .v.big{background:' + RED + ';}',
+    '.ht-chip.pulse{animation:htPulse .9s ease-in-out 3;}',
+    '@keyframes htPulse{50%{transform:scale(1.4)}}',
     /* end card */
     '.ht-end{left:16px;right:16px;top:120px;z-index:12;text-align:center;opacity:0;transform:scale(.9);}',
     '.ht-end.on{opacity:1;transform:none;}',
@@ -149,6 +163,12 @@
     f.style.transform = 'translate(' + (tr.right - sr.left - 26) + 'px,' + (tr.top - sr.top + (tr.height - 24) / 2) + 'px) scale(1)';
     setTimeout(function () { f.remove(); c.querySelector('.chips').insertAdjacentHTML('beforeend', chip(who)); plink(i); }, 560);
   }
+  // Short phones (the stage under 520 px): the screens with the most on them lose the little cartoon and move up
+  function roomy() {
+    if (stage.clientHeight >= 520) return;
+    var t = $('.ht-toon'), c = $('.ht-caps'), p = $('.ht-pay');
+    t.style.opacity = 0; c.style.top = '96px'; p.style.top = '96px';
+  }
   function stamp(k, text, color) { var c = cap(k); if (!c) return; var s = document.createElement('span'); s.className = 'ht-stamp'; s.style.color = color; s.textContent = text; c.classList.add('stamped'); c.appendChild(s); void s.offsetWidth; s.classList.add('on'); thunk(); }
   function pts(k, text) { var c = cap(k); if (!c) return; var s = document.createElement('span'); s.className = 'ht-pts'; s.textContent = text; c.appendChild(s); void s.offsetWidth; s.classList.add('on'); ding(); }
 
@@ -158,7 +178,7 @@
       ['you', 'amy', 'bob', 'cat', 'dan'].forEach(function (w, i) { at(500 + i * 220, function () { $$('.ht-ph')[i].classList.add('on'); plink(i); }); });
       at(2600, function () { $('.ht-toon .ht-q').textContent = 'The caption is missing…'; });
     } },
-    { h: 'Write a fake caption.', note: 'make it sound real', ms: 7400, go: function () {
+    { h: 'Write a fake caption.', note: 'make it sound real', ms: 7400, ff: function () { $('.ht-toon').classList.add('small'); }, go: function () {
       $$('.ht-ph').forEach(function (p) { p.classList.remove('on'); });
       $('.ht-toon').classList.add('small');
       var w = $('.ht-write'), box = w.querySelector('.ht-box'), btn = w.querySelector('.ht-btn');
@@ -171,59 +191,93 @@
       at(n + 650, function () { btn.classList.remove('press'); btn.classList.add('done'); btn.textContent = '✓ Sent'; ding(); });
       at(n + 1100, function () { head('Everyone writes one.', 'even the dealer'); });
     } },
-    { h: 'The real one hides among them.', note: 'one of these is real. which?', ms: 6200, go: function () {
+    /* The betting (Oct 29 2026, Nick: "a little complicated and needs to give time to digest"): one idea per
+       screen, the words never change mid-screen, and each screen holds until it can be read (about 2 s plus
+       a third of a second a word, after the last thing moves). ▶ still skips ahead for anyone who has it. */
+    { h: 'The real one hides among them.', note: 'one of these is real. which?', ms: 10500, ff: function () {
+      $('.ht-toon').classList.add('tiny'); $$('.ht-cap').forEach(function (c) { c.style.transition = 'none'; c.classList.add('on'); });
+    }, go: function () {
       $('.ht-write').classList.remove('on');
       $('.ht-toon').classList.add('tiny');
       $$('.ht-cap').forEach(function (c, i) { at(300 + i * 350, function () { c.classList.add('on'); plink(i); }); });
-      at(2300, function () { var c = cap('cc'); c.classList.add('tap'); head('One goes face-down.', 'the Closed Caption — could be anyone’s. even the real one.'); });
-      at(5400, function () { cap('cc').classList.remove('tap'); });
+      at(4800, function () { var c = cap('cc'); c.classList.add('tap'); head('One goes face-down.', 'the Closed Caption — could be anyone’s. even the real one.'); });
+      at(9800, function () { cap('cc').classList.remove('tap'); });
     } },
-    { h: 'Bet chips on the real one.', note: '1 or 2 chips, in secret', ms: 7600, go: function () {
+    { h: 'Bet chips on the real one.', note: '1 or 2 chips, in secret', ms: 6500, go: function () {
       var sr = stage.getBoundingClientRect(), W = sr.width;
       var hand = $('.ht-hand'), c3 = cap('3');
-      // You tap caption 3 and lock in; nobody sees anyone's chips until they all drop together
-      at(400, function () { var r = c3.getBoundingClientRect(); hand.style.opacity = 1; hand.style.transform = 'translate(' + (W * 0.55) + 'px,' + (r.top - sr.top + 6) + 'px)'; });
-      at(1000, function () { c3.classList.add('tap'); click(); });
-      at(1400, function () { hand.style.opacity = 0; c3.classList.remove('tap'); });
-      at(2600, function () {
-        head('The chips drop together.', 'Bob goes all in on the face-down one');
+      // You tap caption 3 and lock in; nobody sees anyone's chips until they all drop together (next screen)
+      at(500, function () { var r = c3.getBoundingClientRect(); hand.style.opacity = 1; hand.style.transform = 'translate(' + (W * 0.55) + 'px,' + (r.top - sr.top + 6) + 'px)'; });
+      at(1100, function () { c3.classList.add('tap'); click(); });
+      at(1600, function () { hand.style.opacity = 0; c3.classList.remove('tap'); });
+    } },
+    { h: 'The chips drop together.', note: 'Bob goes all in on the face-down one', ms: 7000, ff: function () {
+      cap('3').querySelector('.chips').innerHTML = chip('you') + chip('cat'); cap('2').querySelector('.chips').innerHTML = chip('amy'); cap('cc').querySelector('.chips').innerHTML = chip('bob') + chip('bob');
+    }, go: function () {
+      var sr = stage.getBoundingClientRect(), W = sr.width;
+      at(500, function () {
         bet('you', '3', { x: W / 2, y: sr.height - 40 }, 0); bet('amy', '2', { x: -30, y: 300 }, 1);
         bet('bob', 'cc', { x: W + 10, y: 300 }, 2); bet('bob', 'cc', { x: W + 10, y: 320 }, 3); bet('cat', '3', { x: -30, y: 380 }, 4);
       });
-      at(5400, function () { head('Bet chips on the real one.', 'first bets pay more. the face-down one pays most'); });
     } },
-    { h: 'The dealer steals one chip.', note: 'before the flip. Dan is a menace', ms: 5000, go: function () {
+    { h: 'Early chips pay more.', note: 'if they’re on the real one', ms: 12500, go: function () {
+      $$('.ht-cap').forEach(function (c) { c.style.opacity = 0.12; });
+      roomy();
+      $('.ht-pay').classList.add('on');
+      $$('.ht-pr').forEach(function (r, i) { at(700 + i * 1300 + (i === 3 ? 300 : 0), function () { r.classList.add('on'); plink(i); }); });
+    } },
+    { h: 'The dealer steals one chip.', note: 'before the flip. Dan is a menace', ms: 4800, ff: function () {
+      cap('3').querySelector('.chips').innerHTML = chip('you') + chip('dan');
+    }, go: function () {
       var sr = stage.getBoundingClientRect(), c3 = cap('3'), target = c3.querySelectorAll('.ht-chip')[1], claw = $('.ht-claw');
       if (!target) return;
       var tr = target.getBoundingClientRect(), x = tr.left - sr.left - 8, y = tr.top - sr.top - 30;
       claw.style.transition = 'none'; claw.style.transform = 'translate(' + x + 'px,-120px)'; claw.style.opacity = 1; void claw.offsetWidth; claw.style.transition = '';
       at(300, function () { claw.style.transform = 'translate(' + x + 'px,' + y + 'px)'; snd(function () { tone(300, 0.5, 0, 'sawtooth', 0.03, 140); }); });
       at(1100, function () { thunk(); target.style.transition = 'transform .5s cubic-bezier(.4,0,.2,1)'; claw.style.transform = 'translate(' + x + 'px,-140px)'; target.style.transform = 'translateY(-' + (y + 170) + 'px)'; });
-      at(1700, function () { target.outerHTML = chip('dan'); plink(2); head('The dealer steals one chip.', 'it’s Dan’s chip now. on the real one? Dan scores. on a fake? Cat gets +1.'); });
+      at(1700, function () { target.outerHTML = chip('dan'); plink(2); });
     } },
-    { h: 'The face-down one flips.', note: 'last chips, everyone at once', ms: 5200, go: function () {
-      var c = cap('cc'), sr = stage.getBoundingClientRect();
+    { h: 'Now it’s Dan’s chip.', note: 'on the real one? Dan scores. on a fake? Cat gets +1.', ms: 7500, go: function () {
+      var d = cap('3').querySelectorAll('.ht-chip')[1];
+      at(300, function () { if (d) d.classList.add('pulse'); });
+    } },
+    { h: 'The face-down one flips.', note: 'now everyone can read it', ms: 4800, ff: function () {
+      var c = cap('cc'); c.classList.remove('down'); c.querySelector('.t').textContent = CAPS[3].t;
+    }, go: function () {
+      var c = cap('cc');
       at(500, function () { c.classList.add('flip'); thunk(); });
       at(800, function () { c.classList.remove('down'); c.querySelector('.t').textContent = CAPS[3].t; });
       at(1400, function () { c.classList.remove('flip'); });
-      at(2600, function () { bet('you', '3', { x: sr.width / 2, y: sr.height - 40 }, 1); head('The face-down one flips.', 'your last chip. late chips pay less'); });
     } },
-    { h: 'The reveal.', note: 'who wrote what · who fell for it', ms: 7600, go: function () {
-      at(400, function () { stamp('1', 'Amy wrote it', P.amy.c); cap('1').classList.add('dim'); });
-      at(1500, function () { stamp('2', 'You wrote it', P.you.c); });
-      at(2000, function () { pts('2', '+2 fooled Amy'); });
-      at(3100, function () { stamp('cc', 'Cat wrote it', P.cat.c); });
-      at(3600, function () { pts('cc', '+4 fooled Bob ×2'); });
-      at(4800, function () { var c = cap('3'); c.classList.add('real'); stamp('3', '✓ The real one', 'var(--teal)'); snd(function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.25, i * 90, 'square', 0.04); }); }); });
-      at(5500, function () { pts('3', '+3 You · +2 Dan'); });
+    { h: 'Then a last chip.', note: 'if you kept one. late chips pay less', ms: 6000, ff: function () {
+      cap('3').querySelector('.chips').innerHTML = chip('you') + chip('dan') + chip('you');
+    }, go: function () {
+      var sr = stage.getBoundingClientRect();
+      at(900, function () { bet('you', '3', { x: sr.width / 2, y: sr.height - 40 }, 1); });
     } },
-    { h: 'Love the good ones.', note: 'most of the table loves it? The Gallery.', ms: 5200, go: function () {
+    { h: 'The reveal.', note: 'who wrote what · who fell for it', ms: 10500, ff: function () {
+      cap('1').classList.add('dim'); cap('3').classList.add('real');
+    }, go: function () {
+      roomy();
+      at(600, function () { stamp('1', 'Amy wrote it', P.amy.c); cap('1').classList.add('dim'); });
+      at(2200, function () { stamp('2', 'You wrote it', P.you.c); });
+      at(2900, function () { pts('2', '+2 fooled Amy'); });
+      at(4500, function () { stamp('cc', 'Cat wrote it', P.cat.c); });
+      at(5200, function () { pts('cc', '+4 fooled Bob ×2'); });
+      at(6900, function () { var c = cap('3'); c.classList.add('real'); stamp('3', '✓ The real one', 'var(--teal)'); snd(function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.25, i * 90, 'square', 0.04); }); }); });
+      at(7700, function () { pts('3', '+3 You · +2 Dan'); });
+    } },
+    { h: 'Love the good ones.', note: 'most of the table loves it? The Gallery.', ms: 5200, ff: function () {
+      $$('.ht-cap').forEach(function (c) { if (c.dataset.k !== 'cc') c.classList.add('dim'); });
+    }, go: function () {
       $$('.ht-pts,.ht-stamp').forEach(function (e) { e.style.opacity = 0; });
       $$('.ht-cap').forEach(function (c) { if (c.dataset.k !== 'cc') c.classList.add('dim'); else c.classList.remove('dim'); });
       at(900, function () { var f = document.createElement('span'); f.className = 'ht-frame'; cap('cc').appendChild(f); void f.offsetWidth; f.classList.add('on'); thunk(); });
       at(1500, function () { snd(function () { [784, 988, 1175, 1568].forEach(function (f, i) { tone(f, 0.3, i * 110, 'triangle', 0.06); }); }); });
     } },
-    { h: 'Most points wins.', note: 'the winner takes the Remote', ms: 5200, go: function () {
+    { h: 'Most points wins.', note: 'the winner takes the Remote', ms: 5200, ff: function () {
+      $$('.ht-cap').forEach(function (c) { c.classList.remove('on', 'dim', 'real'); c.style.opacity = 0; }); $('.ht-toon').style.opacity = 0;
+    }, go: function () {
       $$('.ht-cap').forEach(function (c) { c.classList.remove('on', 'dim', 'real'); c.style.opacity = 0; });
       $('.ht-toon').style.opacity = 0;
       $('.ht-board').classList.add('on');
@@ -252,6 +306,12 @@
       '<div class="ht-it ht-caps">' + caps + '</div>' +
       '<div class="ht-it ht-hand">👆</div><div class="ht-it ht-claw">🦾</div>' +
       '<div class="ht-it ht-board">' + rows + '</div>' +
+      // the game's default points (game.js settings; the reveal's +3 = an early 2 + a late 1)
+      '<div class="ht-it ht-pay"><div class="ttl">A chip on the real one scores</div>' +
+        '<div class="ht-pr"><span class="lb">Early<small>bet before the flip</small></span><span class="v">+2</span></div>' +
+        '<div class="ht-pr"><span class="lb">Early, on the face-down one<small>a long shot: real about 1 round in 7</small></span><span class="v big">+5</span></div>' +
+        '<div class="ht-pr"><span class="lb">Late<small>bet after the flip</small></span><span class="v">+1</span></div>' +
+        '<div class="ht-pr gap"><span class="lb">A chip on <i>your</i> fake<small>you fooled them</small></span><span class="v">+2</span></div></div>' +
       '<div class="ht-it ht-end"><div class="big">You’re ready.</div><div class="line">Write a fake caption.<br>Bet on the real one.<br>Laugh at whoever got fooled.</div>' +
         '<div class="ht-btn" style="margin-top:18px" data-act="replay">↺ Watch again</div></div>' +
       '<div class="ht-paused">⏸</div>';
@@ -270,18 +330,8 @@
     if (!s.end) at(s.ms, function () { go(sceneIdx + 1); });
     paintProg();
   }
-  // Jumping ahead: put the table in the state an earlier scene leaves it in, with no animation
-  function fastForward(k) {
-    var toon = $('.ht-toon'), caps = $$('.ht-cap');
-    if (k === 1) toon.classList.add('small');
-    if (k === 2) { toon.classList.add('tiny'); caps.forEach(function (c) { c.style.transition = 'none'; c.classList.add('on'); }); }
-    if (k === 3) { cap('3').querySelector('.chips').innerHTML = chip('you') + chip('cat'); cap('2').querySelector('.chips').innerHTML = chip('amy'); cap('cc').querySelector('.chips').innerHTML = chip('bob') + chip('bob'); }
-    if (k === 4) cap('3').querySelector('.chips').innerHTML = chip('you') + chip('dan');
-    if (k === 5) { var c = cap('cc'); c.classList.remove('down'); c.querySelector('.t').textContent = CAPS[3].t; cap('3').querySelector('.chips').innerHTML = chip('you') + chip('dan') + chip('you'); }
-    if (k === 6) { cap('1').classList.add('dim'); cap('3').classList.add('real'); }
-    if (k === 7) { caps.forEach(function (c) { if (c.dataset.k !== 'cc') c.classList.add('dim'); }); }
-    if (k === 8) { caps.forEach(function (c) { c.classList.remove('on', 'dim', 'real'); c.style.opacity = 0; }); toon.style.opacity = 0; }
-  }
+  // Jumping ahead: put the table in the state an earlier scene leaves it in, with no animation (each scene's ff)
+  function fastForward(k) { var s = SCENES[k]; if (s && s.ff) s.ff(); }
   function paintProg() {
     var bars = root.querySelectorAll('.ht-prog i');
     [].forEach.call(bars, function (b, i) { b.classList.toggle('done', i < sceneIdx); var f = b.querySelector('b'); f.style.transition = 'none'; f.style.width = i < sceneIdx ? '100%' : '0'; });

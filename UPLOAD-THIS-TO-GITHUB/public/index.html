@@ -2531,7 +2531,7 @@ function playedGame() { try { return careerGet().games > 0 || localStorage.getIt
 // #40: 'call' = the table is on FaceTime/Zoom (the game's voice is off), 'game' = use the game's voice, null = one room
 const voiceAllowed = () => !(state && state.settings && state.settings.voice === 'call');
 function setVoiceMode(m) { send({ action: 'voice_mode', mode: m }); }
-/* #36: first-timers waiting in the lobby get pointed at the 1-minute demo (How to play).
+/* #36: first-timers waiting in the lobby get pointed at the 90-second demo (How to play).
    "Watched" lives on this phone; the game starting brings them straight back to the table. */
 let demoFrom = 0;
 function demoWatched() { try { return localStorage.getItem('cc_demo_watched') === '1' || localStorage.getItem('cc_played_game') === '1'; } catch (e) { return false; } }
@@ -2539,7 +2539,7 @@ function demoMarkWatched() { try { localStorage.setItem('cc_demo_watched', '1');
 function watchDemo() { demoFrom = Date.now(); showScreen('screen-rules'); }
 function demoCardHtml() {
   if (demoWatched()) return '';
-  return `<button class="demo-card" onclick="watchDemo()"><span class="demo-play" aria-hidden="true">▶</span><span class="demo-txt"><b>Watch the 1-minute demo while you wait</b><span>${state.isHost ? 'A whole round, sped up. Start the game when you’re back.' : 'A whole round, sped up. If the game starts, you’re brought straight back.'}</span></span></button>`;
+  return `<button class="demo-card" onclick="watchDemo()"><span class="demo-play" aria-hidden="true">▶</span><span class="demo-txt"><b>Watch the 90-second demo while you wait</b><span>${state.isHost ? 'A whole round, sped up. Start the game when you’re back.' : 'A whole round, sped up. If the game starts, you’re brought straight back.'}</span></span></button>`;
 }
 /* Every state, before drawing: the lobby -> game handoff, and #58 a late joiner adding a round */
 let lobbyPrev = null;
@@ -4274,7 +4274,7 @@ function openInvite() {
 
 /* #23: the invite landing. A link (?join=CODE) opens Join with the logo, whose table it is ("Join Nick's table — 3 here",
    from /room/CODE), the one-line pitch, the code shown as "Room QGCU ✓" and the name box ready. A closed or unknown room:
-   "That game's over", with Host your own and the 1-minute demo. */
+   "That game's over", with Host your own and the 90-second demo. */
 const INVITE_PITCH = 'A bluffing game with cartoons. Write a fake caption, then bet on the real one.';
 var inviteCode = null;   // (var: showScreen reads it, and may run before this line)
 function plainJoin() {
@@ -4292,7 +4292,7 @@ function drawInvite(code, r) {
     const head = !r.open ? 'That game’s over.' : r.full ? `${host || 'That'}’s table is full.` : `${host || 'The host'} has locked the room.`;
     const sub = !r.open ? (r.wait ? 'Too many tries from this phone. Give it a minute.' : `Room ${code} has closed.`) : r.full ? 'Eight phones is the most one table takes.' : 'Ask them to unlock it, or start a table of your own.';
     box.innerHTML = `${mast}<h1 class="ji-h">${esc(head)}</h1><p class="ji-sub">${esc(sub)}</p><p class="ji-pitch">${esc(INVITE_PITCH)} Free, no app.</p>
-      <div class="stack ji-btns"><button class="btn btn-yellow" onclick="showScreen('screen-create')">Host your own</button><button class="btn" onclick="watchDemo()">Watch the 1-minute demo</button></div>`;
+      <div class="stack ji-btns"><button class="btn btn-yellow" onclick="showScreen('screen-create')">Host your own</button><button class="btn" onclick="watchDemo()">Watch the 90-second demo</button></div>`;
     srSay(head);
     return;
   }
