@@ -129,7 +129,7 @@
     '.gal-zm .gal-zpiece{position:relative;flex:none;will-change:transform;transform-origin:50% 50%;}',
     '.gal-zm .gal-zshadow{position:absolute;inset:0;pointer-events:none;box-shadow:0 26px 40px -10px rgba(0,0,0,.75),0 6px 14px rgba(0,0,0,.45);}',
     '.gal-zm .gal-mat{padding:12px 12px 14px;background:#FBF8F0;}',
-    '.gal-zm .gal-zimg{display:block;margin:0 auto;max-width:100%;width:auto;height:auto;max-height:calc(100dvh - 380px);min-height:120px;object-fit:contain;background:#fff;box-shadow:0 0 0 1px rgba(150,130,100,.35);}',
+    '.gal-zm .gal-zimg{display:block;margin:0 auto;max-width:100%;width:auto;height:auto;max-height:calc(100dvh - 436px);min-height:110px;object-fit:contain;background:#fff;box-shadow:0 0 0 1px rgba(150,130,100,.35);}',
     '.gal-zm .gal-zcap{margin:12px 4px 0;text-align:center;font-style:italic;color:#221B16;line-height:1.3;text-wrap:balance;overflow-wrap:anywhere;hyphens:auto;}',
     '.gal-zm .gal-zplaque{position:relative;flex:none;margin-top:16px;padding:9px 18px 8px;max-width:calc(100% - 30px);text-align:center;color:#2E2108;border-radius:3px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,rgba(0,0,0,0) 1px 3px),linear-gradient(180deg,#F2DC98 0%,#D7B25E 38%,#BF953F 62%,#D9BA6C 100%);box-shadow:0 10px 20px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,250,220,.75),inset 0 -1px 0 rgba(70,45,5,.45);text-shadow:0 1px 0 rgba(255,244,205,.55);}',
     '.gal-zm .gal-zwho{margin:0;font-weight:700;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;overflow-wrap:anywhere;}',
@@ -142,6 +142,8 @@
     '.gal-zm .gal-zprev{left:0;}.gal-zm .gal-znext{right:0;}',
     '.gal-zm .gal-znav[disabled]{opacity:0;pointer-events:none;}',
     '.gal-zm .gal-zhint{flex:none;margin:12px 0 0;font-style:italic;font-size:12.5px;color:rgba(243,230,200,.6);}',
+    '.gal-zm .gal-zsave{flex:none;margin-top:14px;min-height:42px;padding:10px 20px;border-radius:999px;border:1.5px solid rgba(243,230,200,.65);background:rgba(20,6,6,.4);color:#F6E7C4;font:800 15px/1 ' + SANS + ';cursor:pointer;}',
+    '.gal-zm .gal-zsave:active{transform:scale(.97);}',
     '@media (prefers-reduced-motion: reduce){.gal-ov .gal-btn,button.gal-mini{transition:none;}}'
   ].join('\n');
 
@@ -729,7 +731,7 @@
       wall = list;   // what zoomAt(i) opens, and what a swipe pages through
       var body = n
         ? '<div class="gal-grid">' + list.map(function (e, i) { return miniHtml(e, i); }).join('') + '</div>'
-        : '<div class="gal-empty"><div class="gal-eframe"></div><p class="gal-etext">Nothing on the walls yet. When enough of the table gives a caption a Bravo!, it’s hung here — and becomes the real caption in Gallery games.</p></div>';
+        : '<div class="gal-empty"><div class="gal-eframe"></div><p class="gal-etext">Nothing on the walls yet. When most of the table gives the same caption a Bravo!, it’s framed and hangs here.</p></div>';
       return '<section class="gal-arch" aria-label="The Gallery"><div class="gal-plaster"></div>' + head + body + '</section>';
     } catch (e) { return ''; }
   }
@@ -784,7 +786,10 @@
     if (!e) return;
     zm.i = i;
     var stage = zm.root.querySelector('.gal-zstage');
-    stage.innerHTML = zoomPieceHtml(e) + '<p class="gal-zhint">' + (list.length > 1 ? 'Swipe for the next one · tap to go back' : 'Tap to go back') + '</p>';
+    stage.innerHTML = zoomPieceHtml(e) + (typeof window.makeCardFrom === 'function' ? '<button type="button" class="gal-zsave">Save the card</button>' : '') +
+      '<p class="gal-zhint">' + (list.length > 1 ? 'Swipe for the next one · tap to go back' : 'Tap to go back') + '</p>';
+    var sv = stage.querySelector('.gal-zsave');
+    if (sv) sv.addEventListener('click', function (ev) { try { ev.stopPropagation(); } catch (x) {} saveCard(e); });
     var cnt = zm.root.querySelector('.gal-zcount');
     if (cnt) cnt.textContent = list.length > 1 ? (i + 1) + ' of ' + list.length : 'The Gallery';
     var pv = zm.root.querySelector('.gal-zprev'), nx = zm.root.querySelector('.gal-znext');
@@ -859,6 +864,16 @@
     } catch (e) { try { console.warn('[gallery] zoom failed', e); } catch (e2) {} zoomClose(true); }
   }
   function zoomAt(i) { zoom(wall[i], wall, i, { from: '.gal-arch button.gal-mini' }); }
+  // "Save the card": the same framed card the end of the game makes (index.html makeCardFrom, drawn by hof.js)
+  function saveCard(e) {
+    try {
+      if (!e || typeof window.makeCardFrom !== 'function') return;
+      var isReal = !!e.isReal || !e.author;
+      zoomClose(true);
+      window.makeCardFrom({ image: e.image, caption: e.caption, writerName: isReal ? null : e.author, isReal: isReal, month: e.month,
+        inducted: e.best || ('Framed ' + String(e.month || '')).trim(), flaggers: e.flaggers || [], top: true, from: 'gallery' });
+    } catch (x) { try { console.warn('[gallery] save card failed', x); } catch (y) {} }
+  }
   function zoomClose(now) {
     var z = zm; zm = null;
     if (!z) return;

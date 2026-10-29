@@ -11,21 +11,23 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
 <!--
-  Closed Caption privacy page. Plain words, true to the code (checked Oct 19 2026):
-  - server.js keeps every room in memory (the games object). A room is deleted 30 minutes after its last
-    phone leaves, and every room is gone whenever the server restarts or updates.
-  - No photos: the game never uses the camera and takes no pictures of anyone (the old headshot feature was
-    removed Oct 19 2026; index.html deletes any old copy, cc_face, left on a phone).
-  - Phones keep their own things in the browser's storage: name, the Gallery
-    (cc_gallery), career/badges, which cartoons they've seen, sound settings.
-  - The Gallery deck (store.js) is memory-only unless the host sets DATA_DIR; on the current Render free plan
-    it isn't set. If it ever is, framed captions and the writer's name would be kept on the server — update
-    this page then.
-  - stats.js (#41, Oct 20 2026): a tally for the owner at /stats?k=STATS_KEY. Counts only (games started and
-    finished, players per game, joins by QR/link/typed code, recap and Gallery shares, by day): no names,
-    captions, room codes or addresses. Written to DATA_DIR/stats.json, STATS_FILE, or the temp folder.
-  - Voice: phone-to-phone (WebRTC). STUN from Google; if a direct path fails, audio may go through a TURN
-    relay (voice.js: the server's /ice list, else Metered's free Open Relay). Relays pass encrypted audio along.
+  Closed Caption privacy page. Plain words, true to the code (checked Oct 29 2026, the simplified game):
+  - server.js keeps every room in memory (the games object). A room is deleted 10 minutes after its last phone
+    leaves the lobby, 30 minutes after its last phone leaves a game, or after 8 hours with nothing happening.
+    A restart wipes the server's memory; each phone keeps a sealed copy of its room (localStorage cc_seal, kept up
+    to 6 hours) so the game can come back after a restart.
+  - To stop room-code guessing, the server counts wrong codes and new rooms per network address for a few minutes
+    (memory only).
+  - No photos: the game never uses the camera (index.html deletes any old headshot, cc_face, left on a phone).
+  - Phones keep their own things in the browser's storage: name (also a one-year cc_name cookie, set by /remember,
+    so the name survives iOS clearing storage), the Gallery (cc_gallery), the rating and the end-of-game lines
+    already shown (cc_career), cartoons seen (cc_seen), sound on/off, the seat (cc_session), the sealed room copy,
+    unconfirmed captions/bets (cc_outbox) and an unsent caption draft (sessionStorage).
+  - The Gallery deck (store.js) is memory-only unless the host sets DATA_DIR; on the current Render free plan it
+    isn't set. If it ever is, framed captions and the writer's name would be kept on the server: update this page.
+  - stats.js: a tally for the owner at /stats?k=STATS_KEY. Counts only (games started and finished, players per game,
+    joins by QR/link/typed code, Gallery cards shared, by day): no names, captions, room codes or addresses.
+  - No voice, no badges, no recaps any more (cut Oct 29 2026).
 -->
 <style>
   :root {
@@ -72,16 +74,18 @@
     <ul>
       <li><strong>Names</strong> you type to join, the <strong>captions</strong> you write, and your bets and scores.</li>
       <li>All of it sits in the server’s memory, <strong>only for that game room</strong>, seen only by the players in it. It’s never written to disk.</li>
-      <li>A room is <strong>deleted 30 minutes after the last phone leaves</strong> — and every room vanishes whenever the server restarts.</li>
-      <li>It also keeps a running count for the game’s owner (games played, players per game, whether people joined by QR code, link or typed code, and recaps and Gallery cards shared): <strong>numbers only</strong>, no names, no captions, nothing that points to you.</li>
+      <li>A room is <strong>deleted soon after the last phone leaves</strong> (10 minutes from the lobby, 30 from a game), and the server forgets every room whenever it restarts.</li>
+      <li>To stop people guessing room codes, it counts wrong codes from each network for a few minutes, in memory.</li>
+      <li>It also keeps a running count for the game’s owner (games played, players per game, whether people joined by QR code, link or typed code, and Gallery cards shared): <strong>numbers only</strong>, no names, no captions, nothing that points to you.</li>
     </ul>
   </section>
 
   <section class="card">
     <h2>What stays on your phone</h2>
     <ul>
-      <li>Your name, <strong>The Gallery</strong> of framed captions, your badges, and which cartoons you’ve seen.</li>
-      <li>It lives in your browser’s storage on that phone, nowhere else. Clearing the site’s data in your browser settings erases it.</li>
+      <li>Your name, <strong>The Gallery</strong> of framed captions, your rating, and which cartoons you’ve seen.</li>
+      <li>While you play, a copy of tonight’s game (names, captions, scores), so the game can come back if the server restarts. It’s dropped after a few hours.</li>
+      <li>It lives in your browser’s storage on that phone, nowhere else. Your name is also kept in a small cookie, so the phone still knows it if the browser tidies its storage. Clearing the site’s data in your browser settings erases all of it.</li>
       <li>When you join a game, your phone shares your Gallery with that room so the table can see it.</li>
     </ul>
   </section>
@@ -98,7 +102,7 @@
     <h2>What we don’t do</h2>
     <ul>
       <li>No ads.</li>
-      <li>No tracking, analytics, or cookies for following you around.</li>
+      <li>No tracking or analytics. The only cookie is your name, on your own phone.</li>
       <li>No selling or sharing your names or captions. With anyone. Ever.</li>
       <li>No accounts, no emails, no passwords.</li>
     </ul>
@@ -107,7 +111,6 @@
   <section class="card">
     <h2>The fine print, in large print</h2>
     <ul>
-      <li>The voice call (“Playing apart?”) goes phone to phone. On networks that block that, the encrypted audio may pass through a relay server on its way; nobody stores it.</li>
       <li>The game’s lettering comes from Google Fonts, so your phone asks Google for the font files.</li>
       <li>Like any website, the company that hosts the game may keep ordinary visit logs (like your network address) for a short time.</li>
     </ul>

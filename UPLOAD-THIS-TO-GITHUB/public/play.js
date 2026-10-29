@@ -406,8 +406,16 @@
       ${framed ? '<p class="pg-frame-note">Framed. It hangs in The Gallery.</p>' : ''}
       ${!framed && w !== myPlayerId ? `<div class="pg-card-row">${bravoHtml(key)}</div>` : ''}</div>`;
   }
+  // The fakes nobody fell for, all at once: each one can still get a Bravo! (and be framed right here)
   function nobodyCard(keys) {
-    return `<div class="pg-card"><p class="pg-kick">Nobody fell for these</p><div class="pg-nob">${keys.map(k => { const c = capOf(k); return `<p><i>“${esc(c.caption || '')}”</i> — ${c.playerId === myPlayerId ? 'you' : esc(first(c.playerId))}</p>`; }).join('')}</div></div>`;
+    const framed = state.framed || [];
+    const rows = keys.map(k => {
+      const c = capOf(k), fr = framed.includes(k), mine = c.playerId === myPlayerId;
+      const side = fr ? '<span class="pg-ftag">Framed</span>' : mine ? '' : bravoHtml(k);
+      return `<div class="pg-nrow${fr ? ' framed' : ''}"><p><i>“${esc(c.caption || '')}”</i> — ${mine ? 'you' : esc(first(c.playerId))}</p>${side}</div>`;
+    }).join('');
+    const any = keys.some(k => framed.includes(k));
+    return `<div class="pg-card"><p class="pg-kick">Nobody fell for these</p><div class="pg-nob">${rows}</div>${any ? '<p class="pg-frame-note">Framed ones hang in The Gallery.</p>' : ''}</div>`;
   }
   function realCard(key) {
     const c = capOf(key), fs = SET();
@@ -531,13 +539,21 @@
     if (!li) return;
     safe(() => collectGallery());
     if (typeof lastIndN === 'undefined') return;
-    if (lastIndN === null) { lastIndN = li.n || 0; if (!(state.phase === 'answer' && li.round === state.round && now() - (li.at || 0) < 4000)) return; lastIndN = (li.n || 1) - 1; }
+    // (several can be framed at once, on the "Nobody fell for these" step: every one of their writers hears it)
+    const list = (Array.isArray(li.list) && li.list.length ? li.list : [li]).filter(x => x && typeof x.n === 'number');
+    if (lastIndN === null) {   // the first state on this phone: only a framing from the last few seconds plays
+      lastIndN = li.n || 0;
+      const fresh = state.phase === 'answer' && li.round === state.round ? list.filter(x => now() - (x.at || 0) < 4000) : [];
+      if (!fresh.length) return;
+      lastIndN = Math.min(...fresh.map(x => x.n)) - 1;
+    }
     if ((li.n || 0) <= lastIndN) return;
+    const news = list.filter(x => x.n > lastIndN);
     lastIndN = li.n || 0;
-    const mine = li.writerId === myPlayerId;
+    const mine = news.some(x => x.writerId === myPlayerId) || (!news.length && li.writerId === myPlayerId);
     safe(() => big(() => { tone(1318, 0.18, 0, 'sine', 0.04); tone(1976, 0.32, 110, 'sine', 0.03); }));
     buzz(mine ? [50, 40, 90] : 25);
-    safe(() => srSay(`Framed: ${li.author || 'a caption'}.`));
+    safe(() => srSay(`Framed: ${listN((news.length ? news : [li]).map(x => x.author || 'a caption'))}.`));
     if (mine) setTimeout(() => showToast('Your caption is framed. It hangs in The Gallery.', 'ok'), 200);
   }
   let lastRound = 0, stealT = null, clockT = null, sayKey = '';
