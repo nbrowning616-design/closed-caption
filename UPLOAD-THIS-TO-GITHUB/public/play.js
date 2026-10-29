@@ -19,6 +19,8 @@
   const hostName = () => esc(first(state.hostId));
   const listN = (names) => names.length <= 1 ? (names[0] || '') : names.length === 2 ? `${names[0]} and ${names[1]}` : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
   const chip = (pid, cls = '', extra = '', attrs = '') => safe(() => chipHtml(pid, cls, extra, attrs)) || '';
+  // Who the table is waiting on: the names, or a count once there are more than three
+  const waitNames = (ids) => ids.length <= 3 ? esc(listN(ids.map(first))) : `${ids.length} more`;
   const SET = () => (state && state.settings) || {};
 
   /* ── The visible screen: on a phone the keyboard shrinks the visual viewport, not the page. The screen is sized
@@ -35,22 +37,26 @@
     W.addEventListener('orientationchange', () => setTimeout(() => { syncViewport(); fitSoon(); }, 300));
   } catch (e) {}
 
-  /* ── Fit: nothing scrolls. If the middle doesn't fit beside the cartoon, the type steps down; only as a very last
-     resort does the middle scroll inside itself (never the page). ── */
+  /* ── Fit: nothing scrolls. The cartoon takes whatever room is left. If the middle doesn't fit beside it, the type
+     steps down a little; then the list goes compact (tighter rows, a smaller Bravo!, chips stacked) and the cartoon may
+     shrink further (tap it to zoom). Only as a very last resort does the middle scroll inside itself (never the page).
+     The type never drops below about 12 px: a table has to be able to read it. ── */
   let fitT = null;
   function fitSoon() { clearTimeout(fitT); fitT = setTimeout(fit, 30); }
+  const STEPS = [[0, 1, 110], [0, 0.94, 96], [1, 1, 84], [1, 0.94, 68], [1, 0.88, 52], [1, 0.84, 40]];   // [compact, type scale, smallest cartoon]
   function fit() {
     const pg = document.querySelector('#game-content .pg');
     if (!pg) return;
     pg.classList.remove('scroll-mid');
     const mids = [...pg.querySelectorAll('.pg-mid')];
     const toon = pg.querySelector('.pg-toon');
-    const over = () => pg.scrollHeight > pg.clientHeight + 1 || mids.some(m => m.scrollHeight > m.clientHeight + 1) || (toon && toon.clientHeight < 60);
     let ok = false;
-    for (const f of [1, 0.94, 0.88, 0.82, 0.76, 0.7, 0.64]) {
+    for (const [dense, f, minToon] of STEPS) {
+      pg.classList.toggle('dense', !!dense);
       pg.style.setProperty('--fs', String(f));
       if (toon) sizeToon(toon);
-      if (!over()) { ok = true; break; }
+      const over = pg.scrollHeight > pg.clientHeight + 1 || mids.some(m => m.scrollHeight > m.clientHeight + 1) || (toon && toon.clientHeight < minToon);
+      if (!over) { ok = true; break; }
     }
     if (!ok) pg.classList.add('scroll-mid');
     if (toon) sizeToon(toon);
@@ -71,7 +77,7 @@
   }
   function toonHtml() {
     if (!state.cartoon) return '<div class="pg-fill"></div>';
-    return `<button class="pg-toon" onclick="openViewer()" aria-label="The cartoon. Tap to zoom"><img src="/images/${esc(state.cartoon.image)}" alt="" onload="ccPlay.fit()"><span class="pg-zoom" aria-hidden="true">⤢</span></button>`;
+    return `<button class="pg-toon" onclick="openViewer()" aria-label="The cartoon. Tap to zoom"><span class="pg-pic"><img src="/images/${esc(state.cartoon.image)}" alt="" onload="ccPlay.fit()"><span class="pg-zoom" aria-hidden="true">⤢</span></span></button>`;
   }
   const btn = (label, onclick, cls = 'btn-yellow', attrs = '') => `<button class="btn ${cls}" onclick="${onclick}" ${attrs}>${label}</button>`;
   const waitLine = (html) => `<p class="pg-wait" role="status">${html}</p>`;
@@ -156,13 +162,13 @@
     const votes = (s.mulliganVotes || []).length, need = s.mulliganNeeded || 2;
     const waiting = (s.waitingWriters || []).filter(id => id !== myPlayerId);
     const inN = (s.submittedPlayerIds || []).length, all = inN + (s.waitingWriters || []).length;
-    const status = waiting.length ? `${inN} of ${all} in · waiting for ${esc(listN(waiting.map(first)))}` : `${inN} of ${all} in`;
+    const status = waiting.length ? `${inN} of ${all} in · waiting for ${waitNames(waiting)}` : `${inN} of ${all} in`;
     const skip = `<span data-live="skip"><button class="pg-skip${s.myMulligan ? ' on' : ''}" onclick="ccPlay.skip()" aria-pressed="${!!s.myMulligan}">${s.myMulligan ? '✓ Skip' : 'Skip this cartoon'}${votes ? ` · ${votes} of ${need}` : ''}</button></span>`;
     if (s.hasSubmitted) {
       const stopBtn = s.isDealer && !s.timerDuration && inN >= 2 && waiting.length ? btn('Stop writing', 'ccPlay.stopWriting()', 'btn-sm') : '';
       return page('writing', header() + toonHtml() +
         `<div class="pg-mid"><p class="pg-mine">“${esc(s.myCaption || '')}”</p></div>` +
-        `<div class="pg-act">${waiting.length ? waitLine(`Waiting for <b>${esc(listN(waiting.map(first)))}</b><span class="dots"></span>`) : waitLine('Everyone’s in.')}${stopBtn}</div>`,
+        `<div class="pg-act">${waiting.length ? waitLine(`Waiting for <b>${waitNames(waiting)}</b><span class="dots"></span>`) : waitLine('Everyone’s in.')}${stopBtn}</div>`,
         ['w', tagOf(s), s.cartoon && s.cartoon.id, 1].join('|'));
     }
     const ck = check && check.text === currentInput() ? check : null;
@@ -250,11 +256,11 @@
     let act = '';
     if (dropped) act = stage === 1 ? waitLine('The chips are down.') : dealerAct('Reveal the answers');
     else if (s.isMyTurn) {
-      if (k === null) act = `<p class="pg-tip">${stage === 1 ? 'Tap the caption you think is real.' : 'One chip left. Tap where it goes.'}</p>${more ? `<div class="pg-inline">${more}</div>` : ''}`;
+      if (k === null) act = `<div class="pg-inline"><p class="pg-tip">${stage === 1 ? 'Tap the caption you think is real.' : 'One chip left. Tap where it goes.'}</p>${more}</div>`;
       else act = stage === 1 ? `<div class="btn-row">${btn('1 chip', 'ccPlay.placeBet(1)', 'btn-yellow')}${btn('2 chips', 'ccPlay.placeBet(2)', 'btn-yellow')}</div>` : btn('Put my last chip here', 'ccPlay.placeBet(1)');
     } else if (mineBet) {
-      act = `<div class="pg-inline"><span class="pg-line">Your ${mineBet.count === 2 ? '2 chips are' : 'chip is'} on ${mineBet.target === 'closed' ? 'the face-down one' : '#' + (Number(mineBet.target) + 1)}.</span><button class="btn btn-sm pg-more" onclick="ccPlay.undo()">Take it back</button></div>${pending.length ? waitLine(`Waiting for <b>${esc(listN(pending.map(first)))}</b>`) : ''}${more ? `<div class="pg-inline">${more}</div>` : ''}`;
-    } else act = `${waitLine(pending.length ? `Waiting for <b>${esc(listN(pending.map(first)))}</b>` : 'Waiting for the bets')}${more ? `<div class="pg-inline">${more}</div>` : ''}`;
+      act = `<div class="pg-inline"><span class="pg-line">Your ${mineBet.count === 2 ? '2 chips are' : 'chip is'} on ${mineBet.target === 'closed' ? 'the face-down one' : '#' + (Number(mineBet.target) + 1)}.</span><button class="btn btn-sm pg-more" onclick="ccPlay.undo()">Take it back</button>${more}</div>${pending.length ? waitLine(`Waiting for <b>${waitNames(pending)}</b>`) : ''}`;
+    } else act = `<div class="pg-inline">${waitLine(pending.length ? `Waiting for <b>${waitNames(pending)}</b>` : 'Waiting for the bets')}${more}</div>`;
     return page(stage === 1 ? 'bets' : 'late', header() + toonHtml() + `<div class="pg-mid">${caps}</div><div class="pg-act">${act}</div>`, 'b' + stage + '|' + tagOf(s));
   }
 
@@ -403,14 +409,13 @@
       return page('final', header() + `<h2 class="pg-title">Caption of the Night</h2><div class="pg-mid grow"><div class="pg-memo"><img src="/images/${esc(e.image || '')}" alt="" onload="ccPlay.fit()"><p class="pg-big" style="text-align:center">“${esc(e.caption || '')}”</p><p class="pg-tip">${e.writerId === myPlayerId ? 'You' : esc(e.writerName || first(e.writerId))} · ${esc(f.best || 'Caption of the Night')}</p></div></div><div class="pg-act">${state.isHost ? btn('Play again', 'ccPlay.again()') : waitLine(`Waiting for <b>${hostName()}</b><span class="dots"></span>`)}</div>`, 'f3|' + tagOf(state));
     }
     const mine = localVote.tag === state.code + '|' + f.at ? localVote.key : f.myVote;
-    const n = (f.entries || []).length, cols = n <= 1 ? 1 : n <= 4 ? 2 : 3;
-    const imgh = n <= 2 ? 150 : n <= 4 ? 100 : n <= 6 ? 80 : 64;
+    const n = (f.entries || []).length, cols = n <= 1 ? 1 : n <= 6 ? 2 : 3, rows = Math.max(1, Math.ceil(n / cols));
     const cards = (f.entries || []).map(e => { const own = e.writerId === myPlayerId; const can = f.canVote && !own;
       return `<button class="pg-fr${mine === e.key ? ' on' : ''}" ${can ? `onclick="ccPlay.vote('${esc(e.key)}')"` : 'disabled'} aria-pressed="${mine === e.key}"><img src="/images/${esc(e.image)}" alt="" onload="ccPlay.fit()"><span class="pg-fc">“${esc(e.caption)}”</span><span class="pg-fb">${own ? 'Yours' : esc(e.writerName || first(e.writerId))}</span></button>`; }).join('');
     const voters = (f.voters || []).length, decided = (f.decided || []).length;
     const tip = f.canVote ? (mine ? 'Voted. Tap another to change it.' : 'Tap the best one. Not your own.') : 'They’re all yours. The table is voting.';
     const act = state.isHost ? `${waitLine(`${decided} of ${voters} voted`)}${decided ? btn('Count the votes', "ccPlay.countVotes()", '') : ''}` : waitLine(`${decided} of ${voters} voted`);
-    return page('final', header() + `<h2 class="pg-title">Caption of the Night?</h2><p class="pg-tip">${tip}</p><div class="pg-mid grow"><div class="pg-wall" style="--cols:${cols};--imgh:${imgh}px">${cards}</div></div><div class="pg-act">${act}</div>`, 'f2|' + tagOf(state));
+    return page('final', header() + `<h2 class="pg-title">Caption of the Night?</h2><p class="pg-tip">${tip}</p><div class="pg-mid grow"><div class="pg-wall" style="--cols:${cols};--rows:${rows}">${cards}</div></div><div class="pg-act">${act}</div>`, 'f2|' + tagOf(state));
   }
   function endingHtml() {
     const step = (state.ending && state.ending.step) || 0;

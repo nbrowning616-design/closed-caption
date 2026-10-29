@@ -1586,8 +1586,13 @@ function hallOfFame(game) {
 /* ── The end of the game: the winner and final scores → each player's rating and line → tonight's frames and the
    Caption of the Night vote. The host moves it on. ── */
 const SHOW_LEAD_MS = 1500;
+// The vote fits one screen: at most six of tonight's frames, the ones with the most Bravos (then the latest).
+// Every frame still hangs in The Gallery.
+const FINALE_MAX = 6;
 function finaleEntries(game) {
-  return hallOfFame(game).filter(e => !e.isReal && e.caption && e.writerId).map(e => ({
+  const all = hallOfFame(game).filter(e => !e.isReal && e.caption && e.writerId);
+  const top = all.length <= FINALE_MAX ? all : [...all].sort((a, b) => (b.flaggers.length - a.flaggers.length) || (b.round - a.round)).slice(0, FINALE_MAX).sort((a, b) => a.round - b.round);
+  return top.map(e => ({
     key: e.round + '|' + e.target, round: e.round, target: e.target, caption: e.caption,
     writerId: e.writerId, writerName: e.writerName, image: e.image, cartoonId: e.cartoonId,
     frames: e.flaggers.length, flaggers: e.flaggers,
