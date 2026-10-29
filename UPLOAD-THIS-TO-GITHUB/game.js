@@ -1680,14 +1680,20 @@ function beginRated(game) {
   game.ratingSnap = snap;
   game.ratingResult = null;
 }
-// Game over: everyone seated at the start is rated on their final score
+// Game over: everyone still at the table is rated on their final score, late joiners too (they sat down level with
+// last place, so where they finished is a fair result; their rating going in is the one their phone reported on
+// joining). Anyone who left before the end is neither rated nor listed.
 function settleRating(game) {
   if (game.ratingResult || !game.ratingSnap) return;
   try {
-    const scores = {};
-    for (const p of game.players) if (game.ratingSnap[p.id]) scores[p.id] = p.score;
+    const snap = {}, scores = {};
+    for (const p of game.players) {
+      if (!isSeated(p)) continue;
+      snap[p.id] = game.ratingSnap[p.id] || Rating.snapshot([p])[p.id];
+      scores[p.id] = p.score;
+    }
     const scale = Math.min(1, Math.max(1, game.round || 1) / FULL_RATING_ROUNDS);
-    const r = Rating.settle(game.ratingSnap, scores, game.players, game.gameId, null, scale);
+    const r = Rating.settle(snap, scores, game.players, game.gameId, null, scale);
     if (r.order.length < 2) { game.ratingResult = { gameId: game.gameId, rows: {}, order: [], none: true }; return; }
     game.ratingResult = { gameId: game.gameId, rows: r.rows, order: r.order, at: Date.now(), scale, short: scale < 1, rounds: game.round };
   } catch (e) { console.error('rating failed', e); game.ratingResult = { gameId: game.gameId, rows: {}, order: [], none: true }; }
@@ -1723,14 +1729,33 @@ function resetForNewGame(game) {
   game.ratingSnap = null; game.ratingResult = null;
 }
 
-/* ── The dealer moves the game on; nobody else can. If the dealer's phone has really been off for STANDIN_MS (or the
-   host moved on without them), the HOST's phone gets one button: "Move on without <name>". ── */
+/* ── The dealer moves a round on, and the host the end of the game; nobody else can. If the phone the table needs has
+   really been off for STANDIN_MS (its socket closed, not just idle), or its player left, ONE other phone gets a single
+   button: "Move on without <name>". That's the host's phone if the host is here, otherwise the next phone that's on,
+   in seat order. Nobody's job changes hands (the host's passes on only after GONE_MS): the moment the phone is back,
+   it has its own button again. ── */
+function neededOf(game) {
+  if (game.phase === PHASES.LOBBY || game.phase === PHASES.WRITING) return null;
+  if (game.phase === PHASES.SCORES && game.over) return game.players.find(p => p.id === game.hostId) || null;
+  return dealerOf(game);
+}
+const isOff = (p, now = Date.now()) => !!p && (isGone(p, now) || awayMs(p, now) >= STANDIN_MS);
 function dealerOff(game, now = Date.now()) {
   const d = dealerOf(game);
   if (!d || game.phase === PHASES.LOBBY || game.phase === PHASES.WRITING) return false;
-  return isGone(d, now) || awayMs(d, now) >= STANDIN_MS;
+  return isOff(d, now);
 }
-const canStandIn = (game, pid, now = Date.now()) => game.hostId === pid && !!dealerOf(game) && dealerOf(game).id !== pid && dealerOff(game, now) && !(game.phase === PHASES.SCORES && game.over);
+function standInId(game, now = Date.now()) {
+  const need = neededOf(game);
+  if (!need || !isOff(need, now)) return null;
+  const on = (p) => !!p && !!p.connected && !p.gone && p.id !== need.id;
+  const host = game.players.find(p => p.id === game.hostId);
+  if (on(host)) return host.id;
+  const n = game.players.length, i0 = game.players.indexOf(need);
+  for (let k = 1; k < n; k++) { const p = game.players[seatAt(n, i0 + k)]; if (on(p)) return p.id; }
+  return null;
+}
+const canStandIn = (game, pid, now = Date.now()) => !!pid && standInId(game, now) === pid;
 // What the dealer's one button does right now. { ok } | { error } | { wait: true } (nothing for the dealer to do yet)
 function dealerNext(game, standIn) {
   switch (game.phase) {
@@ -1762,10 +1787,11 @@ function getPlayerView(game, playerId) {
   const s = settingsOf(game);
   const now = Date.now();
   const published = deckOf(game).authorCounts();
+  const host = game.players.find(p => p.id === game.hostId) || null;
+  const standIn = standInId(game, now);
   const base = {
     code: game.code,
     phase: game.phase,
-    locked: !!game.locked,
     notice: game.notice || null,
     seatClaim: game.seatClaim && game.hostId === playerId ? { ...game.seatClaim } : null,
     players: game.players.map(p => ({ id: p.id, name: p.name, score: p.score, connected: !!p.connected, gone: isGone(p, now), rating: Rating.validRating(p.rating) ? p.rating : null, provisional: !Rating.validRating(p.rating) || (p.games || 0) < Rating.PROVISIONAL_GAMES, title: ratingTitle(p), published: published.get(p.name.toLowerCase()) || 0 })),
@@ -1779,7 +1805,12 @@ function getPlayerView(game, playerId) {
     dealerName: dealer ? dealer.name : null,
     dealerConnected: dealer ? !!dealer.connected : false,
     dealerOff: dealerOff(game, now),
-    canStandIn: canStandIn(game, playerId, now),
+    dealerLeft: !!(dealer && dealer.gone),   // tapped Leave (or the host moved on without them), not just a phone that's off
+    hostOff: isOff(host, now),
+    hostLeft: !!(host && host.gone),
+    // the one phone that may move on without the dealer (or, at the end of the game, the host), and whether it's this one
+    standInId: standIn,
+    canStandIn: !!playerId && standIn === playerId,
     isDealer,
     playerId,
     timerDuration: game.timerDuration,
@@ -1798,10 +1829,8 @@ function getPlayerView(game, playerId) {
   };
   if (game.phase === PHASES.LOBBY || game.phase === PHASES.SCORES) base.gazette = deckOf(game).recent(40);
   if (game.phase === PHASES.LOBBY) {
-    const host = game.players.find(p => p.id === game.hostId);
     const hostAway = awayMs(host, now);
     if (hostAway >= 20000) base.hostAway = { name: host.name, secs: Math.floor(hostAway / 1000) };
-    base.canTakeHost = false;
     const d = deckStatus(game);
     base.freshCount = d.fresh; base.poolCount = d.pool;
     base.deck = { ...d, line: deckLine(d) };
@@ -1903,7 +1932,44 @@ function getPlayerView(game, playerId) {
    (encrypted and signed by the server, unreadable on the phone) and hand it back after a restart. */
 if (!process.env.RESTORE_KEY && !process.env.GALLERY_KEY && (process.env.RENDER || process.env.NODE_ENV === 'production')) console.warn('RESTORE_KEY is not set: room copies will not survive a server restart');
 const SEAL_KEY = crypto.createHash('sha256').update('seal|' + (process.env.RESTORE_KEY || process.env.GALLERY_KEY || (process.env.RENDER || process.env.NODE_ENV === 'production' ? crypto.randomBytes(32).toString('hex') : 'closed-caption/restore/v1'))).digest();
-const SKIP = new Set(['deck', '_advAt', '_sealTag', '_sealAt', 'voice']);
+const SKIP = new Set(['deck', '_advAt', '_sealTag', '_sealAt', 'voice', '_actedSince', '_restoredAt']);   // (whether a restored room was played on belongs to this server run only)
+/* The older server could seat house players (write-only fill-ins, ids 'house:N'). They're gone: a room it sealed mid-round
+   loses their captions. Before the answers, a house caption leaves the table and everything pointing at a caption is
+   renumbered (a secret bet on one is taken back; a chip that had dropped on one comes back for the last chips). Once
+   the answers are out, the house captions just drop out of the reveal (no "? wrote it"), and can't be framed. */
+function dropHouse(g) {
+  const isH = (id) => typeof id === 'string' && id.startsWith('house:');
+  delete g.house;
+  for (const h of g.history || []) for (const c of (h && h.openCaptions) || []) if (c && isH(c.playerId)) c.playerId = null;   // (earlier rounds: nobody's)
+  const caps = g.openCaptions || [];
+  if (!caps.some(c => c && isH(c.playerId))) return;
+  const houseKey = (k) => k !== 'closed' && !!caps[Number(k)] && isH(caps[Number(k)].playerId);
+  if (g.phase === PHASES.ANSWER || g.phase === PHASES.SCORES) {
+    if (g.reel && Array.isArray(g.reel.order)) {
+      const old = g.reel.order, step = g.reel.step || 1, order = old.filter(k => !houseKey(k));
+      const real = order.find(k => k === 'closed' ? !!g.closedIsCorrect : !!(caps[Number(k)] || {}).isCorrect);
+      let k = 0; while (k < order.length && order[k] !== real && votesOn(g, order[k]) === 0) k++;
+      g.reel = { ...g.reel, order, step: Math.max(1, Math.min(order.length, old.slice(0, step).filter(x => !houseKey(x)).length)), nobody: k >= 2 && k < order.length ? k : 0 };
+    }
+    caps.forEach(c => { if (c && isH(c.playerId)) c.playerId = null; });
+    return;
+  }
+  const map = {}, keep = [];
+  caps.forEach((c, i) => { if (!(c && isH(c.playerId))) { map[i] = keep.length; keep.push(c); } });
+  const re = (t) => (t === 'closed' || t === 'pass' ? t : Number(t) in map ? map[Number(t)] : null);
+  g.openCaptions = keep;
+  const rx = {};
+  for (const [k, v] of Object.entries(g.reactions || {})) { const t = re(k); if (t !== null) rx[String(t)] = v; }
+  g.reactions = rx;
+  for (const m of [g.blind, g.lateBlind, g.firstBets, g.secondBets]) for (const [pid, b] of Object.entries(m || {})) { const t = b ? re(b.target) : null; if (t === null) delete m[pid]; else b.target = t; }
+  for (const b of g.bets || []) {
+    if (!b || b.target === 'pass') continue;
+    const t = re(b.target);
+    if (t !== null) { b.target = t; continue; }
+    b.target = 'pass'; b.count = 0; if (b.stage === 1) b.late = true;
+  }
+  if (g.steal && g.steal.target !== undefined && g.steal.target !== null) { const t = re(g.steal.target); g.steal.target = t === null ? 'pass' : t; }
+}
 function sealGame(game) {
   const plain = {};
   for (const k of Object.keys(game)) if (!SKIP.has(k)) plain[k] = game[k];
@@ -1928,13 +1994,24 @@ function unsealGame(blob) {
     ['flags', 'roundFrames', 'inducted', 'history', 'usedCartoonIds', 'bets', 'betOrder', 'submissions', 'openCaptions', 'mulliganVotes', 'closePlan'].forEach(k => { if (!Array.isArray(g[k])) g[k] = []; });
     g.usedCartoonIds = g.usedCartoonIds.filter(id => !isRetiredId(id));
     if (g.cartoon && isRetiredId(g.cartoon.id)) resetForNewGame(g);
+    delete g.locked;   // (there's no lock any more: a room locked by the older server opens again)
     // A room sealed by the older server: its stages map onto today's (nothing moves on by itself any more)
     if (g.v !== 3) {
       if (g.phase === 'framing') g.phase = PHASES.ANSWER;
-      if (g.phase === PHASES.REVEAL) { g.flipped = !!(g.flipAt && g.flipAt <= Date.now()); g.stealEnd = g.flipAt && !g.flipped ? g.flipAt : 0; }
+      dropHouse(g);
+      if (g.phase === PHASES.REVEAL) {
+        // The older server turned the card over by itself at flipAt. Not yet: the dealer flips it after the steal show.
+        // Already turned: back to the last chips (or, if nobody holds one, the dealer's "Reveal the answers").
+        const turned = !!(g.flipAt && g.flipAt <= Date.now());
+        g.flipped = false;
+        g.stealEnd = g.flipAt && !turned ? g.flipAt : 0;
+        if (turned) { g.flipAt = null; flip(g); }
+      }
       if (g.phase === PHASES.ANSWER && g.reel) g.reel.step = Math.max(1, Math.min(g.reel.step || 1, (g.reel.order || []).length));
-      if (g.phase === PHASES.SCORES && g.over && !g.ending) g.ending = { step: 0, at: Date.now() };
       if (g.phase === PHASES.SCORES && g.over === undefined) g.over = false;
+      // The older ending had more steps (awards, "Did you know?"…): it starts again at the winner; the vote reopens
+      if (g.phase === PHASES.SCORES && g.over) { g.ending = { step: 0, at: Date.now() }; g.finale = null; }
+      else g.ending = null;
       g.v = 3;
     }
     if (g.phase === PHASES.FIRST_BETS && !g.dropAt) g.blindEnd = Math.max(g.blindEnd || 0, Date.now() + 20000);   // bettors get a fair 20 s back
@@ -1954,7 +2031,7 @@ module.exports = {
   startRound, submitCaption, voteMulligan, finishWriting, allCaptionsIn, connectedAllIn, onlyAwayPending, waitingWriters,
   moveToFirstBets, placeBet, undoBet, dropBlind, dropLate, moreBetTime, afterBlinds, eligibleSecondBetters, pendingBetters,
   stealChip, randomSteal, stealable, flip, revealAnswer, reelNext, reelOrder, votesOn, moveToScoreboard, isGameOver, liveOver, finishIfOver, resetForNewGame,
-  isPresent, isSeated, isGone, dealerOff, canStandIn, dealerNext, react, inductNeed, hallOfFame, standing, fooledTally,
+  isPresent, isSeated, isGone, dealerOff, standInId, canStandIn, dealerNext, react, inductNeed, hallOfFame, standing, fooledTally,
   openFinale, voteFinale, resolveFinale, finaleAllIn, endingNext, setCareer, getPlayerView, generateRoomCode, polish,
   BLIND_MS, ALL_IN_BEAT_MS, DROP_HOLD_MS, LATE_BET_MS, BET_MORE_MS, FLIP_MS, STEAL_FULL_MS, STEAL_SHORT_MS,
 };

@@ -86,11 +86,17 @@
   }
   const btn = (label, onclick, cls = 'btn-yellow', attrs = '') => `<button class="btn ${cls}" onclick="${onclick}" ${attrs}>${label}</button>`;
   const waitLine = (html) => `<p class="pg-wait" role="status">${html}</p>`;
-  // The dealer's one button; everyone else waits for the dealer. The host's phone alone gets the fallback.
+  // The dealer's one button; everyone else waits for the dealer. With the dealer's phone off 2+ minutes (or the dealer
+  // gone), one phone alone gets the fallback: the host's, or the next one on.
+  const offLine = (name, left) => left ? `${name} left.` : `${name}’s phone is off.`;
+  function waitDealer() {
+    if (state.dealerLeft) return waitLine(`${dealerName()} left.${state.standInId ? ` Waiting for <b>${esc(first(state.standInId))}</b><span class="dots"></span>` : ''}`);
+    return waitLine(`Waiting for <b>${dealerName()}</b>${state.dealerOff || !state.dealerConnected ? ' (phone off)' : ''}<span class="dots"></span>`);
+  }
   function dealerAct(label, opts = {}) {
     if (state.isDealer) return btn(label, opts.onclick || 'ccPlay.next()', opts.cls || 'btn-yellow', opts.disabled ? 'disabled' : '');
-    if (state.canStandIn) return `${waitLine(`${dealerName()}’s phone is off.`)}${btn(`Move on without ${dealerName()}`, 'ccPlay.standIn()', 'btn-ink', opts.disabled ? 'disabled' : '')}`;
-    return waitLine(`Waiting for <b>${dealerName()}</b>${state.dealerOff || !state.dealerConnected ? ' (phone off)' : ''}<span class="dots"></span>`);
+    if (state.canStandIn) return `${waitLine(offLine(dealerName(), state.dealerLeft))}${btn(`Move on without ${dealerName()}`, 'ccPlay.standIn()', 'btn-ink', opts.disabled ? 'disabled' : '')}`;
+    return waitDealer();
   }
   const page = (cls, inner, key) => `<div class="pg pg-${cls}" data-key="${esc(key || '')}">${inner}</div>`;
 
@@ -274,7 +280,7 @@
     const s = state, mine = s.isDealer;
     const caps = capsHtml({ chips: true, steal: mine, stealable: s.stealable || [], onlyChipped: true });
     const title = mine ? 'Tap a chip to steal it' : `${dealerName()} is choosing a chip to steal`;
-    const act = mine ? '' : `<div class="pg-act">${s.canStandIn ? `${waitLine(`${dealerName()}’s phone is off.`)}${btn(`Move on without ${dealerName()}`, 'ccPlay.standIn()', 'btn-ink')}` : waitLine(`Waiting for <b>${dealerName()}</b>${s.dealerOff ? ' (phone off)' : ''}<span class="dots"></span>`)}</div>`;
+    const act = mine ? '' : `<div class="pg-act">${dealerAct('')}</div>`;
     return page('steal', header() + `<h2 class="pg-title">${title}</h2><div class="pg-mid grow">${caps}</div>` + act, 'st|' + tagOf(s) + '|' + mine);
   }
   const played = {};
@@ -376,7 +382,13 @@
   }
 
   /* ── THE END OF THE GAME: the winner and final scores → everyone's rating and line → Caption of the Night ── */
-  const hostAct = (label, onclick) => state.isHost ? btn(label, onclick) : waitLine(`Waiting for <b>${hostName()}</b><span class="dots"></span>`);
+  // The host's taps; with the host's phone off 2+ minutes (or the host gone), one phone alone may move on without them
+  function hostAct(label, onclick, cls) {
+    if (state.isHost) return btn(label, onclick, cls);
+    if (state.canStandIn) return `${waitLine(offLine(hostName(), state.hostLeft))}${btn(`Move on without ${hostName()}`, `if (ccPlay.okWithout()) ${onclick}`, 'btn-ink')}`;
+    return waitLine(`Waiting for <b>${hostName()}</b>${state.hostOff && !state.hostLeft ? ' (phone off)' : ''}<span class="dots"></span>`);
+  }
+  const okWithout = () => confirm(`Move on without ${firstName(nameOf(state.hostId) || 'the host')}?`);
   let cheered = {};
   function winnerHtml() {
     const st = state.standing || {}, w = st.winners || [];
@@ -411,7 +423,7 @@
     if (W.ccFinale && f.winner) safe(() => W.ccFinale.sync());   // the ceremony, once, on every phone together
     if (f.winner) {
       const e = (f.entries || []).find(x => x.key === f.winner) || {};
-      return page('final', header() + `<h2 class="pg-title">Caption of the Night</h2><div class="pg-mid grow"><div class="pg-memo"><img src="/images/${esc(e.image || '')}" alt="" onload="ccPlay.fit()"><p class="pg-big" style="text-align:center">“${esc(e.caption || '')}”</p><p class="pg-tip">${e.writerId === myPlayerId ? 'You' : esc(e.writerName || first(e.writerId))} · ${esc(f.best || 'Caption of the Night')}</p></div></div><div class="pg-act">${state.isHost ? btn('Play again', 'ccPlay.again()') : waitLine(`Waiting for <b>${hostName()}</b><span class="dots"></span>`)}</div>`, 'f3|' + tagOf(state));
+      return page('final', header() + `<h2 class="pg-title">Caption of the Night</h2><div class="pg-mid grow"><div class="pg-memo"><img src="/images/${esc(e.image || '')}" alt="" onload="ccPlay.fit()"><p class="pg-big" style="text-align:center">“${esc(e.caption || '')}”</p><p class="pg-tip">${e.writerId === myPlayerId ? 'You' : esc(e.writerName || first(e.writerId))} · ${esc(f.best || 'Caption of the Night')}</p></div></div><div class="pg-act">${hostAct('Play again', 'ccPlay.again()')}</div>`, 'f3|' + tagOf(state));
     }
     const mine = localVote.tag === state.code + '|' + f.at ? localVote.key : f.myVote;
     const n = (f.entries || []).length, cols = n <= 1 ? 1 : n <= 6 ? 2 : 3, rows = Math.max(1, Math.ceil(n / cols));
@@ -419,7 +431,7 @@
       return `<button class="pg-fr${mine === e.key ? ' on' : ''}" ${can ? `onclick="ccPlay.vote('${esc(e.key)}')"` : 'disabled'} aria-pressed="${mine === e.key}"><img src="/images/${esc(e.image)}" alt="" onload="ccPlay.fit()"><span class="pg-fc">“${esc(e.caption)}”</span><span class="pg-fb">${own ? 'Yours' : esc(e.writerName || first(e.writerId))}</span></button>`; }).join('');
     const voters = (f.voters || []).length, decided = (f.decided || []).length;
     const tip = f.canVote ? (mine ? 'Voted. Tap another to change it.' : 'Tap the best one. Not your own.') : 'They’re all yours. The table is voting.';
-    const act = state.isHost ? `${waitLine(`${decided} of ${voters} voted`)}${decided ? btn('Count the votes', "ccPlay.countVotes()", '') : ''}` : waitLine(`${decided} of ${voters} voted`);
+    const act = state.isHost ? `${waitLine(`${decided} of ${voters} voted`)}${decided ? btn('Count the votes', "ccPlay.countVotes()", '') : ''}` : state.canStandIn ? hostAct('', 'ccPlay.countVotes()') : waitLine(`${decided} of ${voters} voted`);
     return page('final', header() + `<h2 class="pg-title">Caption of the Night?</h2><p class="pg-tip">${tip}</p><div class="pg-mid grow"><div class="pg-wall" style="--cols:${cols};--rows:${rows}">${cards}</div></div><div class="pg-act">${act}</div>`, 'f2|' + tagOf(state));
   }
   function endingHtml() {
@@ -630,7 +642,7 @@
   W.setActionBar = setActionBar;
   W.saveDraftNow = saveDraftNow;
   W.recordCareer = recordCareer;
-  W.canRun = () => !!state && (state.isDealer || state.isHost);   // (finale.js asks)
+  W.canRun = () => !!state && (state.isHost || state.canStandIn);   // (finale.js asks)
   W.ccPlay = { render, fit, next, flip, standIn, steal, pick, placeBet, undo, moreTime, bravo, submit, onCheck, onInput, onFocus, onBlur, skip, stopWriting,
-    ending, vote, countVotes, again, toggleSound, removeMenu, removePlayer, draftText, onError };
+    ending, vote, countVotes, again, okWithout, toggleSound, removeMenu, removePlayer, draftText, onError };
 })();

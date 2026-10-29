@@ -1451,20 +1451,20 @@ function shareRoom() {
 let lastPhase = null, lastKey = null, submitting = false;
 
 /* ── #30: the table's housekeeping, out loud ──
-   The host's phone went quiet in the lobby (after 20 s the next player can take over; the host gets it back on return).
+   The host's phone went quiet in the lobby: the table hears so (the host stays the host; see server.js passHost).
    Someone at the door has a name already at the table: are they that person, or someone new? The host decides. */
 function hostAwayHtml() {
   const h = state.hostAway; if (!h || state.isHost) return '';
-  return `<div id="host-away" class="panel yellow flat"><p class="small"><b>Waiting for ${esc(firstName(h.name))}’s phone<span class="dots"></span></b> (the host)</p>${state.canTakeHost ? `<button class="btn btn-sm" onclick="send({action:'take_host'})">Take over as host</button>` : ''}</div>`;
+  return `<div id="host-away" class="panel yellow flat"><p class="small"><b>Waiting for ${esc(firstName(h.name))}’s phone<span class="dots"></span></b> (the host)</p></div>`;
 }
 function syncClaim() {
   const c = state && state.seatClaim; let el = $('claim-bar');
   if (!c) { if (el) el.remove(); return; }
   if (el && el.dataset.id === c.id) return;
   if (!el) { el = document.createElement('div'); el.id = 'claim-bar'; el.setAttribute('role', 'alertdialog'); document.body.appendChild(el); sfx.notify(); buzz([40, 60, 40]); }
-  const n = esc(firstName(c.name)), when = c.oldLive ? 'is still at the table' : c.gone ? 'headed out' : c.awaySecs >= 60 ? `dropped ${Math.round(c.awaySecs / 60)} min ago` : `dropped ${Math.max(1, c.awaySecs)} seconds ago`;
+  const n = esc(firstName(c.name)), when = c.oldLive ? 'is still at the table' : c.awaySecs >= 60 ? `dropped ${Math.round(c.awaySecs / 60)} min ago` : `dropped ${Math.max(1, c.awaySecs)} seconds ago`;
   el.dataset.id = c.id;
-  el.innerHTML = `<div class="h2">Someone’s asking for ${n}’s seat</div><p class="small">${c.gone ? `${n} headed out` : `${n}’s phone ${when}`}. Is it ${n}, on another phone?</p>
+  el.innerHTML = `<div class="h2">Someone’s asking for ${n}’s seat</div><p class="small">${n}’s phone ${when}. Is it ${n}, on another phone?</p>
     <div class="btn-row"><button class="btn" onclick="claimAnswer('${esc(c.id)}', false)">No</button><button class="btn btn-yellow" onclick="claimAnswer('${esc(c.id)}', true)">Let them in</button></div>`;
 }
 function claimAnswer(id, ok) { send({ action: 'claim_answer', id, ok }); const el = $('claim-bar'); if (el) el.remove(); }
@@ -1490,7 +1490,7 @@ function showClaimWait(m) {
   let line, retry = 0;
   if (m.host) line = `Asking ${esc(firstName(m.host))} to let you back in<span class="dots"></span>`;
   else if (m.secs) { line = `${n}’s old phone left a moment ago. Your seat opens in ${m.secs > 60 ? Math.ceil(m.secs / 60) + ' minutes' : m.secs + ' seconds'}. Hang on.`; retry = m.secs * 1000 + 500; }
-  else line = m.oldLive ? `${n}’s phone is still at the table. Leave the game on that phone, then try again.` : 'The room is locked. Ask the host to let you in.';
+  else line = `${n}’s phone is still at the table. Leave the game on that phone, then try again.`;
   sheetOpen(`<h2 class="h2 center" style="margin-bottom:10px;">Your seat, on this phone</h2><p class="sub center" style="margin-bottom:16px;">${line}</p>
     <button class="btn" onclick="cancelClaim()">Cancel</button>`);
   if (retry) claimRetryT = setTimeout(() => sameNameAnswer('me'), retry);
@@ -1567,10 +1567,10 @@ function lobbyBarHtml() {
 // The rating shows only on a phone that has finished a game
 function playedGame() { try { return careerGet().games > 0 || localStorage.getItem('cc_played_game') === '1'; } catch (e) { return false; } }
 /* #36: someone watching How to play when the game starts is brought straight back to the table.
-   "Watched" lives on this phone (and tells the server, which no longer shows a count). */
+   "Watched" lives on this phone only. */
 let demoFrom = 0;
 function demoWatched() { try { return localStorage.getItem('cc_demo_watched') === '1' || localStorage.getItem('cc_played_game') === '1'; } catch (e) { return false; } }
-function demoMarkWatched() { try { localStorage.setItem('cc_demo_watched', '1'); } catch (e) {} if (myPlayerId) send({ action: 'demo_watched' }); }
+function demoMarkWatched() { try { localStorage.setItem('cc_demo_watched', '1'); } catch (e) {} }
 function watchDemo() { demoFrom = Date.now(); showScreen('screen-rules'); }
 /* Every state, before drawing: the lobby -> game handoff, and #58 a late joiner adding a round */
 let lobbyPrev = null;
@@ -1806,10 +1806,10 @@ function drawInvite(code, r) {
   box.hidden = false; $('join-plain').hidden = true;
   const mast = '<div class="ji-mast" aria-hidden="true"><span class="ji-w1">CLOSED</span><span>CAPTION</span></div>';
   const host = r && r.host ? r.host : '';
-  if (r && (!r.open || r.full || r.locked)) {
+  if (r && (!r.open || r.full)) {
     $('join-form').hidden = true;
-    const head = !r.open ? 'That game’s over.' : r.full ? `${host || 'That'}’s table is full.` : `${host || 'The host'} has locked the room.`;
-    const sub = !r.open ? (r.wait ? 'Too many tries from this phone. Give it a minute.' : `Room ${code} has closed.`) : r.full ? 'Eight phones is the most one table takes.' : 'Ask them to unlock it, or start a table of your own.';
+    const head = !r.open ? 'That game’s over.' : `${host || 'That'}’s table is full.`;
+    const sub = !r.open ? (r.wait ? 'Too many tries from this phone. Give it a minute.' : `Room ${code} has closed.`) : 'Eight phones is the most one table takes.';
     box.innerHTML = `${mast}<h1 class="ji-h">${esc(head)}</h1><p class="ji-sub">${esc(sub)}</p><p class="ji-pitch">${esc(INVITE_PITCH)} Free, no app.</p>
       <div class="stack ji-btns"><button class="btn btn-yellow" onclick="showScreen('screen-create')">Host your own</button><button class="btn" onclick="watchDemo()">Watch the 90-second demo</button></div>`;
     srSay(head);

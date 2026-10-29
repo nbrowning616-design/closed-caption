@@ -11,10 +11,9 @@
 //   A short game moves it less: K is scaled by the game's length (full from 8 rounds; 4 rounds = half).
 //   Ratings stay within 100..3500.
 //
-// Who is rated: everyone who was seated when the game started — including anyone who left before the end, on
-// the score they left with (leaving is resigning: you can't walk out on a loss). Their phone applies the result
-// only if it comes back to the room before the next game. Late joiners are not rated that game (they missed rounds).
-// Phones that never reported a rating count as 1200, provisional.
+// Who is rated (game.js settleRating): everyone still at the table when the game ends, late joiners included (they
+// sit down level with last place, so where they finish is a fair result). Anyone who left before the end is neither
+// rated nor listed. Phones that never reported a rating count as 1200, provisional.
 // Deterministic: the same snapshot and scores always give the same numbers (players in seat order, no randomness).
 // The lines (verdicts.js) are picked with a seeded random, once, and frozen with the result.
 

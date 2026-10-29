@@ -8,7 +8,6 @@ const path = require('path');
 const { WebSocketServer } = require('ws');
 const G = require('./game');
 const Stats = require('./stats');     // a private tally (counts only)
-const Polish = require('./polish');   // the writing bar's spelling check
 const { PHASES } = G;
 
 // Address friends on the same Wi-Fi should type in (only used when running on a home computer)
@@ -86,7 +85,7 @@ app.get('/room/:code', (req, res) => {
   if (!g) { wrongCode(ip); return res.json({ open: false }); }
   const host = g.players.find(p => p.id === g.hostId) || g.players.find(p => p.connected) || g.players[0];
   const here = g.players.filter(p => p.connected).length;
-  res.json({ open: true, host: host ? (String(host.name).trim().split(/\s+/)[0] || '') : '', here, started: g.phase !== PHASES.LOBBY, full: g.players.length >= G.MAX_PLAYERS, locked: !!g.locked });
+  res.json({ open: true, host: host ? (String(host.name).trim().split(/\s+/)[0] || '') : '', here, started: g.phase !== PHASES.LOBBY, full: g.players.length >= G.MAX_PLAYERS });
 });
 // The private tally, for Nick only: /stats?k=<STATS_KEY>. Without the key it doesn't exist (404). Counts only.
 app.get('/stats', (req, res, next) => {
@@ -105,11 +104,15 @@ function broadcast(code, sealTo = null) {
   const game = games[code];
   if (!game) return;
   // Every phone keeps a sealed copy of the room, refreshed on each new step (or every 20 s), to hand back after a
-  // restart; and whenever a caption, a bet, the steal or a Bravo lands, so a restart never loses the last one.
+  // restart; and whenever a caption, a bet, the steal or a Bravo lands, so a restart never loses the last one. Also
+  // whenever a seat changes hands (a new key), someone leaves or comes back, or the lobby's settings change: every
+  // phone's copy must let every player back into their own seat.
+  const seats = game.players.map(p => p.id.slice(0, 8) + ':' + (p.key ? crypto.createHash('sha1').update(p.key).digest('hex').slice(0, 8) : '-') + (p.gone ? 'g' : '')).join(',');
   const tag = [game.phase, game.round, game.reel ? game.reel.step : '', game.players.length, (game.roundFrames || []).length,
     game.finale ? (game.finale.winner || 'v') + Object.keys(game.finale.votes || {}).length : '', (game.submissions || []).length, (game.bets || []).length,
     Object.keys(game.blind || {}).length, game.dropAt || '', Object.keys(game.lateBlind || {}).length, game.lateDropAt || '', game.steal ? 's' : '', game.flipped ? 'f' : '',
-    game.actN || 0, game.ending ? game.ending.step : '', game.hostId].join('|');
+    game.actN || 0, game.ending ? game.ending.step : '', game.hostId, game.origHostId || '', seats,
+    JSON.stringify(game.settings || {}), game.timerDuration].join('|');
   if (game.phase === PHASES.SCORES && game.over && game.gameNo && game._statDone !== game.gameNo) { game._statDone = game.gameNo; Stats.finished(); }
   let seal = null;
   if (tag !== game._sealTag || Date.now() - (game._sealAt || 0) > 20000) { try { seal = G.sealGame(game); game._sealTag = tag; game._sealAt = Date.now(); } catch (e) { console.error('seal failed', e); } }
@@ -275,7 +278,7 @@ function passHost(g, reason) {
   const host = g.players.find(p => p.id === g.hostId);
   const nh = g.players.find(p => p.connected && !p.gone && p.id !== g.hostId);
   if (!nh) return false;
-  if (host && !g.origHostId) g.origHostId = host.id;
+  if (host && !g.origHostId) { g.origHostId = host.id; g.origHostUntil = null; }
   g.hostId = nh.id;
   g.notice = { text: `${firstWord(nh.name)} is hosting now.`, at: Date.now() };
   return true;
@@ -319,8 +322,8 @@ wss.on('connection', (ws, req) => {
     const away = p && !p.connected && p.disconnectedAt ? Date.now() - p.disconnectedAt : 0;
     if (p) { p.connected = true; p.disconnectedAt = null; p.gone = false; }   // back at the table: deals and all
     if (p && away >= BACK_NOTICE_MS && g.phase !== PHASES.LOBBY) g.notice = { text: `${firstWord(p.name)}’s back.`, at: Date.now() };
-    // The host who stepped away gets the room back on return
-    if (p && g.origHostId === id && g.hostId !== id) { g.hostId = id; g.origHostId = null; g.notice = { text: `${firstWord(p.name)}’s back, and hosting again.`, at: Date.now() }; }
+    // The host who stepped away gets the room back on return (one who tapped Leave: within 15 minutes)
+    if (p && g.origHostId === id && g.hostId !== id && (!g.origHostUntil || Date.now() < g.origHostUntil)) { g.hostId = id; g.origHostId = null; g.origHostUntil = null; g.notice = { text: `${firstWord(p.name)}’s back, and hosting again.`, at: Date.now() }; }
     if (p && !p.key) p.key = crypto.randomBytes(16).toString('base64url');
     send(ws, { type: 'joined', playerId: id, code, key: p ? p.key : null, boot: BOOT });   // the key never leaves this phone
     broadcast(code, id);
@@ -368,7 +371,19 @@ wss.on('connection', (ws, req) => {
       if (!g || !p || (p.key && msg.key !== p.key) || (want && g.code !== want)) return backToSeat(want, msg.playerId, msg.key);
       const cur = games[g.code];
       const newer = cur && cur._restoredAt && !cur._actedSince && (g.sealedAt || 0) > (cur.sealedAt || 0) + 1000;
-      if (!cur || newer) { games[g.code] = g; g._lastAct = Date.now(); g._restoredAt = Date.now(); console.log('room restored after restart', g.code, g.phase); resumeTimers(g.code); }
+      if (!cur || newer) { games[g.code] = g; g._lastAct = Date.now(); g._restoredAt = Date.now(); g._actedSince = false; console.log('room restored after restart', g.code, g.phase); resumeTimers(g.code); }
+      else if (cur._restoredAt && (g.sealedAt || 0) > (cur.sealedAt || 0)) {
+        // The room came back from an older copy (another phone's), and has been played on since. This phone's copy is
+        // newer and the server's own: it proves this seat's key (a seat taken on a new phone, a late joiner). The
+        // player gets their seat; nothing else in the room changes.
+        const cp = cur.players.find(x => x.id === p.id);
+        if (cp && p.key && cp.key !== p.key) { if (cp.key) cp.movedKey = cp.key; cp.key = p.key; }
+        else if (!cp && p.key && cur.players.length < G.MAX_PLAYERS && !cur.players.some(x => x.name.toLowerCase() === String(p.name).toLowerCase())) {
+          const r = G.addPlayer(cur, p.id, p.name);
+          const np = !r.error && cur.players.find(x => x.id === p.id);
+          if (np) { np.key = p.key; if (cur.phase !== PHASES.LOBBY && typeof p.score === 'number') np.score = p.score; ['rating', 'games', 'joinedRound'].forEach(k => { if (p[k] !== undefined) np[k] = p[k]; }); }
+        }
+      }
       return backToSeat(g.code, p.id, msg.key);
     }
     if (msg.action === 'join') {
@@ -383,7 +398,6 @@ wss.on('connection', (ws, req) => {
         const live = !!(clients[existing.id] && clients[existing.id].ws.readyState === 1);
         if (clients[existing.id] && clients[existing.id].ws === ws) return seat(existing.id, code);   // (this phone, tapping Join twice)
         if (msg.as === 'new') {
-          if (game.locked) return sendError(ws, 'The host has locked this room');
           const nm = freeName(game, name);
           if (!nm) return sendError(ws, 'Pick a different name');
           const id = crypto.randomUUID(), r = G.addPlayer(game, id, nm);
@@ -393,33 +407,24 @@ wss.on('connection', (ws, req) => {
         }
         if (msg.as === 'me') {
           const away = !live && existing.disconnectedAt ? Date.now() - existing.disconnectedAt : 0;
-          if (!live && !game.locked && (away >= CLAIM_FREE_MS || existing.gone)) return takeSeat(code, existing, ws);
+          if (!live && (away >= CLAIM_FREE_MS || existing.gone)) return takeSeat(code, existing, ws);
           if (ws.claimId) dropClaim(ws.claimId);
           const host = game.players.find(p => p.id === game.hostId);
           const hostLive = !!host && host.id !== existing.id && !!clients[host.id] && clients[host.id].ws.readyState === 1;
           const cid = crypto.randomBytes(6).toString('hex');
           ws.claimId = cid;
           claims.set(cid, { ws, code, pid: existing.id, at: Date.now() });
-          if (hostLive) { game.seatClaim = { id: cid, pid: existing.id, name: existing.name, oldLive: live, gone: !!existing.gone, awaySecs: Math.round(away / 1000), at: Date.now() }; broadcast(code); }
-          return send(ws, { type: 'claim_wait', name: existing.name, host: hostLive ? host.name : null, oldLive: live, secs: !live && !game.locked ? Math.ceil((CLAIM_FREE_MS - away) / 1000) : null });
+          if (hostLive) { game.seatClaim = { id: cid, pid: existing.id, name: existing.name, oldLive: live, awaySecs: Math.round(away / 1000), at: Date.now() }; broadcast(code); }
+          return send(ws, { type: 'claim_wait', name: existing.name, host: hostLive ? host.name : null, oldLive: live, secs: !live ? Math.ceil((CLAIM_FREE_MS - away) / 1000) : null });
         }
         return send(ws, { type: 'same_name', name: existing.name, code, playing: game.phase !== PHASES.LOBBY });
       }
-      if (game.locked) return sendError(ws, 'The host has locked this room');
       if ((game.shownOut || {})[name.toLowerCase()] > Date.now()) return sendError(ws, 'The host showed you out of this room. Ask them to let you back in.');
       const id = crypto.randomUUID();
       const r = G.addPlayer(game, id, name);
       if (r.error) return sendError(ws, r.error);
       Stats.joined(msg.via);
       return seat(id, code);
-    }
-    if (msg.action === 'spell') {
-      // The writing bar's spelling check (the same as on sending), a few times a second at most
-      const now = Date.now(); if (now - (ws.spellAt || 0) < 350) return; ws.spellAt = now;
-      const text = String(msg.text || '').slice(0, 200);
-      let typos = [];
-      if (text.trim()) { try { typos = (Polish.polish(text).typos || []).slice(0, 4); } catch (e) {} }
-      return send(ws, { type: 'spell', n: Number(msg.n) || 0, text, typos });
     }
     if (msg.action === 'tally') {
       ws.tallyN = (ws.tallyN || 0) + 1;
@@ -434,7 +439,9 @@ wss.on('connection', (ws, req) => {
     const me = game.players.find(p => p.id === playerId);
     if (!me) return;
     game._lastAct = Date.now();
-    if (!/^(career|seen_sync|gallery_sync|demo_watched)$/.test(String(msg.action))) game._actedSince = true;   // (a restored room that has been played on stays; see 'restore')
+    // (a restored room that has been played on stays; see 'restore'. A phone's housekeeping, and a repeat of something
+    // the room already has, which every phone sends again after a restart, isn't playing on.)
+    const acted = () => { if (!/^(career|seen_sync|gallery_sync|demo_watched)$/.test(String(msg.action))) game._actedSince = true; };   // (demo_watched: a page from before the update)
     const dealer = game.players[game.dealerIndex];
     const isDealer = !!dealer && dealer.id === playerId;
     const isHost = game.hostId === playerId;
@@ -445,9 +452,10 @@ wss.on('connection', (ws, req) => {
        wasn't answered. The room keeps its recent cids (they travel in the sealed copy, so this holds across a restart). */
     const handle = () => handleSeated(msg, game, code, me, isDealer, isHost, fail);
     const cid = ACKED.has(msg.action) && typeof msg.cid === 'string' && /^[A-Za-z0-9_-]{4,40}$/.test(msg.cid) ? msg.cid : null;
-    if (!cid) return handle();
+    if (!cid) { acted(); return handle(); }
     const done = ((game.acks = game.acks || {})[playerId] = game.acks[playerId] || []);
     if (done.includes(cid)) return send(ws, { type: 'ack', cid, dup: true });
+    acted();
     done.push(cid); if (done.length > 24) done.splice(0, done.length - 24);
     game.actN = (game.actN || 0) + 1;
     ws.curCid = cid; ws.curFailed = false; ws.curHeld = false;
@@ -481,7 +489,7 @@ wss.on('connection', (ws, req) => {
         { const c = G.startCheck(game); if (c.error) return sendError(ws, c.error); }
         if (fail(G.startRound(game))) return;
         Stats.started(game.players.filter(G.isSeated).length);
-        game.origHostId = null;   // whoever started it hosts it
+        game.origHostId = null; game.origHostUntil = null;   // whoever started it hosts it
         broadcast(code);
         scheduleWritingEnd(code);
         return;
@@ -498,12 +506,6 @@ wss.on('connection', (ws, req) => {
         autoAdvanceBets(code);
         return;
       }
-      case 'lock': {
-        if (!isHost) return sendError(ws, 'Only the host can lock the room');
-        game.locked = !!msg.on;
-        broadcast(code);
-        return;
-      }
       case 'claim_answer': {
         // The host lets someone back into a seat on a new phone (or not)
         if (!isHost) return sendError(ws, 'Only the host can do that');
@@ -516,16 +518,6 @@ wss.on('connection', (ws, req) => {
           send(c.ws, { type: 'claim_no', name: existing.name, host: me.name });
           c.ws.claimId = null;
         }
-        broadcast(code);
-        return;
-      }
-      case 'take_host': {
-        // Only when the host is really gone (left, or away 15 minutes); they get it back when they return
-        const h = game.players.find(p => p.id === game.hostId);
-        if (isHost || (h && !G.isGone(h))) return;
-        if (!game.origHostId && h) game.origHostId = h.id;
-        game.hostId = playerId;
-        game.notice = { text: `${firstWord(me.name)} is hosting now.`, at: Date.now() };
         broadcast(code);
         return;
       }
@@ -633,8 +625,9 @@ wss.on('connection', (ws, req) => {
         return;
       }
       case 'stand_in': {
-        // The only fallback: the dealer's phone has really been off 2+ minutes (or the host moved on without them).
-        // The host's phone alone can move on; the app makes the dealer's choices (a random steal).
+        // The only fallback: the dealer's phone has really been off 2+ minutes (or they left). One phone alone can move
+        // on (the host's, or with the host's phone off too, the next one on in seat order); the app makes the dealer's
+        // choices (a random steal).
         if (!G.canStandIn(game, playerId)) return sendError(ws, 'Waiting for the dealer');
         if (staleTap(game, msg)) return;
         if (game._advAt && Date.now() - game._advAt < 600) return;
@@ -646,22 +639,23 @@ wss.on('connection', (ws, req) => {
         return;
       }
       case 'ending_next': {
-        // Game over: the host taps on through the winner, everyone's rating, then Caption of the Night
-        if (!isHost) return sendError(ws, 'The host moves things along');
+        // Game over: the host taps on through the winner, everyone's rating, then Caption of the Night (or, with the
+        // host's phone off 2+ minutes, the one phone that may move on without them)
+        if (!isHost && !G.canStandIn(game, playerId)) return sendError(ws, 'The host moves things along');
         if (fail(G.endingNext(game, msg.step))) return;
         broadcast(code);
         return;
       }
       case 'finale_vote': { if (fail(G.voteFinale(game, playerId, msg.key))) return; broadcast(code); return; }
       case 'finale_close': {
-        if (!isHost) return sendError(ws, 'The host moves things along');
+        if (!isHost && !G.canStandIn(game, playerId)) return sendError(ws, 'The host moves things along');
         if (!game.finale) return;
         G.resolveFinale(game);
         broadcast(code);
         return;
       }
       case 'play_again': {
-        if (!isHost) return sendError(ws, 'Only the host can start a new game');
+        if (!isHost && !G.canStandIn(game, playerId)) return sendError(ws, 'Only the host can start a new game');
         if (game.phase !== PHASES.SCORES || !game.over) return sendError(ws, 'The game is still going');
         if (Array.isArray(msg.seen)) G.setSeen(game, msg.seen.slice(0, 200));
         G.resetForNewGame(game);
@@ -672,7 +666,9 @@ wss.on('connection', (ws, req) => {
         // Leaving from the lobby frees the seat; mid-game the seat stays (scores are kept) but no longer deals
         if (game.phase === PHASES.LOBBY) game.players = game.players.filter(p => p.id !== playerId);
         else { me.connected = false; me.disconnectedAt = Date.now(); me.gone = true; }
-        if (isHost) { passHost(game); game.origHostId = null; }
+        // The host who leaves mid-game hands the room on, but gets it back on rejoining (same name) within 15 minutes,
+        // unless a new game has started meanwhile
+        if (isHost) { passHost(game); if (game.phase === PHASES.LOBBY) game.origHostId = null; else if (game.origHostId === me.id) game.origHostUntil = Date.now() + G.GONE_MS; }
         delete clients[playerId];
         playerId = null;
         if (game.phase === PHASES.WRITING && game.submissions.length >= 2 && G.allCaptionsIn(game)) endWriting(game);
@@ -724,8 +720,8 @@ setInterval(() => {
       if (g.phase === PHASES.FIRST_BETS && !blindT.has(code)) scheduleBlind(code);
       if (g.phase === PHASES.SECOND_BETS && !lateT.has(code)) scheduleLate(code);
     }
-    // The host's "Move on without <name>" appears once the dealer's phone has been off 2 minutes
-    const si = G.dealerOff(g, now) ? 'si|' + g.round + '|' + g.phase : '';
+    // "Move on without <name>" appears on one phone once the dealer's (or at the end, the host's) has been off 2 minutes
+    const sid = G.standInId(g, now), si = sid || G.dealerOff(g, now) ? (sid || '-') + '|' + g.round + '|' + g.phase : '';
     if (si !== (g._siTag || '')) { g._siTag = si; changed = true; }
     // The dealer's 'phone off' line: refresh when someone drops or comes back (the 'state' carries it)
     const off = g.players.filter(p => !p.connected).map(p => p.id + (G.isGone(p, now) ? 'g' : '')).join(',');
