@@ -166,6 +166,10 @@
     '.st-felt{border-radius:22px;border:2.5px solid ' + INK + ';padding:4px 12px;background:radial-gradient(ellipse 90% 70% at 50% 40%,#2f7d5c,#1d5440 62%,#143b2d),' + INK + ';box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.07),inset 0 10px 30px rgba(0,0,0,.45);}',
     '.st-row{display:flex;align-items:center;gap:12px;min-height:min(66px,9dvh);padding:min(8px,1dvh) 2px;}',
     '.st-row+.st-row{border-top:1.5px dashed rgba(255,248,234,.16);}',
+    /* a big table on a small phone: tighter rows, a little less air above the felt (fitTable) */
+    '.st-tight .st-head{margin-bottom:86px;}',
+    '.st-tight .st-row{min-height:50px;padding:2px 2px;}',
+    '.st-tight .st-felt{padding:2px 12px;}',
     '.st-lbl{width:30px;height:30px;border-radius:50%;background:#FFF8EA;color:' + INK + ';border:2.5px solid ' + INK + ';font-family:var(--display);font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 0 rgba(0,0,0,.45);}',
     '.st-lbl .cc-badge{margin:0;font-size:10px;padding:1px 3px;}',
     '.st-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}',
@@ -381,14 +385,19 @@
 
   function build(o, st, quick) {
     var bets = state.bets || [], targets = (state.openCaptions || []).map(function (_, i) { return i; }).concat(['closed']);
-    var rows = targets.map(function (t) {
+    var list = targets.map(function (t) {
       var chips = [];
       bets.forEach(function (b, bi) {
         if (b.target === 'pass' || String(b.target) !== String(t)) return;
         var n = b.count + (b.stolen || 0);
         for (var k = 0; k < n; k++) chips.push(chipHtml(b.playerId, 'lg', '', 'data-st="' + (bi === st.betIndex && k === n - 1 ? 'victim' : 'other') + '"'));
       });
-      return '<div class="st-row"><span class="st-lbl">' + (t === 'closed' ? '<span class="cc-badge">CC</span>' : t + 1) + '</span><div class="st-chips">' + (chips.join('') || '<span class="st-none">no chips</span>') + '</div></div>';
+      return { t: t, chips: chips };
+    });
+    // A big table (six captions or more): only the captions with chips on them, so the whole table fits the screen
+    if (list.length > 5) { var withChips = list.filter(function (r) { return r.chips.length; }); if (withChips.length) list = withChips; }
+    var rows = list.map(function (r) {
+      return '<div class="st-row"><span class="st-lbl">' + (r.t === 'closed' ? '<span class="cc-badge">CC</span>' : r.t + 1) + '</span><div class="st-chips">' + (r.chips.join('') || '<span class="st-none">no chips</span>') + '</div></div>';
     }).join('');
     var me = state.isDealer, dealer = me ? 'You' : esc(state.dealerName), isVictim = st.victimId === myPlayerId;
     var title = quick ? (me ? 'You reach' : dealer + ' reaches') + ' for a chip' : (me ? 'You’re' : dealer + ' is') + ' at the controls<span class="dots"></span>';
@@ -413,6 +422,25 @@
       '<div class="st-done" id="st-gloat" aria-hidden="true"><p class="st-done-t">' + doneLine + '</p></div>' +
       '</div>';
     o.querySelector('#st-stage').dataset.speck = dots.join(',');
+    fitTable(o);
+  }
+  /* The table always fits the screen, the title too: tighter rows first, then the felt is drawn a little smaller
+     (the claw reads where every chip is on the beat, so it still lands on the right one). */
+  function fitTable(o) {
+    try {
+      var stage = o.querySelector('#st-stage'), head = o.querySelector('#st-head'), rail = o.querySelector('.st-rail');
+      if (!stage || !head || !rail) return;
+      var cs = getComputedStyle(stage), room = stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      var need = function () { return head.offsetHeight + parseFloat(getComputedStyle(head).marginBottom) + rail.offsetHeight; };
+      if (need() <= room) return;
+      stage.classList.add('st-tight');
+      if (need() <= room) return;
+      var hh = head.offsetHeight + parseFloat(getComputedStyle(head).marginBottom), h = rail.offsetHeight;
+      var k = Math.max(0.55, Math.min(1, (room - hh) / h));
+      rail.style.transform = 'scale(' + k.toFixed(3) + ')';
+      rail.style.transformOrigin = '50% 0';
+      rail.style.marginBottom = (-(1 - k) * h).toFixed(1) + 'px';
+    } catch (e) {}
   }
 
   function choreograph(o, st, quick, L, startAt, T) {

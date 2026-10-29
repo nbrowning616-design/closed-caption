@@ -1317,7 +1317,12 @@ function send(obj) {
   if (obj && (obj.action === 'advance' || obj.action === 'stand_in') && state) {
     const k = stageKey(obj);
     if (k === _advKey && Date.now() - _advAt < 2500) return false;   // same stage: a retry is allowed after 2.5 s (e.g. if the server said "not yet")
-    _advKey = k; _advAt = Date.now(); obj.phase = state.phase; obj.round = state.round;
+    obj.phase = state.phase; obj.round = state.round;
+    // (only a tap that actually went out blocks the next one: a tap while reconnecting can be tried again at once)
+    if (!(ws && ws.readyState === 1 && ws === seatedSock)) { showToast('Reconnecting — try again in a second'); return false; }
+    const sent = _send(obj);
+    if (sent) { _advKey = k; _advAt = Date.now(); }
+    return sent;
   }
   // #2: captions, bets, the steal and Bravos are kept until the server answers (sent now, or the moment we're back)
   if (obj && ACKED.has(obj.action) && myPlayerId && gameCode) {
