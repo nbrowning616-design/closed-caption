@@ -168,15 +168,6 @@ textarea.caption-input::placeholder { color: #7A7066; }
 .chip.house { background: var(--paper); color: var(--ink-2); text-shadow: none; border: 2px dashed var(--ink-2); box-shadow: none; }
 .house-tag { display: inline-block; vertical-align: middle; margin-left: 4px; padding: 1px 6px; border: 1.5px solid currentColor; border-radius: 6px; font-family: var(--sans); font-style: normal; font-size: 11px; font-weight: 900; letter-spacing: .6px; text-transform: uppercase; line-height: 1.4; color: var(--ink-2); }
 .wname .house-tag { font-size: 12px; transform: translateY(-3px); }
-.lb-p.house { opacity: .78; }
-.lb-p.house .lb-l1 { font-weight: 700; }
-.house-field { margin: -4px 0 16px; padding: 10px 12px; border: 2px dashed var(--ink-2); border-radius: 12px; }
-.hf-row { display: flex; align-items: center; gap: 10px; }
-.hf-t { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 15px; line-height: 1.25; }
-.hf-s { font-size: 13px; font-weight: 800; color: var(--ink-2); }
-.hf-step { display: flex; align-items: center; gap: 8px; flex: none; }
-.hf-step .btn { width: 44px; min-height: 44px; padding: 0; }
-.hf-step b { min-width: 18px; text-align: center; font-size: 18px; }
 /* Solo practice (practice.js) */
 .pr-hdr { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; min-height: 44px; }
 .pr-hdr-s { flex: 1; min-width: 0; font-size: 14px; font-weight: 800; color: var(--ink-2); }
@@ -339,10 +330,6 @@ textarea.caption-input::placeholder { color: #7A7066; }
 .my-rack { display: flex; align-items: center; justify-content: center; gap: 12px; margin: -4px 0 14px; }
 .my-rack .lbl { font-weight: 900; font-size: 14px; }
 .rack-chips { display: flex; gap: 8px; min-height: 46px; align-items: center; }
-.deck-note { border: 2px solid var(--ink); border-radius: 14px; background: var(--card); padding: 12px 14px; margin: 0 0 14px; text-align: center; }
-.deck-note-t { font-family: var(--serif); font-style: italic; font-size: 17px; line-height: 1.35; margin: 0; }
-.deck-note-s { font-size: 13px; color: var(--muted); margin: 6px 0 0; line-height: 1.4; }
-.fresh-line { text-align: center; font-weight: 900; font-size: 14px; margin: 4px 0 6px; } .fresh-line.low { color: var(--red); }
 .chip.fly { pointer-events: none; box-shadow: 0 10px 18px rgba(0,0,0,.3); }
 
 /* ── Bottom action bar ── */
@@ -430,13 +417,6 @@ details.box .body { padding: 14px 4px 4px; }
 #rejoin-box .rejoin-sub { text-align: center; margin: 8px 0 4px; }
 #rejoin-box .rejoin-sub .btn-link { min-height: 44px; padding: 0 6px; }
 
-/* Home */
-.hero-title { font-family: var(--display); font-weight: 700; font-size: 58px; line-height: .9; letter-spacing: -2px; }
-.hero-title .w1 { display: inline-block; transform: rotate(-3deg); background: var(--yellow); padding: 4px 12px; border: 3px solid var(--ink); border-radius: 12px; box-shadow: var(--shadow); }
-.hero-title .w2 { display: block; margin-top: 10px; }
-.hero-toon { margin: 26px auto 0; width: 220px; transform: rotate(-1.5deg); }
-.hero-toon .toon-big { cursor: default; }
-.hero-caption { margin: 16px auto 0; max-width: 300px; min-height: 48px; font-weight: 800; font-size: 17px; line-height: 1.4; }
 .cursor { display: inline-block; width: 2px; height: 1em; background: var(--ink); vertical-align: -2px; margin-left: 1px; animation: blink 1s steps(2) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 .rule-step { display: flex; gap: 12px; align-items: flex-start; }
@@ -894,6 +874,7 @@ body.typing .toon-big [data-live="mullpill"] { display: none; }
 .lb2-menu { width: 44px; height: 44px; flex: none; padding: 0; border-radius: 50%; border: 2px solid var(--ink); background: #fff; box-shadow: var(--shadow-sm); font-size: 20px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .lb2-menu:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
 .lb2-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; margin-bottom: 6px; }
+.lb2-row .lb2-inv { flex: none; }
 .lb2-at { font-family: var(--sans); font-size: 13px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-2); }
 .lb2 .lb2-inv { width: auto; padding: 8px 20px; }
 .lb2-ps { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
@@ -903,7 +884,7 @@ button.lb2-p { cursor: pointer; }
 .lb2-p.off { opacity: .55; border-style: dashed; }
 .lb2-nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lb2-host { color: var(--yellow-d); font-size: 13px; }
-.lb2-rt { margin: -4px 0 12px; font-size: 13px; font-weight: 800; color: var(--muted); }
+.lb2-rt { margin: 0 0 0 auto; font-size: 13px; font-weight: 800; color: var(--muted); white-space: nowrap; }
 .lb2-rt b { color: var(--ink); font-family: var(--display); font-weight: 700; }
 .lb2-note { margin: 0 0 12px; padding: 8px 12px; border: 2px solid var(--ink); border-radius: 12px; background: var(--card); text-align: center; font-size: 14px; font-weight: 800; }
 .lb2-set { margin-bottom: 10px; }
@@ -916,7 +897,7 @@ button.lb2-p { cursor: pointer; }
 .lb2-links { display: flex; justify-content: center; gap: 18px; }
 .lb2-inv-code { font-size: 56px; letter-spacing: 8px; padding-left: 8px; margin: 2px 0 10px; }
 /* short phones: a full table of eight still fits one screen above Start */
-@media (max-height: 700px) { .lb2-code { padding: 6px 14px 8px; } .lb2-code-big { font-size: 44px; } .lb2-row { min-height: 40px; margin-bottom: 4px; } .lb2 .lb2-inv { min-height: 40px; padding: 6px 18px; } .lb2-p { min-height: 32px; padding-top: 2px; padding-bottom: 2px; } .lb2-ps { gap: 6px; margin-bottom: 10px; } .lb2-k { margin-bottom: 3px; } .lb2-set { margin-bottom: 8px; } .lb2 .lb2-seg button { min-height: 44px; } }
+@media (max-height: 700px) { .lb2-code { padding: 6px 14px 8px; } .lb2-code-big { font-size: 40px; } .lb2-row { margin-bottom: 4px; } .lb2 .lb2-inv { padding: 6px 18px; } .lb2-p { min-height: 30px; padding-top: 1px; padding-bottom: 1px; font-size: 14.5px; } .lb2-ps { gap: 5px 6px; margin-bottom: 8px; } .lb2-k { margin-bottom: 2px; } .lb2-set { margin-bottom: 6px; } .lb2 .lb2-seg button { min-height: 44px; } }
 /* ═══════ (end of the front door) ═══════ */
 [hidden] { display: none !important; }
 /* ── #4 #28 the round recap: a printed page, then the points with their reasons ── */
@@ -962,7 +943,7 @@ button.lb2-p { cursor: pointer; }
 .sticker.teal, .btn-teal, .delta.up, .sb-plus, .vc-b.vc-join { background: var(--teal-d); }
 .bettor.me .bname { color: var(--blue-ink); }
 .bettor.turn .bname { color: var(--ink); }
-.fresh-line.low, .name-count.full, #create-error, .ring.urgent .t { color: var(--red-ink) !important; }
+.name-count.full, #create-error, .ring.urgent .t { color: var(--red-ink) !important; }
 .plus, .rc-pt b { color: var(--teal-ink); }
 /* every tap target at least 44 × 44 */
 .seg button, .lob-gal-all, .time-btn, .fm-move, .vc-b, .ra-x { min-height: 44px; }
@@ -2434,9 +2415,8 @@ function renderLobby() {
         <div class="lb2-code"><p class="eyebrow">Room code</p><div class="h-display lb2-code-big" aria-label="Room code ${esc(state.code.split('').join(' '))}">${esc(state.code)}</div></div>
         <button class="menu-btn lb2-menu" onclick="openMenu()" aria-label="Menu">☰</button>
       </div>
-      <div class="lb2-row"><h2 class="lb2-at">Players · ${connected}</h2>${state.isHost ? '<button class="btn btn-sm lb2-inv" onclick="lobbyInvite()">Invite</button>' : ''}</div>
+      <div class="lb2-row"><h2 class="lb2-at">Players · ${connected}</h2>${rating}${state.isHost ? '<button class="btn btn-sm lb2-inv" onclick="lobbyInvite()">Invite</button>' : ''}</div>
       <div class="lb2-ps">${pills}</div>
-      ${rating}
       ${deckNote}
       ${settings}
       <div class="lb2-links">${lobbyGalleryHtml()}<button class="btn-link" onclick="showScreen('screen-rules')">How to play</button></div>
