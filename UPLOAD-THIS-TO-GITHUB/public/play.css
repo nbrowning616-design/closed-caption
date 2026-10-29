@@ -147,22 +147,36 @@ body.typing .pg-under, body.typing .pg-status { display: none; }
 
 /* Compact (fit() turns it on when the list doesn't fit beside the cartoon: eight players on a small phone):
    tighter rows, a smaller Bravo!, the chips on a caption stacked like a short pile. The type stays readable. */
-.pg.dense .pg-hd { min-height: 38px; }
-.pg.dense .pg-menu { height: 36px; width: 40px; }
-.pg.dense .pg-mid { padding: 2px 0; }
-.pg.dense .pg-caps { gap: 3px; }
-.pg.dense .pg-cap { min-height: 0; padding: 3px 6px; gap: 6px; border-radius: 10px; }
+.pg.dense { padding-bottom: calc(6px + var(--sab)); }
+.pg.dense .pg-hd { min-height: 34px; gap: 6px; }
+.pg.dense .pg-menu { height: 32px; width: 38px; border-radius: 10px; font-size: 18px; }
+.pg.dense .pg-rd { font-size: 14px; }
+.pg.dense .pg-dl { font-size: 13px; }
+.pg.dense .pg-clk { font-size: 17px; }
+.pg.dense .pg-mid { padding: 2px 0; gap: 3px; }
+.pg.dense .pg-caps { gap: 2px; }
+.pg.dense .pg-cap { min-height: 30px; padding: 2px 6px 2px 5px; gap: 5px; border-radius: 10px; }
 .pg.dense .pg-n { width: 20px; height: 20px; font-size: 11px; }
-.pg.dense .pg-t { font-size: calc(var(--fs) * 14.5px); line-height: 1.18; }
-.pg.dense .pg-bravo { min-width: 0; height: 30px; padding: 0 8px; font-size: 12.5px; }
-.pg.dense:not(.pg-steal) .pg-chips { gap: 0; }
-.pg.dense:not(.pg-steal) .pg-chips .chip { --s: 22px; }
-.pg.dense:not(.pg-steal) .pg-chips .chip + .chip { margin-left: -7px; }
+.pg.dense .pg-t { font-size: calc(var(--fs) * 14px); line-height: 1.2; }
+.pg.dense .pg-t .pg-yours { font-size: 10.5px; margin-left: 4px; padding: 0 5px; }
+.pg.dense .pg-bravo { min-width: 0; height: 30px; padding: 0 7px; font-size: 12px; }
+.pg.dense:not(.pg-steal) .pg-chips { gap: 0; max-width: 40%; }
+.pg.dense:not(.pg-steal) .pg-chips .chip { --s: 22px; font-size: 9.5px; }
+.pg.dense:not(.pg-steal) .pg-chips .chip + .chip { margin-left: -9px; }
 .pg.dense .pg-toon { min-height: 40px; padding: 2px 0; }
-.pg.dense .pg-act { padding-top: 4px; gap: 4px; }
-.pg.dense .pg-act .btn { padding-top: 11px; padding-bottom: 11px; }
+.pg.dense .pg-act { padding-top: 4px; gap: 3px; }
+.pg.dense .pg-act .btn { padding-top: 10px; padding-bottom: 10px; }
 .pg.dense .pg-act .pg-more { padding: 5px 12px; }
+.pg.dense .pg-act .pg-opt { display: none; }   /* (a reminder the dealer doesn't need: it gives its line to the list) */
+.pg.dense .pg-wait { min-height: 20px; }
 .pg.dense .pg-sr { min-height: 0; padding-top: 3px; padding-bottom: 3px; }
+.pg.dense .pg-line { font-size: calc(var(--fs) * 14px); }
+/* The smallest steps: a long caption stops at two lines; a tap opens it (the one you pick to bet on is always open) */
+.pg-cut-tip { display: none; }
+.pg.clamp .pg-cut-tip { display: block; }
+.pg.clamp .pg-cap:not(.open):not(.sel) .pg-t { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.pg-cap.cut { cursor: pointer; }
+.pg-cap.open { box-shadow: 0 0 0 2px var(--ink-2); }
 .pg-thumb { display: none; flex: none; width: 52px; height: 38px; padding: 0; border: 2px solid var(--ink); border-radius: 8px; background: #fff; overflow: hidden; cursor: zoom-in; }
 .pg-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .pg.no-toon .pg-toon { display: none; }

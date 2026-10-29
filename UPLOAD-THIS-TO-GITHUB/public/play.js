@@ -43,26 +43,81 @@
      The type never drops below about 12 px: a table has to be able to read it. ── */
   let fitT = null;
   function fitSoon() { clearTimeout(fitT); fitT = setTimeout(fit, 30); }
-  // [compact, type scale, smallest cartoon]; compact 2: the cartoon moves into the header as a small picture (tap to zoom)
-  const STEPS = [[0, 1, 110], [0, 0.94, 96], [1, 1, 84], [1, 0.94, 68], [1, 0.88, 56], [2, 0.88, 0], [2, 0.84, 0]];
+  /* The steps, roomiest first: d 1 = compact rows, d 2 = the cartoon moves into the header as a small picture (never on
+     the reading); f = type scale; c = long captions stop at two lines (tap one to read it all).
+     The cartoon has a goal height per screen (big enough to tell what it is): the first step that reaches it wins;
+     otherwise the step that leaves the biggest cartoon. On the reading (the dealer reads every caption out loud) the
+     two-line stop is used only when the cartoon would otherwise be under 110 px. */
+  const STEPS = [{ d: 0, f: 1 }, { d: 1, f: 1 }, { d: 1, f: 0.93 }, { d: 1, f: 0.93, c: 1 }, { d: 1, f: 0.87, c: 1 }, { d: 2, f: 0.87, c: 1 }];
+  // (at least 170 px on the reading, 120 on the bets and the reveal; a little more on a taller phone)
+  const GOAL = { writing: [170, 0.27], reading: [170, 0.27] }, GOAL_DEFAULT = [120, 0.2], CLAMP_UNDER = { reading: 110 };
+  const goalFor = (phase, vh) => { const g = GOAL[phase] || GOAL_DEFAULT; return Math.round(Math.max(g[0], vh * g[1])); };
+  let fitMemo = { key: '', i: -1 };
+  function applyStep(pg, s) {
+    pg.classList.toggle('dense', s.d >= 1);
+    pg.classList.toggle('no-toon', s.d === 2);
+    pg.classList.toggle('clamp', !!s.c);
+    pg.style.setProperty('--fs', String(s.f));
+  }
   function fit() {
     const pg = document.querySelector('#game-content .pg');
     if (!pg) return;
     pg.classList.remove('scroll-mid');
     const mids = [...pg.querySelectorAll('.pg-mid')];
     const toon = pg.querySelector('.pg-toon');
-    let ok = false;
-    for (const [dense, f, minToon] of STEPS) {
-      if (dense === 2 && !toon) break;
-      pg.classList.toggle('dense', !!dense);
-      pg.classList.toggle('no-toon', dense === 2);
-      pg.style.setProperty('--fs', String(f));
+    const phase = state && state.phase;
+    const goal = toon ? goalFor(phase, pg.clientHeight) : 0;
+    const thumbOk = !!toon && phase !== 'reading' && phase !== 'writing';
+    const tryStep = (i) => {
+      applyStep(pg, STEPS[i]);
       if (toon) sizeToon(toon);
-      const over = pg.scrollHeight > pg.clientHeight + 1 || mids.some(m => m.scrollHeight > m.clientHeight + 1) || (toon && dense !== 2 && toon.clientHeight < minToon);
-      if (!over) { ok = true; break; }
+      const over = pg.scrollHeight > pg.clientHeight + 1 || mids.some(m => m.scrollHeight > m.clientHeight + 1);
+      return { over, h: toon && STEPS[i].d !== 2 ? toon.clientHeight - 8 : 0 };
+    };
+    const key = pg.dataset.key || '';
+    let pick = -1;
+    // the same screen again (a chip placed, a Bravo!, a caption opened): keep its step while it still works
+    // (the cartoon as big as it was, or the goal; a caption opened in full may take a couple of lines from it)
+    let kept = false;
+    if (fitMemo.key === key && fitMemo.i >= 0 && fitMemo.i < STEPS.length) {
+      const r = tryStep(fitMemo.i);
+      const slack = openKeyNow() ? 48 : 2;
+      if (!r.over && (!toon || STEPS[fitMemo.i].d === 2 || r.h >= Math.min(goal, fitMemo.h) - slack)) { pick = fitMemo.i; kept = true; }
     }
-    if (!ok) pg.classList.add('scroll-mid');
+    if (pick < 0) {
+      let best = -1, bestH = -1, bestPlain = -1;
+      for (let i = 0; i < STEPS.length; i++) {
+        const s = STEPS[i];
+        if (s.d === 2 && !thumbOk) break;
+        if (s.d === 2 && best >= 0 && bestH >= 64) break;   // the header picture only when nothing else fits
+        if (s.c && CLAMP_UNDER[phase] && bestPlain >= CLAMP_UNDER[phase]) break;
+        if (!toon && s.c) break;                       // (no cartoon on this screen: nothing to make room for)
+        const r = tryStep(i);
+        if (r.over) continue;
+        if (!toon || s.d === 2) { pick = i; break; }
+        if (r.h >= goal) { pick = i; break; }
+        if (r.h > bestH + 4) { best = i; bestH = r.h; }
+        if (!s.c) bestPlain = Math.max(bestPlain, r.h);
+      }
+      if (pick < 0) pick = best;
+    }
+    if (pick < 0) {   // nothing fits: the smallest step, and the middle scrolls inside itself (never the page)
+      let last = STEPS.length - 1; while (last > 0 && STEPS[last].d === 2 && !thumbOk) last--;
+      pick = last; applyStep(pg, STEPS[pick]); pg.classList.add('scroll-mid');
+    } else applyStep(pg, STEPS[pick]);
     if (toon) sizeToon(toon);
+    if (!kept) fitMemo = { key, i: pick, h: toon && STEPS[pick].d !== 2 ? toon.clientHeight - 8 : 0 };
+    markCut(pg);
+  }
+  // Captions stopped at two lines: a tap opens them (the reading says so)
+  function markCut(pg) {
+    let any = false;
+    pg.querySelectorAll('.pg-cap').forEach(c => {
+      const t = c.querySelector('.pg-t');
+      const cut = !!t && pg.classList.contains('clamp') && !c.classList.contains('open') && !c.classList.contains('sel') && t.scrollHeight > t.clientHeight + 2;
+      c.classList.toggle('cut', cut); if (cut) any = true;
+    });
+    pg.classList.toggle('has-cut', any);
   }
   // (Safari is shaky with percentage heights inside flex boxes: the picture gets the box's height in pixels)
   function sizeToon(toon) {
@@ -138,6 +193,18 @@
     if (state.phase === 'second_bets' && !state.lateDropAt && state.mySecondBet) add(String(state.mySecondBet.target), chip(myPlayerId, 'secret'));
     return by;
   }
+  // One caption opened in full (when long ones stop at two lines): tap it again, or another, to switch
+  let opened = { tag: '', key: null };
+  const openOn = (key) => opened.tag === tagOf(state) + state.phase && opened.key === key;
+  const openKeyNow = () => (state && ((opened.tag === tagOf(state) + state.phase && opened.key) || selKey())) || '';
+  function open(key) {
+    if (!state) return;
+    const pg = document.querySelector('#game-content .pg');
+    const row = pg && pg.querySelector(`.pg-cap[data-k="${key}"]`);
+    if (!openOn(key) && !(row && (row.classList.contains('cut') || pg.classList.contains('clamp')))) return;   // (nothing is cut: a tap does nothing)
+    opened = { tag: tagOf(state) + state.phase, key: openOn(key) ? null : key };
+    render(true);
+  }
   // The captions on the table, numbered, and the face-down one last
   function capsHtml(o = {}) {
     const list = (state.openCaptions || []).map((t, i) => ({ key: String(i), n: i + 1, text: t }));
@@ -148,9 +215,11 @@
       const text = up ? esc(r.key === 'closed' ? state.closedCaption : r.text) : 'Face down';
       const mine = isMine(r.key) ? '<span class="pg-yours">yours</span>' : '';
       const sel = o.sel === r.key ? ' sel' : '';
-      const pick = o.pick ? ` role="button" tabindex="0" onclick="ccPlay.pick('${r.key}')" aria-pressed="${o.sel === r.key}"` : '';
+      // (a tap on a caption that isn't a bet opens it, when long captions stop at two lines)
+      const pick = o.pick ? ` role="button" tabindex="0" onclick="ccPlay.pick('${r.key}')" aria-pressed="${o.sel === r.key}"` : up ? ` onclick="ccPlay.open('${r.key}')"` : '';
       const flipIn = r.key === 'closed' && o.flipIn ? ' flip-in' : '';
-      return `<div class="pg-cap${sel}${flipIn}"${pick} data-k="${r.key}"><span class="pg-n${r.key === 'closed' ? ' cc' : ''}">${r.n}</span><span class="pg-t${up ? '' : ' down'}">${up ? '“' + text + '”' : text}${mine}</span>${(chips[r.key] || []).length ? `<span class="pg-chips">${chips[r.key].join('')}</span>` : ''}${o.bravo ? bravoHtml(r.key) : ''}</div>`;
+      const opened = !o.pick && openOn(r.key) ? ' open' : '';
+      return `<div class="pg-cap${sel}${flipIn}${opened}"${pick} data-k="${r.key}"><span class="pg-n${r.key === 'closed' ? ' cc' : ''}">${r.n}</span><span class="pg-t${up ? '' : ' down'}">${up ? '“' + text + '”' : text}${mine}</span>${(chips[r.key] || []).length ? `<span class="pg-chips">${chips[r.key].join('')}</span>` : ''}${o.bravo ? bravoHtml(r.key) : ''}</div>`;
     });
     return `<div class="pg-caps">${rows.join('')}</div>`;
   }
@@ -224,7 +293,7 @@
   function readingHtml() {
     return page('reading', header() + toonHtml() +
       `<div class="pg-mid">${capsHtml({ bravo: true })}</div>` +
-      `<div class="pg-act">${state.isDealer ? '<p class="pg-tip">Read them out loud.</p>' : ''}${dealerAct('Start the bets')}</div>`, 'r|' + tagOf(state));
+      `<div class="pg-act"><p class="pg-tip pg-cut-tip">Tap a caption to read it all.</p>${state.isDealer ? '<p class="pg-tip pg-opt">Read them out loud.</p>' : ''}${dealerAct('Start the bets')}</div>`, 'r|' + tagOf(state));
   }
 
   /* ── BETS (blind, and the last chips): everyone at once, in secret ── */
@@ -631,6 +700,6 @@
   W.saveDraftNow = saveDraftNow;
   W.recordCareer = recordCareer;
   W.canRun = () => !!state && (state.isDealer || state.isHost);   // (finale.js asks)
-  W.ccPlay = { render, fit, next, flip, standIn, steal, pick, placeBet, undo, moreTime, bravo, submit, onCheck, onInput, onFocus, onBlur, skip, stopWriting,
+  W.ccPlay = { render, fit, next, flip, standIn, steal, pick, open, placeBet, undo, moreTime, bravo, submit, onCheck, onInput, onFocus, onBlur, skip, stopWriting,
     ending, vote, countVotes, again, toggleSound, removeMenu, removePlayer, draftText, onError };
 })();
