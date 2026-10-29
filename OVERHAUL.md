@@ -81,3 +81,7 @@ Nick knows almost nothing about computers. He judges by playing on his phone at 
 - Never show real captions to Nick in anything you hand him. Do not make or request any new cartoon drawings.
 - Don't break the protocol between phones and server without updating both sides. Keep `UPLOAD-THIS-TO-GITHUB/` as the deploy root.
 - Commit on your branch only. Never push to GitHub.
+
+## Added later on Oct 29 (Nick)
+- "Make sure all buttons are free of overlaps etc. there shouldn't be scrolling especially when submitting an answer. It needs to be clean and intuitive without scrolling other than setup screens."
+  → Every in-game screen, plus home/create/join and the How to Play demo, fits one screen with **no page scrolling** at 360×640, 375×667, 390×844 and 430×932, with 3 to 8 players. Writing: the caption box and Send stay visible with the keyboard open. The cartoon shrinks to fit; long lists go compact rather than scroll. Only setup screens (lobby, rules, Gallery) may scroll; the host's Start button stays pinned in view.
