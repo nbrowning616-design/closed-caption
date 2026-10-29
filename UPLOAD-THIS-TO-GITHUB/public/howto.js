@@ -152,7 +152,8 @@
   function run(t) { timers = timers.filter(function (x) { return x !== t; }); try { t.fn(); } catch (e) { console.error('howto', e); } }
   function clearAll() { timers.forEach(function (t) { clearTimeout(t.id); }); timers = []; }
   function pause() {
-    if (paused || !root) return; paused = true; pausedAt = performance.now(); root.classList.add('paused');
+    if (paused || !root || SCENES[sceneIdx].end) return;   // the last card has nothing left to pause
+    paused = true; pausedAt = performance.now(); root.classList.add('paused');
     timers.forEach(function (t) { clearTimeout(t.id); t.left = t.due - pausedAt; });
     try { stage.getAnimations({ subtree: true }).forEach(function (a) { a.pause(); }); } catch (e) {}
   }
