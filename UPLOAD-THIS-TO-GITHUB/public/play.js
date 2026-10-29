@@ -43,7 +43,8 @@
      The type never drops below about 12 px: a table has to be able to read it. ── */
   let fitT = null;
   function fitSoon() { clearTimeout(fitT); fitT = setTimeout(fit, 30); }
-  const STEPS = [[0, 1, 110], [0, 0.94, 96], [1, 1, 84], [1, 0.94, 68], [1, 0.88, 52], [1, 0.84, 40]];   // [compact, type scale, smallest cartoon]
+  // [compact, type scale, smallest cartoon]; compact 2: the cartoon moves into the header as a small picture (tap to zoom)
+  const STEPS = [[0, 1, 110], [0, 0.94, 96], [1, 1, 84], [1, 0.94, 68], [1, 0.88, 56], [2, 0.88, 0], [2, 0.84, 0]];
   function fit() {
     const pg = document.querySelector('#game-content .pg');
     if (!pg) return;
@@ -52,10 +53,12 @@
     const toon = pg.querySelector('.pg-toon');
     let ok = false;
     for (const [dense, f, minToon] of STEPS) {
+      if (dense === 2 && !toon) break;
       pg.classList.toggle('dense', !!dense);
+      pg.classList.toggle('no-toon', dense === 2);
       pg.style.setProperty('--fs', String(f));
       if (toon) sizeToon(toon);
-      const over = pg.scrollHeight > pg.clientHeight + 1 || mids.some(m => m.scrollHeight > m.clientHeight + 1) || (toon && toon.clientHeight < minToon);
+      const over = pg.scrollHeight > pg.clientHeight + 1 || mids.some(m => m.scrollHeight > m.clientHeight + 1) || (toon && dense !== 2 && toon.clientHeight < minToon);
       if (!over) { ok = true; break; }
     }
     if (!ok) pg.classList.add('scroll-mid');
@@ -73,7 +76,9 @@
     const r = state.totalRounds ? `${state.round}/${state.totalRounds}` : `${state.round}`;
     const over = state.phase === 'scores' && state.gameOver;
     const who = over ? 'Game over' : state.isDealer ? '<b>You</b> deal' : `<b>${dealerName()}</b> deals`;
-    return `<header class="pg-hd"><span class="pg-rd">${over ? 'Final' : 'Round ' + r}</span><span class="pg-dl">${who}</span><span class="pg-clk" id="pg-clk" aria-live="off"></span><button class="pg-menu" onclick="openMenu()" aria-label="Menu">☰</button></header>`;
+    // (the small cartoon in the header shows only when a long list leaves no room for the big one: fit())
+    const thumb = state.cartoon ? `<button class="pg-thumb" onclick="openViewer()" aria-label="The cartoon. Tap to zoom"><img src="/images/${esc(state.cartoon.image)}" alt=""></button>` : '';
+    return `<header class="pg-hd"><span class="pg-rd">${over ? 'Final' : 'Round ' + r}</span><span class="pg-dl">${who}</span><span class="pg-clk" id="pg-clk" aria-live="off"></span>${thumb}<button class="pg-menu" onclick="openMenu()" aria-label="Menu">☰</button></header>`;
   }
   function toonHtml() {
     if (!state.cartoon) return '<div class="pg-fill"></div>';
