@@ -1335,14 +1335,25 @@ function showToast(message, type = 'error') {
   const pg = $('screen-game').classList.contains('active') && document.querySelector('#game-content .pg');
   const hdr = pg ? pg.querySelector('.pg-hd') : ($('screen-game').classList.contains('active') && document.querySelector('#game-content .hdr'));
   t.classList.toggle('in-play', !!pg);
-  t.style.left = ''; t.style.width = ''; t.style.height = '';
+  t.style.left = ''; t.style.width = ''; t.style.height = ''; t.style.fontSize = ''; t.style.maxHeight = '';
   if (pg) {
-    const shown = (el) => { if (!el) return null; const r = el.getBoundingClientRect(); return r.height > 30 && r.width > 60 && getComputedStyle(el).display !== 'none' && el.offsetParent !== null ? r : null; };
+    const shown = (el) => { if (!el) return null; const r = el.getBoundingClientRect(); return r.height > 16 && r.width > 60 && getComputedStyle(el).display !== 'none' && el.offsetParent !== null ? r : null; };
     const spots = [pg.querySelector('.pg-toon .pg-pic'), pg.querySelector('.pg-title'), pg.querySelector('.pg-win'), pg.querySelector('.pg-fill')];
     let r = null, at = null;
     for (const el of spots) { r = shown(el); if (r) { at = el; break; } }
     if (at) {
-      t.style.top = Math.round(at.classList.contains('pg-pic') ? r.top + 8 : r.top + Math.max(0, (r.height - 44) / 2)) + 'px';
+      // the band it may use: the picture, or from the header down to the first button under the title
+      let lo, hi;
+      if (at.classList.contains('pg-pic')) { lo = r.top + 6; hi = r.bottom - 6; }
+      else {
+        lo = (hdr ? hdr.getBoundingClientRect().bottom : r.top) + 2;
+        const below = [...pg.querySelectorAll('button, [role=button], textarea')].map(b => b.getBoundingClientRect()).filter(b => b.height > 1 && b.top >= lo).map(b => b.top);
+        hi = Math.max(lo + 36, (below.length ? Math.min(...below) : r.bottom + 40) - 2);
+      }
+      t.style.fontSize = ''; t.style.maxHeight = '';
+      if (t.offsetHeight > hi - lo) { t.style.fontSize = '13px'; t.style.maxHeight = Math.max(30, Math.floor(hi - lo)) + 'px'; }
+      const th = Math.min(t.offsetHeight, hi - lo);
+      t.style.top = Math.round(at.classList.contains('pg-pic') ? lo + 2 : lo + Math.max(0, (hi - lo - th) / 2)) + 'px';
     } else if (hdr) {
       // the header row, left of its buttons (the zoom picture, the menu)
       const hr = hdr.getBoundingClientRect(), btns = [...hdr.querySelectorAll('button')].filter(b => b.offsetParent !== null);
@@ -1651,7 +1662,7 @@ async function makeCardFrom(e) {
     const url = URL.createObjectURL(hofBlob);
     window._hofName = window.HallCard.filenameFor ? window.HallCard.filenameFor(credit) : 'closed-caption-gallery.png';
     $('sheet-body').innerHTML = `<div class="grip"></div><p class="eyebrow center" style="margin-bottom:10px;">Gallery card</p>
-      <img src="${url}" alt="Framed caption card" style="width:100%; border:2px solid var(--ink); border-radius:10px; display:block;">
+      <img src="${url}" alt="Framed caption card" style="width:100%; max-height:calc(86dvh - 190px); object-fit:contain; border:2px solid var(--ink); border-radius:10px; display:block; background:#fff;">
       <div class="stack" style="margin-top:14px;"><button class="btn btn-yellow" onclick="shareHofCard()">Text it, share it, or save it</button>${e.from === 'gallery' ? '<button class="btn btn-sm" onclick="openGallery()">Back to The Gallery</button>' : '<button class="btn btn-sm" onclick="closeMenu()">Close</button>'}</div>`;
   } catch (err) { closeMenu(); showToast('Couldn’t make the card — try again'); }
 }

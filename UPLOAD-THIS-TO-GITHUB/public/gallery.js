@@ -112,7 +112,7 @@
     '.gal-arch .gal-plaster{position:absolute;inset:0;opacity:.5;mix-blend-mode:overlay;pointer-events:none;background-size:260px 260px;}',
     '.gal-arch .gal-ahead{position:relative;text-align:center;margin-bottom:18px;}',
     '.gal-arch .gal-atitle{margin:0;font-weight:400;font-style:italic;font-size:31px;line-height:1.05;color:#F6E7C4;}',
-    '.gal-arch .gal-asub{margin:6px 0 0;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:rgba(243,230,200,.72);}',
+    '.gal-arch .gal-asub{margin:6px 0 0;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:rgba(243,230,200,.72);}',
     '.gal-arch .gal-arule{width:54px;height:1px;margin:10px auto 0;background:linear-gradient(90deg,rgba(230,190,110,0),#d9b25e,rgba(230,190,110,0));}',
     '.gal-arch .gal-grid{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:22px 14px;align-items:start;}',
     '.gal-arch .gal-empty{position:relative;text-align:center;padding:4px 10px 6px;}',
