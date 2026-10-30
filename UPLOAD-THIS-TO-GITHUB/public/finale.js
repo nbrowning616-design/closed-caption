@@ -2,8 +2,9 @@
    After the winner, the awards and the final scores (ending.js): tonight's Gallery.
      1. Every caption framed tonight is shown. Two or more: everyone votes for the best (never their own).
      2. Caption of the Night: a short, quiet ceremony on every phone at once (~5 s). The framed card is hung,
-        the rosette pinned on, the brass plaque engraved. Then it hangs in The Gallery for good, on the clean,
-        untouched cartoon. One keepsake: the framed card, to save or text.
+        the rosette pinned on, the brass plaque engraved. Then it fades away by itself (no buttons on it) to the
+        last screen (play.js): the framed card to save or text, and the host's Play again. It also closes on every
+        phone the moment the game moves on (play.js calls close()).
    Server: state.finale = { entries, voters, decided, myVote, canVote, winner, counts, tie, showAt, best }.
    Reads the page's globals at call time: state, myPlayerId, esc, nameOf, playerById, chipHtml, plural,
    tone, noise, buzz, big, sfx, canRun, send, clockOffset, makeCardFrom, render.
@@ -61,8 +62,6 @@
     '.fp-plaque b{display:block;font-size:15px;font-weight:700;line-height:1.2;min-height:1.2em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
     '.fp-plaque span{display:block;font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:2px;white-space:nowrap;padding:0 4px;}',
     '.fp-wire{position:absolute;left:50%;top:-56px;width:120px;height:46px;margin-left:-60px;z-index:9;opacity:0;}',
-    '.fp-btns{left:16px;right:16px;bottom:calc(16px + var(--sab,0px));z-index:40;display:flex;gap:10px;opacity:0;}',
-    '.fp-btns button{flex:1;padding-left:6px;padding-right:6px;font-size:14px;}',
     '#fp-show.reduce *{animation-duration:.01s!important;}',
   ].join('\n');
   try { var st = document.createElement('style'); st.id = 'cc-finale-css'; st.textContent = CSS; (document.head || document.documentElement).appendChild(st); } catch (e) {}
@@ -100,7 +99,7 @@
   }
   function close() {
     timers.forEach(clearTimeout); timers = []; playing = null;
-    if (root) { root.className = ''; root.innerHTML = ''; }
+    if (root) { root.className = ''; root.innerHTML = ''; root.onclick = null; }
   }
   var S = {   // sounds (the speaker phone only): soft, few, and over before anyone has to talk over them
     whoosh: function () { snd(function () { N(0.35, 0, 0.1, 3000, 'highpass'); }); },
@@ -135,22 +134,24 @@
         '<img src="' + imgUrl + '" alt=""><p class="fp-pc">“' + E(entry.caption) + '”</p>' +
         '<div class="fp-ros" id="fp-ros">' + rosetteSvg() + '</div>' +
         '<div class="fp-plaque" id="fp-plaque"><b id="fp-pn"></b><span>' + E(best) + '</span></div>' +
-      '</div>' +
-      '<div class="fp-it fp-btns" id="fp-btns"><button class="btn btn-sm" id="fp-card">Save the card</button><button class="btn btn-sm btn-yellow" id="fp-done">Done</button></div>';
+      '</div>';
     var $ = function (id) { return document.getElementById(id); };
-    $('fp-done').onclick = function () { doneFor = tag; o.classList.add('out'); setTimeout(function () { close(); try { render(true); } catch (e) {} }, 380); };
-    $('fp-card').onclick = function () { saveClean(f); };
 
     var t0 = wait || 0, skip = Math.max(0, late || 0);
     var at = function (ms, fn) { if (ms + t0 - skip >= -60) later(ms + t0 - skip, fn); };
-    // ~4 s: hung (0) → the rosette (0.75) → the plaque engraved (1.5–2.7) → "In The Gallery. For good." (3.1) → the buttons (3.9)
-    var PT = { ros: 750, plaque: 1500, hung: 3100, btns: 3900 };
-    function finalNow() {
-      ['fp-piece', 'fp-ros', 'fp-plaque', 'fp-wire', 'fp-spot', 'fp-btns'].forEach(function (id) { var e = $(id); if (e) e.style.opacity = 1; });
-      $('fp-pn').textContent = plaqueName;
-      $('fp-eye').textContent = 'Caption of the Night'; $('fp-h').textContent = 'In The Gallery'; $('fp-sub').textContent = 'For good.';
+    // ~4 s: hung (0) → the rosette (0.75) → the plaque engraved (1.5–2.7) → "In The Gallery. For good." (3.1);
+    // held a moment, then it fades away by itself on every phone (5.6) to the last screen (Play again, Save the card).
+    // No buttons on it: nobody has to find a Done. A tap skips to the end.
+    var PT = { ros: 750, plaque: 1500, hung: 3100, end: 5600 };
+    if (skip > PT.end - 500) { close(); doneFor = tag; return; }   // a phone that arrives late: the last screen already shows it
+    var shownAt = Date.now();
+    function finish() {
+      if (playing !== tag) return;
+      doneFor = tag; o.classList.add('out');
+      later(400, function () { close(); try { render(true); } catch (e) {} });
     }
-    if (skip > PT.btns + 100) { finalNow(); return; }   // a phone that arrives late just sees it hanging
+    o.onclick = function () { if (Date.now() - shownAt > 700) finish(); };
+    at(PT.end, finish);
 
     // Reduce Motion: the same news in cross-fades
     if (reduced()) {
@@ -158,7 +159,6 @@
       at(PT.ros, function () { fade($('fp-ros'), 300); S.thunk(); vib(mine ? [120, 40, 120] : [60]); });
       at(PT.plaque, function () { $('fp-pn').textContent = plaqueName; fade($('fp-plaque'), 400); });
       at(PT.hung, function () { $('fp-eye').textContent = 'Caption of the Night'; $('fp-h').textContent = 'In The Gallery'; $('fp-sub').textContent = 'For good.'; S.chime(); });
-      at(PT.btns, function () { fade($('fp-btns'), 300); });
       return;
     }
 
@@ -189,7 +189,6 @@
         S.chime(); vib(mine ? [80, 40, 80] : [40]);
       });
     });
-    at(PT.btns, function () { show($('fp-btns'), 300, [{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }]); });
   }
 
   /* ── The screen under it all (part of the final scores page) ── */

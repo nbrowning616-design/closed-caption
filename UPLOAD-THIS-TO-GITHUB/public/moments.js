@@ -42,10 +42,11 @@
   window.ccSync.LEAD = LEAD; window.ccSync.STALE = STALE;
 
   /* One speaker. Four phones each blaring a drumroll is mush, so the big sounds come from one phone:
-     the host's (or, if the host's phone is away, the first one still here). Any phone can opt in or out
-     from the menu; that choice sticks on the phone. */
-  var KEY = 'cc_bigsound';
-  function override() { try { var v = localStorage.getItem(KEY); return v === null ? null : v === 'true'; } catch (e) { return null; } }
+     the host's (or, if the host's phone is away, the first one still here).
+     (An older version let a phone opt in or out from the menu; that choice is gone, so an old stored one is
+     ignored and forgotten.) */
+  try { localStorage.removeItem('cc_bigsound'); } catch (e) {}
+  function override() { return null; }
   function speakerId() {
     var s = g('state');
     if (!s || !s.players) return null;
@@ -60,9 +61,6 @@
     return !sp || sp === me;
   };
   window.ccBigSoundDefault = function () { var s = g('state'); if (!s) return true; var sp = speakerId(); return !sp || sp === g('myPlayerId'); };
-  window.ccSetBigSound = function (on) {
-    try { if (on === window.ccBigSoundDefault()) localStorage.removeItem(KEY); else localStorage.setItem(KEY, on ? 'true' : 'false'); } catch (e) {}
-  };
 
   /* Beats: where this phone is in a moment. Tests compare these across phones. */
   window._beats = window._beats || [];
@@ -102,7 +100,7 @@
     '#cc-flash{position:fixed;inset:0;z-index:2000;pointer-events:none;background:#fff;opacity:0;}',
     '#cc-flash.go{animation:ccFlash .34s ease-out;}',
     '@keyframes ccFlash{0%{opacity:var(--a,.9);}100%{opacity:0;}}',
-    '.cc-shake,#game-content.cc-shake,#boom.on.cc-shake,#stealshow.on.cc-shake{animation:ccShake .34s cubic-bezier(.36,.07,.19,.97);}',
+    '.cc-shake,#game-content.cc-shake,#stealshow.on.cc-shake{animation:ccShake .34s cubic-bezier(.36,.07,.19,.97);}',
     '@keyframes ccShake{0%,100%{transform:none;}15%{transform:translate(-8px,4px);}30%{transform:translate(7px,-5px);}45%{transform:translate(-5px,3px);}60%{transform:translate(4px,-2px);}80%{transform:translate(-2px,1px);}}',
     '.cc-punch{animation:ccPunch .36s cubic-bezier(.2,.9,.3,1.35);}',
     '@keyframes ccPunch{0%{transform:scale(1.14);}100%{transform:scale(1);}}',

@@ -616,9 +616,10 @@ wss.on('connection', (ws, req) => {
         // through"). Everyone else is refused.
         if (!isDealer) return sendError(ws, `Waiting for ${firstWord((game.players[game.dealerIndex] || {}).name || 'the dealer')}`);
         if (staleTap(game, msg)) return;
-        if (game._advAt && Date.now() - game._advAt < 600) return;   // a double tap
+        // a double tap: dropped, but the phone is told so the dealer can tap again at once (not stuck for 2.5 s)
+        if (game._advAt && Date.now() - game._advAt < 600) return send(ws, { type: 'adv_retry' });
         const r = G.dealerNext(game, false);
-        if (r && r.wait) return;
+        if (r && r.wait) return send(ws, { type: 'adv_retry' });
         if (r && r.error) return r.soft ? undefined : sendError(ws, r.error);
         game._advAt = Date.now();
         afterStep(game, code);
@@ -630,7 +631,7 @@ wss.on('connection', (ws, req) => {
         // choices (a random steal).
         if (!G.canStandIn(game, playerId)) return sendError(ws, 'Waiting for the dealer');
         if (staleTap(game, msg)) return;
-        if (game._advAt && Date.now() - game._advAt < 600) return;
+        if (game._advAt && Date.now() - game._advAt < 600) return send(ws, { type: 'adv_retry' });
         const r = G.dealerNext(game, true);
         if (r && r.wait) return;
         if (r && r.error) return r.soft ? undefined : sendError(ws, r.error);
