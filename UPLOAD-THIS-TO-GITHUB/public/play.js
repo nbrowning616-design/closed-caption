@@ -49,10 +49,10 @@
      the reading); f = type scale; c = long captions stop at two lines (tap one to read it all).
      The cartoon has a goal height per screen (big enough to tell what it is): the first step that reaches it wins;
      otherwise the step that leaves the biggest cartoon. On the reading (the dealer reads every caption out loud) the
-     two-line stop is used only when the cartoon would otherwise be under 110 px. */
+     two-line stop is used only when the cartoon would otherwise be under 130 px. */
   const STEPS = [{ d: 0, f: 1 }, { d: 1, f: 1 }, { d: 1, f: 0.93 }, { d: 1, f: 0.93, c: 1 }, { d: 1, f: 0.87, c: 1 }, { d: 2, f: 0.87, c: 1 }];
   // (at least 170 px on the reading, 120 on the bets and the reveal; a little more on a taller phone)
-  const GOAL = { writing: [170, 0.27], reading: [170, 0.27] }, GOAL_DEFAULT = [120, 0.2], CLAMP_UNDER = { reading: 110 };
+  const GOAL = { writing: [170, 0.27], reading: [170, 0.27] }, GOAL_DEFAULT = [120, 0.2], CLAMP_UNDER = { reading: 130 };
   const goalFor = (phase, vh) => { const g = GOAL[phase] || GOAL_DEFAULT; return Math.round(Math.max(g[0], vh * g[1])); };
   let fitMemo = { key: '', i: -1 };
   function applyStep(pg, s) {
@@ -339,7 +339,7 @@
       if (k === null) act = `<div class="pg-inline"><p class="pg-tip">${stage === 1 ? 'Tap the caption you think is real.' : 'One chip left. Tap where it goes.'}</p>${more}</div>`;
       else act = stage === 1 ? `<div class="btn-row">${btn('1 chip', 'ccPlay.placeBet(1)', 'btn-yellow')}${btn('2 chips', 'ccPlay.placeBet(2)', 'btn-yellow')}</div>` : btn('Put my last chip here', 'ccPlay.placeBet(1)');
     } else if (mineBet) {
-      act = `<div class="pg-inline"><span class="pg-line">Your ${mineBet.count === 2 ? '2 chips are' : 'chip is'} on ${mineBet.target === 'closed' ? 'the face-down one' : '#' + (Number(mineBet.target) + 1)}.</span><button class="btn btn-sm pg-more" onclick="ccPlay.undo()">Take it back</button>${more}</div>${pending.length ? waitLine(`Waiting for <b>${waitNames(pending)}</b>`) : ''}`;
+      act = `<div class="pg-inline"><span class="pg-line">Your ${mineBet.count === 2 ? '2 chips' : 'chip'}: ${mineBet.target === 'closed' ? 'face-down' : '#' + (Number(mineBet.target) + 1)}</span><button class="btn btn-sm pg-more" onclick="ccPlay.undo()">Take it back</button>${more}</div>${pending.length ? waitLine(`Waiting for <b>${waitNames(pending)}</b>`) : ''}`;
     } else act = `<div class="pg-inline">${waitLine(pending.length ? `Waiting for <b>${waitNames(pending)}</b>` : 'Waiting for the bets')}${more}</div>`;
     return page(stage === 1 ? 'bets' : 'late', header() + toonHtml() + `<div class="pg-mid">${caps}</div><div class="pg-act">${act}</div>`, 'b' + stage + '|' + tagOf(s));
   }
